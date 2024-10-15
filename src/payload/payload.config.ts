@@ -25,7 +25,7 @@ import { Header } from './globals/Header'
 import { Settings } from './globals/Settings'
 
 const generateTitle: GenerateTitle = () => {
-  return 'My Website'
+  return 'MuseDAM'
 }
 
 dotenv.config({

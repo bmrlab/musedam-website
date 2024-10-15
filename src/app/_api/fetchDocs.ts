@@ -1,6 +1,6 @@
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
-import type { Config } from '../../payload/payload-types'
+import type { Config } from "@/payload/payload-types"
 import { PAGES } from '../_graphql/pages'
 import { POSTS } from '../_graphql/posts'
 import { PROJECTS } from '../_graphql/projects'
