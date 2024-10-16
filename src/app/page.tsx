@@ -1,3 +1,14 @@
+'use client'
+
+import 'swiper/css'
+import 'swiper/css/pagination'
+
+import SwiperBlock from '@/app/_components/SwiperBlock'
+
 export default function LandingPage() {
-  return <div className="bg-red-400 p-4">LandingPage</div>
+  return (
+    <div>
+      <SwiperBlock />
+    </div>
+  )
 }
