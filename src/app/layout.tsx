@@ -13,7 +13,7 @@ import './globals.css'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="no-scrollbar">
       <head>
         <InitTheme />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
@@ -25,7 +25,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {/* @ts-expect-error */}
           <Header />
           {children}
-          {/* @ts-expect-error */}
           <Footer />
         </Providers>
       </body>

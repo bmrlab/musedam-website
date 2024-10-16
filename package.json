@@ -32,6 +32,7 @@
     "dotenv": "^8.2.0",
     "escape-html": "^1.0.3",
     "express": "^4.19.2",
+    "framer-motion": "^11.11.9",
     "next": "13.5.2",
     "payload": "^2.0.0",
     "payload-admin-bar": "^1.0.6",
