@@ -1,6 +1,5 @@
 'use client'
 
-import { ComponentPropsWithoutRef, forwardRef } from 'react'
 import {
   BarChart2,
   Bot,
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ComponentPropsWithoutRef, forwardRef } from 'react'
 
 import {
   NavigationMenu,
