@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import { PayloadAdminBar, PayloadAdminBarProps } from 'payload-admin-bar'
 
-import { useAuth } from '../../_providers/Auth'
+import { useAuth } from "@/_providers/Auth"
 import { Gutter } from '../Gutter'
 
 import classes from './index.module.scss'

@@ -1,16 +1,17 @@
 'use client'
 
+import Image from 'next/image'
+import { useState } from 'react'
+import { Controller, EffectFade, Mousewheel, Pagination } from 'swiper/modules'
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
+
+import { data } from './mock'
+import Toc from './toc'
+
 import 'swiper/css'
-import 'swiper/css/pagination'
 import 'swiper/css/controller'
 import 'swiper/css/effect-fade'
-
-import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
-import { Pagination, Mousewheel, Controller, EffectFade } from 'swiper/modules'
-import { useState } from 'react'
-import { data } from './mock'
-import Image from 'next/image'
-import Toc from './toc'
+import 'swiper/css/pagination'
 
 export default function SwiperBlock() {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>(null)
