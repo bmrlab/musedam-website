@@ -4,6 +4,6 @@
   "exec": "ts-node src/server.ts -- -I",
   "stdin": false,
   "ignore" : [
-    "src/app"
+    "app"
   ]
 }
