@@ -99,9 +99,9 @@ const features: {
 
 export default function Header() {
   return (
-    <nav className="w-full bg-white relative border-b border-black h-[70px] flex items-center">
+    <nav className="relative flex h-[70px] w-full items-center border-b border-black bg-white">
       <NavigationMenu
-        className="h-full flex justify-start max-w-none"
+        className="flex h-full max-w-none justify-start"
         viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
       >
         <div className="flex-shrink-0 px-4">
@@ -115,10 +115,10 @@ export default function Header() {
                 style={{
                   background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
                 }}
-                className="px-[100px] py-[80px] grid grid-cols-3 w-screen "
+                className="grid w-screen grid-cols-3 px-[100px] py-[80px]"
               >
-                {features.map(f => (
-                  <NavigationListItem {...f} />
+                {features.map((f, i) => (
+                  <NavigationListItem key={i} {...f} />
                 ))}
               </ul>
             </NavigationMenuContent>
@@ -130,10 +130,10 @@ export default function Header() {
                 style={{
                   background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
                 }}
-                className="px-[100px] py-[80px] grid grid-cols-3 w-screen "
+                className="grid w-screen grid-cols-3 px-[100px] py-[80px]"
               >
                 {features.map(f => (
-                  <NavigationListItem {...f} />
+                  <NavigationListItem key={f.category} {...f} />
                 ))}
               </ul>
             </NavigationMenuContent>
@@ -160,8 +160,8 @@ export default function Header() {
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
-        <div className="flex-1 size-full flex justify-end">
-          <button className=" w-[140px] h-full bg-[#043FFB] text-white text-[16px] leading-[22px] font-normal">
+        <div className="flex size-full flex-1 justify-end">
+          <button className="h-full w-[140px] bg-[#043FFB] text-[16px] font-normal leading-[22px] text-white">
             Login
           </button>
         </div>
@@ -180,8 +180,7 @@ const NavigationListItem = forwardRef<
       description: string
     }[]
   }
->(({ category, items, className, children, ...props }, ref) => {
-  // @ts-ignore
+>(({ category, items, className, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
@@ -193,16 +192,16 @@ const NavigationListItem = forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-normal text-[14px] leading-4 text-black/40">{category}</div>
+          <div className="text-[14px] text-sm font-normal leading-4 text-black/40">{category}</div>
           <div className="flex flex-col gap-[30px] pt-[30px]">
             {items.map(item => (
               <div
                 key={item.title}
-                className="flex gap-6 hover:text-accent-foreground focus:bg-accent transition-colors focus:text-accent-foreground items-center"
+                className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
               >
                 <IconWrapper icon={item.icon} size={20} />
                 <div className="flex flex-col gap-2">
-                  <div className="text-[16px] leading-[16px] font-medium">{item.title}</div>
+                  <div className="text-[16px] font-medium leading-[16px]">{item.title}</div>
                   <div className="text-[13px] leading-[19.5px] text-black/60">
                     {item.description}
                   </div>
