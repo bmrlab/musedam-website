@@ -1,37 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 
 export default function SubscribeBlock({ className }: { className?: string }) {
-  const [marginLeft, setMarginLeft] = useState(0)
-
-  const updateMarginLeft = () => {
-    const screenWidth = window.innerWidth
-    const maxWidth = 1440
-
-    if (screenWidth < maxWidth) {
-      setMarginLeft(0)
-    } else {
-      setMarginLeft((screenWidth - maxWidth) / 2)
-    }
-  }
-
-  useEffect(() => {
-    updateMarginLeft()
-    window.addEventListener('resize', updateMarginLeft)
-    return () => {
-      window.removeEventListener('resize', updateMarginLeft)
-    }
-  }, [])
-
   return (
     <div
-      style={{
-        width: '100vw',
-        marginLeft: `-${marginLeft}px`,
-      }}
       className={cn(
         'flex flex-col items-center justify-center gap-6 bg-[#07168D] py-[60px]',
         className,
