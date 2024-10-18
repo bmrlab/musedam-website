@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Providers>
           <AdminBar />
           <Header />
-          {children}
+          <div className="flex flex-col items-center justify-center">{children}</div>
           <Footer />
         </Providers>
       </body>

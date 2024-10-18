@@ -8,7 +8,7 @@ import { staticHome } from '@/payload/seed/home-static'
 import { fetchDoc } from '../../_api/fetchDoc'
 import { fetchDocs } from '../../_api/fetchDocs'
 import { Blocks } from '../../components/Blocks'
-import { Hero } from '../../components/Hero'
+import { Hero } from '../../components/LandingPage/Hero'
 import { generateMeta } from '../../_utilities/generateMeta'
 
 // Payload Cloud caches all files through Cloudflare, so we don't need Next.js to cache them as well
