@@ -1,11 +1,5 @@
-import SwiperBlock from '@/components/SwiperBlock'
-import Hero from '@/components/Hero'
+import LandingPage from '@/components/LandingPage'
 
-export default function LandingPage() {
-  return (
-    <div className="grid">
-      <Hero />
-      <SwiperBlock />
-    </div>
-  )
+export default function Home() {
+  return <LandingPage />
 }
