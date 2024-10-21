@@ -1,10 +1,10 @@
 'use client'
-import React, { useMemo } from 'react'
+
+import React, { useCallback, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { FOOTER_ITERM } from './mock'
 import { languages } from '@/i18n/settings'
-import { useTranslation } from '@/i18n/client'
 import {
   Select,
   SelectContent,
@@ -12,10 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePathname, useRouter } from 'next/navigation'
+import Icons from '@/components/icon'
 
-export function Footer({ lng }) {
-  const { t } = useTranslation(lng, 'footer')
-
+export default function Footer(params: { lng: string }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [lng, setLng] = useState(params.lng)
   const map = useMemo(() => {
     const map = new Map<
       string,
@@ -31,16 +34,29 @@ export function Footer({ lng }) {
     return map
   }, [])
 
+  const onLngChange = useCallback(
+    (value: string) => {
+      router.replace(pathname.replace(lng, value), {
+        scroll: false,
+      })
+      setLng(value)
+    },
+    [lng, pathname, router],
+  )
+
   return (
     <footer className="grid grid-cols-1 justify-items-start px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       <div className="grid gap-6">
-        <a href="/logo.svg">
-          <Image src="/logo.svg" width={48} height={48} alt="muse logo" />
-        </a>
+        <Image src="/logo.svg" width={48} height={48} alt="muse logo" />
         <div>Language Selector</div>
-        <Select defaultValue={lng}>
+        <Select defaultValue={lng} value={lng} onValueChange={onLngChange}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Language" />
+            <div className="flex items-center gap-1.5">
+              <Icons.locales width={18} height={18} />
+              <p className="text-[14px] font-normal leading-[18.2px] text-[#141414]">
+                <SelectValue placeholder="Language" />
+              </p>
+            </div>
           </SelectTrigger>
           <SelectContent>
             {languages.map((l, index) => (
