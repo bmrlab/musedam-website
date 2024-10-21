@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import { usePathname, useRouter } from 'next/navigation'
 import Icons from '@/components/icon'
+import SocialWidget from '@/[lng]/components/Footer/Social'
 
 export default function Footer(params: { lng: string }) {
   const router = useRouter()
@@ -69,7 +70,9 @@ export default function Footer(params: { lng: string }) {
             ))}
           </SelectContent>
         </Select>
-        <div className="flex flex-1 flex-col justify-end">Social Link</div>
+        <div className="flex flex-1 flex-col justify-end">
+          <SocialWidget />
+        </div>
       </div>
       {Array.from(map.entries()).map(([group, item], i) => {
         return (
@@ -78,13 +81,11 @@ export default function Footer(params: { lng: string }) {
               {group}
             </h3>
             <div className="flex flex-col gap-3">
-              {item.map(({ link }, j) => {
-                return (
-                  <span key={j} className="text-[14px] font-normal leading-[18.2px] text-[#141414]">
-                    {link.label}
-                  </span>
-                )
-              })}
+              {item.map(({ link }, j) => (
+                <span key={j} className="text-[14px] font-normal leading-[18.2px] text-[#141414]">
+                  {link.label}
+                </span>
+              ))}
             </div>
           </div>
         )
