@@ -46,11 +46,10 @@ export default function Footer(params: { lng: string }) {
 
   return (
     <footer className="grid grid-cols-1 justify-items-start px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-      <div className="grid gap-6">
+      <div className="flex h-full w-[101px] flex-col gap-6">
         <Image src="/logo.svg" width={48} height={48} alt="muse logo" />
-        <div>Language Selector</div>
         <Select defaultValue={lng} value={lng} onValueChange={onLngChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full border-none p-0 shadow-none focus:ring-0">
             <div className="flex items-center gap-1.5">
               <Icons.locales width={18} height={18} />
               <p className="text-[14px] font-normal leading-[18.2px] text-[#141414]">
@@ -58,15 +57,19 @@ export default function Footer(params: { lng: string }) {
               </p>
             </div>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="border-none p-0.5 shadow-[0px_2px_30px_4px_rgba(0,0,0,0.08)]">
             {languages.map((l, index) => (
-              <SelectItem key={index} value={l}>
+              <SelectItem
+                key={index}
+                value={l}
+                className="cursor-pointer rounded-[8px] focus:bg-[#F4F5F6] data-[state=checked]:text-[#043FFB]"
+              >
                 {l}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <div className="self-end">Social Link</div>
+        <div className="flex flex-1 flex-col justify-end">Social Link</div>
       </div>
       {Array.from(map.entries()).map(([group, item], i) => {
         return (
