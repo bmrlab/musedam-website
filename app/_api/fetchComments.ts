@@ -1,5 +1,5 @@
 import type { Comment, Post, User } from '@/payload/payload-types'
-import { COMMENTS_BY_DOC, COMMENTS_BY_USER } from '../_graphql/comments'
+import { COMMENTS_BY_DOC, COMMENTS_BY_USER } from '@/_graphql/comments'
 import { GRAPHQL_API_URL } from './shared'
 
 export const fetchComments = async (args: {
