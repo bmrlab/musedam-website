@@ -2,7 +2,7 @@ import React from 'react'
 import { Metadata } from 'next'
 
 import { AdminBar } from '@/[lng]/components/AdminBar'
-import { Footer } from '@/[lng]/components/Footer'
+import Footer from '@/[lng]/components/Footer'
 import Header from '@/[lng]/components/Header'
 import { Providers } from './_providers'
 import { InitTheme } from './_providers/Theme/InitTheme'
