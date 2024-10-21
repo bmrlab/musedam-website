@@ -19,6 +19,22 @@ const Icons = {
       />
     </svg>
   ),
+  caretDown: (props: IconProps) => (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M9.84861 3.51562H2.15173C1.92087 3.51562 1.79196 3.75938 1.93493 3.92578L5.78337 8.38828C5.89353 8.51602 6.10564 8.51602 6.21696 8.38828L10.0654 3.92578C10.2084 3.75938 10.0795 3.51562 9.84861 3.51562Z"
+        fill="black"
+        fillOpacity="0.8"
+      />
+    </svg>
+  ),
 }
 
 export default Icons
