@@ -6,6 +6,11 @@ html {
   scroll-behavior: smooth;
 }
 
+img {
+  user-select: none; /* 禁止文本选择 */
+  -webkit-user-drag: none; /* 禁止拖动 */
+}
+
 @layer utilities {
 
   /* 隐藏横向滚动条，className="no-scrollbar" */
