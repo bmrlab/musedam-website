@@ -12,10 +12,11 @@ import '@/_css/app.scss'
 import '../globals.css'
 
 import { dir } from 'i18next'
-import { languages } from "@/i18n/settings";
+import { languages } from '@/i18n/settings'
+import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 
 export async function generateStaticParams() {
-  return languages.map((lng) => ({ lng }))
+  return languages.map(lng => ({ lng }))
 }
 
 export default async function RootLayout({
@@ -41,6 +42,7 @@ export default async function RootLayout({
           <div className="flex flex-col items-center justify-center">{children}</div>
           <Footer lng={lng} />
         </Providers>
+        <TailwindIndicator />
       </body>
     </html>
   )

@@ -13,11 +13,12 @@ import {
   Share2,
   Tags,
   Users,
+  X,
   Zap,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ComponentPropsWithoutRef, forwardRef } from 'react'
+import { ComponentPropsWithoutRef, forwardRef, useEffect, useState } from 'react'
 
 import {
   NavigationMenu,
@@ -29,12 +30,47 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
+import { AnimatePresence, AnimationSequence, motion, stagger, useAnimate } from 'framer-motion'
+import Icons from '@/components/icon'
+import useIsMobile from '@/hooks/useIsMobile'
 
 const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProps> }> = ({
   icon: Icon,
   ...props
 }) => {
   return <Icon {...props} />
+}
+
+function useMenuAnimation(isOpen: boolean) {
+  const [scope, animate] = useAnimate()
+
+  useEffect(() => {
+    const menuAnimations = isOpen
+      ? [
+          [
+            'nav',
+            { transform: 'translateX(0%)' },
+            { ease: [0.08, 0.65, 0.53, 0.96], duration: 0.6 },
+          ],
+          [
+            'li',
+            { transform: 'scale(1)', opacity: 1, filter: 'blur(0px)' },
+            { delay: stagger(0.05), at: '-0.1' },
+          ],
+        ]
+      : [
+          [
+            'li',
+            { transform: 'scale(0.5)', opacity: 0, filter: 'blur(10px)' },
+            { delay: stagger(0.05, { from: 'last' }), at: '<' },
+          ],
+          ['nav', { transform: 'translateX(100%)' }, { at: '-0.1' }],
+        ]
+
+    animate(menuAnimations as AnimationSequence)
+  }, [animate, isOpen])
+
+  return scope
 }
 
 const features: {
@@ -98,8 +134,11 @@ const features: {
 ]
 
 export default function Header() {
+  const isMobile = useIsMobile()
+  const [isOpen, setIsOpen] = useState(false)
+  const scope = useMenuAnimation(isOpen)
   return (
-    <nav className="relative flex h-[70px] w-full items-center border-b border-black bg-white">
+    <nav className="relative flex h-[56px] w-full items-center border-b border-black bg-white md:h-[70px]">
       <NavigationMenu
         className="flex h-full max-w-none justify-start"
         viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
@@ -107,7 +146,7 @@ export default function Header() {
         <div className="flex-shrink-0 px-4">
           <Image src="/logo.svg" width={36} height={36} alt="muse logo"></Image>
         </div>
-        <NavigationMenuList className="flex-1">
+        <NavigationMenuList className="hidden flex-1 md:flex">
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -160,10 +199,42 @@ export default function Header() {
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
-        <div className="flex size-full flex-1 justify-end">
-          <button className="h-full w-[140px] bg-[#043FFB] text-[16px] font-normal leading-[22px] text-white">
-            Login
-          </button>
+        <div ref={scope} className="flex size-full flex-1 justify-end">
+          <MobileMenu />
+          <motion.button
+            layout
+            className="z-50 h-full bg-[#043FFB] text-[16px] font-normal leading-[22px] text-white"
+            initial={{ width: '140px' }}
+            animate={{ width: isMobile ? '56px' : '140px' }}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="flex w-full justify-center md:hidden"
+                >
+                  <X />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="open"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="flex w-full justify-center md:hidden"
+                >
+                  <Icons.showMore />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <p className="hidden md:block">Login</p>
+          </motion.button>
         </div>
       </NavigationMenu>
     </nav>
@@ -215,3 +286,28 @@ const NavigationListItem = forwardRef<
   )
 })
 NavigationListItem.displayName = 'NavigationListItem'
+
+function MobileMenu() {
+  return (
+    <nav
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        background: 'white',
+        paddingTop: '100px',
+        transform: 'translateX(-100%)',
+        willChange: 'transform',
+      }}
+    >
+      <ul>
+        <li>Portfolio</li>
+        <li>About</li>
+        <li>Contact</li>
+        <li>Search</li>
+      </ul>
+    </nav>
+  )
+}

@@ -95,6 +95,27 @@ const Icons = {
       />
     </svg>
   ),
+  // 移动端菜单按钮
+  showMore: (props: IconProps) => (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <g clipPath="url(#clip0_2642_14539)">
+        <rect x="0.5" y="8" width="24" height="2.25" fill="white" />
+        <rect x="11.75" y="14.75" width="12.75" height="2.25" fill="white" />
+      </g>
+      <defs>
+        <clipPath id="clip0_2642_14539">
+          <rect width="21" height="21" fill="white" transform="translate(0.5 0.5)" />
+        </clipPath>
+      </defs>
+    </svg>
+  ),
 }
 
 export default Icons
