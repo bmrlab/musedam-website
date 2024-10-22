@@ -2,8 +2,9 @@
 
 import Image from 'next/image'
 import { twx } from '@/lib/utils'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useState } from 'react'
+import { useHover } from '@uidotdev/usehooks'
 
 export default function Hero() {
   return (
@@ -46,6 +47,8 @@ export default function Hero() {
 
 const Banner = () => {
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
+  const [aiParseTagRef, aiParseTagHovering] = useHover()
+  const [assetMoreRef, assetMoreHovering] = useHover()
 
   const handleAnimationComplete = useCallback(
     (i: number) => {
@@ -200,16 +203,46 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(23)}
           />
         </RelativeContainer>
-        <MotionShadowImageRounded
-          src="/banner/MuseDAM-Asset-Photography.png"
-          width={237}
-          height={285}
-          alt="MuseDAM-Asset-Photography"
-          initial={{ x: 20, opacity: 0 }}
-          animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
-          onAnimationComplete={() => handleAnimationComplete(7)}
-        />
+        <RelativeContainer>
+          <MotionShadowImageRounded
+            src="/banner/MuseDAM-Asset-Photography.png"
+            width={237}
+            height={285}
+            alt="MuseDAM-Asset-Photography"
+            initial={{ x: 20, opacity: 0 }}
+            animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
+            onAnimationComplete={() => handleAnimationComplete(7)}
+          />
+          <RelativeContainer>
+            <MotionImage
+              ref={aiParseTagRef}
+              src="/banner/MuseDAM-AI-Parsing-Tag.png"
+              width={24}
+              height={20}
+              alt="MuseDAM-AI-Parsing-Tag"
+              className="absolute bottom-[8px] right-[9px] z-10 cursor-pointer"
+              initial={{ opacity: 0 }}
+              animate={isBuildFinished(23) ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, delay: 0.5, ease: 'easeInOut' }}
+              onAnimationComplete={() => handleAnimationComplete(24)}
+            />
+            <div className="absolute bottom-[30px] right-[3px] h-[290px] w-[272px] object-cover">
+              <AnimatePresence mode="wait">
+                {aiParseTagHovering && (
+                  <MotionShadowImageRounded
+                    src="/banner/MuseDAM-AI-Parsing.png"
+                    fill
+                    alt="MuseDAM-AI-Parsing"
+                    initial={{ x: '-10%', opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+          </RelativeContainer>
+        </RelativeContainer>
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[24px]">
         <MotionShadowImageRounded
@@ -281,16 +314,44 @@ const Banner = () => {
         </RelativeContainer>
       </FlexColContainer>
       <FlexColContainer className="gap-6">
-        <MotionShadowImageRounded
-          src="/banner/MuseDAM-Asset-Cat.png"
-          width={237}
-          height={275}
-          alt="MuseDAM-Asset-Cat"
-          initial={{ x: -20, opacity: 0 }}
-          animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
-          onAnimationComplete={() => handleAnimationComplete(10)}
-        />
+        <RelativeContainer>
+          <MotionShadowImageRounded
+            src="/banner/MuseDAM-Asset-Cat.png"
+            width={237}
+            height={275}
+            alt="MuseDAM-Asset-Cat"
+            initial={{ x: -20, opacity: 0 }}
+            animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
+            onAnimationComplete={() => handleAnimationComplete(10)}
+          />
+          <MotionImage
+            ref={assetMoreRef}
+            src="/banner/MuseDAM-Asset-More.png"
+            width={30}
+            height={30}
+            alt="MuseDAM-Asset-More.png"
+            className="absolute right-2 top-2.5 cursor-pointer"
+            initial={{ opacity: 0 }}
+            animate={isBuildFinished(24) ? { opacity: 1 } : {}}
+            transition={{ duration: 1, delay: 0.05, ease: 'easeInOut' }}
+            onAnimationComplete={() => handleAnimationComplete(25)}
+          ></MotionImage>
+          <AnimatePresence mode="wait">
+            {assetMoreHovering && (
+              <MotionImage
+                src="/banner/MuseDAM-Asset-Dropdown.png"
+                width={171}
+                height={194}
+                alt="MuseDAM-Asset-Dropdown.png"
+                className="absolute right-2 top-[42px]"
+                initial={{ x: '10%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
+              ></MotionImage>
+            )}
+          </AnimatePresence>
+        </RelativeContainer>
         <FlexColContainer className="relative">
           <motion.video
             loop
