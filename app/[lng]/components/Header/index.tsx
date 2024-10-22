@@ -43,8 +43,15 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
 
 function useMenuAnimation(isOpen: boolean) {
   const [scope, animate] = useAnimate()
+  const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
+    if (!hasMounted) {
+      // 标记组件已经挂载过一次，避免初始动画
+      setHasMounted(true)
+      return
+    }
+
     const menuAnimations = isOpen
       ? [
           [
