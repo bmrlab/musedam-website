@@ -65,7 +65,7 @@ const Banner = () => {
     <div className="flex select-none justify-center gap-6">
       <FlexColContainer>
         <MotionShadowImageRounded
-          src="/banner/MuseDAM-Kanban.png"
+          src="/Hero/MuseDAM-Kanban.png"
           width={237}
           height={315}
           alt="MuseDAM-Kanban"
@@ -87,11 +87,11 @@ const Banner = () => {
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(1)}
           >
-            <source src="/banner/MuseDAM-Asset-Car.mp4" type="video/mp4" />
+            <source src="/Hero/MuseDAM-Asset-Car.mp4" type="video/mp4" />
           </motion.video>
           <div className="absolute bottom-[34px] right-[-66px] z-10 flex flex-col gap-2">
             <MotionShadowRoundedFullImage
-              src="/banner/Tag-Automobile.png"
+              src="/Hero/Tag-Automobile.png"
               width={110}
               height={30}
               alt="Tag-Automobile"
@@ -101,7 +101,7 @@ const Banner = () => {
               onAnimationComplete={() => handleAnimationComplete(16)}
             />
             <MotionShadowRoundedFullImage
-              src="/banner/Tag-Raining.png"
+              src="/Hero/Tag-Raining.png"
               width={87}
               height={30}
               alt="Tag-Raining"
@@ -111,7 +111,7 @@ const Banner = () => {
               onAnimationComplete={() => handleAnimationComplete(17)}
             />
             <MotionShadowRoundedFullImage
-              src="/banner/Tag-Photography.png"
+              src="/Hero/Tag-Photography.png"
               width={118}
               height={30}
               alt="Tag-Photography"
@@ -124,7 +124,7 @@ const Banner = () => {
         </div>
         <div className="mt-4 flex gap-[11px]">
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Car-V2.png"
+            src="/Hero/MuseDAM-Asset-Car-V2.png"
             width={80}
             height={80}
             alt="MuseDAM-Asset-Car-V2"
@@ -134,7 +134,7 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Car-V3.png"
+            src="/Hero/MuseDAM-Asset-Car-V3.png"
             width={115}
             height={79}
             alt="MuseDAM-Asset-Car-V3"
@@ -147,7 +147,7 @@ const Banner = () => {
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[25px]">
         <MotionShadowImageRounded
-          src="/banner/MuseDAM-Asset-Poster.png"
+          src="/Hero/MuseDAM-Asset-Poster.png"
           width={237}
           height={275}
           alt="MuseDAM-Asset-Poster"
@@ -158,7 +158,7 @@ const Banner = () => {
         />
         <FlexColContainer className="gap-[11px]">
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Jewellery.png"
+            src="/Hero/MuseDAM-Asset-Jewellery.png"
             width={237}
             height={175}
             alt="MuseDAM-Asset-Jewellery"
@@ -168,7 +168,7 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(5)}
           />
           <MotionImage
-            src="/banner/MuseDAM-AI-Color.png"
+            src="/Hero/MuseDAM-AI-Color.png"
             width={237}
             height={38}
             alt="MuseDAM-AI-Color"
@@ -182,7 +182,7 @@ const Banner = () => {
       <FlexColContainer className="gap-6">
         <RelativeContainer>
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-3D.png"
+            src="/Hero/MuseDAM-Asset-3D.png"
             width={237}
             height={295}
             alt="MuseDAM-Asset-3D"
@@ -192,7 +192,7 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(6)}
           />
           <MotionImage
-            src="/banner/MuseDAM-Comment.png"
+            src="/Hero/MuseDAM-Comment.png"
             width={244}
             height={60}
             alt="MuseDAM-Comment"
@@ -205,7 +205,7 @@ const Banner = () => {
         </RelativeContainer>
         <RelativeContainer>
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Photography.png"
+            src="/Hero/MuseDAM-Asset-Photography.png"
             width={237}
             height={285}
             alt="MuseDAM-Asset-Photography"
@@ -217,7 +217,7 @@ const Banner = () => {
           <RelativeContainer>
             <MotionImage
               ref={aiParseTagRef}
-              src="/banner/MuseDAM-AI-Parsing-Tag.png"
+              src="/Hero/MuseDAM-AI-Parsing-Tag.png"
               width={24}
               height={20}
               alt="MuseDAM-AI-Parsing-Tag"
@@ -231,7 +231,7 @@ const Banner = () => {
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
                   <MotionShadowImageRounded
-                    src="/banner/MuseDAM-AI-Parsing.png"
+                    src="/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
                     initial={{ x: '-10%', opacity: 0 }}
@@ -247,7 +247,7 @@ const Banner = () => {
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[24px]">
         <MotionShadowImageRounded
-          src="/banner/MuseDAM-Asset-Product.png"
+          src="/Hero/MuseDAM-Asset-Product.png"
           width={237}
           height={235}
           alt="MuseDAM-Asset-Product"
@@ -258,7 +258,7 @@ const Banner = () => {
         />
         <RelativeContainer className="flex justify-center">
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Group3.png"
+            src="/Hero/MuseDAM-Asset-Group3.png"
             width={196.8}
             height={275}
             alt="MuseDAM-Asset-Group3"
@@ -269,7 +269,7 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(9)}
           />
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Group2.png"
+            src="/Hero/MuseDAM-Asset-Group2.png"
             width={216.8}
             height={285}
             alt="MuseDAM-Asset-Group2"
@@ -280,7 +280,7 @@ const Banner = () => {
             onAnimationComplete={() => handleAnimationComplete(12)}
           />
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Group1.png"
+            src="/Hero/MuseDAM-Asset-Group1.png"
             width={236.8}
             height={285}
             alt="MuseDAM-Asset-Group1"
@@ -292,7 +292,7 @@ const Banner = () => {
           />
           <div className="absolute right-2 top-[27px] flex gap-1">
             <MotionImage
-              src="/banner/MuseDAM-Asset-Group-Tag.png"
+              src="/Hero/MuseDAM-Asset-Group-Tag.png"
               width={35}
               height={20}
               alt="MuseDAM-Asset-Group-Tag"
@@ -302,7 +302,7 @@ const Banner = () => {
               onAnimationComplete={() => handleAnimationComplete(14)}
             />
             <MotionImage
-              src="/banner/MuseDAM-Asset-Comment-Tag.png"
+              src="/Hero/MuseDAM-Asset-Comment-Tag.png"
               width={24}
               height={20}
               alt="MuseDAM-Asset-Comment-Tag"
@@ -317,7 +317,7 @@ const Banner = () => {
       <FlexColContainer className="gap-6">
         <RelativeContainer>
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-Cat.png"
+            src="/Hero/MuseDAM-Asset-Cat.png"
             width={237}
             height={275}
             alt="MuseDAM-Asset-Cat"
@@ -328,7 +328,7 @@ const Banner = () => {
           />
           <MotionImage
             ref={assetMoreRef}
-            src="/banner/MuseDAM-Asset-More.png"
+            src="/Hero/MuseDAM-Asset-More.png"
             width={30}
             height={30}
             alt="MuseDAM-Asset-More.png"
@@ -341,7 +341,7 @@ const Banner = () => {
           <AnimatePresence mode="wait">
             {assetMoreHovering && (
               <MotionImage
-                src="/banner/MuseDAM-Asset-Dropdown.png"
+                src="/Hero/MuseDAM-Asset-Dropdown.png"
                 width={171}
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
@@ -367,10 +367,10 @@ const Banner = () => {
             transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(11)}
           >
-            <source src="/banner/MuseDAM-Asset-Video.mp4" type="video/mp4" />
+            <source src="/Hero/MuseDAM-Asset-Video.mp4" type="video/mp4" />
           </motion.video>
           <MotionShadowImageRounded
-            src="/banner/MuseDAM-Asset-VideoPlayer.png"
+            src="/Hero/MuseDAM-Asset-VideoPlayer.png"
             width={237}
             height={40}
             alt="MuseDAM-Asset-VideoPlayer"
@@ -382,7 +382,7 @@ const Banner = () => {
           />
           <AbsXCenterContainer className="bottom-[7px]">
             <MotionImage
-              src="/banner/MuseDAM-Video-Frame.png"
+              src="/Hero/MuseDAM-Video-Frame.png"
               width={57.22}
               height={139}
               alt="MuseDAM-Video-Frame.png"
