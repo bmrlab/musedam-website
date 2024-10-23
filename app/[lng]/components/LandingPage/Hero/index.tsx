@@ -236,6 +236,7 @@ const Banner = () => {
                     alt="MuseDAM-AI-Parsing"
                     initial={{ x: '-10%', opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
                   />
                 )}
@@ -347,6 +348,7 @@ const Banner = () => {
                 className="absolute right-2 top-[42px]"
                 initial={{ x: '10%', opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
               ></MotionImage>
             )}
