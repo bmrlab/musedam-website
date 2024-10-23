@@ -1,8 +1,8 @@
-import SwiperBlock from '@/[lng]/components/SwiperBlock'
 import Hero from '@/[lng]/components/LandingPage/Hero'
 import SubscribeBlock from '@/[lng]/components/LandingPage/Subscribe'
 import { twx } from '@/lib/utils'
 import Precept from '@/[lng]/components/LandingPage/Precept'
+import SwiperBlock from '@/[lng]/components/LandingPage/SwiperBlock'
 
 export default function LandingPage() {
   return (
