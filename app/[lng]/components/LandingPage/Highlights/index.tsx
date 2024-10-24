@@ -17,7 +17,7 @@ import {
   CollaborateImageGroup,
   CollectImageGroup,
   OrganizeImageGroup,
-} from "@/[lng]/components/LandingPage/Highlights/image-group";
+} from '@/[lng]/components/LandingPage/Highlights/image-group'
 import { twx } from '@/lib/utils'
 
 export default function SwiperBlock() {
@@ -183,27 +183,47 @@ export default function SwiperBlock() {
             }, 500)
           }}
           modules={[Mousewheel, Pagination, Controller]}
-          className="h-[765px] w-full"
+          className="h-[540px] w-full"
         >
-          <SwiperSlide>
-            <SizeFullCenterContainer>
+          <SwiperSlide
+            style={{
+              display: 'flex',
+            }}
+            className="items-center justify-center"
+          >
+            <ImageContainer>
               <CollectImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
-            </SizeFullCenterContainer>
+            </ImageContainer>
           </SwiperSlide>
-          <SwiperSlide>
-            <SizeFullCenterContainer>
+          <SwiperSlide
+            style={{
+              display: 'flex',
+            }}
+            className="items-center justify-center"
+          >
+            <ImageContainer>
               <OrganizeImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
-            </SizeFullCenterContainer>
+            </ImageContainer>
           </SwiperSlide>
-          <SwiperSlide>
-            <SizeFullCenterContainer>
+          <SwiperSlide
+            style={{
+              display: 'flex',
+            }}
+            className="items-center justify-center"
+          >
+            <ImageContainer>
               <CollaborateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
-            </SizeFullCenterContainer>
+            </ImageContainer>
           </SwiperSlide>
-          <SwiperSlide>
-            <SizeFullCenterContainer>
+          <SwiperSlide
+            style={{
+              display: 'flex',
+            }}
+            className="items-center justify-center"
+          >
+            <ImageContainer>
               <AIGenerateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
-            </SizeFullCenterContainer>
+            </ImageContainer>
           </SwiperSlide>
         </Swiper>
       </div>
@@ -211,4 +231,4 @@ export default function SwiperBlock() {
   )
 }
 
-const SizeFullCenterContainer = twx.div`size-full flex justify-center items-center`
+const ImageContainer = twx.div`w-full h-[480px] flex justify-center items-center`
