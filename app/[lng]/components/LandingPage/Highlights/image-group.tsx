@@ -84,7 +84,7 @@ export const OrganizeImageGroup = ({
   isBuildFinished: (i: number) => boolean
 }) => {
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <MotionShadowImage
         src={`${OrganizeImagePrefix}/MuseDAM-Organize-File-Formats.png`}
         width={541.74}
@@ -99,7 +99,7 @@ export const OrganizeImageGroup = ({
         <MotionShadowImage
           src={`${OrganizeImagePrefix}/MuseDAM-Organize-BG.png`}
           width={540}
-          height={368}
+          height={348}
           alt="MuseDAM-Organize-BG.png"
           className="mt-[28.93px] rounded-[9px]"
           initial={{ opacity: 0, x: '10%' }}
@@ -137,11 +137,12 @@ export const OrganizeImageGroup = ({
           transition={{ duration: 0.8, delay: 0.1 }}
         />
         <MotionImage
+          layout
           src={`${OrganizeImagePrefix}/MuseDAM-Organize-Image-Card.png`}
           width={233.13}
           height={199.72}
           alt="MuseDAM-Organize-Image-Card"
-          className="absolute left-[348.87px] top-[182px] z-10 drop-shadow-[0_2.48px_37.2px_4.96px_#00000014]"
+          className="absolute bottom-[-33.72px] right-[-32px] z-10 drop-shadow-[0_2.48px_37.2px_4.96px_#00000014]"
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 1, delay: 0.1 }}
@@ -157,7 +158,7 @@ export const CollaborateImageGroup = ({
   isBuildFinished: (i: number) => boolean
 }) => {
   return (
-    <div className="flex flex-col gap-[16.67px]">
+    <div className="flex h-full flex-col gap-[16.67px]">
       <MotionShadowImage
         src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-Members.png`}
         width={175.28}
