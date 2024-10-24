@@ -13,9 +13,11 @@ import 'swiper/css/controller'
 import 'swiper/css/pagination'
 import { motion } from 'framer-motion'
 import {
+  AIGenerateImageGroup,
+  CollaborateImageGroup,
   CollectImageGroup,
   OrganizeImageGroup,
-} from '@/[lng]/components/LandingPage/Highlights/image-group'
+} from "@/[lng]/components/LandingPage/Highlights/image-group";
 import { twx } from '@/lib/utils'
 
 export default function SwiperBlock() {
@@ -195,12 +197,12 @@ export default function SwiperBlock() {
           </SwiperSlide>
           <SwiperSlide>
             <SizeFullCenterContainer>
-              <CollectImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <CollaborateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
             </SizeFullCenterContainer>
           </SwiperSlide>
           <SwiperSlide>
             <SizeFullCenterContainer>
-              <CollectImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <AIGenerateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
             </SizeFullCenterContainer>
           </SwiperSlide>
         </Swiper>
