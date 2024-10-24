@@ -1,7 +1,7 @@
 import Hero from '@/[lng]/components/LandingPage/Hero'
 import SubscribeBlock from '@/[lng]/components/LandingPage/Subscribe'
 import { twx } from '@/lib/utils'
-import Precept from '@/[lng]/components/LandingPage/Precept'
+import Index from '@/[lng]/components/LandingPage/Precept'
 import SwiperBlock from "@/[lng]/components/LandingPage/Highlights";
 
 export default function LandingPage() {
@@ -12,7 +12,7 @@ export default function LandingPage() {
       </ContainerWithMaxWidth>
       <SubscribeBlock className="mt-[80px] w-full" />
       <SwiperBlock />
-      <Precept />
+      <Index />
     </div>
   )
 }
