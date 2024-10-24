@@ -20,7 +20,7 @@ export default function SubscribeBlock({ className }: { className?: string }) {
           placeholder="Your work email"
           className="h-[50px] w-[420px] rounded-[6px] border-none bg-white p-4"
         />
-        <button className="h-full rounded-[6px] bg-[#043FFB] px-[56.5px] text-[16px] leading-[20.8px] text-white">
+        <button className="h-[50px] rounded-[6px] bg-[#043FFB] px-[56.5px] text-[16px] leading-[20.8px] text-white">
           Subscribe
         </button>
       </div>

@@ -1,5 +1,5 @@
 import Hero from '@/[lng]/components/LandingPage/Hero'
-import SubscribeBlock from '@/[lng]/components/LandingPage/Subscribe'
+import SubscribeBlock from '@/[lng]/components/Subscribe'
 import { twx } from '@/lib/utils'
 import Index from '@/[lng]/components/LandingPage/Precept'
 import SwiperBlock from "@/[lng]/components/LandingPage/Highlights";
