@@ -32,14 +32,10 @@ export default function Hero() {
           </button>
         </div>
       </div>
-      <div className="mt-[80px] w-full px-10">
-        <Image
-          src="/video-replace.png"
-          width={1200}
-          height={692}
-          alt="muse hero"
-          className="object-contain"
-        />
+      <div className="relative mt-[80px] w-full px-10 h-[692px]">
+        <video width={1200} height={692} muted autoPlay loop className="absolute inset-0 h-full size-full object-cover">
+          <source src="/Introduction/Introduction.mp4" type="video/mp4" />
+        </video>
       </div>
     </div>
   )
