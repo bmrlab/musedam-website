@@ -14,6 +14,23 @@ import '../globals.css'
 import { dir } from 'i18next'
 import { languages } from '@/i18n/settings'
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
+import { Baskervville, IBM_Plex_Mono } from 'next/font/google'
+
+const baskervville = Baskervville({
+  weight: ['400'],
+  style: ['normal'],
+  display: 'swap',
+  subsets: ['latin'],
+  variable: '--font-baskervville',
+})
+
+const plexMono = IBM_Plex_Mono({
+  weight: ['300', '400'],
+  style: ['normal'],
+  display: 'swap',
+  subsets: ['latin'],
+  variable: '--font-plex_mono',
+})
 
 export async function generateStaticParams() {
   return languages.map(lng => ({ lng }))
@@ -29,7 +46,12 @@ export default async function RootLayout({
   }
 }) {
   return (
-    <html lang={lng} dir={dir(lng)} suppressHydrationWarning className="no-scrollbar">
+    <html
+      lang={lng}
+      dir={dir(lng)}
+      suppressHydrationWarning
+      className={`no-scrollbar ${baskervville.variable} ${plexMono.variable}`}
+    >
       <head>
         <InitTheme />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
