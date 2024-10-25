@@ -12,7 +12,7 @@ export default function FamousQuotes({ className }: { className?: string }) {
       <div className="mx-auto max-w-3xl text-center">
         <Avatar className="mx-auto mb-2.5 h-20 w-20">
           <AvatarImage src="/placeholder.svg" alt="Avatar" />
-          <AvatarFallback>AV</AvatarFallback>
+          <AvatarFallback></AvatarFallback>
         </Avatar>
         <blockquote className="mb-6 text-[18px] font-light leading-[27px]">
           &ldquo;Muse has revolutionized our workflow. Our marketing and social media teams now

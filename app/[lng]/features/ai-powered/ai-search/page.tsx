@@ -37,7 +37,7 @@ const showcaseData: ShowcaseProps = {
   ],
 }
 
-export default function Page() {
+export default function AiPoweredPage() {
   return (
     <div>
       <Hero {...heroData} />
