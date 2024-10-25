@@ -6,7 +6,6 @@ import { mergeOpenGraph } from '@/[lng]/_utilities/mergeOpenGraph'
 import SubscribeBlock from '@/[lng]/components/Subscribe'
 import AdvancedBlock from '@/[lng]/features/_components/Advanced'
 import FamousQuotes from '@/[lng]/features/_components/FamousQuotes'
-import Hero from '@/[lng]/features/_components/Hero'
 
 export async function generateStaticParams() {
   return languages.map(lng => ({ lng }))
@@ -15,7 +14,6 @@ export async function generateStaticParams() {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <section className="flex size-full flex-col items-center justify-center">
-      <Hero />
       {children}
       <FamousQuotes className="h-[389px]" />
       <AdvancedBlock />
