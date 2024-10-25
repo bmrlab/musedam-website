@@ -156,17 +156,28 @@ export default function Header() {
         <NavigationMenuList className="hidden flex-1 md:flex">
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul
-                style={{
-                  background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
-                }}
-                className="grid w-screen grid-cols-3 px-[100px] py-[80px]"
-              >
-                {features.map((f, i) => (
-                  <NavigationListItem key={i} {...f} />
-                ))}
-              </ul>
+            <NavigationMenuContent className="h-[576px]">
+              <div className="flex h-full w-screen">
+                <ul className="grid grid-cols-3 px-[60px] py-[60px]">
+                  {features.map((f, i) => (
+                    <NavigationListItem key={i} {...f} />
+                  ))}
+                </ul>
+                <div
+                  style={{
+                    background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
+                  }}
+                  className="relative h-full w-[490px]"
+                >
+                  <Image
+                    src="/bmr.svg"
+                    width={327}
+                    height={286}
+                    alt="bmr logo"
+                    className="absolute bottom-[70px] left-1/2 translate-x-[-50%]"
+                  />
+                </div>
+              </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
