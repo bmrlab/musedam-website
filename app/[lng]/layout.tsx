@@ -25,7 +25,7 @@ const baskervville = Baskervville({
 })
 
 const plexMono = IBM_Plex_Mono({
-  weight: ['300', '400'],
+  weight: ['300', '400', '500'],
   style: ['normal'],
   display: 'swap',
   subsets: ['latin'],
