@@ -49,7 +49,7 @@ export default function SwiperBlock() {
 
   return (
     <div className="grid w-full grid-cols-9">
-      <div className="col-span-4 flex w-full items-center justify-center py-[80px] pl-[30px] pr-[80px]">
+      <div className="col-span-4 flex h-[765px] w-full items-center justify-center py-[80px] pl-[30px] pr-[80px]">
         <Toc
           data={data.map(d => d.title)}
           activeIndex={swiperIndex}
@@ -71,13 +71,13 @@ export default function SwiperBlock() {
             handleSlideChange(swiper)
           }}
           modules={[Controller]}
-          className="h-[605px] w-full"
+          className="h-[765px] w-full"
         >
           {data.map((item, index) => (
             <SwiperSlide key={index} className="flex h-full flex-col justify-center pl-[60px]">
               <div key={`${animateKey}-${index}`} className="flex h-full flex-col justify-center">
                 <motion.h1
-                  className="text-[48px] font-normal leading-[54.91px] text-[#141414]"
+                  className="font-baskervville text-[48px] font-normal leading-[54.91px] text-[#141414]"
                   initial={{ opacity: 0, x: '-10%' }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8 }}
@@ -86,7 +86,7 @@ export default function SwiperBlock() {
                   {item.title}
                 </motion.h1>
                 <motion.div
-                  className="mt-6 space-y-3"
+                  className="mt-6 font-mono"
                   initial={{ opacity: 0, x: '-10%' }}
                   animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 1 }}
@@ -103,7 +103,7 @@ export default function SwiperBlock() {
                     <div className="pt-3">
                       <ul className="list-inside list-disc text-[16px] font-light leading-[24px] text-[#141414]">
                         {item.list?.map((list, index) => (
-                          <div key={index} className="flex items-center gap-1">
+                          <div key={index} className="flex items-center gap-1.5">
                             <div className="h-1 w-1 rounded-full bg-black"></div>
                             {list}
                           </div>
@@ -112,11 +112,11 @@ export default function SwiperBlock() {
                     </div>
                   )}
                   {item.point && (
-                    <div className="pt-6">
+                    <div className="flex flex-col gap-3 pt-6">
                       {item.point?.map((point, index) => (
-                        <div key={index} className="space-y-3">
+                        <div key={index} className="space-y-2">
                           {/* 圆点 */}
-                          <h3 className="flex items-center gap-1 text-[16px] font-medium leading-[24px] text-[#141414]">
+                          <h3 className="flex items-center gap-1.5 text-[16px] font-medium leading-[24px] text-[#141414]">
                             <div className="h-1 w-1 rounded-full bg-black"></div>
                             {point.title}
                           </h3>
@@ -134,7 +134,7 @@ export default function SwiperBlock() {
                   animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  <button className="rounded-[8px] bg-black px-[42.5px] py-[14px] text-white">
+                  <button className="rounded-[8px] bg-black px-[42.5px] py-[14px] font-mono text-white">
                     Start for free
                   </button>
                 </motion.div>
