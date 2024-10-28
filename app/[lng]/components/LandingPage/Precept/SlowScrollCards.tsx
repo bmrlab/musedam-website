@@ -46,11 +46,13 @@ const SlowScrollCards = ({ data }: { data: PreceptData[] }) => {
 
 const Card = ({ name, role, description, avatar }: PreceptData) => {
   return (
-    <div className="flex h-fit w-[360px] flex-col gap-6 rounded-[8px] bg-white p-[30px] font-mono shadow-[0_4px_30px_4px_rgba(0,0,0,0.08)]">
+    <div className="flex h-fit w-[320px] flex-col gap-6 rounded-[8px] bg-white p-[30px] font-mono shadow-[0_4px_30px_4px_rgba(0,0,0,0.08)] md:w-[360px]">
       <div className="flex items-center gap-4">
         <Image src={avatar} width={64} height={64} alt={name} className="rounded-full" />
         <div className="grid items-center justify-start gap-1.5">
-          <h4 className="text-[24px] font-medium leading-[28px]">{name}</h4>
+          <h4 className="text-[20px] font-medium leading-[26px] md:text-[24px] md:leading-[28px]">
+            {name}
+          </h4>
           <span className="text-[13px] font-light leading-[16.9px] text-[#898989]">{role}</span>
         </div>
       </div>
