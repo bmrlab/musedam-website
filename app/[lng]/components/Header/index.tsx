@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ComponentPropsWithoutRef, forwardRef, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   NavigationMenu,
@@ -75,7 +75,7 @@ function useMenuAnimation(isOpen: boolean) {
         ]
 
     animate(menuAnimations as AnimationSequence)
-  }, [animate, isOpen])
+  }, [animate, hasMounted, isOpen])
 
   return scope
 }
@@ -144,6 +144,9 @@ export default function Header() {
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
+
+  const categories = useMemo(() => features.map(f => f.category), [])
+
   return (
     <nav className="relative flex h-[56px] w-full items-center border-b border-black bg-white md:h-[70px]">
       <NavigationMenu
@@ -157,17 +160,58 @@ export default function Header() {
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
             <NavigationMenuContent className="h-[576px]">
-              <div className="flex h-full w-screen">
-                <ul className="grid grid-cols-3 px-[60px] py-[60px]">
-                  {features.map((f, i) => (
-                    <NavigationListItem key={i} {...f} />
+              <div className="grid h-full w-screen grid-cols-3">
+                <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] px-[60px] py-[60px]">
+                  {categories.map((category, i) => (
+                    <div
+                      key={i}
+                      className="text-[14px] text-sm font-normal leading-4 text-black/40"
+                    >
+                      {category}
+                    </div>
+                  ))}
+                  {new Array(Math.max(...features.map(f => f.items.length))).fill(0).map((_, i) => (
+                    <>
+                      {new Array(3).fill(0).map((_, j) => {
+                        const data = features[j].items[i]
+                        if (!data) return <li key={j}></li>
+                        return (
+                          <li key={j}>
+                            <NavigationMenuLink asChild>
+                              <a
+                                className={cn(
+                                  'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none',
+                                )}
+                              >
+                                <div className="grid">
+                                  <div
+                                    key={data.title}
+                                    className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                  >
+                                    <IconWrapper icon={data.icon} size={20} />
+                                    <div className="flex flex-col gap-2">
+                                      <div className="text-[16px] font-medium leading-[16px]">
+                                        {data.title}
+                                      </div>
+                                      <div className="text-[13px] leading-[19.5px] text-black/60">
+                                        {data.description}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </a>
+                            </NavigationMenuLink>
+                          </li>
+                        )
+                      })}
+                    </>
                   ))}
                 </ul>
                 <div
                   style={{
                     background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
                   }}
-                  className="relative h-full w-[490px]"
+                  className="relative col-span-1 size-full"
                 >
                   <Image
                     src="/bmr.svg"
@@ -182,18 +226,7 @@ export default function Header() {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Customers</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul
-                style={{
-                  background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
-                }}
-                className="grid w-screen grid-cols-3 px-[100px] py-[80px]"
-              >
-                {features.map(f => (
-                  <NavigationListItem key={f.category} {...f} />
-                ))}
-              </ul>
-            </NavigationMenuContent>
+            <NavigationMenuContent></NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="/public" legacyBehavior passHref>
@@ -258,52 +291,6 @@ export default function Header() {
     </nav>
   )
 }
-
-const NavigationListItem = forwardRef<
-  React.ElementRef<'a'>,
-  ComponentPropsWithoutRef<'a'> & {
-    category: string
-    items: {
-      icon: React.ComponentType
-      title: string
-      description: string
-    }[]
-  }
->(({ category, items, className, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none',
-            className,
-          )}
-          {...props}
-        >
-          <div className="text-[14px] text-sm font-normal leading-4 text-black/40">{category}</div>
-          <div className="flex flex-col gap-[30px] pt-[30px]">
-            {items.map(item => (
-              <div
-                key={item.title}
-                className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-              >
-                <IconWrapper icon={item.icon} size={20} />
-                <div className="flex flex-col gap-2">
-                  <div className="text-[16px] font-medium leading-[16px]">{item.title}</div>
-                  <div className="text-[13px] leading-[19.5px] text-black/60">
-                    {item.description}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  )
-})
-NavigationListItem.displayName = 'NavigationListItem'
 
 function MobileMenu() {
   return (
