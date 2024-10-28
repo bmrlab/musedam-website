@@ -1,24 +1,9 @@
 'use client'
 
-import {
-  BarChart2,
-  Bot,
-  Eye,
-  FileText,
-  Folders,
-  List,
-  Lock,
-  LucideProps,
-  Search,
-  Share2,
-  Tags,
-  Users,
-  X,
-  Zap,
-} from 'lucide-react'
+import { LucideProps, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   NavigationMenu,
@@ -30,9 +15,13 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
-import { AnimatePresence, AnimationSequence, motion, stagger, useAnimate } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import Icons from '@/components/icon'
 import useIsMobile from '@/hooks/useIsMobile'
+import { features } from '@/[lng]/components/Header/mock'
+import { useMenuAnimation } from '@/[lng]/components/Header/useMenuAnimation'
+
+const DEFAULT_HERO_IMAGE = '/bmr.svg'
 
 const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProps> }> = ({
   icon: Icon,
@@ -41,109 +30,11 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
   return <Icon {...props} />
 }
 
-function useMenuAnimation(isOpen: boolean) {
-  const [scope, animate] = useAnimate()
-  const [hasMounted, setHasMounted] = useState(false)
-
-  useEffect(() => {
-    if (!hasMounted) {
-      // 标记组件已经挂载过一次，避免初始动画
-      setHasMounted(true)
-      return
-    }
-
-    const menuAnimations = isOpen
-      ? [
-          [
-            'nav',
-            { transform: 'translateX(0%)' },
-            { ease: [0.08, 0.65, 0.53, 0.96], duration: 0.6 },
-          ],
-          [
-            'li',
-            { transform: 'scale(1)', opacity: 1, filter: 'blur(0px)' },
-            { delay: stagger(0.05), at: '-0.1' },
-          ],
-        ]
-      : [
-          [
-            'li',
-            { transform: 'scale(0.5)', opacity: 0, filter: 'blur(10px)' },
-            { delay: stagger(0.05, { from: 'last' }), at: '<' },
-          ],
-          ['nav', { transform: 'translateX(100%)' }, { at: '-0.1' }],
-        ]
-
-    animate(menuAnimations as AnimationSequence)
-  }, [animate, hasMounted, isOpen])
-
-  return scope
-}
-
-const features: {
-  category: string
-  items: {
-    icon: React.ComponentType<LucideProps>
-    title: string
-    description: string
-  }[]
-}[] = [
-  {
-    category: 'AI-Powered',
-    items: [
-      { icon: Search, title: 'AI Search', description: 'Visual Content Asset Search' },
-      { icon: Zap, title: 'AI Parsing', description: 'Visuals, Color Schemes, Themes, etc.' },
-      {
-        icon: FileText,
-        title: 'AI Content Creation',
-        description: 'Craft Blog from Asset Insights',
-      },
-      { icon: Tags, title: 'Auto Tags', description: 'Auto-Tag for Search & Clustering' },
-      { icon: Bot, title: 'MuseCopilot', description: 'Chat with Copilot on your Content' },
-    ],
-  },
-  {
-    category: 'Visual Workspace',
-    items: [
-      {
-        icon: Share2,
-        title: 'Inspiration Collection',
-        description: 'Browser Plugin for Websites',
-      },
-      { icon: Folders, title: 'Smart Folders', description: 'Automatic Categorization' },
-      { icon: Eye, title: '70+ File Formats', description: 'Online Preview for 70+ Formats' },
-      {
-        icon: List,
-        title: 'Multiple Viewing',
-        description: 'List, Board, Waterfall and Adaptive',
-      },
-      {
-        icon: Lock,
-        title: 'Encrypted Sharing',
-        description: 'Set Expiry and Password for Sharing',
-      },
-    ],
-  },
-  {
-    category: 'Team Collaboration',
-    items: [
-      { icon: Users, title: 'Team Management', description: 'Member and Department Management' },
-      { icon: Lock, title: 'Permissions', description: 'Folder Permissions by Member Role' },
-      { icon: FileText, title: 'Dynamic Feedback', description: 'Comments and Annotations' },
-      { icon: List, title: 'Versions', description: 'Version Control and History Access' },
-      {
-        icon: BarChart2,
-        title: 'Data Statistics',
-        description: 'Activity Statistics and Leaderboards',
-      },
-    ],
-  },
-]
-
 export default function Header() {
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
+  const [currentHeroImage, setCurrentHeroImage] = useState<string>()
 
   const categories = useMemo(() => features.map(f => f.category), [])
 
@@ -176,26 +67,29 @@ export default function Header() {
                         const data = features[j].items[i]
                         if (!data) return <li key={j}></li>
                         return (
-                          <li key={j}>
+                          <li
+                            key={j}
+                            className="group"
+                            onMouseOver={() => setCurrentHeroImage(data.heroImage)}
+                            onMouseLeave={() => setCurrentHeroImage('')}
+                          >
                             <NavigationMenuLink asChild>
                               <a
                                 className={cn(
-                                  'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none',
+                                  'block cursor-pointer select-none space-y-1 rounded-md py-3 leading-none no-underline outline-none',
                                 )}
                               >
-                                <div className="grid">
-                                  <div
-                                    key={data.title}
-                                    className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                  >
-                                    <IconWrapper icon={data.icon} size={20} />
-                                    <div className="flex flex-col gap-2">
-                                      <div className="text-[16px] font-medium leading-[16px]">
-                                        {data.title}
-                                      </div>
-                                      <div className="text-[13px] leading-[19.5px] text-black/60">
-                                        {data.description}
-                                      </div>
+                                <div
+                                  key={data.title}
+                                  className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                >
+                                  <IconWrapper icon={data.icon} size={20} className="self-start" />
+                                  <div className="flex flex-col gap-2">
+                                    <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
+                                      {data.title}
+                                    </div>
+                                    <div className="text-[13px] leading-[19.5px] text-black/60">
+                                      {data.description}
                                     </div>
                                   </div>
                                 </div>
@@ -213,13 +107,30 @@ export default function Header() {
                   }}
                   className="relative col-span-1 size-full"
                 >
-                  <Image
-                    src="/bmr.svg"
-                    width={327}
-                    height={286}
-                    alt="bmr logo"
-                    className="absolute bottom-[70px] left-1/2 translate-x-[-50%]"
-                  />
+                  <AnimatePresence mode="wait">
+                    {!!currentHeroImage ? (
+                      <div className="flex size-full items-center justify-center">
+                        <MotionImage
+                          key={currentHeroImage}
+                          src={currentHeroImage}
+                          width={430}
+                          height={430}
+                          alt="bmr logo"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                        />
+                      </div>
+                    ) : (
+                      <Image
+                        src={DEFAULT_HERO_IMAGE}
+                        width={327}
+                        height={286}
+                        alt="bmr logo"
+                        className="absolute bottom-[70px] left-1/2 translate-x-[-50%]"
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </NavigationMenuContent>
@@ -316,3 +227,5 @@ function MobileMenu() {
     </nav>
   )
 }
+
+const MotionImage = motion.create(Image)
