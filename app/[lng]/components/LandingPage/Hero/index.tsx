@@ -8,12 +8,12 @@ import { useHover } from '@uidotdev/usehooks'
 
 export default function Hero() {
   return (
-    <div className="flex w-full flex-col items-center justify-center px-[80px]">
-      <h1 className="mt-[59px] text-center font-baskervville text-[68px] font-normal leading-[77.79px] text-[#141414]">
+    <div className="flex w-full flex-col items-center justify-center px-6 md:px-[80px]">
+      <h1 className="mt-[59px] text-center font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414] md:text-[68px] md:leading-[77.79px]">
         <p>Smart Asset Management</p>
         <p>for the AI Content Era</p>
       </h1>
-      <button className="mb-[58px] mt-9 rounded-[1000px] bg-black px-[57.5px] py-[19px] font-mono text-[16px] font-normal leading-[20px] text-white">
+      <button className="mb-12 mt-6 rounded-[1000px] bg-black px-[52.5px] py-[17px] font-mono text-[16px] font-normal leading-[20px] text-white md:mb-[58px] md:mt-9 md:px-[57.5px] md:py-[19px]">
         Start for free
       </button>
       <Banner />
@@ -65,7 +65,7 @@ const Banner = () => {
   const isBuildFinished = useCallback((i: number) => animationStep >= i, [animationStep])
 
   return (
-    <div className="flex select-none justify-center gap-6">
+    <div className="flex w-[750.74px] select-none justify-center gap-6">
       <FlexColContainer>
         <MotionShadowImageRounded
           src="/Hero/MuseDAM-Kanban.png"

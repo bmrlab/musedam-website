@@ -2,19 +2,19 @@ import Hero from '@/[lng]/components/LandingPage/Hero'
 import SubscribeBlock from '@/[lng]/components/Subscribe'
 import { twx } from '@/lib/utils'
 import Precept from '@/[lng]/components/LandingPage/Precept'
-import SwiperBlock from "@/[lng]/components/LandingPage/Highlights";
+import SwiperBlock from '@/[lng]/components/LandingPage/Highlights'
 
 export default function LandingPage() {
   return (
     <div className="grid w-screen justify-items-center">
       <ContainerWithMaxWidth>
-        <Hero />
+        {/*<Hero />*/}
       </ContainerWithMaxWidth>
-      <SubscribeBlock className="mt-[80px] w-full" />
-      <SwiperBlock />
+      {/*<SubscribeBlock className="mt-[80px] w-full" />*/}
+      {/*<SwiperBlock />*/}
       <Precept />
     </div>
   )
 }
 
-const ContainerWithMaxWidth = twx.div`max-w-[1440px]`
+const ContainerWithMaxWidth = twx.div`w-full md:max-w-[1440px]`
