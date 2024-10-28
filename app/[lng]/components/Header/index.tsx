@@ -70,7 +70,7 @@ export default function Header() {
                           <li
                             key={j}
                             className="group"
-                            onMouseOver={() => setCurrentHeroImage(data.heroImage)}
+                            onMouseOver={() => setCurrentHeroImage(data.heroImage ?? '')}
                             onMouseLeave={() => setCurrentHeroImage('')}
                           >
                             <NavigationMenuLink asChild>
