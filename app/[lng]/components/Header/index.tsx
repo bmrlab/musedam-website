@@ -62,7 +62,7 @@ export default function Header() {
                     </div>
                   ))}
                   {new Array(Math.max(...features.map(f => f.items.length))).fill(0).map((_, i) => (
-                    <>
+                    <div key={i}>
                       {new Array(3).fill(0).map((_, j) => {
                         const data = features[j].items[i]
                         if (!data) return <li key={j}></li>
@@ -98,7 +98,7 @@ export default function Header() {
                           </li>
                         )
                       })}
-                    </>
+                    </div>
                   ))}
                 </ul>
                 <div

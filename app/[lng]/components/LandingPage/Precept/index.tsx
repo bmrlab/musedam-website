@@ -110,9 +110,11 @@ const data: PreceptData[] = [
 export default function Precept() {
   return (
     <div className="flex w-full flex-col items-center bg-black py-[80px]">
-      <div className="grid justify-items-center gap-6 text-white">
-        <h1 className="text-[48px] font-normal leading-[55px]">Trusted by the Best</h1>
-        <span className="text-[16px] font-light leading-[24px]">
+      <div className="grid justify-items-center gap-6 font-mono text-white">
+        <h1 className="font-baskervville text-[48px] font-normal leading-[55px]">
+          Trusted by the Best
+        </h1>
+        <span className="font-mono text-[16px] font-light leading-[24px]">
           Discover What Our Community Loves About Muse
         </span>
       </div>
