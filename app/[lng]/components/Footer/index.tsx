@@ -45,6 +45,17 @@ export default function Footer(params: { lng: string }) {
     [lng, pathname, router],
   )
 
+  const LANGUAGES = [
+    {
+      key: 'en',
+      label: 'English',
+    },
+    {
+      key: 'zh',
+      label: '简体中文',
+    },
+  ]
+
   return (
     <footer className="grid grid-cols-1 justify-items-start px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       <div className="flex h-full w-[101px] flex-col gap-6">
@@ -63,9 +74,9 @@ export default function Footer(params: { lng: string }) {
               <SelectItem
                 key={index}
                 value={l}
-                className="cursor-pointer rounded-[8px] focus:bg-[#F4F5F6] data-[state=checked]:text-[#043FFB]"
+                className="cursor-pointer rounded-[8px] font-mono focus:bg-[#F4F5F6] data-[state=checked]:text-[#043FFB]"
               >
-                {l}
+                {LANGUAGES.find(({ key }) => key === l)?.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -77,12 +88,15 @@ export default function Footer(params: { lng: string }) {
       {Array.from(map.entries()).map(([group, item], i) => {
         return (
           <div key={i} className="flex flex-col gap-4">
-            <h3 className="text-[16px] font-normal uppercase leading-[22px] text-black opacity-50">
+            <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50">
               {group}
             </h3>
             <div className="flex flex-col gap-3">
               {item.map(({ link }, j) => (
-                <span key={j} className="text-[14px] font-normal leading-[18.2px] text-[#141414]">
+                <span
+                  key={j}
+                  className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]"
+                >
                   {link.label}
                 </span>
               ))}

@@ -48,7 +48,9 @@ const SocialItemView = ({
       <Link href={href ?? ''} target="_blank">
         <p className="flex items-center gap-1.5">
           {icon}
-          <span className="text-[14px] font-normal leading-[18.2px] text-[#141414]">{label}</span>
+          <span className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]">
+            {label}
+          </span>
         </p>
       </Link>
     </div>
