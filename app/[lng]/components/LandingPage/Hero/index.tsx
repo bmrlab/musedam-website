@@ -87,7 +87,7 @@ const Banner = () => {
           >
             <source src="/Hero/MuseDAM-Asset-Car.mp4" type="video/mp4" />
           </motion.video>
-          <div className="absolute bottom-[34px] right-[-66px] z-10 flex flex-col gap-2">
+          <div className="absolute bottom-[34px] right-[-66px] z-[1] flex flex-col gap-2">
             <MotionShadowRoundedFullImage
               src="/Hero/Tag-Automobile.png"
               width={110}
@@ -194,7 +194,7 @@ const Banner = () => {
             width={244}
             height={60}
             alt="MuseDAM-Comment"
-            className="absolute bottom-[22px] right-[-170px] z-10 drop-shadow"
+            className="absolute bottom-[22px] right-[-170px] z-[1] drop-shadow"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(22) ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
@@ -219,7 +219,7 @@ const Banner = () => {
               width={24}
               height={20}
               alt="MuseDAM-AI-Parsing-Tag"
-              className="absolute bottom-[8px] right-[9px] z-10 cursor-pointer"
+              className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer"
               initial={{ opacity: 0 }}
               animate={isBuildFinished(23) ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.5, ease: 'easeInOut' }}
