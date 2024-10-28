@@ -10,7 +10,7 @@ export default function LandingPage() {
       <ContainerWithMaxWidth>
         <Hero />
       </ContainerWithMaxWidth>
-      {/*<SubscribeBlock className="mt-[80px] w-full" />*/}
+      <SubscribeBlock className="mt-[60px] w-full md:mt-[80px]" />
       {/*<SwiperBlock />*/}
       <Precept />
     </div>
