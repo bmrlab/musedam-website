@@ -1,14 +1,41 @@
 import { cn, twx } from '@/lib/utils'
-import Image from 'next/image'
 import { data } from '@/[lng]/components/LandingPage/Highlights/mock'
+import {
+  AIGenerateImageGroup,
+  CollaborateImageGroup,
+  CollectImageGroup,
+  OrganizeImageGroup,
+} from '@/[lng]/components/LandingPage/Highlights/image-group'
 
 export default function HighlightsMobile() {
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
         <div key={index}>
-          <ImageBgDiv>
-            <Image src={item.image} fill alt={item.title} className="object-contain" />
+          <ImageBgDiv className="flex items-center justify-center">
+            {/*<Image src={item.image} fill alt={item.title} className="object-contain" />*/}
+            {(() => {
+              switch (item.title) {
+                case 'Collect':
+                  return <CollectImageGroup isBuildFinished={() => true} />
+                case 'Organize':
+                  return (
+                    <OrganizeImageGroup
+                      className="items-center justify-center"
+                      isBuildFinished={() => true}
+                    />
+                  )
+                case 'Collaborate':
+                  return (
+                    <CollaborateImageGroup
+                      className="h-[258.75px] items-center justify-start"
+                      isBuildFinished={() => true}
+                    />
+                  )
+                case 'AI Generate':
+                  return <AIGenerateImageGroup isBuildFinished={() => true} />
+              }
+            })()}
           </ImageBgDiv>
           <div className="flex flex-col items-center justify-center bg-white px-[30px] pb-[60px] pt-10">
             <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414]">
@@ -67,4 +94,4 @@ export default function HighlightsMobile() {
   )
 }
 
-const ImageBgDiv = twx.div`rounded-b-[30px] relative h-[338.75px] w-full px-[15px] py-20 bg-[linear-gradient(157.66deg,#D4D6EA_14.56%,#DBCCD5_31.62%,#FB9D70_94.18%)]`
+const ImageBgDiv = twx.div`rounded-b-[30px] relative h-[338.75px] w-full px-[15px] bg-[linear-gradient(157.66deg,#D4D6EA_14.56%,#DBCCD5_31.62%,#FB9D70_94.18%)]`
