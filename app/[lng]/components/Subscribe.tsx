@@ -14,7 +14,7 @@ export default function SubscribeBlock({ className }: { className?: string }) {
       <h2 className="text-center font-baskervville text-[38px] font-normal leading-[43.47px] text-white md:text-left md:text-[48px] md:leading-[54.91px]">
         Subscribe for exclusive updates and resources
       </h2>
-      <div className="flex w-full flex-col gap-2.5 md:flex-row">
+      <div className="flex justify-center w-full flex-col gap-2.5 md:flex-row">
         <Input
           type="email"
           placeholder="Your work email"
