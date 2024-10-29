@@ -192,7 +192,7 @@ export default function MobileBanner() {
               transition={{ duration: 0.6, delay: 0.5, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(24)}
             />
-            <div className="absolute bottom-[30px] right-[3px] h-[290px] w-[272px] object-cover">
+            <div className="absolute bottom-[22px] right-[3px] z-[2] h-[290px] w-[272px] object-cover">
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
                   <MotionShadowImageRounded
@@ -310,7 +310,7 @@ export default function MobileBanner() {
                 width={171}
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
-                className="absolute right-2 top-[42px] z-[2]"
+                className="absolute right-2 top-[25px] z-[2]"
                 initial={{ x: '10%', opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ opacity: 0 }}
