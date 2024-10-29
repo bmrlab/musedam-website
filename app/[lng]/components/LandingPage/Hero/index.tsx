@@ -4,7 +4,7 @@ import Banner from '@/[lng]/components/LandingPage/Hero/Banner'
 
 export default function Hero() {
   return (
-    <div className="flex flex-col items-center justify-center md:w-full md:px-[80px]">
+    <div className="flex flex-col items-center justify-center bg-white md:w-full md:px-[80px]">
       <h1 className="mt-[59px] text-center font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414] md:text-[68px] md:leading-[77.79px]">
         <p>Smart Asset Management</p>
         <p>for the AI Content Era</p>
@@ -29,7 +29,7 @@ export default function Hero() {
         </div>
       </div>
       <div className="relative mt-12 h-[210px] w-full rounded-[6px] px-6 md:mt-[80px] md:h-[692px] md:px-10">
-        <video muted autoPlay loop className="absolute inset-0 size-full object-cover">
+        <video muted autoPlay loop className="size-full object-cover">
           <source src="/Introduction/Introduction.mp4" type="video/mp4" />
         </video>
       </div>

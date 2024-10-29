@@ -6,7 +6,7 @@ import Highlights from '@/[lng]/components/LandingPage/Highlights'
 
 export default function LandingPage() {
   return (
-    <div className="grid w-screen justify-items-center">
+    <div className="grid w-screen justify-items-center bg-white">
       <ContainerWithMaxWidth>
         <Hero />
       </ContainerWithMaxWidth>
