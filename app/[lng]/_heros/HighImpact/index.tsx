@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import { Page } from '@/payload/payload-types'
+import { Page } from '@src/payload/payload-types'
 import { Gutter } from '../../components/Gutter'
 import { CMSLink } from '../../components/Link'
 import { Media } from '../../components/Media'
@@ -25,7 +25,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ richText, media, links 
           </ul>
         )}
       </div>
-      <div className={classes.media}>
+      <div className="w-[200px]">
         {typeof media === 'object' && (
           <Fragment>
             <Media

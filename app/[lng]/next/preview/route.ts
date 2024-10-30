@@ -21,9 +21,10 @@ export async function GET(
     return new Response('No URL provided', { status: 404 })
   }
 
-  if (!token) {
-    new Response('You are not allowed to preview this page', { status: 403 })
-  }
+  console.log('token', token)
+  // if (!token) {
+  //   new Response('You are not allowed to preview this page', { status: 403 })
+  // }
 
   // validate the Payload token
   const userReq = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/me`, {
