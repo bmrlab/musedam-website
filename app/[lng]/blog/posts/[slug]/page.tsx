@@ -7,17 +7,17 @@ import { Comment, Post } from '@src/payload/payload-types'
 import { fetchComments } from '@/_api/fetchComments'
 import { fetchDoc } from '@/_api/fetchDoc'
 import { fetchDocs } from '@/_api/fetchDocs'
-import { Blocks } from "@/[lng]/components/Blocks"
-import { PremiumContent } from "@/[lng]/components/PremiumContent"
-import { PostHero } from "@/[lng]/_heros/PostHero"
-import { generateMeta } from "@/[lng]/_utilities/generateMeta"
+import { Blocks } from '@/[lng]/components/Blocks'
+import { PremiumContent } from '@/[lng]/components/PremiumContent'
+import { PostHero } from '@/[lng]/_heros/PostHero'
+import { generateMeta } from '@/[lng]/_utilities/generateMeta'
 
 // Force this page to be dynamic so that Next.js does not cache it
 // See the note in '../../../[slug]/page.tsx' about this
 export const dynamic = 'force-dynamic'
 
 export default async function Post({ params: { slug } }) {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let post: Post | null = null
 
@@ -132,13 +132,13 @@ export async function generateStaticParams() {
   try {
     const posts = await fetchDocs<Post>('posts')
     return posts?.map(({ slug }) => slug)
-  } catch (error) {
+  } catch (_) {
     return []
   }
 }
 
 export async function generateMetadata({ params: { slug } }): Promise<Metadata> {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let post: Post | null = null
 
@@ -148,7 +148,7 @@ export async function generateMetadata({ params: { slug } }): Promise<Metadata> 
       slug,
       draft: isDraftMode,
     })
-  } catch (error) {}
+  } catch (_) {}
 
   return generateMeta({ doc: post })
 }
