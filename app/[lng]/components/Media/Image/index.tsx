@@ -43,6 +43,7 @@ export const Image: React.FC<MediaProps> = props => {
 
     const filename = fullFilename
 
+
     src = `${process.env.NEXT_PUBLIC_SERVER_URL}/media/${filename}`
   }
 
@@ -50,6 +51,10 @@ export const Image: React.FC<MediaProps> = props => {
   const sizes = Object.entries(breakpoints)
     .map(([, value]) => `(max-width: ${value}px) ${value}px`)
     .join(', ')
+
+  if (!src) {
+    return null
+  }
 
   return (
     <NextImage
