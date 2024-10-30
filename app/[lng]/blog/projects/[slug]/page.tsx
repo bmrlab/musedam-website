@@ -3,20 +3,20 @@ import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { Project } from '@/payload/payload-types'
+import { Project } from '@src/payload/payload-types'
 import { fetchDoc } from '@/_api/fetchDoc'
 import { fetchDocs } from '@/_api/fetchDocs'
 import { RelatedPosts } from '../../../_blocks/RelatedPosts'
-import { Blocks } from '../../../components/Blocks'
-import { ProjectHero } from '../../../_heros/ProjectHero'
-import { generateMeta } from '../../../_utilities/generateMeta'
+import { Blocks } from "@/[lng]/components/Blocks"
+import { ProjectHero } from "@/[lng]/_heros/ProjectHero"
+import { generateMeta } from "@/[lng]/_utilities/generateMeta"
 
 // Force this page to be dynamic so that Next.js does not cache it
 // See the note in '../../../[slug]/page.tsx' about this
 export const dynamic = 'force-dynamic'
 
 export default async function Project({ params: { slug } }) {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let project: Project | null = null
 
@@ -88,13 +88,13 @@ export async function generateStaticParams() {
   try {
     const projects = await fetchDocs<Project>('projects')
     return projects?.map(({ slug }) => slug)
-  } catch (error) {
+  } catch (_) {
     return []
   }
 }
 
 export async function generateMetadata({ params: { slug } }): Promise<Metadata> {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let project: Project | null = null
 
@@ -104,7 +104,7 @@ export async function generateMetadata({ params: { slug } }): Promise<Metadata> 
       slug,
       draft: isDraftMode,
     })
-  } catch (error) {}
+  } catch (_) {}
 
   return generateMeta({ doc: project })
 }
