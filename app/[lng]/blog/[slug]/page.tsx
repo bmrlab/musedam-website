@@ -9,8 +9,8 @@ import { fetchDoc } from '@/_api/fetchDoc'
 import { fetchDocs } from '@/_api/fetchDocs'
 import { Blocks } from '../../components/Blocks'
 import { generateMeta } from '../../_utilities/generateMeta'
-import { Hero } from "@/[lng]/components/Hero";
-import { home } from "@src/payload/seed/home";
+import { Hero } from '@/[lng]/components/Hero'
+import { home } from '@src/payload/seed/home'
 
 // Payload Cloud caches all files through Cloudflare, so we don't need Next.js to cache them as well
 // This means that we can turn off Next.js data caching and instead rely solely on the Cloudflare CDN
@@ -20,8 +20,9 @@ import { home } from "@src/payload/seed/home";
 // If you are not using Payload Cloud then this line can be removed, see `../../../README.md#cache`
 export const dynamic = 'force-dynamic'
 
-export default async function Page({ params: { slug = 'home' } }) {
-  const { isEnabled: isDraftMode } = draftMode()
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let page: Page | null = null
 
@@ -50,6 +51,7 @@ export default async function Page({ params: { slug = 'home' } }) {
   }
 
   const { hero, layout } = page
+  console.log('hero', hero)
 
   return (
     <React.Fragment>
@@ -71,8 +73,13 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params: { slug = 'home' } }): Promise<Metadata> {
-  const { isEnabled: isDraftMode } = draftMode()
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let page: Page | null = null
 
