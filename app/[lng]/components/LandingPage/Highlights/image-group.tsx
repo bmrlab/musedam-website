@@ -187,7 +187,10 @@ export const OrganizeImageGroup = ({ className, isBuildFinished: _isBuildFinishe
   )
 }
 
-export const CollaborateImageGroup = ({ className, isBuildFinished: _isBuildFinished }: ImageGroupProps) => {
+export const CollaborateImageGroup = ({
+  className,
+  isBuildFinished: _isBuildFinished,
+}: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
 

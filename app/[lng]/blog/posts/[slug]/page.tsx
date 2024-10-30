@@ -3,14 +3,14 @@ import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { Comment, Post } from '@/payload/payload-types'
+import { Comment, Post } from '@src/payload/payload-types'
 import { fetchComments } from '@/_api/fetchComments'
 import { fetchDoc } from '@/_api/fetchDoc'
 import { fetchDocs } from '@/_api/fetchDocs'
-import { Blocks } from '../../../components/Blocks'
-import { PremiumContent } from '../../../components/PremiumContent'
-import { PostHero } from '../../../_heros/PostHero'
-import { generateMeta } from '../../../_utilities/generateMeta'
+import { Blocks } from "@/[lng]/components/Blocks"
+import { PremiumContent } from "@/[lng]/components/PremiumContent"
+import { PostHero } from "@/[lng]/_heros/PostHero"
+import { generateMeta } from "@/[lng]/_utilities/generateMeta"
 
 // Force this page to be dynamic so that Next.js does not cache it
 // See the note in '../../../[slug]/page.tsx' about this

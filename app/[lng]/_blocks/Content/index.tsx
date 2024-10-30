@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Page } from '@/payload/payload-types'
+import { Page } from '@src/payload/payload-types'
 import { Gutter } from '../../components/Gutter'
 import { CMSLink } from '../../components/Link'
 import RichText from '../../components/RichText'

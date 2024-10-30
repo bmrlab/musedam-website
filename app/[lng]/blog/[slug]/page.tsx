@@ -3,13 +3,14 @@ import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { Page } from '@/payload/payload-types'
-import { staticHome } from '@/payload/seed/home-static'
+import { Page } from '@src/payload/payload-types'
+import { staticHome } from '@src/payload/seed/home-static'
 import { fetchDoc } from '@/_api/fetchDoc'
 import { fetchDocs } from '@/_api/fetchDocs'
 import { Blocks } from '../../components/Blocks'
-import { Hero } from '../../components/LandingPage/Hero'
 import { generateMeta } from '../../_utilities/generateMeta'
+import { Hero } from "@/[lng]/components/Hero";
+import { home } from "@src/payload/seed/home";
 
 // Payload Cloud caches all files through Cloudflare, so we don't need Next.js to cache them as well
 // This means that we can turn off Next.js data caching and instead rely solely on the Cloudflare CDN
@@ -41,7 +42,7 @@ export default async function Page({ params: { slug = 'home' } }) {
   // you should delete this code once you have a home page in the CMS
   // this is really only useful for those who are demoing this template
   if (!page && slug === 'home') {
-    page = staticHome
+    page = home as Page
   }
 
   if (!page) {
@@ -91,6 +92,8 @@ export async function generateMetadata({ params: { slug = 'home' } }): Promise<M
   if (!page) {
     if (slug === 'home') page = staticHome
   }
+
+  console.log('page', page, isDraftMode)
 
   return generateMeta({ doc: page })
 }
