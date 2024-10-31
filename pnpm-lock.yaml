@@ -43,16 +43,16 @@ dependencies:
     specifier: beta
     version: 3.0.0-beta.122(monaco-editor@0.52.0)(next@15.0.0)(payload@3.0.0-beta.122)(react-dom@19.0.0-rc-65a56d0e-20241020)(react@19.0.0-rc-65a56d0e-20241020)(types-react@19.0.0-rc.1)(typescript@5.6.3)
   '@radix-ui/react-checkbox':
-    specifier: ^1.0.4
+    specifier: ^1.1.2
     version: 1.1.2(react-dom@19.0.0-rc-65a56d0e-20241020)(react@19.0.0-rc-65a56d0e-20241020)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
   '@radix-ui/react-label':
-    specifier: ^2.0.2
+    specifier: ^2.1.0
     version: 2.1.0(react-dom@19.0.0-rc-65a56d0e-20241020)(react@19.0.0-rc-65a56d0e-20241020)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
   '@radix-ui/react-select':
-    specifier: ^2.0.0
+    specifier: ^2.1.2
     version: 2.1.2(react-dom@19.0.0-rc-65a56d0e-20241020)(react@19.0.0-rc-65a56d0e-20241020)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
   '@radix-ui/react-slot':
-    specifier: ^1.0.2
+    specifier: ^1.1.0
     version: 1.1.0(react@19.0.0-rc-65a56d0e-20241020)(types-react@19.0.0-rc.1)
   class-variance-authority:
     specifier: ^0.7.0
@@ -99,6 +99,9 @@ dependencies:
   react-hook-form:
     specifier: 7.45.4
     version: 7.45.4(react@19.0.0-rc-65a56d0e-20241020)
+  react-twc:
+    specifier: ^1.4.2
+    version: 1.4.2(react@19.0.0-rc-65a56d0e-20241020)(types-react@19.0.0-rc.1)
   sharp:
     specifier: 0.32.6
     version: 0.32.6
@@ -8390,6 +8393,16 @@ packages:
       prop-types: 15.8.1
       react: 19.0.0-rc-65a56d0e-20241020
       react-dom: 19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020)
+    dev: false
+
+  /react-twc@1.4.2(react@19.0.0-rc-65a56d0e-20241020)(types-react@19.0.0-rc.1):
+    resolution: {integrity: sha512-ix8Z1dNacL29Vri3rWsQqRYMQXWCNzbI1qhz0yyvcbO057HZwz3rXZDQ7TcOE1hQ7EHornX3ka2reO27RmXiYA==}
+    dependencies:
+      '@radix-ui/react-slot': 1.1.0(react@19.0.0-rc-65a56d0e-20241020)(types-react@19.0.0-rc.1)
+      clsx: 2.1.1
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
     dev: false
 
   /react@18.2.0:
