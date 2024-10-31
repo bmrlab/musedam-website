@@ -9,23 +9,31 @@ services:
       - .:/home/node/app
       - node_modules:/home/node/app/node_modules
     working_dir: /home/node/app/
-    command: sh -c "yarn install && yarn dev"
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm dev"
     depends_on:
-      - mongo
+      # - mongo
+      - postgres
     env_file:
       - .env
 
-  mongo:
-    image: mongo:latest
+  # Ensure your DATABASE_URI uses 'mongo' as the hostname ie. mongodb://mongo/my-db-name
+  #  mongo:
+  #    image: mongo:latest
+  #    ports:
+  #      - '27017:27017'
+  #    command:
+  #      - --storageEngine=wiredTiger
+  #    logging:
+  #      driver: none
+
+  # Uncomment the following to use postgres
+  postgres:
+    image: postgres:latest
     ports:
-      - '27017:27017'
-    command:
-      - --storageEngine=wiredTiger
-    volumes:
-      - data:/data/db
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     logging:
       driver: none
-
-volumes:
-  data:
-  node_modules:
