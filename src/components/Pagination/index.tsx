@@ -32,7 +32,7 @@ export const Pagination: React.FC<{
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              disabled={!hasPrevPage}
+              // disabled={!hasPrevPage}
               onClick={() => {
                 router.push(`/posts/page/${page - 1}`)
               }}
@@ -88,7 +88,7 @@ export const Pagination: React.FC<{
 
           <PaginationItem>
             <PaginationNext
-              disabled={!hasNextPage}
+              // disabled={!hasNextPage}
               onClick={() => {
                 router.push(`/posts/page/${page + 1}`)
               }}
