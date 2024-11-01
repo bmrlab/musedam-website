@@ -38,7 +38,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | MuseDAM Website` : 'MuseDAM Website'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -95,8 +95,7 @@ export default buildConfig({
           enabledCollections: ['pages', 'posts'],
           fields: ({ defaultFields }) => {
             const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
-              if ('name' in field && field.name === 'url') return false
-              return true
+              return !('name' in field && field.name === 'url')
             })
 
             return [
