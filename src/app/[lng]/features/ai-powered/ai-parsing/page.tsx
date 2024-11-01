@@ -1,5 +1,5 @@
-import Hero from '@/[lng]/features/_components/Hero'
-import Showcase, { ShowcaseProps } from '@/[lng]/features/_components/Showcase'
+import Hero from '@/app/[lng]/features/_components/Hero'
+import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
 
 const heroData = {
   tag: 'AI Parsing',
