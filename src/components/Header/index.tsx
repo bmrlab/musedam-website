@@ -18,7 +18,7 @@ import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icons from '@/components/icon'
 import useIsMobile from '@/hooks/useIsMobile'
-import { features } from '@/components/Header/mock'
+import { FeatureItem, features } from '@/components/Header/mock'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 
 const DEFAULT_HERO_IMAGE = '/bmr.svg'
@@ -37,6 +37,19 @@ export default function Header() {
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
 
   const categories = useMemo(() => features.map((f) => f.category), [])
+
+  const featuresRowFlat = useMemo(() => {
+    const rowFlatItems: FeatureItem[] = []
+    console.log('lg', Math.max(...features.map((f) => f.items.length)))
+    new Array(Math.max(...features.map((f) => f.items.length))).fill(0).forEach((_, i) => {
+      new Array(features.length).fill(0).forEach((_, j) => {
+        const data = features[j].items[i]
+        rowFlatItems.push(data)
+      })
+    })
+    return rowFlatItems
+  }, [])
+  console.log('featuresRowFlat', featuresRowFlat)
 
   return (
     <nav className="relative flex h-[56px] w-full items-center border-b border-black bg-white md:h-[70px]">
@@ -61,51 +74,37 @@ export default function Header() {
                       {category}
                     </div>
                   ))}
-                  {new Array(Math.max(...features.map((f) => f.items.length)))
-                    .fill(0)
-                    .map((_, i) => (
-                      <div key={i}>
-                        {new Array(3).fill(0).map((_, j) => {
-                          const data = features[j].items[i]
-                          if (!data) return <li key={j}></li>
-                          return (
-                            <li
-                              key={j}
-                              className="group"
-                              onMouseOver={() => setCurrentHeroImage(data.heroImage ?? '')}
-                              onMouseLeave={() => setCurrentHeroImage('')}
-                            >
-                              <NavigationMenuLink asChild>
-                                <a
-                                  className={cn(
-                                    'block cursor-pointer select-none space-y-1 rounded-md py-3 leading-none no-underline outline-none',
-                                  )}
-                                >
-                                  <div
-                                    key={data.title}
-                                    className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                  >
-                                    <IconWrapper
-                                      icon={data.icon}
-                                      size={20}
-                                      className="self-start"
-                                    />
-                                    <div className="flex flex-col gap-2">
-                                      <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
-                                        {data.title}
-                                      </div>
-                                      <div className="text-[13px] leading-[19.5px] text-black/60">
-                                        {data.description}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </a>
-                              </NavigationMenuLink>
-                            </li>
-                          )
-                        })}
-                      </div>
-                    ))}
+                  {featuresRowFlat.map((data, i) => (
+                    <li
+                      key={i}
+                      className="group"
+                      onMouseOver={() => setCurrentHeroImage(data.heroImage ?? '')}
+                      onMouseLeave={() => setCurrentHeroImage('')}
+                    >
+                      <NavigationMenuLink asChild>
+                        <a
+                          className={cn(
+                            'block cursor-pointer select-none space-y-1 rounded-md py-3 leading-none no-underline outline-none',
+                          )}
+                        >
+                          <div
+                            key={data.title}
+                            className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <IconWrapper icon={data.icon} size={20} className="self-start" />
+                            <div className="flex flex-col gap-2">
+                              <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
+                                {data.title}
+                              </div>
+                              <div className="text-[13px] leading-[19.5px] text-black/60">
+                                {data.description}
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                  ))}
                 </ul>
                 <div
                   style={{

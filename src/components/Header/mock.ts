@@ -14,14 +14,16 @@ import {
   Zap,
 } from 'lucide-react'
 
+export type FeatureItem = {
+  icon: React.ComponentType<LucideProps>
+  title: string
+  description: string
+  heroImage?: string
+}
+
 export const features: {
   category: string
-  items: {
-    icon: React.ComponentType<LucideProps>
-    title: string
-    description: string
-    heroImage?: string
-  }[]
+  items: FeatureItem[]
 }[] = [
   {
     category: 'AI-Powered',
