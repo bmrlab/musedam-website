@@ -16,7 +16,7 @@ const AvatarPrefix = '/Testimonial'
 
 const data: PreceptData[] = [
   {
-    avatar: `${AvatarPrefix}/avatar1.png`,
+    avatar: `${AvatarPrefix}/Avatar1.png`,
     name: 'Isabella Gray',
     role: 'Creative Director',
     description: [
@@ -25,7 +25,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar2.png`,
+    avatar: `${AvatarPrefix}/Avatar2.png`,
     name: 'Ava Martin',
     role: 'Brand Manager',
     description: [
@@ -34,7 +34,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar3.png`,
+    avatar: `${AvatarPrefix}/Avatar3.png`,
     name: 'Mark Davis',
     role: 'IT Specialist',
     description: [
@@ -43,7 +43,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar4.png`,
+    avatar: `${AvatarPrefix}/Avatar4.png`,
     name: 'Oscar Dickieson',
     role: 'Content Creator',
     description: [
@@ -52,7 +52,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar5.png`,
+    avatar: `${AvatarPrefix}/Avatar5.png`,
     name: 'Sophia Lee',
     role: 'Creative Director',
     description: [
@@ -61,7 +61,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar6.png`,
+    avatar: `${AvatarPrefix}/Avatar6.png`,
     name: 'Lily Thompson',
     role: 'Marketing Manager',
     description: [
@@ -70,7 +70,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar7.png`,
+    avatar: `${AvatarPrefix}/Avatar7.png`,
     name: 'Lara Turner',
     role: 'Digital Strategist',
     description: [
@@ -79,7 +79,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar8.png`,
+    avatar: `${AvatarPrefix}/Avatar8.png`,
     name: 'Jake Chandler',
     role: 'Operations Manager',
     description: [
@@ -88,7 +88,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar9.png`,
+    avatar: `${AvatarPrefix}/Avatar9.png`,
     name: 'Mia Tse',
     role: 'Team Coordinator',
     description: [
@@ -97,7 +97,7 @@ const data: PreceptData[] = [
     ],
   },
   {
-    avatar: `${AvatarPrefix}/avatar10.png`,
+    avatar: `${AvatarPrefix}/Avatar10.png`,
     name: 'Oliver Anderson',
     role: 'Art Director',
     description: [
