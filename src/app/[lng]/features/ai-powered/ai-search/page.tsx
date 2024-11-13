@@ -2,12 +2,10 @@
 
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import Image from 'next/image'
 import { RelativeContainer } from '@/components/StyleWrapper/container'
-import { twx } from '@/utilities/cn'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
+import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 const heroData = {
   tag: 'AI Search',
@@ -52,12 +50,12 @@ export default function AiSearchPage() {
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
         <motion.div
-          className="grid justify-items-center w-full px-20"
+          className="grid justify-items-center w-[640px]"
           whileInView={{ opacity: 1 }}
           viewport={{ amount: 0.5 }}
           onAnimationComplete={() => handleAnimationComplete(0)}
         >
-          <div className="flex justify-between w-full">
+          <div className="flex justify-between w-full pl-[53px] pr-[47.17px]">
             <MotionShadowImage
               src="/Features/AI-Search/AI-Search-Tags.png"
               width={229}
@@ -105,6 +103,3 @@ export default function AiSearchPage() {
     </div>
   )
 }
-
-const ShadowImage = twx(Image)`drop-shadow-[0px_4px_30px_4px_#00000014]`
-const MotionShadowImage = motion.create(ShadowImage)

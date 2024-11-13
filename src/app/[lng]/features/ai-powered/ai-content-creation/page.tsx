@@ -9,7 +9,6 @@ const heroData = {
 }
 
 const showcaseData: ShowcaseProps = {
-  image: '/Features/AI-Powered/AI-Content-Creation-Hero.png',
   title: 'Unlock AI-Powered Content Efficiency and Innovation',
   points: [
     {
