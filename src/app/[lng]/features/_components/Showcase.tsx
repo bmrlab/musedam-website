@@ -1,15 +1,19 @@
-import Image from 'next/image'
+import { PropsWithChildren } from 'react'
 
 type PointsProps = { keyword: string; description: string }
 
 export type ShowcaseProps = {
-  image: string
   title: string
   description?: string
   points: PointsProps[]
 }
 
-export default function Showcase({ image, title, description, points }: ShowcaseProps) {
+export default function Showcase({
+  title,
+  description,
+  points,
+  children,
+}: PropsWithChildren<ShowcaseProps>) {
   return (
     <div className="grid w-full grid-cols-2">
       <div
@@ -18,7 +22,7 @@ export default function Showcase({ image, title, description, points }: Showcase
         }}
         className="col-span-1 flex items-center justify-center"
       >
-        <Image src={image} width={640} height={640} alt="AI-Search-Hero"></Image>
+        {children}
       </div>
       <div className="col-span-1 p-20">
         <h2 className="font-baskervville text-[48px] font-normal leading-[54.91px] tracking-[1px]">

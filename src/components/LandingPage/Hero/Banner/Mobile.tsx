@@ -2,13 +2,11 @@ import { useCallback, useState } from 'react'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  AbsXCenterContainer,
-  FlexColContainer,
   MotionImage,
   MotionShadowImageRounded,
   MotionShadowRoundedFullImage,
-  RelativeContainer,
 } from '.'
+import { AbsXCenterContainer, FlexColContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 
 export default function MobileBanner() {
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤

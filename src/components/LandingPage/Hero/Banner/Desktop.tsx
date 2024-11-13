@@ -1,30 +1,18 @@
 import { useCallback, useState } from 'react'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
+import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 import {
   AbsXCenterContainer,
   FlexColContainer,
-  MotionImage,
-  MotionShadowImageRounded,
-  MotionShadowRoundedFullImage,
   RelativeContainer,
-} from '.'
+} from '@/components/StyleWrapper/container'
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 
 export default function DesktopBanner() {
-  const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
-
-  const handleAnimationComplete = useCallback(
-    (i: number) => {
-      if (animationStep < i) {
-        setAnimationStep(i)
-      }
-    },
-    [animationStep],
-  )
-
-  const isBuildFinished = useCallback((i: number) => animationStep >= i, [animationStep])
+  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace()
 
   return (
     <div className="flex select-none justify-center gap-6">
