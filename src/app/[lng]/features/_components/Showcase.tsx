@@ -16,14 +16,7 @@ export default function Showcase({
 }: PropsWithChildren<ShowcaseProps>) {
   return (
     <div className="grid w-full grid-cols-2">
-      <div
-        style={{
-          background: 'linear-gradient(180deg, #9DAFC7 0%, #C3CFE8 100%)',
-        }}
-        className="col-span-1 flex items-center justify-center"
-      >
-        {children}
-      </div>
+      <div className="col-span-1">{children}</div>
       <div className="col-span-1 p-20">
         <h2 className="font-baskervville text-[48px] font-normal leading-[54.91px] tracking-[1px]">
           {title}
