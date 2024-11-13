@@ -86,7 +86,7 @@ export default function AutoTagsPage() {
               className="absolute top-[59px] right-[-95.65px]"
               initial={{ x: '10%', opacity: 0 }}
               animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}
+              transition={{ duration: 1, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(2)}
             />
           </RelativeContainer>
