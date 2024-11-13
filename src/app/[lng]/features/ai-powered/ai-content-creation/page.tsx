@@ -1,5 +1,11 @@
+'use client'
+
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
+import useAnimationTrace from '@/hooks/useAnimationTrace'
+import { motion } from 'framer-motion'
+import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
 const heroData = {
   tag: 'AI Content Creation',
@@ -40,10 +46,52 @@ const showcaseData: ShowcaseProps = {
 }
 
 export default function AiContentCreationPage() {
+  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+
   return (
     <div>
       <Hero {...heroData} />
-      <Showcase {...showcaseData}></Showcase>
+      <Showcase {...showcaseData}>
+        <motion.div
+          className="grid justify-items-center w-[640px]"
+          whileInView={{ opacity: 1 }}
+          viewport={{ amount: 0.5 }}
+          onAnimationComplete={() => handleAnimationComplete(0)}
+        >
+          <FlexColContainer className="gap-[16.82px] w-[525.62px]">
+            <MotionImage
+              src="/Features/Content-Creation/Content-Creation1.png"
+              width={474}
+              height={223.3}
+              alt="Content-Creation1"
+              initial={{ x: '-10%', opacity: 0 }}
+              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
+              transition={{ duration: 1, ease: 'easeInOut' }}
+              onAnimationComplete={() => handleAnimationComplete(1)}
+            />
+            <MotionImage
+              src="/Features/Content-Creation/Content-Creation2.png"
+              width={196.35}
+              height={47.69}
+              alt="Content-Creation2"
+              className="self-end"
+              initial={{ x: '10%', opacity: 0 }}
+              animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
+              transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}
+              onAnimationComplete={() => handleAnimationComplete(2)}
+            />
+            <MotionImage
+              src="/Features/Content-Creation/Content-Creation3.png"
+              width={474}
+              height={297.88}
+              alt="Content-Creation3"
+              initial={{ x: '-10%', opacity: 0 }}
+              animate={isBuildFinished(2) ? { x: 0, opacity: 1 } : {}}
+              transition={{ duration: 1, ease: 'easeInOut' }}
+            />
+          </FlexColContainer>
+        </motion.div>
+      </Showcase>
     </div>
   )
 }
