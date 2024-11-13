@@ -40,7 +40,6 @@ export default function Header() {
 
   const featuresRowFlat = useMemo(() => {
     const rowFlatItems: FeatureItem[] = []
-    console.log('lg', Math.max(...features.map((f) => f.items.length)))
     new Array(Math.max(...features.map((f) => f.items.length))).fill(0).forEach((_, i) => {
       new Array(features.length).fill(0).forEach((_, j) => {
         const data = features[j].items[i]
@@ -49,7 +48,6 @@ export default function Header() {
     })
     return rowFlatItems
   }, [])
-  console.log('featuresRowFlat', featuresRowFlat)
 
   return (
     <nav className="relative flex h-[56px] w-full items-center border-b border-black bg-white md:h-[70px]">
@@ -81,28 +79,30 @@ export default function Header() {
                       onMouseOver={() => setCurrentHeroImage(data.heroImage ?? '')}
                       onMouseLeave={() => setCurrentHeroImage('')}
                     >
-                      <NavigationMenuLink asChild>
-                        <a
-                          className={cn(
-                            'block cursor-pointer select-none space-y-1 rounded-md py-3 leading-none no-underline outline-none',
-                          )}
-                        >
-                          <div
-                            key={data.title}
-                            className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      <Link href={data.url ?? ''} legacyBehavior passHref>
+                        <NavigationMenuLink asChild>
+                          <a
+                            className={cn(
+                              'block cursor-pointer select-none space-y-1 rounded-md py-3 leading-none no-underline outline-none',
+                            )}
                           >
-                            <IconWrapper icon={data.icon} size={20} className="self-start" />
-                            <div className="flex flex-col gap-2">
-                              <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
-                                {data.title}
-                              </div>
-                              <div className="text-[13px] leading-[19.5px] text-black/60">
-                                {data.description}
+                            <div
+                              key={data.title}
+                              className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            >
+                              <IconWrapper icon={data.icon} size={20} className="self-start" />
+                              <div className="flex flex-col gap-2">
+                                <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
+                                  {data.title}
+                                </div>
+                                <div className="text-[13px] leading-[19.5px] text-black/60">
+                                  {data.description}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </a>
-                      </NavigationMenuLink>
+                          </a>
+                        </NavigationMenuLink>
+                      </Link>
                     </li>
                   ))}
                 </ul>

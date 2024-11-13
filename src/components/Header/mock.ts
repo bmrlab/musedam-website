@@ -19,6 +19,7 @@ export type FeatureItem = {
   title: string
   description: string
   heroImage?: string
+  url?: string
 }
 
 export const features: {
@@ -33,30 +34,35 @@ export const features: {
         title: 'AI Search',
         description: 'Visual Content Asset Search',
         heroImage: '/Features/AI-Powered/AI-Search-Hero.png',
+        url: '/features/ai-powered/ai-search',
       },
       {
         icon: Zap,
         title: 'AI Parsing',
         description: 'Visuals, Color Schemes, Themes, etc.',
         heroImage: '/Features/AI-Powered/AI-Parsing-Hero.png',
+        url: '/features/ai-powered/ai-parsing',
       },
       {
         icon: FileText,
         title: 'AI Content Creation',
         description: 'Craft Blog from Asset Insights',
         heroImage: '/Features/AI-Powered/AI-Content-Creation-Hero.png',
+        url: '/features/ai-powered/ai-content-creation',
       },
       {
         icon: Tags,
         title: 'Auto Tags',
         description: 'Auto-Tag for Search & Clustering',
         heroImage: '/Features/AI-Powered/Auto-Tags-Hero.png',
+        url: '/features/ai-powered/auto-tags',
       },
       {
         icon: Bot,
         title: 'MuseCopilot',
         description: 'Chat with Copilot on your Content',
         heroImage: '/Features/AI-Powered/MuseCopilot-Hero.png',
+        url: '/features/ai-powered/muse-copilot',
       },
     ],
   },
