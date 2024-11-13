@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <section className="flex size-full flex-col items-center justify-center">
       {children}
-      <FamousQuotes className="h-[389px]" />
+      <FamousQuotes className="h-[800px]" />
       <AdvancedBlock />
       <SubscribeBlock className="w-full" />
     </section>

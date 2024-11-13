@@ -1,30 +1,40 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/utilities/cn'
+import { getRandomItem } from '@/utilities/random'
+import { preceptData } from '@/components/LandingPage/Precept/mock'
 
 export default function FamousQuotes({ className }: { className?: string }) {
+  const data = getRandomItem(preceptData)
+
   return (
     <div
       className={cn(
-        'flex w-full flex-col items-center justify-center bg-black text-white',
+        'relative flex w-full flex-col items-center justify-center bg-[#06063A] text-white',
         className,
       )}
     >
-      <div className="mx-auto max-w-3xl text-center">
-        <Avatar className="mx-auto mb-2.5 h-20 w-20">
-          <AvatarImage src="/placeholder.svg" alt="Avatar" />
-          <AvatarFallback></AvatarFallback>
-        </Avatar>
-        <blockquote className="mb-6 text-[18px] font-light leading-[27px]">
-          &ldquo;Muse has revolutionized our workflow. Our marketing and social media teams now
-          access assets seamlessly, without interrupting our designers&apos; productivity. The speed
-          and dependability of Muse surpass our previous experience with Dropbox, making it an
-          indispensable tool for our creative process.&rdquo;
+      <div className="z-[1] px-[80px] text-center flex justify-center gap-[60px] flex-col">
+        <blockquote className="text-start font-mono text-[32px] font-light leading-[56px] text-white">
+          <span className="text-[120px]">&ldquo;</span>
+          {data.description}
         </blockquote>
-        <cite className="text-[16px] font-normal not-italic leading-4">
-          <div>Name</div>
-          <div className="mt-1">Co-Founder and CEO @ XXX</div>
+        <cite className="flex items-center gap-4 not-italic">
+          <Avatar className="h-[64px] w-[64px]">
+            <AvatarImage src={data.avatar} alt="Sarah Thompson" />
+            <AvatarFallback>ST</AvatarFallback>
+          </Avatar>
+          <div className="font-mono flex flex-col justify-items-start">
+            <div className="font-medium text-[20px] leading-[26px] text-white">{data.name}</div>
+            <div className="font-light text-[13px] leading-[16.9px] text-white/50">{data.role}</div>
+          </div>
         </cite>
       </div>
+      <div
+        style={{
+          background: 'linear-gradient(#0C1043, #262E56)',
+        }}
+        className="absolute top-1/2 right-[150px] translate-y-[-50%] rounded-full size-[589px]"
+      ></div>
     </div>
   )
 }

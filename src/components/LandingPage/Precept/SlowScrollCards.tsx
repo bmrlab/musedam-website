@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { PreceptData } from '@/components/LandingPage/Precept/index'
+import { PreceptData } from '@/components/LandingPage/Precept/mock'
 
 const SlowScrollCards = ({ data }: { data: PreceptData[] }) => {
   const containerVariants = {
