@@ -1,5 +1,11 @@
+'use client'
+
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
+import { motion } from 'framer-motion'
+import { RelativeContainer } from '@/components/StyleWrapper/container'
+import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 
 const heroData = {
   tag: 'Auto Tags',
@@ -9,7 +15,6 @@ const heroData = {
 }
 
 const showcaseData: ShowcaseProps = {
-  image: '/Features/AI-Powered/Auto-Tags-Hero.png',
   title: 'Efficient Asset Management: Simplified',
   description:
     'Break free from traditional folder hierarchies. Discover your content in a single, streamlined step.',
@@ -40,10 +45,53 @@ const showcaseData: ShowcaseProps = {
 }
 
 export default function AutoTagsPage() {
+  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+
   return (
     <div>
       <Hero {...heroData} />
-      <Showcase {...showcaseData}></Showcase>
+      <Showcase {...showcaseData}>
+        <motion.div
+          className="grid justify-items-start w-[640px] pl-[60px]"
+          whileInView={{ opacity: 1 }}
+          viewport={{ amount: 0.5 }}
+          onAnimationComplete={() => handleAnimationComplete(0)}
+        >
+          <RelativeContainer>
+            <MotionImage
+              src="/Features/Auto-Tags/Auto-Tags-Images.png"
+              width={456.8}
+              height={471.61}
+              alt="Auto-Tags-Images"
+              initial={{ y: '10%', opacity: 0 }}
+              animate={isBuildFinished(0) ? { y: 0, opacity: 1 } : {}}
+              transition={{ duration: 1, ease: 'easeInOut' }}
+              onAnimationComplete={() => handleAnimationComplete(1)}
+            />
+            <MotionShadowImage
+              src="/Features/Auto-Tags/Auto-Tags-Example.png"
+              width={136.45}
+              height={97.3}
+              alt="Auto-Tags-Example"
+              className="absolute bottom-[39.51px] right-[-81.2px]"
+              initial={{ x: '-10%', opacity: 0 }}
+              animate={isBuildFinished(2) ? { x: 0, opacity: 1 } : {}}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            />
+            <MotionImage
+              src="/Features/Auto-Tags/Auto-Tags-Group.png"
+              width={200}
+              height={238}
+              alt="Auto-Tags-Group"
+              className="absolute top-[59px] right-[-95.65px]"
+              initial={{ x: '10%', opacity: 0 }}
+              animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
+              transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}
+              onAnimationComplete={() => handleAnimationComplete(2)}
+            />
+          </RelativeContainer>
+        </motion.div>
+      </Showcase>
     </div>
   )
 }
