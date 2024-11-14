@@ -134,7 +134,7 @@ export default function InspirationCollectionPage() {
               src="/Features/Inspiration-Collection/Inspiration-Collection-URL.png"
               width={516.44}
               height={39}
-              alt="Inspiration-Collection-URL.png"
+              alt="Inspiration-Collection-URL"
               className="mt-[29px]"
               initial={{ y: '-10%', opacity: 0 }}
               animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
