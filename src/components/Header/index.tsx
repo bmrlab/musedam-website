@@ -11,14 +11,14 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-   NavigationMenuTrigger,
+  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icons from '@/components/icon'
 import useIsMobile from '@/hooks/useIsMobile'
-import { FeatureItem, features } from '@/components/Header/mock'
+import { FeatureItem, features } from '@/components/Header/data'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 
 const DEFAULT_HERO_IMAGE = '/bmr.svg'
