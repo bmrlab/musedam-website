@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { Metadata } from 'next'
-import AdvancedBlock from '@/app/[lng]/features/_components/Advanced'
 import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 import { languages } from '@/app/i18n/settings'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
@@ -16,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <section className="flex size-full flex-col items-center justify-center">
       {children}
       <FamousQuotes className="h-[800px]" />
-      <AdvancedBlock />
+      {/*<AdvancedBlock />*/}
       <SubscribeBlock className="w-full" />
     </section>
   )

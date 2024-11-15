@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
 
 const heroData = {
   tag: 'AI Parsing',
@@ -47,8 +48,7 @@ export default function AiParsingPage() {
         <FlexCenterContainer
           style={{
             height: '100%',
-            background:
-              'linear-gradient(180deg, #FEEBE2 0%, #C2BEFF 100%)',
+            background: 'linear-gradient(180deg, #FEEBE2 0%, #C2BEFF 100%)',
           }}
         >
           <motion.div
@@ -92,6 +92,14 @@ export default function AiParsingPage() {
             </RelativeContainer>
           </motion.div>
         </FlexCenterContainer>
+        <MoreFeatures
+          features={[
+            FeaturesEnum.AISearch,
+            FeaturesEnum.ContentCreation,
+            FeaturesEnum.AutoTags,
+            FeaturesEnum.MuseCopilot,
+          ]}
+        />
       </Showcase>
     </div>
   )

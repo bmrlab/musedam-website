@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
 
 const heroData = {
   tag: 'Auto Tags',
@@ -99,6 +100,14 @@ export default function AutoTagsPage() {
           </motion.div>
         </FlexCenterContainer>
       </Showcase>
+      <MoreFeatures
+        features={[
+          FeaturesEnum.AISearch,
+          FeaturesEnum.AIParsing,
+          FeaturesEnum.ContentCreation,
+          FeaturesEnum.MuseCopilot,
+        ]}
+      />
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrappe
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import { motion } from 'framer-motion'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
 
 const heroData = {
   tag: 'MuseCopilot',
@@ -96,6 +97,14 @@ export default function AiPoweredPage() {
           </motion.div>
         </FlexCenterContainer>
       </Showcase>
+      <MoreFeatures
+        features={[
+          FeaturesEnum.AISearch,
+          FeaturesEnum.AIParsing,
+          FeaturesEnum.ContentCreation,
+          FeaturesEnum.AutoTags,
+        ]}
+      />
     </div>
   )
 }

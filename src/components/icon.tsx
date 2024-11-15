@@ -1,6 +1,14 @@
 import { SVGProps } from 'react'
+import { LucideProps } from 'lucide-react'
 
 export type IconProps = SVGProps<SVGSVGElement>
+
+export const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProps> }> = ({
+  icon: Icon,
+  ...props
+}) => {
+  return <Icon {...props} />
+}
 
 const Icons = {
   locales: (props: IconProps) => (

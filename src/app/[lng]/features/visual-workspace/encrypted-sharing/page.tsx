@@ -5,7 +5,7 @@ import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showca
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
-import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
+import { MotionImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
 
 const heroData = {
