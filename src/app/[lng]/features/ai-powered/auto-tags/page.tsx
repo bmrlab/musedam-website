@@ -6,7 +6,9 @@ import { motion } from 'framer-motion'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
-import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
+import MoreFeatures from '@/app/[lng]/features/_components/MoreFeatures'
+import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
+import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Auto Tags',
@@ -100,6 +102,7 @@ export default function AutoTagsPage() {
           </motion.div>
         </FlexCenterContainer>
       </Showcase>
+      <FamousQuotes className="h-[800px]" />
       <MoreFeatures
         features={[
           FeaturesEnum.AISearch,

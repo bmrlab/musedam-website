@@ -6,7 +6,9 @@ import { motion } from 'framer-motion'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
-import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
+import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
+import MoreFeatures from '@/app/[lng]/features/_components/MoreFeatures'
+import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
 
 const heroData = {
   tag: 'AI Parsing',
@@ -92,6 +94,7 @@ export default function AiParsingPage() {
             </RelativeContainer>
           </motion.div>
         </FlexCenterContainer>
+        <FamousQuotes className="h-[800px]" />
         <MoreFeatures
           features={[
             FeaturesEnum.AISearch,

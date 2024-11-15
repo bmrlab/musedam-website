@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { Metadata } from 'next'
-import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 import { languages } from '@/app/i18n/settings'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -14,7 +13,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <section className="flex size-full flex-col items-center justify-center">
       {children}
-      <FamousQuotes className="h-[800px]" />
       {/*<AdvancedBlock />*/}
       <SubscribeBlock className="w-full" />
     </section>

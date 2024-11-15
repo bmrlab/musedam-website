@@ -6,7 +6,9 @@ import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { FlexCenterContainer, FlexColContainer } from '@/components/StyleWrapper/container'
 import { MotionImage } from '@/components/StyleWrapper/image'
-import MoreFeatures, { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures'
+import MoreFeatures from '@/app/[lng]/features/_components/MoreFeatures'
+import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
+import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'AI Content Creation',
@@ -100,6 +102,7 @@ export default function AiContentCreationPage() {
           </motion.div>
         </FlexCenterContainer>
       </Showcase>
+      <FamousQuotes className="h-[800px]" />
       <MoreFeatures
         features={[
           FeaturesEnum.AISearch,
