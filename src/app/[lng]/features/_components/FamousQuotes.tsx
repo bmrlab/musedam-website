@@ -1,3 +1,5 @@
+'use client'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/utilities/cn'
 import { getRandomItem } from '@/utilities/random'
@@ -28,7 +30,7 @@ export default function FamousQuotes({ className }: { className?: string }) {
             <AvatarImage src={data.avatar} alt="Sarah Thompson" />
             <AvatarFallback>ST</AvatarFallback>
           </Avatar>
-          <div className="font-mono flex flex-col justify-items-start">
+          <div className="text-start font-mono flex flex-col justify-items-start">
             <div className="font-medium text-[20px] leading-[26px] text-white">{data.name}</div>
             <div className="font-light text-[13px] leading-[16.9px] text-white/50">{data.role}</div>
           </div>
