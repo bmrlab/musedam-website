@@ -1,4 +1,6 @@
 import { PropsWithChildren } from 'react'
+import { Circle } from 'lucide-react'
+import { FlexCenterContainer } from '@/components/StyleWrapper/container'
 
 type PointsProps = { keyword: string; description: string }
 
@@ -34,11 +36,16 @@ export default function Showcase({
   )
 }
 
-const Point = ({ keyword, description }: PointsProps) => {
+export const Point = ({ keyword, description }: PointsProps) => {
   return (
-    <ul>
-      <li className="list-disc">{keyword}</li>
-      <p className="mt-2 font-mono text-[16px] font-light leading-6 tracking-[2%]">{description}</p>
-    </ul>
+    <div className="flex items-start">
+      <FlexCenterContainer className="h-[28px] px-2">
+        <Circle className="size-1 fill-current" />
+      </FlexCenterContainer>
+      <div className="text-[16px] font-mono space-y-2 tracking-[2%]">
+        <h2 className="font-medium leading-[28px]">{keyword}</h2>
+        <p className="font-light leading-6">{description}</p>
+      </div>
+    </div>
   )
 }

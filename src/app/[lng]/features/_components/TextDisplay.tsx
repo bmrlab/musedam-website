@@ -1,4 +1,4 @@
-import type { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
+import { Point, ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
 import { FlexColContainer } from '@/components/StyleWrapper/container'
 
 export type TextDisplayProps = ShowcaseProps
@@ -13,17 +13,9 @@ export default function TextDisplay({ title, description, points }: TextDisplayP
         {description}
       </p>
       <FlexColContainer className="gap-6">
-        <ul className="list-inside list-disc space-y-6">
-          {points.map((point, index) => (
-            <li
-              key={index}
-              className="font-mono text-black tracking-[2%] text-[16px] leading-[28px] space-y-2"
-            >
-              <span className="relative right-2 font-medium">{point.keyword}</span>
-              <p className="font-light">{point.description}</p>
-            </li>
-          ))}
-        </ul>
+        {points.map((point, index) => (
+          <Point key={index} {...point}></Point>
+        ))}
       </FlexColContainer>
     </FlexColContainer>
   )
