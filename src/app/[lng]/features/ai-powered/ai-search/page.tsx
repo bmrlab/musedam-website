@@ -12,6 +12,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'AI Search',
+  tagColor: '#E8E1FE',
   title: 'Unleash Your Creativity with Smart Search',
   description:
     'Discover a search experience that understands your creative vision. Our AI-enhanced Smart Search allows you to effortlessly find the exact asset you need by recognizing images and suggesting intuitive keywords.',

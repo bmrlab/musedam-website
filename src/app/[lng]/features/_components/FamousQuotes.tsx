@@ -2,9 +2,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/utilities/cn'
 import { getRandomItem } from '@/utilities/random'
 import { preceptData } from '@/components/LandingPage/Precept/mock'
+import { useEffect, useState } from 'react'
 
 export default function FamousQuotes({ className }: { className?: string }) {
-  const data = getRandomItem(preceptData)
+  const [data, setData] = useState(preceptData[0])
+
+  useEffect(() => {
+    setData(getRandomItem(preceptData))
+  }, [])
 
   return (
     <div

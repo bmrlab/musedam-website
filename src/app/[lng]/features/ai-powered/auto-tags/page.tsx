@@ -12,6 +12,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Auto Tags',
+  tagColor: '#E8E1FE',
   title: 'Intelligent Tagging: Simplify and Personalize',
   description:
     "MuseDAM's Auto Tags use AI to automatically categorize your assets with smart tags that understand your content. Say goodbye to manual tagging and discover the power of customized, efficient searches that enhance your brand's workflow.",

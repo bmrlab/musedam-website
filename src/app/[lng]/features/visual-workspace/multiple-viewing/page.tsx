@@ -13,6 +13,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Multiple Viewing',
+  tagColor: '#E6F0FF',
   title: 'Unlock Versatile Viewing Modes for Future-Proof Productivity',
   description:
     "Enhance your project adaptability and workflow efficiency with MuseDAM's suite of advanced viewing modes. Our diverse viewing options ensure you have the perfect mode for every task, streamlining your productivity.",

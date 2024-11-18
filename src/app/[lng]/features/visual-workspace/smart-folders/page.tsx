@@ -14,6 +14,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Smart Folders',
+  tagColor: '#E6F0FF',
   title: 'Smart Folders: Automating File Organization',
   description:
     'Eliminate the complexity of file organization with Smart Folders, a groundbreaking solution that streamlines your digital workflow. Automatically categorize and manage your files with precision, tailored to your specific needs and preferences. 🚀',

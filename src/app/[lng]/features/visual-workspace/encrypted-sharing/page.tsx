@@ -13,6 +13,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Encrypted Sharing',
+  tagColor: '#E6F0FF',
   title: 'Secure and Flexible File Sharing',
   description:
     'Discover a feature-rich, encrypted file sharing solution that ensures unparalleled security and control for your sensitive data, setting MuseDAM apart from competitors like Dropbox and Google Drive.',

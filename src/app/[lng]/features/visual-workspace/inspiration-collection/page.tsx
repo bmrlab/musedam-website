@@ -14,6 +14,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Inspiration Collection',
+  tagColor: '#E6F0FF',
   title: 'AI-Powered Web Inspiration Collector ',
   description:
     'MuseDAM is the ultimate web browser extension for Chrome, Edge, and 360 browsers, designed to supercharge your digital asset management. Experience seamless creativity with our intuitive drag-and-drop feature, and effortlessly collect images, videos, and web pages. Join the AI era with MuseDAM, your go-to AI artwork asset library, ensuring efficient preservation of your digital inspirations.',

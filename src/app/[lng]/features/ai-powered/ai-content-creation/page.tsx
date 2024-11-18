@@ -12,6 +12,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'AI Content Creation',
+  tagColor: '#E8E1FE',
   title: 'AI-Boosted Summaries & Storytelling',
   description:
     "MuseDAM's AI tools turbocharge your content strategy, swiftly summarizing assets and crafting stories that resonate. Generate articles and summaries instantly, cutting content creation time and prioritizing audience connection.",

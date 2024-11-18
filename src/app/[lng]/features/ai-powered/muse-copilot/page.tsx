@@ -12,6 +12,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'MuseCopilot',
+  tagColor: '#E8E1FE',
   title: 'Your AI-Assistant for Creative Success',
   description:
     'Unlock the full potential of your creativity with MuseCopilot. Easily interact with your assets, get smart analysis, and have content crafted from your files. Find assets with intuitive semantic search and let MuseCopilot elevate your marketing strategies.',

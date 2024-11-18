@@ -13,6 +13,7 @@ import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: '70+ File Formats',
+  tagColor: '#E6F0FF',
   title: 'Experience Ultimate File Flexibility with 70+ Online Preview',
   description:
     'Step into the future of digital file management with MuseDAM, offering robust online preview and interaction capabilities for over 70 file formats. Simplify your workflow and enhance productivity with our comprehensive file support.',

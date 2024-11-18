@@ -12,6 +12,7 @@ import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/feat
 
 const heroData = {
   tag: 'AI Parsing',
+  tagColor: '#E8E1FE',
   title: 'Deep Dive into Your Assets with AI Parsing',
   description:
     "MuseDAM's AI Parsing technology goes deep to unlock the full potential of your creative assets. It analyzes images beyond basic tags, uncovering detailed insights into content, colors, mood, and more. This intelligence empowers you to search and find the perfect asset for your project with remarkable speed and precision.",
