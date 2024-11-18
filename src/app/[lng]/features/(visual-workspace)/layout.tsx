@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import { languages } from '@/app/i18n/settings'
-import SubscribeBlock from '@/components/LandingPage/Subscribe'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 import { SizeFullFlexColContainer } from '@/components/StyleWrapper/container'
@@ -21,7 +20,6 @@ export default async function RootLayout({
       {children}
       <FamousQuotes className="h-[800px]" />
       {more}
-      <SubscribeBlock className="w-full" />
     </SizeFullFlexColContainer>
   )
 }
