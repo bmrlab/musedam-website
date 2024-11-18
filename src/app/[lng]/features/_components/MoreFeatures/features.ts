@@ -76,6 +76,7 @@ export const FeaturesCards: {
     iconUrl: `${FEATURES_ICON_BASE_PATH}/Smart-Folders.svg`,
     bgColor: '#3910EC',
     iconBgColor: '#D3E5FF',
+    darkness: true,
   },
   [FeaturesEnum.Formats]: {
     title: '70+ Formats',
@@ -97,6 +98,7 @@ export const FeaturesCards: {
     iconUrl: `${FEATURES_ICON_BASE_PATH}/Encrypted-Sharing.svg`,
     bgColor: '#364665',
     iconBgColor: '#617396',
+    darkness: true,
   },
   // Team Collaboration
   [FeaturesEnum.Team]: {
@@ -105,6 +107,7 @@ export const FeaturesCards: {
     iconUrl: `${FEATURES_ICON_BASE_PATH}/Team-Management.svg`,
     bgColor: '#0F1275',
     iconBgColor: '#CBE5FF',
+    darkness: true
   },
   [FeaturesEnum.Permissions]: {
     title: 'Permissions',
@@ -133,5 +136,6 @@ export const FeaturesCards: {
     iconUrl: `${FEATURES_ICON_BASE_PATH}/Data-Statistics.svg`,
     bgColor: '#5C45A7',
     iconBgColor: '#463B67',
+    darkness: true
   },
 }
