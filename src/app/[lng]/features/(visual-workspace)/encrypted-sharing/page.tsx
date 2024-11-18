@@ -7,9 +7,6 @@ import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
-import MoreFeatures from '@/app/[lng]/features/_components/MoreFeatures'
-import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
-import FamousQuotes from '@/app/[lng]/features/_components/FamousQuotes'
 
 const heroData = {
   tag: 'Encrypted Sharing',
