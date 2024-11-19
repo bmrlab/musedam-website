@@ -23,11 +23,11 @@ export default function FeaturesCard({
   return (
     <div
       style={{ background: bgColor }}
-      className={cn('flex flex-col rounded-[20px] py-12 px-6 cursor-pointer', className)}
+      className={cn('flex flex-col rounded-[20px] py-6 md:py-12 px-6 cursor-pointer', className)}
     >
       <h1
         className={cn(
-          'text-nowrap font-baskervville font-normal text-[36px] leading-[41.19px] tracking-[1px] text-black',
+          'text-nowrap font-baskervville font-normal text-[30px] md:text-[36px] leading-[34.32px] md:leading-[41.19px] tracking-[1px] text-black',
           darkness && 'text-white',
         )}
       >
@@ -45,7 +45,7 @@ export default function FeaturesCard({
       <div className="flex-1 flex items-end">
         <FlexCenterContainer
           style={{ background: iconBgColor }}
-          className="w-full h-[293px] rounded-full relative"
+          className="w-full h-[232px] md:h-[293px] rounded-full relative"
         >
           <Image src={iconUrl} fill alt={title} />
         </FlexCenterContainer>
@@ -73,10 +73,7 @@ export function FeaturesRectIconCard({
   return (
     <div
       style={{ background: bgColor }}
-      className={cn(
-        'flex flex-col rounded-[24px] py-[30px] px-6 cursor-pointer',
-        className,
-      )}
+      className={cn('flex flex-col rounded-[24px] py-[30px] px-6 cursor-pointer', className)}
     >
       <h1
         className={cn(

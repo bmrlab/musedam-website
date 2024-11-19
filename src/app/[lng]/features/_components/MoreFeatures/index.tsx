@@ -10,20 +10,20 @@ export type MoreFeaturesProps = {
 export default function MoreFeatures({ features }: MoreFeaturesProps) {
   return (
     <div className="w-screen">
-      <div className="flex justify-between items-center px-[80px] pt-[82.5px]">
-        <h2 className="font-baskervville text-[80px] leading-[91.52px] tracking-[1px] text-[#141414]">
+      <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-0 md:justify-between items-center px-6 md:px-[80px] pt-12 md:pt-[82.5px]">
+        <h2 className="font-baskervville font-normal text-[38px] md:text-[80px] leading-[43.47px] md:leading-[91.52px] tracking-[1px] text-[#141414]">
           More in AI-Powered
         </h2>
         <a href="#" className="text-black font-mono text-[18px] leading-[28px] tracking-[2%]">
           <span className="underline">View all features</span> →
         </a>
       </div>
-      <div className="flex gap-10 no-scrollbar px-[80px] overflow-x-scroll pt-[82.5px] pb-[120px]">
+      <div className="flex gap-10 no-scrollbar px-6 md:px-[80px] overflow-x-scroll pt-10 md:pt-[82.5px] pb-12 md:pb-[120px]">
         {features.map((feature, i) => (
           <FeaturesCard
             key={i}
             {...FeaturesCards[feature]}
-            className="w-[333px] h-[522px] transition-transform shrink-0 duration-300 ease-in-out hover:-translate-y-5"
+            className="w-[280px] md:w-[333px] h-[406px] md:h-[522px] md:transition-transform shrink-0 md:duration-300 md:ease-in-out md:hover:-translate-y-5"
           />
         ))}
       </div>
