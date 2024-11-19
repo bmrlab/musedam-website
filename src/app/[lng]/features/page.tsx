@@ -3,6 +3,7 @@ import { FlexColContainer } from '@/components/StyleWrapper/container'
 import { Button } from '@/components/ui/button'
 import { ArrowDownRight } from 'lucide-react'
 import FeaturesBlock from '@/app/[lng]/features/_components/MoreFeatures/block'
+import { Metadata } from 'next'
 
 export default function AllFeaturesPage() {
   return (
@@ -29,4 +30,12 @@ export default function AllFeaturesPage() {
       <FeaturesBlock />
     </FlexColContainer>
   )
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MuseDAM | Features - AI-Driven Asset Management & Teamwork',
+    description:
+      'Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.',
+  }
 }

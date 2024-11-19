@@ -1,13 +1,9 @@
-'use client'
-
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { motion } from 'framer-motion'
-import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
 import { tagColor } from '../const'
+import PageClient from './page.client'
+import { Metadata } from 'next'
 
 const heroData = {
   tag: 'Permissions',
@@ -65,73 +61,22 @@ const textDisplayData: TextDisplayProps = {
   ],
 }
 
-const ImageBasePath = '/Features/Dynamic-Feedback'
-
 export default function DynamicFeedbackPage() {
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
   return (
     <div>
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
-        <FlexCenterContainer
-          style={{
-            height: '100%',
-            background: 'linear-gradient(153.22deg, #DBDBDA 4.46%, #FAF9E7 60%)',
-          }}
-        >
-          <motion.div
-            className="grid w-[640px] pl-1 pr-[31px]"
-            whileInView={{ opacity: 1 }}
-            viewport={{ amount: 0.5 }}
-            onAnimationComplete={() => handleAnimationComplete(0)}
-          >
-            <MotionImage
-              src={`${ImageBasePath}/Dynamic-Feedback1.png`}
-              width={148}
-              height={30}
-              alt="Dynamic-Feedback1"
-              className="justify-self-end mr-[13px]"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, ease: 'easeInOut' }}
-              onAnimationComplete={() => handleAnimationComplete(1)}
-            />
-            <MotionImage
-              src={`${ImageBasePath}/Dynamic-Feedback.png`}
-              width={230}
-              height={36}
-              alt="Dynamic-Feedback"
-              className="justify-self-end"
-              initial={{ y: '10%', opacity: 0 }}
-              animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.1, ease: 'easeInOut' }}
-            />
-            <RelativeContainer className="mt-5 w-fit">
-              <MotionImage
-                src={`${ImageBasePath}/Dynamic-Feedback-Image.png`}
-                width={566.95}
-                height={377.43}
-                alt="Dynamic-Feedback-Image"
-                initial={{ x: '-10%', opacity: 0 }}
-                animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
-                transition={{ duration: 1, ease: 'easeInOut' }}
-              />
-              <MotionShadowImage
-                src={`${ImageBasePath}/Dynamic-Feedback-Comment.png`}
-                width={279.71}
-                height={83.19}
-                alt="Dynamic-Feedback-Comment"
-                className="absolute bottom-[55.81px] right-[-27.71px]"
-                initial={{ x: '10%', opacity: 0 }}
-                animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
-                transition={{ duration: 1, ease: 'easeInOut' }}
-              />
-            </RelativeContainer>
-          </motion.div>
-        </FlexCenterContainer>
+        <PageClient />
       </Showcase>
       <TextDisplay {...textDisplayData} />
     </div>
   )
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MuseDAM | Feedback - Dynamic Comments, Smart Annotations',
+    description:
+      'MuseDAM supports dynamic feedback on materials, allowing team members to leave comments and annotations, enhancing collaboration and communication, and making the creative workflow smoother and more efficient.',
+  }
 }

@@ -1,13 +1,8 @@
-'use client'
-
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { FlexCenterContainer } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
-import Image from 'next/image'
+import { Metadata } from 'next'
+import PageClient from './page.client'
 
 const heroData = {
   tag: 'Smart Folders',
@@ -68,55 +63,21 @@ const textDisplayData: TextDisplayProps = {
 }
 
 export default function SmartFoldersPage() {
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
   return (
     <div>
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
-        <FlexCenterContainer
-          style={{
-            height: '100%',
-            background: 'linear-gradient(180deg, #CFD9DF 0%, #E2EBF0 100%)',
-          }}
-        >
-          <motion.div
-            className="grid justify-items-center w-[640px]"
-            whileInView={{ opacity: 1 }}
-            viewport={{ amount: 0.5 }}
-            onAnimationComplete={() => handleAnimationComplete(0)}
-          >
-            <MotionImage
-              src="/Features/Smart-Folders/Smart-Folders-Group.png"
-              width={407}
-              height={174.69}
-              alt="Smart-Folders-Group"
-              initial={{ y: '10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { y: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, ease: 'easeInOut' }}
-              onAnimationComplete={() => handleAnimationComplete(1)}
-            />
-            <Image
-              src="/Features/Smart-Folders/Smart-Folders-Folder.png"
-              width={120.52}
-              height={110.77}
-              alt="Smart-Folders-Folder"
-              className="mt-[10.31px]"
-            />
-            <MotionImage
-              src="/Features/Smart-Folders/Smart-Folders-Settings.png"
-              width={508.73}
-              height={253.65}
-              alt="Smart-Folders-Settings"
-              className="mt-[34.23px]"
-              initial={{ y: '-10%', opacity: 0 }}
-              animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}
-            />
-          </motion.div>
-        </FlexCenterContainer>
+        <PageClient />
       </Showcase>
       <TextDisplay {...textDisplayData} />
     </div>
   )
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MuseDAM | Smart Folders - Automatic Classification for Efficient Management',
+    description:
+      "MuseDAM's Smart Folders allow users to automatically categorize materials based on specific criteria, achieving efficient management and rapid retrieval of materials, enhancing the convenience and intelligence of creative work.",
+  }
 }

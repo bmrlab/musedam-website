@@ -1,12 +1,8 @@
-'use client'
-
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
+import { Metadata } from 'next'
+import PageClient from './page.client'
 
 const heroData = {
   tag: 'Encrypted Sharing',
@@ -64,50 +60,21 @@ const textDisplayData: TextDisplayProps = {
 }
 
 export default function EncryptedSharingPage() {
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
   return (
     <div>
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
-        <FlexCenterContainer
-          style={{
-            height: '100%',
-            background: 'linear-gradient(180deg, #6A85B6 0%, #F5EFEF 100%)',
-          }}
-        >
-          <motion.div
-            className="grid w-[640px] h-[438px]"
-            whileInView={{ opacity: 1 }}
-            viewport={{ amount: 0.5 }}
-            onAnimationComplete={() => handleAnimationComplete(0)}
-          >
-            <RelativeContainer>
-              <MotionImage
-                src="/Features/Encrypted-Sharing/Encrypted-Sharing-List.png"
-                width={630}
-                height={282.08}
-                alt="Encrypted-Sharing-List"
-                initial={{ y: '10%', opacity: 0 }}
-                animate={isBuildFinished(0) ? { y: 0, opacity: 1 } : {}}
-                transition={{ duration: 1, ease: 'easeInOut' }}
-                onAnimationComplete={() => handleAnimationComplete(1)}
-              />
-              <MotionImage
-                src="/Features/Encrypted-Sharing/Encrypted-Sharing-Modal.png"
-                width={336.5}
-                height={313.67}
-                alt="Encrypted-Sharing-Modal"
-                className="rounded-[11.91px] absolute top-[124.5px] right-[64.5px] shadow-[0px_4px_30px_4px_#00000014]"
-                initial={{ y: '-10%', opacity: 0 }}
-                animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
-                transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}
-              />
-            </RelativeContainer>
-          </motion.div>
-        </FlexCenterContainer>
+        <PageClient />
       </Showcase>
       <TextDisplay {...textDisplayData} />
     </div>
   )
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MuseDAM | Sharing - Custom Expiry, Password Protection',
+    description:
+      "MuseDAM's sharing feature allows you to set expiration times and access passwords for materials, ensuring the security and privacy of shared content while providing a smooth collaboration experience.",
+  }
 }

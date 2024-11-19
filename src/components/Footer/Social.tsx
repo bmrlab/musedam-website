@@ -5,22 +5,17 @@ const socialItem = [
   {
     label: 'Instagram',
     icon: <Icons.instagram />,
-    href: 'https://www.instagram.com/',
+    href: 'https://www.instagram.com/tezign.musedam/',
   },
   {
     label: 'Twitter',
     icon: <Icons.twitter />,
-    href: 'https://twitter.com/',
-  },
-  {
-    label: 'LinkedIn',
-    icon: <Icons.linkedin />,
-    href: 'https://www.linkedin.com/',
+    href: 'https://x.com/MuseDam_Tezign',
   },
   {
     label: 'YouTube',
     icon: <Icons.youtube />,
-    href: 'https://www.youtube.com/',
+    href: 'https://www.youtube.com/channel/UCg9jl7ItOcITphJevWm4jDg',
   },
 ]
 

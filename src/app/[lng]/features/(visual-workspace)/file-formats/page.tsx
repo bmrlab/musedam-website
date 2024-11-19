@@ -1,12 +1,8 @@
-'use client'
-
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { FlexCenterContainer } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
+import { Metadata } from 'next'
+import PageClient from './page.client'
 
 const heroData = {
   tag: '70+ File Formats',
@@ -84,91 +80,21 @@ const textDisplayData: TextDisplayProps = {
 }
 
 export default function FileFormatsPage() {
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
   return (
     <div>
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
-        <FlexCenterContainer
-          style={{
-            height: '100%',
-            background: 'linear-gradient(180deg, #FFF1EB 0%, #ACE0F9 100%)',
-          }}
-        >
-          <motion.div
-            className="grid justify-items-start w-[640px] gap-[13.41px]"
-            whileInView={{ opacity: 1 }}
-            viewport={{ amount: 0.5 }}
-            onAnimationComplete={() => handleAnimationComplete(0)}
-          >
-            <MotionImage
-              src="/Features/70+Formats/70+Formats1.png"
-              width={465.43}
-              height={59.65}
-              alt="70+Formats1"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats2.png"
-              width={465.43}
-              height={59.65}
-              alt="70+Formats2"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats3.png"
-              width={465.43}
-              height={59.65}
-              alt="70+Formats3"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.4, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats4.png"
-              width={207.68}
-              height={59.65}
-              alt="70+Formats4"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.6, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats5.png"
-              width={529.86}
-              height={59.65}
-              alt="70+Formats5"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.8, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats6.png"
-              width={594.3}
-              height={59.65}
-              alt="70+Formats6"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
-            />
-            <MotionImage
-              src="/Features/70+Formats/70+Formats7.png"
-              width={207.68}
-              height={59.65}
-              alt="70+Formats7"
-              initial={{ x: '-10%', opacity: 0 }}
-              animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 1.2, ease: 'easeInOut' }}
-            />
-          </motion.div>
-        </FlexCenterContainer>
+        <PageClient />
       </Showcase>
       <TextDisplay {...textDisplayData} />
     </div>
   )
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'MuseDAM | Online Preview - 70+ Formats Supported, One-Click Viewing',
+    description:
+      'MuseDAM supports online preview of over 70 file formats, including images, design source files, 3D models, audio, and video, allowing users to visually and conveniently view and manage various digital assets.',
+  }
 }
