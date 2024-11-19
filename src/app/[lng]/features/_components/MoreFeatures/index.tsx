@@ -23,7 +23,7 @@ export default function MoreFeatures({ features }: MoreFeaturesProps) {
           <FeaturesCard
             key={i}
             {...FeaturesCards[feature]}
-            className="w-[333px] h-[522px] transition-transform shrink-0 duration-300 ease-in-out hover:-translate-y-5 hover:shadow-lg"
+            className="w-[333px] h-[522px] transition-transform shrink-0 duration-300 ease-in-out hover:-translate-y-5"
           />
         ))}
       </div>

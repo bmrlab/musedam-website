@@ -33,7 +33,7 @@ export default function FeaturesCard({
       >
         {title}
       </h1>
-      <Divider className={cn("my-3", darkness && 'border-white')} />
+      <Divider className={cn('my-3', darkness && 'border-white')} />
       <p
         className={cn(
           'font-mono font-light text-[16px] leading-[22px] text-[#141414]',
@@ -60,3 +60,49 @@ const Divider = twx.div`
   border-black
   transition-none
 `
+
+export function FeaturesRectIconCard({
+  title,
+  description,
+  bgColor,
+  iconBgColor,
+  iconUrl,
+  className,
+  darkness,
+}: FeaturesCardProps & { className?: string }) {
+  return (
+    <div
+      style={{ background: bgColor }}
+      className={cn(
+        'flex flex-col rounded-[24px] py-[30px] px-6 cursor-pointer',
+        className,
+      )}
+    >
+      <h1
+        className={cn(
+          'text-nowrap font-baskervville font-normal text-[30px] leading-[34.32px] tracking-[1px] text-black',
+          darkness && 'text-white',
+        )}
+      >
+        {title}
+      </h1>
+      <Divider className={cn('my-3', darkness && 'border-white')} />
+      <p
+        className={cn(
+          'font-mono font-light text-[16px] leading-[22px] text-[#141414]',
+          darkness && 'text-white',
+        )}
+      >
+        {description}
+      </p>
+      <div className="flex-1 flex items-end">
+        <FlexCenterContainer
+          style={{ background: iconBgColor }}
+          className="w-full h-[199px] rounded-[20px] relative"
+        >
+          <Image src={iconUrl} fill alt={title} />
+        </FlexCenterContainer>
+      </div>
+    </div>
+  )
+}
