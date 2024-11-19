@@ -2,6 +2,7 @@
 
 import { FeaturesCards, FeaturesEnum } from './features'
 import FeaturesCard from './card'
+import Link from 'next/link'
 
 export type MoreFeaturesProps = {
   features: FeaturesEnum[]
@@ -14,12 +15,12 @@ export default function MoreFeatures({ features }: MoreFeaturesProps) {
         <h2 className="font-baskervville font-normal text-[38px] md:text-[80px] leading-[43.47px] md:leading-[91.52px] tracking-[1px] text-[#141414]">
           More in AI-Powered
         </h2>
-        <a
+        <Link
           href="/features"
           className="text-black font-mono text-[18px] leading-[28px] tracking-[2%]"
         >
           <span className="underline">View all features</span> →
-        </a>
+        </Link>
       </div>
       <div className="flex gap-10 no-scrollbar px-6 md:px-[80px] overflow-x-scroll pt-10 md:pt-[82.5px] pb-12 md:pb-[120px]">
         {features.map((feature, i) => (

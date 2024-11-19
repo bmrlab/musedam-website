@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Controller, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -18,7 +18,7 @@ import {
   CollectImageGroup,
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
-import { cn, twx } from '@/utilities/cn'
+import { twx } from '@/utilities/cn'
 
 export default function HighlightsDesktop() {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
