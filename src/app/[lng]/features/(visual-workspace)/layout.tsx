@@ -18,7 +18,7 @@ export default async function RootLayout({
   return (
     <SizeFullFlexColContainer>
       {children}
-      <FamousQuotes className="h-[800px]" />
+      <FamousQuotes />
       {more}
     </SizeFullFlexColContainer>
   )

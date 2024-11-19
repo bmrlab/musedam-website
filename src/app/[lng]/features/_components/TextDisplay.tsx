@@ -5,7 +5,7 @@ export type TextDisplayProps = ShowcaseProps
 
 export default function TextDisplay({ title, description, points }: TextDisplayProps) {
   return (
-    <FlexColContainer className="p-[80px] gap-6">
+    <FlexColContainer className="px-6 py-12 md:p-[80px] gap-6">
       <h1 className="font-baskervville font-normal text-[48px] leading-[54.91px] tracking-[1px] text-[#141414] text-start">
         {title}
       </h1>
