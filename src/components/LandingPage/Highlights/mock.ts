@@ -6,6 +6,7 @@ export const data = [
       "Streamline your team's content curation and boost collaboration with centralized asset collection. Get ready to transform your workflow with Muse. 🚀 ",
     ],
     image: '/Highlights/Mobile/Collect.png',
+    bgColor: '#E8E4E4',
   },
   {
     title: 'Organize',
@@ -14,12 +15,14 @@ export const data = [
       "Our intuitive folder system makes file access a breeze, supercharging your team's productivity and collaboration. Join the Muse revolution today! 🌟",
     ],
     image: '/Highlights/Mobile/Organize.png',
+    bgColor: '#FFFFFF',
   },
   {
     title: 'Collaborate',
     description: ['Boost teamwork, security, and productivity with our Collaboration Features. 👬'],
     list: ['Permission', 'File Sharing', 'Activity Log', 'Active Leaderboard'],
     image: '/Highlights/Mobile/Collaborate.png',
+    bgColor: '#D0CCE0',
   },
   {
     title: 'AI Generate',
@@ -44,5 +47,6 @@ export const data = [
       },
     ],
     image: '/Highlights/Mobile/AI-Generate.png',
+    bgColor: '#E8E4E4',
   },
 ]

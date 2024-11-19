@@ -58,7 +58,7 @@ export default function AiSearchPage() {
           }}
         >
           <motion.div
-            className="grid justify-items-center w-[640px]"
+            className="grid justify-items-center w-[640px] px-[24.09px] py-10 md:p-0"
             whileInView={{ opacity: 1 }}
             viewport={{ amount: 0.5 }}
             onAnimationComplete={() => handleAnimationComplete(0)}

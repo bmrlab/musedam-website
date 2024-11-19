@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Controller, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -18,7 +18,7 @@ import {
   CollectImageGroup,
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
-import { twx } from '@/utilities/cn'
+import { cn, twx } from '@/utilities/cn'
 
 export default function HighlightsDesktop() {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
@@ -48,8 +48,13 @@ export default function HighlightsDesktop() {
   }
 
   return (
-    <div className="grid w-full grid-cols-9">
-      <div className="col-span-4 flex h-[765px] w-full items-center justify-center py-[80px] pl-[30px] pr-[80px]">
+    <div
+      style={{
+        background: data[swiperIndex].bgColor,
+      }}
+      className="grid w-full grid-cols-9"
+    >
+      <div className="col-span-4 flex h-[765px] w-full items-center justify-center transition-colors duration-500 ease-in-out py-[80px] pl-[30px] pr-[80px]">
         <Toc
           data={data.map((d) => d.title)}
           activeIndex={swiperIndex}
@@ -143,12 +148,7 @@ export default function HighlightsDesktop() {
           ))}
         </Swiper>
       </div>
-      <div
-        style={{
-          background: 'linear-gradient(157.66deg, #D4D6EA 14.56%, #DBCCD5 31.62%, #FB9D70 94.18%)',
-        }}
-        className="col-span-5 flex h-full w-full items-center justify-center"
-      >
+      <div className="col-span-5 flex h-full w-full items-center justify-center">
         <Swiper
           speed={0}
           cssMode={false}
@@ -158,9 +158,6 @@ export default function HighlightsDesktop() {
           controller={{ control: secondSwiper }}
           direction={'vertical'}
           spaceBetween={30}
-          pagination={{
-            clickable: true,
-          }}
           mousewheel={{
             enabled: true,
             releaseOnEdges: true,

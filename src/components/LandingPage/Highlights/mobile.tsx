@@ -11,7 +11,7 @@ export default function HighlightsMobile() {
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
-        <div key={index}>
+        <div key={index} style={{ background: item.bgColor }}>
           <ImageBgDiv className="flex items-center justify-center">
             {/*<Image src={item.image} fill alt={item.title} className="object-contain" />*/}
             {(() => {
@@ -37,7 +37,7 @@ export default function HighlightsMobile() {
               }
             })()}
           </ImageBgDiv>
-          <div className="flex flex-col items-center justify-center bg-white px-[30px] pb-[60px] pt-10">
+          <div className="flex flex-col items-center justify-center px-[30px] pb-[60px] pt-10">
             <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
@@ -94,4 +94,4 @@ export default function HighlightsMobile() {
   )
 }
 
-const ImageBgDiv = twx.div`rounded-b-[30px] relative h-[338.75px] w-full px-[15px] bg-[linear-gradient(157.66deg,#D4D6EA_14.56%,#DBCCD5_31.62%,#FB9D70_94.18%)]`
+const ImageBgDiv = twx.div`relative h-[338.75px] w-full px-[15px]`
