@@ -1,6 +1,5 @@
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
 import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
 import { Metadata } from 'next'
 import PageClient from './page.client'
@@ -64,8 +63,6 @@ const textDisplayData: TextDisplayProps = {
 }
 
 export default function MultipleViewingPage() {
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
   return (
     <div>
       <Hero {...heroData} />
