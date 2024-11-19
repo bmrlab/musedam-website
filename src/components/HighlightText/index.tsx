@@ -24,7 +24,7 @@ export default function HighlightText({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <span className="relative z-10 transition-colors duration-200">{text}</span>
+      <span className="relative z-[1] transition-colors duration-200">{text}</span>
       <span
         className="absolute bottom-0 left-0 w-full transition-all duration-200"
         style={{

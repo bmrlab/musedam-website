@@ -21,7 +21,7 @@ import useIsMobile from '@/hooks/useIsMobile'
 import { FeatureItem, features } from '@/components/Header/data'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 
-const DEFAULT_HERO_IMAGE = '/bmr.svg'
+const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
 const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProps> }> = ({
   icon: Icon,
