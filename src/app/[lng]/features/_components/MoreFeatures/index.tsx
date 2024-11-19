@@ -14,7 +14,10 @@ export default function MoreFeatures({ features }: MoreFeaturesProps) {
         <h2 className="font-baskervville font-normal text-[38px] md:text-[80px] leading-[43.47px] md:leading-[91.52px] tracking-[1px] text-[#141414]">
           More in AI-Powered
         </h2>
-        <a href="#" className="text-black font-mono text-[18px] leading-[28px] tracking-[2%]">
+        <a
+          href="/features"
+          className="text-black font-mono text-[18px] leading-[28px] tracking-[2%]"
+        >
           <span className="underline">View all features</span> →
         </a>
       </div>

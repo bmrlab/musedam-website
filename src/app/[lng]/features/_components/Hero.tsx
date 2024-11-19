@@ -15,7 +15,7 @@ export default function Hero({
   tagColor: string
 }) {
   return (
-    <div className="flex h-[calc(100vh-70px)] flex-col justify-center bg-white px-20 text-black">
+    <div className="flex md:h-[calc(100vh-70px)] py-[60px] md:py-0 flex-col justify-center bg-white px-6 md:px-20 text-black">
       <div className="mb-2">
         <Badge
           style={{
@@ -28,19 +28,19 @@ export default function Hero({
       </div>
       <h1
         className={cn(
-          'mb-6 font-baskervville text-[120px] font-normal leading-[132px] tracking-[1px]',
+          'mb-[16px] md:mb-6 font-baskervville text-[38px] md:text-[120px] font-normal leading-[43.47px] md:leading-[132px] tracking-[1px]',
         )}
       >
         {title}
       </h1>
-      <p className="mb-12 font-mono text-[24px] font-light leading-[38.4px] tracking-[2%]">
+      <p className="mb-12 font-mono text-[14px] md:text-[24px] font-light leading-[28px] md:leading-[38.4px] tracking-[2%]">
         {description}
       </p>
-      <div className="flex h-[58px] items-center justify-between">
+      <div className="flex h-[58px] items-center justify-center md:justify-between">
         <Button className="h-full rounded-full bg-black px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
           Start for free
         </Button>
-        <ArrowDownRight className="h-8 w-8 text-black" />
+        <ArrowDownRight className="hidden md:block size-8 text-black" />
       </div>
     </div>
   )
