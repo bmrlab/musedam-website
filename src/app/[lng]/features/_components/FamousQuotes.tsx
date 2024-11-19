@@ -5,9 +5,11 @@ import { cn } from '@/utilities/cn'
 import { getRandomItem } from '@/utilities/random'
 import { preceptData } from '@/components/LandingPage/Precept/mock'
 import { useEffect, useState } from 'react'
+import useIsMobile from '@/hooks/useIsMobile'
 
 export default function FamousQuotes({ className }: { className?: string }) {
   const [data, setData] = useState(preceptData[0])
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     setData(getRandomItem(preceptData))
@@ -20,15 +22,19 @@ export default function FamousQuotes({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="z-[1] px-[80px] text-center flex justify-center gap-[60px] flex-col">
-        <blockquote className="text-start font-mono text-[32px] font-light leading-[56px] text-white">
+      <div className="z-[1] px-6 md:px-[80px] text-center flex justify-center gap-[60px] flex-col">
+        <blockquote className="hidden md:block text-start font-mono text-[32px] font-light leading-[56px] text-white">
           <span className="text-[120px]">&ldquo;</span>
+          {data.description}
+        </blockquote>
+        <blockquote className="md:hidden text-start font-mono text-[16px] font-light leading-[28px] text-white">
+          &ldquo;
           {data.description}
         </blockquote>
         <cite className="flex items-center gap-4 not-italic">
           <Avatar className="h-[64px] w-[64px]">
-            <AvatarImage src={data.avatar} alt="Sarah Thompson" />
-            <AvatarFallback>ST</AvatarFallback>
+            <AvatarImage src={data.avatar} alt={data.name} />
+            <AvatarFallback>{data.name}</AvatarFallback>
           </Avatar>
           <div className="text-start font-mono flex flex-col justify-items-start">
             <div className="font-medium text-[20px] leading-[26px] text-white">{data.name}</div>
@@ -40,7 +46,10 @@ export default function FamousQuotes({ className }: { className?: string }) {
         style={{
           background: 'linear-gradient(#0C1043, #262E56)',
         }}
-        className="absolute top-1/2 right-[150px] translate-y-[-50%] rounded-full size-[589px]"
+        className={cn(
+          'absolute rounded-full right-6 md:right-[150px] size-[244px] md:size-[589px]',
+          isMobile ? 'bottom-[65px]' : 'top-1/2 translate-y-[-50%]',
+        )}
       ></div>
     </div>
   )
