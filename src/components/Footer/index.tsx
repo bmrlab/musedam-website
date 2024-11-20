@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useMemo } from 'react'
-
 import Image from 'next/image'
-import { FOOTER_ITERM } from './mock'
 
-import SocialWidget from '@/components/Footer/Social'
 import useIsMobile from '@/hooks/useIsMobile'
-import FooterMobile from '@/components/Footer/mobile'
 import LngSelector from '@/components/Footer/LngSelector'
+import FooterMobile from '@/components/Footer/mobile'
+import SocialWidget from '@/components/Footer/Social'
+
+import { FOOTER_ITERM } from './mock'
 
 export default function Footer({ lng }: { lng: string }) {
   const isMobile = useIsMobile()
@@ -21,7 +21,7 @@ export default function Footer({ lng }: { lng: string }) {
         }
       }[]
     >()
-    FOOTER_ITERM.forEach(item => {
+    FOOTER_ITERM.forEach((item) => {
       map.set(item.group, [...(map.get(item.group) || []), item.item])
     })
     return map

@@ -1,10 +1,13 @@
 'use client'
 
-import { LucideProps, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { cn } from '@/utilities/cn'
+import { AnimatePresence, motion } from 'framer-motion'
+import { LucideProps, X } from 'lucide-react'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,12 +17,9 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
-import { cn } from '@/utilities/cn'
-import { AnimatePresence, motion } from 'framer-motion'
-import Icons from '@/components/icon'
-import useIsMobile from '@/hooks/useIsMobile'
 import { FeatureItem, features } from '@/components/Header/data'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
+import Icons from '@/components/icon'
 
 const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
