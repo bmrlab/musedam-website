@@ -1,19 +1,21 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useEffect, useState } from 'react'
 import { cn } from '@/utilities/cn'
 import { getRandomItem } from '@/utilities/random'
-import { preceptData } from '@/components/LandingPage/Precept/mock'
-import { useEffect, useState } from 'react'
+
 import useIsMobile from '@/hooks/useIsMobile'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import usePreceptData from '@/components/LandingPage/Precept/data'
 
 export default function FamousQuotes({ className }: { className?: string }) {
+  const { data: preceptData } = usePreceptData()
   const [data, setData] = useState(preceptData[0])
   const isMobile = useIsMobile()
 
   useEffect(() => {
     setData(getRandomItem(preceptData))
-  }, [])
+  }, [preceptData])
 
   return (
     <div

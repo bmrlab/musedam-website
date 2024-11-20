@@ -1,19 +1,26 @@
 import React from 'react'
-
 import { Metadata } from 'next'
-import { languages } from '@/app/i18n/settings'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
+import { languages } from '@/app/i18n/settings'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  params,
+  children,
+}: {
+  params: Promise<{ lng: string }>
+  children: React.ReactNode
+}) {
+  const { lng } = await params
   return (
     <section className="flex size-full flex-col items-center justify-center">
       {children}
-      <SubscribeBlock className="w-full" />
+      <SubscribeBlock lng={lng} className="w-full" />
     </section>
   )
 }
