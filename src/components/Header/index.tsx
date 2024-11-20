@@ -17,7 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
-import { FeatureItem, features } from '@/components/Header/data'
+import useHeaderData, { FeatureItem } from '@/components/Header/data'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 import Icons from '@/components/icon'
 
@@ -35,6 +35,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
+
+  const { data: features } = useHeaderData()
 
   const categories = useMemo(() => features.map((f) => f.category), [])
 
@@ -65,10 +67,7 @@ export default function Header() {
               <div className="grid h-full w-screen grid-cols-3">
                 <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
                   {categories.map((category, i) => (
-                    <div
-                      key={i}
-                      className="text-[14px] font-normal leading-4 text-black/40"
-                    >
+                    <div key={i} className="text-[14px] font-normal leading-4 text-black/40">
                       {category}
                     </div>
                   ))}

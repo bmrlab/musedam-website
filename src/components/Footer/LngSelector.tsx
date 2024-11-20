@@ -1,5 +1,7 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { useLanguage } from '@/providers/Language'
+
 import {
   Select,
   SelectContent,
@@ -10,19 +12,19 @@ import {
 import Icons from '@/components/icon'
 import { languages } from '@/app/i18n/settings'
 
-export default function LngSelector({ language }: { language: string }) {
+export default function LngSelector() {
   const router = useRouter()
   const pathname = usePathname()
-  const [lng, setLng] = useState(language)
+  const { language, setLanguage } = useLanguage()
 
   const onLngChange = useCallback(
     (value: string) => {
-      router.replace(pathname.replace(lng, value), {
+      router.replace(pathname.replace(language, value), {
         scroll: true,
       })
-      setLng(value)
+      setLanguage(value)
     },
-    [lng, pathname, router],
+    [language, pathname, router],
   )
 
   const LANGUAGES = [
@@ -37,7 +39,7 @@ export default function LngSelector({ language }: { language: string }) {
   ]
 
   return (
-    <Select defaultValue={lng} value={lng} onValueChange={onLngChange}>
+    <Select defaultValue={language} value={language} onValueChange={onLngChange}>
       <SelectTrigger className="w-full border-none p-0 shadow-none focus:ring-0">
         <div className="flex items-center gap-1.5">
           <Icons.locales width={18} height={18} />

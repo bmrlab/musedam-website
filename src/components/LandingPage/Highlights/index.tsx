@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 
 import useIsMobile from '@/hooks/useIsMobile'
-import { useTranslation } from '@/app/i18n/client'
+import { useHighlightTranslation, useTranslation } from '@/app/i18n/client'
 
 import HighlightsDesktop from './desktop'
 import HighlightsMobile from './mobile'
@@ -17,8 +17,8 @@ export type Highlight = {
   bgColor: string
 }
 
-export default function Highlights({ lng }) {
-  const { t } = useTranslation(lng, 'highlight')
+export default function Highlights() {
+  const { t } = useHighlightTranslation()
   const data = useMemo<Highlight[]>(
     () => [
       {

@@ -1,19 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLanguage } from '@/providers/Language'
 import i18next, { FlatNamespace, KeyPrefix } from 'i18next'
-import {
-  initReactI18next,
-  useTranslation as useTranslationOrg,
-  UseTranslationOptions,
-  UseTranslationResponse,
-  FallbackNs,
-} from 'react-i18next'
-import { useCookies } from 'react-cookie'
-import resourcesToBackend from 'i18next-resources-to-backend'
 // import LocizeBackend from 'i18next-locize-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import { getOptions, languages, cookieName } from './settings'
+import resourcesToBackend from 'i18next-resources-to-backend'
+import { useCookies } from 'react-cookie'
+import {
+  FallbackNs,
+  initReactI18next,
+  UseTranslationOptions,
+  useTranslation as useTranslationOrg,
+  UseTranslationResponse,
+} from 'react-i18next'
+
+import { cookieName, getOptions, languages } from './settings'
 
 const runsOnServerSide = typeof window === 'undefined'
 
@@ -40,13 +42,13 @@ export function useTranslation<
   Ns extends FlatNamespace,
   KPrefix extends KeyPrefix<FallbackNs<Ns>> = undefined,
 >(
-  lng: string,
   ns?: Ns,
   options?: UseTranslationOptions<KPrefix>,
 ): UseTranslationResponse<FallbackNs<Ns>, KPrefix> {
   const [cookies, setCookie] = useCookies([cookieName])
   const ret = useTranslationOrg(ns, options)
   const { i18n } = ret
+  const { language: lng } = useLanguage()
   if (runsOnServerSide && lng && i18n.resolvedLanguage !== lng) {
     i18n.changeLanguage(lng)
   } else {
@@ -71,3 +73,8 @@ export function useTranslation<
   }
   return ret
 }
+
+export const useHeaderTranslation = () => useTranslation('header')
+export const useFooterTranslation = () => useTranslation('footer')
+export const useHighlightTranslation = () => useTranslation('highlight')
+export const usePreceptTranslation = () => useTranslation('precept')

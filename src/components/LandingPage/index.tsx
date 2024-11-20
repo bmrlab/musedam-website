@@ -6,14 +6,15 @@ import Precept from '@/components/LandingPage/Precept'
 
 import SubscribeBlock from './Subscribe'
 
-export default function LandingPage({ params: { lng } }) {
+export default async function LandingPage({ params }: { params: Promise<{ lng: string }> }) {
+  const { lng } = await params
   return (
     <div className="grid w-screen justify-items-center bg-white">
       <ContainerWithMaxWidth>
         <Hero lng={lng} />
       </ContainerWithMaxWidth>
       <SubscribeBlock lng={lng} className="mt-[60px] w-full md:mt-[80px]" />
-      <Highlights lng={lng} />
+      <Highlights />
       <Precept />
     </div>
   )

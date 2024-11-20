@@ -20,8 +20,10 @@ import {
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
 import { Highlight } from '@/components/LandingPage/Highlights/index'
+import { useHighlightTranslation } from '@/app/i18n/client'
 
 export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
+  const { t } = useHighlightTranslation()
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
@@ -141,7 +143,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
                   <button className="rounded-[8px] bg-black px-[42.5px] py-[14px] font-mono text-white">
-                    Start for free
+                    {t('highlight.button')}
                   </button>
                 </motion.div>
               </div>

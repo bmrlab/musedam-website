@@ -7,8 +7,10 @@ import {
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
 import { Highlight } from '@/components/LandingPage/Highlights/index'
+import { useHighlightTranslation } from '@/app/i18n/client'
 
 export default function HighlightsMobile({ data }: { data: Highlight[] }) {
+  const {t} = useHighlightTranslation()
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
@@ -84,7 +86,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             </div>
             <div className="mt-6">
               <button className="rounded-[8px] bg-black px-[52.5px] py-[17px] font-mono text-[16px] leading-5 text-white">
-                Start for free
+                {t('highlight.button')}
               </button>
             </div>
           </div>

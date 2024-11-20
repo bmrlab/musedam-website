@@ -1,20 +1,20 @@
-import type { Metadata } from 'next'
-
 import React from 'react'
-
-import { AdminBar } from '@/components/AdminBar'
+import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { draftMode } from 'next/headers'
+
+import { AdminBar } from '@/components/AdminBar'
 
 import './globals.css'
+
 import { Baskervville, IBM_Plex_Mono } from 'next/font/google'
-import { languages } from '@/app/i18n/settings'
 import { dir } from 'i18next'
+
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
+import { languages } from '@/app/i18n/settings'
 
 const baskervville = Baskervville({
   weight: ['400'],
@@ -43,7 +43,6 @@ export default async function RootLayout({
   children: React.ReactNode
   params: Promise<{ lng: string }>
 }) {
-  const { isEnabled } = await draftMode()
   const { lng } = await params
   return (
     <html
@@ -58,11 +57,11 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <Providers>
+        <Providers lng={lng}>
           <AdminBar />
           <Header />
           <div className="flex flex-col items-center justify-center">{children}</div>
-          <Footer lng={lng} />
+          <Footer />
         </Providers>
         <TailwindIndicator />
       </body>

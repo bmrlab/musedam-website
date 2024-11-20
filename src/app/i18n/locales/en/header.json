@@ -1,0 +1,38 @@
+{
+  "ai-powered.ai-search.title": "AI Search",
+  "ai-powered.ai-search.description": "Visual Content Asset Search",
+  "ai-powered.ai-parsing.title": "AI Parsing",
+  "ai-powered.ai-parsing.description": "Visuals, Color Schemes, Themes, etc.",
+  "ai-powered.ai-content-creation.title": "AI Content Creation",
+  "ai-powered.ai-content-creation.description": "Craft Blog from Asset Insights",
+  "ai-powered.auto-tags.title": "Auto Tags",
+  "ai-powered.auto-tags.description": "Auto-Tag for Search & Clustering",
+  "ai-powered.muse-copilot.title": "MuseCopilot",
+  "ai-powered.muse-copilot.description": "Chat with Copilot on your Content",
+
+  "visual-workspace.inspiration-collection.title": "Inspiration Collection",
+  "visual-workspace.inspiration-collection.description": "Browser Plugin for Websites",
+  "visual-workspace.smart-folders.title": "Smart Folders",
+  "visual-workspace.smart-folders.description": "Automatic Categorization",
+  "visual-workspace.file-formats.title": "70+ File Formats",
+  "visual-workspace.file-formats.description": "Online Preview for 70+ Formats",
+  "visual-workspace.multiple-viewing.title": "Multiple Viewing",
+  "visual-workspace.multiple-viewing.description": "List, Board, Waterfall and Adaptive",
+  "visual-workspace.encrypted-sharing.title": "Encrypted Sharing",
+  "visual-workspace.encrypted-sharing.description": "Set Expiry and Password for Sharing",
+
+  "team-collaboration.team-management.title": "Team Management",
+  "team-collaboration.team-management.description": "Member and Department Management",
+  "team-collaboration.permissions.title": "Permissions",
+  "team-collaboration.permissions.description": "Folder Permissions by Member Role",
+  "team-collaboration.dynamic-feedback.title": "Dynamic Feedback",
+  "team-collaboration.dynamic-feedback.description": "Comments and Annotations",
+  "team-collaboration.versions.title": "Versions",
+  "team-collaboration.versions.description": "Version Control and History Access",
+  "team-collaboration.data-statistics.title": "Data Statistics",
+  "team-collaboration.data-statistics.description": "Activity Statistics and Leaderboards",
+
+  "category.ai-powered": "AI-Powered",
+  "category.visual-workspace": "Visual Workspace",
+  "category.team-collaboration": "Team Collaboration"
+}
