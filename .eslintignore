@@ -10,3 +10,5 @@
 **/temp
 playwright.config.ts
 jest.config.js
+postcss.config.js
+tailwind.config.mjs
