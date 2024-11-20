@@ -28,7 +28,7 @@ export default function PageClient() {
           width={148}
           height={30}
           alt="Dynamic-Feedback1"
-          className="justify-self-end mr-[13px]"
+          className="mr-[13px] justify-self-end"
           initial={{ x: '-10%', opacity: 0 }}
           animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
           transition={{ duration: 1, ease: 'easeInOut' }}

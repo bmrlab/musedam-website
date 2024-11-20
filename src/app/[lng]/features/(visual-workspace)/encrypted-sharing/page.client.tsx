@@ -16,7 +16,7 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid w-[640px] h-[438px]"
+        className="grid h-[438px] w-[640px]"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
@@ -37,7 +37,7 @@ export default function PageClient() {
             width={336.5}
             height={313.67}
             alt="Encrypted-Sharing-Modal"
-            className="rounded-[11.91px] absolute top-[124.5px] right-[64.5px] shadow-[0px_4px_30px_4px_#00000014]"
+            className="absolute right-[64.5px] top-[124.5px] rounded-[11.91px] shadow-[0px_4px_30px_4px_#00000014]"
             initial={{ y: '-10%', opacity: 0 }}
             animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 1, delay: 0.5, ease: 'easeInOut' }}

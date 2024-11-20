@@ -1,8 +1,9 @@
 'use client'
 
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
+import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 const ImageBasePath = '/Features/Data-Statistics'
@@ -23,7 +24,7 @@ export default function PageClient() {
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
-        <RelativeContainer className="w-fit ml-[50px]">
+        <RelativeContainer className="ml-[50px] w-fit">
           <MotionImage
             src={`${ImageBasePath}/Data-Statistics-List.png`}
             width={467}
@@ -39,7 +40,7 @@ export default function PageClient() {
             width={335.9}
             height={100.47}
             alt="Data-Statistics-Card"
-            className="absolute top-[255px] right-[-84.9px]"
+            className="absolute right-[-84.9px] top-[255px]"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}

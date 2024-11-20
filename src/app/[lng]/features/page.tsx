@@ -8,11 +8,11 @@ import { Metadata } from 'next'
 export default function AllFeaturesPage() {
   return (
     <FlexColContainer>
-      <FlexColContainer className="h-[calc(100vh-70px)] px-20 justify-center select-none">
-        <h2 className="font-mono font-light text-[20px] leading-[20px] text-black">
+      <FlexColContainer className="h-[calc(100vh-70px)] select-none justify-center px-20">
+        <h2 className="font-mono text-[20px] font-light leading-[20px] text-black">
           What is MuseDAM?
         </h2>
-        <p className="mt-10 font-baskervville font-normal text-[68px] leading-[77.79px] tracking-[1px] text-[#141414]">
+        <p className="mt-10 font-baskervville text-[68px] font-normal leading-[77.79px] tracking-[1px] text-[#141414]">
           MuseDAM: <HighlightText text="AI-driven" color="#FF8043" /> digital asset management tool
           for secure, efficient <HighlightText text="collaboration" color="#3910EC" /> in design and
           creative teams. <HighlightText text="Manage" color="#89DEFF" /> assets,{' '}
@@ -24,7 +24,7 @@ export default function AllFeaturesPage() {
           <Button className="h-full rounded-full bg-black px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
             Start for free
           </Button>
-          <ArrowDownRight className="h-8 w-8 text-black" />
+          <ArrowDownRight className="size-8 text-black" />
         </div>
       </FlexColContainer>
       <FeaturesBlock />

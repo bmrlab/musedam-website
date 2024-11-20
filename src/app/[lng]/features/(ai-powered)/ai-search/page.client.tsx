@@ -16,12 +16,12 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-items-center w-[640px] px-[24.09px] py-10 md:p-0"
+        className="grid w-[640px] justify-items-center px-[24.09px] py-10 md:p-0"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
-        <div className="flex justify-between w-full pl-[53px] pr-[47.17px]">
+        <div className="flex w-full justify-between pl-[53px] pr-[47.17px]">
           <MotionShadowImage
             src="/Features/AI-Search/AI-Search-Tags.png"
             width={229}

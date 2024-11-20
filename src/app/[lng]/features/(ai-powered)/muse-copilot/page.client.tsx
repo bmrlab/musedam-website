@@ -16,7 +16,7 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-items-start w-[640px] pl-[60px]"
+        className="grid w-[640px] justify-items-start pl-[60px]"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
@@ -48,7 +48,7 @@ export default function PageClient() {
               width={26.89}
               height={38.41}
               alt="MuseCopilot-Mouse.svg"
-              className="absolute top-[20px] right-[-6.39px]"
+              className="absolute right-[-6.39px] top-[20px]"
               initial={{ x: '-10%', opacity: 0 }}
               animate={isBuildFinished(2) ? { x: 0, opacity: 1 } : {}}
               transition={{ duration: 1, ease: 'easeInOut' }}

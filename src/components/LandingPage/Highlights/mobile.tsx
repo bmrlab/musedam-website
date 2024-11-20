@@ -58,7 +58,7 @@ export default function HighlightsMobile() {
                   <ul className="list-inside list-disc text-[16px] font-light leading-[24px] text-[#141414]">
                     {item.list?.map((list, index) => (
                       <div key={index} className="flex items-center gap-1.5">
-                        <div className="h-1 w-1 rounded-full bg-black"></div>
+                        <div className="size-1 rounded-full bg-black"></div>
                         {list}
                       </div>
                     ))}
@@ -71,7 +71,7 @@ export default function HighlightsMobile() {
                     <div key={index} className="space-y-2">
                       {/* 圆点 */}
                       <h3 className="flex items-center gap-1.5 text-[16px] font-medium leading-[24px] text-[#141414]">
-                        <div className="h-1 w-1 rounded-full bg-black"></div>
+                        <div className="size-1 rounded-full bg-black"></div>
                         {point.title}
                       </h3>
                       <p className="text-[16px] font-light leading-[24px] text-[#141414]">

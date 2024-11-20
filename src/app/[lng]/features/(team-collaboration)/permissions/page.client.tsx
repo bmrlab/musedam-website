@@ -18,7 +18,7 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-center w-[640px] gap-[13.67px]"
+        className="grid w-[640px] justify-center gap-[13.67px]"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}

@@ -54,7 +54,7 @@ export default function HighlightsDesktop() {
       }}
       className="grid w-full grid-cols-9"
     >
-      <div className="col-span-4 flex h-[765px] w-full items-center justify-center transition-colors duration-500 ease-in-out py-[80px] pl-[30px] pr-[80px]">
+      <div className="col-span-4 flex h-[765px] w-full items-center justify-center py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
           data={data.map((d) => d.title)}
           activeIndex={swiperIndex}
@@ -109,7 +109,7 @@ export default function HighlightsDesktop() {
                       <ul className="list-inside list-disc text-[16px] font-light leading-[24px] text-[#141414]">
                         {item.list?.map((list, index) => (
                           <div key={index} className="flex items-center gap-1.5">
-                            <div className="h-1 w-1 rounded-full bg-black"></div>
+                            <div className="size-1 rounded-full bg-black"></div>
                             {list}
                           </div>
                         ))}
@@ -122,7 +122,7 @@ export default function HighlightsDesktop() {
                         <div key={index} className="space-y-2">
                           {/* 圆点 */}
                           <h3 className="flex items-center gap-1.5 text-[16px] font-medium leading-[24px] text-[#141414]">
-                            <div className="h-1 w-1 rounded-full bg-black"></div>
+                            <div className="size-1 rounded-full bg-black"></div>
                             {point.title}
                           </h3>
                           <p className="text-[16px] font-light leading-[24px] text-[#141414]">
@@ -148,7 +148,7 @@ export default function HighlightsDesktop() {
           ))}
         </Swiper>
       </div>
-      <div className="col-span-5 flex h-full w-full items-center justify-center">
+      <div className="col-span-5 flex size-full items-center justify-center">
         <Swiper
           speed={0}
           cssMode={false}

@@ -34,7 +34,7 @@ export default function PageClient() {
           transition={{ duration: 1, delay: 0.1, ease: 'easeInOut' }}
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
-        <div className="flex gap-[13.24px] mt-[18px]">
+        <div className="mt-[18px] flex gap-[13.24px]">
           <MotionImage
             src={`${ImageBasePath}/Versions2.png`}
             width={96.31}

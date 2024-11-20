@@ -23,11 +23,11 @@ export default function FeaturesCard({
   return (
     <div
       style={{ background: bgColor }}
-      className={cn('flex flex-col rounded-[20px] py-6 md:py-12 px-6 cursor-pointer', className)}
+      className={cn('flex cursor-pointer flex-col rounded-[20px] p-6 md:py-12', className)}
     >
       <h1
         className={cn(
-          'text-nowrap font-baskervville font-normal text-[30px] md:text-[36px] leading-[34.32px] md:leading-[41.19px] tracking-[1px] text-black',
+          'text-nowrap font-baskervville text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black md:text-[36px] md:leading-[41.19px]',
           darkness && 'text-white',
         )}
       >
@@ -36,16 +36,16 @@ export default function FeaturesCard({
       <Divider className={cn('my-3', darkness && 'border-white')} />
       <p
         className={cn(
-          'font-mono font-light text-[16px] leading-[22px] text-[#141414]',
+          'font-mono text-[16px] font-light leading-[22px] text-[#141414]',
           darkness && 'text-white',
         )}
       >
         {description}
       </p>
-      <div className="flex-1 flex items-end">
+      <div className="flex flex-1 items-end">
         <FlexCenterContainer
           style={{ background: iconBgColor }}
-          className="w-full h-[232px] md:h-[293px] rounded-full relative"
+          className="relative h-[232px] w-full rounded-full md:h-[293px]"
         >
           <Image src={iconUrl} fill alt={title} />
         </FlexCenterContainer>
@@ -73,11 +73,11 @@ export function FeaturesRectIconCard({
   return (
     <div
       style={{ background: bgColor }}
-      className={cn('flex flex-col rounded-[24px] py-[30px] px-6 cursor-pointer', className)}
+      className={cn('flex cursor-pointer flex-col rounded-[24px] px-6 py-[30px]', className)}
     >
       <h1
         className={cn(
-          'text-nowrap font-baskervville font-normal text-[30px] leading-[34.32px] tracking-[1px] text-black',
+          'text-nowrap font-baskervville text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black',
           darkness && 'text-white',
         )}
       >
@@ -86,16 +86,16 @@ export function FeaturesRectIconCard({
       <Divider className={cn('my-3', darkness && 'border-white')} />
       <p
         className={cn(
-          'font-mono font-light text-[16px] leading-[22px] text-[#141414]',
+          'font-mono text-[16px] font-light leading-[22px] text-[#141414]',
           darkness && 'text-white',
         )}
       >
         {description}
       </p>
-      <div className="flex-1 flex items-end">
+      <div className="flex flex-1 items-end">
         <FlexCenterContainer
           style={{ background: iconBgColor }}
-          className="w-full h-[199px] rounded-[20px] relative"
+          className="relative h-[199px] w-full rounded-[20px]"
         >
           <Image src={iconUrl} fill alt={title} />
         </FlexCenterContainer>

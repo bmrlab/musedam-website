@@ -55,7 +55,7 @@ export default function Header() {
         className="flex h-full max-w-none justify-start"
         viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
       >
-        <div className="flex-shrink-0 px-4">
+        <div className="shrink-0 px-4">
           <Image src="/logo.svg" width={36} height={36} alt="muse logo"></Image>
         </div>
         <NavigationMenuList className="hidden flex-1 md:flex">
@@ -63,11 +63,11 @@ export default function Header() {
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
             <NavigationMenuContent className="h-[576px]">
               <div className="grid h-full w-screen grid-cols-3">
-                <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] px-[60px] py-[60px]">
+                <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
                   {categories.map((category, i) => (
                     <div
                       key={i}
-                      className="text-[14px] text-sm font-normal leading-4 text-black/40"
+                      className="text-[14px] font-normal leading-4 text-black/40"
                     >
                       {category}
                     </div>
@@ -132,7 +132,7 @@ export default function Header() {
                         width={327}
                         height={286}
                         alt="bmr logo"
-                        className="absolute bottom-[70px] left-1/2 translate-x-[-50%]"
+                        className="absolute bottom-[70px] left-1/2 -translate-x-1/2"
                       />
                     )}
                   </AnimatePresence>

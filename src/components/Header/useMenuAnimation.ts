@@ -1,5 +1,5 @@
-import { AnimationSequence, stagger, useAnimate } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { AnimationSequence, stagger, useAnimate } from 'framer-motion'
 
 export function useMenuAnimation(isOpen: boolean) {
   const [scope, animate] = useAnimate()

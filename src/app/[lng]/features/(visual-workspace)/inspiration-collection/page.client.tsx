@@ -17,12 +17,12 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-items-center w-[640px]"
+        className="grid w-[640px] justify-items-center"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
-        <div className="flex justify-between w-full px-[46px] h-[72px]">
+        <div className="flex h-[72px] w-full justify-between px-[46px]">
           <motion.div
             className="grid grid-cols-2 gap-0"
             initial={{ x: '-10%', opacity: 0 }}
@@ -41,7 +41,7 @@ export default function PageClient() {
               width={55.82}
               height={55.82}
               alt="Inspiration-Collection-Discord"
-              className="self-end ml-[-13px]"
+              className="ml-[-13px] self-end"
             />
           </motion.div>
           <MotionImage
@@ -82,7 +82,7 @@ export default function PageClient() {
             width={192.54}
             height={192.54}
             alt="Inspiration-Collection-Drag"
-            className="absolute top-[144px] right-[-57.51px]"
+            className="absolute right-[-57.51px] top-[144px]"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(4) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}

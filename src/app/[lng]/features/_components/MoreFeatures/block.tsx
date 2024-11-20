@@ -47,9 +47,9 @@ export default function FeaturesBlock() {
       {blocks.map((block, index) => (
         <FlexRowContainer
           key={index}
-          className={cn('bg-[#F0F0F0] px-[80px] py-[100px] gap-10', isOdd(index) && 'bg-white')}
+          className={cn('gap-10 bg-[#F0F0F0] px-[80px] py-[100px]', isOdd(index) && 'bg-white')}
         >
-          <FlexColContainer className="w-[250px] flex-shrink-0 gap-3 font-baskervville font-normal text-black tracking-[1px]">
+          <FlexColContainer className="w-[250px] shrink-0 gap-3 font-baskervville font-normal tracking-[1px] text-black">
             <h1 className="text-[120px] leading-[137.29px]">{`0${index + 1}`}</h1>
             <p className="text-[40px] leading-[45.76px]">{block.category}</p>
           </FlexColContainer>
@@ -58,7 +58,7 @@ export default function FeaturesBlock() {
               <FeaturesRectIconCard
                 key={index}
                 {...FeaturesCards[feature]}
-                className="w-[314px] h-[385px] transition-transform shrink-0 duration-300 ease-in-out hover:-translate-y-5"
+                className="h-[385px] w-[314px] shrink-0 transition-transform duration-300 ease-in-out hover:-translate-y-5"
               />
             ))}
           </FlexRowContainer>

@@ -16,12 +16,12 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-items-center w-[640px]"
+        className="grid w-[640px] justify-items-center"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
-        <FlexColContainer className="gap-[16.82px] w-[525.62px]">
+        <FlexColContainer className="w-[525.62px] gap-[16.82px]">
           <MotionImage
             src="/Features/Content-Creation/Content-Creation1.png"
             width={474}

@@ -7,20 +7,20 @@ export default function SubscribeBlock({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-6 bg-[rgb(237,237,237)] px-6 py-[60px] md:px-0 text-black',
+        'flex flex-col items-center justify-center gap-6 bg-[rgb(237,237,237)] px-6 py-[60px] text-black md:px-0',
         className,
       )}
     >
       <h2 className="text-center font-baskervville text-[38px] font-normal leading-[43.47px]  md:text-left md:text-[48px] md:leading-[54.91px]">
         Subscribe for exclusive updates and resources
       </h2>
-      <div className="flex justify-center w-full flex-col gap-2.5 md:flex-row">
+      <div className="flex w-full flex-col justify-center gap-2.5 md:flex-row">
         <Input
           type="email"
           placeholder="Your work email"
-          className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 md:h-[50px] md:w-[420px] placeholder:font-light placeholder:font-mono placeholder:opacity-30"
+          className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
         />
-        <button className="text-white h-[54px] rounded-[6px] bg-black px-[56.5px] font-mono text-[16px] leading-[20.8px] md:h-[50px]">
+        <button className="h-[54px] rounded-[6px] bg-black px-[56.5px] font-mono text-[16px] leading-[20.8px] text-white md:h-[50px]">
           Subscribe
         </button>
       </div>

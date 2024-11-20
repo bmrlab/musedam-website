@@ -16,7 +16,7 @@ export default function PageClient() {
       }}
     >
       <motion.div
-        className="grid justify-items-start w-[640px] pl-[60px]"
+        className="grid w-[640px] justify-items-start pl-[60px]"
         whileInView={{ opacity: 1 }}
         viewport={{ amount: 0.5 }}
         onAnimationComplete={() => handleAnimationComplete(0)}
@@ -47,7 +47,7 @@ export default function PageClient() {
             width={200}
             height={238}
             alt="Auto-Tags-Group"
-            className="absolute top-[59px] right-[-95.65px]"
+            className="absolute right-[-95.65px] top-[59px]"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}

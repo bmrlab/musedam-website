@@ -42,7 +42,7 @@ export const Point = ({ keyword, description }: PointsProps) => {
       <FlexCenterContainer className="h-[28px] px-2">
         <Circle className="size-1 fill-current" />
       </FlexCenterContainer>
-      <div className="text-[16px] font-mono space-y-2 tracking-[2%]">
+      <div className="space-y-2 font-mono text-[16px] tracking-[2%]">
         <h2 className="font-medium leading-[28px]">{keyword}</h2>
         <p className="font-light leading-6">{description}</p>
       </div>
