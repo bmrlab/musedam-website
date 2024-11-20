@@ -1,17 +1,19 @@
-import Hero from '@/components/LandingPage/Hero'
-import SubscribeBlock from './Subscribe'
 import { twx } from '@/utilities/cn'
-import Precept from '@/components/LandingPage/Precept'
-import Highlights from '@/components/LandingPage/Highlights'
 
-export default function LandingPage() {
+import Hero from '@/components/LandingPage/Hero'
+import Highlights from '@/components/LandingPage/Highlights'
+import Precept from '@/components/LandingPage/Precept'
+
+import SubscribeBlock from './Subscribe'
+
+export default function LandingPage({ params: { lng } }) {
   return (
     <div className="grid w-screen justify-items-center bg-white">
       <ContainerWithMaxWidth>
-        <Hero />
+        <Hero lng={lng} />
       </ContainerWithMaxWidth>
-      <SubscribeBlock className="mt-[60px] w-full md:mt-[80px]" />
-      <Highlights />
+      <SubscribeBlock lng={lng} className="mt-[60px] w-full md:mt-[80px]" />
+      <Highlights lng={lng} />
       <Precept />
     </div>
   )

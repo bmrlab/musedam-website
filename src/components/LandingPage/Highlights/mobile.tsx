@@ -1,19 +1,19 @@
 import { cn, twx } from '@/utilities/cn'
-import { data } from '@/components/LandingPage/Highlights/mock'
+
 import {
   AIGenerateImageGroup,
   CollaborateImageGroup,
   CollectImageGroup,
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
+import { Highlight } from '@/components/LandingPage/Highlights/index'
 
-export default function HighlightsMobile() {
+export default function HighlightsMobile({ data }: { data: Highlight[] }) {
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
         <div key={index} style={{ background: item.bgColor }}>
           <ImageBgDiv className="flex items-center justify-center">
-            {/*<Image src={item.image} fill alt={item.title} className="object-contain" />*/}
             {(() => {
               switch (item.title) {
                 case 'Collect':

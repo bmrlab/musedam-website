@@ -4,23 +4,24 @@ import { useCallback, useState } from 'react'
 import { Controller, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
-import { data } from './mock'
 import Toc from './toc'
 
 import 'swiper/css'
 import 'swiper/css/controller'
-
 import 'swiper/css/pagination'
+
+import { twx } from '@/utilities/cn'
 import { motion } from 'framer-motion'
+
 import {
   AIGenerateImageGroup,
   CollaborateImageGroup,
   CollectImageGroup,
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
-import { twx } from '@/utilities/cn'
+import { Highlight } from '@/components/LandingPage/Highlights/index'
 
-export default function HighlightsDesktop() {
+export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤

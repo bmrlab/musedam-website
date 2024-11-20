@@ -1,0 +1,23 @@
+{
+  "highlight.button": "Start for free",
+  "collect.title": "Collect",
+  "collect.description.0": "MuseDAM Collection Plugin, your new sidekick for Chrome, Edge, and 360. Effortlessly collect images, videos, and web pages with drag-and-drop simplicity.",
+  "collect.description.1": "Streamline your team's content curation and boost collaboration with centralized asset collection. Get ready to transform your workflow with Muse. \uD83D\uDE80 ",
+  "organize.title": "Organize",
+  "organize.description.0": "Discover MuseDAM — preview 70+ file formats seamlessly, edit in bulk, and organize with smart tags.",
+  "organize.description.1": "Our intuitive folder system makes file access a breeze, supercharging your team's productivity and collaboration. Join the Muse revolution today! 🌟",
+  "collaborate.title": "Collaborate",
+  "collaborate.description.0": "Boost teamwork, security, and productivity with our Collaboration Features. 👬",
+  "collaborate.list.0": "Permission",
+  "collaborate.list.1": "File Sharing",
+  "collaborate.list.2": "Activity Log",
+  "collaborate.list.3": "Active Leaderboard",
+  "ai-generate.title": "AI Generate",
+  "ai-generate.description.0": "Ignite creativity and streamline workflows with MuseDAM's all-in-one AI toolkit.",
+  "ai-generate.point.0.title": "AI Parsing ✨",
+  "ai-generate.point.0.description": "Instantly decode your assets for insights, from descriptions to color schemes.",
+  "ai-generate.point.1.title": "AI Search \uD83D\uDD0D",
+  "ai-generate.point.1.description": "Effortlessly find assets with our advanced search.",
+  "ai-generate.point.2.title": "AI Generation \uD83D\uDDBC\uFE0F ✍\uFE0F",
+  "ai-generate.point.2.description": "Generate images from prompts or instantly craft summaries, conversations, and articles by dragging files into MuseCopilot."
+}
