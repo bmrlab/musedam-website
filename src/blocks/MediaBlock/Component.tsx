@@ -1,19 +1,18 @@
 import type { StaticImageData } from 'next/image'
 
-import { cn } from '@/utilities/cn'
+import { cn } from 'src/utilities/cn'
 import React from 'react'
 import RichText from '@/components/RichText'
 
-import type { Page } from '@/payload-types'
+import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '../../components/Media'
 
-type Props = Extract<Page['layout'][0], { blockType: 'mediaBlock' }> & {
+type Props = MediaBlockProps & {
   breakout?: boolean
   captionClassName?: string
   className?: string
   enableGutter?: boolean
-  id?: string
   imgClassName?: string
   staticImage?: StaticImageData
   disableInnerContainer?: boolean

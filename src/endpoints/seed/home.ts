@@ -38,7 +38,7 @@ export const home: RequiredDataFromCollectionSlug<'pages'> = {
                 format: 0,
                 mode: 'normal',
                 style: '',
-                text: 'MuseDAM Website',
+                text: 'Payload Website Template',
                 version: 1,
               },
             ],
@@ -662,7 +662,7 @@ export const home: RequiredDataFromCollectionSlug<'pages'> = {
     description: 'An open-source website built with Payload and Next.js.',
     // @ts-ignore
     image: '{{IMAGE_1}}',
-    title: 'MuseDAM Website',
+    title: 'Payload Website Template',
   },
   title: 'Home',
 }

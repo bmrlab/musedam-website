@@ -1,18 +1,16 @@
 import type { Metadata } from 'next'
+import { getServerSideURL } from './getURL'
 
-// TODO: Update the defaultOpenGraph object with your own values
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
-  description: 'Creative Asset Cloud · Team Collaboration · AIGC',
+  description: 'An open-source website built with Payload and Next.js.',
   images: [
     {
-      url: process.env.NEXT_PUBLIC_SERVER_URL
-        ? `${process.env.NEXT_PUBLIC_SERVER_URL}/MuseDAM-OG.png`
-        : '/MuseDAM-OG.png',
+      url: `${getServerSideURL()}/website-template-OG.webp`,
     },
   ],
-  siteName: 'MuseDAM Website',
-  title: 'MuseDAM Website',
+  siteName: 'Payload Website Template',
+  title: 'Payload Website Template',
 }
 
 export const mergeOpenGraph = (og?: Metadata['openGraph']): Metadata['openGraph'] => {

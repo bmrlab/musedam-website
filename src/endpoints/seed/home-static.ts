@@ -20,7 +20,7 @@ export const homeStatic: Page = {
                 format: 0,
                 mode: 'normal',
                 style: '',
-                text: 'MuseDAM Website',
+                text: 'Payload Website Template',
                 version: 1,
               },
             ],
@@ -82,7 +82,7 @@ export const homeStatic: Page = {
   },
   meta: {
     description: 'An open-source website built with Payload and Next.js.',
-    title: 'MuseDAM Website',
+    title: 'Payload Website Template',
   },
   title: 'Home',
 }
