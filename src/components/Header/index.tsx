@@ -38,7 +38,7 @@ export default function Header() {
 
   const { data: features } = useHeaderData()
 
-  const categories = useMemo(() => features.map((f) => f.category), [])
+  const categories = useMemo(() => features.map((f) => f.category), [features])
 
   const featuresRowFlat = useMemo(() => {
     const rowFlatItems: FeatureItem[] = []
@@ -109,7 +109,14 @@ export default function Header() {
                             >
                               <IconWrapper icon={data.icon} size={20} className="self-start" />
                               <div className="flex flex-col gap-2">
-                                <div className="text-[16px] font-medium leading-[16px] group-hover:underline">
+                                <div
+                                  className={cn(
+                                    'relative w-fit text-[16px] font-medium leading-[16px]',
+                                    'after:absolute after:bottom-[-2px] after:left-0 after:h-[2px] after:w-0 after:bg-current',
+                                    'after:ease-[cubic-bezier(0.4,0,0.2,1)] after:transition-all after:duration-300',
+                                    'group-hover:after:w-full',
+                                  )}
+                                >
                                   {data.title}
                                 </div>
                                 <div className="text-[13px] leading-[19.5px] text-black/60">
@@ -125,7 +132,8 @@ export default function Header() {
                 </ul>
                 <div
                   style={{
-                    background: 'linear-gradient(180deg, #F5F6F8 -1.99%, #E5F0FE 98.76%)',
+                    background:
+                      'linear-gradient(0.31deg, #DFE3FF -8.1%, #EEF3FF 63.28%, #F6F8FF 99.04%)',
                   }}
                   className="relative col-span-1 size-full"
                 >
@@ -137,20 +145,33 @@ export default function Header() {
                           src={currentHeroImage}
                           width={430}
                           height={430}
-                          alt="bmr logo"
+                          alt="hero image"
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.8 }}
                         />
                       </div>
                     ) : (
-                      <Image
-                        src={DEFAULT_HERO_IMAGE}
-                        width={327}
-                        height={286}
-                        alt="bmr logo"
-                        className="absolute bottom-[70px] left-1/2 -translate-x-1/2"
-                      />
+                      <div className="flex size-full items-end justify-center pb-[70px]">
+                        <MotionImage
+                          src={DEFAULT_HERO_IMAGE}
+                          width={327}
+                          height={286}
+                          alt="bmr logo"
+                          initial={{
+                            opacity: 0,
+                            y: 50,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                          }}
+                          transition={{
+                            duration: 0.5,
+                            ease: [0.4, 0, 0.2, 1],
+                          }}
+                        />
+                      </div>
                     )}
                   </AnimatePresence>
                 </div>
