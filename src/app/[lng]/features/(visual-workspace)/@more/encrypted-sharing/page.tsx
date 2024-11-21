@@ -9,7 +9,6 @@ export default function EncryptedSharingFeatures() {
         FeaturesEnum.SmartFolders,
         FeaturesEnum.Formats,
         FeaturesEnum.MultipleViewing,
-        FeaturesEnum.Sharing,
       ]}
     />
   )

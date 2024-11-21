@@ -7,7 +7,6 @@ export default function FileFormatsFeatures() {
       features={[
         FeaturesEnum.FileCollection,
         FeaturesEnum.SmartFolders,
-        FeaturesEnum.Formats,
         FeaturesEnum.MultipleViewing,
         FeaturesEnum.Sharing,
       ]}

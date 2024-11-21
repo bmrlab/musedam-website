@@ -6,7 +6,6 @@ export default function SmartFoldersFeatures() {
     <MoreFeatures
       features={[
         FeaturesEnum.FileCollection,
-        FeaturesEnum.SmartFolders,
         FeaturesEnum.Formats,
         FeaturesEnum.MultipleViewing,
         FeaturesEnum.Sharing,

@@ -5,7 +5,6 @@ export default function InspirationCollectionFeatures() {
   return (
     <MoreFeatures
       features={[
-        FeaturesEnum.FileCollection,
         FeaturesEnum.SmartFolders,
         FeaturesEnum.Formats,
         FeaturesEnum.MultipleViewing,

@@ -8,7 +8,6 @@ export default function MultipleViewingFeatures() {
         FeaturesEnum.FileCollection,
         FeaturesEnum.SmartFolders,
         FeaturesEnum.Formats,
-        FeaturesEnum.MultipleViewing,
         FeaturesEnum.Sharing,
       ]}
     />
