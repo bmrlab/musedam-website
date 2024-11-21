@@ -49,16 +49,18 @@ export default function Header() {
       })
     })
     return rowFlatItems
-  }, [])
+  }, [features])
 
   return (
-    <nav className="relative flex h-[56px] w-full items-center border-b border-black bg-white md:h-[70px]">
+    <nav className="fixed z-50 flex h-[56px] w-full items-center border-b border-black bg-white font-mono md:h-[70px]">
       <NavigationMenu
         className="flex h-full max-w-none justify-start"
         viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
       >
         <div className="shrink-0 px-4">
-          <Image src="/logo.svg" width={36} height={36} alt="muse logo"></Image>
+          <Link href="/">
+            <Image src="/logo.svg" width={36} height={36} alt="muse logo"></Image>
+          </Link>
         </div>
         <NavigationMenuList className="hidden flex-1 md:flex">
           <NavigationMenuItem>
@@ -169,7 +171,7 @@ export default function Header() {
           <MobileMenu />
           <motion.button
             layout
-            className="z-50 h-full bg-[#043FFB] text-[16px] font-normal leading-[22px] text-white"
+            className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
             initial={{ width: '140px' }}
             animate={{ width: isMobile ? '56px' : '140px' }}
             onClick={() => setIsOpen(!isOpen)}
