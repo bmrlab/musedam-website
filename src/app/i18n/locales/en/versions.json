@@ -1,0 +1,30 @@
+{
+  "hero.tag": "Versions",
+  "hero.title": "Streamline Asset Management and Version Tracking",
+  "hero.description": "Govern the lifecycle of your digital assets with MuseDAM's Versions feature, ensuring precise control over asset evolution and team collaboration.",
+
+  "showcase.title": "Optimize Creative Workflows with Version Management",
+
+  "showcase.points.0.keyword": "Multi-Version Support",
+  "showcase.points.0.description": "Manage multiple versions of a single asset with distinct metadata for precise version differentiation.",
+
+  "showcase.points.1.keyword": "Historical Task Storage and Management",
+  "showcase.points.1.description": "Effortlessly store and manage historical tasks, ensuring a clear audit trail for asset development.",
+
+  "showcase.points.2.keyword": "Version Indicators on Thumbnails",
+  "showcase.points.2.description": "Quickly identify the latest and previous versions with clear indicators on asset thumbnails.",
+
+  "text-display.title": "MuseDAM Versions: Simplify Version Control for Enhanced Creative Workflows",
+
+  "text-display.points.0.keyword": "Version Clarity",
+  "text-display.points.0.description": "Maintain organizational clarity with precise version tracking and robust metadata management.",
+
+  "text-display.points.1.keyword": "Collaboration Access",
+  "text-display.points.1.description": "Boost collaboration efficiency by simplifying access to various asset versions.",
+
+  "text-display.points.2.keyword": "Workflow Visuals",
+  "text-display.points.2.description": "Improve workflow speed with visual cues on thumbnails for version updates.",
+
+  "text-display.points.3.keyword": "Creative Acceleration",
+  "text-display.points.3.description": "Accelerate your team's creative process with MuseDAM's Versions feature, ensuring confident and efficient asset management."
+}

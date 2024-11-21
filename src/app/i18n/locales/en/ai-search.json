@@ -1,0 +1,20 @@
+{
+  "hero.tag": "AI Search",
+  "hero.title": "Unleash Your Creativity with Smart Search",
+  "hero.description": "Discover a search experience that understands your creative vision. Our AI-enhanced Smart Search allows you to effortlessly find the exact asset you need by recognizing images and suggesting intuitive keywords.",
+
+  "showcase.title": "Streamlined Search for Your Creative Workflow",
+  "showcase.description": "Break free from traditional folder hierarchies. Discover your content in a single, streamlined step.",
+
+  "showcase.points.0.keyword": "Keywords",
+  "showcase.points.0.description": "Unlock the power of AI to automatically tag every image with context-rich keywords like \"portrait\", \"vibrant\", \"urban landscape\" upon upload, making your search effortless and precise.",
+
+  "showcase.points.1.keyword": "Tags",
+  "showcase.points.1.description": "Customize your asset library with personalized tags, turning your workspace into a searchable encyclopedia of your creative endeavors.",
+
+  "showcase.points.2.keyword": "Metadata",
+  "showcase.points.2.description": "Quickly retrieve that specific photo from a past project by searching with pinpoint accuracy by date, uploader, resolution, and other metadata.",
+
+  "showcase.points.3.keyword": "Intelligent Filters",
+  "showcase.points.3.description": "Supercharge your search with filters that let you sort through your workspace or a specific board by color, file type, tags, source link, or uploader. Save time with Saved Filters, creating dynamic collections that update automatically, ensuring you always have swift access to the content that matters most."
+}

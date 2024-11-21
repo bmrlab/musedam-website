@@ -1,0 +1,30 @@
+{
+  "hero.tag": "Encrypted Sharing",
+  "hero.title": "Secure and Flexible File Sharing",
+  "hero.description": "Discover a feature-rich, encrypted file sharing solution that ensures unparalleled security and control for your sensitive data, setting MuseDAM apart from competitors like Dropbox and Google Drive.",
+
+  "showcase.title": "Enhance Collaboration & Security with Encrypted Sharing",
+
+  "showcase.points.0.keyword": "Flexible Sharing Options",
+  "showcase.points.0.description": "Share files and folders with customizable expirations: 30 days, 7 days, or permanent access.",
+
+  "showcase.points.1.keyword": "Granular Access Controls",
+  "showcase.points.1.description": "Tailor access permissions for downloads, transfers, or view-only access with encrypted sharing for enhanced security.",
+
+  "showcase.points.2.keyword": "Effortless Asset Management",
+  "showcase.points.2.description": "Batch transfer assets to MuseDAM with metadata retention, including titles, notes, tags, and more.",
+
+  "showcase.points.3.keyword": "Password Protected Sharing",
+  "showcase.points.3.description": "Lock your shares with a password, ensuring only authorized users can access the content.",
+
+  "text-display.title": "Share Link Management: Centralized Control & Visibility",
+
+  "text-display.points.0.keyword": "Centralized Record Keeping",
+  "text-display.points.0.description": "Manage all sharing records from the Share Management section of the Management Dashboard for streamlined oversight.",
+
+  "text-display.points.1.keyword": "Team Sharing Access",
+  "text-display.points.1.description": "Team members can access and review all team sharing records, enhancing collaboration and accountability.",
+
+  "text-display.points.2.keyword": "Permission-Based Visibility and Control",
+  "text-display.points.2.description": "Customize share link access and management according to team member permissions, ensuring secure and efficient collaboration."
+}

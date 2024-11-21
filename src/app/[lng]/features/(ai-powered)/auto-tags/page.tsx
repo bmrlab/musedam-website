@@ -1,48 +1,19 @@
-import Hero from '@/app/[lng]/features/_components/Hero'
-import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { tagColor } from '../const'
-import PageClient from './page.client'
 import { Metadata } from 'next'
 
-const heroData = {
-  tag: 'Auto Tags',
-  tagColor,
-  title: 'Intelligent Tagging: Simplify and Personalize',
-  description:
-    "MuseDAM's Auto Tags use AI to automatically categorize your assets with smart tags that understand your content. Say goodbye to manual tagging and discover the power of customized, efficient searches that enhance your brand's workflow.",
-}
+import { PropsWithLng } from '@/types/page'
+import Hero from '@/app/[lng]/features/_components/Hero'
+import Showcase from '@/app/[lng]/features/_components/Showcase'
+import fetchData from '@/app/[lng]/features/data'
 
-const showcaseData: ShowcaseProps = {
-  title: 'Efficient Asset Management: Simplified',
-  description:
-    'Break free from traditional folder hierarchies. Discover your content in a single, streamlined step.',
-  points: [
-    {
-      keyword: 'Content Recognition',
-      description:
-        'Our AI swiftly identifies and labels your images, making them searchable with ease.',
-    },
-    {
-      keyword: 'Clustering',
-      description: 'Automatically gather similar assets into well-organized collections.',
-    },
-    {
-      keyword: 'Searchability',
-      description: 'Find assets instantly, saving time and increasing productivity.',
-    },
-    {
-      keyword: 'Customization',
-      description: 'Tailor tags to your workflow by editing AI suggestions or adding your own.',
-    },
-    {
-      keyword: 'Integration',
-      description:
-        'Seamlessly blend intelligent tagging into your processes for a more efficient asset management system.',
-    },
-  ],
-}
+import PageClient from './page.client'
 
-export default function AutoTagsPage() {
+export default async function AutoTagsPage({ params }: PropsWithLng) {
+  const { lng } = await params
+  const { heroData, showcaseData } = await fetchData({
+    ns: 'auto-tags',
+    lng,
+    showcaseLength: 5,
+  })
   return (
     <div>
       <Hero {...heroData} />

@@ -1,65 +1,21 @@
-import Hero from '@/app/[lng]/features/_components/Hero'
-import Showcase, { ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import TextDisplay, { TextDisplayProps } from '@/app/[lng]/features/_components/TextDisplay'
 import { Metadata } from 'next'
+
+import { PropsWithLng } from '@/types/page'
+import Hero from '@/app/[lng]/features/_components/Hero'
+import Showcase from '@/app/[lng]/features/_components/Showcase'
+import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
+import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
+
 import PageClient from './page.client'
 
-const heroData = {
-  tag: 'Encrypted Sharing',
-  tagColor: '#E6F0FF',
-  title: 'Secure and Flexible File Sharing',
-  description:
-    'Discover a feature-rich, encrypted file sharing solution that ensures unparalleled security and control for your sensitive data, setting MuseDAM apart from competitors like Dropbox and Google Drive.',
-}
-
-const showcaseData: ShowcaseProps = {
-  title: 'Enhance Collaboration & Security with Encrypted Sharing',
-  points: [
-    {
-      keyword: 'Flexible Sharing Options',
-      description:
-        'Share files and folders with customizable expirations: 30 days, 7 days, or permanent access.',
-    },
-    {
-      keyword: 'Granular Access Controls',
-      description:
-        'Tailor access permissions for downloads, transfers, or view-only access with encrypted sharing for enhanced security.',
-    },
-    {
-      keyword: 'Effortless Asset Management',
-      description:
-        'Batch transfer assets to MuseDAM with metadata retention, including titles, notes, tags, and more.',
-    },
-    {
-      keyword: 'Password Protected Sharing',
-      description:
-        'Lock your shares with a password, ensuring only authorized users can access the content.',
-    },
-  ],
-}
-
-const textDisplayData: TextDisplayProps = {
-  title: 'Share Link Management: Centralized Control & Visibility',
-  points: [
-    {
-      keyword: 'Centralized Record Keeping',
-      description:
-        'Manage all sharing records from the Share Management section of the Management Dashboard for streamlined oversight.',
-    },
-    {
-      keyword: 'Team Sharing Access',
-      description:
-        'Team members can access and review all team sharing records, enhancing collaboration and accountability.',
-    },
-    {
-      keyword: 'Permission-Based Visibility and Control',
-      description:
-        'Customize share link access and management according to team member permissions, ensuring secure and efficient collaboration.',
-    },
-  ],
-}
-
-export default function EncryptedSharingPage() {
+export default async function EncryptedSharingPage({ params }: PropsWithLng) {
+  const { lng } = await params
+  const { heroData, showcaseData, textDisplayData } = await fetchData({
+    ns: 'encrypted-sharing',
+    lng,
+    showcaseLength: 4,
+    textDisplayLength: 3,
+  })
   return (
     <div>
       <Hero {...heroData} />

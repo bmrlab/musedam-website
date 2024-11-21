@@ -1,0 +1,19 @@
+{
+  "hero.tag": "MuseCopilot",
+  "hero.title": "Your AI-Assistant for Creative Success",
+  "hero.description": "Unlock the full potential of your creativity with MuseCopilot. Easily interact with your assets, get smart analysis, and have content crafted from your files. Find assets with intuitive semantic search and let MuseCopilot elevate your marketing strategies.",
+
+  "showcase.title": "Creative Solutions at Your Command",
+
+  "showcase.points.0.keyword": "Interactive Intelligence",
+  "showcase.points.0.description": "Engage directly with your assets and get smart parsing, summaries, and articles with MuseCopilot's user-friendly interface.",
+
+  "showcase.points.1.keyword": "Semantic Search",
+  "showcase.points.1.description": "Effortlessly search your assets with natural language queries, like \"Find astronaut PNGs.\"",
+
+  "showcase.points.2.keyword": "Marketing Strategis",
+  "showcase.points.2.description": "MuseCopilot helps you craft tailored marketing and brand plans to meet your specific objectives.",
+
+  "showcase.points.3.keyword": "Illustrations",
+  "showcase.points.3.description": "With a simple request, MuseCopilot generates custom illustrations, like a New Yorker-style Christmas theme, for your blog."
+}

@@ -1,0 +1,23 @@
+{
+  "hero.tag": "Auto Tags",
+  "hero.title": "Intelligent Tagging: Simplify and Personalize",
+  "hero.description": "MuseDAM's Auto Tags use AI to automatically categorize your assets with smart tags that understand your content. Say goodbye to manual tagging and discover the power of customized, efficient searches that enhance your brand's workflow.",
+
+  "showcase.title": "Efficient Asset Management: Simplified",
+  "showcase.description": "Break free from traditional folder hierarchies. Discover your content in a single, streamlined step.",
+
+  "showcase.points.0.keyword": "Content Recognition",
+  "showcase.points.0.description": "Our AI swiftly identifies and labels your images, making them searchable with ease.",
+
+  "showcase.points.1.keyword": "Clustering",
+  "showcase.points.1.description": "Automatically gather similar assets into well-organized collections.",
+
+  "showcase.points.2.keyword": "Searchability",
+  "showcase.points.2.description": "Find assets instantly, saving time and increasing productivity.",
+
+  "showcase.points.3.keyword": "Customization",
+  "showcase.points.3.description": "Tailor tags to your workflow by editing AI suggestions or adding your own.",
+
+  "showcase.points.4.keyword": "Integration",
+  "showcase.points.4.description": "Seamlessly blend intelligent tagging into your processes for a more efficient asset management system."
+}

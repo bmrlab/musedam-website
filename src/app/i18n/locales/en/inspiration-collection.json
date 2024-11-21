@@ -1,0 +1,40 @@
+{
+  "hero.tag": "Inspiration Collection",
+  "hero.title": "AI-Powered Web Inspiration Collector",
+  "hero.description": "MuseDAM is the ultimate web browser extension for Chrome, Edge, and 360 browsers, designed to supercharge your digital asset management. Experience seamless creativity with our intuitive drag-and-drop feature, and effortlessly collect images, videos, and web pages. Join the AI era with MuseDAM, your go-to AI artwork asset library, ensuring efficient preservation of your digital inspirations.",
+
+  "showcase.title": "Effortlessly Capture & Organize Web Content",
+
+  "showcase.points.0.keyword": "Save Web Pages to MuseDAM",
+  "showcase.points.0.description": "Effortlessly bookmark and organize your favorite web pages in MuseDAM, granting you anytime, anywhere access to your digital inspirations.",
+
+  "showcase.points.1.keyword": "Batch Collection",
+  "showcase.points.1.description": "Simplify your collection workflow with our innovative batch collection feature, allowing you to gather and organize multiple items swiftly, saving precious time and effort.",
+
+  "showcase.points.2.keyword": "Area Selection Capture",
+  "showcase.points.2.description": "Capture only the desired sections of a webpage with MuseDAM's precise area selection tool, ensuring accurate and tailored captures every time.",
+
+  "showcase.points.3.keyword": "Visible Area Capture",
+  "showcase.points.3.description": "Effortlessly grab the currently visible portion of any web page with MuseDAM's visible area capture feature, perfect for quick and efficient content saving.",
+
+  "showcase.points.4.keyword": "Full Page Capture",
+  "showcase.points.4.description": "Capture the complete layout and content of any web page in a single operation with MuseDAM's full-page capture tool, eliminating the need for scrolling and stitching.",
+
+  "showcase.points.5.keyword": "Collect Midjourney Works with Metadata",
+  "showcase.points.5.description": "Comprehensive Midjourney Collection with MuseDAMSave not just the artwork, but also the associated prompt words and original web page URLs, providing a holistic record of your creative inspiration. MuseDAM stands out as the ultimate asset library for AI creations in the AI era.✨",
+
+  "text-display.title": "MuseDAM: The Ultimate Choice for Creative Digital Asset Management",
+  "text-display.description": "Unlock Efficiency with MuseDAM's Smart Digital Asset Management",
+
+  "text-display.points.0.keyword": "Efficient Workflow Enhancement",
+  "text-display.points.0.description": "Streamline your creative workflow with time-saving tools designed for efficiency.",
+
+  "text-display.points.1.keyword": "Versatile Role Adaptability",
+  "text-display.points.1.description": "Adapt to any role with versatile features for collecting and organizing digital assets.",
+
+  "text-display.points.2.keyword": "User-Centric Interface Design",
+  "text-display.points.2.description": "Experience a user-friendly interface for effortless web content collection.",
+
+  "text-display.points.3.keyword": "AI Era Leadership",
+  "text-display.points.3.description": "Lead in the AI era with MuseDAM's AI artwork and asset management solutions."
+}

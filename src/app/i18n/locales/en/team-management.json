@@ -1,0 +1,33 @@
+{
+  "hero.tag": "Team Management",
+  "hero.title": "Refine Your Workspace Control with Team Management",
+  "hero.description": "Master workspace control with MuseDAM's team management tools, designed to amplify efficiency and cater to both team and department collaboration scenarios.",
+
+  "showcase.title": "Boost Team Productivity with MuseDAM's Team Management",
+
+  "showcase.points.0.keyword": "Customize Your Brand Identity",
+  "showcase.points.0.description": "Share files and folders with customizable expirations: 30 days, 7 days, or permanent access.",
+
+  "showcase.points.1.keyword": "Member Invitation Controls",
+  "showcase.points.1.description": "Actively manage team growth with member invitation controls, including easy invite management and customizable expiration dates.",
+
+  "showcase.points.2.keyword": "Manage Team Hierarchy",
+  "showcase.points.2.description": "MuseDAM's intuitive department management tools lay the foundation for setting permissions for different folders in the workspace by department.",
+
+  "showcase.points.3.keyword": "Bulk Operations for Scalability",
+  "showcase.points.3.description": "Save valuable time and resources by bulk importing member and department information.",
+
+  "text-display.title": "MuseDAM Asset Management: Control, Optimize, and Secure Your Resources",
+
+  "text-display.points.0.keyword": "Team Asset Library Control",
+  "text-display.points.0.description": "Effortlessly manage your team's asset library with MuseDAM, ensuring resources are well-organized and readily accessible.",
+
+  "text-display.points.1.keyword": "Storage Space Management",
+  "text-display.points.1.description": "Optimize storage usage and costs by setting and managing storage space limits for team members with MuseDAM.",
+
+  "text-display.points.2.keyword": "Asset Ownership Transfer",
+  "text-display.points.2.description": "Effortlessly manage resource consolidation and reorganization with MuseDAM's batch transfer of asset ownership.",
+
+  "text-display.points.3.keyword": "Site-Wide File Sharing Toggle",
+  "text-display.points.3.description": "Align file sharing with your team's security and collaboration needs by enabling or disabling it across the platform with MuseDAM."
+}

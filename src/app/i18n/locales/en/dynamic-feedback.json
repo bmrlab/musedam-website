@@ -1,0 +1,33 @@
+{
+  "hero.tag": "Permissions",
+  "hero.title": "Streamline Team Workflows with Precise Access Controls",
+  "hero.description": "Control your team's digital workflow by customizing access to both shared and private workspaces with MuseDAM's Permissions feature, designed to streamline collaboration and maintain focus.",
+
+  "showcase.title": "Drive Team Performance through MuseDAM's Permissions",
+
+  "showcase.points.0.keyword": "Workspace Flexibility",
+  "showcase.points.0.description": "Divide your team's digital space into shared and private areas to accommodate both collaborative and individual work.",
+
+  "showcase.points.1.keyword": "Private Space Management",
+  "showcase.points.1.description": "Private space administrators have the autonomy to activate or deactivate these areas, providing a secure environment for sensitive projects.",
+
+  "showcase.points.2.keyword": "Customizable Shared Space Permissions",
+  "showcase.points.2.description": "Customize folder access in your team's shared space to meet the specific needs of members and departments with granular permissions: Edit, Upload, View, and Download.",
+
+  "text-display.title": "MuseDAM Permissions: The Foundation of Team Efficiency and Security",
+
+  "text-display.points.0.keyword": "Data Integrity and Access Control",
+  "text-display.points.0.description": "Ensure data integrity and team access with precise permission settings.",
+
+  "text-display.points.1.keyword": "Private Space Security",
+  "text-display.points.1.description": "Safeguard sensitive data with flexible private space management.",
+
+  "text-display.points.2.keyword": "Collaboration through Permissions",
+  "text-display.points.2.description": "Nurture collaboration through controlled permissions that drive teamwork.",
+
+  "text-display.points.3.keyword": "Productivity through Streamlined Access",
+  "text-display.points.3.description": "Boost productivity by streamlining resource access for team members.",
+
+  "text-display.points.4.keyword": "Unlock Team Potential",
+  "text-display.points.4.description": "Don't let inflexible permissions hinder your team's potential. With MuseDAM Permissions, create a tailored access control system that boosts efficiency and security."
+}

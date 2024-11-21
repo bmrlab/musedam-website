@@ -1,19 +1,16 @@
-import { Button } from '@/components/ui/button'
-import { ArrowDownRight } from 'lucide-react'
 import { cn } from '@/utilities/cn'
-import { Badge } from '@/components/ui/badge'
+import { ArrowDownRight } from 'lucide-react'
 
-export default function Hero({
-  tag,
-  title,
-  description,
-  tagColor,
-}: {
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+
+export type HeroProps = {
   tag: string
   title: string
   description: string
   tagColor: string
-}) {
+}
+export default function Hero({ tag, title, description, tagColor }: HeroProps) {
   return (
     <div className="flex flex-col justify-center bg-white px-6 py-[60px] text-black md:h-[calc(100vh-70px)] md:px-20 md:py-0">
       <div className="mb-2">

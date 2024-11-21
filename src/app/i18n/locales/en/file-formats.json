@@ -1,0 +1,49 @@
+{
+  "hero.tag": "70+ File Formats",
+  "hero.title": "Experience Ultimate File Flexibility with 70+ Online Preview",
+  "hero.description": "Step into the future of digital file management with MuseDAM, offering robust online preview and interaction capabilities for over 70 file formats. Simplify your workflow and enhance productivity with our comprehensive file support.",
+
+  "showcase.title": "Supported File Formats Overview",
+
+  "showcase.points.0.keyword": "Images",
+  "showcase.points.0.description": "JPG, PNG, BMP, GIF, TIFF, WEBP, HEIF, PIC",
+
+  "showcase.points.1.keyword": "Vector and Source Files",
+  "showcase.points.1.description": "EPS, SVG, PSD, PSB, AI, SKETCH, XD, JSD, FIG, CDR",
+
+  "showcase.points.2.keyword": "3D Models",
+  "showcase.points.2.description": "OBJ, PLY, 3DS, GLTF, GLB, FBX, STL",
+
+  "showcase.points.3.keyword": "Audio Files",
+  "showcase.points.3.description": "MP3, M4A, WAV",
+
+  "showcase.points.4.keyword": "Videos",
+  "showcase.points.4.description": "MOV, FLV, MP4, WEBM, QT, M4V, AVI, MKV, MGE, RMVB, BRM, MPG, TS",
+
+  "showcase.points.5.keyword": "Spreadsheets",
+  "showcase.points.5.description": "ET, XLS, XLT, XLSX, XLSM, XLTX, XLTM, CSV",
+
+  "showcase.points.6.keyword": "Text Documents",
+  "showcase.points.6.description": "TXT, DOC, DOCX, DOT, DOTX, DOCM, DOTM, WPS, WPT, RTF, HTML",
+
+  "showcase.points.7.keyword": "Presentations",
+  "showcase.points.7.description": "PDF, PPT, PPTX, PPTM, PPSM, PPSX, PPS, POTX, POTM, DPT, DPS",
+
+  "showcase.points.8.keyword": "Fonts",
+  "showcase.points.8.description": "TTF, OTF, TTC",
+
+  "text-display.title": "MuseDAM: Superior File Compatibility for Digital Asset Management",
+  "text-display.description": "Elevate Your Digital Workflow with MuseDAM's Comprehensive File Support",
+
+  "text-display.points.0.keyword": "Flexibility in File Handling",
+  "text-display.points.0.description": "Embrace versatility in file handling with support for over 70 file types.",
+
+  "text-display.points.1.keyword": "Efficiency Enhancement",
+  "text-display.points.1.description": "Boost efficiency with instant online previews, eliminating the need for extra software.",
+
+  "text-display.points.2.keyword": "Accessibility Anytime, Anywhere",
+  "text-display.points.2.description": "Ensure accessibility to manage files from any location with an internet connection.",
+
+  "text-display.points.3.keyword": "User-Friendly Operating Platform",
+  "text-display.points.3.description": "Enjoy a user-friendly platform for a seamless file management experience."
+}

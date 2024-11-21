@@ -1,0 +1,39 @@
+{
+  "hero.tag": "Data Statistics",
+  "hero.title": "Optimize Asset Management with Data-Driven Intelligence",
+  "hero.description": "Delve into detailed resource utilization and user interaction analytics, empowering content administrators to assess asset health and inform strategic decisions with MuseDAM's comprehensive data tools.",
+
+  "showcase.title": "Accelerate Decision-Making with MuseDAM's Data Statistics",
+
+  "showcase.points.0.keyword": "Asset Health Analysis",
+  "showcase.points.0.description": "Uncover the vitality of your digital assets with comprehensive health analysis.",
+
+  "showcase.points.1.keyword": "Asset-User Interaction Tracking",
+  "showcase.points.1.description": "Illuminate the dynamics of asset-user interactions with detailed tracking.",
+
+  "showcase.points.2.keyword": "Usage Pattern Monitoring",
+  "showcase.points.2.description": "Analyze user engagement patterns for assets through comprehensive monitoring.",
+
+  "showcase.points.3.keyword": "Efficient Time-Based Filtering",
+  "showcase.points.3.description": "Streamline data analysis with efficient filtering across various time scales.",
+
+  "showcase.points.4.keyword": "Extensive Core Operation Coverage",
+  "showcase.points.4.description": "Capture over 60 critical actions for in-depth operational transparency.",
+
+  "showcase.points.5.keyword": "Action Transparency",
+  "showcase.points.5.description": "Track user operations to ensure the authorized handling of valuable assets.",
+
+  "text-display.title": "MuseDAM Data Statistics: Empower Data-Driven Decisions",
+
+  "text-display.points.0.keyword": "Unlock Hidden Insights",
+  "text-display.points.0.description": "Delve into granular asset usage and engagement metrics for deeper insights.",
+
+  "text-display.points.1.keyword": "Collaboration Access",
+  "text-display.points.1.description": "\"Power Your Decisions\" Leverage detailed analytics and logs for strategic, data-informed decision-making.",
+
+  "text-display.points.2.keyword": "Time-Smart Analysis",
+  "text-display.points.2.description": "Enhance productivity with efficient time-based data filtering capabilities.",
+
+  "text-display.points.3.keyword": "Boost Team Performance",
+  "text-display.points.3.description": "Elevate your team's performance and asset management through data-driven strategies."
+}

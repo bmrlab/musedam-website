@@ -1,0 +1,34 @@
+{
+  "hero.tag": "Multiple Viewing",
+  "hero.title": "Unlock Versatile Viewing Modes for Future-Proof Productivity",
+  "hero.description": "Enhance your project adaptability and workflow efficiency with MuseDAM's suite of advanced viewing modes. Our diverse viewing options ensure you have the perfect mode for every task, streamlining your productivity.",
+
+  "showcase.title": "Maximize Efficiency with Advanced Viewing Modes",
+
+  "showcase.points.0.keyword": "List View",
+  "showcase.points.0.description": "Embrace order with a crisp, table-driven display of your files and assets, where metadata details are effortlessly visible at a glance. Keep your progress and specifics managed with ease and clarity.",
+
+  "showcase.points.1.keyword": "Kanban View",
+  "showcase.points.1.description": "Harness the efficiency of Kanban with a dynamic visual workflow that empowers you to prioritize tasks seamlessly and bring clarity to your project progression.",
+
+  "showcase.points.2.keyword": "Waterfall View",
+  "showcase.points.2.description": "Experience a classic, sequential layout for previewing files and assets, offering you an authentic, true-to-scale view of your project stages.",
+
+  "showcase.points.3.keyword": "Adaptive View",
+  "showcase.points.3.description": "Tailor your viewing experience to match your distinctive workflow with a flexible, adaptive mode designed to accommodate your precise needs.",
+
+  "text-display.title": "MuseDAM: Optimize Project Management with Multi-View Capabilities",
+  "text-display.description": "Enhance Project Management with MuseDAM's Adaptive Views",
+
+  "text-display.points.0.keyword": "View Customization",
+  "text-display.points.0.description": "Customize views for task management, progress tracking, and complex project oversight.",
+
+  "text-display.points.1.keyword": "Multidimensional Insight",
+  "text-display.points.1.description": "Achieve clear insights for decision-making from multiple perspectives.",
+
+  "text-display.points.2.keyword": "Process Streamlining",
+  "text-display.points.2.description": "Streamline workflows by choosing the best view for your tasks.",
+
+  "text-display.points.3.keyword": "User-Friendly Interface",
+  "text-display.points.3.description": "Benefit from a user-centric interface for effortless view transitions."
+}
