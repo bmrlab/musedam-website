@@ -69,16 +69,32 @@ export default function Header() {
               <div className="grid h-full w-screen grid-cols-3">
                 <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
                   {categories.map((category, i) => (
-                    <div key={i} className="text-[14px] font-normal leading-4 text-black/40">
+                    <motion.div
+                      key={i}
+                      className="text-[14px] font-normal leading-4 text-black/40"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
+                    >
                       {category}
-                    </div>
+                    </motion.div>
                   ))}
                   {featuresRowFlat.map((data, i) => (
-                    <li
+                    <motion.li
                       key={i}
                       className="group"
                       onMouseOver={() => setCurrentHeroImage(data.heroImage ?? '')}
                       onMouseLeave={() => setCurrentHeroImage('')}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: i * 0.02,
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
                     >
                       <Link href={data.url ?? ''} legacyBehavior passHref>
                         <NavigationMenuLink asChild>
@@ -104,7 +120,7 @@ export default function Header() {
                           </a>
                         </NavigationMenuLink>
                       </Link>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
                 <div

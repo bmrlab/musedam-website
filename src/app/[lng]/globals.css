@@ -91,3 +91,27 @@ img {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes slideDown {
+  0% {
+    visibility: visible;
+    height: 0;
+  }
+
+  100% {
+    visibility: visible;
+    height: var(--radix-navigation-menu-viewport-height);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    visibility: visible;
+    height: var(--radix-navigation-menu-viewport-height);
+  }
+
+  100% {
+    visibility: hidden;
+    height: 0;
+  }
+}
