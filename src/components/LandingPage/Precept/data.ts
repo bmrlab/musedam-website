@@ -1,3 +1,4 @@
+import { usePreceptTranslation } from '@/app/i18n/client'
 import { useMemo } from 'react'
 
 export type PreceptData = {
@@ -10,101 +11,101 @@ export type PreceptData = {
 const AvatarPrefix = '/Testimonial'
 
 export default function usePreceptData() {
-  // const { t } = usePreceptTranslation()
+  const { t } = usePreceptTranslation()
   const data: PreceptData[] = useMemo(
     () => [
       {
         avatar: `${AvatarPrefix}/Avatar1.png`,
-        name: 'Isabella Gray',
-        role: 'Creative Director',
+        name: t('precept.card0.name'),
+        role: t('precept.card0.role'),
         description: [
-          'The switch to Muse has been seamless, and it’s now an integral part of our content creation process.',
-          'The ability to tag and categorize assets has saved us countless hours.',
+          t('precept.card0.description0'),
+          t('precept.card0.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar2.png`,
-        name: 'Ava Martin',
-        role: 'Brand Manager',
+        name: t('precept.card1.name'),
+        role: t('precept.card1.role'),
         description: [
-          'I can’t recommend Muse highly enough.',
-          'It’s made managing our digital assets a walk in the park, with features that are both innovative and practical.',
+          t('precept.card1.description0'),
+          t('precept.card1.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar3.png`,
-        name: 'Mark Davis',
-        role: 'IT Specialist',
+        name: t('precept.card2.name'),
+        role: t('precept.card2.role'),
         description: [
-          'I’ve sung the praises of Muse before, and it continues to redefine how we handle creative assets.',
-          'It’s like upgrading from an outdated note-taking app to a powerful project management tool – a quantum leap forward.',
+          t('precept.card2.description0'),
+          t('precept.card2.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar4.png`,
-        name: 'Oscar Dickieson',
-        role: 'Content Creator',
+        name: t('precept.card3.name'),
+        role: t('precept.card3.role'),
         description: [
-          'Loving Muse! 💖 ',
-          'The ability to preview over 70 file formats in the browser is a lifesaver, and the real-time collaboration features are simply outstanding.',
+          t('precept.card3.description0'),
+          t('precept.card3.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar5.png`,
-        name: 'Sophia Lee',
-        role: 'Creative Director',
+        name: t('precept.card4.name'),
+        role: t('precept.card4.role'),
         description: [
-          'Muse has become our go-to for file storage, replacing Google Drive entirely.',
-          'It’s not just affordable; it’s a game-changer for organizing assets across teams. The search capabilities are unmatched.',
+          t('precept.card4.description0'),
+          t('precept.card4.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar6.png`,
-        name: 'Lily Thompson',
-        role: 'Marketing Manager',
+        name: t('precept.card5.name'),
+        role: t('precept.card5.role'),
         description: [
-          'Muse has been a revelation for our marketing team, making it effortless to share and manage our digital assets. ',
-          'It’s a tool that’s both intuitive and powerful.',
+          t('precept.card5.description0'),
+          t('precept.card5.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar7.png`,
-        name: 'Lara Turner',
-        role: 'Digital Strategist',
+        name: t('precept.card6.name'),
+        role: t('precept.card6.role'),
         description: [
-          'Muse is the Swiss Army knife of digital asset management. It’s packed with features that make our work not only easier but also more enjoyable.',
-          'The team can’t imagine going back to the old ways now.',
+          t('precept.card6.description0'),
+          t('precept.card6.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar8.png`,
-        name: 'Jake Chandler',
-        role: 'Operations Manager',
+        name: t('precept.card7.name'),
+        role: t('precept.card7.role'),
         description: [
-          'The efficiency Muse brings to our workflow is unmatched!',
-          'With its smart tagging and search, finding the right asset is now a breeze.',
+          t('precept.card7.description0'),
+          t('precept.card7.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar9.png`,
-        name: 'Mia Tse',
-        role: 'Team Coordinator',
+        name: t('precept.card8.name'),
+        role: t('precept.card8.role'),
         description: [
-          'Muse has completely transformed our team’s approach to asset management.',
-          'It’s intuitive, user-friendly, and has become the backbone of our creative process.',
+          t('precept.card8.description0'),
+          t('precept.card8.description1'),
         ],
       },
       {
         avatar: `${AvatarPrefix}/Avatar10.png`,
-        name: 'Oliver Anderson',
-        role: 'Art Director',
+        name: t('precept.card9.name'),
+        role: t('precept.card9.role'),
         description: [
-          'With Muse, we’ve found a digital asset manager that not only meets but exceeds our expectations.',
-          'The user interface is clean, and the functionality is robust—perfect for our creative workflow.',
+          t('precept.card9.description0'),
+          t('precept.card9.description1'),
         ],
       },
     ],
-    [],
+    [t],
   )
 
   return { data }

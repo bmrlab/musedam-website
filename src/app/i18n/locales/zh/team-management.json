@@ -1,0 +1,23 @@
+{
+  "hero.tag": "团队管理",
+  "hero.title": "通过对成员与部门管理加强工作空间管控",
+  "hero.description": "利用 MuseDAM 的团队管理工具，加强对工作空间的权限掌控，提升效率，适合团队协作及企业部门协作场景。",
+  "showcase.title": "MuseDAM 高效的团队管理工具",
+  "showcase.points.0.keyword": "品牌个性化定制",
+  "showcase.points.0.description": "可自定义工作空间的品牌 Logo 及名称。",
+  "showcase.points.1.keyword": "成员邀请权限管理",
+  "showcase.points.1.description": "通过成员邀请权限管理，有效控制团队规模，包括便捷的邀请管理以及自定义的邀请过期时间。",
+  "showcase.points.2.keyword": "团队层级管理",
+  "showcase.points.2.description": "MuseDAM 提供的直观部门管理工具，为工作空间不同文件夹按部门设置权限提供基础。",
+  "showcase.points.3.keyword": "批量操作提升扩展性",
+  "showcase.points.3.description": "通过批量导入成员和部门信息，节省宝贵的时间和资源。",
+  "text-display.title": "MuseDAM 资产管理：全面掌控、优化和保障您的资源",
+  "text-display.points.0.keyword": "团队资产库管理",
+  "text-display.points.0.description": "MuseDAM 助您轻松掌控团队资产库，确保资源有序整理且随时可用。",
+  "text-display.points.1.keyword": "存储空间按需分配",
+  "text-display.points.1.description": "为团队成员设定和管理存储限额，有效控制存储成本和使用。",
+  "text-display.points.2.keyword": "资产所有权批量转移",
+  "text-display.points.2.description": "通过资产所有权批量转移功能，简化资源整合和重组流程。",
+  "text-display.points.3.keyword": "全局文件共享控制",
+  "text-display.points.3.description": "管理员可根据团队的安全与协作需求，全局启用或禁用文件共享功能。"
+}

@@ -1,0 +1,15 @@
+{
+  "hero.tag": "智能搜索",
+  "hero.title": "释放您的创意潜能，智能搜索助您一臂之力",
+  "hero.description": "探索一种能洞悉您创意需求的搜索体验。我们的AI加持智能搜索功能，让您能够通过识别图像和智能推荐关键词，轻松定位到您所需的精确素材。",
+  "showcase.title": "为您的创意工作流程提供简化的搜索",
+  "showcase.description": "告别繁琐的传统文件夹层级，一步到位地发现您需要的内容。",
+  "showcase.points.0.keyword": "关键词",
+  "showcase.points.0.description": "利用AI的强大功能，在上传时自动为每张图片打上富含上下文的关键词标签，如“肖像”、“生动”、“城市风光”，使您的搜索变得轻松而精确。",
+  "showcase.points.1.keyword": "标签",
+  "showcase.points.1.description": "使用个性化标签定制您的资产库，将您的工作空间变成一个可搜索的创意百科全书。",
+  "showcase.points.2.keyword": "原数据",
+  "showcase.points.2.description": "通过日期、上传者、分辨率和其他元数据进行精确搜索，快速检索过去项目中的具体文件。",
+  "showcase.points.3.keyword": "智能筛选",
+  "showcase.points.3.description": "使用过滤器增强您的搜索，让您可以按颜色、文件类型、标签、源链接或上传者对工作空间或特定看板进行排序。通过保存的过滤器节省时间，创建动态集合，自动更新，确保您始终能够快速访问最重要的内容。"
+}

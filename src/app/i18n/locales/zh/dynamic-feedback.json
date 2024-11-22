@@ -1,0 +1,21 @@
+{
+  "hero.tag": "动态反馈",
+  "hero.title": "互动评论与标注，加强团队协作与项目参与",
+  "hero.description": "使用我们的互动式标注工具，增强团队协作和项目参与感，以全新的方式处理项目资料，提升工作效率。",
+  "showcase.title": "MuseDAM 的动态反馈",
+  "showcase.points.0.keyword": "互动式评论",
+  "showcase.points.0.description": "团队成员在项目资产上发表评论和回复，促进项目讨论。",
+  "showcase.points.1.keyword": "Private Space Management",
+  "showcase.points.1.description": "Private space administrators have the autonomy to activate or deactivate these areas, providing a secure environment for sensitive projects.",
+  "showcase.points.2.keyword": "Customizable Shared Space Permissions",
+  "showcase.points.2.description": "Customize folder access in your team's shared space to meet the specific needs of members and departments with granular permissions: Edit, Upload, View, and Download.",
+  "text-display.title": "MuseDAM 动态反馈：让团队沟通更高效",
+  "text-display.points.0.keyword": "项目深度评论",
+  "text-display.points.0.description": "利用高级评论工具，简化沟通流程。",
+  "text-display.points.1.keyword": "评论管理功能",
+  "text-display.points.1.description": "为评论者提供管理工具，保持对话的组织性和相关性。",
+  "text-display.points.2.keyword": "协作式视觉标注",
+  "text-display.points.2.description": "通过精确的视觉标注工具，加强团队协作，深入分析资产细节。",
+  "text-display.points.3.keyword": "动态反馈机制",
+  "text-display.points.3.description": "采用动态反馈机制，提升团队的互动和工作效率。"
+}
