@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowDownRight } from 'lucide-react'
 import FeaturesBlock from '@/app/[lng]/features/_components/MoreFeatures/block'
 import { Metadata } from 'next'
-import { useTranslation } from 'react-i18next'
-import { ssTranslation } from '@/app/i18n'
+import { seoTranslation } from '@/app/i18n'
+import { MetadataProps } from '@/types/page'
 
 export default function AllFeaturesPage() {
   return (
@@ -34,8 +34,8 @@ export default function AllFeaturesPage() {
   )
 }
 
-export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
-  const { t } = await ssTranslation(params.lng, 'seo')
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
   return {
     title: t('features.title'),
     description: t('features.description'),

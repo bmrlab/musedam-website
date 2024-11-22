@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 
-import { PropsWithLng } from '@/types/page'
+import { MetadataProps, PropsWithLng } from '@/types/page'
+import JoinUs from '@/components/About/JoinUs'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
 import { FlexColContainer } from '@/components/StyleWrapper/container'
-import JoinUs from '@/components/About/JoinUs'
-import { ssTranslation } from '@/app/i18n'
+import { seoTranslation } from '@/app/i18n'
 
 export default async function AllFeaturesPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -16,11 +16,11 @@ export default async function AllFeaturesPage({ params }: PropsWithLng) {
   )
 }
 
-export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
-  const { t } = await ssTranslation(params.lng, 'seo')
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
 
   return {
     title: t('careers.title'),
-    description: t('careers.description')
+    description: t('careers.description'),
   }
 }

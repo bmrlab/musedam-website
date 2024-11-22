@@ -8,12 +8,12 @@
  */
 import { Metadata } from 'next'
 
-import { PropsWithLng } from '@/types/page'
+import { MetadataProps, PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
-import { ssTranslation } from '@/app/i18n'
+import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -36,8 +36,8 @@ export default async function InspirationCollectionPage({ params }: PropsWithLng
   )
 }
 
-export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
-  const { t } = await ssTranslation(params.lng, 'seo')
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
   return {
     title: t('features.inspiration-collection.title'),
     description: t('features.inspiration-collection.description'),

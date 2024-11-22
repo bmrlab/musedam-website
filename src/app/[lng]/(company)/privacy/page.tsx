@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 import PrivacyPageContent from '@/components/About/policy/PrivacyContent'
 import { FlexColContainer } from '@/components/StyleWrapper/container'
-import { ssTranslation } from '@/app/i18n'
-import { PropsWithLng } from '@/types/page'
+import { seoTranslation } from '@/app/i18n'
+import { MetadataProps, PropsWithLng } from '@/types/page'
 
 export default async function AllFeaturesPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -13,8 +13,8 @@ export default async function AllFeaturesPage({ params }: PropsWithLng) {
   )
 }
 
-export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
-  const { t } = await ssTranslation(params.lng, 'seo')
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
 
   return {
     title: t('privacy.title'),
