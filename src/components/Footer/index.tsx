@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 import useIsMobile from '@/hooks/useIsMobile'
 import useFooterData from '@/components/Footer/data'
@@ -18,6 +19,7 @@ export default function Footer() {
       {
         link: {
           label: string
+          url?: string
         }
       }[]
     >()
@@ -46,12 +48,13 @@ export default function Footer() {
             </h3>
             <div className="flex flex-col gap-3">
               {item.map(({ link }, j) => (
-                <span
-                  key={j}
-                  className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]"
-                >
-                  {link.label}
-                </span>
+                <Link key={j} href={link.url ?? ''}>
+                  <span
+                    className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]"
+                  >
+                    {link.label}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>

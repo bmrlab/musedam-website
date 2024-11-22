@@ -104,6 +104,10 @@ export default {
           to: { height: '0' },
         },
       },
+      backgroundImage: {
+        joinBg1: 'url(/Company/muse-ai-join-img-1.jpg)',
+        joinBg2: 'url(/Company/muse-ai-join-img-2.jpg)',
+      },
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {

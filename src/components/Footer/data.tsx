@@ -260,6 +260,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('company.about-us'),
+            url: "/about-us"
           },
         },
       },
@@ -267,58 +268,71 @@ export default function useFooterData() {
         group: t('group.company'),
         item: {
           link: {
-            label: t('company.investors'),
+            label: t('company.careers'),
+            url: "/careers"
           },
         },
       },
-      {
-        group: t('group.company'),
-        item: {
-          link: {
-            label: t('company.culture'),
-          },
-        },
-      },
-      {
-        group: t('group.company'),
-        item: {
-          link: {
-            label: t('company.diversity'),
-          },
-        },
-      },
-      {
-        group: t('group.company'),
-        item: {
-          link: {
-            label: t('company.inclusion'),
-          },
-        },
-      },
-      {
-        group: t('group.company'),
-        item: {
-          link: {
-            label: t('company.policies'),
-          },
-        },
-      },
+
       {
         group: t('group.company'),
         item: {
           link: {
             label: t('company.terms'),
+            url: "/terms"
           },
         },
       },
+
       {
         group: t('group.company'),
         item: {
           link: {
             label: t('company.privacy'),
+            url: "/privacy"
           },
         },
       },
+      // {
+      //   group: t('group.company'),
+      //   item: {
+      //     link: {
+      //       label: t('company.investors'),
+      //     },
+      //   },
+      // },
+      // {
+      //   group: t('group.company'),
+      //   item: {
+      //     link: {
+      //       label: t('company.culture'),
+      //     },
+      //   },
+      // },
+      // {
+      //   group: t('group.company'),
+      //   item: {
+      //     link: {
+      //       label: t('company.diversity'),
+      //     },
+      //   },
+      // },
+      // {
+      //   group: t('group.company'),
+      //   item: {
+      //     link: {
+      //       label: t('company.inclusion'),
+      //     },
+      //   },
+      // },
+      // {
+      //   group: t('group.company'),
+      //   item: {
+      //     link: {
+      //       label: t('company.policies'),
+      //     },
+      //   },
+      // },
     ],
     [t],
   )

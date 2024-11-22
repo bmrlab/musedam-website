@@ -14,7 +14,6 @@
   "features.dynamic-feedback": "Dynamic Feedback",
   "features.versions": "Versions",
   "features.data-statistics": "Data Statistics",
-
   "customers.creative-production": "Creative Production",
   "customers.e-commerce": "E-commerce",
   "customers.marketing": "Marketing",
@@ -24,14 +23,12 @@
   "customers.publisher": "Publisher",
   "customers.education": "Education",
   "customers.non-profits": "Non-profits",
-
   "resources.help-center": "Help Center",
   "resources.blog": "Blog",
   "resources.tutorials": "Tutorials",
   "resources.status-page": "Status Page",
   "resources.security": "Security",
   "resources.release-notes": "Release notes",
-
   "company.about-us": "About Us",
   "company.investors": "Investors",
   "company.culture": "Culture",
@@ -40,7 +37,7 @@
   "company.policies": "Policies",
   "company.terms": "Terms",
   "company.privacy": "Privacy",
-
+  "company.careers": "Careers",
   "group.features": "Features",
   "group.customers": "Customers",
   "group.resources": "Resources",
