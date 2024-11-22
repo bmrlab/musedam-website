@@ -1,0 +1,84 @@
+{
+    "about-us": {
+        "title": "MuseDAM | 我们的故事：赋能数字资产管理",
+        "description": "了解MuseDAM的发展历程和我们的投资者。我们正在通过直观的工具和全球视野革新数字资产管理，连接全球创作者和企业。"
+    },
+    "careers": {
+        "title": "MuseDAM | 工作机会 - 加入我们",
+        "description": "在 MuseDAM 开启您的职业生涯新篇章。诚邀全栈工程师加入，成为我们全球化团队的一员，共同创新和优化我们的数字资产管理平台。"
+    },
+    "privacy": {
+        "title": "MuseDAM隐私政策 | 安全数字资产管理",
+        "description": "了解 MuseDAM 如何通过全面的隐私政策保护您的隐私。探索数据保护、用户权利以及我们在管理您的数字资产时对保密性的承诺。"
+    },
+    "terms": {
+        "title": "MuseDAM 服务协议 | 您的数字资产管理指南",
+        "description": "深入了解 MuseDAM 数字资产管理平台的全面使用条款。我们的服务协议明确了在安全高效的内容管理体验中的权利与责任。"
+    },
+    "features": {
+        "title": "MuseDAM 核心功能 - AI驱动的团队协作与素管理",
+        "description": "MuseDAM 以 AI 技术为核心，提供全面的素材管理与预览功能，搭配高效的团队协作工具，助力创意团队提升工作效率，释放创造潜能。",
+        "encrypted-sharing": {
+            "title": "MuseDAM 分享 - 自定义过期时间，密码保护",
+            "description": "MuseDAM 的分享功能支持设置素材的过期时间和访问密码，确保共享内容的安全性和隐私性，同时提供流畅的协作体验。"
+        },
+        "file-formats": {
+            "title": "MuseDAM 在线预览 - 70+格式支持，一键查看",
+            "description": "MuseDAM 支持70多种文件格式的在线预览，包括图片、设计源文件、3D模型、音频和视频等，让用户能够直观、便捷地查看和管理各类数字资产。"
+        },
+        "inspiration-collection": {
+            "title": "MuseDAM 灵感采集 - 一键素材收集，云端管理",
+            "description": "MuseDAM 灵感采集工具，通过浏览器插件轻松实现网页上的图片、视频等素材的批量采集，直接存储至云端，提升创意工作的效率和便捷性。"
+        },
+        "multiple-viewing": {
+            "title": "MuseDAM 多视图 - 看板、列表、瀑布流、自适应",
+            "description": "MuseDAM 提供多种视图模式，包括看板、列表、瀑布流和自适应布局，满足不同用户对素材浏览和管理工作的需求，让数字资产管理更加灵活高效。"
+        },
+        "smart-folders": {
+            "title": "MuseDAM 智能文件夹 - 自动归类，高效管理",
+            "description": "MuseDAM 的智能文件夹功能，让用户能够根据特定条件自动归类素材，实现素材的高效管理和快速检索，提升创意工作的便捷性和智能化水平。"
+        },
+        "versions": {
+            "title": "MuseDAM 版本管理 - 素材历史，随时追溯",
+            "description": "MuseDAM 提供强大的版本管理功能，支持素材的多版本存储和历史追溯，让团队能够轻松管理设计迭代，确保创意工作的连贯性和完整性。"
+        },
+        "permissions": {
+            "title": "MuseDAM 权限管理 - 角色定义，精细控制",
+            "description": "MuseDAM 提供基于成员角色的文件夹权限管理，使团队能够根据角色分配精细的访问权限，保障数字资产的安全和合规性，同时促进团队间的高效协作。"
+        },
+        "data-statistics": {
+            "title": "MuseDAM 数据统计 - 素材与成员活跃度排行",
+            "description": "MuseDAM 提供全面的数据统计功能，包括素材和成员的活跃排行榜以及操作日志统计，帮助团队洞察素材使用情况和成员贡献度，优化资源管理和团队协作效率。"
+        },
+        "team-management": {
+            "title": "MuseDAM 团队管理 - 成员与部门管理",
+            "description": "MuseDAM 提供全面的团队管理功能，支持成员和部门的高效管理，通过细致的权限设置保障资产安全，同时实现有效的内外协作，提升团队的协作效率和项目管理能力。"
+        },
+        "dynamic-feedback": {
+            "title": "MuseDAM 反馈 - 动态评论，智能标注",
+            "description": "MuseDAM 支持素材的动态反馈，允许团队成员留下评论和注释，增强协作和沟通，使创意工作流程更加流畅和高效。"
+        },
+        "ai": {
+            "muse-copilot": {
+                "title": "MuseCopilot - 智能问答创作，素材管理新体验",
+                "description": "MuseCopilot 智能助手，通过智能问答和创作一体化，为素材管理带来革命性的便捷体验，大幅提升创意与效率。"
+            },
+            "search": {
+                "title": "MuseDAM 智能搜索 - 智能解析图片内容，轻松查找素材",
+                "description": "MuseDAM 的智能搜索功能可智能解析图片内容，支持画面描述、配色方案等多维度搜索，帮助您快速精准定位所需素材。"
+            },
+            "tags": {
+                "title": "MuseDAM 智能标签 - 自动打标，智能检索",
+                "description": "MuseDAM 的智能标签功能，能够自动为素材打上精准标签，大幅提升检索效率，让数字资产管理更智能、更高效。"
+            },
+            "parsing": {
+                "title": "MuseDAM 智能解析 - 智能素材解析，高效管理",
+                "description": "MuseDAM 的智能解析功能，能够智能识别和解析素材内容，帮助用户快速定位和管理创意资源，提升数字资产管理效率。"
+            },
+            "content-creation": {
+                "title": "MuseDAM AI创作 - 素材智能总结，文章自动生成",
+                "description": "MuseDAM的智能文件夹功能，让用户能够根据特定条件自动归类素材，实现素材的高效管理和快速检索，提升创意工作的便捷性和智能化水平。"
+            }
+        }
+    }
+}

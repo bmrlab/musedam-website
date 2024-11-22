@@ -4,6 +4,7 @@ import { PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import fetchData from '@/app/[lng]/features/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -24,10 +25,10 @@ export default async function AiSearchPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | AI Search - Smart Image Analysis for Quick Asset Discovery',
-    description:
-      "Find assets instantly with MuseDAM's AI. Intelligent image analysis for detailed scene and color search.",
+    title: t('features.ai.search.title'),
+    description: t('features.ai.search.description'),
   }
 }

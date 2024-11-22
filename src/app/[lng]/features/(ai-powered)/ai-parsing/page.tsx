@@ -4,6 +4,7 @@ import { PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import fetchData from '@/app/[lng]/features/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -24,10 +25,10 @@ export default async function AiParsingPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | AI Parsing - Efficient Material Analysis for Asset Management',
-    description:
-      'Effortlessly manage digital assets with MuseDAM AI Parsing. Intelligent recognition and analysis for streamlined resource handling.',
+    title: t('features.ai.parsing.title'),
+    description: t('features.ai.parsing.description'),
   }
 }

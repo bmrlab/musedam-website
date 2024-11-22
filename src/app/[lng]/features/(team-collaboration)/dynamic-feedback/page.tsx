@@ -7,6 +7,7 @@ import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 
 import fetchData from '../data'
 import PageClient from './page.client'
+import { ssTranslation } from '@/app/i18n'
 
 export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -27,10 +28,10 @@ export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Feedback - Dynamic Comments, Smart Annotations',
-    description:
-      'MuseDAM supports dynamic feedback on materials, allowing team members to leave comments and annotations, enhancing collaboration and communication, and making the creative workflow smoother and more efficient.',
+    title: t('features.dynamic-feedback.title'),
+    description: t('features.dynamic-feedback.description'),
   }
 }

@@ -5,6 +5,7 @@ import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -27,10 +28,10 @@ export default async function TeamManagementPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Team Management - Member and Department Control',
-    description:
-      'MuseDAM supports online preview of over 70 file formats, including images, design source files, 3D models, audio, and video, allowing users to visually and conveniently view and manage various digital assets.',
+    title: t('features.team-management.title'),
+    description: t('features.team-management.description'),
   }
 }

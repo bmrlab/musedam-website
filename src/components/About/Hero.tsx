@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { useMeasure, useWindowScroll, useWindowSize } from 'react-use'
 import Icons from '../icon'
+import { useTranslation } from '@/app/i18n/client'
+import Link from 'next/link'
 
 const keyframes = [0.4, 0.45]
 
@@ -12,6 +14,7 @@ export default function HomeHero() {
   const { width: windowWidth } = useWindowSize()
   const [ref] = useMeasure<HTMLDivElement>()
   const paddingBottom = 2000
+  const { t } = useTranslation('company')
 
   const { y: scrollTop } = useWindowScroll()
 
@@ -103,19 +106,17 @@ export default function HomeHero() {
         >
           <div className="max-w-[680px]">
             <h1 className="font-baskervville text-[48px] font-medium leading-[54.91px] md:text-[80px] md:leading-[91.52px]">
-              Machine Creativity Empowering Humanity
+              {t("about-us.hero.head")}
             </h1>
             <Button className="mt-10 h-[48px] min-w-[180px] cursor-pointer rounded-full shadow shadow-transparent ring-2 ring-white transition-colors hover:bg-white hover:text-black hover:shadow-white md:mt-20"
             >
-              <a
-                href='https://musedam.cc/home/ai'
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href={'/careers'}
                 className='flex items-center justify-center gap-4'
               >
-                <span className="inline-block font-mono">JOIN US</span>
+                <span className="inline-block font-mono">{t("about-us.hero.join.btn")}</span>
                 <Icons.arrowRight width={16} height={10} />
-              </a>
+              </Link>
             </Button>
           </div>
         </div>
@@ -133,22 +134,20 @@ export default function HomeHero() {
             >
               <div className="mb-[30px] w-full lg:mb-0 lg:w-1/2 2xl:w-[45%]">
                 <h2 className="break-words text-[24px] font-medium leading-tight lg:text-[48px] lg:leading-[1.325] 2xl:text-[54px]">
-                  Machine Creativity Empowering Humanity
+                  {t("about-us.hero.head")}
                 </h2>
               </div>
 
               <Button
                 className="mt-10 h-[48px] min-w-[180px] cursor-pointer rounded-full shadow shadow-transparent ring-2 ring-white transition-colors hover:bg-white hover:text-black hover:shadow-white md:mt-20"
               >
-                <a
-                  href={'https://musedam.cc/home/ai'}
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  href={'/careers'}
                   className='flex items-center justify-center gap-4'
                 >
-                  <span className="inline-block font-mono">JOIN US</span>
+                  <span className="inline-block font-mono">{t("about-us.hero.join.btn")}</span>
                   <Icons.arrowRight width={16} height={10} />
-                </a>
+                </Link>
               </Button>
             </div>
           </div>

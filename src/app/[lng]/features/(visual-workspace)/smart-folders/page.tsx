@@ -5,6 +5,7 @@ import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -27,10 +28,10 @@ export default async function SmartFoldersPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Smart Folders - Automatic Classification for Efficient Management',
-    description:
-      "MuseDAM's Smart Folders allow users to automatically categorize materials based on specific criteria, achieving efficient management and rapid retrieval of materials, enhancing the convenience and intelligence of creative work.",
+    title: t('features.smart-folders.title'),
+    description: t('features.smart-folders.description'),
   }
 }

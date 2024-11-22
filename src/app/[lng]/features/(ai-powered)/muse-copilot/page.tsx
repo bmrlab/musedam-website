@@ -4,6 +4,7 @@ import { PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import fetchData from '@/app/[lng]/features/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -24,10 +25,10 @@ export default async function AiPoweredPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseCopilot - AI-Powered Q&A and Content Creation',
-    description:
-      'MuseCopilot is an AI assistant that revolutionizes material management with integrated Q&A and content creation, significantly enhancing creativity and efficiency.',
+    title: t('features.ai.muse-copilot.title'),
+    description: t('features.ai.muse-copilot.description'),
   }
 }
