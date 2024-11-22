@@ -1,28 +1,19 @@
-import { useCallback, useState } from 'react'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 import {
-  MotionImage,
-  MotionShadowImageRounded,
-  MotionShadowRoundedFullImage,
-} from '.'
-import { AbsXCenterContainer, FlexColContainer, RelativeContainer } from '@/components/StyleWrapper/container'
+  AbsXCenterContainer,
+  FlexColContainer,
+  RelativeContainer,
+} from '@/components/StyleWrapper/container'
+
+import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
 export default function MobileBanner() {
-  const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
+  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
-
-  const handleAnimationComplete = useCallback(
-    (i: number) => {
-      if (animationStep < i) {
-        setAnimationStep(i)
-      }
-    },
-    [animationStep],
-  )
-
-  const isBuildFinished = useCallback((i: number) => animationStep >= i, [animationStep])
 
   return (
     <div className="flex w-[750.74px] select-none justify-center gap-[14.08px]">
@@ -136,8 +127,8 @@ export default function MobileBanner() {
             height={22.9}
             alt="MuseDAM-AI-Color"
             initial={{ y: 20, opacity: 0 }}
-            animate={isBuildFinished(19) ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            animate={isBuildFinished(18) ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(20)}
           />
         </FlexColContainer>
@@ -159,10 +150,10 @@ export default function MobileBanner() {
             width={143.11}
             height={35.38}
             alt="MuseDAM-Comment"
-            className="absolute bottom-[12.71px] left-[95.6px] z-[1] drop-shadow"
+            className="absolute bottom-[42px] left-[95.6px] z-[1] drop-shadow"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(22) ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(23)}
           />
         </RelativeContainer>
@@ -186,19 +177,19 @@ export default function MobileBanner() {
               alt="MuseDAM-AI-Parsing-Tag"
               className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer"
               initial={{ opacity: 0 }}
-              animate={isBuildFinished(23) ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.5, ease: 'easeInOut' }}
+              animate={isBuildFinished(22) ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(24)}
             />
-            <div className="absolute bottom-[22px] right-[3px] z-[2] h-[290px] w-[272px] object-cover">
+            <div className="absolute bottom-[22px] right-[3px] z-[2] h-[192px] w-[180px] object-cover">
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
                   <MotionShadowImageRounded
                     src="/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
-                    initial={{ x: '-10%', opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
                   />
@@ -297,8 +288,8 @@ export default function MobileBanner() {
             alt="MuseDAM-Asset-More.png"
             className="absolute right-[4.69px] top-[5.87px] cursor-pointer"
             initial={{ opacity: 0 }}
-            animate={isBuildFinished(24) ? { opacity: 1 } : {}}
-            transition={{ duration: 1, delay: 0.05, ease: 'easeInOut' }}
+            animate={isBuildFinished(22) ? { opacity: 1 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(25)}
           ></MotionImage>
           <AnimatePresence mode="wait">
@@ -309,8 +300,8 @@ export default function MobileBanner() {
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
                 className="absolute right-2 top-[25px] z-[2]"
-                initial={{ x: '10%', opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
               ></MotionImage>
@@ -339,8 +330,8 @@ export default function MobileBanner() {
             alt="MuseDAM-Asset-VideoPlayer"
             className="mt-[9px]"
             initial={{ y: '10%', opacity: 0 }}
-            animate={isBuildFinished(19) ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            animate={isBuildFinished(18) ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(21)}
           />
           <AbsXCenterContainer className="bottom-[4.11px]">
