@@ -113,7 +113,7 @@ export default function Header() {
                                   className={cn(
                                     'relative w-fit text-[16px] font-medium leading-[16px]',
                                     'after:absolute after:bottom-[-2px] after:left-0 after:h-[2px] after:w-0 after:bg-current',
-                                    'after:ease-[cubic-bezier(0.4,0,0.2,1)] after:transition-all after:duration-300',
+                                    'after:transition-all after:duration-300 after:ease-in-out',
                                     'group-hover:after:w-full',
                                   )}
                                 >

@@ -27,7 +27,7 @@ export default function Footer() {
       map.set(item.group, [...(map.get(item.group) || []), item.item])
     })
     return map
-  }, [])
+  }, [data])
 
   return isMobile ? (
     <FooterMobile />

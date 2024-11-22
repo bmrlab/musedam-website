@@ -125,11 +125,16 @@ const Icons = {
     </svg>
   ),
   arrowRight: (props: IconProps) => (
-    <svg viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg"
-      {...props}>
-      <path d="M11.2835 11L16 6M16 6L11.2835 1M16 6H0" stroke="currentColor" stroke-width="1.3" stroke-miterlimit="10" stroke-linejoin="bevel" />
+    <svg viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path
+        d="M11.2835 11L16 6M16 6L11.2835 1M16 6H0"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeMiterlimit="10"
+        strokeLinejoin="bevel"
+      />
     </svg>
-  )
+  ),
 }
 
 export default Icons

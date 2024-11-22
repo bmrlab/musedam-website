@@ -1,12 +1,13 @@
 import { twx } from '@/utilities/cn'
 
+import { PropsWithLng } from '@/types/page'
 import Hero from '@/components/LandingPage/Hero'
 import Highlights from '@/components/LandingPage/Highlights'
 import Precept from '@/components/LandingPage/Precept'
 
 import SubscribeBlock from './Subscribe'
 
-export default async function LandingPage({ params }: { params: Promise<{ lng: string }> }) {
+export default async function LandingPage({ params }: PropsWithLng) {
   const { lng } = await params
   return (
     <div className="grid w-screen justify-items-center bg-white">

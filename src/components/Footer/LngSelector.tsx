@@ -24,7 +24,7 @@ export default function LngSelector() {
       })
       setLanguage(value)
     },
-    [language, pathname, router],
+    [language, pathname, router, setLanguage],
   )
 
   const LANGUAGES = [
