@@ -1,7 +1,7 @@
 import Banner from '@/components/LandingPage/Hero/Banner'
 import { ssTranslation } from '@/app/i18n'
 
-export default async function Hero({ lng }) {
+export default async function Hero({ lng }: { lng: string }) {
   const { t } = await ssTranslation(lng, 'landing-page')
   return (
     <div className="flex flex-col items-center justify-center bg-white md:w-full md:px-[80px]">

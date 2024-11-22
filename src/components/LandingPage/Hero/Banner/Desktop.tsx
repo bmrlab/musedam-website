@@ -1,18 +1,19 @@
-import { useCallback, useState } from 'react'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 import {
   AbsXCenterContainer,
   FlexColContainer,
   RelativeContainer,
 } from '@/components/StyleWrapper/container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
+
+import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
 export default function DesktopBanner() {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace()
+  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
 
   return (
     <div className="flex select-none justify-center gap-6">
@@ -126,8 +127,8 @@ export default function DesktopBanner() {
             height={38}
             alt="MuseDAM-AI-Color"
             initial={{ y: 20, opacity: 0 }}
-            animate={isBuildFinished(19) ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            animate={isBuildFinished(18) ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(20)}
           />
         </FlexColContainer>
@@ -149,10 +150,10 @@ export default function DesktopBanner() {
             width={244}
             height={60}
             alt="MuseDAM-Comment"
-            className="absolute bottom-[22px] right-[-170px] z-[1] drop-shadow"
+            className="absolute bottom-[82px] right-[-170px] z-[1] drop-shadow"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(22) ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(23)}
           />
         </RelativeContainer>
@@ -176,8 +177,8 @@ export default function DesktopBanner() {
               alt="MuseDAM-AI-Parsing-Tag"
               className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer"
               initial={{ opacity: 0 }}
-              animate={isBuildFinished(23) ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.5, ease: 'easeInOut' }}
+              animate={isBuildFinished(22) ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(24)}
             />
             <div className="absolute bottom-[30px] right-[3px] h-[290px] w-[272px] object-cover">
@@ -187,8 +188,8 @@ export default function DesktopBanner() {
                     src="/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
-                    initial={{ x: '-10%', opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
                   />
@@ -287,8 +288,8 @@ export default function DesktopBanner() {
             alt="MuseDAM-Asset-More.png"
             className="absolute right-2 top-2.5 cursor-pointer"
             initial={{ opacity: 0 }}
-            animate={isBuildFinished(24) ? { opacity: 1 } : {}}
-            transition={{ duration: 1, delay: 0.05, ease: 'easeInOut' }}
+            animate={isBuildFinished(22) ? { opacity: 1 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(25)}
           ></MotionImage>
           <AnimatePresence mode="wait">
@@ -299,8 +300,8 @@ export default function DesktopBanner() {
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
                 className="absolute right-2 top-[42px]"
-                initial={{ x: '10%', opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
               ></MotionImage>
@@ -329,8 +330,8 @@ export default function DesktopBanner() {
             alt="MuseDAM-Asset-VideoPlayer"
             className="mt-[9px]"
             initial={{ y: '10%', opacity: 0 }}
-            animate={isBuildFinished(19) ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
+            animate={isBuildFinished(18) ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(21)}
           />
           <AbsXCenterContainer className="bottom-[7px]">
@@ -341,7 +342,7 @@ export default function DesktopBanner() {
               alt="MuseDAM-Video-Frame.png"
               initial={{ y: '5%', opacity: 0 }}
               animate={isBuildFinished(21) ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0, ease: 'easeInOut' }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(22)}
             />
           </AbsXCenterContainer>
