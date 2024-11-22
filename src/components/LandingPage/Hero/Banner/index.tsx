@@ -1,11 +1,14 @@
 'use client'
-import { motion } from 'framer-motion'
+
+import { useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { twx } from '@/utilities/cn'
+import { cn, twx } from '@/utilities/cn'
+import { motion } from 'framer-motion'
+
 import useIsMobile from '@/hooks/useIsMobile'
+
 import BannerDesktop from './Desktop'
 import BannerMobile from './Mobile'
-import { useEffect, useRef } from 'react'
 
 export default function Banner() {
   const isMobile = useIsMobile()
@@ -22,9 +25,13 @@ export default function Banner() {
   return (
     <div
       ref={containerRef}
-      className="no-scrollbar w-full overflow-y-hidden overflow-x-scroll px-6"
+      className={cn(
+        'no-scrollbar w-full px-6 md:px-0',
+        isMobile ? 'overflow-y-hidden overflow-x-scroll' : 'overflow-visible ',
+      )}
     >
-      {isMobile ? <BannerMobile /> : <BannerDesktop />}
+      <BannerMobile className="md:hidden" />
+      <BannerDesktop className="hidden lg:flex" />
     </div>
   )
 }

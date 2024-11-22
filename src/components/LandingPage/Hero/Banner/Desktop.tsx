@@ -1,7 +1,13 @@
+import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import {
+  MotionImageWithSkeleton,
+  MotionShadowImageRoundedWithSkeleton,
+  MotionVideoWithSkeleton,
+} from '@/components/ImageWithSkeleton'
 import {
   AbsXCenterContainer,
   FlexColContainer,
@@ -10,18 +16,18 @@ import {
 
 import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
-export default function DesktopBanner() {
+export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
 
   return (
-    <div className="flex select-none justify-center gap-6">
+    <div className={cn('flex select-none justify-center gap-6', className)}>
       <FlexColContainer>
-        <MotionShadowImageRounded
+        <MotionShadowImageRoundedWithSkeleton
           src="/Hero/MuseDAM-Kanban.png"
           width={237}
-          height={315}
+          height={52}
           alt="MuseDAM-Kanban"
           initial={{ y: -20, opacity: 0 }}
           animate={isBuildFinished(18) ? { y: 0, opacity: 1 } : {}}
@@ -29,20 +35,20 @@ export default function DesktopBanner() {
           onAnimationComplete={() => handleAnimationComplete(19)}
         />
         <div className="relative">
-          <motion.video
+          <MotionVideoWithSkeleton
             loop
             autoPlay
             muted
             width={237}
             height={315}
+            src="/Hero/MuseDAM-Asset-Car.mp4"
+            type="video/mp4"
             className="mt-5 h-[315px] rounded-[8px] object-cover"
             initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(1)}
-          >
-            <source src="/Hero/MuseDAM-Asset-Car.mp4" type="video/mp4" />
-          </motion.video>
+          />
           <div className="absolute bottom-[34px] right-[-66px] z-[1] flex flex-col gap-2">
             <MotionShadowRoundedFullImage
               src="/Hero/Tag-Automobile.png"
@@ -77,7 +83,7 @@ export default function DesktopBanner() {
           </div>
         </div>
         <div className="mt-4 flex gap-[11px]">
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Car-V2.png"
             width={80}
             height={80}
@@ -87,7 +93,7 @@ export default function DesktopBanner() {
             transition={{ duration: 0.8, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Car-V3.png"
             width={115}
             height={79}
@@ -100,7 +106,7 @@ export default function DesktopBanner() {
         </div>
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[25px]">
-        <MotionShadowImageRounded
+        <MotionShadowImageRoundedWithSkeleton
           src="/Hero/MuseDAM-Asset-Poster.png"
           width={237}
           height={275}
@@ -111,7 +117,7 @@ export default function DesktopBanner() {
           onAnimationComplete={() => handleAnimationComplete(4)}
         />
         <FlexColContainer className="gap-[11px]">
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Jewellery.png"
             width={237}
             height={175}
@@ -121,7 +127,7 @@ export default function DesktopBanner() {
             transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(5)}
           />
-          <MotionImage
+          <MotionImageWithSkeleton
             src="/Hero/MuseDAM-AI-Color.png"
             width={237}
             height={38}
@@ -135,7 +141,7 @@ export default function DesktopBanner() {
       </FlexColContainer>
       <FlexColContainer className="gap-6">
         <RelativeContainer>
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-3D.png"
             width={237}
             height={295}
@@ -158,7 +164,7 @@ export default function DesktopBanner() {
           />
         </RelativeContainer>
         <RelativeContainer>
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Photography.png"
             width={237}
             height={285}
@@ -200,7 +206,7 @@ export default function DesktopBanner() {
         </RelativeContainer>
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[24px]">
-        <MotionShadowImageRounded
+        <MotionShadowImageRoundedWithSkeleton
           src="/Hero/MuseDAM-Asset-Product.png"
           width={237}
           height={235}
@@ -211,34 +217,34 @@ export default function DesktopBanner() {
           onAnimationComplete={() => handleAnimationComplete(8)}
         />
         <RelativeContainer className="flex justify-center">
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Group3.png"
             width={196.8}
             height={275}
             alt="MuseDAM-Asset-Group3"
-            className="absolute"
+            containerClassName="absolute"
             initial={{ x: -20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(9)}
           />
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Group2.png"
             width={216.8}
             height={285}
             alt="MuseDAM-Asset-Group2"
-            className="absolute top-[9px]"
+            containerClassName="absolute top-[9px]"
             initial={{ y: 20, opacity: 0 }}
             animate={isBuildFinished(11) ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(12)}
           />
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Group1.png"
             width={236.8}
             height={285}
             alt="MuseDAM-Asset-Group1"
-            className="absolute top-[19px]"
+            containerClassName="absolute top-[19px]"
             initial={{ y: 20, opacity: 0 }}
             animate={isBuildFinished(12) ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2, ease: 'easeInOut' }}
@@ -270,7 +276,7 @@ export default function DesktopBanner() {
       </FlexColContainer>
       <FlexColContainer className="gap-6">
         <RelativeContainer>
-          <MotionShadowImageRounded
+          <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Cat.png"
             width={237}
             height={275}
@@ -309,20 +315,20 @@ export default function DesktopBanner() {
           </AnimatePresence>
         </RelativeContainer>
         <FlexColContainer className="relative">
-          <motion.video
+          <MotionVideoWithSkeleton
             loop
             autoPlay
             muted
             width={237}
             height={315}
+            src="/Hero/MuseDAM-Asset-Video.mp4"
+            type="video/mp4"
             className="h-[315px] rounded-[8px] object-cover"
             initial={{ x: -20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.05, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(11)}
-          >
-            <source src="/Hero/MuseDAM-Asset-Video.mp4" type="video/mp4" />
-          </motion.video>
+          />
           <MotionShadowImageRounded
             src="/Hero/MuseDAM-Asset-VideoPlayer.png"
             width={237}
