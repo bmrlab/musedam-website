@@ -109,14 +109,7 @@ export default function Header() {
                             >
                               <IconWrapper icon={data.icon} size={20} className="self-start" />
                               <div className="flex flex-col gap-2">
-                                <div
-                                  className={cn(
-                                    'relative w-fit text-[16px] font-medium leading-[16px]',
-                                    'after:absolute after:bottom-[-2px] after:left-0 after:h-[2px] after:w-0 after:bg-current',
-                                    'after:transition-all after:duration-300 after:ease-in-out',
-                                    'group-hover:after:w-full',
-                                  )}
-                                >
+                                <div className="underline-animation text-[16px] font-medium leading-[16px] group-hover:after:w-full">
                                   {data.title}
                                 </div>
                                 <div className="text-[13px] leading-[19.5px] text-black/60">

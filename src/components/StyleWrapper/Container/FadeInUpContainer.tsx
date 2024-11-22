@@ -14,27 +14,28 @@ export function FadeInUpContainer({
   ...props
 }: FadeInUpProps) {
   return (
-    <motion.div
-      {...props}
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {
-          opacity: 0,
-          y: 20,
-        },
-        visible: {
-          opacity: 1,
-          y: 0,
-        },
-      }}
-      transition={{
-        duration,
-        delay,
-        ease: 'easeOut',
-      }}
-    >
+    <motion.div {...props} {...fadeInUpProperty}>
       {children}
     </motion.div>
   )
+}
+
+export const fadeInUpProperty = {
+  initial: 'hidden',
+  animate: 'visible',
+  variants: {
+    hidden: {
+      opacity: 0,
+      y: 20,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
+  },
+  transition: {
+    duration: 0.5,
+    delay: 0,
+    ease: 'easeOut',
+  },
 }
