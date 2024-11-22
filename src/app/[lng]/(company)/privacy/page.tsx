@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import PrivacyPageContent from '@/components/About/policy/PrivacyContent'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 import { MetadataProps, PropsWithLng } from '@/types/page'
 

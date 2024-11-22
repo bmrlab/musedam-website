@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import JoinUs from '@/components/About/JoinUs'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 
 export default async function AllFeaturesPage({ params }: PropsWithLng) {

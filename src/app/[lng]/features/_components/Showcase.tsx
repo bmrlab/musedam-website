@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react'
 import { Circle } from 'lucide-react'
-import { FlexCenterContainer } from '@/components/StyleWrapper/container'
+import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 
 type PointsProps = { keyword: string; description: string }
 

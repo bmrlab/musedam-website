@@ -1,6 +1,6 @@
 'use client'
 
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
+import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import { motion } from 'framer-motion'
 import useAnimationTrace from '@/hooks/useAnimationTrace'

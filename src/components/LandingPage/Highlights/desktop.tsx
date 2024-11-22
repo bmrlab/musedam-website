@@ -20,6 +20,7 @@ import {
   OrganizeImageGroup,
 } from '@/components/LandingPage/Highlights/image-group'
 import { Highlight } from '@/components/LandingPage/Highlights/index'
+import { BlackButton } from '@/components/StyleWrapper/button'
 import { useHighlightTranslation } from '@/app/i18n/client'
 
 export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
@@ -142,9 +143,9 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  <button className="rounded-[8px] bg-black px-[42.5px] py-[14px] font-mono text-white">
+                  <BlackButton className="rounded-[8px] px-[42.5px] py-[14px] font-mono text-white">
                     {t('highlight.button')}
-                  </button>
+                  </BlackButton>
                 </motion.div>
               </div>
             </SwiperSlide>

@@ -1,5 +1,5 @@
 import { cn, twx } from '@/utilities/cn'
-import { FlexCenterContainer } from '@/components/StyleWrapper/container'
+import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import Image from 'next/image'
 
 export type FeaturesCardProps = {

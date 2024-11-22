@@ -10,7 +10,7 @@ import { Metadata } from 'next'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import TermsPageContent from '@/components/About/policy/TermsContent'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 
 export default async function AllFeaturesPage({ params }: PropsWithLng) {

@@ -1,5 +1,5 @@
 import { Point, ShowcaseProps } from '@/app/[lng]/features/_components/Showcase'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 
 export type TextDisplayProps = ShowcaseProps
 

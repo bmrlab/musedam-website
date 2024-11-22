@@ -1,6 +1,6 @@
 'use client'
 
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import PrivacyMDXEN from './privacy-en.mdx'
 import PrivacyMDXZH from './privacy-zh.mdx'
 import { useEffect, useState } from 'react'

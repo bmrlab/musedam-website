@@ -1,6 +1,6 @@
 import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import {
@@ -12,7 +12,7 @@ import {
   AbsXCenterContainer,
   FlexColContainer,
   RelativeContainer,
-} from '@/components/StyleWrapper/container'
+} from '@/components/StyleWrapper/Container'
 
 import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 

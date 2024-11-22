@@ -1,5 +1,5 @@
 import HighlightText from '@/components/HighlightText'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { Button } from '@/components/ui/button'
 import { ArrowDownRight } from 'lucide-react'
 import FeaturesBlock from '@/app/[lng]/features/_components/MoreFeatures/block'

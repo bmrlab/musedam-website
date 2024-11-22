@@ -10,7 +10,7 @@ import {
   AbsXCenterContainer,
   FlexColContainer,
   RelativeContainer,
-} from '@/components/StyleWrapper/container'
+} from '@/components/StyleWrapper/Container'
 
 import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 import { cn } from '@/utilities/cn'

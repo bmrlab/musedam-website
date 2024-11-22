@@ -1,6 +1,6 @@
 'use client'
 
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import TermsMDXEN from './terms-en.mdx'
 import TermsMDXZH from './terms-zh.mdx'
 import { useEffect, useState } from 'react'

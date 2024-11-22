@@ -1,5 +1,5 @@
 import { FeaturesCards, FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
-import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/Container'
 import { cn } from '@/utilities/cn'
 import { FeaturesRectIconCard } from '@/app/[lng]/features/_components/MoreFeatures/card'
 

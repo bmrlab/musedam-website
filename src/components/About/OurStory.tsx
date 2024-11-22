@@ -9,7 +9,7 @@
 'use client'
 
 import { twx } from '@/utilities/cn'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { useTranslation } from '@/app/i18n/client'
 import { useMemo } from 'react'
 

@@ -12,7 +12,7 @@ import Image from 'next/image'
 import { twx } from '@/utilities/cn'
 
 import useIsMobile from '@/hooks/useIsMobile'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { useTranslation } from '@/app/i18n/client'
 
 const Title = twx.p`font-baskervville md:text-[80px] text-[54px] font-normal md:leading-[91.52px] leading-[48px] tracking-[1px] text-[#141414]`

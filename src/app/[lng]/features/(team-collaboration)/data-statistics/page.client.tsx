@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/container'
+import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 const ImageBasePath = '/Features/Data-Statistics'

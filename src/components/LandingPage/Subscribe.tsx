@@ -27,7 +27,7 @@ export default async function SubscribeBlock({
           placeholder="Your work email"
           className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
         />
-        <button className="h-[54px] rounded-[6px] bg-black px-[56.5px] font-mono text-[16px] leading-[20.8px] text-white md:h-[50px]">
+        <button className="h-[54px] rounded-[6px] bg-black px-[56.5px] font-mono text-[16px] leading-[20.8px] text-white hover:bg-[#141414] md:h-[50px]">
           {t('subscribe.button')}
         </button>
       </div>

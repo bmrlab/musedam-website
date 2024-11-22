@@ -13,7 +13,7 @@ import HomeHero from '@/components/About/Hero'
 import InvestorsCards from '@/components/About/InvestorsCards'
 import OurStory from '@/components/About/OurStory'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
-import { FlexColContainer } from '@/components/StyleWrapper/container'
+import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 
 export default async function AboutUsPage({ params }: PropsWithLng) {
