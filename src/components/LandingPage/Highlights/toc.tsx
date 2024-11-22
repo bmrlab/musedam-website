@@ -27,7 +27,12 @@ export default function Toc({
             }}
             transition={{ duration: 0.3 }}
           >
-            <span className="text-nowrap font-baskervville text-[20px] font-normal leading-[22.88px]">
+            <span
+              className={cn(
+                'm-3 text-nowrap font-baskervville text-[20px] font-normal leading-[30px]',
+                index !== activeIndex && 'hover:opacity-60',
+              )}
+            >
               {item}
             </span>
             {index === activeIndex && (

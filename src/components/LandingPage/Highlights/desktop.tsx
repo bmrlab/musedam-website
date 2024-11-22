@@ -95,7 +95,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   {item.title}
                 </motion.h1>
                 <motion.div
-                  className="mt-6 font-mono"
+                  className="mt-6 flex flex-col gap-3 font-mono"
                   initial={{ opacity: 0, x: '-10%' }}
                   animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 1 }}
@@ -103,14 +103,13 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   {item.description.map((desc, index) => (
                     <p
                       key={index}
-                      className="w-full text-[16px] font-light leading-[24px] text-[#141414]"
+                      className="w-full text-[16px] font-light leading-[26px] text-[#141414]"
                     >
                       {desc}
                     </p>
                   ))}
                   {item.list && (
-                    <div className="pt-3">
-                      <ul className="list-inside list-disc text-[16px] font-light leading-[24px] text-[#141414]">
+                      <ul className="flex list-inside list-disc flex-col gap-3 text-[16px] font-light leading-[24px] text-[#141414]">
                         {item.list?.map((list, index) => (
                           <div key={index} className="flex items-center gap-1.5">
                             <div className="size-1 rounded-full bg-black"></div>
@@ -118,7 +117,6 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                           </div>
                         ))}
                       </ul>
-                    </div>
                   )}
                   {item.point && (
                     <div className="flex flex-col gap-3 pt-6">
