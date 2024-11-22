@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowDownRight } from 'lucide-react'
 import FeaturesBlock from '@/app/[lng]/features/_components/MoreFeatures/block'
 import { Metadata } from 'next'
+import { useTranslation } from 'react-i18next'
+import { ssTranslation } from '@/app/i18n'
 
 export default function AllFeaturesPage() {
   return (
@@ -32,10 +34,10 @@ export default function AllFeaturesPage() {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Features - AI-Driven Asset Management & Teamwork',
-    description:
-      'Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.',
+    title: t('features.title'),
+    description: t('features.description'),
   }
 }

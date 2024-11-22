@@ -7,6 +7,7 @@ import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 
 import PageClient from './page.client'
+import { ssTranslation } from '@/app/i18n'
 
 export default async function DataStatisticsPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -27,10 +28,10 @@ export default async function DataStatisticsPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Data Statistics - Activity Rankings and Usage Logs',
-    description:
-      'MuseDAM offers comprehensive data statistics, including activity rankings for materials and members, as well as logs of operations, helping teams gain insights into material usage and member contributions, and improving the efficiency of resource management and team collaboration.',
+    title: t('features.data-statistics.title'),
+    description: t('features.data-statistics.description'),
   }
 }

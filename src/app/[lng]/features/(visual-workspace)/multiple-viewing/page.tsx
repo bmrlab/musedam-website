@@ -5,6 +5,7 @@ import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
+import { ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -27,10 +28,10 @@ export default async function MultipleViewingPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Multiple Views - Kanban, List, Waterfall, Adaptive',
-    description:
-      'MuseDAM offers multiple viewing modes, including Kanban, list, waterfall, and adaptive layouts, to meet the needs of different users for material browsing and management, making digital asset management more flexible and efficient.',
+    title: t('features.multiple-viewing.title'),
+    description: t('features.multiple-viewing.description'),
   }
 }

@@ -1,10 +1,84 @@
 {
-    "about-us.title": "MuseDAM | Our Story: Empowering Digital Asset Management",
-    "about-us.description": "Discover the MuseDAM journey and meet our investors. We're revolutionizing digital asset management with intuitive tools and a global vision, connecting creators and businesses worldwide.",
-    "careers.title": "Muse | Join Our Team as a Full-Stack Engineer",
-    "careers.description": "Elevate your career with Muse. We're seeking a Full-Stack Engineer to innovate and enhance our digital asset management platform. Be part of a dynamic, global team shaping the future of content management.",
-    "privacy.title": "MuseDAM Privacy Policy | Secure Digital Asset Management",
-    "privacy.description": "Understand how MuseDAM safeguards your privacy with our comprehensive policy. Learn about data protection, user rights, and our commitment to confidentiality in managing your digital assets.",
-    "terms.title": "MuseDAM Service Agreement | Your Digital Asset Guide",
-    "terms.description": "Explore the comprehensive terms that govern the use of MuseDAM's digital asset management platform. Our service agreement outlines the rights and responsibilities for a secure and efficient content management experience."
+    "about-us": {
+        "title": "MuseDAM | Our Story: Empowering Digital Asset Management",
+        "description": "Discover the MuseDAM journey and meet our investors. We're revolutionizing digital asset management with intuitive tools and a global vision, connecting creators and businesses worldwide."
+    },
+    "careers": {
+        "title": "Muse | Join Our Team as a Full-Stack Engineer",
+        "description": "Elevate your career with Muse. We're seeking a Full-Stack Engineer to innovate and enhance our digital asset management platform. Be part of a dynamic, global team shaping the future of content management."
+    },
+    "privacy": {
+        "title": "MuseDAM Privacy Policy | Secure Digital Asset Management",
+        "description": "Understand how MuseDAM safeguards your privacy with our comprehensive policy. Learn about data protection, user rights, and our commitment to confidentiality in managing your digital assets."
+    },
+    "terms": {
+        "title": "MuseDAM Service Agreement | Your Digital Asset Guide",
+        "description": "Explore the comprehensive terms that govern the use of MuseDAM's digital asset management platform. Our service agreement outlines the rights and responsibilities for a secure and efficient content management experience."
+    },
+    "features": {
+        "title": "MuseDAM | Features - AI-Driven Asset Management & Teamwork",
+        "description": "Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.",
+        "encrypted-sharing": {
+            "title": "MuseDAM | Sharing - Custom Expiry, Password Protection",
+            "description": "MuseDAM's sharing feature allows you to set expiration times and access passwords for materials, ensuring the security and privacy of shared content while providing a smooth collaboration experience."
+        },
+        "file-formats": {
+            "title": "MuseDAM | Online Preview - 70+ Formats Supported, One-Click Viewing",
+            "description": "MuseDAM supports online preview of over 70 file formats, including images, design source files, 3D models, audio, and video, allowing users to visually and conveniently view and manage various digital assets."
+        },
+        "inspiration-collection": {
+            "title": "MuseDAM Inspiration Collection - One-Click Material Collection, Cloud Management",
+            "description": "MuseDAM's Inspiration Collection tool allows for the effortless batch collection of images, videos, and other materials from any website through a browser plugin, directly storing them in the cloud, enhancing the efficiency and convenience of creative work."
+        },
+        "multiple-viewing": {
+            "title": "MuseDAM | Multiple Views - Kanban, List, Waterfall, Adaptive",
+            "description": "MuseDAM offers multiple viewing modes, including Kanban, list, waterfall, and adaptive layouts, to meet the needs of different users for material browsing and management, making digital asset management more flexible and efficient."
+        },
+        "smart-folders": {
+            "title": "MuseDAM | Smart Folders - Automatic Classification for Efficient Management",
+            "description": "MuseDAM's Smart Folders allow users to automatically categorize materials based on specific criteria, achieving efficient management and rapid retrieval of materials, enhancing the convenience and intelligence of creative work."
+        },
+        "versions": {
+            "title": "MuseDAM | Version Control - Historical Records, Traceable Anytime",
+            "description": "MuseDAM offers powerful version control capabilities, supporting multi-version storage and historical tracing of materials, allowing teams to easily manage design iterations, ensuring the continuity and integrity of creative work."
+        },
+        "permissions": {
+            "title": "MuseDAM | Permissions - Role-Based Access Control",
+            "description": "MuseDAM offers role-based folder permission management, allowing teams to assign granular access rights based on roles, ensuring the security and compliance of digital assets while promoting efficient collaboration within the team."
+        },
+        "data-statistics": {
+            "title": "MuseDAM | Data Statistics - Activity Rankings and Usage Logs",
+            "description": "MuseDAM offers comprehensive data statistics, including activity rankings for materials and members, as well as logs of operations, helping teams gain insights into material usage and member contributions, and improving the efficiency of resource management and team collaboration."
+        },
+        "team-management": {
+            "title": "MuseDAM | Team Management - Member and Department Control",
+            "description": "MuseDAM offers comprehensive team management capabilities, supporting efficient management of members and departments. With detailed permission settings, it ensures asset security and facilitates effective internal and external collaboration, enhancing team collaboration efficiency and project management capabilities."
+        },
+        "dynamic-feedback": {
+            "title": "MuseDAM | Feedback - Dynamic Comments, Smart Annotations",
+            "description": "MuseDAM supports dynamic feedback on materials, allowing team members to leave comments and annotations, enhancing collaboration and communication, and making the creative workflow smoother and more efficient."
+        },
+        "ai": {
+            "muse-copilot": {
+                "title": "MuseCopilot - AI-Powered Q&A and Content Creation",
+                "description": "MuseCopilot is an AI assistant that revolutionizes material management with integrated Q&A and content creation, significantly enhancing creativity and efficiency."
+            },
+            "search": {
+                "title": "MuseDAM | AI Search - Smart Image Analysis for Quick Asset Discovery",
+                "description": "Find assets instantly with MuseDAM's AI. Intelligent image analysis for detailed scene and color search."
+            },
+            "tags": {
+                "title": "MuseDAM | AI Tags - Automatic Tagging for Smart Retrieval",
+                "description": "MuseDAM's AI Tags feature automatically assigns accurate tags to materials, greatly improving retrieval efficiency and making digital asset management smarter and more efficient."
+            },
+            "parsing": {
+                "title": "MuseDAM | AI Parsing - Efficient Material Analysis for Asset Management",
+                "description": "Effortlessly manage digital assets with MuseDAM AI Parsing. Intelligent recognition and analysis for streamlined resource handling."
+            },
+            "content-creation": {
+                "title": "MuseDAM | AI Content Creation - Intelligent Summarization and Article Generation",
+                "description": "MuseDAM's AI Content Creation feature intelligently summarizes material content and even writes new articles based on it, greatly improving the efficiency and quality of creative work."
+            }
+        }
+    }
 }

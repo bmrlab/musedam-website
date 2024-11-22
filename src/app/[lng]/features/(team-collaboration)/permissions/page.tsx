@@ -7,6 +7,7 @@ import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 
 import PageClient from './page.client'
+import { ssTranslation } from '@/app/i18n'
 
 export default async function PermissionsPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -27,10 +28,10 @@ export default async function PermissionsPage({ params }: PropsWithLng) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: { params: { lng: string } }): Promise<Metadata> {
+  const { t } = await ssTranslation(params.lng, 'seo')
   return {
-    title: 'MuseDAM | Permissions - Role-Based Access Control',
-    description:
-      'MuseDAM offers role-based folder permission management, allowing teams to assign granular access rights based on roles, ensuring the security and compliance of digital assets while promoting efficient collaboration within the team.',
+    title: t('features.permissions.title'),
+    description: t('features.permissions.description'),
   }
 }
