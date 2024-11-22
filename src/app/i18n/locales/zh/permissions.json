@@ -1,0 +1,23 @@
+{
+  "hero.tag": "权限管控",
+  "hero.title": "精细权限管理，优化团队工作流程",
+  "hero.description": "通过 MuseDAM 的权限功能，设置团队成员对共享和私有工作空间的访问权限，优化协作流程，保持工作专注。",
+  "showcase.title": "MuseDAM 权限管理",
+  "showcase.points.0.keyword": "灵活的工作空间",
+  "showcase.points.0.description": "根据团队协作和个人工作的不同需求，可选择将工作空间划分为共享空间和私有空间。",
+  "showcase.points.1.keyword": "私密空间自主管理",
+  "showcase.points.1.description": "管理员可以自主决定私密空间的的启用与禁用，为敏感项目营造一个安全的工作环境。",
+  "showcase.points.2.keyword": "共享空间权限定制",
+  "showcase.points.2.description": "针对团队共享空间中的文件夹，可以根据成员和部门的具体需求，定制编辑、上传、查看和下载等细致的权限。",
+  "text-display.title": "MuseDAM 权限管理：打造团队效率与安全的核心",
+  "text-display.points.0.keyword": "数据保护与访问权限",
+  "text-display.points.0.description": "精确的权限配置，保障数据的完整性和团队成员的访问权限。",
+  "text-display.points.1.keyword": "私密空间的安全性",
+  "text-display.points.1.description": "灵活管理私密空间，为敏感数据提供坚固的安全保障。",
+  "text-display.points.2.keyword": "权限促进合作",
+  "text-display.points.2.description": "通过精细的权限控制，激发团队合作精神，推动项目协同发展。",
+  "text-display.points.3.keyword": "简化访问流程，提高效率",
+  "text-display.points.3.description": "优化团队成员的资源访问路径，极大提升工作效能。",
+  "text-display.points.4.keyword": "激发团队潜力",
+  "text-display.points.4.description": "MuseDAM权限管理助您构建个性化的访问控制体系，强化团队的效率与安全。"
+}

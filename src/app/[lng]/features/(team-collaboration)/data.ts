@@ -21,6 +21,7 @@ export default async function fetchData({
   textDisplayData: TextDisplayProps
 }> {
   const { t } = await ssTranslation(lng, ns)
+  const { t: tFeatures } = await ssTranslation(lng, 'features')
 
   return {
     heroData: {
@@ -28,6 +29,7 @@ export default async function fetchData({
       tagColor,
       title: t('hero.title'),
       description: t('hero.description'),
+      buttonText: tFeatures('button.start')
     },
     showcaseData: {
       title: t('showcase.title'),

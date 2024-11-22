@@ -14,8 +14,8 @@ export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
   const { heroData, showcaseData, textDisplayData } = await fetchData({
     ns: 'dynamic-feedback',
     lng,
-    showcaseLength: 5,
-    textDisplayLength: 3,
+    showcaseLength: 3,
+    textDisplayLength: 4,
   })
   return (
     <div>

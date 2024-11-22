@@ -20,6 +20,7 @@ import {
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
 import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 import Icons from '@/components/icon'
+import { useHeaderTranslation } from '@/app/i18n/client'
 
 const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
@@ -31,6 +32,7 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
 }
 
 export default function Header() {
+  const { t } = useHeaderTranslation()
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
@@ -64,7 +66,9 @@ export default function Header() {
         </div>
         <NavigationMenuList className="hidden flex-1 md:flex">
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Features</NavigationMenuTrigger>
+            <NavigationMenuTrigger>
+              {t('nav-bar.features')}
+            </NavigationMenuTrigger>
             <NavigationMenuContent className="h-[576px]">
               <div className="grid h-full w-screen grid-cols-3">
                 <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
@@ -172,27 +176,27 @@ export default function Header() {
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Customers</NavigationMenuTrigger>
+            <NavigationMenuTrigger>{t('nav-bar.customers')}</NavigationMenuTrigger>
             <NavigationMenuContent></NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="/public" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                ️Why Muse?
+                {t('nav-bar.why-muse')}
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="/public" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Pricing
+                {t('nav-bar.pricing')}
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="/public" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Resources
+                {t('nav-bar.resources')}
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -231,7 +235,7 @@ export default function Header() {
                 </motion.div>
               )}
             </AnimatePresence>
-            <p className="hidden md:block">Login</p>
+            <p className="hidden md:block">{t('button.login')}</p>
           </motion.button>
         </div>
       </NavigationMenu>

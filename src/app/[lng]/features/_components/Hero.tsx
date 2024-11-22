@@ -9,8 +9,9 @@ export type HeroProps = {
   title: string
   description: string
   tagColor: string
+  buttonText: string
 }
-export default function Hero({ tag, title, description, tagColor }: HeroProps) {
+export default function Hero({ tag, title, description, tagColor, buttonText }: HeroProps) {
   return (
     <div className="flex flex-col justify-center bg-white px-6 py-[60px] text-black md:h-[calc(100vh-70px)] md:px-20 md:py-0">
       <div className="mb-2">
@@ -35,7 +36,7 @@ export default function Hero({ tag, title, description, tagColor }: HeroProps) {
       </p>
       <div className="flex h-[58px] items-center justify-center md:justify-between">
         <Button className="h-full rounded-full bg-black px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
-          Start for free
+          {buttonText}
         </Button>
         <ArrowDownRight className="hidden size-8 text-black md:block" />
       </div>

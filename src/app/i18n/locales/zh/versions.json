@@ -1,0 +1,21 @@
+{
+  "hero.tag": "版本管理",
+  "hero.title": "简化资产管理和版本追踪",
+  "hero.description": "利用 MuseDAM 的版本控制功能，掌控数字资产的生命周期，确保对资产演变和团队协作的精确控制。",
+  "showcase.title": "优化创意工作流程的版本管理",
+  "showcase.points.0.keyword": "多版本管理",
+  "showcase.points.0.description": "利用MuseDAM对单一资产的多个版本进行管理，并配备独立元数据，以便精确区分不同版本。",
+  "showcase.points.1.keyword": "历史任务存档与管理",
+  "showcase.points.1.description": "便捷地存档和管理历史任务，确保资产开发过程的审查轨迹清晰可查。",
+  "showcase.points.2.keyword": "缩略图版本标识",
+  "showcase.points.2.description": "在资产缩略图上明确标注最新版和旧版本，便于快速识别和比较。",
+  "text-display.title": "MuseDAM 版本管理：简化版本控制，提升创意工作流程",
+  "text-display.points.0.keyword": "版本清晰度",
+  "text-display.points.0.description": "通过精确的版本追踪和强大的元数据管理，保持组织的清晰度。",
+  "text-display.points.1.keyword": "协作访问便捷",
+  "text-display.points.1.description": "简化对不同资产版本的访问，提高协作效率。",
+  "text-display.points.2.keyword": "工作流程可视化",
+  "text-display.points.2.description": "通过缩略图上的视觉提示来加快工作流程速度，提示版本更新。",
+  "text-display.points.3.keyword": "创意加速",
+  "text-display.points.3.description": "MuseDAM 版本功能助力团队创意流程加速，确保资产管理的准确性和高效率。"
+}

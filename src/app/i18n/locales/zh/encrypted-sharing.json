@@ -1,0 +1,21 @@
+{
+  "hero.tag": "加密分享",
+  "hero.title": "安全灵活的文件分享",
+  "hero.description": "体验 MuseDAM 提供的功能全面、加密的文件共享解决方案，为您的敏感数据提供无与伦比的安全性和控制力，这使得 MuseDAM 在百度网盘和 Google Drive 等竞争对手中脱颖而出。",
+  "showcase.title": "强化协作与安全，加密共享新体验",
+  "showcase.points.0.keyword": "多样化共享设置",
+  "showcase.points.0.description": "在共享文件和文件夹时，您可以选择设置为30天、7天或长期有效，灵活掌握共享期限。",
+  "showcase.points.1.keyword": "精细访问权限管理",
+  "showcase.points.1.description": "根据需求定制化设置下载、传输或仅浏览的权限，加密共享保障数据安全。",
+  "showcase.points.2.keyword": "便捷的资产管理",
+  "showcase.points.2.description": "支持批量转存分享内容至 MuseDAM 的空间，并保留所有元数据，如标题、备注、标签等。",
+  "showcase.points.3.keyword": "密码保护功能",
+  "showcase.points.3.description": "为共享文件设置密码，确保只有获得授权的用户才能访问内容。",
+  "text-display.title": "分享链接管理：按权限集中控制",
+  "text-display.points.0.keyword": "集中化记录保管",
+  "text-display.points.0.description": "在管理仪表盘的分享管理区统一处理所有分享记录，以便进行高效的监控和跟踪。",
+  "text-display.points.1.keyword": "团队共享权限",
+  "text-display.points.1.description": "团队成员能够访问和查看团队分享的记录，促进团队协作。",
+  "text-display.points.2.keyword": "权限驱动的可见性与控制",
+  "text-display.points.2.description": "根据团队成员的权限设置分享链接的访问和管理，保障合作的安全性和高效率。"
+}
