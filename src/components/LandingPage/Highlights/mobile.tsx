@@ -43,12 +43,12 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
-            <div className="mt-6 text-left font-mono">
+            <div className="mt-6 flex flex-col gap-3 text-left font-mono">
               {item.description.map((desc, index) => (
                 <p
                   key={index}
                   className={cn(
-                    'w-full text-[16px] font-light leading-[24px] text-[#141414]',
+                    'w-full text-[16px] font-light leading-[26px] text-[#141414]',
                     index >= 1 && 'pt-3',
                   )}
                 >
