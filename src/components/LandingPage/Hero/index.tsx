@@ -1,6 +1,6 @@
 import Banner from '@/components/LandingPage/Hero/Banner'
 import { BlackButton } from '@/components/StyleWrapper/button'
-import { FadeInUpContainer } from '@/components/StyleWrapper/Container/FadeInUpContainer'
+import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
 import { ssTranslation } from '@/app/i18n'
 
 export default async function Hero({ lng }: { lng: string }) {

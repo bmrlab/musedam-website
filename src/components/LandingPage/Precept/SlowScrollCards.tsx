@@ -12,7 +12,7 @@ const SlowScrollCards = ({ data }: { data: PreceptData[] }) => {
         x: {
           repeat: Infinity,
           repeatType: 'loop',
-          duration: 50,
+          duration: 100,
           ease: 'linear',
         },
       },
