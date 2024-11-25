@@ -12,6 +12,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.ai-search'),
+            url: '/features/ai-search',
           },
         },
       },
@@ -20,6 +21,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.ai-parsing'),
+            url: '/features/ai-parsing',
           },
         },
       },
@@ -28,6 +30,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.ai-content-creation'),
+            url: '/features/ai-content-creation',
           },
         },
       },
@@ -36,6 +39,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.auto-tags'),
+            url: '/features/auto-tags',
           },
         },
       },
@@ -44,6 +48,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.muse-copilot'),
+            url: '/features/muse-copilot',
           },
         },
       },
@@ -52,6 +57,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.inspiration-collection'),
+            url: 'features/inspiration-collection',
           },
         },
       },
@@ -60,6 +66,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.smart-folders'),
+            url: '/features/smart-folders',
           },
         },
       },
@@ -70,12 +77,14 @@ export default function useFooterData() {
             label: t('features.file-formats'),
           },
         },
+        url: '/features/file-formats',
       },
       {
         group: t('group.features'),
         item: {
           link: {
             label: t('features.multiple-viewing'),
+            url: '/features/multiple-viewing',
           },
         },
       },
@@ -84,6 +93,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.encrypted-sharing'),
+            url: '/features/encrypted-sharing',
           },
         },
       },
@@ -92,6 +102,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.team-management'),
+            url: '/features/team-management',
           },
         },
       },
@@ -102,12 +113,14 @@ export default function useFooterData() {
             label: t('features.permissions'),
           },
         },
+        url: '/features/permissions',
       },
       {
         group: t('group.features'),
         item: {
           link: {
             label: t('features.dynamic-feedback'),
+            url: '/features/dynamic-feedback',
           },
         },
       },
@@ -116,6 +129,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.versions'),
+            url: '/features/versions',
           },
         },
       },
@@ -124,6 +138,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.data-statistics'),
+            url: '/features/data-statistics',
           },
         },
       },
@@ -268,7 +283,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('company.about-us'),
-            url: "/about-us"
+            url: '/about-us',
           },
         },
       },
@@ -277,7 +292,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('company.careers'),
-            url: "/careers"
+            url: '/careers',
           },
         },
       },
@@ -287,7 +302,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('company.terms'),
-            url: "/terms"
+            url: '/terms',
           },
         },
       },
@@ -297,7 +312,7 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('company.privacy'),
-            url: "/privacy"
+            url: '/privacy',
           },
         },
       },

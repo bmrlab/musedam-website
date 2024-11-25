@@ -9,9 +9,12 @@ import useFooterData from '@/components/Footer/data'
 import LngSelector from '@/components/Footer/LngSelector'
 import FooterMobile from '@/components/Footer/mobile'
 import SocialWidget from '@/components/Footer/Social'
+import { useFooterTranslation } from '@/app/i18n/client'
 
 export default function Footer() {
+  const { t } = useFooterTranslation()
   const isMobile = useIsMobile()
+
   const { data } = useFooterData()
   const map = useMemo(() => {
     const map = new Map<
@@ -23,11 +26,14 @@ export default function Footer() {
         }
       }[]
     >()
-    data.forEach((item) => {
-      map.set(item.group, [...(map.get(item.group) || []), item.item])
-    })
+
+    data
+      .filter((d) => ![t('group.customers'), t('group.resources')].includes(d.group))
+      .forEach((item) => {
+        map.set(item.group, [...(map.get(item.group) || []), item.item])
+      })
     return map
-  }, [data])
+  }, [data, t])
 
   return isMobile ? (
     <FooterMobile />
@@ -42,16 +48,14 @@ export default function Footer() {
       </div>
       {Array.from(map.entries()).map(([group, item], i) => {
         return (
-          <div key={i} className="flex cursor-pointer select-none flex-col gap-4">
+          <div key={i} className="flex select-none flex-col gap-4">
             <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50">
               {group}
             </h3>
             <div className="flex flex-col gap-3">
               {item.map(({ link }, j) => (
                 <Link key={j} href={link.url ?? ''}>
-                  <span
-                    className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]"
-                  >
+                  <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] after:h-[1.5px]">
                     {link.label}
                   </span>
                 </Link>
