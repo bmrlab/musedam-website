@@ -1,43 +1,49 @@
-import { useFeaturesCards, FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
-import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/Container'
+'use client'
+
 import { cn } from '@/utilities/cn'
+
+import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/Container'
 import { FeaturesRectIconCard } from '@/app/[lng]/features/_components/MoreFeatures/card'
+import {
+  FeaturesEnum,
+  useFeaturesCards,
+} from '@/app/[lng]/features/_components/MoreFeatures/features'
 
 const blocks: {
   category: string
   features: FeaturesEnum[]
 }[] = [
-    {
-      category: 'AI Powered',
-      features: [
-        FeaturesEnum.AISearch,
-        FeaturesEnum.AIParsing,
-        FeaturesEnum.ContentCreation,
-        FeaturesEnum.AutoTags,
-        FeaturesEnum.MuseCopilot,
-      ],
-    },
-    {
-      category: 'Visual Workspace',
-      features: [
-        FeaturesEnum.FileCollection,
-        FeaturesEnum.SmartFolders,
-        FeaturesEnum.Formats,
-        FeaturesEnum.MultipleViewing,
-        FeaturesEnum.Sharing,
-      ],
-    },
-    {
-      category: 'Team Collaboration',
-      features: [
-        FeaturesEnum.Team,
-        FeaturesEnum.Permissions,
-        FeaturesEnum.Feedback,
-        FeaturesEnum.Versions,
-        FeaturesEnum.DataStatistics,
-      ],
-    },
-  ]
+  {
+    category: 'AI Powered',
+    features: [
+      FeaturesEnum.AISearch,
+      FeaturesEnum.AIParsing,
+      FeaturesEnum.ContentCreation,
+      FeaturesEnum.AutoTags,
+      FeaturesEnum.MuseCopilot,
+    ],
+  },
+  {
+    category: 'Visual Workspace',
+    features: [
+      FeaturesEnum.FileCollection,
+      FeaturesEnum.SmartFolders,
+      FeaturesEnum.Formats,
+      FeaturesEnum.MultipleViewing,
+      FeaturesEnum.Sharing,
+    ],
+  },
+  {
+    category: 'Team Collaboration',
+    features: [
+      FeaturesEnum.Team,
+      FeaturesEnum.Permissions,
+      FeaturesEnum.Feedback,
+      FeaturesEnum.Versions,
+      FeaturesEnum.DataStatistics,
+    ],
+  },
+]
 
 const isOdd = (num: number) => !!(num & 1)
 
