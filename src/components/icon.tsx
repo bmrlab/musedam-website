@@ -200,12 +200,32 @@ const Icons = {
     </svg>
   ),
   arrowDownSolid: (props: IconProps) => (
-    <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="12"
+      height="13"
+      viewBox="0 0 12 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
       <path
         d="M9.84861 4.34863H2.15173C1.92087 4.34863 1.79196 4.59238 1.93493 4.75879L5.78337 9.22129C5.89353 9.34902 6.10564 9.34902 6.21696 9.22129L10.0654 4.75879C10.2084 4.59238 10.0795 4.34863 9.84861 4.34863Z"
         fill="black"
         fillOpacity="0.8"
       />
+    </svg>
+  ),
+  arrowDownRight: (props: IconProps) => (
+    <svg
+      width="32"
+      height="33"
+      viewBox="0 0 32 33"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path d="M1.77759 2.27783L30.2204 30.7206" stroke="black" strokeWidth="2" />
+      <path d="M30.2223 5.76318L30.2212 30.722H5.26245" stroke="black" strokeWidth="2" />
     </svg>
   ),
 }

@@ -11,3 +11,5 @@ export const AbsXCenterContainer = twx.div`absolute left-1/2 transform -translat
 export const FlexCenterContainer = twx.div`flex items-center justify-center`
 
 export const SizeFullFlexColContainer = twx.div`flex flex-col items-center justify-center size-full`
+
+export const DotContainer = twx.div`size-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]`
