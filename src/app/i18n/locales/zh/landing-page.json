@@ -6,5 +6,7 @@
   "hero.sub-banner.subtitle": "探索资产管理的未来，尽在 MuseDAM 前沿的 AI 技术。一键体验智能搜索，洞察力十足的智能分析，以及功能强大的创意工具箱。由 MuseCopilot 交互式辅助系统加持，为您带来流畅的操作体验。",
   "subscribe.title": "订阅产品更新和资源",
   "subscribe.button": "立即订阅",
-  "subscribe.free-trial": "立即开始免费试用，开启您的探索之旅 →"
+  "subscribe.join": "立即开始免费试用，开启您的探索之旅",
+  "subscribe.free-trial": "",
+  "subscribe.email.placeholder": "请输入邮箱地址"
 }
