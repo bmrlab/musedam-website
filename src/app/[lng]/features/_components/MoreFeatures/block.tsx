@@ -1,4 +1,4 @@
-import { FeaturesCards, FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
+import { useFeaturesCards, FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/features'
 import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/Container'
 import { cn } from '@/utilities/cn'
 import { FeaturesRectIconCard } from '@/app/[lng]/features/_components/MoreFeatures/card'
@@ -7,41 +7,42 @@ const blocks: {
   category: string
   features: FeaturesEnum[]
 }[] = [
-  {
-    category: 'AI Powered',
-    features: [
-      FeaturesEnum.AISearch,
-      FeaturesEnum.AIParsing,
-      FeaturesEnum.ContentCreation,
-      FeaturesEnum.AutoTags,
-      FeaturesEnum.MuseCopilot,
-    ],
-  },
-  {
-    category: 'Visual Workspace',
-    features: [
-      FeaturesEnum.FileCollection,
-      FeaturesEnum.SmartFolders,
-      FeaturesEnum.Formats,
-      FeaturesEnum.MultipleViewing,
-      FeaturesEnum.Sharing,
-    ],
-  },
-  {
-    category: 'Team Collaboration',
-    features: [
-      FeaturesEnum.Team,
-      FeaturesEnum.Permissions,
-      FeaturesEnum.Feedback,
-      FeaturesEnum.Versions,
-      FeaturesEnum.DataStatistics,
-    ],
-  },
-]
+    {
+      category: 'AI Powered',
+      features: [
+        FeaturesEnum.AISearch,
+        FeaturesEnum.AIParsing,
+        FeaturesEnum.ContentCreation,
+        FeaturesEnum.AutoTags,
+        FeaturesEnum.MuseCopilot,
+      ],
+    },
+    {
+      category: 'Visual Workspace',
+      features: [
+        FeaturesEnum.FileCollection,
+        FeaturesEnum.SmartFolders,
+        FeaturesEnum.Formats,
+        FeaturesEnum.MultipleViewing,
+        FeaturesEnum.Sharing,
+      ],
+    },
+    {
+      category: 'Team Collaboration',
+      features: [
+        FeaturesEnum.Team,
+        FeaturesEnum.Permissions,
+        FeaturesEnum.Feedback,
+        FeaturesEnum.Versions,
+        FeaturesEnum.DataStatistics,
+      ],
+    },
+  ]
 
 const isOdd = (num: number) => !!(num & 1)
 
 export default function FeaturesBlock() {
+  const FeaturesCards = useFeaturesCards()
   return (
     <>
       {blocks.map((block, index) => (

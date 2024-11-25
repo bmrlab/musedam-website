@@ -223,14 +223,14 @@ export default function useFooterData() {
           },
         },
       },
-      {
-        group: t('group.resources'),
-        item: {
-          link: {
-            label: t('resources.tutorials'),
-          },
-        },
-      },
+      // {
+      //   group: t('group.resources'),
+      //   item: {
+      //     link: {
+      //       label: t('resources.tutorials'),
+      //     },
+      //   },
+      // },
       {
         group: t('group.resources'),
         item: {
@@ -252,6 +252,14 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('resources.release-notes'),
+          },
+        },
+      },
+      {
+        group: t('group.resources'),
+        item: {
+          link: {
+            label: t('resources.sitemap'),
           },
         },
       },
