@@ -66,10 +66,8 @@ export default function Header() {
         </div>
         <NavigationMenuList className="hidden flex-1 md:flex">
           <NavigationMenuItem>
-            <NavigationMenuTrigger>
-              {t('nav-bar.features')}
-            </NavigationMenuTrigger>
-            <NavigationMenuContent className="h-[576px]">
+            <NavigationMenuTrigger>{t('nav-bar.features')}</NavigationMenuTrigger>
+            <NavigationMenuContent>
               <div className="grid h-full w-screen grid-cols-3">
                 <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
                   {categories.map((category, i) => (
@@ -175,28 +173,42 @@ export default function Header() {
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          {/*<NavigationMenuItem>*/}
+          {/*  <NavigationMenuTrigger>{t('nav-bar.customers')}</NavigationMenuTrigger>*/}
+          {/*  <NavigationMenuContent></NavigationMenuContent>*/}
+          {/*</NavigationMenuItem>*/}
+          {/*<NavigationMenuItem>*/}
+          {/*  <Link href="/public" legacyBehavior passHref>*/}
+          {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
+          {/*      {t('nav-bar.why-muse')}*/}
+          {/*    </NavigationMenuLink>*/}
+          {/*  </Link>*/}
+          {/*</NavigationMenuItem>*/}
+          {/*<NavigationMenuItem>*/}
+          {/*  <Link href="/public" legacyBehavior passHref>*/}
+          {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
+          {/*      {t('nav-bar.pricing')}*/}
+          {/*    </NavigationMenuLink>*/}
+          {/*  </Link>*/}
+          {/*</NavigationMenuItem>*/}
+          {/*<NavigationMenuItem>*/}
+          {/*  <Link href="/public" legacyBehavior passHref>*/}
+          {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
+          {/*      {t('nav-bar.resources')}*/}
+          {/*    </NavigationMenuLink>*/}
+          {/*  </Link>*/}
+          {/*</NavigationMenuItem>*/}
           <NavigationMenuItem>
-            <NavigationMenuTrigger>{t('nav-bar.customers')}</NavigationMenuTrigger>
-            <NavigationMenuContent></NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link href="/public" legacyBehavior passHref>
+            <Link href="/about-us" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('nav-bar.why-muse')}
+                {t('nav-bar.about-us')}
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/public" legacyBehavior passHref>
+            <Link href="/careers" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('nav-bar.pricing')}
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link href="/public" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('nav-bar.resources')}
+                {t('nav-bar.careers')}
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
