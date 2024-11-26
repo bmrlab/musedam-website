@@ -42,7 +42,7 @@ export default function PageClient() {
             width={335.9}
             height={100.47}
             alt="Data-Statistics-Card"
-            className="absolute right-[-84.9px] top-[255px]"
+            className="absolute right-[-84.9px] top-[255px] rounded-[13.21px] shadow-[0px_4px_30px_4px_#00000014]"
             initial={{ x: '10%', opacity: 0 }}
             animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}

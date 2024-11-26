@@ -4,11 +4,12 @@ import { FeaturesEnum } from '@/app/[lng]/features/_components/MoreFeatures/feat
 export default function DataStatisticsFeatures() {
   return (
     <MoreFeatures
+      titleI18nKey="more-features.team-collaboration.title"
       features={[
         FeaturesEnum.Team,
         FeaturesEnum.Permissions,
         FeaturesEnum.Feedback,
-        FeaturesEnum.DataStatistics,
+        FeaturesEnum.Versions,
       ]}
     />
   )

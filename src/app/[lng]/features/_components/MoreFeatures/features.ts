@@ -74,7 +74,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Inspiration-Collection.svg`,
       bgColor: '#8BE3D9',
       iconBgColor: '#FFEFE8',
-      href: '/features/file-collection',
+      href: '/features/inspiration-collection',
     },
     [FeaturesEnum.SmartFolders]: {
       title: t('visual-workspace.smart-folders.title'),

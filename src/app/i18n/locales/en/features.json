@@ -1,5 +1,8 @@
 {
-    "button.start": "Start for free",
-    "more-features.title": "More in AI-Powered",
-    "more-features.view-all": "View all features"
+  "button.start": "Start for free",
+  "more-features.title": "More in AI-Powered",
+  "more-features.view-all": "View all features",
+  "more-features.ai-powered.title": "More in AI-Powered",
+  "more-features.team-collaboration.title": "More in Team Collaboration",
+  "more-features.visual-workspace.title": "More in Visual Workspace"
 }
