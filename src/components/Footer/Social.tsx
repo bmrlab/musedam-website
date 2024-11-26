@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCountry } from '@/providers/Country'
@@ -63,11 +64,13 @@ const SocialItemView = ({
   cardUrl?: string
   icon: React.ReactNode
 }) => {
+  const Wrapper = href ? (props) => <Link href={href} target="_blank" {...props} /> : Fragment
+
   return (
-    <div className="group relative flex items-center gap-1.5 overflow-visible">
+    <div className="group relative flex w-fit items-center gap-1.5 overflow-visible">
       {cardUrl && (
         <div
-          className="absolute inset-x-[-20px] top-[-166px] size-[151px] overflow-hidden rounded-md opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-x-[-20px] top-[-166px] size-[151px] overflow-hidden rounded-md opacity-0 transition-opacity duration-300 group-hover:animate-fade-in-up group-hover:opacity-100"
           style={{
             boxShadow: '0px 4px 30px 4px #00000014',
           }}
@@ -81,14 +84,14 @@ const SocialItemView = ({
           />
         </div>
       )}
-      <Link href={href ?? ''} target="_blank">
-        <p className="flex items-center gap-1.5">
+      <Wrapper>
+        <p className="flex cursor-pointer items-center gap-1.5">
           {icon}
           <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] after:h-[1.5px]">
             {label}
           </span>
         </p>
-      </Link>
+      </Wrapper>
     </div>
   )
 }
