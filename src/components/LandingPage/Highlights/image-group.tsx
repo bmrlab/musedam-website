@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import useIsMobile from '@/hooks/useIsMobile'
 import { HTMLAttributes } from 'react'
 import { useAnimationControl } from '@/components/LandingPage/Highlights/useAnimationControl'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 const CollectImagePrefix = '/Highlights/Collect'
 const OrganizeImagePrefix = '/Highlights/Organize'
@@ -17,11 +18,12 @@ export type ImageGroupProps = HTMLAttributes<HTMLDivElement> & {
 export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { getUrl } = usePublicUrl(CollectImagePrefix)
   return (
     <RelativeContainer>
       <MotionShadowImage
         ref={ref}
-        src={`${CollectImagePrefix}/MuseDAM-Collect-BG.png`}
+        src={getUrl('MuseDAM-Collect-BG.png')}
         width={isMobile ? 290.21 : 540}
         height={isMobile ? 197.77 : 368}
         alt="MuseDAM-Collect-BG"
@@ -31,7 +33,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         transition={{ duration: 0.6 }}
       />
       <MotionShadowImage
-        src={`${CollectImagePrefix}/MuseDAM-Collect-Browser-Plugin.png`}
+        src={getUrl('MuseDAM-Collect-Browser-Plugin.png')}
         width={isMobile ? 62.12 : 114}
         height={isMobile ? 13.45 : 25}
         alt="MuseDAM-Collect-Browser-Plugin"
@@ -44,7 +46,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         transition={{ duration: 0.8, delay: 0.5 }}
       />
       <MotionShadowImage
-        src={`${CollectImagePrefix}/MuseDAM-Collect-Discord-Bot.png`}
+        src={getUrl('MuseDAM-Collect-Discord-Bot.png')}
         width={isMobile ? 52.12 : 96}
         height={isMobile ? 13.45 : 25}
         alt="MuseDAM-Collect-Discord-Bot"
@@ -57,7 +59,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         transition={{ duration: 0.8 }}
       />
       <MotionImage
-        src={`${CollectImagePrefix}/MuseDAM-Collect-Drag-and-Drop.png`}
+        src={getUrl('MuseDAM-Collect-Drag-and-Drop.png')}
         width={isMobile ? 89.09 : 165.27}
         height={isMobile ? 89.09 : 165.27}
         alt="MuseDAM-Collect-Drag-and-Drop"
@@ -105,6 +107,7 @@ export const OrganizeImageGroup = ({
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { getUrl } = usePublicUrl(OrganizeImagePrefix)
 
   return (
     <div
@@ -133,7 +136,7 @@ export const OrganizeImageGroup = ({
           transition={{ duration: 0.6 }}
         />
         <MotionShadowImage
-          src={`${OrganizeImagePrefix}/MuseDAM-Organize-70-File-Formats.png`}
+          src={getUrl('MuseDAM-Organize-70-File-Formats.png')}
           width={isMobile ? 67.05 : 124}
           height={isMobile ? 14.52 : 27}
           alt="MuseDAM-Organize-70-File-Formats"
@@ -146,7 +149,7 @@ export const OrganizeImageGroup = ({
           transition={{ duration: 0.6, delay: 0.1 }}
         />
         <MotionImage
-          src={`${OrganizeImagePrefix}/MuseDAM-Organize-Find-Similar-Color-Images.png`}
+          src={getUrl('MuseDAM-Organize-Find-Similar-Color-Images.png')}
           width={isMobile ? 99.05 : 184}
           height={isMobile ? 14.52 : 27}
           alt="MuseDAM-Organize-Find-Similar-Color-Images"
@@ -159,7 +162,7 @@ export const OrganizeImageGroup = ({
           transition={{ duration: 0.8 }}
         />
         <MotionImage
-          src={`${OrganizeImagePrefix}/MuseDAM-Organize-Preview.png`}
+          src={getUrl('MuseDAM-Organize-Preview.png')}
           width={isMobile ? 40.72 : 75.53}
           height={isMobile ? 21.28 : 39.47}
           alt="MuseDAM-Organize-Preview"
@@ -173,7 +176,7 @@ export const OrganizeImageGroup = ({
         />
         <MotionImage
           layout
-          src={`${OrganizeImagePrefix}/MuseDAM-Organize-Image-Card.png`}
+          src={getUrl('MuseDAM-Organize-Image-Card.png')}
           width={isMobile ? 119.92 : 233.13}
           height={isMobile ? 107.33 : 199.72}
           alt="MuseDAM-Organize-Image-Card"
@@ -196,13 +199,13 @@ export const CollaborateImageGroup = ({
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
-
+  const { getUrl } = usePublicUrl(CollaborateImagePrefix)
   return (
     <div
       className={cn('flex h-full flex-col gap-[16.67px]', isMobile && 'gap-[8.96px]', className)}
     >
       <MotionShadowImage
-        src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-Members.png`}
+        src={getUrl('MuseDAM-Collaborate-Members.png')}
         width={isMobile ? 94.2 : 175.28}
         height={isMobile ? 28.13 : 52.33}
         alt="MuseDAM-Collaborate-Members"
@@ -214,7 +217,7 @@ export const CollaborateImageGroup = ({
       <RelativeContainer>
         <MotionShadowImage
           ref={ref}
-          src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-BG.png`}
+          src={getUrl('MuseDAM-Collaborate-BG.png')}
           width={isMobile ? 290.21 : 540}
           height={isMobile ? 192.4 : 358}
           alt="MuseDAM-Collaborate-BG"
@@ -223,7 +226,7 @@ export const CollaborateImageGroup = ({
           transition={{ duration: 0.6 }}
         />
         <MotionImage
-          src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-Collaboration.png`}
+          src={getUrl('MuseDAM-Collaborate-Collaboration.png')}
           width={isMobile ? 63.95 : 119}
           height={isMobile ? 167.68 : 312}
           alt="MuseDAM-Collaborate-Collaboration"
@@ -236,7 +239,7 @@ export const CollaborateImageGroup = ({
           transition={{ duration: 0.8, delay: 0.1 }}
         />
         <MotionShadowImage
-          src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-Ranking.png`}
+          src={getUrl('MuseDAM-Collaborate-Ranking.png')}
           width={isMobile ? 128.98 : 184}
           height={isMobile ? 36.7 : 27}
           alt="MuseDAM-Collaborate-Ranking"
@@ -249,7 +252,7 @@ export const CollaborateImageGroup = ({
           transition={{ duration: 0.8, delay: 0.1 }}
         />
         <MotionShadowImage
-          src={`${CollaborateImagePrefix}/MuseDAM-Collaborate-Share-Card.png`}
+          src={getUrl('MuseDAM-Collaborate-Share-Card.png')}
           width={isMobile ? 151.82 : 282.5}
           height={isMobile ? 143.04 : 264.89}
           alt="MuseDAM-Collaborate-Share-Card"
@@ -269,12 +272,12 @@ export const CollaborateImageGroup = ({
 export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
-
+  const { getUrl } = usePublicUrl(AIGenerateImagePrefix)
   return (
     <RelativeContainer>
       <MotionShadowImage
         ref={ref}
-        src={`${AIGenerateImagePrefix}/MuseDAM-AI-Generate-BG.png`}
+        src={getUrl('MuseDAM-AI-Generate-BG.png')}
         width={isMobile ? 291.09 : 540}
         height={isMobile ? 198.37 : 368}
         alt="MuseDAM-AI-Generate-BG"
@@ -283,7 +286,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         transition={{ duration: 0.6 }}
       />
       <MotionImage
-        src={`${AIGenerateImagePrefix}/MuseDAM-AI-Generate-Search.png`}
+        src={getUrl('MuseDAM-AI-Generate-Search.png')}
         width={isMobile ? 114.73 : 212.83}
         height={isMobile ? 16.17 : 30}
         alt="MuseDAM-AI-Generate-Search"
@@ -296,7 +299,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         transition={{ duration: 1, delay: 0.1 }}
       />
       <MotionShadowImage
-        src={`${AIGenerateImagePrefix}/MuseDAM-AI-Generate-AI-Parsing.png`}
+        src={getUrl('MuseDAM-AI-Generate-AI-Parsing.png')}
         width={isMobile ? 120.89 : 224.94}
         height={isMobile ? 92.46 : 171.41}
         alt="MuseDAM-AI-Generate-AI-Parsing"
@@ -309,7 +312,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         transition={{ duration: 1, delay: 0.1 }}
       />
       <MotionShadowImage
-        src={`${AIGenerateImagePrefix}/MuseDAM-AI-Generate-Copilot.png`}
+        src={getUrl('MuseDAM-AI-Generate-Copilot.png')}
         width={isMobile ? 107.06 : 199.2}
         height={isMobile ? 172.63 : 321.21}
         alt="MuseDAM-AI-Generate-Copilot"

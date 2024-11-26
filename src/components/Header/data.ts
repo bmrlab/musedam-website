@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 
 import { useHeaderTranslation } from '@/app/i18n/client'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export type FeatureItem = {
   icon: React.ComponentType<LucideProps>
@@ -25,10 +26,11 @@ export type FeatureItem = {
   url?: string
 }
 
-const ImageBasePath = '/Navbar-Images'
 
 export default function useHeaderData() {
   const { t } = useHeaderTranslation()
+  const { realBasePath: ImageBasePath } = usePublicUrl('/Navbar-Images')
+
   const data = useMemo<
     {
       category: string
@@ -157,7 +159,7 @@ export default function useHeaderData() {
         ],
       },
     ],
-    [t],
+    [t, ImageBasePath],
   )
 
   return { data }

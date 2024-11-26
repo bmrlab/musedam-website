@@ -4,9 +4,12 @@ import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrappe
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import { motion } from 'framer-motion'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const ImageBasePath = '/Features/MuseCopilot'
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -23,7 +26,7 @@ export default function PageClient() {
       >
         <RelativeContainer>
           <MotionImage
-            src="/Features/MuseCopilot/MuseCopilot-Library.png"
+            src={getUrl('/MuseCopilot-Library.png')}
             width={612.59}
             height={450}
             alt="MuseCopilot-Library"
@@ -34,7 +37,7 @@ export default function PageClient() {
           />
           <RelativeContainer className="absolute bottom-[93.65px] right-[177.1px]">
             <MotionShadowImage
-              src="/Features/MuseCopilot/MuseCopilot-Image.png"
+              src={`${ImageBasePath}/MuseCopilot-Image.png`}
               width={98.5}
               height={113.35}
               alt="MuseCopilot-Image"
@@ -44,7 +47,7 @@ export default function PageClient() {
               onAnimationComplete={() => handleAnimationComplete(2)}
             />
             <MotionShadowImage
-              src="/Features/MuseCopilot/MuseCopilot-Mouse.svg"
+              src={`${ImageBasePath}/MuseCopilot-Mouse.svg`}
               width={26.89}
               height={38.41}
               alt="MuseCopilot-Mouse.svg"

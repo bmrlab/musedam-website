@@ -4,9 +4,11 @@ import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrappe
 import { motion } from 'framer-motion'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl('/Features/AI-Parsing')
 
   return (
     <FlexCenterContainer
@@ -44,7 +46,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
           <MotionShadowImage
-            src="/Features/AI-Parsing/AI-Parsing-Summarization.png"
+            src={getUrl('AI-Parsing-Summarization.png')}
             width={312}
             height={288}
             alt="AI-Parsing-Summarization"

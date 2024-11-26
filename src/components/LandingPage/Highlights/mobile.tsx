@@ -10,31 +10,31 @@ import { Highlight } from '@/components/LandingPage/Highlights/index'
 import { useHighlightTranslation } from '@/app/i18n/client'
 
 export default function HighlightsMobile({ data }: { data: Highlight[] }) {
-  const {t} = useHighlightTranslation()
+  const { t } = useHighlightTranslation()
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
         <div key={index} style={{ background: item.bgColor }}>
           <ImageBgDiv className="flex items-center justify-center">
             {(() => {
-              switch (item.title) {
-                case 'Collect':
+              switch (item.key) {
+                case 'collect':
                   return <CollectImageGroup isBuildFinished={() => true} />
-                case 'Organize':
+                case 'organize':
                   return (
                     <OrganizeImageGroup
                       className="items-center justify-center"
                       isBuildFinished={() => true}
                     />
                   )
-                case 'Collaborate':
+                case 'collaborate':
                   return (
                     <CollaborateImageGroup
                       className="h-[258.75px] items-center justify-start"
                       isBuildFinished={() => true}
                     />
                   )
-                case 'AI Generate':
+                case 'ai-generate':
                   return <AIGenerateImageGroup isBuildFinished={() => true} />
               }
             })()}

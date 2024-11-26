@@ -4,9 +4,11 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl('/Features/Multiple-Viewing')
 
   return (
     <FlexCenterContainer
@@ -22,7 +24,7 @@ export default function PageClient() {
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
         <MotionImage
-          src="/Features/Multiple-Viewing/Multiple-Viewing1.png"
+          src={getUrl('Multiple-Viewing1.png')}
           width={188.78}
           height={387.95}
           alt="Multiple-Viewing1"
@@ -32,7 +34,7 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <MotionImage
-          src="/Features/Multiple-Viewing/Multiple-Viewing2.png"
+          src={getUrl('Multiple-Viewing2.png')}
           width={188.78}
           height={387.95}
           alt="Multiple-Viewing2"
@@ -41,7 +43,7 @@ export default function PageClient() {
           transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
         />
         <MotionImage
-          src="/Features/Multiple-Viewing/Multiple-Viewing3.png"
+          src={getUrl('Multiple-Viewing3.png')}
           width={188.78}
           height={387.95}
           alt="Multiple-Viewing3"

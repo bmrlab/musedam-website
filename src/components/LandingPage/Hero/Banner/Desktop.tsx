@@ -15,17 +15,20 @@ import {
 } from '@/components/StyleWrapper/Container'
 
 import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
+import { useLanguage } from '@/providers/Language'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
+  const { getUrl } = usePublicUrl('/Hero')
 
   return (
     <div className={cn('flex select-none justify-center gap-6', className)}>
       <FlexColContainer>
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Kanban.png"
+          src={getUrl('MuseDAM-Kanban.png')}
           width={237}
           height={52}
           alt="MuseDAM-Kanban"
@@ -51,7 +54,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           />
           <div className="absolute bottom-[34px] right-[-66px] z-[1] flex flex-col gap-2">
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Automobile.png"
+              src={getUrl('Tag-Automobile.png')}
               width={110}
               height={30}
               alt="Tag-Automobile"
@@ -61,7 +64,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               onAnimationComplete={() => handleAnimationComplete(16)}
             />
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Raining.png"
+              src={getUrl('Tag-Raining.png')}
               width={87}
               height={30}
               alt="Tag-Raining"
@@ -71,7 +74,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               onAnimationComplete={() => handleAnimationComplete(17)}
             />
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Photography.png"
+              src={getUrl('Tag-Photography.png')}
               width={118}
               height={30}
               alt="Tag-Photography"
@@ -152,7 +155,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(6)}
           />
           <MotionImage
-            src="/Hero/MuseDAM-Comment.png"
+            src={getUrl('MuseDAM-Comment.png')}
             width={244}
             height={60}
             alt="MuseDAM-Comment"

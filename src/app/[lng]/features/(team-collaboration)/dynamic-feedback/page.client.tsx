@@ -4,11 +4,13 @@ import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrappe
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 const ImageBasePath = '/Features/Dynamic-Feedback'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -55,7 +57,7 @@ export default function PageClient() {
             transition={{ duration: 1, ease: 'easeInOut' }}
           />
           <MotionShadowImage
-            src={`${ImageBasePath}/Dynamic-Feedback-Comment.png`}
+            src={getUrl('Dynamic-Feedback-Comment.png')}
             width={279.71}
             height={83.19}
             alt="Dynamic-Feedback-Comment"
