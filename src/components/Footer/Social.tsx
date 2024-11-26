@@ -1,8 +1,8 @@
-import Link from 'next/link'
-import Icons from '@/components/icon'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useCountry } from '@/providers/Country'
 
+import Icons from '@/components/icon'
 
 const socialItemAbroad = [
   {
@@ -21,7 +21,6 @@ const socialItemAbroad = [
     href: 'https://www.youtube.com/channel/UCg9jl7ItOcITphJevWm4jDg',
   },
 ]
-
 
 const socialItemInChina = [
   {
@@ -57,7 +56,7 @@ const SocialItemView = ({
   label,
   icon,
   href,
-  cardUrl
+  cardUrl,
 }: {
   label: string
   href?: string
@@ -66,11 +65,13 @@ const SocialItemView = ({
 }) => {
   return (
     <div className="group relative flex items-center gap-1.5 overflow-visible">
-      {cardUrl &&
-        <div className='absolute inset-x-[-20px] top-[-166px] size-[151px] overflow-hidden rounded-md opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+      {cardUrl && (
+        <div
+          className="absolute inset-x-[-20px] top-[-166px] size-[151px] overflow-hidden rounded-md opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{
-            boxShadow: '0px 4px 30px 4px #00000014'
-          }}>
+            boxShadow: '0px 4px 30px 4px #00000014',
+          }}
+        >
           <Image
             src={cardUrl}
             width={151}
@@ -78,11 +79,12 @@ const SocialItemView = ({
             alt="Inspiration-Collection-Discord"
             className="size-[151px]"
           />
-        </div>}
-      <Link href={href ?? ''} target="_blank" >
+        </div>
+      )}
+      <Link href={href ?? ''} target="_blank">
         <p className="flex items-center gap-1.5">
           {icon}
-          <span className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]">
+          <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] after:h-[1.5px]">
             {label}
           </span>
         </p>

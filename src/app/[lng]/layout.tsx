@@ -8,30 +8,14 @@ import { AdminBar } from '@/components/AdminBar'
 
 import './globals.css'
 
-import { Baskervville, IBM_Plex_Mono } from 'next/font/google'
 import { dir } from 'i18next'
 
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
+import { getCountry } from '@/app/[lng]/country'
+import { baskervville, plexMono } from '@/app/[lng]/font'
 import { languages } from '@/app/i18n/settings'
-import { cookies } from 'next/headers'
-
-const baskervville = Baskervville({
-  weight: ['400'],
-  style: ['normal'],
-  display: 'swap',
-  subsets: ['latin'],
-  variable: '--font-baskervville',
-})
-
-const plexMono = IBM_Plex_Mono({
-  weight: ['300', '400', '500'],
-  style: ['normal'],
-  display: 'swap',
-  subsets: ['latin'],
-  variable: '--font-plex_mono',
-})
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -45,9 +29,7 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>
 }) {
   const { lng } = await params
-  // 从 Cookie 中获取国家信息
-  const cookieStore = cookies();
-  const country = (await cookieStore).get('country')?.value || 'US';
+  const country = await getCountry(lng)
 
   return (
     <html
