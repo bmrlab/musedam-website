@@ -1,10 +1,11 @@
 'use client'
 
-import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 import usePublicUrl from '@/hooks/usePublicUrl'
+import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
 const ImageBasePath = '/Features/Permissions'
 
@@ -36,9 +37,11 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <MotionImage
-          src={getUrl('/Permissions-Modal.png')}
+          src={getUrl('Permissions-Modal.png')}
           width={566.95}
           height={377.43}
+          quality={100}
+          unoptimized={true}
           alt="Permissions-Modal"
           initial={{ x: '-10%', opacity: 0 }}
           animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
