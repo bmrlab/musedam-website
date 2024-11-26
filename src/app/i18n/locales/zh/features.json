@@ -1,5 +1,7 @@
 {
-    "button.start": "立即开始使用",
-    "more-features.title": "探索更多AI能力",
-    "more-features.view-all": "查看全部功能"
+  "button.start": "立即开始使用",
+  "more-features.view-all": "查看全部功能",
+  "more-features.ai-powered.title": "探索更多AI能力",
+  "more-features.visual-workspace.title": "探索更多工作空间",
+  "more-features.team-collaboration.title": "探索更多团队协作"
 }
