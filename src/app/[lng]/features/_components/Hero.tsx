@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
 
 import { Badge } from '@/components/ui/badge'
@@ -12,8 +14,16 @@ export type HeroProps = {
   description: string
   tagColor: string
   buttonText: string
+  buttonHref?: string
 }
-export default function Hero({ tag, title, description, tagColor, buttonText }: HeroProps) {
+export default function Hero({
+  tag,
+  title,
+  description,
+  tagColor,
+  buttonText,
+  buttonHref,
+}: HeroProps) {
   return (
     <DotContainer className="flex shrink-0 flex-col justify-center bg-white px-6 py-[60px] md:min-h-[calc(100vh-70px)] md:px-20 md:py-[100px]">
       <div className="mb-2">
@@ -39,9 +49,11 @@ export default function Hero({ tag, title, description, tagColor, buttonText }: 
         </p>
       </FadeInUpContainer>
       <FadeInUpContainer className="flex h-[58px] items-center justify-center md:justify-between">
-        <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
-          {buttonText}
-        </BlackButton>
+        <Link href={buttonHref ?? MUSEDAM_LOGIN_URL}>
+          <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
+            {buttonText}
+          </BlackButton>
+        </Link>
         <Icons.arrowDownRight className="hidden size-8 text-black md:block" />
       </FadeInUpContainer>
     </DotContainer>

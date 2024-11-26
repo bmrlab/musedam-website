@@ -15,3 +15,7 @@ export function getOptions(lng = fallbackLng, ns: string | string[] = defaultNS)
     ns,
   }
 }
+
+export function isZh(lng: string) {
+  return lng === 'zh'
+}

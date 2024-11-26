@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+
 import Banner from '@/components/LandingPage/Hero/Banner'
 import { BlackButton } from '@/components/StyleWrapper/button'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
@@ -11,9 +14,11 @@ export default async function Hero({ lng }: { lng: string }) {
         <p>{t('hero.title')}</p>
         <p>{t('hero.subtitle')}</p>
       </h1>
-      <BlackButton className="mb-12 mt-6 rounded-[1000px] px-[52.5px] py-[17px] font-mono text-[16px] font-normal leading-[20px] text-white md:mb-[58px] md:mt-9 md:px-[57.5px] md:py-[19px]">
-        {t('hero.button.start')}
-      </BlackButton>
+      <Link href={MUSEDAM_LOGIN_URL}>
+        <BlackButton className="mb-12 mt-6 rounded-[1000px] px-[52.5px] py-[17px] font-mono text-[16px] font-normal leading-[20px] text-white md:mb-[58px] md:mt-9 md:px-[57.5px] md:py-[19px]">
+          {t('hero.button.start')}
+        </BlackButton>
+      </Link>
       <Banner />
       <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
         <h1 className="text-center font-baskervville text-[38px] font-normal leading-[43.37px] text-[#141414] md:text-left md:text-[68px] md:leading-[77.79px]">

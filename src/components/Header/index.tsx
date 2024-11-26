@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LucideProps, X } from 'lucide-react'
@@ -37,6 +39,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
+  const router = useRouter()
 
   const { data: features } = useHeaderData()
 
@@ -220,7 +223,10 @@ export default function Header() {
             className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
             initial={{ width: '140px' }}
             animate={{ width: isMobile ? '56px' : '140px' }}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              isMobile && setIsOpen(!isOpen)
+              router.push(MUSEDAM_LOGIN_URL)
+            }}
           >
             <AnimatePresence mode="wait">
               {isOpen ? (
