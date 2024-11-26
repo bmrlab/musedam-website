@@ -5,9 +5,13 @@ import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import Image from 'next/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
+
+const ImageBasePath = '/Features/Smart-Folders'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -23,7 +27,7 @@ export default function PageClient() {
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
         <MotionImage
-          src="/Features/Smart-Folders/Smart-Folders-Group.png"
+          src={`${ImageBasePath}/Smart-Folders-Group.png`}
           width={407}
           height={174.69}
           alt="Smart-Folders-Group"
@@ -33,14 +37,14 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <Image
-          src="/Features/Smart-Folders/Smart-Folders-Folder.png"
+          src={getUrl('Smart-Folders-Folder.png')}
           width={120.52}
           height={110.77}
           alt="Smart-Folders-Folder"
           className="mt-[10.31px]"
         />
         <MotionImage
-          src="/Features/Smart-Folders/Smart-Folders-Settings.png"
+          src={getUrl('Smart-Folders-Settings.png')}
           width={508.73}
           height={253.65}
           alt="Smart-Folders-Settings"

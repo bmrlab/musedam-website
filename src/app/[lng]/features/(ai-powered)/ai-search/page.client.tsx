@@ -6,8 +6,11 @@ import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
+import usePublicUrl from '@/hooks/usePublicUrl'
+
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl('/Features/AI-Search')
 
   return (
     <FlexCenterContainer
@@ -24,7 +27,7 @@ export default function PageClient() {
       >
         <div className="flex w-full items-center justify-between pl-[53px] pr-[47.17px]">
           <MotionShadowImage
-            src="/Features/AI-Search/AI-Search-Tags.png"
+            src={getUrl('AI-Search-Tags.png')}
             width={229}
             height={31}
             alt="AI-Search-Tags"
@@ -34,7 +37,7 @@ export default function PageClient() {
             transition={{ duration: 0.8, ease: 'easeInOut' }}
           />
           <MotionImage
-            src="/Features/AI-Search/AI-Search-Input.png"
+            src={getUrl('AI-Search-Input.png')}
             width={222.83}
             height={35}
             alt="AI-Search-Input"

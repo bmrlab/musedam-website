@@ -6,9 +6,13 @@ import { motion } from 'framer-motion'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
+
+const ImageBasePath = '/Features/Inspiration-Collection'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -31,13 +35,13 @@ export default function PageClient() {
             transition={{ duration: 1, ease: 'easeInOut' }}
           >
             <Image
-              src="/Features/Inspiration-Collection/Inspiration-Collection-Midjourney.png"
+              src={`${ImageBasePath}/Inspiration-Collection-Midjourney.png`}
               width={49.79}
               height={49.79}
               alt="Inspiration-Collection-Midjourney"
             />
             <Image
-              src="/Features/Inspiration-Collection/Inspiration-Collection-Discord.png"
+              src={`${ImageBasePath}/Inspiration-Collection-Discord.png`}
               width={55.82}
               height={55.82}
               alt="Inspiration-Collection-Discord"
@@ -45,7 +49,7 @@ export default function PageClient() {
             />
           </motion.div>
           <MotionImage
-            src="/Features/Inspiration-Collection/Inspiration-Collection-Browsers.png"
+            src={`${ImageBasePath}/Inspiration-Collection-Browsers.png`}
             width={180.74}
             height={62.63}
             alt="Inspiration-Collection-Browsers"
@@ -57,7 +61,7 @@ export default function PageClient() {
           />
         </div>
         <MotionImage
-          src="/Features/Inspiration-Collection/Inspiration-Collection-URL.png"
+          src={`${ImageBasePath}/Inspiration-Collection-URL.png`}
           width={516.44}
           height={39}
           alt="Inspiration-Collection-URL"
@@ -68,7 +72,7 @@ export default function PageClient() {
         />
         <RelativeContainer className="mt-[20px]">
           <MotionShadowImage
-            src="/Features/Inspiration-Collection/Inspiration-Collection-Images.png"
+            src={`${ImageBasePath}/Inspiration-Collection-Images.png`}
             width={465.03}
             height={459.7}
             alt="Inspiration-Collection-Images"
@@ -78,7 +82,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(4)}
           />
           <MotionImage
-            src="/Features/Inspiration-Collection/Inspiration-Collection-Drag.png"
+            src={getUrl('Inspiration-Collection-Drag.png')}
             width={192.54}
             height={192.54}
             alt="Inspiration-Collection-Drag"

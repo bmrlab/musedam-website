@@ -4,11 +4,13 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 const ImageBasePath = '/Features/Team-Management'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -24,7 +26,7 @@ export default function PageClient() {
         onAnimationComplete={() => handleAnimationComplete(0)}
       >
         <MotionImage
-          src={`${ImageBasePath}/Team-Management1.png`}
+          src={getUrl('Team-Management1.png')}
           width={550}
           height={206}
           alt="Team-Management1"
@@ -34,7 +36,7 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <MotionImage
-          src={`${ImageBasePath}/Team-Management2.png`}
+          src={getUrl('Team-Management2.png')}
           width={550}
           height={312.9}
           alt="Team-Management2"

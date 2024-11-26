@@ -3,10 +3,13 @@
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import usePublicUrl from '@/hooks/usePublicUrl'
 import { motion } from 'framer-motion'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const ImageBasePath = '/Features/Auto-Tags/'
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -23,7 +26,7 @@ export default function PageClient() {
       >
         <RelativeContainer>
           <MotionImage
-            src="/Features/Auto-Tags/Auto-Tags-Images.png"
+            src={`${ImageBasePath}/Auto-Tags-Images.png`}
             width={456.8}
             height={471.61}
             alt="Auto-Tags-Images"
@@ -33,7 +36,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
           <MotionShadowImage
-            src="/Features/Auto-Tags/Auto-Tags-Example.png"
+            src={getUrl('/Auto-Tags-Example.png')}
             width={136.45}
             height={97.3}
             alt="Auto-Tags-Example"
@@ -43,7 +46,7 @@ export default function PageClient() {
             transition={{ duration: 0.8, ease: 'easeInOut' }}
           />
           <MotionImage
-            src="/Features/Auto-Tags/Auto-Tags-Group.png"
+            src={getUrl('/Auto-Tags-Group.png')}
             width={200}
             height={238}
             alt="Auto-Tags-Group"

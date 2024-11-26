@@ -4,9 +4,11 @@ import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { FlexCenterContainer, FlexColContainer } from '@/components/StyleWrapper/Container'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl('/Features/Content-Creation')
 
   return (
     <FlexCenterContainer
@@ -23,7 +25,7 @@ export default function PageClient() {
       >
         <FlexColContainer className="w-[525.62px] gap-[16.82px]">
           <MotionImage
-            src="/Features/Content-Creation/Content-Creation1.png"
+            src={getUrl('Content-Creation1.png')}
             width={474}
             height={223.3}
             alt="Content-Creation1"
@@ -33,7 +35,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
           <MotionImage
-            src="/Features/Content-Creation/Content-Creation2.png"
+            src={getUrl('Content-Creation2.png')}
             width={196.35}
             height={47.69}
             alt="Content-Creation2"
@@ -44,7 +46,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
           <MotionImage
-            src="/Features/Content-Creation/Content-Creation3.png"
+            src={getUrl('Content-Creation3.png')}
             width={474}
             height={297.88}
             alt="Content-Creation3"

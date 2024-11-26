@@ -7,8 +7,10 @@ import { useHighlightTranslation, useTranslation } from '@/app/i18n/client'
 
 import HighlightsDesktop from './desktop'
 import HighlightsMobile from './mobile'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export type Highlight = {
+  key: string
   title: string
   description: string[]
   list?: string[]
@@ -19,21 +21,25 @@ export type Highlight = {
 
 export default function Highlights() {
   const { t } = useHighlightTranslation()
+  const { getUrl } = usePublicUrl('/Highlights/Mobile')
   const data = useMemo<Highlight[]>(
     () => [
       {
+        key: 'collect',
         title: t('collect.title'),
         description: [t('collect.description.0'), t('collect.description.1')],
-        image: '/Highlights/Mobile/Collect.png',
+        image: getUrl('Collect.png'),
         bgColor: '#E8E4E4',
       },
       {
+        key: 'organize',
         title: t('organize.title'),
         description: [t('organize.description.0'), t('organize.description.1')],
-        image: '/Highlights/Mobile/Organize.png',
+        image: getUrl('Organize.png'),
         bgColor: '#FFFFFF',
       },
       {
+        key: 'collaborate',
         title: t('collaborate.title'),
         description: [t('collaborate.description.0')],
         list: [
@@ -42,10 +48,11 @@ export default function Highlights() {
           t('collaborate.list.2'),
           t('collaborate.list.3'),
         ],
-        image: '/Highlights/Mobile/Collaborate.png',
+        image: getUrl('Collaborate.png'),
         bgColor: '#D0CCE0',
       },
       {
+        key: 'ai-generate',
         title: t('ai-generate.title'),
         description: [t('ai-generate.description.0')],
         point: [
@@ -62,11 +69,11 @@ export default function Highlights() {
             description: t('ai-generate.point.2.description'),
           },
         ],
-        image: '/Highlights/Mobile/AI-Generate.png',
+        image: getUrl('AI-Generate.png'),
         bgColor: '#E8E4E4',
       },
     ],
-    [t],
+    [t, getUrl],
   )
 
   const isMobile = useIsMobile()

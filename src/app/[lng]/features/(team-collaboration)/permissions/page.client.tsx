@@ -4,12 +4,13 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 const ImageBasePath = '/Features/Permissions'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-
+  const { getUrl } = usePublicUrl(ImageBasePath)
   return (
     <FlexCenterContainer
       style={{
@@ -35,7 +36,7 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <MotionImage
-          src={`${ImageBasePath}/Permissions-Modal.png`}
+          src={getUrl('/Permissions-Modal.png')}
           width={566.95}
           height={377.43}
           alt="Permissions-Modal"

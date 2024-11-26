@@ -5,11 +5,13 @@ import { motion } from 'framer-motion'
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 const ImageBasePath = '/Features/Data-Statistics'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl(ImageBasePath)
 
   return (
     <FlexCenterContainer
@@ -26,7 +28,7 @@ export default function PageClient() {
       >
         <RelativeContainer className="ml-[50px] w-fit">
           <MotionImage
-            src={`${ImageBasePath}/Data-Statistics-List.png`}
+            src={getUrl('Data-Statistics-List.png')}
             width={467}
             height={579}
             alt="Data-Statistics-List"
@@ -36,7 +38,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
           <MotionShadowImage
-            src={`${ImageBasePath}/Data-Statistics-Card.png`}
+            src={getUrl('Data-Statistics-Card.png')}
             width={335.9}
             height={100.47}
             alt="Data-Statistics-Card"

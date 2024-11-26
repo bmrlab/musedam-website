@@ -14,17 +14,19 @@ import {
 
 import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 import { cn } from '@/utilities/cn'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
-export default function MobileBanner({className}: {className?: string}) {
+export default function MobileBanner({ className }: { className?: string }) {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
+  const { getUrl } = usePublicUrl('/Hero')
 
   return (
     <div className={cn("flex w-[750.74px] select-none justify-center gap-[14.08px]", className)}>
       <FlexColContainer>
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Kanban.png"
+          src={getUrl('MuseDAM-Kanban.png')}
           width={137.25}
           height={30.94}
           alt="MuseDAM-Kanban"
@@ -50,7 +52,7 @@ export default function MobileBanner({className}: {className?: string}) {
           />
           <div className="absolute bottom-[19.13px] right-[-38.58px] z-[1] flex flex-col gap-2">
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Automobile.png"
+              src={getUrl('Tag-Automobile.png')}
               width={65.08}
               height={17.87}
               alt="Tag-Automobile"
@@ -60,7 +62,7 @@ export default function MobileBanner({className}: {className?: string}) {
               onAnimationComplete={() => handleAnimationComplete(16)}
             />
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Raining.png"
+              src={getUrl('Tag-Raining.png')}
               width={51.08}
               height={17.87}
               alt="Tag-Raining"
@@ -70,7 +72,7 @@ export default function MobileBanner({className}: {className?: string}) {
               onAnimationComplete={() => handleAnimationComplete(17)}
             />
             <MotionShadowRoundedFullImage
-              src="/Hero/Tag-Photography.png"
+              src={getUrl('Tag-Photography.png')}
               width={69.08}
               height={17.87}
               alt="Tag-Photography"
@@ -151,7 +153,7 @@ export default function MobileBanner({className}: {className?: string}) {
             onAnimationComplete={() => handleAnimationComplete(6)}
           />
           <MotionImage
-            src="/Hero/MuseDAM-Comment.png"
+            src={getUrl('MuseDAM-Comment.png')}
             width={143.11}
             height={35.38}
             alt="MuseDAM-Comment"

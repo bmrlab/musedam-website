@@ -4,9 +4,11 @@ import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrappe
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
+  const { getUrl } = usePublicUrl('/Features/Encrypted-Sharing')
 
   return (
     <FlexCenterContainer
@@ -23,7 +25,7 @@ export default function PageClient() {
       >
         <RelativeContainer>
           <MotionImage
-            src="/Features/Encrypted-Sharing/Encrypted-Sharing-List.png"
+            src={getUrl('Encrypted-Sharing-List.png')}
             width={630}
             height={282.08}
             alt="Encrypted-Sharing-List"
@@ -33,7 +35,7 @@ export default function PageClient() {
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
           <MotionImage
-            src="/Features/Encrypted-Sharing/Encrypted-Sharing-Modal.png"
+            src={getUrl('Encrypted-Sharing-Modal.png')}
             width={336.5}
             height={313.67}
             alt="Encrypted-Sharing-Modal"
