@@ -36,7 +36,7 @@ export default async function SubscribeBlock({
           {t('subscribe.button')}
         </BlackButton>
       </div>
-      <p className="flex gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%]">
+      <div className="flex gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%]">
         {t('subscribe.join')}{' '}
         <div className="group flex items-center gap-2">
           <span className="underline-animation flex cursor-pointer  items-center gap-2 after:h-px">
@@ -44,7 +44,7 @@ export default async function SubscribeBlock({
           </span>
           <HoverTranslateXArrowRight className="size-3" />
         </div>
-      </p>
+      </div>
     </div>
   )
 }

@@ -1,10 +1,11 @@
 'use client'
 
-import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
 import { motion } from 'framer-motion'
-import { MotionImage } from '@/components/StyleWrapper/image'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 import usePublicUrl from '@/hooks/usePublicUrl'
+import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
@@ -39,8 +40,8 @@ export default function PageClient() {
           height={387.95}
           alt="Multiple-Viewing2"
           initial={{ x: '-10%', opacity: 0 }}
-          animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
-          transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
+          animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
+          transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}
         />
         <MotionImage
           src={getUrl('Multiple-Viewing3.png')}
@@ -48,8 +49,8 @@ export default function PageClient() {
           height={387.95}
           alt="Multiple-Viewing3"
           initial={{ x: '-10%', opacity: 0 }}
-          animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
-          transition={{ duration: 1, delay: 0.6, ease: 'easeInOut' }}
+          animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
+          transition={{ duration: 1, delay: 0.4, ease: 'easeInOut' }}
         />
       </motion.div>
     </FlexCenterContainer>
