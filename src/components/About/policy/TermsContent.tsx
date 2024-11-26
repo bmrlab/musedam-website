@@ -3,7 +3,7 @@
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import TermsMDXEN from './Abroad/terms-en.mdx'
 import TermsMDXZH from './Abroad/terms-zh.mdx'
-import TermsInChina from './InChina/terms-zh.mdx'
+import TermsInChina from './China/terms.mdx'
 import { useEffect, useState } from 'react'
 import useIsMobile from '@/hooks/useIsMobile'
 import './policy.scss'

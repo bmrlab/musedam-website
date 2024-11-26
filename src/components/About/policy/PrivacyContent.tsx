@@ -3,7 +3,7 @@
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import PrivacyMDXEN from './Abroad/privacy-en.mdx'
 import PrivacyMDXZH from './Abroad/privacy-zh.mdx'
-import PrivacyInChina from './InChina/privacy-zh.mdx'
+import PrivacyInChina from './China/privacy.mdx'
 import { useEffect, useState } from 'react'
 import useIsMobile from '@/hooks/useIsMobile'
 import './policy.scss'
