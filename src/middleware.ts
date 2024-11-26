@@ -15,6 +15,13 @@ export function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.indexOf('icon') > -1 || req.nextUrl.pathname.indexOf('chrome') > -1)
     return NextResponse.next()
   let lng: string | undefined | null
+  // 获取IP地址所属国家 - vercel
+  const country = req.headers.get('x-vercel-ip-country');
+  if (country === 'CN') {
+    lng = 'zh';
+  } else {
+    lng = 'en';
+  }
   if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
   if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
   if (!lng) lng = fallbackLng
