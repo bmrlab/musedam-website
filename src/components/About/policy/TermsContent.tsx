@@ -1,18 +1,20 @@
 'use client'
 
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
-import TermsMDXEN from './terms-en.mdx'
-import TermsMDXZH from './terms-zh.mdx'
+import TermsMDXEN from './Abroad/terms-en.mdx'
+import TermsMDXZH from './Abroad/terms-zh.mdx'
+import TermsInChina from './China/terms.mdx'
 import { useEffect, useState } from 'react'
 import useIsMobile from '@/hooks/useIsMobile'
 import './policy.scss'
-import { ssTranslation } from '@/app/i18n'
 import { useTranslation } from '@/app/i18n/client'
+import { useCountry } from '@/providers/Country'
 
 export default function PrivacyPageContent({ lng }: { lng: string }) {
     const isMobile = useIsMobile()
     const { t } = useTranslation('company')
     const [className, setClassName] = useState('')
+    const { isInChina } = useCountry()
 
     useEffect(() => {
         setClassName(isMobile ? 'policy_mobile' : 'policy')
@@ -28,7 +30,7 @@ export default function PrivacyPageContent({ lng }: { lng: string }) {
                     {t('terms.update-date')}
                 </div>
                 <div className={className}>
-                    {lng === 'zh' ? <TermsMDXZH /> : <TermsMDXEN />}
+                    {isInChina ? <TermsInChina /> : lng === 'zh' ? <TermsMDXZH /> : <TermsMDXEN />}
                 </div>
             </div>
         </FlexColContainer >

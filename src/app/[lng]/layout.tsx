@@ -15,6 +15,7 @@ import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
+import { cookies } from 'next/headers'
 
 const baskervville = Baskervville({
   weight: ['400'],
@@ -44,6 +45,10 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>
 }) {
   const { lng } = await params
+  // 从 Cookie 中获取国家信息
+  const cookieStore = cookies();
+  const country = (await cookieStore).get('country')?.value || 'US';
+
   return (
     <html
       lang={lng}
@@ -57,7 +62,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <Providers lng={lng}>
+        <Providers lng={lng} country={country}>
           <AdminBar />
           <Header />
           <div className="flex flex-col items-center justify-center pt-[70px]">{children}</div>
