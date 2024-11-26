@@ -17,6 +17,8 @@ export function middleware(req: NextRequest) {
   let lng: string | undefined | null
   // 获取IP地址所属国家 - vercel
   const country = req.headers.get('x-vercel-ip-country');
+  const response = NextResponse.next();
+  if (country) response.cookies.set('country', country);
   if (country === 'CN') {
     lng = 'zh';
   } else {

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Icons from '@/components/icon'
-import { useLanguage } from '@/providers/Language'
 import Image from 'next/image'
+import { useCountry } from '@/providers/Country'
 
 
 const socialItemAbroad = [
@@ -42,8 +42,8 @@ const socialItemInChina = [
 ]
 
 export default function SocialWidget() {
-  const { language } = useLanguage()
-  const socialItem = language === 'zh' ? socialItemInChina : socialItemAbroad
+  const { isInChina } = useCountry()
+  const socialItem = isInChina ? socialItemInChina : socialItemAbroad
   return (
     <div className="grid gap-4">
       {socialItem.map((item, index) => (
