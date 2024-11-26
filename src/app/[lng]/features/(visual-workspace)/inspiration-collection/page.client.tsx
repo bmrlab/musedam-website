@@ -1,10 +1,11 @@
 'use client'
 
-import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
-import useAnimationTrace from '@/hooks/useAnimationTrace'
-import { motion } from 'framer-motion'
-import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
+
+import useAnimationTrace from '@/hooks/useAnimationTrace'
+import { FlexCenterContainer, RelativeContainer } from '@/components/StyleWrapper/Container'
+import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
@@ -28,7 +29,6 @@ export default function PageClient() {
             initial={{ x: '-10%', opacity: 0 }}
             animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}
-            onAnimationComplete={() => handleAnimationComplete(1)}
           >
             <Image
               src="/Features/Inspiration-Collection/Inspiration-Collection-Midjourney.png"
@@ -52,7 +52,7 @@ export default function PageClient() {
             className="h-fit self-end"
             onAnimationComplete={() => handleAnimationComplete(1)}
             initial={{ x: '-10%', opacity: 0 }}
-            animate={isBuildFinished(1) ? { x: 0, opacity: 1 } : {}}
+            animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}
           />
         </div>
@@ -63,7 +63,7 @@ export default function PageClient() {
           alt="Inspiration-Collection-URL"
           className="mt-[29px]"
           initial={{ y: '-10%', opacity: 0 }}
-          animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
+          animate={isBuildFinished(0) ? { y: 0, opacity: 1 } : {}}
           transition={{ duration: 1, ease: 'easeInOut' }}
         />
         <RelativeContainer className="mt-[20px]">
@@ -73,7 +73,7 @@ export default function PageClient() {
             height={459.7}
             alt="Inspiration-Collection-Images"
             initial={{ y: '10%', opacity: 0 }}
-            animate={isBuildFinished(1) ? { y: 0, opacity: 1 } : {}}
+            animate={isBuildFinished(0) ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(4)}
           />
@@ -84,7 +84,7 @@ export default function PageClient() {
             alt="Inspiration-Collection-Drag"
             className="absolute right-[-57.51px] top-[144px]"
             initial={{ x: '10%', opacity: 0 }}
-            animate={isBuildFinished(4) ? { x: 0, opacity: 1 } : {}}
+            animate={isBuildFinished(0) ? { x: 0, opacity: 1 } : {}}
             transition={{ duration: 1, ease: 'easeInOut' }}
           />
         </RelativeContainer>

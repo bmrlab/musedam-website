@@ -33,6 +33,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/AI-Search.svg`,
       bgColor: '#BCCAE0',
       iconBgColor: '#fff',
+      href: '/features/ai-search',
     },
     [FeaturesEnum.AIParsing]: {
       title: t('ai-powered.ai-parsing.title'),
@@ -40,6 +41,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/AI-Parsing.svg`,
       bgColor: '#DEFF00',
       iconBgColor: '#333333',
+      href: '/features/ai-parsing',
     },
     [FeaturesEnum.ContentCreation]: {
       title: t('ai-powered.ai-content-creation.title'),
@@ -47,6 +49,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Content-Creation.svg`,
       bgColor: '#DDD2F3',
       iconBgColor: '#fff',
+      href: '/features/ai-content-creation',
     },
     [FeaturesEnum.AutoTags]: {
       title: t('ai-powered.auto-tags.title'),
@@ -54,6 +57,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Auto-Tags.svg`,
       bgColor: '#FFB5DB',
       iconBgColor: '#5F4754',
+      href: '/features/auto-tags',
     },
     [FeaturesEnum.MuseCopilot]: {
       title: t('ai-powered.muse-copilot.title'),
@@ -61,6 +65,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/MuseCopilot.svg`,
       bgColor: '#928DFF',
       iconBgColor: '#B2FFD8',
+      href: '/features/muse-copilot',
     },
     // Visual Workspace
     [FeaturesEnum.FileCollection]: {
@@ -69,6 +74,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Inspiration-Collection.svg`,
       bgColor: '#8BE3D9',
       iconBgColor: '#FFEFE8',
+      href: '/features/file-collection',
     },
     [FeaturesEnum.SmartFolders]: {
       title: t('visual-workspace.smart-folders.title'),
@@ -77,6 +83,7 @@ export const useFeaturesCards = () => {
       bgColor: '#3910EC',
       iconBgColor: '#D3E5FF',
       darkness: true,
+      href: '/features/smart-folders',
     },
     [FeaturesEnum.Formats]: {
       title: t('visual-workspace.file-formats.title'),
@@ -84,6 +91,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/70+Formats.svg`,
       bgColor: '#FDF1EC',
       iconBgColor: '#6A4730',
+      href: '/features/file-formats',
     },
     [FeaturesEnum.MultipleViewing]: {
       title: t('visual-workspace.multiple-viewing.title'),
@@ -91,6 +99,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Multiple-Viewing.svg`,
       bgColor: '#B4D9FD',
       iconBgColor: 'linear-gradient(180deg, #F3FDA0 0%, #F3F1FB 100%)',
+      href: '/features/multiple-viewing',
     },
     [FeaturesEnum.Sharing]: {
       title: t('visual-workspace.encrypted-sharing.title'),
@@ -99,6 +108,7 @@ export const useFeaturesCards = () => {
       bgColor: '#364665',
       iconBgColor: '#617396',
       darkness: true,
+      href: '/features/encrypted-sharing',
     },
     // Team Collaboration
     [FeaturesEnum.Team]: {
@@ -107,7 +117,8 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Team-Management.svg`,
       bgColor: '#0F1275',
       iconBgColor: '#CBE5FF',
-      darkness: true
+      darkness: true,
+      href: '/features/team-management',
     },
     [FeaturesEnum.Permissions]: {
       title: t('team-collaboration.permissions.title'),
@@ -115,6 +126,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Permissions.svg`,
       bgColor: '#FFA800',
       iconBgColor: '#FDFFCB',
+      href: '/features/permissions',
     },
     [FeaturesEnum.Feedback]: {
       title: t('team-collaboration.dynamic-feedback.title'),
@@ -122,6 +134,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Dynamic-Feedback.svg`,
       bgColor: '#E3E3DE',
       iconBgColor: '#E84614',
+      href: '/features/dynamic-feedback',
     },
     [FeaturesEnum.Versions]: {
       title: t('team-collaboration.versions.title'),
@@ -129,6 +142,7 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Versions.svg`,
       bgColor: '#FF8043',
       iconBgColor: '#292D29',
+      href: '/features/versions',
     },
     [FeaturesEnum.DataStatistics]: {
       title: t('team-collaboration.data-statistics.title'),
@@ -136,7 +150,8 @@ export const useFeaturesCards = () => {
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Data-Statistics.svg`,
       bgColor: '#5C45A7',
       iconBgColor: '#463B67',
-      darkness: true
+      darkness: true,
+      href: '/features/data-statistics',
     },
   }
 }

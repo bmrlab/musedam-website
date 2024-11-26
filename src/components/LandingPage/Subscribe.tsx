@@ -3,6 +3,7 @@ import { cn } from '@/utilities/cn'
 import { Input } from '@/components/ui/input'
 import { BlackButton } from '@/components/StyleWrapper/button'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
+import { HoverTranslateXArrowRight } from '@/components/StyleWrapper/icon'
 import { ssTranslation } from '@/app/i18n'
 
 export default async function SubscribeBlock({
@@ -35,12 +36,14 @@ export default async function SubscribeBlock({
           {t('subscribe.button')}
         </BlackButton>
       </div>
-      <p className="font-mono text-[14px] font-light leading-[28px] tracking-[1%]">
+      <p className="flex gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%]">
         {t('subscribe.join')}{' '}
-        <span className="underline-animation cursor-pointer after:h-px">
-          {t('subscribe.free-trial')}
-        </span>{' '}
-        →
+        <div className="group flex items-center gap-2">
+          <span className="underline-animation flex cursor-pointer  items-center gap-2 after:h-px">
+            {t('subscribe.free-trial')}
+          </span>
+          <HoverTranslateXArrowRight className="size-3" />
+        </div>
       </p>
     </div>
   )

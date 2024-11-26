@@ -228,6 +228,24 @@ const Icons = {
       <path d="M30.2223 5.76318L30.2212 30.722H5.26245" stroke="black" strokeWidth="2" />
     </svg>
   ),
+  arrowRightSolid: (props: IconProps) => (
+    <svg
+      width="17"
+      height="11"
+      viewBox="0 0 17 11"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M11.2835 10.5L16 5.5M16 5.5L11.2835 0.5M16 5.5H0"
+        stroke="#141414"
+        strokeWidth="1.3"
+        strokeMiterlimit="10"
+        strokeLinejoin="bevel"
+      />
+    </svg>
+  ),
 }
 
 export default Icons

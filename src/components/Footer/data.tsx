@@ -75,9 +75,9 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.file-formats'),
+            url: '/features/file-formats',
           },
         },
-        url: '/features/file-formats',
       },
       {
         group: t('group.features'),
@@ -111,9 +111,9 @@ export default function useFooterData() {
         item: {
           link: {
             label: t('features.permissions'),
+            url: '/features/permissions',
           },
         },
-        url: '/features/permissions',
       },
       {
         group: t('group.features'),
