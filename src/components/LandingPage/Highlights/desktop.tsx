@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { Controller, Mousewheel, Pagination } from 'swiper/modules'
+import { Controller } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
 import Toc from './toc'
@@ -56,7 +56,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       style={{
         background: data[swiperIndex].bgColor,
       }}
-      className="grid w-full grid-cols-9"
+      className="grid h-[calc(100vh-70px)] w-full grid-cols-9"
     >
       <div className="col-span-4 flex h-[765px] w-full items-center justify-center py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
@@ -109,14 +109,14 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                     </p>
                   ))}
                   {item.list && (
-                      <ul className="flex list-inside list-disc flex-col gap-3 text-[16px] font-light leading-[24px] text-[#141414]">
-                        {item.list?.map((list, index) => (
-                          <div key={index} className="flex items-center gap-1.5">
-                            <div className="size-1 rounded-full bg-black"></div>
-                            {list}
-                          </div>
-                        ))}
-                      </ul>
+                    <ul className="flex list-inside list-disc flex-col gap-3 text-[16px] font-light leading-[24px] text-[#141414]">
+                      {item.list?.map((list, index) => (
+                        <div key={index} className="flex items-center gap-1.5">
+                          <div className="size-1 rounded-full bg-black"></div>
+                          {list}
+                        </div>
+                      ))}
+                    </ul>
                   )}
                   {item.point && (
                     <div className="flex flex-col gap-3 pt-6">
@@ -160,31 +160,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
           controller={{ control: secondSwiper }}
           direction={'vertical'}
           spaceBetween={30}
-          mousewheel={{
-            enabled: true,
-            releaseOnEdges: true,
-            thresholdDelta: 8,
-            thresholdTime: 500,
-          }}
-          onSlideChange={(swiper) => {
-            setTimeout(function () {
-              // @ts-ignore
-              swiper.params.mousewheel.releaseOnEdges = false
-            }, 200)
-          }}
-          onReachBeginning={(swiper) => {
-            setTimeout(function () {
-              // @ts-ignore
-              swiper.params.mousewheel.releaseOnEdges = true
-            }, 500)
-          }}
-          onReachEnd={(swiper) => {
-            setTimeout(function () {
-              // @ts-ignore
-              swiper.params.mousewheel.releaseOnEdges = true
-            }, 500)
-          }}
-          modules={[Mousewheel, Pagination, Controller]}
+          modules={[Controller]}
           className="h-[540px] w-full"
         >
           <SwiperSlide
