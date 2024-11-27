@@ -16,7 +16,7 @@ export function useMenuAnimation(isOpen: boolean) {
       ? [
           [
             'nav',
-            { transform: 'translateX(0%)' },
+            { transform: 'translateY(0%)' },
             { ease: [0.08, 0.65, 0.53, 0.96], duration: 0.6 },
           ],
           [
@@ -31,7 +31,7 @@ export function useMenuAnimation(isOpen: boolean) {
             { transform: 'scale(0.5)', opacity: 0, filter: 'blur(10px)' },
             { delay: stagger(0.05, { from: 'last' }), at: '<' },
           ],
-          ['nav', { transform: 'translateX(100%)' }, { at: '-0.1' }],
+          ['nav', { transform: 'translateY(-100%)' }, { at: '-0.1' }],
         ]
 
     animate(menuAnimations as AnimationSequence)

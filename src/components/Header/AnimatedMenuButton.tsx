@@ -1,9 +1,11 @@
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 
-export default function AnimatedMenuButton() {
-  const [isOpen, setIsOpen] = useState(false)
+export type AnimatedMenuButtonProps = {
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
+}
 
+export default function AnimatedMenuButton({ isOpen, setIsOpen }: AnimatedMenuButtonProps) {
   const lineVariants = {
     closed: {
       rotate: 0,
@@ -25,7 +27,7 @@ export default function AnimatedMenuButton() {
         custom={1}
         variants={lineVariants}
         animate={isOpen ? 'open' : 'closed'}
-        className="h-0.5 w-full  bg-black"
+        className="h-0.5 w-full  bg-white"
         style={{ transformOrigin: 'center' }}
         transition={{ duration: 0.3 }}
       />
@@ -33,7 +35,7 @@ export default function AnimatedMenuButton() {
         custom={2}
         variants={lineVariants}
         animate={isOpen ? 'open' : 'closed'}
-        className="h-0.5 w-[11px] self-end bg-black"
+        className="h-0.5 w-1/2 self-end bg-white"
         style={{ transformOrigin: 'center' }}
         transition={{ duration: 0.3 }}
       />
