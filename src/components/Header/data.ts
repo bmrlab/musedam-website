@@ -15,8 +15,8 @@ import {
   Zap,
 } from 'lucide-react'
 
-import { useHeaderTranslation } from '@/app/i18n/client'
 import usePublicUrl from '@/hooks/usePublicUrl'
+import { useHeaderTranslation } from '@/app/i18n/client'
 
 export type FeatureItem = {
   icon: React.ComponentType<LucideProps>
@@ -25,7 +25,6 @@ export type FeatureItem = {
   heroImage?: string
   url?: string
 }
-
 
 export default function useHeaderData() {
   const { t } = useHeaderTranslation()

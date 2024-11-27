@@ -36,8 +36,6 @@ export default function Banner() {
   )
 }
 
-export const MotionImage = motion.create(Image)
-
 export const ShadowImage = twx(Image)`shadow-[0_1.17px_17.6px_2.35px_#00000014]`
 export const ShadowImageRounded = twx(ShadowImage)`rounded-[4.69px]`
 export const MotionShadowImageRounded = motion.create(ShadowImageRounded)

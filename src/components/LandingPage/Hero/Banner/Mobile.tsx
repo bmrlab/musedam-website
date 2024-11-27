@@ -1,7 +1,9 @@
+import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import usePublicUrl from '@/hooks/usePublicUrl'
 import {
   MotionShadowImageRoundedWithSkeleton,
   MotionVideoWithSkeleton,
@@ -11,10 +13,9 @@ import {
   FlexColContainer,
   RelativeContainer,
 } from '@/components/StyleWrapper/Container'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
-import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
-import { cn } from '@/utilities/cn'
-import usePublicUrl from '@/hooks/usePublicUrl'
+import { MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
 export default function MobileBanner({ className }: { className?: string }) {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
@@ -23,7 +24,7 @@ export default function MobileBanner({ className }: { className?: string }) {
   const { getUrl } = usePublicUrl('/Hero')
 
   return (
-    <div className={cn("flex w-[750.74px] select-none justify-center gap-[14.08px]", className)}>
+    <div className={cn('flex w-[750.74px] select-none justify-center gap-[14.08px]', className)}>
       <FlexColContainer>
         <MotionShadowImageRoundedWithSkeleton
           src={getUrl('MuseDAM-Kanban.png')}

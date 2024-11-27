@@ -47,7 +47,9 @@ export default async function RootLayout({
         <Providers lng={lng} country={country}>
           <AdminBar />
           <Header />
-          <div className="flex flex-col items-center justify-center pt-[70px]">{children}</div>
+          <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
+            {children}
+          </div>
           <Footer />
         </Providers>
         <TailwindIndicator />

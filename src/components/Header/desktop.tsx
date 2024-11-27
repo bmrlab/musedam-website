@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
-import { LucideProps, X } from 'lucide-react'
+import { LucideProps } from 'lucide-react'
 
-import useIsMobile from '@/hooks/useIsMobile'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -18,10 +17,8 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
-import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
-import Icons from '@/components/icon'
-import { MotionImage } from '@/components/StyleWrapper/image'
 import { useHeaderTranslation } from '@/app/i18n/client'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
 const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
@@ -34,9 +31,6 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
 
 export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
-  const isMobile = useIsMobile()
-  const [isOpen, setIsOpen] = useState(false)
-  const scope = useMenuAnimation(isOpen)
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const router = useRouter()
 
@@ -173,31 +167,6 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        {/*<NavigationMenuItem>*/}
-        {/*  <NavigationMenuTrigger>{t('nav-bar.customers')}</NavigationMenuTrigger>*/}
-        {/*  <NavigationMenuContent></NavigationMenuContent>*/}
-        {/*</NavigationMenuItem>*/}
-        {/*<NavigationMenuItem>*/}
-        {/*  <Link href="/public" legacyBehavior passHref>*/}
-        {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
-        {/*      {t('nav-bar.why-muse')}*/}
-        {/*    </NavigationMenuLink>*/}
-        {/*  </Link>*/}
-        {/*</NavigationMenuItem>*/}
-        {/*<NavigationMenuItem>*/}
-        {/*  <Link href="/public" legacyBehavior passHref>*/}
-        {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
-        {/*      {t('nav-bar.pricing')}*/}
-        {/*    </NavigationMenuLink>*/}
-        {/*  </Link>*/}
-        {/*</NavigationMenuItem>*/}
-        {/*<NavigationMenuItem>*/}
-        {/*  <Link href="/public" legacyBehavior passHref>*/}
-        {/*    <NavigationMenuLink className={navigationMenuTriggerStyle()}>*/}
-        {/*      {t('nav-bar.resources')}*/}
-        {/*    </NavigationMenuLink>*/}
-        {/*  </Link>*/}
-        {/*</NavigationMenuItem>*/}
         <NavigationMenuItem>
           <Link href="/about-us" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -213,44 +182,15 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
-      <div ref={scope} className="flex size-full flex-1 justify-end">
-        <motion.button
-          layout
-          className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
-          initial={{ width: '140px' }}
-          animate={{ width: isMobile ? '56px' : '140px' }}
+      <div className="flex size-full flex-1 justify-end">
+        <button
+          className="z-50 h-full w-[140px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
           onClick={() => {
-            isMobile && setIsOpen(!isOpen)
             router.push(MUSEDAM_LOGIN_URL)
           }}
         >
-          <AnimatePresence mode="wait">
-            {isOpen ? (
-              <motion.div
-                key="close"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                className="flex w-full justify-center md:hidden"
-              >
-                <X />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="open"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                className="flex w-full justify-center md:hidden"
-              >
-                <Icons.showMore />
-              </motion.div>
-            )}
-          </AnimatePresence>
           <p className="hidden md:block">{t('button.login')}</p>
-        </motion.button>
+        </button>
       </div>
     </NavigationMenu>
   )

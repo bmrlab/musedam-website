@@ -3,6 +3,7 @@ import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import usePublicUrl from '@/hooks/usePublicUrl'
 import {
   MotionImageWithSkeleton,
   MotionShadowImageRoundedWithSkeleton,
@@ -13,10 +14,9 @@ import {
   FlexColContainer,
   RelativeContainer,
 } from '@/components/StyleWrapper/Container'
+import { MotionImage } from '@/components/StyleWrapper/image'
 
-import { MotionImage, MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
-import { useLanguage } from '@/providers/Language'
-import usePublicUrl from '@/hooks/usePublicUrl'
+import { MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
 export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()

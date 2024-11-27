@@ -239,6 +239,13 @@ const Icons = {
       />
     </svg>
   ),
+  chevronDownIcon: (props: IconProps) => (
+    <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M6.00197 7.75009L1.91678 3.66675L1.12549 4.45879L6.00234 9.33342L10.8747 4.45876L10.0831 3.6671L6.00197 7.75009Z"
+        fill="white" />
+    </svg>
+  )
 }
 
 export default Icons
