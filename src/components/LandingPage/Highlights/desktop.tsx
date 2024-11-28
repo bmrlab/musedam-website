@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Controller } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -11,7 +11,7 @@ import 'swiper/css/controller'
 import 'swiper/css/pagination'
 
 import { twx } from '@/utilities/cn'
-import { motion } from 'framer-motion'
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 
 import {
   AIGenerateImageGroup,
@@ -28,6 +28,43 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  const { scrollYProgress } = useScroll({
+    target: carouselRef,
+    offset: ["start start", "end end"]
+  })
+
+  const scrollToProgress = useCallback(
+    (progress: number) => {
+      const element = carouselRef.current
+      if (!element) return
+
+      // 计算目标滚动位置
+      const maxScroll = element.scrollHeight - element.clientHeight
+      const targetScroll = 4000 * Math.min(Math.max(progress, 0), 1)
+
+      // 平滑滚动到目标位置
+      element.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth',
+      })
+    },
+    [carouselRef],
+  )
+
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    console.log('latest', latest)
+    if (latest >= 0.1 && latest < 0.3) {
+      firstSwiper?.slideTo(0)
+    } else if (latest >= 0.3 && latest < 0.5) {
+      firstSwiper?.slideTo(1)
+    } else if (latest >= 0.5 && latest < 0.7) {
+      firstSwiper?.slideTo(2)
+    } else if (latest >= 0.7 && latest < 0.9) {
+      firstSwiper?.slideTo(3)
+    }
+  })
 
   const [swiperIndex, setSwiperIndex] = useState(0)
 
@@ -53,17 +90,27 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
 
   return (
     <div
+      ref={carouselRef}
       style={{
         background: data[swiperIndex].bgColor,
       }}
-      className="grid h-[calc(100vh-70px)] w-full grid-cols-9"
+      className="grid h-[4000px] w-full grid-cols-9"
     >
-      <div className="col-span-4 flex h-[765px] w-full items-center justify-center py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
+      <SwiperContentContainer className="py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
           data={data.map((d) => d.title)}
           activeIndex={swiperIndex}
           setActiveIndex={(index) => {
             firstSwiper?.slideTo(index)
+            if (index === 0) {
+              scrollToProgress(0.1)
+            } else if (index === 1) {
+              scrollToProgress(0.3)
+            } else if (index === 2) {
+              scrollToProgress(0.5)
+            } else if (index === 3) {
+              scrollToProgress(0.7)
+            }
           }}
           className="w-fit self-start"
         />
@@ -149,8 +196,8 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
-      <div className="col-span-5 flex size-full items-center justify-center">
+      </SwiperContentContainer>
+      <SwiperContentContainer>
         <Swiper
           speed={0}
           cssMode={false}
@@ -204,9 +251,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             </ImageContainer>
           </SwiperSlide>
         </Swiper>
-      </div>
+      </SwiperContentContainer>
     </div>
   )
 }
 
 const ImageContainer = twx.div`w-full h-[480px] flex justify-center items-center`
+
+const SwiperContentContainer = twx.div`sticky top-[80px] col-span-4 flex h-screen w-full items-center justify-center`
