@@ -17,8 +17,8 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
-import { useHeaderTranslation } from '@/app/i18n/client'
 import { MotionImage } from '@/components/StyleWrapper/image'
+import { useHeaderTranslation } from '@/app/i18n/client'
 
 const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
@@ -135,9 +135,10 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         width={430}
                         height={430}
                         alt="hero image"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        exit={{ opacity: 0 }}
                       />
                     </div>
                   ) : (
@@ -156,8 +157,8 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                           y: 0,
                         }}
                         transition={{
-                          duration: 0.5,
-                          ease: [0.4, 0, 0.2, 1],
+                          duration: 1,
+                          ease: 'easeInOut',
                         }}
                       />
                     </div>

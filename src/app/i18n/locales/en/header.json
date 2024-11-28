@@ -39,5 +39,12 @@
   "nav-bar.resources": "Resources",
   "nav-bar.about-us": "About Us",
   "nav-bar.careers": "Careers",
-  "button.login": "Login"
+  "button.login": "Login",
+  "more-features.ai-content-creation.title": "Content Creation",
+  "more-features.inspiration-collection.title": "File Collection",
+  "more-features.inspiration-collection.description": "Web browser Extension",
+  "more-features.file-formats.title": "70+ Formats",
+  "more-features.encrypted-sharing.title": "Sharing",
+  "more-features.team-management.title": "Team",
+  "more-features.dynamic-feedback.title": "Feedback"
 }

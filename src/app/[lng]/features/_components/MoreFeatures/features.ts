@@ -44,7 +44,7 @@ export const useFeaturesCards = () => {
       href: '/features/ai-parsing',
     },
     [FeaturesEnum.ContentCreation]: {
-      title: t('ai-powered.ai-content-creation.title'),
+      title: t('more-features.ai-content-creation.title'),
       description: t('ai-powered.ai-content-creation.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Content-Creation.svg`,
       bgColor: '#DDD2F3',
@@ -69,8 +69,8 @@ export const useFeaturesCards = () => {
     },
     // Visual Workspace
     [FeaturesEnum.FileCollection]: {
-      title: t('visual-workspace.inspiration-collection.title'),
-      description: t('visual-workspace.inspiration-collection.description'),
+      title: t('more-features.inspiration-collection.title'),
+      description: t('more-features.inspiration-collection.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Inspiration-Collection.svg`,
       bgColor: '#8BE3D9',
       iconBgColor: '#FFEFE8',
@@ -86,7 +86,7 @@ export const useFeaturesCards = () => {
       href: '/features/smart-folders',
     },
     [FeaturesEnum.Formats]: {
-      title: t('visual-workspace.file-formats.title'),
+      title: t('more-features.file-formats.title'),
       description: t('visual-workspace.file-formats.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/70+Formats.svg`,
       bgColor: '#FDF1EC',
@@ -102,7 +102,7 @@ export const useFeaturesCards = () => {
       href: '/features/multiple-viewing',
     },
     [FeaturesEnum.Sharing]: {
-      title: t('visual-workspace.encrypted-sharing.title'),
+      title: t('more-features.encrypted-sharing.title'),
       description: t('visual-workspace.encrypted-sharing.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Encrypted-Sharing.svg`,
       bgColor: '#364665',
@@ -112,7 +112,7 @@ export const useFeaturesCards = () => {
     },
     // Team Collaboration
     [FeaturesEnum.Team]: {
-      title: t('team-collaboration.team-management.title'),
+      title: t('more-features.team-management.title'),
       description: t('team-collaboration.team-management.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Team-Management.svg`,
       bgColor: '#0F1275',
@@ -129,7 +129,7 @@ export const useFeaturesCards = () => {
       href: '/features/permissions',
     },
     [FeaturesEnum.Feedback]: {
-      title: t('team-collaboration.dynamic-feedback.title'),
+      title: t('more-features.dynamic-feedback.title'),
       description: t('team-collaboration.dynamic-feedback.description'),
       iconUrl: `${FEATURES_ICON_BASE_PATH}/Dynamic-Feedback.svg`,
       bgColor: '#E3E3DE',

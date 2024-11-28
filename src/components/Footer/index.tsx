@@ -46,6 +46,7 @@ export default function Footer() {
           <SocialWidget />
         </div>
       </div>
+      <div className="hidden lg:col-span-2 lg:block" />
       {Array.from(map.entries()).map(([group, item], i) => {
         return (
           <div key={i} className="flex select-none flex-col gap-4">

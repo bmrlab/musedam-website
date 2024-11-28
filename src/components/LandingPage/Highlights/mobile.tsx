@@ -43,21 +43,15 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
-            <div className="mt-6 flex flex-col gap-3 text-left font-mono">
+            <div className="mt-6 flex flex-col gap-3 text-left font-mono text-[14px]">
               {item.description.map((desc, index) => (
-                <p
-                  key={index}
-                  className={cn(
-                    'w-full text-[16px] font-light leading-[26px] text-[#141414]',
-                    index >= 1 && 'pt-3',
-                  )}
-                >
+                <p key={index} className={'w-full font-light leading-[26px] text-[#141414]'}>
                   {desc}
                 </p>
               ))}
               {item.list && (
-                <div className="pt-3">
-                  <ul className="list-inside list-disc text-[16px] font-light leading-[24px] text-[#141414]">
+                <div>
+                  <ul className="list-inside list-disc font-light leading-[24px] text-[#141414]">
                     {item.list?.map((list, index) => (
                       <div key={index} className="flex items-center gap-1.5">
                         <div className="size-1 rounded-full bg-black"></div>
@@ -68,15 +62,15 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
                 </div>
               )}
               {item.point && (
-                <div className="flex flex-col gap-3 pt-6">
+                <div className="flex flex-col gap-3">
                   {item.point?.map((point, index) => (
                     <div key={index} className="space-y-2">
                       {/* 圆点 */}
-                      <h3 className="flex items-center gap-1.5 text-[16px] font-medium leading-[24px] text-[#141414]">
+                      <h3 className="flex items-center gap-1.5 font-medium leading-[24px] text-[#141414]">
                         <div className="size-1 rounded-full bg-black"></div>
                         {point.title}
                       </h3>
-                      <p className="text-[16px] font-light leading-[24px] text-[#141414]">
+                      <p className="font-light leading-[24px] text-[#141414]">
                         {point.description}
                       </p>
                     </div>

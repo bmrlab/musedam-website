@@ -17,7 +17,7 @@ export default async function SubscribeBlock({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-[30px] bg-[rgb(237,237,237)] px-6 py-[60px] text-black md:px-0',
+        'flex flex-col items-center justify-center gap-[30px] bg-[rgb(237,237,237)] px-6 py-[60px] md:px-0',
         className,
       )}
     >
@@ -36,8 +36,8 @@ export default async function SubscribeBlock({
           {t('subscribe.button')}
         </BlackButton>
       </div>
-      <div className="flex gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%]">
-        {t('subscribe.join')}{' '}
+      <div className="flex max-w-[270px] flex-wrap justify-center gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%] md:max-w-none">
+        <span className="text-nowrap">{t('subscribe.join')} </span>
         <div className="group flex items-center gap-2">
           <span className="underline-animation flex cursor-pointer  items-center gap-2 after:h-px">
             {t('subscribe.free-trial')}

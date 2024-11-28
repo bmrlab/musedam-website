@@ -13,24 +13,15 @@ export default function Toc({
   className?: string
 }) {
   return (
-    <div className={cn('pl-[18px]', className)}>
+    <div className={cn('pl-4', className)}>
       <ul className="relative space-y-2">
         <div className="absolute left-[-18px] top-0 h-full w-0.5 bg-[#00000014]"></div>
         {data.map((item, index) => (
-          <motion.li
-            key={item}
-            className="relative cursor-pointer"
-            onClick={() => setActiveIndex(index)}
-            initial={false}
-            animate={{
-              color: index === activeIndex ? '#141414' : '#B8B8B8',
-            }}
-            transition={{ duration: 0.3 }}
-          >
+          <li key={item} className="relative cursor-pointer" onClick={() => setActiveIndex(index)}>
             <span
               className={cn(
                 'm-3 text-nowrap font-baskervville text-[20px] font-normal leading-[30px]',
-                index !== activeIndex && 'hover:opacity-60',
+                index !== activeIndex && 'opacity-30 hover:opacity-60',
               )}
             >
               {item}
@@ -45,7 +36,7 @@ export default function Toc({
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               />
             )}
-          </motion.li>
+          </li>
         ))}
       </ul>
     </div>
