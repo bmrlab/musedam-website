@@ -101,11 +101,15 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         >
                           <div
                             key={data.title}
-                            className="flex items-center gap-6 transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="flex items-center gap-6 text-[#141414] transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            <IconWrapper icon={data.icon} size={20} className="self-start" />
+                            <IconWrapper
+                              icon={data.icon}
+                              size={20}
+                              className="self-start text-[#141414]"
+                            />
                             <div className="flex flex-col gap-2">
-                              <div className="underline-animation text-[16px] font-medium leading-[16px] group-hover:after:w-full">
+                              <div className="underline-animation text-[16px] font-medium leading-[16px] text-[#141414] group-hover:after:w-full">
                                 {data.title}
                               </div>
                               <div className="text-[13px] leading-[19.5px] text-black/60">

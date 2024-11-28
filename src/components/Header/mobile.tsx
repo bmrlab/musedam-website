@@ -90,7 +90,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                 <AccordionContent key={`${item.title}-${i}`} onClick={onClose}>
                   <Link href={item.url ?? ''} legacyBehavior passHref>
                     <div key={item.title} className="flex items-center gap-4">
-                      <IconWrapper icon={item.icon} size={20} className="self-start" />
+                      <IconWrapper icon={item.icon} size={20} className="self-start text-white" />
                       <div className="flex flex-col gap-2">
                         <div className="text-[16px] font-medium leading-[16px] group-hover:after:w-full">
                           {item.title}
