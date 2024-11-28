@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -11,7 +11,8 @@ import 'swiper/css/controller'
 import 'swiper/css/pagination'
 
 import { twx } from '@/utilities/cn'
-import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
+import { useDebouncedCallback } from '@payloadcms/ui'
+import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
 
 import {
   AIGenerateImageGroup,
@@ -28,33 +29,54 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
   const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
+  const [swiperIndex, setSwiperIndex] = useState(0)
+  const [animateKey, setAnimateKey] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
   const { scrollYProgress } = useScroll({
     target: carouselRef,
-    offset: ["start start", "end end"]
+    offset: ['start start', 'end end'],
   })
 
-  const scrollToProgress = useCallback(
-    (progress: number) => {
+  const scrollToProgress = useCallback((progress: number) => {
+    requestAnimationFrame(() => {
       const element = carouselRef.current
       if (!element) return
 
-      // 计算目标滚动位置
-      const maxScroll = element.scrollHeight - element.clientHeight
+      const rect = element.getBoundingClientRect()
+
       const targetScroll = 4000 * Math.min(Math.max(progress, 0), 1)
-
-      // 平滑滚动到目标位置
-      element.scrollTo({
-        top: targetScroll,
-        behavior: 'smooth',
+      window.scrollTo({
+        top: rect.top + targetScroll + window.scrollY,
       })
-    },
-    [carouselRef],
-  )
+    })
+  }, [])
 
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    console.log('latest', latest)
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+
+    const handleScrollEnd = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        // 确保滚动结束后到达最终位置
+        if (scrollYProgress.get() >= 0.7) {
+          firstSwiper?.slideTo(3, 300)
+        }
+        if (scrollYProgress.get() <= 0.1) {
+          firstSwiper?.slideTo(0, 300)
+        }
+      }, 100)
+    }
+
+    document.addEventListener('scroll', handleScrollEnd, { passive: true })
+
+    return () => {
+      document.removeEventListener('scroll', handleScrollEnd)
+      clearTimeout(timer)
+    }
+  }, [firstSwiper, scrollYProgress])
+
+  const debouncedSlideChange = useDebouncedCallback((latest: number) => {
     if (latest >= 0.1 && latest < 0.3) {
       firstSwiper?.slideTo(0)
     } else if (latest >= 0.3 && latest < 0.5) {
@@ -64,11 +86,9 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
     } else if (latest >= 0.7 && latest < 0.9) {
       firstSwiper?.slideTo(3)
     }
-  })
+  }, 100)
 
-  const [swiperIndex, setSwiperIndex] = useState(0)
-
-  const [animateKey, setAnimateKey] = useState(0)
+  useMotionValueEvent(scrollYProgress, 'change', debouncedSlideChange)
 
   const handleAnimationComplete = useCallback(
     (i: number) => {
