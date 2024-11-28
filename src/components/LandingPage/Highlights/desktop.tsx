@@ -59,13 +59,13 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       clearTimeout(timer)
       timer = setTimeout(() => {
         // 确保滚动结束后到达最终位置
-        if (scrollYProgress.get() >= 0.7) {
-          firstSwiper?.slideTo(3, 300)
+        if (scrollYProgress.get() >= 0.9) {
+          firstSwiper?.slideTo(3)
         }
         if (scrollYProgress.get() <= 0.1) {
-          firstSwiper?.slideTo(0, 300)
+          firstSwiper?.slideTo(0)
         }
-      }, 100)
+      }, 50)
     }
 
     document.addEventListener('scroll', handleScrollEnd, { passive: true })
@@ -141,7 +141,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
           onSwiper={setSecondSwiper}
           controller={{ control: firstSwiper }}
           direction={'vertical'}
-          spaceBetween={30}
+          preventInteractionOnTransition={true}
           onSlideChange={(swiper) => {
             swiperIndex !== swiper.activeIndex && setSwiperIndex(swiper.activeIndex)
             handleSlideChange(swiper)
@@ -223,10 +223,10 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
           cssMode={false}
           draggable={false}
           allowTouchMove={false}
+          preventInteractionOnTransition={true}
           onSwiper={setFirstSwiper}
           controller={{ control: secondSwiper }}
           direction={'vertical'}
-          spaceBetween={30}
           modules={[Controller]}
           className="h-[540px] w-full"
         >
