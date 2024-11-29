@@ -60,7 +60,9 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
       </div>
       <NavigationMenuList className="hidden flex-1 md:flex">
         <NavigationMenuItem>
-          <NavigationMenuTrigger>{t('nav-bar.features')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="font-normal">
+            {t('nav-bar.features')}
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid h-full w-screen grid-cols-3">
               <ul className="col-span-2 grid w-full grid-cols-3 gap-x-[20px] gap-y-[15px] p-[60px]">
@@ -109,10 +111,10 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                               className="self-start text-[#141414]"
                             />
                             <div className="flex flex-col gap-2">
-                              <div className="underline-animation text-[16px] font-medium leading-[16px] text-[#141414] group-hover:after:w-full">
+                              <div className="underline-animation text-[16px] font-normal leading-[16px] text-[#141414] group-hover:after:w-full">
                                 {data.title}
                               </div>
-                              <div className="text-[13px] leading-[19.5px] text-black/60">
+                              <div className="text-[13px] font-light leading-[19.5px] text-black/60">
                                 {data.description}
                               </div>
                             </div>
@@ -174,14 +176,14 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
         </NavigationMenuItem>
         <NavigationMenuItem>
           <Link href="/about-us" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.about-us')}
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <Link href="/careers" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.careers')}
             </NavigationMenuLink>
           </Link>
@@ -189,7 +191,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
       </NavigationMenuList>
       <div className="flex size-full flex-1 justify-end">
         <button
-          className="z-50 h-full w-[140px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
+          className="z-50 h-full w-[140px] bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
           onClick={() => {
             router.push(MUSEDAM_LOGIN_URL)
           }}

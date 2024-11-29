@@ -56,7 +56,7 @@ export default function Footer() {
             <div className="flex flex-col gap-3">
               {item.map(({ link }, j) => (
                 <Link key={j} href={link.url ?? ''}>
-                  <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] after:h-[1.5px]">
+                  <span className="underline-animation font-mono text-[14px] font-light leading-[18.2px] text-[#141414] after:h-[1.5px]">
                     {link.label}
                   </span>
                 </Link>

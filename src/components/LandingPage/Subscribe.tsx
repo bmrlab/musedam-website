@@ -32,7 +32,7 @@ export default async function SubscribeBlock({
           placeholder={t('subscribe.email.placeholder')}
           className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 font-mono shadow-none placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
         />
-        <BlackButton className="h-[54px] rounded-[6px] px-[56.5px] font-mono text-[16px] leading-[20.8px] text-white md:h-[50px]">
+        <BlackButton className="h-[54px] rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]">
           {t('subscribe.button')}
         </BlackButton>
       </div>

@@ -39,7 +39,7 @@ export default function Hero({
       <FadeInUpContainer>
         <h1
           className={cn(
-            'mb-[16px] font-euclid text-[38px] font-normal leading-[43.47px] tracking-[1px] md:mb-6 md:text-[120px] md:leading-[132px]',
+            'mb-[16px] font-euclid text-[32px] font-normal leading-[41.6px] tracking-[1px] md:mb-6 md:text-[100px] md:leading-[110px]',
           )}
         >
           {title}
@@ -50,7 +50,7 @@ export default function Hero({
       </FadeInUpContainer>
       <FadeInUpContainer className="flex h-[58px] items-center justify-center md:justify-between">
         <Link href={buttonHref ?? MUSEDAM_LOGIN_URL}>
-          <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800">
+          <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono leading-5 text-white transition-colors hover:bg-gray-800">
             {buttonText}
           </BlackButton>
         </Link>
