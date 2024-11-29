@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Controller } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -44,48 +44,27 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
 
       const rect = element.getBoundingClientRect()
 
-      const targetScroll = 4000 * Math.min(Math.max(progress, 0), 1)
+      const targetScroll = 8000 * Math.min(Math.max(progress, 0), 1)
       window.scrollTo({
         top: rect.top + targetScroll + window.scrollY,
       })
     })
   }, [])
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-
-    const handleScrollEnd = () => {
-      clearTimeout(timer)
-      timer = setTimeout(() => {
-        // 确保滚动结束后到达最终位置
-        if (scrollYProgress.get() >= 0.9) {
-          firstSwiper?.slideTo(3)
-        }
-        if (scrollYProgress.get() <= 0.1) {
-          firstSwiper?.slideTo(0)
-        }
-      }, 50)
-    }
-
-    document.addEventListener('scroll', handleScrollEnd, { passive: true })
-
-    return () => {
-      document.removeEventListener('scroll', handleScrollEnd)
-      clearTimeout(timer)
-    }
-  }, [firstSwiper, scrollYProgress])
-
-  // const debouncedSlideChange = useDebouncedCallback((latest: number) => {
-  //   if (latest >= 0.1 && latest < 0.3) {
-  //     firstSwiper?.slideTo(0)
-  //   } else if (latest >= 0.3 && latest < 0.5) {
-  //     firstSwiper?.slideTo(1)
-  //   } else if (latest >= 0.5 && latest < 0.7) {
-  //     firstSwiper?.slideTo(2)
-  //   } else if (latest >= 0.7 && latest < 0.9) {
-  //     firstSwiper?.slideTo(3)
-  //   }
-  // }, 100)
+  const setActiveIndex = useCallback(
+    (index: number) => {
+      if (index === 0) {
+        scrollToProgress(0.1)
+      } else if (index === 1) {
+        scrollToProgress(0.3)
+      } else if (index === 2) {
+        scrollToProgress(0.5)
+      } else if (index === 3) {
+        scrollToProgress(0.7)
+      }
+    },
+    [scrollToProgress],
+  )
 
   useMotionValueEvent(scrollYProgress, 'change', (latest: number) => {
     if (latest >= 0.1 && latest < 0.3) {
@@ -129,18 +108,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
         <Toc
           data={data.map((d) => d.title)}
           activeIndex={swiperIndex}
-          setActiveIndex={(index) => {
-            firstSwiper?.slideTo(index)
-            if (index === 0) {
-              scrollToProgress(0.1)
-            } else if (index === 1) {
-              scrollToProgress(0.3)
-            } else if (index === 2) {
-              scrollToProgress(0.5)
-            } else if (index === 3) {
-              scrollToProgress(0.7)
-            }
-          }}
+          setActiveIndex={setActiveIndex}
           className="w-fit self-start"
         />
         <Swiper
