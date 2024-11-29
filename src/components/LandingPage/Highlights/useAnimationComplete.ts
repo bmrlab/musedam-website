@@ -5,7 +5,7 @@ export default function useAnimationComplete({
   onAnimationComplete,
 }: {
   totalAnimations: number
-  onAnimationComplete: () => void
+  onAnimationComplete?: () => void
 }) {
   const [animationCount, setAnimationCount] = useState(0)
 
@@ -16,7 +16,7 @@ export default function useAnimationComplete({
       return newCount
     })
     if (newCount === totalAnimations) {
-      onAnimationComplete()
+      onAnimationComplete?.()
     }
   }, [animationCount, onAnimationComplete, totalAnimations])
 

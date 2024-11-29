@@ -15,7 +15,7 @@ const AIGenerateImagePrefix = '/Highlights/AI-Generate'
 
 export type ImageGroupProps = HTMLAttributes<HTMLDivElement> & {
   isBuildFinished: (i: number) => boolean
-  onAnimationComplete: () => void
+  onAnimationComplete?: () => void
 }
 
 const MotionImage = motion.create(Image)
