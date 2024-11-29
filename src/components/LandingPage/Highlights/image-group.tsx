@@ -1,10 +1,12 @@
-import { cn, twx } from '@/utilities/cn'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
-import useIsMobile from '@/hooks/useIsMobile'
 import { HTMLAttributes } from 'react'
-import { useAnimationControl } from '@/components/LandingPage/Highlights/useAnimationControl'
+import Image from 'next/image'
+import { cn, twx } from '@/utilities/cn'
+import { motion } from 'framer-motion'
+
+import useIsMobile from '@/hooks/useIsMobile'
 import usePublicUrl from '@/hooks/usePublicUrl'
+import useAnimationComplete from '@/components/LandingPage/Highlights/useAnimationComplete'
+import { useAnimationControl } from '@/components/LandingPage/Highlights/useAnimationControl'
 
 const CollectImagePrefix = '/Highlights/Collect'
 const OrganizeImagePrefix = '/Highlights/Organize'
@@ -13,12 +15,29 @@ const AIGenerateImagePrefix = '/Highlights/AI-Generate'
 
 export type ImageGroupProps = HTMLAttributes<HTMLDivElement> & {
   isBuildFinished: (i: number) => boolean
+  onAnimationComplete: () => void
 }
 
-export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGroupProps) => {
+const MotionImage = motion.create(Image)
+
+const RelativeContainer = twx.div`relative`
+
+const ShadowImage = twx(Image)`shadow-[0_4px_30px_4px_#00000014]`
+const MotionShadowImage = motion.create(ShadowImage)
+
+export const CollectImageGroup = ({
+  isBuildFinished: _isBuildFinished,
+  onAnimationComplete,
+}: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(CollectImagePrefix)
+
+  const { handleAnimationComplete } = useAnimationComplete({
+    totalAnimations: 5,
+    onAnimationComplete,
+  })
+
   return (
     <RelativeContainer>
       <MotionShadowImage
@@ -31,6 +50,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, x: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.6 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionShadowImage
         src={getUrl('MuseDAM-Collect-Browser-Plugin.png')}
@@ -44,6 +64,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.8, delay: 0.5 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionShadowImage
         src={getUrl('MuseDAM-Collect-Discord-Bot.png')}
@@ -57,6 +78,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.8 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionImage
         src={getUrl('MuseDAM-Collect-Drag-and-Drop.png')}
@@ -70,6 +92,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, y: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionImage
         src={`${CollectImagePrefix}/MuseDAM-Collect-Video.png`}
@@ -83,6 +106,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, x: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 1 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionImage
         src={`${CollectImagePrefix}/MuseDAM-Collect-Image.png`}
@@ -96,6 +120,7 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
         initial={{ opacity: 0, x: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.8 }}
+        onAnimationComplete={handleAnimationComplete}
       />
     </RelativeContainer>
   )
@@ -104,11 +129,15 @@ export const CollectImageGroup = ({ isBuildFinished: _isBuildFinished }: ImageGr
 export const OrganizeImageGroup = ({
   className,
   isBuildFinished: _isBuildFinished,
+  onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(OrganizeImagePrefix)
-
+  const { handleAnimationComplete } = useAnimationComplete({
+    totalAnimations: 6,
+    onAnimationComplete,
+  })
   return (
     <div
       className={cn('flex h-full flex-col gap-[28.93px]', isMobile && 'gap-[15.55px]', className)}
@@ -122,6 +151,7 @@ export const OrganizeImageGroup = ({
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 1 }}
         className="rounded-full"
+        onAnimationComplete={handleAnimationComplete}
       />
       <RelativeContainer>
         <MotionShadowImage
@@ -134,6 +164,7 @@ export const OrganizeImageGroup = ({
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionShadowImage
           src={getUrl('MuseDAM-Organize-70-File-Formats.png')}
@@ -147,6 +178,7 @@ export const OrganizeImageGroup = ({
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionImage
           src={getUrl('MuseDAM-Organize-Find-Similar-Color-Images.png')}
@@ -160,6 +192,7 @@ export const OrganizeImageGroup = ({
           initial={{ opacity: 0, y: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionImage
           src={getUrl('MuseDAM-Organize-Preview.png')}
@@ -173,6 +206,7 @@ export const OrganizeImageGroup = ({
           initial={{ opacity: 0, y: '-10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.1 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionImage
           layout
@@ -187,6 +221,7 @@ export const OrganizeImageGroup = ({
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 1, delay: 0.1 }}
+          onAnimationComplete={handleAnimationComplete}
         />
       </RelativeContainer>
     </div>
@@ -196,10 +231,16 @@ export const OrganizeImageGroup = ({
 export const CollaborateImageGroup = ({
   className,
   isBuildFinished: _isBuildFinished,
+  onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(CollaborateImagePrefix)
+
+  const { handleAnimationComplete } = useAnimationComplete({
+    totalAnimations: 5,
+    onAnimationComplete,
+  })
   return (
     <div
       className={cn('flex h-full flex-col gap-[16.67px]', isMobile && 'gap-[8.96px]', className)}
@@ -213,6 +254,7 @@ export const CollaborateImageGroup = ({
         initial={{ opacity: 0, y: '-20px' }}
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 1, delay: 0.1 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <RelativeContainer>
         <MotionShadowImage
@@ -224,6 +266,7 @@ export const CollaborateImageGroup = ({
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionImage
           src={getUrl('MuseDAM-Collaborate-Collaboration.png')}
@@ -237,6 +280,7 @@ export const CollaborateImageGroup = ({
           initial={{ opacity: 0, x: '-10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.1 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionShadowImage
           src={getUrl('MuseDAM-Collaborate-Ranking.png')}
@@ -250,6 +294,7 @@ export const CollaborateImageGroup = ({
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.1 }}
+          onAnimationComplete={handleAnimationComplete}
         />
         <MotionShadowImage
           src={getUrl('MuseDAM-Collaborate-Share-Card.png')}
@@ -263,16 +308,26 @@ export const CollaborateImageGroup = ({
           initial={{ opacity: 0, y: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.2 }}
+          onAnimationComplete={handleAnimationComplete}
         />
       </RelativeContainer>
     </div>
   )
 }
 
-export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
+export const AIGenerateImageGroup = ({
+  isBuildFinished: _isBuildFinished,
+  onAnimationComplete,
+}: ImageGroupProps) => {
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(AIGenerateImagePrefix)
+
+  const { handleAnimationComplete } = useAnimationComplete({
+    totalAnimations: 4,
+    onAnimationComplete,
+  })
+
   return (
     <RelativeContainer>
       <MotionShadowImage
@@ -284,6 +339,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         initial={{ opacity: 0, x: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.6 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionImage
         src={getUrl('MuseDAM-AI-Generate-Search.png')}
@@ -297,6 +353,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 1, delay: 0.1 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionShadowImage
         src={getUrl('MuseDAM-AI-Generate-AI-Parsing.png')}
@@ -310,6 +367,7 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 1, delay: 0.1 }}
+        onAnimationComplete={handleAnimationComplete}
       />
       <MotionShadowImage
         src={getUrl('MuseDAM-AI-Generate-Copilot.png')}
@@ -323,14 +381,8 @@ export const AIGenerateImageGroup = ({ isBuildFinished: _isBuildFinished }) => {
         initial={{ opacity: 0, y: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 1, delay: 0.1 }}
+        onAnimationComplete={handleAnimationComplete}
       />
     </RelativeContainer>
   )
 }
-
-const MotionImage = motion.create(Image)
-
-const RelativeContainer = twx.div`relative`
-
-const ShadowImage = twx(Image)`shadow-[0_4px_30px_4px_#00000014]`
-const MotionShadowImage = motion.create(ShadowImage)

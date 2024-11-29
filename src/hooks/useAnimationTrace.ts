@@ -16,5 +16,7 @@ export default function useAnimationTrace({ initialStep = 0 } = {}) {
 
   const isBuildFinished = useCallback((i: number) => animationStep >= i, [animationStep])
 
-  return { handleAnimationComplete, isBuildFinished }
+  const initAnimationStep = useCallback(() => setAnimationStep(initialStep), [initialStep])
+
+  return { handleAnimationComplete, isBuildFinished, initAnimationStep }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller } from 'swiper/modules'
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react'
 
@@ -11,8 +11,9 @@ import 'swiper/css/controller'
 import 'swiper/css/pagination'
 
 import { twx } from '@/utilities/cn'
-import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 
+import useAnimationTrace from '@/hooks/useAnimationTrace'
 import {
   AIGenerateImageGroup,
   CollaborateImageGroup,
@@ -27,26 +28,25 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
   const { t } = useHighlightTranslation()
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
-  const [animationStep, setAnimationStep] = useState(0) // 用于跟踪当前动画步骤
+  const { handleAnimationComplete, isBuildFinished, initAnimationStep } = useAnimationTrace()
   const [swiperIndex, setSwiperIndex] = useState(0)
   const [animateKey, setAnimateKey] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
+  const [carouselInView, setCarouselInView] = useState(false)
 
-  const { scrollYProgress } = useScroll({
-    target: carouselRef,
-    offset: ['start start', 'end end'],
-  })
-
+  const [isAnimating, setIsAnimating] = useState(false)
   const scrollToProgress = useCallback((progress: number) => {
     requestAnimationFrame(() => {
       const element = carouselRef.current
       if (!element) return
 
       const rect = element.getBoundingClientRect()
+      console.log('rect', rect, window.scrollY)
 
       const targetScroll = 8000 * Math.min(Math.max(progress, 0), 1)
       window.scrollTo({
         top: rect.top + targetScroll + window.scrollY,
+        behavior: 'smooth',
       })
     })
   }, [])
@@ -65,8 +65,51 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
     },
     [scrollToProgress],
   )
+  useEffect(() => {
+    const preventScroll = (e: WheelEvent) => {
+      // 如果不在视口内，不阻止默认滚动
+      if (!carouselInView) return
 
-  useMotionValueEvent(scrollYProgress, 'change', (latest: number) => {
+      const direction = Math.sign(e.deltaY)
+
+      // 在不是动画状态下，如果在第一页向上滚动或者在最后一页向下滚动，不阻止默认滚动
+      if (
+        !isAnimating &&
+        ((direction > 0 && swiperIndex === 3) || (direction < 0 && swiperIndex === 0))
+      ) {
+        return
+      }
+
+      e.preventDefault()
+
+      if (!isAnimating) {
+        setActiveIndex(direction > 0 ? swiperIndex + 1 : swiperIndex - 1)
+      }
+    }
+    window.addEventListener('wheel', preventScroll, { passive: false })
+    return () => window.removeEventListener('wheel', preventScroll)
+  }, [carouselInView, isAnimating, setActiveIndex, swiperIndex])
+
+  const { scrollYProgress } = useScroll({
+    target: carouselRef,
+    offset: ['start start', 'end end'],
+  })
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 20,
+    mass: 1,
+  })
+
+  useMotionValueEvent(smoothProgress, 'change', (latest: number) => {
+    if (latest > 0 && latest < 1) {
+      if (!carouselInView) {
+        setCarouselInView(true)
+      }
+    } else {
+      setCarouselInView(false)
+    }
+
     if (latest >= 0.1 && latest < 0.3) {
       firstSwiper?.slideTo(0)
     } else if (latest >= 0.3 && latest < 0.5) {
@@ -78,22 +121,18 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
     }
   })
 
-  const handleAnimationComplete = useCallback(
-    (i: number) => {
-      if (animationStep < i) {
-        setAnimationStep(i)
-      }
-    },
-    [animationStep],
-  )
-  const isBuildFinished = useCallback((i: number) => animationStep >= i, [animationStep])
-
   const handleSlideChange = (swiper) => {
     if (swiperIndex !== swiper.activeIndex) {
+      onAnimationStart()
       setSwiperIndex(swiper.activeIndex)
       setAnimateKey((prev) => prev + 1) // 更新动画关键帧
     }
-    setAnimationStep(0)
+    initAnimationStep()
+  }
+
+  const onAnimationStart = () => setIsAnimating(true)
+  const onAnimationComplete = () => {
+    setIsAnimating(false)
   }
 
   return (
@@ -134,6 +173,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   initial={{ opacity: 0, x: '-10%' }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8 }}
+                  onAnimationStart={onAnimationStart}
                   onAnimationComplete={() => handleAnimationComplete(1)}
                 >
                   {item.title}
@@ -214,7 +254,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             className="items-center justify-center"
           >
             <ImageContainer>
-              <CollectImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <CollectImageGroup
+                key={animateKey}
+                isBuildFinished={isBuildFinished}
+                onAnimationComplete={onAnimationComplete}
+              />
             </ImageContainer>
           </SwiperSlide>
           <SwiperSlide
@@ -224,7 +268,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             className="items-center justify-center"
           >
             <ImageContainer>
-              <OrganizeImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <OrganizeImageGroup
+                key={animateKey}
+                isBuildFinished={isBuildFinished}
+                onAnimationComplete={onAnimationComplete}
+              />
             </ImageContainer>
           </SwiperSlide>
           <SwiperSlide
@@ -234,7 +282,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             className="items-center justify-center"
           >
             <ImageContainer>
-              <CollaborateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <CollaborateImageGroup
+                key={animateKey}
+                isBuildFinished={isBuildFinished}
+                onAnimationComplete={onAnimationComplete}
+              />
             </ImageContainer>
           </SwiperSlide>
           <SwiperSlide
@@ -244,7 +296,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             className="items-center justify-center"
           >
             <ImageContainer>
-              <AIGenerateImageGroup key={animateKey} isBuildFinished={isBuildFinished} />
+              <AIGenerateImageGroup
+                key={animateKey}
+                isBuildFinished={isBuildFinished}
+                onAnimationComplete={onAnimationComplete}
+              />
             </ImageContainer>
           </SwiperSlide>
         </Swiper>
