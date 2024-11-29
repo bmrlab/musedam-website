@@ -37,7 +37,7 @@ export default function JoinUs() {
                 </div>
                 <div className="w-full px-[30px] py-8 md:w-[48%] md:py-[60px]">
                     <div className="mx-auto w-full max-w-[450px] 2xl:max-w-[667px]">
-                        <h1 className="text-12 font-baskervville md:text-[68px]">
+                        <h1 className="text-12 font-euclid md:text-[68px]">
                             {t("about-us.join-us.title")}
                         </h1>
                         <h3 className="text-4 mb-10 font-mono font-light leading-6 text-[#141414]">

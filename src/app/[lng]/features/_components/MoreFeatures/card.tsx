@@ -32,7 +32,7 @@ export default function FeaturesCard({
       >
         <h1
           className={cn(
-            'text-nowrap font-baskervville text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black md:text-[32px] md:leading-[41.19px]',
+            'text-nowrap font-euclid text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black md:text-[32px] md:leading-[41.19px]',
             darkness && 'text-white',
           )}
         >
@@ -83,7 +83,7 @@ export function FeaturesRectIconCard({
     >
       <h1
         className={cn(
-          'text-nowrap font-baskervville text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black',
+          'text-nowrap font-euclid text-[30px] font-normal leading-[34.32px] tracking-[1px] text-black',
           darkness && 'text-white',
         )}
       >

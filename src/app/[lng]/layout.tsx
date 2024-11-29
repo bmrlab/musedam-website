@@ -14,8 +14,9 @@ import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { getCountry } from '@/app/[lng]/country'
-import { baskervville, plexMono } from '@/app/[lng]/font'
 import { languages } from '@/app/i18n/settings'
+
+import { euclidCircularA, plexMono } from './fonts'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -36,7 +37,7 @@ export default async function RootLayout({
       lang={lng}
       dir={dir(lng)}
       suppressHydrationWarning
-      className={`no-scrollbar ${baskervville.variable} ${plexMono.variable}`}
+      className={`no-scrollbar ${plexMono.variable} ${euclidCircularA.variable}`}
     >
       <head>
         <InitTheme />

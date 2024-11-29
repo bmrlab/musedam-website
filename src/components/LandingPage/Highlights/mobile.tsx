@@ -40,7 +40,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             })()}
           </ImageBgDiv>
           <div className="flex flex-col items-center justify-center px-[30px] pb-[60px] pt-10">
-            <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414]">
+            <h1 className="font-euclid text-[38px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
             <div className="mt-6 flex flex-col gap-3 text-left font-mono text-[14px]">

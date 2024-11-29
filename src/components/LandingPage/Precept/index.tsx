@@ -15,7 +15,7 @@ export default function Precept() {
   return (
     <div className="flex w-full flex-col items-center bg-black py-[60px] md:py-[80px]">
       <FadeInContainer className="grid justify-items-center gap-6 font-mono text-white">
-        <h1 className="font-baskervville text-[38px] font-normal leading-[43.47px] md:text-[48px] md:leading-[55px]">
+        <h1 className="font-euclid text-[38px] font-normal leading-[43.47px] md:text-[48px] md:leading-[55px]">
           {t('precept.title')}
         </h1>
         <span className="font-mono text-[14px] font-light leading-[24px] md:text-[16px]">

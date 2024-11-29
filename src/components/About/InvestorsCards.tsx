@@ -6,7 +6,7 @@ import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { useTranslation } from '@/app/i18n/client'
 import { useMemo } from 'react'
 
-const Title = twx.p`font-baskervville md:text-[80px] text-[54px] font-normal md:leading-[91.52px] leading-[48px] tracking-[1px] text-[#141414]`
+const Title = twx.p`font-euclid md:text-[80px] text-[54px] font-normal md:leading-[91.52px] leading-[48px] tracking-[1px] text-[#141414]`
 
 export default function InvestorsCards() {
   const { t } = useTranslation('company')

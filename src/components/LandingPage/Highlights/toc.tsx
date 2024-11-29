@@ -20,7 +20,7 @@ export default function Toc({
           <li key={item} className="relative cursor-pointer" onClick={() => setActiveIndex(index)}>
             <span
               className={cn(
-                'm-3 text-nowrap font-baskervville text-[20px] font-normal leading-[30px]',
+                'm-3 text-nowrap font-euclid text-[20px] font-normal leading-[30px]',
                 index !== activeIndex && 'opacity-30 hover:opacity-60',
               )}
             >

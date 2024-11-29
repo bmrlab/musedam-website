@@ -92,8 +92,8 @@ export default {
         warning: 'hsl(var(--warning))',
       },
       fontFamily: {
-        baskervville: ['var(--font-baskervville)'],
         mono: ['var(--font-plex_mono)'],
+        euclid: ['var(--font-euclid_circular_a)'],
       },
       keyframes: {
         'accordion-down': {

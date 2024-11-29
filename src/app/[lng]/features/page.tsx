@@ -15,7 +15,7 @@ export default function AllFeaturesPage() {
         <h2 className="font-mono text-[20px] font-light leading-[20px] text-black">
           What is MuseDAM?
         </h2>
-        <p className="mt-10 animate-fade-in-up font-baskervville text-[68px] font-normal leading-[77.79px] tracking-[1px] text-[#141414]">
+        <p className="mt-10 animate-fade-in-up font-euclid text-[68px] font-normal leading-[77.79px] tracking-[1px] text-[#141414]">
           MuseDAM: <HighlightText text="AI-driven" color="#FF8043" /> digital asset management tool
           for secure, efficient <HighlightText text="collaboration" color="#3910EC" /> in design and
           creative teams. <HighlightText text="Manage" color="#89DEFF" /> assets,{' '}

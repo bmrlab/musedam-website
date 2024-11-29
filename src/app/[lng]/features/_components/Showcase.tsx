@@ -22,7 +22,7 @@ export default function Showcase({
     <div className="grid w-full grid-cols-1 md:grid-cols-2">
       <div className="col-span-1">{children}</div>
       <FadeInUpContainer className="col-span-1 p-6 md:p-20">
-        <h2 className="font-baskervville text-[48px] font-normal leading-[54.91px] tracking-[1px]">
+        <h2 className="font-euclid text-[48px] font-normal leading-[54.91px] tracking-[1px]">
           {title}
         </h2>
         <p className="mt-6 font-mono text-[16px] font-light leading-6 tracking-[2%]">

@@ -10,7 +10,7 @@ export default async function Hero({ lng }: { lng: string }) {
   const { t } = await ssTranslation(lng, 'landing-page')
   return (
     <div className="flex flex-col items-center justify-center bg-white md:w-full md:px-[80px]">
-      <h1 className="mt-[59px] text-center font-baskervville text-[38px] font-normal leading-[43.47px] text-[#141414] md:text-[68px] md:leading-[77.79px]">
+      <h1 className="mt-[59px] text-center font-euclid text-[32px] font-normal leading-[41.6px] text-[#141414] md:text-[72px] md:leading-[90px]">
         <p>{t('hero.title')}</p>
         <p>{t('hero.subtitle')}</p>
       </h1>
@@ -21,11 +21,11 @@ export default async function Hero({ lng }: { lng: string }) {
       </Link>
       <Banner />
       <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
-        <h1 className="text-center font-baskervville text-[38px] font-normal leading-[43.37px] text-[#141414] md:text-left md:text-[68px] md:leading-[77.79px]">
+        <h1 className="text-center font-euclid text-[32px] font-normal leading-[41.6px] text-[#141414] md:text-left md:text-[54px] md:leading-[68.47px]">
           {t('hero.sub-banner.title')}
         </h1>
         <div className="flex max-w-[680px] flex-col items-center gap-6 px-6 md:items-start md:gap-10">
-          <p className="text-center font-mono text-[14px] font-light leading-6 text-[#141414] md:text-left md:text-[16px]">
+          <p className="text-center font-mono text-[14px] font-light leading-6 text-[#141414] md:text-left md:text-[16px] md:leading-[28px]">
             {t('hero.sub-banner.subtitle')}
           </p>
           <BlackButton className="rounded-[8px] px-[52.5px] py-[17px] font-mono text-[16px] leading-5 text-white md:px-[42.5px] md:py-[14px]">

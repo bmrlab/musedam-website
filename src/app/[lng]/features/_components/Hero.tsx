@@ -39,7 +39,7 @@ export default function Hero({
       <FadeInUpContainer>
         <h1
           className={cn(
-            'mb-[16px] font-baskervville text-[38px] font-normal leading-[43.47px] tracking-[1px] md:mb-6 md:text-[120px] md:leading-[132px]',
+            'mb-[16px] font-euclid text-[38px] font-normal leading-[43.47px] tracking-[1px] md:mb-6 md:text-[120px] md:leading-[132px]',
           )}
         >
           {title}

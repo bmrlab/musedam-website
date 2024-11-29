@@ -8,7 +8,7 @@ export default function TextDisplay({ title, description, points }: TextDisplayP
   return (
     <FadeInUpContainer>
       <FlexColContainer className="gap-6 px-6 py-12 md:p-[80px]">
-        <h1 className="text-start font-baskervville text-[48px] font-normal leading-[54.91px] tracking-[1px] text-[#141414]">
+        <h1 className="text-start font-euclid text-[48px] font-normal leading-[54.91px] tracking-[1px] text-[#141414]">
           {title}
         </h1>
         <p className="font-mono text-[16px] font-medium leading-[24px] tracking-[2%] text-black">

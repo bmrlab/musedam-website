@@ -169,7 +169,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
             <SwiperSlide key={index} className="flex h-full flex-col justify-center pl-[60px]">
               <div key={`${animateKey}-${index}`} className="flex h-full flex-col justify-center">
                 <motion.h1
-                  className="font-baskervville text-[48px] font-normal leading-[54.91px] text-[#141414]"
+                  className="font-euclid text-[48px] font-normal leading-[54.91px] text-[#141414]"
                   initial={{ opacity: 0, x: '-10%' }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8 }}

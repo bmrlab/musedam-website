@@ -56,7 +56,7 @@ export default function FeaturesBlock() {
           key={index}
           className={cn('gap-10 bg-[#F0F0F0] px-[80px] py-[100px]', isOdd(index) && 'bg-white')}
         >
-          <FlexColContainer className="w-[250px] shrink-0 gap-3 font-baskervville font-normal tracking-[1px] text-black">
+          <FlexColContainer className="w-[250px] shrink-0 gap-3 font-euclid font-normal tracking-[1px] text-black">
             <h1 className="text-[120px] leading-[137.29px]">{`0${index + 1}`}</h1>
             <p className="text-[40px] leading-[45.76px]">{block.category}</p>
           </FlexColContainer>

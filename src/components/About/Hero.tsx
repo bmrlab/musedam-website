@@ -105,7 +105,7 @@ export default function HomeHero() {
             }`}
         >
           <div className="max-w-[680px]">
-            <h1 className="font-baskervville text-[48px] font-medium leading-[54.91px] md:text-[80px] md:leading-[91.52px]">
+            <h1 className="font-euclid text-[48px] font-medium leading-[54.91px] md:text-[80px] md:leading-[91.52px]">
               {t("about-us.hero.head")}
             </h1>
             <Button className="mt-10 h-[48px] min-w-[180px] cursor-pointer rounded-full shadow shadow-transparent ring-2 ring-white transition-colors hover:bg-white hover:text-black hover:shadow-white md:mt-20"
