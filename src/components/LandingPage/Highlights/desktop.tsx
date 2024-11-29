@@ -11,7 +11,6 @@ import 'swiper/css/controller'
 import 'swiper/css/pagination'
 
 import { twx } from '@/utilities/cn'
-import { useDebouncedCallback } from '@payloadcms/ui'
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
 
 import {
@@ -76,7 +75,19 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
     }
   }, [firstSwiper, scrollYProgress])
 
-  const debouncedSlideChange = useDebouncedCallback((latest: number) => {
+  // const debouncedSlideChange = useDebouncedCallback((latest: number) => {
+  //   if (latest >= 0.1 && latest < 0.3) {
+  //     firstSwiper?.slideTo(0)
+  //   } else if (latest >= 0.3 && latest < 0.5) {
+  //     firstSwiper?.slideTo(1)
+  //   } else if (latest >= 0.5 && latest < 0.7) {
+  //     firstSwiper?.slideTo(2)
+  //   } else if (latest >= 0.7 && latest < 0.9) {
+  //     firstSwiper?.slideTo(3)
+  //   }
+  // }, 100)
+
+  useMotionValueEvent(scrollYProgress, 'change', (latest: number) => {
     if (latest >= 0.1 && latest < 0.3) {
       firstSwiper?.slideTo(0)
     } else if (latest >= 0.3 && latest < 0.5) {
@@ -86,9 +97,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
     } else if (latest >= 0.7 && latest < 0.9) {
       firstSwiper?.slideTo(3)
     }
-  }, 100)
-
-  useMotionValueEvent(scrollYProgress, 'change', debouncedSlideChange)
+  })
 
   const handleAnimationComplete = useCallback(
     (i: number) => {
@@ -114,7 +123,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       style={{
         background: data[swiperIndex].bgColor,
       }}
-      className="grid h-[4000px] w-full grid-cols-9"
+      className="grid h-[8000px] w-full grid-cols-9"
     >
       <SwiperContentContainer className="py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
