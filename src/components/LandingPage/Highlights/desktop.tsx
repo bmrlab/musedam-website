@@ -28,7 +28,9 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
   const { t } = useHighlightTranslation()
   const [firstSwiper, setFirstSwiper] = useState<SwiperClass>()
   const [secondSwiper, setSecondSwiper] = useState<SwiperClass>()
-  const { handleAnimationComplete, isBuildFinished, initAnimationStep } = useAnimationTrace()
+  const { handleAnimationComplete, isBuildFinished, initAnimationStep } = useAnimationTrace({
+    initialStep: 1,
+  })
   const [swiperIndex, setSwiperIndex] = useState(0)
   const [animateKey, setAnimateKey] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
@@ -223,7 +225,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   className="mt-12"
                   initial={{ opacity: 0, y: '100%' }}
                   animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.5 }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
                 >
                   <BlackButton className="rounded-[8px] px-[42.5px] py-[14px] font-mono text-white">
                     {t('highlight.button')}

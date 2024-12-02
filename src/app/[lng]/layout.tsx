@@ -37,7 +37,7 @@ export default async function RootLayout({
       lang={lng}
       dir={dir(lng)}
       suppressHydrationWarning
-      className={`no-scrollbar ${plexMono.variable} ${euclidCircularA.variable}`}
+      className={` ${plexMono.variable} ${euclidCircularA.variable}`}
     >
       <head>
         <InitTheme />
