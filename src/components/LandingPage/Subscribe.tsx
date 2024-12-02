@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
 
 import { Input } from '@/components/ui/input'
@@ -38,12 +40,14 @@ export default async function SubscribeBlock({
       </div>
       <div className="flex max-w-[270px] flex-wrap justify-center gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%] md:max-w-none">
         <span className="text-nowrap">{t('subscribe.join')} </span>
-        <div className="group flex items-center gap-2">
-          <span className="underline-animation flex cursor-pointer  items-center gap-2 after:h-px">
-            {t('subscribe.free-trial')}
-          </span>
-          <HoverTranslateXArrowRight className="size-3" />
-        </div>
+        <Link href={MUSEDAM_LOGIN_URL}>
+          <div className="group flex items-center gap-2">
+            <span className="underline-animation flex cursor-pointer  items-center gap-2">
+              {t('subscribe.free-trial')}
+            </span>
+            <HoverTranslateXArrowRight className="size-3" />
+          </div>
+        </Link>
       </div>
     </div>
   )

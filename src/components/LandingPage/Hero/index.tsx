@@ -10,7 +10,7 @@ export default async function Hero({ lng }: { lng: string }) {
   const { t } = await ssTranslation(lng, 'landing-page')
   return (
     <div className="flex flex-col items-center justify-center bg-white md:w-full md:px-[80px]">
-      <h1 className="mt-[59px] text-center font-euclid text-[32px] font-normal leading-[41.6px] text-[#141414] md:text-[72px] md:leading-[90px]">
+      <h1 className="mt-[59px] px-6 text-center font-euclid text-[32px] font-normal leading-[41.6px] text-[#141414] md:px-0 md:text-[72px] md:leading-[90px]">
         <p>{t('hero.title')}</p>
         <p>{t('hero.subtitle')}</p>
       </h1>
