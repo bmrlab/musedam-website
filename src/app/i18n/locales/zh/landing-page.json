@@ -8,5 +8,7 @@
   "subscribe.button": "立即订阅",
   "subscribe.join": "立即开始免费试用，开启您的探索之旅",
   "subscribe.free-trial": "",
-  "subscribe.email.placeholder": "请输入邮箱地址"
+  "subscribe.email.placeholder": "请输入邮箱地址",
+  "subscribe.email.invalid": "请输入正确的邮箱",
+  "subscribe.success": "订阅成功！"
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Form } from '@/payload-types'
 import { getClientSideURL } from '@/utilities/getURL'
@@ -8,23 +8,26 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { useToast } from '@/hooks/use-toast'
 import { FormControl, FormField, FormItem, FormMessage, Form as FormUI } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { BlackButton } from '@/components/StyleWrapper/button'
 import { useLandingPageTranslation } from '@/app/i18n/client'
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-})
-
 export default function SubscribeForm({ form }: { form: Form }) {
   const { id: formID, confirmationType, redirect } = form
 
   const { t } = useLandingPageTranslation()
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
-  const fields = form?.fields?.[0]
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email({ message: t('subscribe.email.invalid') }),
+      }),
+    [t],
+  )
 
   const formRe = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,9 +35,6 @@ export default function SubscribeForm({ form }: { form: Form }) {
       email: '',
     },
   })
-
-  console.log('form', form)
-  console.log('fields', fields)
 
   const onSubmit = useCallback(
     (data: z.infer<typeof formSchema>) => {
@@ -44,11 +44,6 @@ export default function SubscribeForm({ form }: { form: Form }) {
           field: name,
           value,
         }))
-
-        // delay loading indicator by 1s
-        loadingTimerID = setTimeout(() => {
-          setIsLoading(true)
-        }, 1000)
 
         try {
           const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
@@ -67,17 +62,12 @@ export default function SubscribeForm({ form }: { form: Form }) {
           clearTimeout(loadingTimerID)
 
           if (req.status >= 400) {
-            setIsLoading(false)
-
             formRe.setError('email', {
               type: 'manual',
               message: res.message,
             })
-
             return
           }
-
-          setIsLoading(false)
 
           if (confirmationType === 'redirect' && redirect) {
             const { url } = redirect
@@ -86,9 +76,11 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
             if (redirectUrl) router.push(redirectUrl)
           }
+          toast({
+            duration: 800,
+            description: t('subscribe.success'),
+          })
         } catch (err) {
-          console.warn(err)
-          setIsLoading(false)
           formRe.setError('email', {
             message: 'Something went wrong.',
           })
@@ -97,7 +89,7 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
       void submitForm()
     },
-    [router, formID, redirect, confirmationType],
+    [formID, confirmationType, redirect, toast, t, formRe, router],
   )
 
   return (
@@ -112,12 +104,11 @@ export default function SubscribeForm({ form }: { form: Form }) {
                 <FormControl>
                   <Input
                     {...field}
-                    type="email"
                     placeholder={t('subscribe.email.placeholder')}
                     className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 font-mono shadow-none placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="font-mono text-[13px] font-light leading-[16.9px] text-[#F9434D]" />
               </FormItem>
             )}
           />

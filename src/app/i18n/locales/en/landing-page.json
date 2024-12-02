@@ -8,5 +8,7 @@
   "subscribe.button": "Subscribe",
   "subscribe.join": "Kickstart your journey with our",
   "subscribe.email.placeholder": "Your work email",
-  "subscribe.free-trial": "free trial"
+  "subscribe.free-trial": "free trial",
+  "subscribe.email.invalid": "Please enter a valid email",
+  "subscribe.success": "Subscribed!"
 }

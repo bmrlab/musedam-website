@@ -11,6 +11,7 @@ import './globals.css'
 import { dir } from 'i18next'
 
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
+import { Toaster } from '@/components/ui/toaster'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { getCountry } from '@/app/[lng]/country'
@@ -54,6 +55,7 @@ export default async function RootLayout({
           <Footer />
         </Providers>
         <TailwindIndicator />
+        <Toaster />
       </body>
     </html>
   )
