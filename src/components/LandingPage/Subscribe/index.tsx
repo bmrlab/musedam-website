@@ -1,9 +1,11 @@
+import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
-import { Input } from '@/components/ui/input'
-import { BlackButton } from '@/components/StyleWrapper/button'
+import SubscribeForm from '@/components/LandingPage/Subscribe/form'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
 import { HoverTranslateXArrowRight } from '@/components/StyleWrapper/icon'
 import { ssTranslation } from '@/app/i18n'
@@ -16,6 +18,21 @@ export default async function SubscribeBlock({
   className?: string
 }) {
   const { t } = await ssTranslation(lng, 'landing-page')
+  const { isEnabled: draft } = await draftMode()
+  const payload = await getPayload({ config: configPromise })
+  const { docs } = await payload.find({
+    collection: 'forms',
+    draft,
+    limit: 1,
+    pagination: false,
+    overrideAccess: draft,
+    where: {
+      title: {
+        equals: 'Subscribe Form',
+      },
+    },
+  })
+
   return (
     <div
       className={cn(
@@ -28,16 +45,7 @@ export default async function SubscribeBlock({
           {t('subscribe.title')}
         </h2>
       </FadeInUpContainer>
-      <div className="flex w-full flex-col justify-center gap-2.5 md:flex-row">
-        <Input
-          type="email"
-          placeholder={t('subscribe.email.placeholder')}
-          className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 font-mono shadow-none placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
-        />
-        <BlackButton className="h-[54px] rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]">
-          {t('subscribe.button')}
-        </BlackButton>
-      </div>
+      <SubscribeForm form={docs?.[0]} />
       <div className="flex max-w-[270px] flex-wrap justify-center gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%] md:max-w-none">
         <span className="text-nowrap">{t('subscribe.join')} </span>
         <Link href={MUSEDAM_LOGIN_URL}>

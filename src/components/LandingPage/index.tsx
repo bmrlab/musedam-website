@@ -4,8 +4,7 @@ import { PropsWithLng } from '@/types/page'
 import Hero from '@/components/LandingPage/Hero'
 import Highlights from '@/components/LandingPage/Highlights'
 import Precept from '@/components/LandingPage/Precept'
-
-import SubscribeBlock from './Subscribe'
+import SubscribeBlock from '@/components/LandingPage/Subscribe'
 
 export default async function LandingPage({ params }: PropsWithLng) {
   const { lng } = await params

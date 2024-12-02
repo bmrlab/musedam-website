@@ -12,9 +12,9 @@ import { MetadataProps, PropsWithLng } from '@/types/page'
 import HomeHero from '@/components/About/Hero'
 import InvestorsCards from '@/components/About/InvestorsCards'
 import OurStory from '@/components/About/OurStory'
-import SubscribeBlock from '@/components/LandingPage/Subscribe'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
+import SubscribeBlock from '@/components/LandingPage/Subscribe'
 
 export default async function AboutUsPage({ params }: PropsWithLng) {
   const { lng } = await params
