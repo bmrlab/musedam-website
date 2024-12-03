@@ -15,9 +15,7 @@ import Icons from '@/components/icon'
 import { BlackButton } from '@/components/StyleWrapper/button'
 import { useLandingPageTranslation } from '@/app/i18n/client'
 
-export default function SubscribeForm({ form }: { form: Form }) {
-  const { id: formID, confirmationType, redirect } = form
-
+export default function SubscribeForm({ form }: { form?: Form }) {
   const { t } = useLandingPageTranslation()
   const router = useRouter()
   const { toast } = useToast()
@@ -40,6 +38,11 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
   const onSubmit = useCallback(
     (data: z.infer<typeof formSchema>) => {
+      if (!form) {
+        console.error('Form not found')
+        return
+      }
+      const { id: formID, confirmationType, redirect } = form
       setIsLoading(true)
       const submitForm = async () => {
         const dataToSend = Object.entries(data).map(([name, value]) => ({
@@ -91,12 +94,12 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
       void submitForm()
     },
-    [formID, confirmationType, redirect, toast, t, router],
+    [form, toast, t, router],
   )
 
   return (
     <FormUI {...formRe}>
-      <form id={formID.toString()} onSubmit={formRe.handleSubmit(onSubmit)} className="w-full">
+      <form onSubmit={formRe.handleSubmit(onSubmit)} className="w-full">
         <div className="flex w-full flex-col justify-center gap-2.5 md:flex-row">
           <FormField
             control={formRe.control}
