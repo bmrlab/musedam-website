@@ -15,6 +15,7 @@ export type HeroProps = {
   tagColor: string
   buttonText: string
   buttonHref?: string
+  lng: string
 }
 export default function Hero({
   tag,
@@ -23,6 +24,7 @@ export default function Hero({
   tagColor,
   buttonText,
   buttonHref,
+  lng
 }: HeroProps) {
   return (
     <DotContainer className="flex shrink-0 flex-col justify-center bg-white px-6 py-[60px] md:min-h-[calc(100vh-70px)] md:px-20 md:py-[100px]">
@@ -49,7 +51,7 @@ export default function Hero({
         </p>
       </FadeInUpContainer>
       <FadeInUpContainer className="flex h-[58px] items-center justify-center md:justify-between">
-        <Link href={buttonHref ?? MUSEDAM_LOGIN_URL}>
+        <Link href={buttonHref ?? MUSEDAM_LOGIN_URL + `?local=${lng}`}>
           <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono leading-5 text-white transition-colors hover:bg-gray-800">
             {buttonText}
           </BlackButton>

@@ -19,6 +19,8 @@ import {
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import { useHeaderTranslation } from '@/app/i18n/client'
+import { LocaleSwitch } from './LocalSwitch'
+import { useLanguage } from '@/providers/Language'
 
 const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
 
@@ -33,7 +35,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const router = useRouter()
-
+  const { language } = useLanguage()
   const { data: features } = useHeaderData()
 
   const categories = useMemo(() => features.map((f) => f.category), [features])
@@ -189,11 +191,12 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
-      <div className="flex size-full flex-1 justify-end">
+      <div className="flex size-full flex-1 items-center justify-end gap-3">
+        <LocaleSwitch />
         <button
           className="z-50 h-full w-[140px] bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
           onClick={() => {
-            router.push(MUSEDAM_LOGIN_URL)
+            router.push(MUSEDAM_LOGIN_URL + `?local=${language}`)
           }}
         >
           <p className="hidden md:block">{t('button.login')}</p>

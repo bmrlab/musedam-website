@@ -133,7 +133,7 @@ export default function HomeHero() {
               style={introFocusStyle}
             >
               <div className="mb-[30px] w-full lg:mb-0 lg:w-1/2 2xl:w-[45%]">
-                <h2 className="break-words text-[24px] font-medium leading-tight lg:text-[48px] lg:leading-[1.325] 2xl:text-[54px]">
+                <h2 className="font-euclid text-[48px] font-medium leading-[54.91px] md:text-[80px] md:leading-[91.52px]">
                   {t("about-us.hero.head")}
                 </h2>
               </div>
