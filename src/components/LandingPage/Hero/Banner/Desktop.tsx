@@ -42,6 +42,9 @@ export default function DesktopBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
+            playsInline
+            x5-video-player-type="h5-page"
+            x5-video-player-fullscreen="false"
             width={237}
             height={315}
             src="/Hero/MuseDAM-Asset-Car.mp4"
@@ -322,6 +325,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
+            playsInline
             width={237}
             height={315}
             src="/Hero/MuseDAM-Asset-Video.mp4"

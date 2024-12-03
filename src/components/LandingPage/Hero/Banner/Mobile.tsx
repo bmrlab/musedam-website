@@ -1,6 +1,6 @@
 import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
 import usePublicUrl from '@/hooks/usePublicUrl'
@@ -41,6 +41,9 @@ export default function MobileBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
+            playsInline
+            x5-video-player-type="h5-page"
+            x5-video-player-fullscreen="false"
             width={139}
             height={184.75}
             src="/Hero/MuseDAM-Asset-Car.mp4"
@@ -321,6 +324,9 @@ export default function MobileBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
+            playsInline
+            x5-video-player-type="h5-page"
+            x5-video-player-fullscreen="false"
             width={139}
             height={184.75}
             src="/Hero/MuseDAM-Asset-Video.mp4"

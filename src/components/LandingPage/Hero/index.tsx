@@ -34,7 +34,15 @@ export default async function Hero({ lng }: { lng: string }) {
         </div>
       </FadeInUpContainer>
       <div className="relative mt-12 h-[210px] w-full rounded-[6px] px-6 md:mt-[80px] md:h-[692px] md:px-10">
-        <video muted autoPlay loop className="size-full object-cover">
+        <video
+          muted
+          autoPlay
+          loop
+          playsInline
+          x5-video-player-type="h5-page"
+          x5-video-player-fullscreen="false"
+          className="size-full object-cover"
+        >
           <source src="/Introduction/Introduction.mp4" type="video/mp4" />
         </video>
       </div>
