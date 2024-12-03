@@ -24,7 +24,7 @@ export default function MobileBanner({ className }: { className?: string }) {
   const { getUrl } = usePublicUrl('/Hero')
 
   return (
-    <div className={cn('flex w-[750.74px] select-none justify-center gap-[14.08px]', className)}>
+    <div className={cn('flex w-[800px] select-none justify-center gap-[14.08px]', className)}>
       <FlexColContainer>
         <MotionShadowImageRoundedWithSkeleton
           src={getUrl('MuseDAM-Kanban.png')}
@@ -41,8 +41,8 @@ export default function MobileBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
-            width={139}
-            height={184.75}
+            width={160}
+            height={190}
             src="/Hero/MuseDAM-Asset-Car.mp4"
             type="video/mp4"
             className="mt-[11.73px] h-[184.75px] rounded-[8px] object-cover"
@@ -110,8 +110,8 @@ export default function MobileBanner({ className }: { className?: string }) {
       <FlexColContainer className="mt-[29.33px] gap-[14.66px]">
         <MotionShadowImageRoundedWithSkeleton
           src="/Hero/MuseDAM-Asset-Poster.png"
-          width={139}
-          height={161.29}
+          width={160}
+          height={184}
           alt="MuseDAM-Asset-Poster"
           initial={{ x: 20, opacity: 0 }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -121,8 +121,8 @@ export default function MobileBanner({ className }: { className?: string }) {
         <FlexColContainer className="gap-[11px]">
           <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Jewellery.png"
-            width={139}
-            height={102.64}
+            width={160}
+            height={120}
             alt="MuseDAM-Asset-Jewellery"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -131,7 +131,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-AI-Color.png"
-            width={139}
+            width={160}
             height={22.9}
             alt="MuseDAM-AI-Color"
             initial={{ y: 20, opacity: 0 }}
@@ -145,8 +145,8 @@ export default function MobileBanner({ className }: { className?: string }) {
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-3D.png"
-            width={139}
-            height={173.02}
+            width={160}
+            height={198}
             alt="MuseDAM-Asset-3D"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -155,8 +155,8 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <MotionImage
             src={getUrl('MuseDAM-Comment.png')}
-            width={143.11}
-            height={35.38}
+            width={160}
+            height={60}
             alt="MuseDAM-Comment"
             className="absolute bottom-[42px] left-[95.6px] z-[1] drop-shadow"
             initial={{ x: '10%', opacity: 0 }}
@@ -168,7 +168,7 @@ export default function MobileBanner({ className }: { className?: string }) {
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Photography.png"
-            width={139}
+            width={160}
             height={167.16}
             alt="MuseDAM-Asset-Photography"
             initial={{ x: 20, opacity: 0 }}
@@ -280,8 +280,8 @@ export default function MobileBanner({ className }: { className?: string }) {
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
             src="/Hero/MuseDAM-Asset-Cat.png"
-            width={139}
-            height={161.29}
+            width={160}
+            height={184}
             alt="MuseDAM-Asset-Cat"
             initial={{ x: -20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -321,7 +321,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             loop
             autoPlay
             muted
-            width={139}
+            width={160}
             height={184.75}
             src="/Hero/MuseDAM-Asset-Video.mp4"
             type="video/mp4"
@@ -333,7 +333,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <MotionShadowImageRounded
             src="/Hero/MuseDAM-Asset-VideoPlayer.png"
-            width={139}
+            width={160}
             height={23.46}
             alt="MuseDAM-Asset-VideoPlayer"
             className="mt-[9px]"
