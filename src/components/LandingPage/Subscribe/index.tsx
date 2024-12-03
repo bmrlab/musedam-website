@@ -49,7 +49,7 @@ export default async function SubscribeBlock({
       <div className="flex max-w-[270px] flex-wrap justify-center gap-2 font-mono text-[14px] font-light leading-[28px] tracking-[1%] md:max-w-none">
         <span className="text-nowrap">{t('subscribe.join')} </span>
         <Link href={MUSEDAM_LOGIN_URL}>
-          <div className="group flex items-center gap-2">
+          <div className="group flex h-full items-center gap-2">
             <span className="underline-animation flex cursor-pointer  items-center gap-2">
               {t('subscribe.free-trial')}
             </span>

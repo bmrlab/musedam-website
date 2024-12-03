@@ -94,7 +94,7 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
   return (
     <FormUI {...formRe}>
-      <form id={formID.toString()} onSubmit={formRe.handleSubmit(onSubmit)}>
+      <form id={formID.toString()} onSubmit={formRe.handleSubmit(onSubmit)} className="w-full">
         <div className="flex w-full flex-col justify-center gap-2.5 md:flex-row">
           <FormField
             control={formRe.control}
