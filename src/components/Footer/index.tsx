@@ -10,10 +10,14 @@ import LngSelector from '@/components/Footer/LngSelector'
 import FooterMobile from '@/components/Footer/mobile'
 import SocialWidget from '@/components/Footer/Social'
 import { useFooterTranslation } from '@/app/i18n/client'
+import { useCountry } from '@/providers/Country'
+import { useLanguage } from '@/providers/Language'
 
 export default function Footer() {
   const { t } = useFooterTranslation()
   const isMobile = useIsMobile()
+  const { language } = useLanguage()
+  const { isInChina } = useCountry()
 
   const { data } = useFooterData()
   const map = useMemo(() => {
@@ -37,7 +41,7 @@ export default function Footer() {
 
   return isMobile ? (
     <FooterMobile />
-  ) : (
+  ) : (<>
     <footer className="grid grid-cols-1 justify-items-start bg-white px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       <div className="flex h-full w-[101px] flex-col gap-6">
         <Image src="/assets/logo.svg" width={48} height={48} alt="muse logo" />
@@ -66,5 +70,20 @@ export default function Footer() {
         )
       })}
     </footer>
+    {isInChina && language === 'zh' && <div className=" flex w-full items-center justify-center space-x-4 border-t px-[10px] py-[24px] text-[12px] font-light text-[#141414]">
+      <span>{t('tezignShanghaiInfo')}</span>
+      <a href="http://beian.miit.gov.cn" style={{
+        marginRight: '4px'
+      }}>{t('shanghaiIcpNo1502142')}</a>
+      <span>
+        <a className='flex items-center' target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010164">
+          <Image className="mr-[4px]" src='/police.png' alt='police' width={16} height={16} />
+          <span>{t('shanghaiPublicNetwork')}</span>
+        </a>
+      </span>
+      <span>{t('networkInformationAc')}</span>
+      <span>{t('networkInformationAc2')}</span>
+    </div>}</>
   )
+
 }

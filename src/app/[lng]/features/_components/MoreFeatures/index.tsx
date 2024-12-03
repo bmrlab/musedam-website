@@ -1,3 +1,11 @@
+/*
+ * @Author: fuxuewei fuxuewei@tezign.com
+ * @Date: 2024-12-03 10:27:16
+ * @LastEditors: fuxuewei fuxuewei@tezign.com
+ * @LastEditTime: 2024-12-03 17:51:01
+ * @FilePath: /musedam-website/src/app/[lng]/features/_components/MoreFeatures/index.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 'use client'
 
 import Link from 'next/link'
@@ -27,7 +35,7 @@ export default function MoreFeatures({ titleI18nKey, features }: MoreFeaturesPro
           href="/features"
           className="group flex items-center gap-2 font-mono text-[14px] leading-[28px] tracking-[2%] text-black"
         >
-          <span className="underline">{t('more-features.view-all')}</span>
+          <span className="underline-animation">{t('more-features.view-all')}</span>
           <HoverTranslateXArrowRight />
         </Link>
       </div>
