@@ -23,6 +23,8 @@ export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
   params,

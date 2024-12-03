@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PostHero } from '@/heros/PostHero'
-import type { Post } from '@/payload-types'
 import { generateMeta } from '@/utilities/generateMeta'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -13,21 +12,21 @@ import RichText from '@/components/RichText'
 
 import PageClient from './page.client'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-  })
-
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
-
-  return params
-}
+// export async function generateStaticParams() {
+//   const payload = await getPayload({ config: configPromise })
+//   const posts = await payload.find({
+//     collection: 'posts',
+//     draft: false,
+//     limit: 1000,
+//     overrideAccess: false,
+//   })
+//
+//   const params = posts.docs.map(({ slug }) => {
+//     return { slug }
+//   })
+//
+//   return params
+// }
 
 type Args = {
   params: Promise<{
