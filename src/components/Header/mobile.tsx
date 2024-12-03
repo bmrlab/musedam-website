@@ -18,6 +18,8 @@ import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
 import { IconWrapper } from '@/components/icon'
 import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import { useHeaderTranslation } from '@/app/i18n/client'
+import { LocaleSwitch } from './LocalSwitch'
+import { useLanguage } from '@/providers/Language'
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
   const isMobile = useIsMobile()
@@ -37,7 +39,8 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
           </div>
         </Link>
       </div>
-      <div className="flex size-full flex-1 justify-end">
+      <div className="flex size-full flex-1 items-center justify-end gap-3">
+        <LocaleSwitch />
         <motion.div
           layout
           className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
@@ -57,6 +60,7 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
 function MobileMenu({ onClose }: { onClose: () => void }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
+  const { language } = useLanguage()
   return (
     <nav
       style={{
@@ -122,7 +126,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         </AccordionItemWrapper>
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
-        <Link href={MUSEDAM_LOGIN_URL}>
+        <Link href={MUSEDAM_LOGIN_URL + `?local=${language}`}>
           <button className="size-full rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
             {t('button.login')}
           </button>

@@ -29,7 +29,8 @@ export default async function fetchData({
       tagColor,
       title: t('hero.title'),
       description: t('hero.description'),
-      buttonText: tFeatures('button.start')
+      buttonText: tFeatures('button.start'),
+      lng,
     },
     showcaseData: {
       title: t('showcase.title'),

@@ -1,9 +1,10 @@
 import { Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCountry } from '@/providers/Country'
+// import { useCountry } from '@/providers/Country'
 
 import Icons from '@/components/icon'
+import { useLanguage } from '@/providers/Language'
 
 const socialItemAbroad = [
   {
@@ -42,8 +43,9 @@ const socialItemInChina = [
 ]
 
 export default function SocialWidget() {
-  const { isInChina } = useCountry()
-  const socialItem = isInChina ? socialItemInChina : socialItemAbroad
+  // const { isInChina } = useCountry()
+  const { language } = useLanguage()
+  const socialItem = language === 'zh' ? socialItemInChina : socialItemAbroad
   return (
     <div className="grid gap-4">
       {socialItem.map((item, index) => (
