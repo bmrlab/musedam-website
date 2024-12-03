@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Form } from '@/payload-types'
 import { getClientSideURL } from '@/utilities/getURL'
@@ -11,6 +11,7 @@ import { z } from 'zod'
 import { useToast } from '@/hooks/use-toast'
 import { FormControl, FormField, FormItem, FormMessage, Form as FormUI } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import Icons from '@/components/icon'
 import { BlackButton } from '@/components/StyleWrapper/button'
 import { useLandingPageTranslation } from '@/app/i18n/client'
 
@@ -20,6 +21,7 @@ export default function SubscribeForm({ form }: { form: Form }) {
   const { t } = useLandingPageTranslation()
   const router = useRouter()
   const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
 
   const formSchema = useMemo(
     () =>
@@ -38,7 +40,7 @@ export default function SubscribeForm({ form }: { form: Form }) {
 
   const onSubmit = useCallback(
     (data: z.infer<typeof formSchema>) => {
-      let loadingTimerID: ReturnType<typeof setTimeout>
+      setIsLoading(true)
       const submitForm = async () => {
         const dataToSend = Object.entries(data).map(([name, value]) => ({
           field: name,
@@ -57,16 +59,13 @@ export default function SubscribeForm({ form }: { form: Form }) {
             method: 'POST',
           })
 
-          const res = await req.json()
-
-          clearTimeout(loadingTimerID)
+          setIsLoading(false)
 
           if (req.status >= 400) {
-            formRe.setError('email', {
-              type: 'manual',
-              message: res.message,
+            toast({
+              duration: 800,
+              description: t('subscribe.error'),
             })
-            return
           }
 
           if (confirmationType === 'redirect' && redirect) {
@@ -81,15 +80,18 @@ export default function SubscribeForm({ form }: { form: Form }) {
             description: t('subscribe.success'),
           })
         } catch (err) {
-          formRe.setError('email', {
-            message: 'Something went wrong.',
+          setIsLoading(false)
+          console.error(err)
+          toast({
+            duration: 800,
+            description: t('subscribe.error'),
           })
         }
       }
 
       void submitForm()
     },
-    [formID, confirmationType, redirect, toast, t, formRe, router],
+    [formID, confirmationType, redirect, toast, t, router],
   )
 
   return (
@@ -114,8 +116,9 @@ export default function SubscribeForm({ form }: { form: Form }) {
           />
           <BlackButton
             type="submit"
-            className="h-[54px] rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]"
+            className="flex h-[54px] items-center justify-center gap-2 rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]"
           >
+            {isLoading && <Icons.quarterCircle className="animate-spin" />}
             {t('subscribe.button')}
           </BlackButton>
         </div>

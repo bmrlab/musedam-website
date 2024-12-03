@@ -10,5 +10,6 @@
   "subscribe.free-trial": "",
   "subscribe.email.placeholder": "请输入邮箱地址",
   "subscribe.email.invalid": "请输入正确的邮箱",
-  "subscribe.success": "订阅成功！"
+  "subscribe.success": "订阅成功！",
+  "subscribe.error": "订阅失败，请稍后再试"
 }

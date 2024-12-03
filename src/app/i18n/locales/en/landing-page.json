@@ -10,5 +10,6 @@
   "subscribe.email.placeholder": "Your work email",
   "subscribe.free-trial": "free trial",
   "subscribe.email.invalid": "Please enter a valid email",
-  "subscribe.success": "Subscribed!"
+  "subscribe.success": "Subscribed!",
+  "subscribe.error": "Subscribe failed, please try again later"
 }
