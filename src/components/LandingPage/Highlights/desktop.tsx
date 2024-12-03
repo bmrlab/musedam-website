@@ -43,7 +43,6 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       if (!element) return
 
       const rect = element.getBoundingClientRect()
-      console.log('rect', rect, window.scrollY)
 
       const targetScroll = 8000 * Math.min(Math.max(progress, 0), 1)
       window.scrollTo({
