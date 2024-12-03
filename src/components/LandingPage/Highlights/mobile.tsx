@@ -1,4 +1,4 @@
-import { cn, twx } from '@/utilities/cn'
+import { twx } from '@/utilities/cn'
 
 import {
   AIGenerateImageGroup,
@@ -79,7 +79,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
               )}
             </div>
             <div className="mt-6">
-              <button className="rounded-[8px] bg-black px-[52.5px] py-[17px] font-mono text-[16px] leading-5 text-white">
+              <button className="w-[240px] rounded-[8px] bg-black px-[52.5px] py-[17px] font-mono text-[16px] leading-5 text-white md:w-[220px]">
                 {t('highlight.button')}
               </button>
             </div>

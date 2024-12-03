@@ -42,5 +42,10 @@
   "group.features": "Features",
   "group.customers": "Customers",
   "group.resources": "Resources",
-  "group.company": "Company"
+  "group.company": "Company",
+  "tezignShanghaiInfo": "© Tezign (Shanghai) Information Technology Co., Ltd.",
+  "shanghaiIcpNo1502142": "Shanghai ICP No. 15021426-22",
+  "shanghaiPublicNetwork": "Shanghai Public Network Security No. 31010402010164",
+  "networkInformationAc": "Network Information Account No. 310115402810501240017",
+  "networkInformationAc2": "Network Information Account No. 310115402810501240033"
 }

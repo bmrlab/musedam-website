@@ -132,8 +132,8 @@ export default function HomeHero() {
               className={`absolute left-1/2 top-1/2 z-[1] w-full lg:flex lg:items-start lg:justify-between`}
               style={introFocusStyle}
             >
-              <div className="mb-[30px] w-full lg:mb-0 lg:w-1/2 2xl:w-[45%]">
-                <h2 className="font-euclid text-[48px] font-medium leading-[54.91px] md:text-[80px] md:leading-[91.52px]">
+              <div className="mb-[30px] w-full lg:mb-0 lg:w-2/3 2xl:w-3/5">
+                <h2 className="font-euclid text-[48px] font-medium leading-[54.91px] md:text-[76px] md:leading-[86px]">
                   {t("about-us.hero.head")}
                 </h2>
               </div>

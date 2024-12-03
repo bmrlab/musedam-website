@@ -191,7 +191,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
-      <div className="flex size-full flex-1 items-center justify-end gap-3">
+      <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
         <button
           className="z-50 h-full w-[140px] bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"

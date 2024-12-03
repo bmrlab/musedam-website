@@ -39,7 +39,7 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
           </div>
         </Link>
       </div>
-      <div className="flex size-full flex-1 items-center justify-end gap-3">
+      <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
         <motion.div
           layout

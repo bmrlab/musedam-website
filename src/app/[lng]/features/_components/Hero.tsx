@@ -28,7 +28,7 @@ export default function Hero({
 }: HeroProps) {
   return (
     <DotContainer className="flex shrink-0 flex-col justify-center bg-white px-6 py-[60px] md:min-h-[calc(100vh-70px)] md:px-20 md:py-[100px]">
-      <div className="mb-2">
+      <div className="mb-8">
         <Badge
           style={{
             background: tagColor,
@@ -41,7 +41,8 @@ export default function Hero({
       <FadeInUpContainer>
         <h1
           className={cn(
-            'mb-[16px] font-euclid text-[32px] font-normal leading-[41.6px] tracking-[1px] md:mb-6 md:text-[100px] md:leading-[110px]',
+            'mb-[16px] font-euclid text-[32px] font-normal leading-[41.6px] tracking-[1px] md:mb-6 ',
+            lng === 'zh' ? 'md:text-[80px] md:leading-[90px]' : 'md:text-[100px] md:leading-[110px]',
           )}
         >
           {title}

@@ -53,7 +53,7 @@ export default function LngSelector() {
           <SelectItem
             key={index}
             value={l}
-            className="cursor-pointer rounded-[8px] font-mono focus:bg-[#F4F5F6] data-[state=checked]:text-[#043FFB]"
+            className="cursor-pointer rounded-[8px] font-mono focus:bg-[#F4F5F6] "
           >
             {LANGUAGES.find(({ key }) => key === l)?.label}
           </SelectItem>
