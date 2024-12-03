@@ -8,7 +8,7 @@ export type PreceptData = {
   description: string[]
 }
 
-const AvatarPrefix = '/Testimonial'
+const AvatarPrefix = '/assets/Testimonial'
 
 export default function usePreceptData() {
   const { t } = usePreceptTranslation()

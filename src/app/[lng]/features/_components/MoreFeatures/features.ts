@@ -21,7 +21,7 @@ export enum FeaturesEnum {
   DataStatistics,
 }
 
-const FEATURES_ICON_BASE_PATH = '/Features/Features-Card-Icons'
+const FEATURES_ICON_BASE_PATH = '/assets/Features/Features-Card-Icons'
 
 export const useFeaturesCards = () => {
   const { t } = useHeaderTranslation()

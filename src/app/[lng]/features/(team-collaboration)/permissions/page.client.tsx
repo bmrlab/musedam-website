@@ -6,7 +6,7 @@ import usePublicUrl from '@/hooks/usePublicUrl'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
-const ImageBasePath = '/Features/Permissions'
+const ImageBasePath = '/assets/Features/Permissions'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })

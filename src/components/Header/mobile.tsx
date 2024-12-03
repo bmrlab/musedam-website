@@ -35,7 +35,7 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
       <div className="shrink-0 px-4">
         <Link href="/">
           <div className="relative size-9">
-            <Image src="/logo.svg" fill alt="muse logo" />
+            <Image src="/assets/logo.svg" fill alt="muse logo" />
           </div>
         </Link>
       </div>
@@ -78,7 +78,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
       <div className="absolute left-5 top-2.5 shrink-0" onClick={onClose}>
         <Link href="/">
           <div className="relative size-9">
-            <Image src="/logo-dark.svg" fill alt="muse logo" />
+            <Image src="/assets/logo-dark.svg" fill alt="muse logo" />
           </div>
         </Link>
       </div>

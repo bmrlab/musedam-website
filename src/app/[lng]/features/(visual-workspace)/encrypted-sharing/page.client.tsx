@@ -9,7 +9,7 @@ import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const { getUrl } = usePublicUrl('/Features/Encrypted-Sharing')
+  const { getUrl } = usePublicUrl('/assets/Features/Encrypted-Sharing')
   const isMobile = useIsMobile()
 
   return (

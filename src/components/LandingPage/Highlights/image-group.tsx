@@ -8,10 +8,10 @@ import usePublicUrl from '@/hooks/usePublicUrl'
 import useAnimationComplete from '@/components/LandingPage/Highlights/useAnimationComplete'
 import { useAnimationControl } from '@/components/LandingPage/Highlights/useAnimationControl'
 
-const CollectImagePrefix = '/Highlights/Collect'
-const OrganizeImagePrefix = '/Highlights/Organize'
-const CollaborateImagePrefix = '/Highlights/Collaborate'
-const AIGenerateImagePrefix = '/Highlights/AI-Generate'
+const CollectImagePrefix = '/assets/Highlights/Collect'
+const OrganizeImagePrefix = '/assets/Highlights/Organize'
+const CollaborateImagePrefix = '/assets/Highlights/Collaborate'
+const AIGenerateImagePrefix = '/assets/Highlights/AI-Generate'
 
 export type ImageGroupProps = HTMLAttributes<HTMLDivElement> & {
   isBuildFinished: (i: number) => boolean

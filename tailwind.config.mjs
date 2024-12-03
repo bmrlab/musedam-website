@@ -116,8 +116,8 @@ export default {
         },
       },
       backgroundImage: {
-        joinBg1: 'url(/Company/muse-ai-join-img-1.jpg)',
-        joinBg2: 'url(/Company/muse-ai-join-img-2.jpg)',
+        joinBg1: 'url(/assets/Company/muse-ai-join-img-1.jpg)',
+        joinBg2: 'url(/assets/Company/muse-ai-join-img-2.jpg)',
       },
       typography: ({ theme }) => ({
         DEFAULT: {

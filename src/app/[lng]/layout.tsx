@@ -45,7 +45,7 @@ export default async function RootLayout({
       <head>
         <InitTheme />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
         <Providers lng={lng} country={country}>

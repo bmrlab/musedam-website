@@ -22,7 +22,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
-  const { getUrl } = usePublicUrl('/Hero')
+  const { getUrl } = usePublicUrl('/assets/Hero')
 
   return (
     <div className={cn('flex select-none justify-center gap-6', className)}>
@@ -47,7 +47,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             x5-video-player-fullscreen="false"
             width={237}
             height={315}
-            src="/Hero/MuseDAM-Asset-Car.mp4"
+            src="/assets/Hero/MuseDAM-Asset-Car.mp4"
             type="video/mp4"
             className="mt-5 h-[315px] rounded-[8px] object-cover"
             initial={{ x: 20, opacity: 0 }}
@@ -90,7 +90,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
         </div>
         <div className="mt-4 flex gap-[11px]">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Car-V2.png"
+            src="/assets/Hero/MuseDAM-Asset-Car-V2.png"
             width={80}
             height={80}
             alt="MuseDAM-Asset-Car-V2"
@@ -100,7 +100,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Car-V3.png"
+            src="/assets/Hero/MuseDAM-Asset-Car-V3.png"
             width={115}
             height={79}
             alt="MuseDAM-Asset-Car-V3"
@@ -113,7 +113,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[25px]">
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Asset-Poster.png"
+          src="/assets/Hero/MuseDAM-Asset-Poster.png"
           width={237}
           height={275}
           alt="MuseDAM-Asset-Poster"
@@ -124,7 +124,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
         />
         <FlexColContainer className="gap-[11px]">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Jewellery.png"
+            src="/assets/Hero/MuseDAM-Asset-Jewellery.png"
             width={237}
             height={175}
             alt="MuseDAM-Asset-Jewellery"
@@ -134,7 +134,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(5)}
           />
           <MotionImageWithSkeleton
-            src="/Hero/MuseDAM-AI-Color.png"
+            src="/assets/Hero/MuseDAM-AI-Color.png"
             width={237}
             height={38}
             alt="MuseDAM-AI-Color"
@@ -148,7 +148,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
       <FlexColContainer className="gap-6">
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-3D.png"
+            src="/assets/Hero/MuseDAM-Asset-3D.png"
             width={237}
             height={295}
             alt="MuseDAM-Asset-3D"
@@ -171,7 +171,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
         </RelativeContainer>
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Photography.png"
+            src="/assets/Hero/MuseDAM-Asset-Photography.png"
             width={237}
             height={285}
             alt="MuseDAM-Asset-Photography"
@@ -183,7 +183,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           <RelativeContainer>
             <MotionImage
               ref={aiParseTagRef}
-              src="/Hero/MuseDAM-AI-Parsing-Tag.png"
+              src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"
               width={24}
               height={20}
               alt="MuseDAM-AI-Parsing-Tag"
@@ -197,7 +197,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
                   <MotionShadowImageRounded
-                    src="/Hero/MuseDAM-AI-Parsing.png"
+                    src="/assets/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
                     initial={{ opacity: 0 }}
@@ -213,7 +213,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
       </FlexColContainer>
       <FlexColContainer className="mt-[50px] gap-[24px]">
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Asset-Product.png"
+          src="/assets/Hero/MuseDAM-Asset-Product.png"
           width={237}
           height={235}
           alt="MuseDAM-Asset-Product"
@@ -224,7 +224,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
         />
         <RelativeContainer className="flex justify-center">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group3.png"
+            src="/assets/Hero/MuseDAM-Asset-Group3.png"
             width={196.8}
             height={275}
             alt="MuseDAM-Asset-Group3"
@@ -235,7 +235,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(9)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group2.png"
+            src="/assets/Hero/MuseDAM-Asset-Group2.png"
             width={216.8}
             height={285}
             alt="MuseDAM-Asset-Group2"
@@ -246,7 +246,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(12)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group1.png"
+            src="/assets/Hero/MuseDAM-Asset-Group1.png"
             width={236.8}
             height={285}
             alt="MuseDAM-Asset-Group1"
@@ -258,7 +258,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           />
           <div className="absolute right-2 top-[27px] flex gap-1">
             <MotionImage
-              src="/Hero/MuseDAM-Asset-Group-Tag.png"
+              src="/assets/Hero/MuseDAM-Asset-Group-Tag.png"
               width={35}
               height={20}
               alt="MuseDAM-Asset-Group-Tag"
@@ -268,7 +268,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               onAnimationComplete={() => handleAnimationComplete(14)}
             />
             <MotionImage
-              src="/Hero/MuseDAM-Asset-Comment-Tag.png"
+              src="/assets/Hero/MuseDAM-Asset-Comment-Tag.png"
               width={24}
               height={20}
               alt="MuseDAM-Asset-Comment-Tag"
@@ -283,7 +283,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
       <FlexColContainer className="gap-6">
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Cat.png"
+            src="/assets/Hero/MuseDAM-Asset-Cat.png"
             width={237}
             height={275}
             alt="MuseDAM-Asset-Cat"
@@ -294,7 +294,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           />
           <MotionImage
             ref={assetMoreRef}
-            src="/Hero/MuseDAM-Asset-More.png"
+            src="/assets/Hero/MuseDAM-Asset-More.png"
             width={30}
             height={30}
             alt="MuseDAM-Asset-More.png"
@@ -307,7 +307,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           <AnimatePresence mode="wait">
             {assetMoreHovering && (
               <MotionImage
-                src="/Hero/MuseDAM-Asset-Dropdown.png"
+                src="/assets/Hero/MuseDAM-Asset-Dropdown.png"
                 width={171}
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
@@ -328,7 +328,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             playsInline
             width={237}
             height={315}
-            src="/Hero/MuseDAM-Asset-Video.mp4"
+            src="/assets/Hero/MuseDAM-Asset-Video.mp4"
             type="video/mp4"
             className="h-[315px] rounded-[8px] object-cover"
             initial={{ x: -20, opacity: 0 }}
@@ -337,7 +337,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(11)}
           />
           <MotionShadowImageRounded
-            src="/Hero/MuseDAM-Asset-VideoPlayer.png"
+            src="/assets/Hero/MuseDAM-Asset-VideoPlayer.png"
             width={237}
             height={40}
             alt="MuseDAM-Asset-VideoPlayer"
@@ -349,7 +349,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           />
           <AbsXCenterContainer className="bottom-[7px]">
             <MotionImage
-              src="/Hero/MuseDAM-Video-Frame.png"
+              src="/assets/Hero/MuseDAM-Video-Frame.png"
               width={57.22}
               height={139}
               alt="MuseDAM-Video-Frame.png"

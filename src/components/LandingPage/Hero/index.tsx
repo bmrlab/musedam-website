@@ -43,7 +43,7 @@ export default async function Hero({ lng }: { lng: string }) {
           x5-video-player-fullscreen="false"
           className="size-full object-cover"
         >
-          <source src="/Introduction/Introduction.mp4" type="video/mp4" />
+          <source src="/assets/Introduction/Introduction.mp4" type="video/mp4" />
         </video>
       </div>
     </div>

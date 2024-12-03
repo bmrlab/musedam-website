@@ -9,7 +9,7 @@ import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const { getUrl } = usePublicUrl('/Features/AI-Search')
+  const { getUrl } = usePublicUrl('/assets/Features/AI-Search')
   const isMobile = useIsMobile()
 
   return (
@@ -41,7 +41,7 @@ export default function PageClient() {
       </div>
       <RelativeContainer className="mt-[19.1px] md:mt-[37.5px]">
         <MotionImage
-          src="/Features/AI-Search/AI-Search-Images.png"
+          src="/assets/Features/AI-Search/AI-Search-Images.png"
           width={isMobile ? 232.68 : 456.8}
           height={isMobile ? 240.23 : 471.61}
           alt="AI-Search-Images"
@@ -50,7 +50,7 @@ export default function PageClient() {
           transition={{ duration: 1, ease: 'easeInOut' }}
         />
         <MotionShadowImage
-          src="/Features/AI-Search/AI-Search-Color.png"
+          src="/assets/Features/AI-Search/AI-Search-Color.png"
           width={isMobile ? 88.69 : 174.11}
           height={isMobile ? 63.67 : 125}
           alt="AI-Search-Color.png"

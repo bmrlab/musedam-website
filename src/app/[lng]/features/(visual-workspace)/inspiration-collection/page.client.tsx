@@ -10,7 +10,7 @@ import { RelativeContainer } from '@/components/StyleWrapper/Container'
 import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
-const ImageBasePath = '/Features/Inspiration-Collection'
+const ImageBasePath = '/assets/Features/Inspiration-Collection'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })

@@ -15,7 +15,7 @@ const IMAGE_WIDTH_MOBILE = 197.61
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const { getUrl } = usePublicUrl('/Features/Multiple-Viewing')
+  const { getUrl } = usePublicUrl('/assets/Features/Multiple-Viewing')
   const isMobile = useIsMobile()
 
   const { width, height } = useMemo(() => {

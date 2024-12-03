@@ -9,7 +9,7 @@ import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const { getUrl } = usePublicUrl('/Features/AI-Parsing')
+  const { getUrl } = usePublicUrl('/assets/Features/AI-Parsing')
   const isMobile = useIsMobile()
 
   return (
@@ -19,7 +19,7 @@ export default function PageClient() {
     >
       <RelativeContainer>
         <MotionImage
-          src="/Features/AI-Parsing/AI-Parsing-Images.png"
+          src="/assets/Features/AI-Parsing/AI-Parsing-Images.png"
           width={isMobile ? 243.89 : 478.8}
           height={isMobile ? 263.61 : 517.51}
           alt="AI-Parsing-Images"
@@ -29,7 +29,7 @@ export default function PageClient() {
           onAnimationComplete={() => handleAnimationComplete(1)}
         />
         <MotionShadowImage
-          src="/Features/AI-Parsing/AI-Parsing-Star.png"
+          src="/assets/Features/AI-Parsing/AI-Parsing-Star.png"
           width={isMobile ? 12.22 : 24}
           height={isMobile ? 10.19 : 20}
           alt="AI-Parsing-Star"

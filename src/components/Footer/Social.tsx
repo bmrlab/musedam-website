@@ -28,7 +28,7 @@ const socialItemInChina = [
   {
     label: '公众号',
     icon: <Icons.weChat />,
-    cardUrl: '/weChat-official-account.jpeg',
+    cardUrl: '/assets/weChat-official-account.jpeg',
   },
   {
     label: '小红书',

@@ -9,7 +9,7 @@ import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const { getUrl } = usePublicUrl('/Features/Content-Creation')
+  const { getUrl } = usePublicUrl('/assets/Features/Content-Creation')
   const isMobile = useIsMobile()
 
   return (

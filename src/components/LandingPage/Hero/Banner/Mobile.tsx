@@ -21,7 +21,7 @@ export default function MobileBanner({ className }: { className?: string }) {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
-  const { getUrl } = usePublicUrl('/Hero')
+  const { getUrl } = usePublicUrl('/assets/Hero')
 
   return (
     <div className={cn('flex w-[800px] select-none justify-center gap-[14.08px]', className)}>
@@ -46,7 +46,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             x5-video-player-fullscreen="false"
             width={160}
             height={190}
-            src="/Hero/MuseDAM-Asset-Car.mp4"
+            src="/assets/Hero/MuseDAM-Asset-Car.mp4"
             type="video/mp4"
             className="mt-[11.73px] h-[184.75px] rounded-[8px] object-cover"
             initial={{ x: 20, opacity: 0 }}
@@ -89,7 +89,7 @@ export default function MobileBanner({ className }: { className?: string }) {
         </div>
         <div className="mt-[9.38px] flex gap-[11px]">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Car-V2.png"
+            src="/assets/Hero/MuseDAM-Asset-Car-V2.png"
             width={46.92}
             height={46.92}
             alt="MuseDAM-Asset-Car-V2"
@@ -99,7 +99,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(2)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Car-V3.png"
+            src="/assets/Hero/MuseDAM-Asset-Car-V3.png"
             width={67.45}
             height={46.33}
             alt="MuseDAM-Asset-Car-V3"
@@ -112,7 +112,7 @@ export default function MobileBanner({ className }: { className?: string }) {
       </FlexColContainer>
       <FlexColContainer className="mt-[29.33px] gap-[14.66px]">
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Asset-Poster.png"
+          src="/assets/Hero/MuseDAM-Asset-Poster.png"
           width={160}
           height={184}
           alt="MuseDAM-Asset-Poster"
@@ -123,7 +123,7 @@ export default function MobileBanner({ className }: { className?: string }) {
         />
         <FlexColContainer className="gap-[11px]">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Jewellery.png"
+            src="/assets/Hero/MuseDAM-Asset-Jewellery.png"
             width={160}
             height={120}
             alt="MuseDAM-Asset-Jewellery"
@@ -133,7 +133,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(5)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-AI-Color.png"
+            src="/assets/Hero/MuseDAM-AI-Color.png"
             width={160}
             height={22.9}
             alt="MuseDAM-AI-Color"
@@ -147,7 +147,7 @@ export default function MobileBanner({ className }: { className?: string }) {
       <FlexColContainer className="gap-[14.08px]">
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-3D.png"
+            src="/assets/Hero/MuseDAM-Asset-3D.png"
             width={160}
             height={198}
             alt="MuseDAM-Asset-3D"
@@ -170,7 +170,7 @@ export default function MobileBanner({ className }: { className?: string }) {
         </RelativeContainer>
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Photography.png"
+            src="/assets/Hero/MuseDAM-Asset-Photography.png"
             width={160}
             height={167.16}
             alt="MuseDAM-Asset-Photography"
@@ -182,7 +182,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           <RelativeContainer>
             <MotionImage
               ref={aiParseTagRef}
-              src="/Hero/MuseDAM-AI-Parsing-Tag.png"
+              src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"
               width={14.08}
               height={11.73}
               alt="MuseDAM-AI-Parsing-Tag"
@@ -196,7 +196,7 @@ export default function MobileBanner({ className }: { className?: string }) {
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
                   <MotionShadowImageRounded
-                    src="/Hero/MuseDAM-AI-Parsing.png"
+                    src="/assets/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
                     initial={{ opacity: 0 }}
@@ -212,7 +212,7 @@ export default function MobileBanner({ className }: { className?: string }) {
       </FlexColContainer>
       <FlexColContainer className="mt-[20.93px] gap-[14.08px]">
         <MotionShadowImageRoundedWithSkeleton
-          src="/Hero/MuseDAM-Asset-Product.png"
+          src="/assets/Hero/MuseDAM-Asset-Product.png"
           width={138.89}
           height={137.83}
           alt="MuseDAM-Asset-Product"
@@ -223,7 +223,7 @@ export default function MobileBanner({ className }: { className?: string }) {
         />
         <RelativeContainer className="flex justify-center">
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group3.png"
+            src="/assets/Hero/MuseDAM-Asset-Group3.png"
             width={115.43}
             height={161.29}
             alt="MuseDAM-Asset-Group3"
@@ -234,7 +234,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(9)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group2.png"
+            src="/assets/Hero/MuseDAM-Asset-Group2.png"
             width={127.16}
             height={167.16}
             alt="MuseDAM-Asset-Group2"
@@ -245,7 +245,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(12)}
           />
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Group1.png"
+            src="/assets/Hero/MuseDAM-Asset-Group1.png"
             width={138.89}
             height={167.16}
             alt="MuseDAM-Asset-Group1"
@@ -257,7 +257,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <div className="absolute right-[4.9px] top-[15.84px] flex gap-1">
             <MotionImage
-              src="/Hero/MuseDAM-Asset-Group-Tag.png"
+              src="/assets/Hero/MuseDAM-Asset-Group-Tag.png"
               width={20.32}
               height={11.73}
               alt="MuseDAM-Asset-Group-Tag"
@@ -267,7 +267,7 @@ export default function MobileBanner({ className }: { className?: string }) {
               onAnimationComplete={() => handleAnimationComplete(14)}
             />
             <MotionImage
-              src="/Hero/MuseDAM-Asset-Comment-Tag.png"
+              src="/assets/Hero/MuseDAM-Asset-Comment-Tag.png"
               width={14.08}
               height={11.73}
               alt="MuseDAM-Asset-Comment-Tag"
@@ -282,7 +282,7 @@ export default function MobileBanner({ className }: { className?: string }) {
       <FlexColContainer className="gap-[14.08px]">
         <RelativeContainer>
           <MotionShadowImageRoundedWithSkeleton
-            src="/Hero/MuseDAM-Asset-Cat.png"
+            src="/assets/Hero/MuseDAM-Asset-Cat.png"
             width={160}
             height={184}
             alt="MuseDAM-Asset-Cat"
@@ -293,7 +293,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <MotionImage
             ref={assetMoreRef}
-            src="/Hero/MuseDAM-Asset-More.png"
+            src="/assets/Hero/MuseDAM-Asset-More.png"
             width={17.6}
             height={17.6}
             alt="MuseDAM-Asset-More.png"
@@ -306,7 +306,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           <AnimatePresence mode="wait">
             {assetMoreHovering && (
               <MotionImage
-                src="/Hero/MuseDAM-Asset-Dropdown.png"
+                src="/assets/Hero/MuseDAM-Asset-Dropdown.png"
                 width={171}
                 height={194}
                 alt="MuseDAM-Asset-Dropdown.png"
@@ -329,7 +329,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             x5-video-player-fullscreen="false"
             width={160}
             height={184.75}
-            src="/Hero/MuseDAM-Asset-Video.mp4"
+            src="/assets/Hero/MuseDAM-Asset-Video.mp4"
             type="video/mp4"
             className="h-[184.75px] rounded-[8px] object-cover"
             initial={{ x: -20, opacity: 0 }}
@@ -338,7 +338,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(11)}
           />
           <MotionShadowImageRounded
-            src="/Hero/MuseDAM-Asset-VideoPlayer.png"
+            src="/assets/Hero/MuseDAM-Asset-VideoPlayer.png"
             width={160}
             height={23.46}
             alt="MuseDAM-Asset-VideoPlayer"
@@ -350,7 +350,7 @@ export default function MobileBanner({ className }: { className?: string }) {
           />
           <AbsXCenterContainer className="bottom-[4.11px]">
             <MotionImage
-              src="/Hero/MuseDAM-Video-Frame.png"
+              src="/assets/Hero/MuseDAM-Video-Frame.png"
               width={33.56}
               height={81.53}
               alt="MuseDAM-Video-Frame.png"

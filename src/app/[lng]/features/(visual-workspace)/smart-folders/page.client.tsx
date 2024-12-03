@@ -8,7 +8,7 @@ import usePublicUrl from '@/hooks/usePublicUrl'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
-const ImageBasePath = '/Features/Smart-Folders'
+const ImageBasePath = '/assets/Features/Smart-Folders'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })

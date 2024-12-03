@@ -12,9 +12,9 @@ export default function InvestorsCards() {
   const { t } = useTranslation('company')
 
   const cards = useMemo(() => [
-    { logo: '/Company/temasek-logo.svg', name: t('investors.temasek'), bgColor: '#E2D8FF' },
-    { logo: '/Company/sequoia-logo.svg', name: t('investors.sequoia'), bgColor: '#EDE9E5' },
-    { logo: '/Company/hearst-logo.svg', name: t('investors.hearst'), bgColor: '#B4D9FD' },
+    { logo: '/assets/Company/temasek-logo.svg', name: t('investors.temasek'), bgColor: '#E2D8FF' },
+    { logo: '/assets/Company/sequoia-logo.svg', name: t('investors.sequoia'), bgColor: '#EDE9E5' },
+    { logo: '/assets/Company/hearst-logo.svg', name: t('investors.hearst'), bgColor: '#B4D9FD' },
   ], [t])
 
   return (

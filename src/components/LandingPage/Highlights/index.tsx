@@ -21,7 +21,7 @@ export type Highlight = {
 
 export default function Highlights() {
   const { t } = useHighlightTranslation()
-  const { getUrl } = usePublicUrl('/Highlights/Mobile')
+  const { getUrl } = usePublicUrl('/assets/Highlights/Mobile')
   const data = useMemo<Highlight[]>(
     () => [
       {

@@ -22,7 +22,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
 import { useLanguage } from '@/providers/Language'
 
-const DEFAULT_HERO_IMAGE = '/Navbar-Images/BMR-Logo.svg'
+const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
 const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProps> }> = ({
   icon: Icon,
@@ -57,7 +57,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
     >
       <div className="shrink-0 px-4">
         <Link href="/">
-          <Image src="/logo.svg" width={36} height={36} alt="muse logo"></Image>
+          <Image src="/assets/logo.svg" width={36} height={36} alt="muse logo"></Image>
         </Link>
       </div>
       <NavigationMenuList className="hidden flex-1 md:flex">

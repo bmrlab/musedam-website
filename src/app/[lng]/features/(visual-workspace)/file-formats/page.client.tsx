@@ -23,7 +23,7 @@ export default function PageClient() {
       className="w-fit justify-items-start gap-[6.83px] md:w-full md:gap-[13.41px]"
     >
       <MotionImage
-        src="/Features/70+Formats/70+Formats1.png"
+        src="/assets/Features/70+Formats/70+Formats1.png"
         width={isMobile ? 237.08 : 465.43}
         height={imageHeight}
         alt="70+Formats1"
@@ -32,7 +32,7 @@ export default function PageClient() {
         transition={{ duration: 1, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats2.png"
+        src="/assets/Features/70+Formats/70+Formats2.png"
         width={isMobile ? 237.08 : 465.43}
         height={imageHeight}
         alt="70+Formats2"
@@ -41,7 +41,7 @@ export default function PageClient() {
         transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats3.png"
+        src="/assets/Features/70+Formats/70+Formats3.png"
         width={isMobile ? 237.08 : 465.43}
         height={imageHeight}
         alt="70+Formats3"
@@ -50,7 +50,7 @@ export default function PageClient() {
         transition={{ duration: 1, delay: 0.4, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats4.png"
+        src="/assets/Features/70+Formats/70+Formats4.png"
         width={isMobile ? 105.79 : 207.68}
         height={imageHeight}
         alt="70+Formats4"
@@ -59,7 +59,7 @@ export default function PageClient() {
         transition={{ duration: 1, delay: 0.6, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats5.png"
+        src="/assets/Features/70+Formats/70+Formats5.png"
         width={isMobile ? 269.9 : 529.86}
         height={imageHeight}
         alt="70+Formats5"
@@ -68,7 +68,7 @@ export default function PageClient() {
         transition={{ duration: 1, delay: 0.8, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats6.png"
+        src="/assets/Features/70+Formats/70+Formats6.png"
         width={isMobile ? 302.72 : 594.3}
         height={imageHeight}
         alt="70+Formats6"
@@ -77,7 +77,7 @@ export default function PageClient() {
         transition={{ duration: 1, delay: 1, ease: 'easeInOut' }}
       />
       <MotionImage
-        src="/Features/70+Formats/70+Formats7.png"
+        src="/assets/Features/70+Formats/70+Formats7.png"
         width={isMobile ? 105.79 : 207.68}
         height={imageHeight}
         alt="70+Formats7"

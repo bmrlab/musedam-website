@@ -70,8 +70,8 @@ export default function HomeHero() {
           className={`absolute inset-0 z-[1] bg-cover bg-center bg-no-repeat`}
           style={introBgStyle}
         >
-          <Image src={'/Company/intro-background.jpeg'} className="absolute inset-0 hidden lg:block" fill alt="hero-bg" />
-          <Image src={'/Company/intro-background-mobile.jpeg'} className="absolute inset-0 block lg:hidden" fill alt="hero-bg" />
+          <Image src={'/assets/Company/intro-background.jpeg'} className="absolute inset-0 hidden lg:block" fill alt="hero-bg" />
+          <Image src={'/assets/Company/intro-background-mobile.jpeg'} className="absolute inset-0 block lg:hidden" fill alt="hero-bg" />
         </div>
         <div
           id="hero-mask"
@@ -79,7 +79,7 @@ export default function HomeHero() {
           style={introMaskStyle}
         >
           <Image
-            src={'/Company/intro-mask.svg'}
+            src={'/assets/Company/intro-mask.svg'}
             className="absolute inset-0 hidden lg:block"
             fill
             alt="hero-mask"
@@ -89,7 +89,7 @@ export default function HomeHero() {
           />
 
           <Image
-            src={'/Company/intro-mask-mobile.svg'}
+            src={'/assets/Company/intro-mask-mobile.svg'}
             className="absolute inset-0 block lg:hidden"
             fill
             alt="hero-mask"

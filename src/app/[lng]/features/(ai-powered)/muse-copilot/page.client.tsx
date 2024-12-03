@@ -9,7 +9,7 @@ import FeaturesContainer from '@/app/[lng]/features/_components/Container'
 
 export default function PageClient() {
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: -1 })
-  const ImageBasePath = '/Features/MuseCopilot'
+  const ImageBasePath = '/assets/Features/MuseCopilot'
   const { getUrl } = usePublicUrl(ImageBasePath)
   const isMobile = useIsMobile()
 
