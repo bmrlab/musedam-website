@@ -4,8 +4,6 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
-import { AdminBar } from '@/components/AdminBar'
-
 import './globals.css'
 
 import { dir } from 'i18next'
