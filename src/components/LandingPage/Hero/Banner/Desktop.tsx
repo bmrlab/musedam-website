@@ -3,6 +3,7 @@ import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import useIsZhLng from '@/hooks/useIsZhLng'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import {
   MotionImageWithSkeleton,
@@ -14,7 +15,7 @@ import {
   FlexColContainer,
   RelativeContainer,
 } from '@/components/StyleWrapper/Container'
-import { MotionImage } from '@/components/StyleWrapper/image'
+import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 import { MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
@@ -23,6 +24,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const { getUrl } = usePublicUrl('/assets/Hero')
+  const { isZhLng } = useIsZhLng()
 
   return (
     <div className={cn('flex select-none justify-center gap-6', className)}>
@@ -55,10 +57,15 @@ export default function DesktopBanner({ className }: { className?: string }) {
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
-          <div className="absolute bottom-[34px] right-[-66px] z-[1] flex flex-col gap-2">
-            <MotionShadowRoundedFullImage
+          <div
+            className={cn(
+              'absolute bottom-[34px] z-[1] flex flex-col gap-2',
+              isZhLng ? 'right-[-32px]' : 'right-[-66px]',
+            )}
+          >
+            <MotionShadowImage
               src={getUrl('Tag-Automobile.png')}
-              width={110}
+              width={isZhLng ? 58 : 110}
               height={30}
               alt="Tag-Automobile"
               initial={{ x: 20, opacity: 0 }}
@@ -68,7 +75,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             />
             <MotionShadowRoundedFullImage
               src={getUrl('Tag-Raining.png')}
-              width={87}
+              width={isZhLng ? 71 : 87}
               height={30}
               alt="Tag-Raining"
               initial={{ x: 20, opacity: 0 }}
@@ -78,7 +85,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             />
             <MotionShadowRoundedFullImage
               src={getUrl('Tag-Photography.png')}
-              width={118}
+              width={isZhLng ? 84 : 118}
               height={30}
               alt="Tag-Photography"
               initial={{ x: 20, opacity: 0 }}
