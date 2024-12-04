@@ -177,6 +177,13 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <Link href="/features/inspiration-collection" legacyBehavior passHref>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
+              {t('nav-bar.extension')}
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           <Link href="/about-us" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.about-us')}

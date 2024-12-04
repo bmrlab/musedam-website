@@ -110,6 +110,14 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </AccordionItemWrapper>
+
+        <AccordionItemWrapper value="about-us">
+          <AccordionTriggerWrapper disabled>
+            <Link href="/features/inspiration-collection" onClick={onClose}>
+              {t('nav-bar.extension')}
+            </Link>
+          </AccordionTriggerWrapper>
+        </AccordionItemWrapper>
         <AccordionItemWrapper value="about-us">
           <AccordionTriggerWrapper disabled>
             <Link href="/about-us" onClick={onClose}>
