@@ -10,6 +10,8 @@ import 'swiper/css'
 import 'swiper/css/controller'
 import 'swiper/css/pagination'
 
+import Link from 'next/link'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { twx } from '@/utilities/cn'
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 
@@ -226,9 +228,11 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.1 }}
                 >
-                  <BlackButton className="rounded-[8px] px-[42.5px] py-[14px] font-mono text-white">
-                    {t('highlight.button')}
-                  </BlackButton>
+                  <Link href={MUSEDAM_LOGIN_URL}>
+                    <BlackButton className="rounded-[8px] px-[42.5px] py-[14px] font-mono text-white">
+                      {t('highlight.button')}
+                    </BlackButton>
+                  </Link>
                 </motion.div>
               </div>
             </SwiperSlide>

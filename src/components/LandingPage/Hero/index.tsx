@@ -28,9 +28,11 @@ export default async function Hero({ lng }: { lng: string }) {
           <p className="text-center font-mono text-[14px] font-light leading-6 text-[#141414] md:text-left md:text-[16px] md:leading-[28px]">
             {t('hero.sub-banner.subtitle')}
           </p>
-          <BlackButton className="h-[50px] w-[240px] rounded-[8px] px-[52.5px] font-mono leading-5 text-white md:h-auto md:w-[220px] md:px-[42.5px] md:py-[14px]">
-            {t('hero.button.start')}
-          </BlackButton>
+          <Link href={MUSEDAM_LOGIN_URL}>
+            <BlackButton className="h-[50px] w-[240px] rounded-[8px] px-[52.5px] font-mono leading-5 text-white md:h-auto md:w-[220px] md:px-[42.5px] md:py-[14px]">
+              {t('hero.button.start')}
+            </BlackButton>
+          </Link>
         </div>
       </FadeInUpContainer>
       <div className="relative mt-12 h-[210px] w-full rounded-[6px] px-6 md:mt-[80px] md:h-[692px] md:px-10">
