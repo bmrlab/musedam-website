@@ -1,29 +1,31 @@
-import { HTMLAttributes, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { useLanguage } from '@/providers/Language'
-import { cn, twx } from '@/utilities/cn'
-import { motion } from 'framer-motion'
+import { HTMLAttributes, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { MUSEDAM_LOGIN_URL } from '@/constant/url';
+import { useLanguage } from '@/providers/Language';
+import { cn, twx } from '@/utilities/cn';
 
-import useIsMobile from '@/hooks/useIsMobile'
+
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import AnimatedMenuButton from '@/components/Header/AnimatedMenuButton'
-import useHeaderData from '@/components/Header/data'
-import { useMenuAnimation } from '@/components/Header/useMenuAnimation'
-import { IconWrapper } from '@/components/icon'
-import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
-import { useHeaderTranslation } from '@/app/i18n/client'
+import AnimatedMenuButton from '@/components/Header/AnimatedMenuButton';
+import useHeaderData from '@/components/Header/data';
+import { useMenuAnimation } from '@/components/Header/useMenuAnimation';
+import { IconWrapper } from '@/components/icon';
+import { FlexCenterContainer } from '@/components/StyleWrapper/Container';
+import { useHeaderTranslation } from '@/app/i18n/client';
 
-import { LocaleSwitch } from './LocalSwitch'
+
+
+import { LocaleSwitch } from './LocalSwitch';
+
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
-  const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
 
@@ -42,17 +44,14 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
       </div>
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
-        <motion.div
-          layout
-          className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
-          initial={{ width: '140px' }}
-          animate={{ width: isMobile ? '56px' : '140px' }}
+        <div
+          className="z-50 h-full w-[56px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
           onClick={() => setIsOpen(!isOpen)}
         >
           <FlexCenterContainer className="size-full">
             <AnimatedMenuButton isOpen={isOpen} setIsOpen={setIsOpen} />
           </FlexCenterContainer>
-        </motion.div>
+        </div>
       </div>
     </FlexCenterContainer>
   )
