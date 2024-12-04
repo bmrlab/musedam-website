@@ -57,7 +57,7 @@ export default function HomeHero() {
     >
       <div
         ref={ref}
-        className={`flex max-h-screen w-full max-w-[100vw] translate-x-0 translate-y-0 flex-col justify-end overflow-hidden bg-black py-0 text-white lg:justify-center ${scrolledPrecent >= 1 ? 'relative' : 'fixed inset-0 bottom-[40px] top-[70px]'
+        className={`flex max-h-screen w-full max-w-[100vw] translate-x-0 translate-y-0 flex-col justify-end overflow-hidden bg-black py-0 text-white lg:justify-center ${scrolledPrecent >= 1 ? 'relative' : 'fixed inset-0 top-[50px]'
           }`}
         style={{
           width: `${windowWidth}px`,
