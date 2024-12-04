@@ -24,7 +24,7 @@ export default function Hero({
   tagColor,
   buttonText,
   buttonHref,
-  lng
+  lng,
 }: HeroProps) {
   return (
     <DotContainer className="flex shrink-0 flex-col justify-center bg-white px-6 py-[60px] md:min-h-[calc(100vh-70px)] md:px-20 md:py-[100px]">
@@ -42,7 +42,9 @@ export default function Hero({
         <h1
           className={cn(
             'mb-[16px] font-euclid text-[32px] font-normal leading-[41.6px] tracking-[1px] md:mb-6 ',
-            lng === 'zh' ? 'md:text-[80px] md:leading-[90px]' : 'md:text-[100px] md:leading-[110px]',
+            lng === 'zh'
+              ? 'md:text-[80px] md:leading-[90px]'
+              : 'md:text-[100px] md:leading-[110px]',
           )}
         >
           {title}
@@ -51,9 +53,9 @@ export default function Hero({
           {description}
         </p>
       </FadeInUpContainer>
-      <FadeInUpContainer className="flex h-[58px] items-center justify-center md:justify-between">
+      <FadeInUpContainer className="flex  items-center justify-center  md:justify-between">
         <Link href={buttonHref ?? MUSEDAM_LOGIN_URL + `?local=${lng}`}>
-          <BlackButton className="h-full rounded-full px-[52.2px] py-[19px] font-mono leading-5 text-white transition-colors hover:bg-gray-800">
+          <BlackButton className="h-[50px] w-[240px] rounded-full px-[52.2px] font-mono leading-5 text-white transition-colors hover:bg-gray-800 md:h-[58px] md:py-[19px]">
             {buttonText}
           </BlackButton>
         </Link>
