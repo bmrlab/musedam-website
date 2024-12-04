@@ -14,7 +14,7 @@ spec:
         app: musedam-website
     spec:
       containers:
-        - image: musecr.azurecr.cn/muse/musedam-website:release
+        - image: musecr.azurecr.cn/muse/musedam-website:{{ .Values.version }}
           imagePullPolicy: Always
           name: musedam-website
           env:
