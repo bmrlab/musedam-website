@@ -5,14 +5,15 @@ import { useCallback } from "react"
 export const LocaleSwitch: React.FC = () => {
     const router = useRouter()
     const pathname = usePathname()
-    const { language } = useLanguage()
+    const { language, setLanguage } = useLanguage()
 
     const otherLocale = language === 'zh' ? 'en' : 'zh'
 
     const changeLocale = useCallback(() => {
         const newPathname = pathname?.replace(/^\/(en|zh)/, '/' + otherLocale) || ''
         router.replace(`${newPathname}`)
-    }, [otherLocale, pathname, router])
+        setLanguage(otherLocale)
+    }, [otherLocale, pathname, router, setLanguage])
 
     return (
         <>
