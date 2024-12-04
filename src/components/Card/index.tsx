@@ -1,12 +1,12 @@
 'use client'
 import { cn } from '@/utilities/cn'
 import useClickableCard from '@/utilities/useClickableCard'
-import Link from 'next/link'
 import React, { Fragment } from 'react'
 
 import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { LocaleLink } from '../LocalLink'
 
 export const Card: React.FC<{
   alignItems?: 'center'
@@ -69,9 +69,9 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
+              <LocaleLink className="not-prose" href={href} ref={link.ref}>
                 {titleToUse}
-              </Link>
+              </LocaleLink>
             </h3>
           </div>
         )}

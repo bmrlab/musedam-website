@@ -1,8 +1,8 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { cn, twx } from '@/utilities/cn'
 
 import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
+import { LocaleLink } from '@/components/LocalLink'
 
 export type FeaturesCardProps = {
   title: string
@@ -25,7 +25,7 @@ export default function FeaturesCard({
   darkness,
 }: FeaturesCardProps & { className?: string }) {
   return (
-    <Link href={href}>
+    <LocaleLink href={href}>
       <div
         style={{ background: bgColor }}
         className={cn('flex cursor-pointer flex-col rounded-[20px] p-6 md:py-12', className)}
@@ -56,7 +56,7 @@ export default function FeaturesCard({
           </FlexCenterContainer>
         </div>
       </div>
-    </Link>
+    </LocaleLink>
   )
 }
 
@@ -78,7 +78,7 @@ export function FeaturesRectIconCard({
   darkness,
 }: FeaturesCardProps & { className?: string }) {
   return (
-    <Link href={href}>
+    <LocaleLink href={href}>
       <div
         style={{ background: bgColor }}
         className={cn('flex cursor-pointer flex-col rounded-[24px] px-6 py-[30px]', className)}
@@ -109,6 +109,6 @@ export function FeaturesRectIconCard({
           </FlexCenterContainer>
         </div>
       </div>
-    </Link>
+    </LocaleLink>
   )
 }
