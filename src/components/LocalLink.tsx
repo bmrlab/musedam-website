@@ -1,4 +1,5 @@
-// components/LocaleLink.tsx
+'use client'
+
 import { useLanguage } from '@/providers/Language'
 import Link from 'next/link'
 
