@@ -18,9 +18,8 @@ export default function HomeHero() {
     ], [t])
 
     return (
-
         <FlexColContainer className="w-full items-center bg-[#F4F4F4] px-[30px] md:px-20">
-            <FlexColContainer className="max-w-[700px] select-none items-center justify-center py-[60px] md:py-[100px]">
+            <FlexColContainer className="max-w-[700px] items-center justify-center py-[60px] md:py-[100px]">
                 <Title>{t("about-us.our-story.title")}</Title>
                 <div className="col-span-1">
                     {descriptions.map((item, i) => (
