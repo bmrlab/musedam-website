@@ -17,7 +17,7 @@ export type FeatureItem = {
 
 export default function useHeaderData() {
   const { t } = useHeaderTranslation()
-  const { realBasePath: ImageBasePath } = usePublicUrl('/Navbar-Images')
+  const { realBasePath: ImageBasePath } = usePublicUrl('/assets/Navbar-Images')
 
   const data = useMemo<
     {
