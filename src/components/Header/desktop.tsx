@@ -54,7 +54,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
   return (
     <NavigationMenu
       className={cn('flex h-full max-w-none justify-start', className)}
-      viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
+      viewportClassName="mt-0 broder-none rounded-none"
     >
       <div className="shrink-0 px-4">
         <Link href="/">
