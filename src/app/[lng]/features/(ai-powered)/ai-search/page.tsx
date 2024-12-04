@@ -7,6 +7,7 @@ import fetchData from '@/app/[lng]/features/data'
 
 import PageClient from './page.client'
 import { seoTranslation } from '@/app/i18n'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function AiSearchPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -27,8 +28,5 @@ export default async function AiSearchPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return {
-    title: t('features.ai.search.title'),
-    description: t('features.ai.search.description'),
-  }
+  return getPageMetadata({ title: t('features.ai.search.title'), description: t('features.ai.search.description') })
 }

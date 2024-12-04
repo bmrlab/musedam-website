@@ -8,6 +8,7 @@ import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
 import fetchData from '../data'
 import PageClient from './page.client'
 import { seoTranslation } from '@/app/i18n'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -30,8 +31,5 @@ export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return {
-    title: t('features.dynamic-feedback.title'),
-    description: t('features.dynamic-feedback.description'),
-  }
+  return getPageMetadata({ title: t('features.dynamic-feedback.title'), description: t('features.dynamic-feedback.description') })
 }

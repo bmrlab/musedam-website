@@ -10,6 +10,7 @@ import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 import { seoTranslation, ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function InspirationCollectionPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -38,8 +39,5 @@ export default async function InspirationCollectionPage({ params }: PropsWithLng
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return {
-    title: t('features.inspiration-collection.title'),
-    description: t('features.inspiration-collection.description'),
-  }
+  return getPageMetadata({ title: t('features.inspiration-collection.title'), description: t('features.inspiration-collection.description') })
 }
