@@ -20,6 +20,7 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
 import { useLanguage } from '@/providers/Language'
+import { LocaleLink } from '../LocalLink'
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
   const isMobile = useIsMobile()
@@ -33,11 +34,11 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
     >
       <MobileMenu onClose={() => setIsOpen(false)} />
       <div className="shrink-0 px-4">
-        <Link href="/">
+        <LocaleLink href="/">
           <div className="relative size-9">
             <Image src="/assets/logo.svg" fill alt="muse logo" />
           </div>
-        </Link>
+        </LocaleLink>
       </div>
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
@@ -76,11 +77,11 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
       className="z-50 flex flex-col justify-between px-[30px] pb-[95px] pt-[76px] text-white"
     >
       <div className="absolute left-5 top-2.5 shrink-0" onClick={onClose}>
-        <Link href="/">
+        <LocaleLink href="/">
           <div className="relative size-9">
             <Image src="/assets/logo-dark.svg" fill alt="muse logo" />
           </div>
-        </Link>
+        </LocaleLink>
       </div>
       <Accordion type="single" collapsible className="no-scrollbar w-full overflow-y-scroll pb-5">
         <AccordionItemWrapper value="features">
@@ -92,7 +93,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
               </AccordionContent>
               {items.map((item, i) => (
                 <AccordionContent key={`${item.title}-${i}`} onClick={onClose}>
-                  <Link href={item.url ?? ''} legacyBehavior passHref>
+                  <LocaleLink href={item.url ?? ''} legacyBehavior passHref>
                     <div key={item.title} className="flex items-center gap-4">
                       <IconWrapper icon={item.icon} size={20} className="self-start text-white" />
                       <div className="flex flex-col gap-2">
@@ -104,7 +105,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </LocaleLink>
                 </AccordionContent>
               ))}
             </div>
@@ -113,23 +114,23 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
 
         <AccordionItemWrapper value="about-us">
           <AccordionTriggerWrapper disabled>
-            <Link href="/features/inspiration-collection" onClick={onClose}>
+            <LocaleLink href="/features/inspiration-collection" onClick={onClose}>
               {t('nav-bar.extension')}
-            </Link>
+            </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
         <AccordionItemWrapper value="about-us">
           <AccordionTriggerWrapper disabled>
-            <Link href="/about-us" onClick={onClose}>
+            <LocaleLink href="/about-us" onClick={onClose}>
               {t('nav-bar.about-us')}
-            </Link>
+            </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
         <AccordionItemWrapper value="careers">
           <AccordionTriggerWrapper disabled>
-            <Link href="/careers" onClick={onClose}>
+            <LocaleLink href="/careers" onClick={onClose}>
               {t('nav-bar.careers')}
-            </Link>
+            </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
       </Accordion>

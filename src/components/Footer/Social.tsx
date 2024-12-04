@@ -1,10 +1,10 @@
 import { Fragment } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 // import { useCountry } from '@/providers/Country'
 
 import Icons from '@/components/icon'
 import { useLanguage } from '@/providers/Language'
+import { LocaleLink } from '../LocalLink'
 
 const socialItemAbroad = [
   {
@@ -66,7 +66,7 @@ const SocialItemView = ({
   cardUrl?: string
   icon: React.ReactNode
 }) => {
-  const Wrapper = href ? (props) => <Link href={href} target="_blank" {...props} /> : Fragment
+  const Wrapper = href ? (props) => <LocaleLink href={href} target="_blank" {...props} /> : Fragment
 
   return (
     <div className="group relative flex w-fit items-center gap-1.5 overflow-visible">

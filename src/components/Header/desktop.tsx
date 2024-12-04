@@ -21,6 +21,7 @@ import { MotionImage } from '@/components/StyleWrapper/image'
 import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
 import { useLanguage } from '@/providers/Language'
+import { LocaleLink } from '../LocalLink'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -56,9 +57,9 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
       viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
     >
       <div className="shrink-0 px-4">
-        <Link href="/">
+        <LocaleLink href="/">
           <Image src="/assets/logo.svg" width={36} height={36} alt="muse logo"></Image>
-        </Link>
+        </LocaleLink>
       </div>
       <NavigationMenuList className="hidden flex-1 md:flex">
         <NavigationMenuItem>
@@ -96,7 +97,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                       ease: [0.4, 0, 0.2, 1],
                     }}
                   >
-                    <Link href={data.url ?? ''} legacyBehavior passHref>
+                    <LocaleLink href={data.url ?? ''} legacyBehavior passHref>
                       <NavigationMenuLink asChild>
                         <a
                           className={cn(
@@ -123,7 +124,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                           </div>
                         </a>
                       </NavigationMenuLink>
-                    </Link>
+                    </LocaleLink>
                   </motion.li>
                 ))}
               </ul>
@@ -177,25 +178,25 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/features/inspiration-collection" legacyBehavior passHref>
+          <LocaleLink href="/features/inspiration-collection" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.extension')}
             </NavigationMenuLink>
-          </Link>
+          </LocaleLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/about-us" legacyBehavior passHref>
+          <LocaleLink href="/about-us" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.about-us')}
             </NavigationMenuLink>
-          </Link>
+          </LocaleLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/careers" legacyBehavior passHref>
+          <LocaleLink href="/careers" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.careers')}
             </NavigationMenuLink>
-          </Link>
+          </LocaleLink>
         </NavigationMenuItem>
       </NavigationMenuList>
       <div className="flex size-full flex-1 items-center justify-end gap-6">

@@ -2,7 +2,6 @@
 
 import React, { useMemo } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 
 import useIsMobile from '@/hooks/useIsMobile'
 import useFooterData from '@/components/Footer/data'
@@ -12,6 +11,7 @@ import SocialWidget from '@/components/Footer/Social'
 import { useFooterTranslation } from '@/app/i18n/client'
 import { useCountry } from '@/providers/Country'
 import { useLanguage } from '@/providers/Language'
+import { LocaleLink } from '../LocalLink'
 
 export default function Footer() {
   const { t } = useFooterTranslation()
@@ -59,11 +59,11 @@ export default function Footer() {
             </h3>
             <div className="flex flex-col gap-3">
               {item.map(({ link }, j) => (
-                <Link key={j} href={link.url ?? ''}>
+                <LocaleLink key={j} href={link.url ?? ''}>
                   <span className="underline-animation font-mono text-[14px] font-light leading-[18.2px] text-[#141414]">
                     {link.label}
                   </span>
-                </Link>
+                </LocaleLink>
               ))}
             </div>
           </div>
