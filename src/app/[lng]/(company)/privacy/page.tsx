@@ -3,6 +3,7 @@ import PrivacyPageContent from '@/components/About/policy/PrivacyContent'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 import { MetadataProps, PropsWithLng } from '@/types/page'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function AllFeaturesPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -16,8 +17,5 @@ export default async function AllFeaturesPage({ params }: PropsWithLng) {
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
 
-  return {
-    title: t('privacy.title'),
-    description: t('privacy.description')
-  }
+  return getPageMetadata({ title: t('privacy.title'), description: t('privacy.description'), url: 'privacy' })
 }

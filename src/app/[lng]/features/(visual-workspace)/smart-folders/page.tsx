@@ -8,6 +8,7 @@ import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function SmartFoldersPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -30,8 +31,5 @@ export default async function SmartFoldersPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return {
-    title: t('features.smart-folders.title'),
-    description: t('features.smart-folders.description'),
-  }
+  return getPageMetadata({ title: t('features.smart-folders.title'), description: t('features.smart-folders.description') })
 }

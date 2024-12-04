@@ -7,6 +7,7 @@ import Icons from '@/components/icon'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import FeaturesBlock from '@/app/[lng]/features/_components/MoreFeatures/block'
 import { seoTranslation } from '@/app/i18n'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default function AllFeaturesPage() {
   return (
@@ -37,8 +38,5 @@ export default function AllFeaturesPage() {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return {
-    title: t('features.title'),
-    description: t('features.description'),
-  }
+  return getPageMetadata({ title: t('features.title'), description: t('features.description') })
 }
