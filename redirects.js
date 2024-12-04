@@ -12,7 +12,13 @@ const redirects = async () => {
     source: '/:path((?!ie-incompatible.html$).*)', // all pages except the incompatibility page
   }
 
-  const redirects = [internetExplorerRedirect]
+  const redirectToApp = {
+    source: '/:path(home|detail|share|login|profile)/:rest*',
+    destination: 'https://musedam.cc/:path/:rest*',
+    permanent: true,
+  }
+
+  const redirects = [internetExplorerRedirect, redirectToApp]
 
   return redirects
 }
