@@ -144,7 +144,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       style={{
         background: data[swiperIndex].bgColor,
       }}
-      className="grid h-[8000px] w-full grid-cols-9"
+      className="grid h-[8000px] w-full grid-cols-9 transition-colors duration-500 ease-in-out"
     >
       <SwiperContentContainer className="py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
