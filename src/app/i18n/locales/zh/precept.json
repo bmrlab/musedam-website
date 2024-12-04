@@ -40,5 +40,65 @@
   "precept.card9.name": "Oliver Anderson",
   "precept.card9.role": "Art Director",
   "precept.card9.description0": "视觉团队中，各项目成员会将工作使用到的设计素材、图片素材、已购版权素材、设计源文件归档、字体、Icon 等常用素材进行统一管理整合。",
-  "precept.card9.description1": "MuseDAM 不仅达到并且还大大超出了我们的预期。界面清晰，功能全面，完美契合我们的创意工作流程。"
+  "precept.card9.description1": "MuseDAM 不仅达到并且还大大超出了我们的预期。界面清晰，功能全面，完美契合我们的创意工作流程。",
+  "cn.precept.card0": {
+    "name": "时禅设计",
+    "role": "设计工作室",
+    "description0": "视觉团队中，各项目成员会将工作使用到的设计素材、图片素材、已购版权素材、设计源文件归档、字体、Icon 等常用素材进行统一管理整合。",
+    "description1": "MuseDAM 不仅达到并且还大大超出了我们的预期。界面清晰，功能全面，完美契合我们的创意工作流程。"
+  },
+  "cn.precept.card1": {
+    "name": "同济人工智能实验室",
+    "role": "智能科技先锋",
+    "description0": "特赞做 DAM 好多年了，数据安全信得过，而 MuseDAM 满足我们对一款团队资源管理器的所有需求，可以采集灵感、打标、分享、预览也超强、上传下载特别快，查找起来非常容易，省了很多时间！",
+    "description1": ""
+  },
+  "cn.precept.card2": {
+    "name": "Design360°",
+    "role": "创意者的必读刊物",
+    "description0": "MuseDAM 让我们的营销团队耳目一新，它让分享和管理数字资产变得轻而易举。",
+    "description1": "这个工具不仅直观易用，而且功能强大。"
+  },
+  "cn.precept.card3": {
+    "name": "上海设计周",
+    "role": "设计驱动未来",
+    "description0": "上海设计周一直在找这样的数字资产管理软件：在线预览丰富，MuseDAM 支持70多种格式；查找方式多样，可以通过颜色、格式、备注、标签、评分等等多种方式查找素材；AI 应用丰富，不管是模型训练还是 AI 智能作图，都能让团队创意生产更高效。",
+    "description1": ""
+  },
+  "cn.precept.card4": {
+    "name": "视觉风暴杂志",
+    "role": "视觉艺术风向标",
+    "description0": "我们团队 40 多人，基本是视觉设计师/视频设计师/品牌设计师在协作中使用 MuseDAM。",
+    "description1": "Muse 彻底改变了我们团队对资产管理的方法。它直观易用，已经成为我们创意流程的核心。"
+  },
+  "cn.precept.card5": {
+    "name": "即时设计",
+    "role": "云端 UI 设计协作工具",
+    "description0": "即时设计本身在做专业级的在线设计工具，很早期就跟 MuseDAM 达成了友好合作，MuseDAM 里传上来的 Sketch、Figma、XD、JSD 文件都可以在线用即时设计打开直接进行编辑。",
+    "description1": "我们团队也会用 MuseDAM 来进行设计灵感存储、共享和协作。现在 MuseDAM 的采集器还支持 Midjourney、Pinterest、Behance、站酷等灵感网站图片的批量采集，非常推荐。"
+  },
+  "cn.precept.card6": {
+    "name": "文渊集团",
+    "role": "数字阅读与IP巨头",
+    "description0": "MuseDAM 在我们看来就是数字资产管理的全能工具。它集多种功能于一身，让我们的日常工作不仅变得简单，还增添了乐趣。",
+    "description1": "现在，团队成员已经无法想象没有 MuseDAM 的日子了。"
+  },
+  "cn.precept.card7": {
+    "name": "BMRLab",
+    "role": "探索数字艺术的实验室",
+    "description0": "MuseDAM 非常好得解决了我们团队的协作问题，我们做 3D IP 的形象创作，有很多过程中的 3D 源文件，之前用网盘协作时非常痛苦。现在终于能集中在一个地方管理全部内容，协作起来很高效。 ",
+    "description1": "而且产品迭代非常快，很关心用户的反馈 💖 "
+  },
+  "cn.precept.card8": {
+    "name": "未来视界集团",
+    "role": "未来科技领航者",
+    "description0": "MuseDAM 极大地提升了我们工作流程的效率。",
+    "description1": "在市面上几款云端资源管理的平台中，MuseDAM 针对团队协作有一定的优势，且基于特赞大公司的背景，让我们对购买该产品有一定的信任度以及资源背书。并且我们能看到很多产品功能在不断地更新迭代。"
+  },
+  "cn.precept.card9": {
+    "name": "艺境空间设计",
+    "role": "空间美学专家",
+    "description0": "自从转向 MuseDAM，我们的工作流程变得无比顺畅，它已经成为我们内容创作不可或缺的日常工具。特别是智能标签和筛选功能，让我们在管理资产上节省了大量的宝贵时间。",
+    "description1": ""
+  }
 }

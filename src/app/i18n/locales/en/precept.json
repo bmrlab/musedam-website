@@ -40,5 +40,65 @@
   "precept.card9.name": "Oliver Anderson",
   "precept.card9.role": "Art Director",
   "precept.card9.description0": "With Muse, we've found a digital asset manager that not only meets but exceeds our expectations.",
-  "precept.card9.description1": "The user interface is clean, and the functionality is robust—perfect for our creative workflow."
+  "precept.card9.description1": "The user interface is clean, and the functionality is robust—perfect for our creative workflow.",
+  "cn.precept.card0": {
+    "name": "TimeZen",
+    "role": "Design Studio",
+    "description0": "Within our visual team, project members consolidate and manage the design materials, image assets, purchased copyrighted materials, design source files, fonts, icons, and other commonly used materials.",
+    "description1": ""
+  },
+  "cn.precept.card1": {
+    "name": "Tongji AI Lab",
+    "role": "Pioneer in AI",
+    "description0": "We have been using DAM (Digital Asset Management) solutions for many years and trust in the data security they provide. MuseDAM meets all our needs for a team resource manager. It's excellent for collecting inspiration, tagging, sharing, and previewing. The upload and download speeds are incredibly fast, and it's very easy to search for items, saving us a lot of time!",
+    "description1": ""
+  },
+  "cn.precept.card2": {
+    "name": "Design360°",
+    "role": "Publication for Creatives",
+    "description0": "MuseDAM has been a breath of fresh air for our marketing team, making the sharing and management of digital assets a breeze. This tool is not only intuitive and easy to use but also powerful in functionality.",
+    "description1": ""
+  },
+  "cn.precept.card3": {
+    "name": "Shanghai Design Week",
+    "role": "Design Drives the Future",
+    "description0": "Shanghai Design Week has been searching for digital asset management software like this: MuseDAM offers rich online previews and supports over 70 formats; it provides diverse search methods, allowing us to find materials through color, format, comments, tags, ratings, and many other ways; the AI applications are abundant, whether it's model training or AI-assisted graphic design, it makes our team's creative production more efficient.",
+    "description1": ""
+  },
+  "cn.precept.card4": {
+    "name": "Visual Storm Magazine",
+    "role": "A Beacon for Visual Arts",
+    "description0": "Our team of over 40, consisting mainly of visual designers, video designers, and brand designers, uses MuseDAM collaboratively. Muse has completely transformed our team's approach to asset management. It is intuitive and user-friendly, having become the core of our creative process.",
+    "description1": ""
+  },
+  "cn.precept.card5": {
+    "name": "JS Design",
+    "role": "Cloud-based UI Design Tool",
+    "description0": "JS Design is a professional online design tool, and we established a friendly partnership with MuseDAM very early on. Sketch, Figma, XD, and JSD files uploaded to MuseDAM can all be opened and edited directly online with Instant Design. Our team also uses MuseDAM for storing, sharing, and collaborating on design inspiration. Now, MuseDAM's collector also supports batch collection of images from inspiration websites like Midjourney, Pinterest, Behance, and ZCOOL, which we highly recommend.",
+    "description1": ""
+  },
+  "cn.precept.card6": {
+    "name": "Wen Yuan Group",
+    "role": "Giant in Digital Reading",
+    "description0": "In our view, MuseDAM is the ultimate tool for digital asset management. It combines a variety of functions, making our daily work not only simpler but also more enjoyable. Now, our team members can't imagine a day without MuseDAM.",
+    "description1": ""
+  },
+  "cn.precept.card7": {
+    "name": "BMRLab",
+    "role": "Exploring Digital Art",
+    "description0": "MuseDAM has excellently resolved our team's collaboration issues. We create 3D IPs and have many 3D source files in the process. Collaborating with cloud storage was quite painful before. Now, we can finally manage everything in one place, making collaboration very efficient. Moreover, the product迭代s very quickly and the team is very attentive to user feedback. 💖 ",
+    "description1": ""
+  },
+  "cn.precept.card8": {
+    "name": "Future Vision Group",
+    "role": "A Leader in Future Technology",
+    "description0": "MuseDAM has significantly enhanced the efficiency of our workflow. Among several cloud-based resource management platforms on the market, MuseDAM has certain advantages in team collaboration. With the backing of a large company like Tezign, it gives us a certain level of trust and resource endorsement when purchasing the product. Additionally, we can see that many product features are continuously being updated and iterated.",
+    "description1": ""
+  },
+  "cn.precept.card9": {
+    "name": "Art Realm Design",
+    "role": "Expert in Spatial Aesthetics",
+    "description0": "Since transitioning to MuseDAM, our workflow has become incredibly smooth, and it has become an indispensable daily tool for our content creation. In particular, the intelligent tagging and filtering features have saved us a significant amount of valuable time in managing our assets.",
+    "description1": ""
+  }
 }
