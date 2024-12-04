@@ -148,7 +148,7 @@ export default function usePreceptData() {
     [t],
   )
 
-  const data = useMemo(() => (!isInChina ? cnData : enData), [isInChina, cnData, enData])
+  const data = useMemo(() => (isInChina ? cnData : enData), [isInChina, cnData, enData])
 
   return { data }
 }
