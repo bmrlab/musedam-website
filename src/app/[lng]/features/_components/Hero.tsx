@@ -59,7 +59,7 @@ export default function Hero({
             {buttonText}
           </BlackButton>
         </Link>
-        <Icons.arrowDownRight className="hidden size-8 text-black md:block" />
+        <Icons.arrowDownRight className="hidden size-8 animate-[bounce-y_1.5s_ease-in-out_infinite] text-black md:block" />
       </FadeInUpContainer>
     </DotContainer>
   )
