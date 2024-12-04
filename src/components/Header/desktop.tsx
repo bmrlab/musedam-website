@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useLanguage } from '@/providers/Language'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LucideProps } from 'lucide-react'
@@ -19,8 +20,8 @@ import {
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import { useHeaderTranslation } from '@/app/i18n/client'
+
 import { LocaleSwitch } from './LocalSwitch'
-import { useLanguage } from '@/providers/Language'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -142,6 +143,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         src={currentHeroImage}
                         width={430}
                         height={430}
+                        priority
                         alt="hero image"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -155,6 +157,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         src={DEFAULT_HERO_IMAGE}
                         width={327}
                         height={286}
+                        priority
                         alt="bmr logo"
                         initial={{
                           opacity: 0,
