@@ -4,6 +4,8 @@ envs:
   value: ""
 global:
   envs:
+  - name: NEXT_PUBLIC_DEPLOY_REGION
+    value: global
   - name: DATABASE_URI
     value: ""
   - name: PAYLOAD_SECRET
@@ -22,6 +24,8 @@ global:
     value: ""
 mainland:
   envs:
+  - name: NEXT_PUBLIC_DEPLOY_REGION
+    value: mainland
   - name: DATABASE_URI
     value: ""
   - name: PAYLOAD_SECRET

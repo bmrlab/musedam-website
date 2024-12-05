@@ -1,2 +1,7 @@
 node_modules
 .next
+.env
+.vscode
+/helmchart
+/docker-compose.yml
+/.github

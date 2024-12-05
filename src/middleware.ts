@@ -12,6 +12,30 @@ export const config = {
 const PUBLIC_FILE = /\.(.*)$/
 
 export async function middleware(req: NextRequest) {
+  if (req.nextUrl.pathname.endsWith('.ping')) {
+    const host = req.headers.get('host')
+    const protocol = req.headers.get('x-forwarded-proto') || 'http'
+    const path = req.nextUrl.pathname
+    const ip = req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || 'unknown'
+    const region = process.env.NEXT_PUBLIC_DEPLOY_REGION
+
+    return new NextResponse(
+      JSON.stringify({
+        host,
+        protocol,
+        path,
+        ip,
+        region,
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+  }
+
   if (req.nextUrl.pathname.indexOf('icon') > -1 || req.nextUrl.pathname.indexOf('chrome') > -1)
     return NextResponse.next()
   // 获取IP地址所属国家 - vercel
