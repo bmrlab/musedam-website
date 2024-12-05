@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
@@ -13,7 +13,6 @@ import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
-import Loading from '@/components/LandingPage/loading'
 import { languages } from '@/app/i18n/settings'
 
 import { euclidCircularA, plexMono } from './fonts'
@@ -47,14 +46,15 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers lng={lng} country={process.env.NEXT_PUBLIC_DEPLOY_REGION?.toLowerCase()}>
-          <Suspense fallback={<Loading />}>
-            <Header />
-            <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
-              <NextTopLoader color="#000" />
-              {children}
-            </div>
-            <Footer />
-          </Suspense>
+          {/*<AdminBar />*/}
+          <Header />
+          <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
+            <NextTopLoader
+              color="#000"
+            />
+            {children}
+          </div>
+          <Footer />
         </Providers>
         <TailwindIndicator />
         <Toaster />
