@@ -6,7 +6,7 @@ import { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { useMeasure, useWindowScroll, useWindowSize } from 'react-use'
 import Icons from '../icon'
 import { useTranslation } from '@/app/i18n/client'
-import Link from 'next/link'
+import { LocaleLink } from '../LocalLink'
 
 const keyframes = [0.4, 0.45]
 
@@ -49,7 +49,7 @@ export default function HomeHero() {
   }, [scrolledPrecent])
   return (
     <div
-      className="hero-container w-full overflow-hidden"
+      className="hero-container w-full overflow-hidden bg-black"
       style={{
         height: `calc(100vh + ${paddingBottom}px)`,
         paddingBottom: `${paddingBottom}px`,
@@ -57,7 +57,7 @@ export default function HomeHero() {
     >
       <div
         ref={ref}
-        className={`flex max-h-screen w-full max-w-[100vw] translate-x-0 translate-y-0 flex-col justify-end overflow-hidden bg-black py-0 text-white lg:justify-center ${scrolledPrecent >= 1 ? 'relative' : 'fixed inset-0'
+        className={`flex max-h-screen w-full max-w-[100vw] translate-x-0 translate-y-0 flex-col justify-end overflow-hidden bg-black py-0 text-white lg:justify-center ${scrolledPrecent >= 1 ? 'relative' : 'fixed inset-0 top-[50px]'
           }`}
         style={{
           width: `${windowWidth}px`,
@@ -81,8 +81,8 @@ export default function HomeHero() {
           <Image
             src={'/assets/Company/intro-mask.svg'}
             className="absolute inset-0 hidden lg:block"
-            fill
             alt="hero-mask"
+            fill
             style={{
               objectFit: 'cover',
             }}
@@ -110,13 +110,13 @@ export default function HomeHero() {
             </h1>
             <Button className="mt-10 h-[48px] min-w-[180px] cursor-pointer rounded-full shadow shadow-transparent ring-2 ring-white transition-colors hover:bg-white hover:text-black hover:shadow-white md:mt-20"
             >
-              <Link
+              <LocaleLink
                 href={'/careers'}
                 className='flex items-center justify-center gap-4'
               >
                 <span className="inline-block font-mono">{t("about-us.hero.join.btn")}</span>
                 <Icons.arrowRight width={16} height={10} />
-              </Link>
+              </LocaleLink>
             </Button>
           </div>
         </div>
@@ -141,13 +141,13 @@ export default function HomeHero() {
               <Button
                 className="mt-10 h-[48px] min-w-[180px] cursor-pointer rounded-full shadow shadow-transparent ring-2 ring-white transition-colors hover:bg-white hover:text-black hover:shadow-white md:mt-20"
               >
-                <Link
+                <LocaleLink
                   href={'/careers'}
                   className='flex items-center justify-center gap-4'
                 >
                   <span className="inline-block font-mono">{t("about-us.hero.join.btn")}</span>
                   <Icons.arrowRight width={16} height={10} />
-                </Link>
+                </LocaleLink>
               </Button>
             </div>
           </div>

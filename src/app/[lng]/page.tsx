@@ -1,12 +1,19 @@
 import LandingPage from '@/components/LandingPage'
 import { Metadata } from 'next'
-
+import { seoTranslation } from '@/app/i18n'
+import { MetadataProps } from '@/types/page'
 export default LandingPage
 
-export function generateMetadata(): Metadata {
+
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
+
   return {
-    title: 'MuseDAM | AI-Powered Digital Asset Management - Collect, Organize, Collaborate',
-    description:
-      'Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.',
+    title: t('home.title'),
+    description: t('home.description'),
+    openGraph: {
+      title: ''
+    }
   }
 }
