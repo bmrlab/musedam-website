@@ -1,4 +1,4 @@
-version: v1.0.3
+version: v1.0.4
 envs:
 - name: NEXT_PUBLIC_IS_LIVE
   value: ""
