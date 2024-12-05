@@ -13,7 +13,6 @@ import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
-import { getCountry } from '@/app/[lng]/country'
 import { languages } from '@/app/i18n/settings'
 
 import { euclidCircularA, plexMono } from './fonts'
