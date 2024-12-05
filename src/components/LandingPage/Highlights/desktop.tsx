@@ -210,7 +210,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                       {item.point?.map((point, index) => (
                         <div key={index} className="space-y-2">
                           {/* 圆点 */}
-                          <h3 className="flex items-center gap-1.5 text-[16px] font-medium leading-[24px] text-[#141414]">
+                          <h3 className="flex items-center gap-1.5 text-[16px] font-normal leading-[24px] text-[#141414]">
                             <div className="size-1 rounded-full bg-black"></div>
                             {point.title}
                           </h3>

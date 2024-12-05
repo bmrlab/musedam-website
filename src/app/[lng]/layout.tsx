@@ -51,6 +51,7 @@ export default async function RootLayout({
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
             <NextTopLoader
               color="#000"
+              height={1}
             />
             {children}
           </div>

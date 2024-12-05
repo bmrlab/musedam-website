@@ -1,7 +1,7 @@
-import { HTMLAttributes } from 'react'
+import { HTMLAttributes, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { cn, twx } from '@/utilities/cn'
-import { motion } from 'framer-motion'
+import { motion, useAnimation } from 'framer-motion'
 
 import useIsMobile from '@/hooks/useIsMobile'
 import usePublicUrl from '@/hooks/usePublicUrl'
@@ -31,7 +31,7 @@ export const CollectImageGroup = ({
   onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
-  const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { ref, isBuildFinished, controls } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(CollectImagePrefix)
   const { isZhLng } = useIsZhLng()
 
@@ -49,9 +49,7 @@ export const CollectImageGroup = ({
         height={isMobile ? 197.77 : 368}
         alt="MuseDAM-Collect-BG"
         className={cn('rounded-[9px]', isMobile && 'w-full rounded-[4.84px]')}
-        initial={{ opacity: 0, x: '10%' }}
-        animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6 }}
+        animate={controls}
         onAnimationComplete={handleAnimationComplete}
       />
       <MotionShadowImage
@@ -135,7 +133,7 @@ export const OrganizeImageGroup = ({
   onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
-  const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { ref, isBuildFinished, controls } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(OrganizeImagePrefix)
   const { handleAnimationComplete } = useAnimationComplete({
     totalAnimations: 6,
@@ -165,9 +163,7 @@ export const OrganizeImageGroup = ({
           height={isMobile ? 187.03 : 348}
           alt="MuseDAM-Organize-BG.png"
           className={cn('rounded-[9px]', isMobile && 'w-full rounded-[4.84px]')}
-          initial={{ opacity: 0, x: '10%' }}
-          animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          animate={controls}
           onAnimationComplete={handleAnimationComplete}
         />
         <MotionShadowImage
@@ -240,7 +236,7 @@ export const CollaborateImageGroup = ({
   onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
-  const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { ref, isBuildFinished, controls } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(CollaborateImagePrefix)
 
   const { handleAnimationComplete } = useAnimationComplete({
@@ -269,9 +265,7 @@ export const CollaborateImageGroup = ({
           width={isMobile ? 290.21 : 540}
           height={isMobile ? 192.4 : 358}
           alt="MuseDAM-Collaborate-BG"
-          initial={{ opacity: 0, x: '10%' }}
-          animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          animate={controls}
           onAnimationComplete={handleAnimationComplete}
         />
         <MotionImage
@@ -326,7 +320,7 @@ export const AIGenerateImageGroup = ({
   onAnimationComplete,
 }: ImageGroupProps) => {
   const isMobile = useIsMobile()
-  const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
+  const { ref, isBuildFinished, controls } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(AIGenerateImagePrefix)
   const { isZhLng } = useIsZhLng()
   const { handleAnimationComplete } = useAnimationComplete({
@@ -342,9 +336,7 @@ export const AIGenerateImageGroup = ({
         width={isMobile ? 291.09 : 540}
         height={isMobile ? 198.37 : 368}
         alt="MuseDAM-AI-Generate-BG"
-        initial={{ opacity: 0, x: '10%' }}
-        animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6 }}
+        animate={controls}
         onAnimationComplete={handleAnimationComplete}
       />
       <MotionImage
@@ -381,8 +373,8 @@ export const AIGenerateImageGroup = ({
         height={isMobile ? 172.63 : 321.21}
         alt="MuseDAM-AI-Generate-Copilot"
         className={cn(
-          'absolute right-[-48.2px] top-[105.26px]',
-          isMobile && 'right-[-24.98px] top-[56.52px]',
+          'absolute right-[-48.2px] top-[105.26px] rounded-[10px] shadow-[0px_2.15px_16.12px_2.15px_#00000014] md:shadow-[0px_4px_30px_4px_#00000014]',
+          isMobile && 'right-[-24.98px] top-[56.52px] rounded-[5.37px]',
         )}
         initial={{ opacity: 0, y: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}

@@ -195,7 +195,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             onAnimationComplete={() => handleAnimationComplete(7)}
           />
           <RelativeContainer>
-            <MotionImage
+            {/* <MotionImage
               ref={aiParseTagRef}
               src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"
               width={14.08}
@@ -207,7 +207,7 @@ export default function MobileBanner({ className }: { className?: string }) {
               animate={isBuildFinished(22) ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
               onAnimationComplete={() => handleAnimationComplete(24)}
-            />
+            /> */}
             <div className="absolute bottom-[22px] right-[3px] z-[2] h-[192px] w-[180px] object-cover">
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
