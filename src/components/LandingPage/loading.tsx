@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import Image from 'next/image'
 
 import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
@@ -21,9 +21,9 @@ export default function Loading() {
     })
   }, [setProgress])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     pushProgress()
-  }, [])
+  }, [pushProgress])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -37,7 +37,7 @@ export default function Loading() {
   }, [pushProgress])
 
   return (
-    <div className="relative h-screen w-screen bg-black">
+    <div className="fixed top-0 z-[100] h-screen w-screen bg-black">
       <FlexCenterContainer className="flex size-full flex-col">
         <Image src="/assets/logo-dark.svg" width={100} height={100} alt="muse logo" />
         <div className="absolute bottom-[80px] flex w-[194px] flex-col items-center gap-4">
