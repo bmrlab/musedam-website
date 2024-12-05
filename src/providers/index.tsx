@@ -1,18 +1,17 @@
 import React from 'react'
 import { LanguageProvider } from '@/providers/Language'
 
+import { CountryProvider } from './Country'
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
-import { CountryProvider } from './Country'
 
 export const Providers: React.FC<{
   lng: string
-  country: string
   children: React.ReactNode
-}> = ({ lng, children, country }) => {
+}> = ({ lng, children }) => {
   return (
     <LanguageProvider lng={lng}>
-      <CountryProvider initialCountry={country}>
+      <CountryProvider initialCountry={process.env.NEXT_PUBLIC_DEPLOY_REGION?.toLowerCase()}>
         <ThemeProvider>
           <HeaderThemeProvider>{children}</HeaderThemeProvider>
         </ThemeProvider>
