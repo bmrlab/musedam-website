@@ -51,7 +51,7 @@ const Card = ({ name, role, description, avatar }: PreceptData) => {
       <div className="flex items-center gap-4">
         <Image src={avatar} width={64} height={64} alt={name} className="rounded-full" />
         <div className="grid items-center justify-start gap-1.5">
-          <h4 className="text-[20px] font-extralight leading-[26px] md:text-[24px] md:leading-[28px]">
+          <h4 className="text-[18px] font-extralight leading-[26px]">
             {name}
           </h4>
           <span className="text-[13px] font-light leading-[16.9px] text-[#898989]">{role}</span>

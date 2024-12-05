@@ -21,6 +21,7 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
 import { LocaleLink } from '../LocalLink'
+import useIsZhLng from '@/hooks/useIsZhLng';
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
@@ -58,6 +59,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
   const { language } = useLanguage()
+  const { isZhLng } = useIsZhLng()
   return (
     <nav
       style={{
@@ -96,7 +98,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                         <div className="text-[16px] font-medium leading-[16px] group-hover:after:w-full">
                           {item.title}
                         </div>
-                        <div className="text-[13px] leading-[19.5px] text-white/60">
+                        <div className={cn("text-[13px] leading-[19.5px] text-white/60", isZhLng && 'font-light')}>
                           {item.description}
                         </div>
                       </div>
