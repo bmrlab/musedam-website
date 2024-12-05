@@ -80,7 +80,7 @@ function createSkeletonHOC<P extends BaseProps>(
       return type === 'video'
         ? {
             ref: videoRef,
-            onLoadedData: () => setIsLoading(true),
+            onLoadedData: () => setIsLoading(false),
           }
         : { onLoad: () => setIsLoading(false) }
     }, [type])
@@ -103,7 +103,7 @@ function createSkeletonHOC<P extends BaseProps>(
           width={width}
           height={height}
           className={cn(
-            'transition-opacity duration-300 ease-in-out',
+            // 'transition-opacity duration-300 ease-in-out',
             isLoading ? 'opacity-0' : 'opacity-100',
             className,
           )}

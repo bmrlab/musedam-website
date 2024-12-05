@@ -48,7 +48,6 @@ export default async function RootLayout({
       <body>
         <Providers lng={lng} country={process.env.NEXT_PUBLIC_DEPLOY_REGION?.toLowerCase()}>
           <Suspense fallback={<Loading />}>
-            {/*<AdminBar />*/}
             <Header />
             <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
               <NextTopLoader color="#000" />
