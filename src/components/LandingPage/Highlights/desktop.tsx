@@ -146,7 +146,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
       }}
       className="grid h-[8000px] w-full grid-cols-9 transition-colors duration-500 ease-in-out"
     >
-      <SwiperContentContainer className="py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
+      <SwiperContentContainer className="col-span-4 py-[80px] pl-[30px] pr-[80px] transition-colors duration-500 ease-in-out">
         <Toc
           data={data.map((d) => d.title)}
           activeIndex={swiperIndex}
@@ -239,7 +239,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
           ))}
         </Swiper>
       </SwiperContentContainer>
-      <SwiperContentContainer>
+      <SwiperContentContainer className="col-span-5">
         <Swiper
           speed={0}
           cssMode={false}
@@ -316,4 +316,4 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
 
 const ImageContainer = twx.div`w-full h-[480px] flex justify-center items-center`
 
-const SwiperContentContainer = twx.div`sticky top-[80px] col-span-4 flex h-screen w-full items-center justify-center`
+const SwiperContentContainer = twx.div`sticky top-[80px] flex h-screen w-full items-center justify-center`
