@@ -1,9 +1,10 @@
 'use client'
 
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react'
+import { Region } from '@/constant/enum/region'
 
 interface CountryContextType {
-  country: string
+  country?: string
   setCountry: (country: string) => void
   isInChina: boolean
 }
@@ -15,11 +16,11 @@ export const CountryProvider = ({
   initialCountry,
 }: {
   children: ReactNode
-  initialCountry: string
+  initialCountry?: string
 }) => {
-  const [country, setCountry] = useState<string>(initialCountry)
+  const [country, setCountry] = useState<string | undefined>(initialCountry)
 
-  const isInChina = useMemo(() => country === 'CN', [country])
+  const isInChina = useMemo(() => country === Region.MainLand, [country])
   return (
     <CountryContext.Provider value={{ country, setCountry, isInChina }}>
       {children}
