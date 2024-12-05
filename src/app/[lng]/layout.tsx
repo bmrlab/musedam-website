@@ -32,7 +32,6 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>
 }) {
   const { lng } = await params
-  const country = await getCountry(lng)
 
   return (
     <html
@@ -47,7 +46,7 @@ export default async function RootLayout({
         <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <Providers lng={lng} country={country}>
+        <Providers lng={lng} country={process.env.NEXT_PUBLIC_DEPLOY_REGION?.toLowerCase()}>
           {/*<AdminBar />*/}
           <Header />
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
