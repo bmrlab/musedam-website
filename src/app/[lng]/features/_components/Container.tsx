@@ -8,6 +8,7 @@ export type FeaturesContainerProps = PropsWithChildren<
   {
     bgColor: string
     handleAnimationComplete: (step: number) => void
+    containerClassName?: string
   } & React.HTMLAttributes<HTMLDivElement>
 >
 
@@ -16,6 +17,7 @@ export default function FeaturesContainer({
   handleAnimationComplete,
   className,
   children,
+  containerClassName,
   ...props
 }: FeaturesContainerProps) {
   return (
@@ -24,7 +26,7 @@ export default function FeaturesContainer({
         height: '100%',
         background: bgColor,
       }}
-      className="rounded-b-[30px] md:rounded-b-none"
+      className={cn('rounded-b-[30px] md:rounded-b-none', containerClassName)}
       {...props}
     >
       <motion.div
