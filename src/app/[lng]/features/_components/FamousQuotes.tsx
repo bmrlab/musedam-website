@@ -21,7 +21,7 @@ export default function FamousQuotes({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative flex h-[480px] w-full flex-col items-center justify-center bg-[#06063A] text-white md:h-[800px]',
+        'relative flex w-full flex-col items-center justify-center bg-[#06063A] py-20 text-white md:h-[800px]',
         className,
       )}
     >

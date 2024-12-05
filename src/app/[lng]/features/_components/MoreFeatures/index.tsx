@@ -19,7 +19,7 @@ export default function MoreFeatures({ titleI18nKey, features }: MoreFeaturesPro
   return (
     <FadeInUpContainer className="w-screen">
       <div className="flex flex-col items-center justify-center gap-2 px-6 pt-12 md:flex-row md:justify-between md:gap-0 md:px-[80px] md:pt-[82.5px]">
-        <h2 className="font-euclid text-[35px] font-normal leading-[43.47px] tracking-[1px] text-[#141414] md:text-[64px] md:leading-[83.2px]">
+        <h2 className="text-center font-euclid text-[35px] font-normal leading-[43.47px] tracking-[1px] text-[#141414] md:text-[64px] md:leading-[83.2px]">
           {t(titleI18nKey)}
         </h2>
         <LocaleLink

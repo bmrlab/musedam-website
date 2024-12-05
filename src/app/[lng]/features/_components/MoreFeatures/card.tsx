@@ -78,7 +78,7 @@ export function FeaturesRectIconCard({
   darkness,
 }: FeaturesCardProps & { className?: string }) {
   return (
-    <LocaleLink href={href}>
+    <LocaleLink href={href} className='w-full md:w-auto'>
       <div
         style={{ background: bgColor }}
         className={cn('flex cursor-pointer flex-col rounded-[24px] px-6 py-[30px]', className)}

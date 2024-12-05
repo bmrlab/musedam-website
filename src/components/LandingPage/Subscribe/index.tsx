@@ -9,6 +9,7 @@ import SubscribeForm from '@/components/LandingPage/Subscribe/form'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
 import { HoverTranslateXArrowRight } from '@/components/StyleWrapper/icon'
 import { ssTranslation } from '@/app/i18n'
+import { twMerge } from 'tailwind-merge'
 
 export default async function SubscribeBlock({
   lng,
@@ -41,7 +42,7 @@ export default async function SubscribeBlock({
       )}
     >
       <FadeInUpContainer>
-        <h2 className="text-center font-euclid text-[38px] font-normal leading-[43.47px]  md:text-left md:text-[48px] md:leading-[54.91px]">
+        <h2 className="text-center font-euclid  text-[32px] font-normal leading-[43.47px]  md:text-left md:text-[48px] md:leading-[54.91px]">
           {t('subscribe.title')}
         </h2>
       </FadeInUpContainer>

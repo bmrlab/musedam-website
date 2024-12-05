@@ -19,7 +19,7 @@ export default async function TeamManagementPage({ params }: PropsWithLng) {
     textDisplayLength: 4,
   })
   return (
-    <div>
+    <div className='w-full'>
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
         <PageClient />

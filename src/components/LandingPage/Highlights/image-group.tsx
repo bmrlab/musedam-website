@@ -7,6 +7,7 @@ import useIsMobile from '@/hooks/useIsMobile'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import useAnimationComplete from '@/components/LandingPage/Highlights/useAnimationComplete'
 import { useAnimationControl } from '@/components/LandingPage/Highlights/useAnimationControl'
+import useIsZhLng from '@/hooks/useIsZhLng'
 
 const CollectImagePrefix = '/assets/Highlights/Collect'
 const OrganizeImagePrefix = '/assets/Highlights/Organize'
@@ -32,6 +33,7 @@ export const CollectImageGroup = ({
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(CollectImagePrefix)
+  const { isZhLng } = useIsZhLng()
 
   const { handleAnimationComplete } = useAnimationComplete({
     totalAnimations: 5,
@@ -39,14 +41,14 @@ export const CollectImageGroup = ({
   })
 
   return (
-    <RelativeContainer>
+    <RelativeContainer className='mb-[20px]'>
       <MotionShadowImage
         ref={ref}
         src={getUrl('MuseDAM-Collect-BG.png')}
         width={isMobile ? 290.21 : 540}
         height={isMobile ? 197.77 : 368}
         alt="MuseDAM-Collect-BG"
-        className={cn('rounded-[9px]', isMobile && 'rounded-[4.84px]')}
+        className={cn('rounded-[9px]', isMobile && 'w-full rounded-[4.84px]')}
         initial={{ opacity: 0, x: '10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.6 }}
@@ -54,12 +56,13 @@ export const CollectImageGroup = ({
       />
       <MotionShadowImage
         src={getUrl('MuseDAM-Collect-Browser-Plugin.png')}
-        width={isMobile ? 62.12 : 114}
+        width={isZhLng ? (isMobile ? 45 : 79) : isMobile ? 62.12 : 114}
         height={isMobile ? 13.45 : 25}
         alt="MuseDAM-Collect-Browser-Plugin"
         className={cn(
           'absolute left-[-45.37px] top-[51px] rounded-[6.4px]',
           isMobile && 'left-[-24.79px] top-[27.42px] rounded-[3.44px]',
+          isMobile && isZhLng && 'left-[-15px]'
         )}
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -138,6 +141,7 @@ export const OrganizeImageGroup = ({
     totalAnimations: 6,
     onAnimationComplete,
   })
+  const { isZhLng } = useIsZhLng()
   return (
     <div
       className={cn('flex h-full flex-col gap-[28.93px]', isMobile && 'gap-[15.55px]', className)}
@@ -150,7 +154,7 @@ export const OrganizeImageGroup = ({
         initial={{ opacity: 0, y: '-20px' }}
         animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 1 }}
-        className="rounded-full"
+        className={cn('rounded-full', isMobile && 'w-full')}
         onAnimationComplete={handleAnimationComplete}
       />
       <RelativeContainer>
@@ -160,7 +164,7 @@ export const OrganizeImageGroup = ({
           width={isMobile ? 290.21 : 540}
           height={isMobile ? 187.03 : 348}
           alt="MuseDAM-Organize-BG.png"
-          className={cn('rounded-[9px]', isMobile && 'rounded-[4.84px]')}
+          className={cn('rounded-[9px]', isMobile && 'w-full rounded-[4.84px]')}
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6 }}
@@ -168,12 +172,13 @@ export const OrganizeImageGroup = ({
         />
         <MotionShadowImage
           src={getUrl('MuseDAM-Organize-70-File-Formats.png')}
-          width={isMobile ? 67.05 : 124}
+          width={isMobile ? 67.05 : isZhLng ? 87 : 124}
           height={isMobile ? 14.52 : 27}
           alt="MuseDAM-Organize-70-File-Formats"
           className={cn(
-            'absolute right-[-51px] top-[51px] rounded-[6.4px] shadow-[0_3.42px_25.63px_3.42px_#00000014]',
-            isMobile && 'right-[-27.82px] top-[27.41px] rounded-[2.94px]',
+            'absolute top-[51px] rounded-[6.4px] shadow-[0_3.42px_25.63px_3.42px_#00000014]',
+            isZhLng ? 'right-[-12px]' : 'right-[-51px]',
+            isMobile && 'right-[-20.82px] top-[27.41px] rounded-[2.94px]',
           )}
           initial={{ opacity: 0, x: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -182,12 +187,13 @@ export const OrganizeImageGroup = ({
         />
         <MotionImage
           src={getUrl('MuseDAM-Organize-Find-Similar-Color-Images.png')}
-          width={isMobile ? 99.05 : 184}
+          width={isMobile ? 99.05 : isZhLng ? 117 : 184}
           height={isMobile ? 14.52 : 27}
           alt="MuseDAM-Organize-Find-Similar-Color-Images"
           className={cn(
-            'absolute right-[-51px] top-[89.73px] rounded-[8px] shadow-[0_2.75px_20.66px_2.75px_#00000014]',
-            isMobile && 'right-[-27.94px] top-[48.22px] rounded-[2.94px]',
+            'absolute top-[89.73px] rounded-[8px] shadow-[0_2.75px_20.66px_2.75px_#00000014]',
+            isZhLng ? 'right-[-12px]' : 'right-[-30.94px]',
+            isMobile && (isZhLng ? 'right-[-20.94px] top-[52.22px] rounded-[2.94px]' : 'right-[-20.94px] top-[48.22px] rounded-[2.94px]'),
           )}
           initial={{ opacity: 0, y: '10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
@@ -201,7 +207,7 @@ export const OrganizeImageGroup = ({
           alt="MuseDAM-Organize-Preview"
           className={cn(
             'absolute left-[192px] top-[171px] drop-shadow-[0_2.48px_37.2px_4.96px_#00000014]',
-            isMobile && 'left-[103.56px] top-[92.33px]',
+            isMobile && 'left-[113.56px] top-[92.33px]',
           )}
           initial={{ opacity: 0, y: '-10%' }}
           animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
@@ -215,7 +221,7 @@ export const OrganizeImageGroup = ({
           height={isMobile ? 107.33 : 199.72}
           alt="MuseDAM-Organize-Image-Card"
           className={cn(
-            'absolute bottom-[-33.72px] right-[-32px] z-10 drop-shadow-[0_2.48px_37.2px_4.96px_#00000014]',
+            'absolute right-[-32px] top-1/2 z-10 rounded-[5.66px] shadow-[0px_4.85px_36.35px_4.85px_#00000014]',
             isMobile && 'bottom-[-18.12px] right-[-17.2px] rounded-[3.04px]',
           )}
           initial={{ opacity: 0, x: '10%' }}
@@ -322,14 +328,14 @@ export const AIGenerateImageGroup = ({
   const isMobile = useIsMobile()
   const { ref, isBuildFinished } = useAnimationControl(_isBuildFinished)
   const { getUrl } = usePublicUrl(AIGenerateImagePrefix)
-
+  const { isZhLng } = useIsZhLng()
   const { handleAnimationComplete } = useAnimationComplete({
     totalAnimations: 4,
     onAnimationComplete,
   })
 
   return (
-    <RelativeContainer>
+    <RelativeContainer className='mb-[40px]'>
       <MotionShadowImage
         ref={ref}
         src={getUrl('MuseDAM-AI-Generate-BG.png')}
@@ -362,7 +368,7 @@ export const AIGenerateImageGroup = ({
         alt="MuseDAM-AI-Generate-AI-Parsing"
         className={cn(
           'absolute bottom-[-79.41px] left-[94px] rounded-[8px]',
-          isMobile && 'bottom-[-42.36px] left-[50.47px] rounded-[4.3px]',
+          isMobile && (isZhLng ? 'bottom-[-26.36px] left-[50.47px] rounded-[4.3px]' : 'bottom-[-42.36px] left-[50.47px] rounded-[4.3px]'),
         )}
         initial={{ opacity: 0, x: '-10%' }}
         animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
