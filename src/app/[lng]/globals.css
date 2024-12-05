@@ -119,3 +119,8 @@ img {
     height: 0;
   }
 }
+@layer base {
+  html[lang="zh"], html[lang="zh"] * {
+    font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}

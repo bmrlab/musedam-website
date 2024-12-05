@@ -1,3 +1,11 @@
+/*
+ * @Author: fuxuewei fuxuewei@tezign.com
+ * @Date: 2024-12-03 10:27:16
+ * @LastEditors: fuxuewei fuxuewei@tezign.com
+ * @LastEditTime: 2024-12-05 12:19:07
+ * @FilePath: /musedam-website/src/components/LandingPage/Precept/index.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 'use client'
 
 import 'swiper/css/grid'
@@ -15,7 +23,7 @@ export default function Precept() {
   return (
     <div className="flex w-full flex-col items-center bg-black py-[60px] md:py-[80px]">
       <FadeInContainer className="grid justify-items-center gap-6 font-mono text-white">
-        <h1 className="font-euclid text-[38px] font-normal leading-[43.47px] md:text-[48px] md:leading-[55px]">
+        <h1 className="font-euclid text-[32px] font-normal leading-[43.47px] md:text-[48px] md:leading-[55px]">
           {t('precept.title')}
         </h1>
         <span className="font-mono text-[14px] font-light leading-[24px] md:text-[16px]">

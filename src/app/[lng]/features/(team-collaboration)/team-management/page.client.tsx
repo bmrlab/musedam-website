@@ -17,7 +17,7 @@ export default function PageClient() {
     <FeaturesContainer
       bgColor="linear-gradient(180deg, #9795F0 0%, #FBC8D4 100%)"
       handleAnimationComplete={handleAnimationComplete}
-      className="gap-[7.64px] md:gap-[15px]"
+      className="gap-[7.64px] md:my-[70px] md:gap-[15px]"
     >
       <MotionImage
         src={getUrl('Team-Management1.png')}

@@ -71,11 +71,11 @@ export default function FeaturesBlock() {
           <FlexColContainer className="w-[250px] shrink-0 gap-3 tracking-[1px] text-black">
             <h1
               className={cn(
-                'text-[80px] font-light leading-[80px] md:text-[120px] md:leading-[137.29px]',
-                !isZhLng && 'font-mono',
+                'text-[80px] leading-[80px] md:text-[120px] md:leading-[137.29px]',
+                isZhLng ? 'font-zh font-normal' : 'font-mono font-light',
               )}
             >{`0${index + 1}`}</h1>
-            <p className="text-[40px] font-normal leading-[40px] md:leading-[45.76px]">
+            <p className={cn("text-[40px] font-normal leading-[40px] md:leading-[45.76px]")}>
               {block.category}
             </p>
           </FlexColContainer>
@@ -84,7 +84,7 @@ export default function FeaturesBlock() {
               <FeaturesRectIconCard
                 key={index}
                 {...FeaturesCards[feature]}
-                className="h-[385px] w-[314px] shrink-0 transition-transform duration-300 ease-in-out hover:-translate-y-5"
+                className="h-[385px] w-full shrink-0 transition-transform duration-300 ease-in-out md:w-[314px] md:hover:-translate-y-5"
               />
             ))}
           </FlexRowContainer>

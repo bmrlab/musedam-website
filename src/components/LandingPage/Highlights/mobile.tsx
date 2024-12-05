@@ -1,3 +1,11 @@
+/*
+ * @Author: fuxuewei fuxuewei@tezign.com
+ * @Date: 2024-12-05 11:59:07
+ * @LastEditors: fuxuewei fuxuewei@tezign.com
+ * @LastEditTime: 2024-12-05 13:47:13
+ * @FilePath: /musedam-website/src/components/LandingPage/Highlights/mobile.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { twx } from '@/utilities/cn'
@@ -42,7 +50,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             })()}
           </ImageBgDiv>
           <div className="flex flex-col items-center justify-center px-[30px] pb-[60px] pt-10">
-            <h1 className="font-euclid text-[38px] font-normal leading-[43.47px] text-[#141414]">
+            <h1 className="font-euclid text-[32px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
             <div className="mt-6 flex flex-col gap-3 text-left font-mono text-[14px]">
@@ -94,4 +102,4 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
   )
 }
 
-const ImageBgDiv = twx.div`relative h-[338.75px] w-full px-[15px]`
+const ImageBgDiv = twx.div`relative w-full px-[5px] py-[40px]`
