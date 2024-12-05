@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { twx } from '@/utilities/cn'
 
 import {
@@ -79,9 +81,11 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
               )}
             </div>
             <div className="mt-6">
-              <button className="w-[240px] rounded-[8px] bg-black px-[52.5px] py-[17px] font-mono text-[16px] font-light leading-5 text-white md:w-[220px]">
-                {t('highlight.button')}
-              </button>
+              <Link href={MUSEDAM_LOGIN_URL}>
+                <button className="h-[50px] w-[240px] rounded-[8px] bg-black  px-[52.5px] font-mono text-[16px] leading-5 text-white md:h-auto md:w-[220px]">
+                  {t('highlight.button')}
+                </button>
+              </Link>
             </div>
           </div>
         </div>

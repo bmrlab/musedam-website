@@ -3,5 +3,9 @@
   "more-features.view-all": "View all features",
   "more-features.ai-powered.title": "More in AI-Powered",
   "more-features.team-collaboration.title": "More in Team Collaboration",
-  "more-features.visual-workspace.title": "More in Visual Workspace"
+  "more-features.visual-workspace.title": "More in Visual Workspace",
+  "features.title": "What is MuseDAM?",
+  "features.ai-powered.title": "AI Powered",
+  "features.visual-workspace.title": "Visual Workspace",
+  "features.team-collaboration.title": "Team Collaboration"
 }

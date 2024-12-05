@@ -89,7 +89,7 @@ const SocialItemView = ({
       <Wrapper>
         <p className="flex cursor-pointer items-center gap-1.5">
           {icon}
-          <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] after:h-[1.5px]">
+          <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px] text-[#141414]">
             {label}
           </span>
         </p>

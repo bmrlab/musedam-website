@@ -15,7 +15,7 @@ export default async function Hero({ lng }: { lng: string }) {
         <p>{t('hero.subtitle')}</p>
       </h1>
       <Link href={MUSEDAM_LOGIN_URL + `?local=${lng}`}>
-        <BlackButton className="mb-12 mt-6 w-[240px] rounded-[1000px] px-[52.5px] py-[17px] font-mono leading-[20px] text-white md:mb-[58px] md:mt-9 md:w-[250px] md:px-[57.5px] md:py-[19px]">
+        <BlackButton className="mb-12 mt-6 h-[50px] w-[240px] rounded-[1000px] px-[52.5px] font-mono leading-[20px] text-white md:mb-[58px] md:mt-9 md:h-auto md:w-[250px] md:px-[57.5px] md:py-[19px]">
           {t('hero.button.start')}
         </BlackButton>
       </Link>
@@ -28,9 +28,11 @@ export default async function Hero({ lng }: { lng: string }) {
           <p className="text-center font-mono text-[14px] font-light leading-6 text-[#141414] md:text-left md:text-[16px] md:leading-[28px]">
             {t('hero.sub-banner.subtitle')}
           </p>
-          <BlackButton className="w-[240px] rounded-[8px] px-[52.5px] py-[17px] font-mono leading-5 text-white md:w-[220px] md:px-[42.5px] md:py-[14px]">
-            {t('hero.button.start')}
-          </BlackButton>
+          <Link href={MUSEDAM_LOGIN_URL}>
+            <BlackButton className="h-[50px] w-[240px] rounded-[8px] px-[52.5px] font-mono leading-5 text-white md:h-auto md:w-[220px] md:px-[42.5px] md:py-[14px]">
+              {t('hero.button.start')}
+            </BlackButton>
+          </Link>
         </div>
       </FadeInUpContainer>
       <div className="relative mt-12 h-[210px] w-full rounded-[6px] px-6 md:mt-[80px] md:h-[692px] md:px-10">

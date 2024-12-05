@@ -3,6 +3,7 @@ import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
 
 import useAnimationTrace from '@/hooks/useAnimationTrace'
+import useIsZhLng from '@/hooks/useIsZhLng'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import {
   MotionImageWithSkeleton,
@@ -14,7 +15,7 @@ import {
   FlexColContainer,
   RelativeContainer,
 } from '@/components/StyleWrapper/Container'
-import { MotionImage } from '@/components/StyleWrapper/image'
+import { MotionImage, MotionShadowImage } from '@/components/StyleWrapper/image'
 
 import { MotionShadowImageRounded, MotionShadowRoundedFullImage } from '.'
 
@@ -23,6 +24,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const { getUrl } = usePublicUrl('/assets/Hero')
+  const { isZhLng } = useIsZhLng()
 
   return (
     <div className={cn('flex select-none justify-center gap-6', className)}>
@@ -31,6 +33,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           src={getUrl('MuseDAM-Kanban.png')}
           width={237}
           height={52}
+          priority
           alt="MuseDAM-Kanban"
           initial={{ y: -20, opacity: 0 }}
           animate={isBuildFinished(18) ? { y: 0, opacity: 1 } : {}}
@@ -55,11 +58,17 @@ export default function DesktopBanner({ className }: { className?: string }) {
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             onAnimationComplete={() => handleAnimationComplete(1)}
           />
-          <div className="absolute bottom-[34px] right-[-66px] z-[1] flex flex-col gap-2">
-            <MotionShadowRoundedFullImage
+          <div
+            className={cn(
+              'absolute bottom-[34px] z-[1] flex flex-col gap-2',
+              isZhLng ? 'right-[-32px]' : 'right-[-66px]',
+            )}
+          >
+            <MotionShadowImage
               src={getUrl('Tag-Automobile.png')}
-              width={110}
+              width={isZhLng ? 58 : 110}
               height={30}
+              priority
               alt="Tag-Automobile"
               initial={{ x: 20, opacity: 0 }}
               animate={isBuildFinished(14) ? { x: 0, opacity: 1 } : {}}
@@ -68,8 +77,9 @@ export default function DesktopBanner({ className }: { className?: string }) {
             />
             <MotionShadowRoundedFullImage
               src={getUrl('Tag-Raining.png')}
-              width={87}
+              width={isZhLng ? 71 : 87}
               height={30}
+              priority
               alt="Tag-Raining"
               initial={{ x: 20, opacity: 0 }}
               animate={isBuildFinished(14) ? { x: 0, opacity: 1 } : {}}
@@ -78,8 +88,9 @@ export default function DesktopBanner({ className }: { className?: string }) {
             />
             <MotionShadowRoundedFullImage
               src={getUrl('Tag-Photography.png')}
-              width={118}
+              width={isZhLng ? 84 : 118}
               height={30}
+              priority
               alt="Tag-Photography"
               initial={{ x: 20, opacity: 0 }}
               animate={isBuildFinished(14) ? { x: 0, opacity: 1 } : {}}
@@ -93,6 +104,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Car-V2.png"
             width={80}
             height={80}
+            priority
             alt="MuseDAM-Asset-Car-V2"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -103,6 +115,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Car-V3.png"
             width={115}
             height={79}
+            priority
             alt="MuseDAM-Asset-Car-V3"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -116,6 +129,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           src="/assets/Hero/MuseDAM-Asset-Poster.png"
           width={237}
           height={275}
+          priority
           alt="MuseDAM-Asset-Poster"
           initial={{ x: 20, opacity: 0 }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -127,6 +141,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Jewellery.png"
             width={237}
             height={175}
+            priority
             alt="MuseDAM-Asset-Jewellery"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -137,6 +152,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-AI-Color.png"
             width={237}
             height={38}
+            priority
             alt="MuseDAM-AI-Color"
             initial={{ y: 20, opacity: 0 }}
             animate={isBuildFinished(18) ? { opacity: 1, y: 0 } : {}}
@@ -151,6 +167,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-3D.png"
             width={237}
             height={295}
+            priority
             alt="MuseDAM-Asset-3D"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -161,6 +178,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src={getUrl('MuseDAM-Comment.png')}
             width={244}
             height={60}
+            priority
             alt="MuseDAM-Comment"
             className="absolute bottom-[82px] right-[-170px] z-[1] drop-shadow"
             initial={{ x: '10%', opacity: 0 }}
@@ -174,6 +192,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Photography.png"
             width={237}
             height={285}
+            priority
             alt="MuseDAM-Asset-Photography"
             initial={{ x: 20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -186,6 +205,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"
               width={24}
               height={20}
+              priority
               alt="MuseDAM-AI-Parsing-Tag"
               className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer"
               initial={{ opacity: 0 }}
@@ -216,6 +236,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
           src="/assets/Hero/MuseDAM-Asset-Product.png"
           width={237}
           height={235}
+          priority
           alt="MuseDAM-Asset-Product"
           initial={{ x: -20, opacity: 0 }}
           animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -227,6 +248,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Group3.png"
             width={196.8}
             height={275}
+            priority
             alt="MuseDAM-Asset-Group3"
             containerClassName="absolute"
             initial={{ x: -20, opacity: 0 }}
@@ -238,6 +260,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Group2.png"
             width={216.8}
             height={285}
+            priority
             alt="MuseDAM-Asset-Group2"
             containerClassName="absolute top-[9px]"
             initial={{ y: 20, opacity: 0 }}
@@ -261,6 +284,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               src="/assets/Hero/MuseDAM-Asset-Group-Tag.png"
               width={35}
               height={20}
+              priority
               alt="MuseDAM-Asset-Group-Tag"
               initial={{ opacity: 0 }}
               animate={isBuildFinished(13) ? { opacity: 1 } : {}}
@@ -271,6 +295,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               src="/assets/Hero/MuseDAM-Asset-Comment-Tag.png"
               width={24}
               height={20}
+              priority
               alt="MuseDAM-Asset-Comment-Tag"
               initial={{ opacity: 0 }}
               animate={isBuildFinished(14) ? { opacity: 1 } : {}}
@@ -286,6 +311,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-Cat.png"
             width={237}
             height={275}
+            priority
             alt="MuseDAM-Asset-Cat"
             initial={{ x: -20, opacity: 0 }}
             animate={isBuildFinished(1) ? { opacity: 1, x: 0 } : {}}
@@ -297,6 +323,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-More.png"
             width={30}
             height={30}
+            priority
             alt="MuseDAM-Asset-More.png"
             className="absolute right-2 top-2.5 cursor-pointer"
             initial={{ opacity: 0 }}
@@ -340,6 +367,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             src="/assets/Hero/MuseDAM-Asset-VideoPlayer.png"
             width={237}
             height={40}
+            priority
             alt="MuseDAM-Asset-VideoPlayer"
             className="mt-[9px]"
             initial={{ y: '10%', opacity: 0 }}
@@ -352,6 +380,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               src="/assets/Hero/MuseDAM-Video-Frame.png"
               width={57.22}
               height={139}
+              priority
               alt="MuseDAM-Video-Frame.png"
               initial={{ y: '5%', opacity: 0 }}
               animate={isBuildFinished(21) ? { opacity: 1, y: 0 } : {}}

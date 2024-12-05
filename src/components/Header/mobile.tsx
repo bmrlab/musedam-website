@@ -1,11 +1,12 @@
-import { HTMLAttributes, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { cn, twx } from '@/utilities/cn'
-import { motion } from 'framer-motion'
+import { HTMLAttributes, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { MUSEDAM_LOGIN_URL } from '@/constant/url';
+import { useLanguage } from '@/providers/Language';
+import { cn, twx } from '@/utilities/cn';
 
-import useIsMobile from '@/hooks/useIsMobile'
+
+
 import {
   Accordion,
   AccordionContent,
@@ -19,11 +20,9 @@ import { IconWrapper } from '@/components/icon'
 import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
-import { useLanguage } from '@/providers/Language'
 import { LocaleLink } from '../LocalLink'
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
-  const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
 
@@ -42,17 +41,14 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
       </div>
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
-        <motion.div
-          layout
-          className="z-50 h-full bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
-          initial={{ width: '140px' }}
-          animate={{ width: isMobile ? '56px' : '140px' }}
+        <div
+          className="z-50 h-full w-[56px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
           onClick={() => setIsOpen(!isOpen)}
         >
           <FlexCenterContainer className="size-full">
             <AnimatedMenuButton isOpen={isOpen} setIsOpen={setIsOpen} />
           </FlexCenterContainer>
-        </motion.div>
+        </div>
       </div>
     </FlexCenterContainer>
   )
@@ -87,12 +83,12 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         <AccordionItemWrapper value="features">
           <AccordionTriggerWrapper>{t('nav-bar.features')}</AccordionTriggerWrapper>
           {data.map(({ category, items }) => (
-            <div key={category} className="flex flex-col gap-6">
-              <AccordionContent className="font-mono text-[14px] font-normal leading-[16px] opacity-40">
+            <div key={category} className="flex flex-col gap-4">
+              <AccordionContent className="pb-0 font-mono text-[14px] font-normal leading-[16px] opacity-40">
                 {category}
               </AccordionContent>
               {items.map((item, i) => (
-                <AccordionContent key={`${item.title}-${i}`} onClick={onClose}>
+                <AccordionContent key={`${item.title}-${i}`} onClick={onClose} className="pb-0">
                   <LocaleLink href={item.url ?? ''} legacyBehavior passHref>
                     <div key={item.title} className="flex items-center gap-4">
                       <IconWrapper icon={item.icon} size={20} className="self-start text-white" />

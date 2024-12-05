@@ -114,6 +114,10 @@ export default {
             transform: 'translateY(0)',
           },
         },
+        'bounce-y': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
       backgroundImage: {
         joinBg1: 'url(/assets/Company/muse-ai-join-img-1.jpg)',

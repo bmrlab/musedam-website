@@ -4,11 +4,10 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
-import { AdminBar } from '@/components/AdminBar'
-
 import './globals.css'
 
 import { dir } from 'i18next'
+import NextTopLoader from 'nextjs-toploader'
 
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
@@ -52,6 +51,9 @@ export default async function RootLayout({
           {/*<AdminBar />*/}
           <Header />
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
+            <NextTopLoader
+              color="#000"
+            />
             {children}
           </div>
           <Footer />

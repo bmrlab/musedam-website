@@ -110,7 +110,7 @@ export default function SubscribeForm({ form }: { form?: Form }) {
                   <Input
                     {...field}
                     placeholder={t('subscribe.email.placeholder')}
-                    className="h-[54px] w-full rounded-[6px] border-none bg-white p-4 font-mono shadow-none placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
+                    className="h-[50px] w-full rounded-[6px] border-none bg-white p-4 font-mono shadow-none placeholder:font-mono placeholder:font-light placeholder:opacity-30 md:h-[50px] md:w-[420px]"
                   />
                 </FormControl>
                 <FormMessage className="font-mono text-[13px] font-light leading-[16.9px] text-[#F9434D]" />
@@ -119,7 +119,7 @@ export default function SubscribeForm({ form }: { form?: Form }) {
           />
           <BlackButton
             type="submit"
-            className="flex h-[54px] items-center justify-center gap-2 rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]"
+            className="flex h-[50px] items-center justify-center gap-2 rounded-[6px] px-[56.5px] font-mono leading-[20.8px] text-white md:h-[50px]"
           >
             {isLoading && <Icons.quarterCircle className="animate-spin" />}
             {t('subscribe.button')}

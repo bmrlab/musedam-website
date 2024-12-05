@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { cn } from '@/utilities/cn'
 
+import useIsMobile from '@/hooks/useIsMobile'
+
 interface HighlightTextProps {
   text: string
   color: string
@@ -17,6 +19,7 @@ export default function HighlightText({
   className,
 }: HighlightTextProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const isMobile = useIsMobile()
 
   return (
     <span
@@ -29,7 +32,7 @@ export default function HighlightText({
         className="absolute bottom-0 left-0 w-full transition-all duration-200"
         style={{
           backgroundColor: color,
-          height: isHovered ? '100%' : `${underlineHeight ?? 7}px`,
+          height: isHovered ? '100%' : `${(underlineHeight ?? isMobile) ? 4 : 7}px`,
         }}
       />
     </span>

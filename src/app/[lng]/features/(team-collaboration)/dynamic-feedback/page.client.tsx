@@ -18,7 +18,7 @@ export default function PageClient() {
     <FeaturesContainer
       bgColor="linear-gradient(153.22deg, #DBDBDA 4.46%, #FAF9E7 60%)"
       handleAnimationComplete={handleAnimationComplete}
-      className="w-fit md:w-full md:pl-1 md:pr-[31px]"
+      className="w-fit md:pl-1 md:pr-[31px]"
     >
       <MotionImage
         src={`${ImageBasePath}/Dynamic-Feedback1.png`}

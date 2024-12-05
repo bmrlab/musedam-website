@@ -20,7 +20,7 @@ export default function PageClient() {
     <FeaturesContainer
       bgColor="linear-gradient(180deg, #FFF1EB 0%, #ACE0F9 100%)"
       handleAnimationComplete={handleAnimationComplete}
-      className="w-fit justify-items-start gap-[6.83px] md:w-full md:gap-[13.41px]"
+      className="w-fit justify-items-start gap-[6.83px] md:w-fit md:gap-[13.41px]"
     >
       <MotionImage
         src="/assets/Features/70+Formats/70+Formats1.png"

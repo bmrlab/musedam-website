@@ -1,6 +1,5 @@
 import { HTMLAttributes, useMemo, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
@@ -54,7 +53,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
   return (
     <NavigationMenu
       className={cn('flex h-full max-w-none justify-start', className)}
-      viewportClassName="mt-[1px] rounded-none shadow-[0px_2px_30px_2px_rgba(0,0,0,0.06)]"
+      viewportClassName="mt-0 broder-none rounded-none"
     >
       <div className="shrink-0 px-4">
         <LocaleLink href="/">
@@ -143,6 +142,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         src={currentHeroImage}
                         width={430}
                         height={430}
+                        priority
                         alt="hero image"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -156,6 +156,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                         src={DEFAULT_HERO_IMAGE}
                         width={327}
                         height={286}
+                        priority
                         alt="bmr logo"
                         initial={{
                           opacity: 0,

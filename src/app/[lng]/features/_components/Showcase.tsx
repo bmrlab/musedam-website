@@ -21,13 +21,15 @@ export default function Showcase({
   return (
     <div className="grid w-full grid-cols-1 md:grid-cols-2">
       <div className="col-span-1">{children}</div>
-      <FadeInUpContainer className="col-span-1 p-6 md:p-20">
+      <FadeInUpContainer className="col-span-1 flex flex-col justify-center p-6 md:p-20">
         <h2 className="font-euclid text-[40px] font-normal leading-[52px] tracking-[1px]">
           {title}
         </h2>
-        <p className="mt-6 font-mono text-[16px] font-light leading-6 tracking-[2%]">
-          {description}
-        </p>
+        {description && (
+          <p className="mt-6 font-mono text-[16px] font-light leading-6 tracking-[2%]">
+            {description}
+          </p>
+        )}
         <div className="mt-6 flex flex-col gap-6">
           {points.map((point, index) => (
             <Point key={`${point}-${index}`} {...point} />
