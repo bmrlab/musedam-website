@@ -52,6 +52,7 @@ export default async function RootLayout({
             <NextTopLoader
               color="#000"
               height={1}
+              showSpinner={false} // 隐藏移动端右上角转圈圈
             />
             {children}
           </div>

@@ -11,8 +11,10 @@ export default async function Hero({ lng }: { lng: string }) {
   return (
     <div className="flex flex-col items-center justify-center bg-white md:w-full md:px-[80px]">
       <h1 className="mt-[59px] px-6 text-center font-euclid text-[32px] font-normal leading-[41.6px] text-[#141414] md:px-0 md:text-[72px] md:leading-[90px]">
-        <p>{t('hero.title')}</p>
-        <p>{t('hero.subtitle')}</p>
+        <p className='hidden md:block'>{t('hero.title')}</p>
+        <p className='hidden md:block'>{t('hero.subtitle')}</p>
+
+        <p className='md:hidden'>{t('hero.all-title')}</p>
       </h1>
       <Link href={MUSEDAM_LOGIN_URL + `?local=${lng}`}>
         <BlackButton className="mb-12 mt-6 h-[50px] w-[240px] rounded-[1000px] px-[52.5px] font-mono leading-[20px] text-white md:mb-[58px] md:mt-9 md:h-auto md:w-[250px] md:px-[57.5px] md:py-[19px]">

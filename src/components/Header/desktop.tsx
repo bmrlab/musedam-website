@@ -113,7 +113,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
                               className="self-start text-[#141414]"
                             />
                             <div className="flex flex-col gap-2">
-                              <div className="underline-animation text-[16px] font-normal leading-[16px] text-[#141414] group-hover:after:w-full">
+                              <div className="underline-animation text-[16px] font-normal leading-[20.2px] text-[#141414] group-hover:after:w-full">
                                 {data.title}
                               </div>
                               <div className="text-[13px] font-light leading-[19.5px] text-black/60">

@@ -8,12 +8,13 @@ import useIsMobile from '@/hooks/useIsMobile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import usePreceptData from '@/components/LandingPage/Precept/data'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
+import useIsZhLng from '@/hooks/useIsZhLng'
 
 export default function FamousQuotes({ className }: { className?: string }) {
   const { data: preceptData } = usePreceptData()
   const [data, setData] = useState(preceptData[0])
   const isMobile = useIsMobile()
-
+  const { isZhLng } = useIsZhLng()
   useEffect(() => {
     setData(getRandomItem(preceptData))
   }, [preceptData])
@@ -40,7 +41,7 @@ export default function FamousQuotes({ className }: { className?: string }) {
             <AvatarFallback>{data.name}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col justify-items-start gap-1.5 text-start font-mono">
-            <div className="text-[20px] font-medium leading-[26px] text-white">{data.name}</div>
+            <div className={cn('text-[20px] leading-[26px] text-white', isZhLng ? ' font-medium' : 'font-normal')}>{data.name}</div>
             <div className="text-[13px] font-light leading-[16.9px] text-white/50">{data.role}</div>
           </div>
         </cite>
