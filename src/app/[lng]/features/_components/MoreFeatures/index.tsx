@@ -24,7 +24,7 @@ export default function MoreFeatures({ titleI18nKey, features }: MoreFeaturesPro
         </h2>
         <LocaleLink
           href="/features"
-          className="group flex items-center gap-2 font-mono text-[14px] leading-[28px] tracking-[2%] text-black"
+          className="group flex items-center gap-2 font-mono text-[14px] leading-[18.2px] tracking-[2%] text-black"
         >
           <span className="underline-animation">{t('more-features.view-all')}</span>
           <HoverTranslateXArrowRight />
