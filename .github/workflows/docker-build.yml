@@ -35,3 +35,47 @@ jobs:
           tags: |
             musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
             musecr.azurecr.cn/muse/musedam-website:latest
+
+      # 创建必要的 secrets 文件
+      - name: Create Secrets Directory
+        run: |
+          mkdir -p helmchart/secrets
+          mkdir -p helmchart/secrets/musedam.cc--wildcard
+          cat > helmchart/secrets/registry-azure.json << EOF
+          {
+            "auths": {
+              "musecr.azurecr.cn": {
+                "username": "${{ secrets.AZURE_REGISTRY_USERNAME }}",
+                "password": "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
+              }
+            }
+          }
+          EOF
+          echo "${{ secrets.SSL_FULLCHAIN }}" > helmchart/secrets/musedam.cc--wildcard/fullchain.pem
+          echo "${{ secrets.SSL_PRIVKEY }}" > helmchart/secrets/musedam.cc--wildcard/privkey.pem
+          echo "${{ secrets.HELM_VALUES_YAML }}" > helmchart/secrets/values.yaml
+
+      # 设置 Kubernetes 配置
+      - name: Setup Kubernetes Config
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          export KUBECONFIG=$HOME/.kube/config
+
+      # 更新 values.yaml 中的版本
+      - name: Update Helm Chart Version
+        run: |
+          sed -i "s/version: .*/version: ${{ env.VERSION }}/" helmchart/values.yaml
+
+      # 安装 Helm
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      # 部署应用
+      - name: Deploy with Helm
+        run: |
+          cd helmchart
+          helm upgrade musedam-website ./ -f values.yaml -f secrets/values.yaml --kube-context muse-azure-cn-prod --debug
