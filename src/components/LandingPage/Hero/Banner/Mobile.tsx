@@ -18,12 +18,13 @@ import {
   RightToLeftImage,
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
+import useIsZhLng from '@/hooks/useIsZhLng'
 
 export default function MobileBanner({ className }: { className?: string }) {
-  const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { getUrl } = usePublicUrl('/assets/Hero')
   const containerRef = useRef<HTMLDivElement>(null)
+  const { isZhLng } = useIsZhLng()
 
   // 滚动条居中
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             <div className="absolute bottom-[19.13px] right-[-29.58px] z-[1] flex flex-col gap-2">
               <RightToLeftImage
                 src={getUrl('Tag-Automobile.png')}
-                width={34.08}
+                width={isZhLng ? 34.08 : 65.08}
                 height={17.87}
                 priority
                 alt="Tag-Automobile"
@@ -76,7 +77,7 @@ export default function MobileBanner({ className }: { className?: string }) {
               />
               <RightToLeftImage
                 src={getUrl('Tag-Raining.png')}
-                width={42.08}
+                width={isZhLng ? 42.08 : 51.08}
                 height={17.87}
                 priority
                 alt="Tag-Raining"
@@ -84,7 +85,7 @@ export default function MobileBanner({ className }: { className?: string }) {
               />
               <RightToLeftImage
                 src={getUrl('Tag-Photography.png')}
-                width={50.08}
+                width={isZhLng ? 50.08 : 69.08}
                 height={17.87}
                 priority
                 alt="Tag-Photography"
@@ -149,7 +150,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             />
             <RightToLeftImage
               src={getUrl('MuseDAM-Comment.png')}
-              width={160}
+              width={180}
               height={60}
               priority
               alt="MuseDAM-Comment"
@@ -165,28 +166,28 @@ export default function MobileBanner({ className }: { className?: string }) {
               alt="MuseDAM-Asset-Photography"
               className="duration-600 delay-50"
             />
-            <RelativeContainer>
-              <AnimationImagePreset
-                ref={aiParseTagRef}
-                src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"
-                width={14.08}
-                height={11.73}
-                priority
-                alt="MuseDAM-AI-Parsing-Tag"
-                className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer duration-600 delay-5350"
-              />
-              <div className="absolute bottom-[22px] right-[3px] z-[2] h-[192px] w-[180px] object-cover">
-                <AnimatePresence mode="wait">
-                  {aiParseTagHovering && (
-                    <AnimationImagePreset
-                      src="/assets/Hero/MuseDAM-AI-Parsing.png"
-                      fill
-                      alt="MuseDAM-AI-Parsing"
-                    />
-                  )}
-                </AnimatePresence>
-              </div>
-            </RelativeContainer>
+            {/*<RelativeContainer>*/}
+            {/*  <AnimationImagePreset*/}
+            {/*    ref={aiParseTagRef}*/}
+            {/*    src="/assets/Hero/MuseDAM-AI-Parsing-Tag.png"*/}
+            {/*    width={14.08}*/}
+            {/*    height={11.73}*/}
+            {/*    priority*/}
+            {/*    alt="MuseDAM-AI-Parsing-Tag"*/}
+            {/*    className="absolute bottom-[8px] right-[9px] z-[1] cursor-pointer duration-600 delay-5350"*/}
+            {/*  />*/}
+            {/*  <div className="absolute bottom-[22px] right-[3px] z-[2] h-[192px] w-[180px] object-cover">*/}
+            {/*    <AnimatePresence mode="wait">*/}
+            {/*      {aiParseTagHovering && (*/}
+            {/*        <AnimationImagePreset*/}
+            {/*          src="/assets/Hero/MuseDAM-AI-Parsing.png"*/}
+            {/*          fill*/}
+            {/*          alt="MuseDAM-AI-Parsing"*/}
+            {/*        />*/}
+            {/*      )}*/}
+            {/*    </AnimatePresence>*/}
+            {/*  </div>*/}
+            {/*</RelativeContainer>*/}
           </RelativeContainer>
         </FlexColContainer>
         <FlexColContainer className="mt-[20.93px] gap-[14.08px]">

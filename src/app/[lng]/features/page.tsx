@@ -28,7 +28,7 @@ export default function AllFeaturesPage() {
           {isZhLng ? <ZhHeroText /> : <EnHeroText />}
         </div>
         <div className="mt-[60px] flex h-[50px] animate-fade-in-up items-center justify-center md:mt-12 md:h-[58px] md:justify-between">
-          <Button className="h-full w-[240px] rounded-full bg-black px-[52.2px] font-mono text-[16px] font-normal leading-5 text-white transition-colors hover:bg-gray-800 md:py-[19px]">
+          <Button className="h-full w-[240px] rounded-full bg-black px-[52.2px] font-mono text-[14px] font-light leading-5 text-white transition-colors hover:bg-gray-800 md:py-[19px]">
             {t('button.start')}
           </Button>
         </div>
@@ -40,7 +40,7 @@ export default function AllFeaturesPage() {
 
 const ZhHeroText = () => {
   return (
-    <p className="text-[35px] font-normal leading-[50px] text-[#141414]  md:text-[54px] md:leading-[94.5px] md:tracking-[1px]">
+    <p className="text-[32px] font-normal leading-[50px] text-[#141414]  md:text-[54px] md:leading-[74.5px] md:tracking-[1px]">
       MuseDAM: 一款专为设计和创意团队设计的
       <HighlightText text="AI驱动" color="#FF8043" />
       的数字资产管理工具，确保安全且高效的

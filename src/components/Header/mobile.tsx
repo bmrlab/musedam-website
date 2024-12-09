@@ -21,6 +21,7 @@ import { FlexCenterContainer } from '@/components/StyleWrapper/Container'
 import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleSwitch } from './LocalSwitch'
 import { LocaleLink } from '../LocalLink'
+import useIsZhLng from '@/hooks/useIsZhLng';
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
@@ -58,6 +59,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
   const { language } = useLanguage()
+  const { isZhLng } = useIsZhLng()
   return (
     <nav
       style={{
@@ -80,10 +82,10 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         </LocaleLink>
       </div>
       <Accordion type="single" collapsible className="no-scrollbar w-full overflow-y-scroll pb-5">
-        <AccordionItemWrapper value="features">
+        <AccordionItemWrapper value="features" className="data-[state=open]:mb-6">
           <AccordionTriggerWrapper>{t('nav-bar.features')}</AccordionTriggerWrapper>
           {data.map(({ category, items }) => (
-            <div key={category} className="flex flex-col gap-4">
+            <div key={category} className="flex flex-col gap-[1.2rem]">
               <AccordionContent className="pb-0 font-mono text-[14px] font-normal leading-[16px] opacity-40">
                 {category}
               </AccordionContent>
@@ -96,7 +98,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                         <div className="text-[16px] font-medium leading-[16px] group-hover:after:w-full">
                           {item.title}
                         </div>
-                        <div className="text-[13px] leading-[19.5px] text-white/60">
+                        <div className={cn("text-[13px] leading-[19.5px] text-white/60", isZhLng && 'font-light')}>
                           {item.description}
                         </div>
                       </div>
@@ -108,7 +110,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           ))}
         </AccordionItemWrapper>
 
-        <AccordionItemWrapper value="about-us">
+        <AccordionItemWrapper value="inspiration-collection">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/features/inspiration-collection" onClick={onClose}>
               {t('nav-bar.extension')}
@@ -132,7 +134,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
         <Link href={MUSEDAM_LOGIN_URL + `?local=${language}`}>
-          <button className="size-full rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
+          <button className="size-full h-[50px] rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
             {t('button.login')}
           </button>
         </Link>
@@ -143,7 +145,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
 
 const AccordionItemWrapper = twx(
   AccordionItem,
-)`flex w-full flex-col items-start border-b-0 data-[state=open]:gap-6`
+)`flex w-full flex-col items-start border-b-0 data-[state=open]:gap-[1.2rem]`
 const AccordionTriggerWrapper = twx(
   AccordionTrigger,
 )`h-[55px] justify-start gap-3 p-0 text-[24px] font-medium leading-[32px] hover:no-underline`

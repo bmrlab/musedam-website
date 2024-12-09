@@ -51,6 +51,8 @@ export default async function RootLayout({
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
             <NextTopLoader
               color="#000"
+              height={1}
+              showSpinner={false} // 隐藏移动端右上角转圈圈
             />
             {children}
           </div>

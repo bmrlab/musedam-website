@@ -21,8 +21,8 @@ export default function Showcase({
   return (
     <div className="grid w-full grid-cols-1 md:grid-cols-2">
       <div className="col-span-1">{children}</div>
-      <FadeInUpContainer className="col-span-1 flex flex-col justify-center p-6 md:p-20">
-        <h2 className="font-euclid text-[40px] font-normal leading-[52px] tracking-[1px]">
+      <FadeInUpContainer className="col-span-1 flex flex-col justify-center px-6 py-[60px] md:p-20">
+        <h2 className="font-euclid text-[32px] font-normal leading-[40px] tracking-[1px] md:text-[40px] md:leading-[52px]">
           {title}
         </h2>
         {description && (

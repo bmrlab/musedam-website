@@ -1,19 +1,3 @@
-/*
- * @Author: fuxuewei fuxuewei@tezign.com
- * @Date: 2024-11-22 11:32:41
- * @LastEditors: fuxuewei fuxuewei@tezign.com
- * @LastEditTime: 2024-11-22 11:33:22
- * @FilePath: /musedam-website/src/components/About/JonUs.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
-/*
- * @Author: fuxuewei fuxuewei@tezign.com
- * @Date: 2024-11-22 11:24:23
- * @LastEditors: fuxuewei fuxuewei@tezign.com
- * @LastEditTime: 2024-11-22 11:26:35
- * @FilePath: /musedam-website/src/components/About/OurStory.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 'use client'
 
 import { useTranslation } from '@/app/i18n/client'

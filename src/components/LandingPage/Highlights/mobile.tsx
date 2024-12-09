@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { twx } from '@/utilities/cn'
+import { cn, twx } from '@/utilities/cn'
 
 import {
   AIGenerateImageGroup,
@@ -10,9 +10,11 @@ import {
 } from '@/components/LandingPage/Highlights/image-group'
 import { Highlight } from '@/components/LandingPage/Highlights/index'
 import { useHighlightTranslation } from '@/app/i18n/client'
+import useIsZhLng from '@/hooks/useIsZhLng'
 
 export default function HighlightsMobile({ data }: { data: Highlight[] }) {
   const { t } = useHighlightTranslation()
+  const { isZhLng } = useIsZhLng()
   return (
     <div className="grid w-full">
       {data.map((item, index) => (
@@ -42,7 +44,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             })()}
           </ImageBgDiv>
           <div className="flex flex-col items-center justify-center px-[30px] pb-[60px] pt-10">
-            <h1 className="font-euclid text-[38px] font-normal leading-[43.47px] text-[#141414]">
+            <h1 className="font-euclid text-[32px] font-normal leading-[43.47px] text-[#141414]">
               {item.title}
             </h1>
             <div className="mt-6 flex flex-col gap-3 text-left font-mono text-[14px]">
@@ -68,7 +70,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
                   {item.point?.map((point, index) => (
                     <div key={index} className="space-y-2">
                       {/* 圆点 */}
-                      <h3 className="flex items-center gap-1.5 font-medium leading-[24px] text-[#141414]">
+                      <h3 className={cn("flex items-center gap-1.5 font-medium leading-[24px] text-[#141414]", isZhLng && 'font-normal')}>
                         <div className="size-1 rounded-full bg-black"></div>
                         {point.title}
                       </h3>
@@ -82,7 +84,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
             </div>
             <div className="mt-6">
               <Link href={MUSEDAM_LOGIN_URL}>
-                <button className="h-[50px] w-[240px] rounded-[8px] bg-black  px-[52.5px] font-mono text-[16px] leading-5 text-white md:h-auto md:w-[220px]">
+                <button className="h-[50px] w-[240px] rounded-[8px] bg-black  px-[52.5px] font-mono text-[14px] font-light leading-5 text-white md:h-auto md:w-[220px]">
                   {t('highlight.button')}
                 </button>
               </Link>
@@ -94,4 +96,4 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
   )
 }
 
-const ImageBgDiv = twx.div`relative h-[338.75px] w-full px-[15px]`
+const ImageBgDiv = twx.div`relative w-full px-[5px] py-[40px]`
