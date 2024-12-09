@@ -1,9 +1,7 @@
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
 
-import useAnimationTrace from '@/hooks/useAnimationTrace'
 import useIsZhLng from '@/hooks/useIsZhLng'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import {
@@ -15,7 +13,6 @@ import {
   AnimationImagePreset,
   BottomToTopImage,
   LeftToRightImage,
-  MotionImage,
   RightToLeftImage,
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
@@ -25,7 +22,6 @@ import { MotionShadowImageRounded } from '.'
 export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
-  const { handleAnimationComplete, isBuildFinished } = useAnimationTrace({ initialStep: 1 })
   const { getUrl } = usePublicUrl('/assets/Hero')
   const { isZhLng } = useIsZhLng()
 
@@ -143,17 +139,13 @@ export default function DesktopBanner({ className }: { className?: string }) {
             alt="MuseDAM-Asset-3D"
             className="duration-600 delay-50"
           />
-          <MotionImage
+          <RightToLeftImage
             src={getUrl('MuseDAM-Comment.png')}
             width={244}
             height={60}
             priority
             alt="MuseDAM-Comment"
-            className="absolute bottom-[82px] right-[-170px] z-[1] drop-shadow"
-            initial={{ x: '10%', opacity: 0 }}
-            animate={isBuildFinished(22) ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1, ease: 'easeInOut' }}
-            onAnimationComplete={() => handleAnimationComplete(23)}
+            className="absolute bottom-[82px] right-[-170px] z-[1] drop-shadow duration-1000 delay-5350"
           />
         </RelativeContainer>
         <RelativeContainer>
