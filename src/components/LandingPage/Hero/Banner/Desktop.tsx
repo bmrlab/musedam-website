@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
@@ -16,8 +18,6 @@ import {
   RightToLeftImage,
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
-
-import { MotionShadowImageRounded } from '.'
 
 export default function DesktopBanner({ className }: { className?: string }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
@@ -170,14 +170,10 @@ export default function DesktopBanner({ className }: { className?: string }) {
             <div className="absolute bottom-[30px] right-[3px] h-[290px] w-[272px] object-cover">
               <AnimatePresence mode="wait">
                 {aiParseTagHovering && (
-                  <MotionShadowImageRounded
+                  <AnimationImagePreset
                     src="/assets/Hero/MuseDAM-AI-Parsing.png"
                     fill
                     alt="MuseDAM-AI-Parsing"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, delay: 0, ease: 'easeInOut' }}
                   />
                 )}
               </AnimatePresence>
