@@ -5,6 +5,7 @@ import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
 
+import useIsZhLng from '@/hooks/useIsZhLng'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import {
   AbsXCenterContainer,
@@ -18,7 +19,6 @@ import {
   RightToLeftImage,
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
-import useIsZhLng from '@/hooks/useIsZhLng'
 
 export default function MobileBanner({ className }: { className?: string }) {
   const [assetMoreRef, assetMoreHovering] = useHover()
@@ -38,7 +38,7 @@ export default function MobileBanner({ className }: { className?: string }) {
   }, [])
 
   return (
-    <div ref={containerRef} className="no-scrollbar overflow-x-scroll px-6">
+    <div ref={containerRef} className="no-scrollbar overflow-y-hidden overflow-x-scroll px-6">
       <div className={cn('flex w-[800px] select-none justify-center gap-[14.08px]', className)}>
         <FlexColContainer>
           <TopToBottomImage
