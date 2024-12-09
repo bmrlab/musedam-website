@@ -23,23 +23,16 @@ import {
 export default function MobileBanner({ className }: { className?: string }) {
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { getUrl } = usePublicUrl('/assets/Hero')
-  const containerRef = useRef<HTMLDivElement>(null)
   const { isZhLng } = useIsZhLng()
 
-  // 滚动条居中
-  useEffect(() => {
-    if (containerRef.current) {
-      const container = containerRef.current
-      container.scrollTo({
-        left: container.scrollWidth / 2 - container.clientWidth / 2,
-        behavior: 'smooth',
-      })
-    }
-  }, [])
-
   return (
-    <div ref={containerRef} className="no-scrollbar overflow-y-hidden overflow-x-scroll px-6">
-      <div className={cn('flex w-[800px] select-none justify-center gap-[14.08px]', className)}>
+    <div className="no-scrollbar flex justify-center overflow-hidden px-6">
+      <div
+        className={cn(
+          'flex w-[800px] shrink-0 select-none justify-center gap-[14.08px]',
+          className,
+        )}
+      >
         <FlexColContainer>
           <TopToBottomImage
             src={getUrl('MuseDAM-Kanban.png')}
