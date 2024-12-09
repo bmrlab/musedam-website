@@ -47,7 +47,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             height={315}
             className={cn(
               'mt-5 h-[315px] rounded-[8px] object-cover',
-              'ease-in-out animate-in fade-in slide-in-from-right duration-600 [animation-fill-mode:backwards]',
+              'ease-in-out animate-in fade-in slide-in-from-right-10 duration-600 [animation-fill-mode:backwards]',
             )}
           >
             <source src="/assets/Hero/MuseDAM-Asset-Car.mp4" type="video/mp4" />
@@ -275,7 +275,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             height={315}
             className={cn(
               'h-[315px] rounded-[8px] object-cover',
-              'animate-in fade-in slide-in-from-left duration-600 delay-50 [animation-fill-mode:backwards]',
+              'animate-in fade-in slide-in-from-left-10 duration-600 delay-50 [animation-fill-mode:backwards]',
             )}
           >
             <source src="/assets/Hero/MuseDAM-Asset-Video.mp4" type="video/mp4" />
