@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import { cn } from '@/utilities/cn'
 import { useHover } from '@uidotdev/usehooks'
 import { AnimatePresence } from 'framer-motion'
