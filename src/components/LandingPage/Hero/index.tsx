@@ -37,7 +37,7 @@ export default async function Hero({ lng }: { lng: string }) {
           </Link>
         </div>
       </FadeInUpContainer>
-      <div className="relative mt-12 h-[210px] w-full rounded-[6px] px-[5px] md:mt-[80px] md:h-[692px] md:px-10">
+      <div className="relative mt-12 h-auto w-full rounded-[6px] px-[5px] md:mt-[80px] md:px-10">
         <video
           muted
           autoPlay
