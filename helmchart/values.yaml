@@ -1,44 +1,23 @@
-version: v1.0.5
+version: v1.0.7
+domain: www.musedam.cc
 envs:
 - name: NEXT_PUBLIC_IS_LIVE
   value: ""
-global:
-  envs:
-  - name: NEXT_PUBLIC_DEPLOY_REGION
-    value: global
-  - name: DATABASE_URI
-    value: ""
-  - name: PAYLOAD_SECRET
-    value: ""
-  - name: PAYLOAD_PUBLIC_SERVER_URL
-    value: ""
-  - name: PAYLOAD_PUBLIC_DRAFT_SECRET
-    value: ""
-  - name: REVALIDATION_KEY
-    value: ""
-  - name: NEXT_PUBLIC_SERVER_URL
-    value: ""
-  - name: NEXT_PRIVATE_DRAFT_SECRET
-    value: ""
-  - name: NEXT_PRIVATE_REVALIDATION_KEY
-    value: ""
-mainland:
-  envs:
-  - name: NEXT_PUBLIC_DEPLOY_REGION
-    value: mainland
-  - name: DATABASE_URI
-    value: ""
-  - name: PAYLOAD_SECRET
-    value: ""
-  - name: PAYLOAD_PUBLIC_SERVER_URL
-    value: ""
-  - name: PAYLOAD_PUBLIC_DRAFT_SECRET
-    value: ""
-  - name: REVALIDATION_KEY
-    value: ""
-  - name: NEXT_PUBLIC_SERVER_URL
-    value: ""
-  - name: NEXT_PRIVATE_DRAFT_SECRET
-    value: ""
-  - name: NEXT_PRIVATE_REVALIDATION_KEY
-    value: ""
+- name: NEXT_PUBLIC_DEPLOY_REGION
+  value: ""
+- name: DATABASE_URI
+  value: ""
+- name: PAYLOAD_SECRET
+  value: ""
+- name: PAYLOAD_PUBLIC_SERVER_URL
+  value: ""
+- name: PAYLOAD_PUBLIC_DRAFT_SECRET
+  value: ""
+- name: REVALIDATION_KEY
+  value: ""
+- name: NEXT_PUBLIC_SERVER_URL
+  value: ""
+- name: NEXT_PRIVATE_DRAFT_SECRET
+  value: ""
+- name: NEXT_PRIVATE_REVALIDATION_KEY
+  value: ""
