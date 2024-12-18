@@ -13,7 +13,7 @@ const redirects = async () => {
   }
 
   const redirectToApp = {
-    source: '/:path(home|detail|share|login|profile)/:rest*',
+    source: '/:path(home|detail|share|login|profile|pricing)/:rest*',
     destination: 'https://musedam.cc/:path/:rest*',
     permanent: true,
   }
