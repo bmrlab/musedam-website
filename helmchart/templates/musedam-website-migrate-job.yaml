@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
       - image: "musecr.azurecr.cn/muse/musedam-website:{{ .Values.version }}-job"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: musedam-website
         command: ["/bin/sh", "-c"]
         args:

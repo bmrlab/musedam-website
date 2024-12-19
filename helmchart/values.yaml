@@ -1,4 +1,4 @@
-version: v1.0.11
+version: v1.0.12
 domain: www.musedam.cc
 envs:
 - name: NEXT_PUBLIC_IS_LIVE
@@ -16,6 +16,8 @@ envs:
 - name: REVALIDATION_KEY
   value: ""
 - name: NEXT_PUBLIC_SERVER_URL
+  value: ""
+- name: NEXT_PUBLIC_ASSET_PREFIX
   value: ""
 - name: NEXT_PRIVATE_DRAFT_SECRET
   value: ""

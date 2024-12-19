@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - image: "musecr.azurecr.cn/muse/musedam-website:{{ .Values.version }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: musedam-website
         env:
         {{- range .Values.envs }}
@@ -70,8 +70,19 @@ spec:
   - secretName: ssl-wildcard-musedam-cc
     hosts:
     - {{ .Values.domain }}
+    - www.musedam.cc
   rules:
   - host: {{ .Values.domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: musedam-website-svc
+            port:
+              number: 3000
+  - host: www.musedam.cc
     http:
       paths:
       - path: /
