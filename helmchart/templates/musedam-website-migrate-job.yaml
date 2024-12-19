@@ -15,7 +15,9 @@ spec:
       - image: "musecr.azurecr.cn/muse/musedam-website:{{ .Values.version }}-job"
         imagePullPolicy: Always
         name: musedam-website
-        command: ["pnpm", "payload", "migrate"]
+        command: ["/bin/sh", "-c"]
+        args:
+          - "pnpm payload migrate && pnpm payload run src/seeds/index.mjs"
         env:
         {{- range .Values.envs }}
         - name: {{ .name }}

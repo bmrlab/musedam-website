@@ -60,6 +60,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    push: false, // 禁用自动 push，都要用 migrate 命令，seeds 脚本会默认 push 一下导致后续 migration 无法执行
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
