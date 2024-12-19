@@ -1,10 +1,10 @@
 // storage-adapter-import-placeholder
-import { postgresAdapter } from '@payloadcms/db-postgres'
-
-import sharp from 'sharp' // sharp-import
 import path from 'path'
-import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { defaultLexical } from '@/fields/defaultLexical'
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import { buildConfig } from 'payload'
+import sharp from 'sharp' // sharp-import
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
@@ -12,7 +12,6 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { plugins } from './plugins'
-import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
@@ -64,9 +63,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  plugins: [
-    ...plugins,
-  ],
+  plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

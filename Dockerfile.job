@@ -1,0 +1,10 @@
+FROM node:18-alpine AS base
+
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY . .
+RUN corepack enable pnpm && pnpm i --frozen-lockfile;
+
+ENV NODE_ENV=production

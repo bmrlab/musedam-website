@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: musedam-website-migrate-job
+  namespace: musedam
+spec:
+  ttlSecondsAfterFinished: 30
+  template:
+    metadata:
+      labels:
+        app: musedam-website-migrate-job
+    spec:
+      restartPolicy: Never
+      containers:
+      - image: "musecr.azurecr.cn/muse/musedam-website:{{ .Values.version }}-job"
+        imagePullPolicy: Always
+        name: musedam-website
+        command: ["pnpm", "payload", "migrate"]
+        env:
+        {{- range .Values.envs }}
+        - name: {{ .name }}
+          value: {{ .value }}
+        {{- end }}
+      imagePullSecrets:
+      - name: registry-azure

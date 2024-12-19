@@ -27,7 +27,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image for Next.js app
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -35,6 +35,15 @@ jobs:
           tags: |
             musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
             musecr.azurecr.cn/muse/musedam-website:latest
+
+      - name: Build and push Docker image for Jobs
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.job
+          push: true
+          tags: |
+            musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
 
       # # 创建必要的 secrets 文件
       # - name: Create Secrets Directory
