@@ -2,6 +2,7 @@ import { HTMLAttributes, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useLanguage } from '@/providers/Language'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LucideProps } from 'lucide-react'
@@ -18,9 +19,9 @@ import {
 import useHeaderData, { FeatureItem } from '@/components/Header/data'
 import { MotionImage } from '@/components/StyleWrapper/image'
 import { useHeaderTranslation } from '@/app/i18n/client'
-import { LocaleSwitch } from './LocalSwitch'
-import { useLanguage } from '@/providers/Language'
+
 import { LocaleLink } from '../LocalLink'
+import { LocaleSwitch } from './LocalSwitch'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
