@@ -61,7 +61,7 @@ function createSkeletonHOC<P extends BaseProps>(
           video.removeEventListener(event, handleLoaded)
         })
       }
-    }, [type])
+    }, [])
 
     // 添加超时处理
     useEffect(() => {
@@ -74,7 +74,7 @@ function createSkeletonHOC<P extends BaseProps>(
       }, 5000)
 
       return () => clearTimeout(timeoutId)
-    }, [isLoading, type])
+    }, [isLoading])
 
     const loadHandlers = useMemo(() => {
       return type === 'video'
@@ -83,7 +83,7 @@ function createSkeletonHOC<P extends BaseProps>(
             onLoadedData: () => setIsLoading(false),
           }
         : { onLoad: () => setIsLoading(false) }
-    }, [type])
+    }, [])
 
     return (
       <div className={cn('relative', containerClassName)} style={{ width, height }}>

@@ -567,7 +567,9 @@ const headerIcons = {
   ),
 }
 
-export default {
+const combinedIcons = {
   ...Icons,
   ...headerIcons,
 }
+
+export default combinedIcons

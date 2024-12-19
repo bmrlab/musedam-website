@@ -35,7 +35,7 @@ export function useMenuAnimation(isOpen: boolean) {
         ]
 
     animate(menuAnimations as AnimationSequence)
-  }, [animate, isOpen])
+  }, [animate, isOpen, hasMounted])
 
   return scope
 }
