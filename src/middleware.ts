@@ -17,7 +17,7 @@ const PUBLIC_FILE = /\.(.*)$/
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.endsWith('.ping')) {
     const path = req.nextUrl.pathname
-    const region = process.env.NEXT_PUBLIC_DEPLOY_REGION
+    const region = process.env.DEPLOY_REGION
     const headers = Object.fromEntries(req.headers)
     return new NextResponse(JSON.stringify({ path, region, headers }), {
       status: 200,

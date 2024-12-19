@@ -45,7 +45,7 @@ export default async function RootLayout({
         <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <Providers lng={lng} country={process.env.NEXT_PUBLIC_DEPLOY_REGION?.toLowerCase()}>
+        <Providers lng={lng} country={process.env.DEPLOY_REGION?.toLowerCase()}>
           {/*<AdminBar />*/}
           <Header />
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
@@ -66,7 +66,7 @@ export default async function RootLayout({
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://www.musedam.cc'),
+  metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',

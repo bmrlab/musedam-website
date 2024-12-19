@@ -12,7 +12,7 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { plugins } from './plugins'
-import { getServerSideURL } from './utilities/getURL'
+import getServerSideURL from './utilities/getServerSideURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

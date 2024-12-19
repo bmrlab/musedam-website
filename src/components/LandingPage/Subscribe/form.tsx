@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Form } from '@/payload-types'
-import { getClientSideURL } from '@/utilities/getURL'
+import getClientSideURL from '@/utilities/getClientSideURL'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'

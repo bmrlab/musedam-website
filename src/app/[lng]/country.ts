@@ -7,7 +7,3 @@ export const getCountry = async (lng: string): Promise<string> => {
   const cookieStore = await cookies()
   return cookieStore.get(countryCookieName)?.value || (isZh(lng) ? 'CN' : 'US')
 }
-
-export const isInChina = async (lng: string): Promise<boolean> => {
-  return (await getCountry(lng)) === 'CN'
-}
