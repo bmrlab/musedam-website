@@ -26,7 +26,7 @@ export default async function RootLayout({
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://www.musedam.cc'),
+  metadataBase: new URL(process.env.SERVER_URL || 'https://www.musedam.cc'),
   twitter: {
     card: 'summary_large_image',
     creator: '@musedam',

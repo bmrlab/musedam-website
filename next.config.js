@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm'
 
 import redirects from './redirects.js'
 
-const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000'
 
 const withMDX = withMDXRaw({
   extension: /\.mdx?$/,
@@ -29,7 +29,7 @@ const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   images: {
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL, 'https://www.musedam.cc'].map((item) => {
+      ...[SERVER_URL, 'https://www.musedam.cc'].map((item) => {
         const url = new URL(item)
         return {
           hostname: url.hostname,
@@ -38,7 +38,7 @@ const nextConfig = {
       }),
     ],
   },
-  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || undefined,
+  assetPrefix: process.env.ASSET_PREFIX || undefined,
   reactStrictMode: true,
   redirects,
 }
