@@ -44,11 +44,12 @@ jobs:
           push: true
           tags: |
             musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
+            musecr.azurecr.cn/muse/musedam-website:latest-job
 
       - name: Setup Kubernetes Config And Update Deployment
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          echo "${{ secrets.KUBE_CONFIG_MUSE_CLUSTER }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
           export KUBECONFIG=$HOME/.kube/config
           kubectl config use-context muse-aws-cn-prod
