@@ -3,18 +3,15 @@ import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-
 import './globals.css'
-
 import { dir } from 'i18next'
 import NextTopLoader from 'nextjs-toploader'
-
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
-
+import { headers } from 'next/headers'
 import { euclidCircularA, plexMono } from './fonts'
 
 export async function generateStaticParams() {
@@ -31,7 +28,12 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>
 }) {
   const { lng } = await params
+  const headersList = await headers()
+  const pathname = headersList.get('x-url') || headersList.get('referer') || ''
 
+  // 检查是否是 pricing/ai 页面
+  const isPricingAiPage = pathname.includes('/pricing/ai')
+  console.log("pathname", pathname)
   return (
     <html
       lang={lng}
@@ -47,7 +49,7 @@ export default async function RootLayout({
       <body>
         <Providers lng={lng} country={process.env.DEPLOY_REGION?.toLowerCase()}>
           {/*<AdminBar />*/}
-          <Header />
+          <Header hideMenu={isPricingAiPage} />
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
             <NextTopLoader
               color="#000"

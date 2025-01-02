@@ -1,0 +1,68 @@
+.pricing-table {
+  @apply border-separate border-spacing-0;
+}
+
+.pricing-table thead tr>th {
+  @apply px-2.5 md:px-1 h-20 border-t border-b border-r border-[#EBECEE] bg-background font-medium;
+}
+
+.pricing-table thead tr>th:first-child {
+  @apply border-l border-[#EBECEE] md:px-6;
+}
+
+.pricing-table thead tr>th:last-child {
+  @apply border-r border-[#EBECEE];
+}
+
+.pricing-table tr.row--blank {
+  @apply h-[24px];
+}
+
+.pricing-table tr.row--group>td {
+  @apply pl-2.5 md:pl-6 pt-6 pb-4 text-[18px] leading-5 font-medium text-left border-t border-x border-[#EBECEE];
+}
+
+.pricing-table thead th:first-child,
+.pricing-table tbody td:first-child {
+  @apply text-left;
+}
+
+.pricing-table .row td {
+  @apply py-[5px] px-2.5 md:px-6 text-sm leading-5 font-normal text-[#676C77];
+}
+
+.pricing-table .row td {
+  @apply py-[5px] px-2.5 md:px-1 text-sm leading-5 font-normal text-[#676C77];
+}
+
+.pricing-table .row td:first-child {
+  @apply md:px-6;
+}
+
+.pricing-table tbody tr.row--group__item.row--group__item--last td {
+  @apply border-b border-[#EBECEE];
+}
+
+.pricing-table tbody .row--group__item td:first-child {
+  @apply border-l border-[#EBECEE];
+}
+
+.pricing-table tbody .row--group__item td:last-child {
+  @apply border-r border-[#EBECEE];
+}
+
+.pricing-table .row td {
+  @apply bg-[#F8F8F8] py-2.5 leading-5;
+}
+
+.pricing-table .row.row--light td {
+  @apply bg-[#ffffff];
+}
+
+.pricing-table .row td.cell--purple {
+  @apply bg-[#ECE9FF];
+}
+
+.pricing-table .row.row--light td.cell--purple {
+  @apply bg-[#F9F8FE];
+}

@@ -1,19 +1,22 @@
 import { useLanguage } from "@/providers/Language"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 
 export const LocaleSwitch: React.FC = () => {
     const router = useRouter()
     const pathname = usePathname()
     const { language, setLanguage } = useLanguage()
-
+    const searchParams = useSearchParams()
     const otherLocale = language === 'zh' ? 'en' : 'zh'
 
     const changeLocale = useCallback(() => {
+        const currentParams = new URLSearchParams(searchParams)
+        const queryString = currentParams.toString()
         const newPathname = pathname?.replace(/^\/(en|zh)/, '/' + otherLocale) || ''
-        router.replace(`${newPathname}`)
+        const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
+        router.replace(newUrl)
         setLanguage(otherLocale)
-    }, [otherLocale, pathname, router, setLanguage])
+    }, [otherLocale, pathname, router, setLanguage, searchParams])
 
     return (
         <>

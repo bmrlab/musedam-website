@@ -32,7 +32,7 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
   return <Icon {...props} />
 }
 
-export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivElement>) {
+export default function HeaderDesktop({ className, hideMenu }: { hideMenu?: boolean } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const router = useRouter()
@@ -61,7 +61,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           <Image src="/assets/logo.svg" width={36} height={36} alt="muse logo"></Image>
         </LocaleLink>
       </div>
-      <NavigationMenuList className="hidden flex-1 md:flex">
+      {!hideMenu && <NavigationMenuList className="hidden flex-1 md:flex">
         <NavigationMenuItem>
           <NavigationMenuTrigger className="font-normal">
             {t('nav-bar.features')}
@@ -180,6 +180,13 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <LocaleLink href="/pricing" legacyBehavior passHref>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
+              {t('nav-bar.pricing')}
+            </NavigationMenuLink>
+          </LocaleLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           <LocaleLink href="/features/inspiration-collection" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.extension')}
@@ -200,7 +207,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
             </NavigationMenuLink>
           </LocaleLink>
         </NavigationMenuItem>
-      </NavigationMenuList>
+      </NavigationMenuList>}
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
         <button
