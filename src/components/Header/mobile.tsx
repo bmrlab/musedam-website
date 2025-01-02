@@ -114,6 +114,13 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           ))}
         </AccordionItemWrapper>
 
+        <AccordionItemWrapper value="pricing">
+          <AccordionTriggerWrapper disabled>
+            <LocaleLink href="/pricing" onClick={onClose}>
+              {t('nav-bar.pricing')}
+            </LocaleLink>
+          </AccordionTriggerWrapper>
+        </AccordionItemWrapper>
         <AccordionItemWrapper value="inspiration-collection">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/features/inspiration-collection" onClick={onClose}>

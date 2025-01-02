@@ -84,5 +84,13 @@
                 "description": "MuseDAM的智能文件夹功能，让用户能够根据特定条件自动归类素材，实现素材的高效管理和快速检索，提升创意工作的便捷性和智能化水平。"
             }
         }
+    },
+    "pricing": {
+        "title": "MuseDAM | 价格套餐",
+        "description": "",
+        "ai": {
+            "title": "MuseAI | 价格套餐",
+            "description": ""
+        }
     }
 }

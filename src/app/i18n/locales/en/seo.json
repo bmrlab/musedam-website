@@ -84,5 +84,13 @@
                 "description": "MuseDAM's AI Content Creation feature intelligently summarizes material content and even writes new articles based on it, greatly improving the efficiency and quality of creative work."
             }
         }
+    },
+    "pricing": {
+        "title": "MuseDAM | Pricing",
+        "description": "",
+        "ai": {
+            "title": "MuseAI | Pricing",
+            "description": ""
+        }
     }
 }
