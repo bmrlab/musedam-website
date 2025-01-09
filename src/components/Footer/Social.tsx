@@ -15,7 +15,7 @@ const socialItemAbroad = [
   {
     label: 'Twitter',
     icon: <Icons.twitter />,
-    href: 'https://x.com/MuseDam_Tezign',
+    href: 'https://x.com/MuseDAM',
   },
   {
     label: 'YouTube',
