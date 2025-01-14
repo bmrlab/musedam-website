@@ -12,11 +12,12 @@ const redirects = async () => {
     source: '/:path((?!ie-incompatible.html$).*)', // all pages except the incompatibility page
   }
 
-  const redirectToApp = {
-    source: '/:path(home|detail|share|login|profile|settings|auth)/:rest*',
-    destination: `${process.env.MUSE_BASE_URL}/:path/:rest*`,
-    permanent: true,
-  }
+  // 目前在 ingress 里面直接配置了，这里 env 需要 build 阶段生效，比较麻烦
+  // const redirectToApp = {
+  //   source: '/:path(home|detail|share|login|profile|settings|auth)/:rest*',
+  //   destination: `${process.env.MUSE_BASE_URL}/:path/:rest*`,
+  //   permanent: true,
+  // }
 
   const restRedirects = [
     // {
@@ -31,7 +32,11 @@ const redirects = async () => {
     // },
   ]
 
-  const redirects = [internetExplorerRedirect, redirectToApp, ...restRedirects]
+  const redirects = [
+    internetExplorerRedirect,
+    // redirectToApp,
+    ...restRedirects,
+  ]
 
   return redirects
 }
