@@ -54,7 +54,7 @@ export default function Hero({
         </p>
       </FadeInUpContainer>
       <FadeInUpContainer className="flex  items-center justify-center  md:justify-between">
-        <Link href={buttonHref ?? MUSEDAM_LOGIN_URL + `?local=${lng}`}>
+        <Link href={buttonHref ?? MUSEDAM_LOGIN_URL}>
           <BlackButton className="h-[50px] w-[240px] rounded-full px-[52.2px] font-mono leading-5 text-white transition-colors hover:bg-gray-800 md:h-[58px] md:py-[19px]">
             {buttonText}
           </BlackButton>

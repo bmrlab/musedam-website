@@ -206,7 +206,7 @@ export default function HeaderDesktop({ className }: HTMLAttributes<HTMLDivEleme
         <button
           className="z-50 h-full w-[140px] bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
           onClick={() => {
-            router.push(MUSEDAM_LOGIN_URL + `?local=${language}`)
+            router.push(MUSEDAM_LOGIN_URL)
           }}
         >
           <p className="hidden md:block">{t('button.login')}</p>

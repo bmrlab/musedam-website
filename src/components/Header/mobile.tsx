@@ -137,7 +137,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         </AccordionItemWrapper>
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
-        <Link href={MUSEDAM_LOGIN_URL + `?local=${language}`}>
+        <Link href={MUSEDAM_LOGIN_URL}>
           <button className="size-full h-[50px] rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
             {t('button.login')}
           </button>

@@ -16,7 +16,7 @@ export default async function Hero({ lng }: { lng: string }) {
 
         <p className='md:hidden'>{t('hero.all-title')}</p>
       </h1>
-      <Link href={MUSEDAM_LOGIN_URL + `?local=${lng}`}>
+      <Link href={MUSEDAM_LOGIN_URL}>
         <BlackButton className="mb-12 mt-6 h-[50px] w-[240px] rounded-[1000px] px-[52.5px] font-mono leading-[20px] text-white md:mb-[58px] md:mt-9 md:h-auto md:w-[250px] md:px-[57.5px] md:py-[19px]">
           {t('hero.button.start')}
         </BlackButton>
