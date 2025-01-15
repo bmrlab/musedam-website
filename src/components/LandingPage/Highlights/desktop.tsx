@@ -228,7 +228,7 @@ export default function HighlightsDesktop({ data }: { data: Highlight[] }) {
                   animate={isBuildFinished(1) ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.1 }}
                 >
-                  <Link href={MUSEDAM_LOGIN_URL}>
+                  <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
                     <BlackButton className="rounded-[8px] px-[42.5px] py-[14px] font-mono text-white">
                       {t('highlight.button')}
                     </BlackButton>

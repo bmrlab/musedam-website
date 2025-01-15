@@ -16,7 +16,7 @@ export default async function Hero({ lng }: { lng: string }) {
 
         <p className='md:hidden'>{t('hero.all-title')}</p>
       </h1>
-      <Link href={MUSEDAM_LOGIN_URL}>
+      <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
         <BlackButton className="mb-12 mt-6 h-[50px] w-[240px] rounded-[1000px] px-[52.5px] font-mono leading-[20px] text-white md:mb-[58px] md:mt-9 md:h-auto md:w-[250px] md:px-[57.5px] md:py-[19px]">
           {t('hero.button.start')}
         </BlackButton>
@@ -30,7 +30,7 @@ export default async function Hero({ lng }: { lng: string }) {
           <p className="text-center font-mono text-[14px] font-light leading-6 text-[#141414] md:text-left md:text-[16px] md:leading-[28px]">
             {t('hero.sub-banner.subtitle')}
           </p>
-          <Link href={MUSEDAM_LOGIN_URL}>
+          <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
             <BlackButton className="h-[50px] w-[240px] rounded-[8px] px-[52.5px] font-mono leading-5 text-white md:h-auto md:w-[220px] md:px-[42.5px] md:py-[14px]">
               {t('hero.button.start')}
             </BlackButton>

@@ -83,7 +83,7 @@ export default function HighlightsMobile({ data }: { data: Highlight[] }) {
               )}
             </div>
             <div className="mt-6">
-              <Link href={MUSEDAM_LOGIN_URL}>
+              <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
                 <button className="h-[50px] w-[240px] rounded-[8px] bg-black  px-[52.5px] font-mono text-[14px] font-light leading-5 text-white md:h-auto md:w-[220px]">
                   {t('highlight.button')}
                 </button>
