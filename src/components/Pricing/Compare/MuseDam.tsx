@@ -64,8 +64,8 @@ export default function DetailTableOfMuseDam() {
     ]
     return (
         <div className="text-default mt-[60px] w-full">
-            <h1 className="mb-[40px] text-center text-[32px] leading-[45px]">{t('pricing.rights')}</h1>
-            <div className="mb-[60px] w-full px-5 md:px-10 no-scrollbar" ref={containerRef}>
+            <h1 className="mb-[40px] text-center font-euclid text-[32px] leading-[45px]">{t('pricing.rights')}</h1>
+            <div className="no-scrollbar mb-[60px] w-full px-5 md:px-10" ref={containerRef}>
                 <table className="pricing-table w-full min-w-[915px] table-fixed text-center text-sm leading-5">
                     <thead className="sticky top-[70px] z-[11]" ref={headerRef}>
                         <tr>

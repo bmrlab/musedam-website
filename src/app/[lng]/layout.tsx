@@ -13,6 +13,7 @@ import Header from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
 import { headers } from 'next/headers'
 import { euclidCircularA, plexMono } from './fonts'
+import { CookieConsent } from '@/components/CookieConsent'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -59,6 +60,7 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer />
+          <CookieConsent />
         </Providers>
         <TailwindIndicator />
         <Toaster />

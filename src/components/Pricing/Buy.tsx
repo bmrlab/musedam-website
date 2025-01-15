@@ -25,12 +25,12 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const currentPlan = useMemo(() => searchParams.get('plan') ?? PlanType.team as PlanType, [searchParams.get('plan')])
-    const { isInChina } = useCountry()
+    const { country, isInChina } = useCountry()
     const [pricingData, setPricingData] = useState<[EMuseProductType, ProductItem][]>(cache);
 
     useEffectOnce(() => {
         if (!Array.isArray(pricingData) || !pricingData || pricingData.length === 0) {
-            getPricingList(isInChina).then((res) => {
+            country && getPricingList(country).then((res) => {
                 const entries = res.map(item => [item.productType, item] as [EMuseProductType, ProductItem]);
                 cache = entries;
                 setPricingData(entries)
@@ -50,6 +50,8 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
     }
     const { t } = useTranslation('pricing')
     const [open, setOpen] = useState(false)
+
+    console.log("pricingMap", pricingMap)
     const tabs = [
         {
             type: PlanType.personal,
