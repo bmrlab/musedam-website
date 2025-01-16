@@ -3,17 +3,21 @@ import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+
 import './globals.css'
+
+import { headers } from 'next/headers'
 import { dir } from 'i18next'
 import NextTopLoader from 'nextjs-toploader'
+
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
+import { CookieConsent } from '@/components/CookieConsent'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
-import { headers } from 'next/headers'
+
 import { euclidCircularA, plexMono } from './fonts'
-import { CookieConsent } from '@/components/CookieConsent'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -34,7 +38,7 @@ export default async function RootLayout({
 
   // 检查是否是 pricing/ai 页面
   const isPricingAiPage = pathname.includes('/pricing/ai')
-  console.log("pathname", pathname)
+  // console.log('pathname', pathname)
   return (
     <html
       lang={lng}
