@@ -12,7 +12,7 @@ export const config = {
   ],
 }
 
-const PUBLIC_FILE = /\.(.*)$/
+const NON_I18N_PATH = /\.(.*)$|^\/musedam-apigw\// // 不需要国际化的路径，如 API 网关、有扩展名结尾的静态资源
 
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.endsWith('.ping')) {
@@ -57,7 +57,7 @@ export async function middleware(req: NextRequest) {
   if (
     !languages.some((loc) => req.nextUrl.pathname.startsWith(`/${loc}`)) &&
     !req.nextUrl.pathname.startsWith('/_next') &&
-    !PUBLIC_FILE.test(req.nextUrl.pathname)
+    !NON_I18N_PATH.test(req.nextUrl.pathname)
   ) {
     return NextResponse.redirect(
       new URL(`/${lng}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
