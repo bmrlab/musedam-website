@@ -35,7 +35,7 @@ export default async function RootLayout({
   const { lng } = await params
   const headersList = await headers()
   const pathname = headersList.get('x-url') || headersList.get('referer') || ''
-
+  const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
   // 检查是否是 pricing/ai 页面
   const isPricingAiPage = pathname.includes('/pricing/ai')
   // console.log('pathname', pathname)
@@ -64,7 +64,7 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer />
-          <CookieConsent />
+          {isGlobal && <CookieConsent />}
         </Providers>
         <TailwindIndicator />
         <Toaster />

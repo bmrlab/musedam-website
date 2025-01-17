@@ -22,6 +22,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
+import { useCountry } from '@/providers/Country'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -36,7 +37,7 @@ export default function HeaderDesktop({ className, hideMenu }: { hideMenu?: bool
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const router = useRouter()
-  const { language } = useLanguage()
+  const { isInChina } = useCountry()
   const { data: features } = useHeaderData()
 
   const categories = useMemo(() => features.map((f) => f.category), [features])
@@ -179,13 +180,13 @@ export default function HeaderDesktop({ className, hideMenu }: { hideMenu?: bool
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
+        {!isInChina && <NavigationMenuItem>
           <LocaleLink href="/pricing" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
               {t('nav-bar.pricing')}
             </NavigationMenuLink>
           </LocaleLink>
-        </NavigationMenuItem>
+        </NavigationMenuItem>}
         <NavigationMenuItem>
           <LocaleLink href="/features/inspiration-collection" legacyBehavior passHref>
             <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
