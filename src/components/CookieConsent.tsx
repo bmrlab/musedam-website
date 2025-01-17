@@ -18,6 +18,7 @@ import { ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { cn } from '@/utilities/cn';
 import { LocaleLink } from './LocalLink';
+import { useCountry } from '@/providers/Country';
 
 export type CookieService = {
     id: string;
@@ -142,6 +143,7 @@ function CookieSettings({ onSave, handleAccept, handleDecline }: CookieSettingsP
 export function CookieConsent() {
     const { t } = useTranslation('cookie-setting')
     const isMobile = false
+
     const [isVisible, setIsVisible] = useState(false)
     const [showSettings, setShowSettings] = useState(false)
     useEffect(() => {
