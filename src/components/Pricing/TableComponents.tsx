@@ -143,7 +143,7 @@ export const QAAccordion = () => {
                                 "group "
                             )}
                         >
-                            <h3 className="text-start text-[18px] font-medium leading-5">{t(`pricing.questions.ask${i}`)}</h3>
+                            <h3 className="text-start font-euclid text-[18px] font-medium leading-5">{t(`pricing.questions.ask${i}`)}</h3>
                             <ChevronDownIcon
                                 className="ease-[cubic-bezier(0.87,0,0.13,1)] shrink-0 transition-transform duration-300 group-data-[state=open]:rotate-180"
                                 aria-hidden

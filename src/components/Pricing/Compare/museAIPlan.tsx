@@ -26,7 +26,7 @@ export const usePlanMuseAI = () => {
         {
           key: 'storage',
           label: t('plan.details.storage'),
-          hintText: t(t('pricing.storage.hint')),
+          hintText: t('pricing.storage.hint'),
           plans: {
             [EPlanProductType.PERSON_PRO]: '1T (1024G)',
             [EPlanProductType.TEAM_BASIC]: '100G',

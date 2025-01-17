@@ -168,7 +168,7 @@ export const usePlanMuseDAM = () => {
         {
           key: 'storage',
           label: t('pricing.planMuseDAM.storage'),
-          hintText: t('pricing.planMuseDAM.storage.hint1'),
+          hintText: t(isInChina ? 'pricing.planMuseDAM.storage.hint.zh' : 'pricing.planMuseDAM.storage.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: "5G",
             [ESpaceType.PERSON_PRO]: t('pricing.1t.1024g'),
@@ -894,7 +894,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
-        {
+        ...(isInChina ? [{
           key: 'import_eagle',
           label: t('pricing.import_eagle.label'),
           hintText: t('pricing.import_eagle.hint'),
@@ -905,7 +905,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: true,
             [ESpaceType.ENTERPRISE]: true,
           },
-        },
+        }] : []),
         {
           key: 'color_filter',
           label: t('pricing.color_filter.label'),

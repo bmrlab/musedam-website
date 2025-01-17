@@ -28,15 +28,12 @@
 }
 
 .pricing-table .row td {
-  @apply py-[5px] px-2.5 md:px-6 text-sm leading-5 font-normal text-[#676C77];
+  @apply py-[5px] px-2.5 md:px-6 text-sm leading-5 font-normal text-[#434343];
 }
 
-.pricing-table .row td {
-  @apply py-[5px] px-2.5 md:px-1 text-sm leading-5 font-normal text-[#676C77];
-}
 
 .pricing-table .row td:first-child {
-  @apply md:px-6;
+  @apply md:px-6 text-[#676C77];
 }
 
 .pricing-table tbody tr.row--group__item.row--group__item--last td {

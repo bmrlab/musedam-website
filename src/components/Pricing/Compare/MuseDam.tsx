@@ -69,7 +69,7 @@ export default function DetailTableOfMuseDam() {
                 <table className="pricing-table w-full min-w-[915px] table-fixed text-center text-sm leading-5">
                     <thead className="sticky top-[70px] z-[11]" ref={headerRef}>
                         <tr>
-                            <th scope="col" className="w-[170px] text-sm leading-5 text-[#676C77] md:w-[228px]">
+                            <th scope="col" className="w-[170px] font-euclid text-sm leading-5 text-[#676C77] md:w-[228px]">
                                 {t('pricing.services')}
                             </th>
 
@@ -103,7 +103,7 @@ export default function DetailTableOfMuseDam() {
                                         <td colSpan={5}></td>
                                     </tr>
                                 )}
-                                <tr className="row--group" id={`planMuseDAM-group-${index}`}>
+                                <tr className="row--group font-euclid" id={`planMuseDAM-group-${index}`}>
                                     <td colSpan={5}>{group.group}</td>
                                 </tr>
                                 {group.items?.map((row, rowIndex) => (
