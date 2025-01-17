@@ -84,7 +84,24 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // 2. use cookie, accept-language header, etc.
+  // 2. use compatible languages
+  const requestCompatibleLanguage = ['zh', 'en'].find((loc) =>
+    req.nextUrl.pathname.startsWith(`/${loc}`),
+  )
+
+  if (typeof requestCompatibleLanguage !== 'undefined') {
+    const original = `${req.nextUrl.pathname}${req.nextUrl.search}`
+
+    if (requestCompatibleLanguage === 'zh') {
+      return NextResponse.redirect(new URL(original.replace('/zh', '/zh-CN'), req.url))
+    }
+
+    if (requestCompatibleLanguage === 'en') {
+      return NextResponse.redirect(new URL(original.replace('/en', '/en-US'), req.url))
+    }
+  }
+
+  // 3. use compatible cookie, accept-language header, etc.
   let lng: string | undefined | null = undefined
 
   if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
