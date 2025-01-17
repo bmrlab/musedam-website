@@ -58,7 +58,7 @@ export async function middleware(req: NextRequest) {
       domain:
         process.env.NODE_ENV === 'development'
           ? req.nextUrl.hostname
-          : getDomain(req.nextUrl.hostname),
+          : getDomain(req.headers.get('host') ?? req.nextUrl.hostname),
     })
 
     return response
@@ -77,7 +77,7 @@ export async function middleware(req: NextRequest) {
         domain:
           process.env.NODE_ENV === 'development'
             ? req.nextUrl.hostname
-            : getDomain(req.nextUrl.hostname),
+            : getDomain(req.headers.get('host') ?? req.nextUrl.hostname),
       })
 
       return response
