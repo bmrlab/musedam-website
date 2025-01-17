@@ -5,20 +5,17 @@ import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import * as Switch from '@radix-ui/react-switch';
-import { Label } from "@/components/ui/label"
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { cn } from '@/utilities/cn';
 import { LocaleLink } from './LocalLink';
-import { useCountry } from '@/providers/Country';
 
 export type CookieService = {
     id: string;
