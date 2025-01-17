@@ -1,0 +1,35 @@
+{
+  "title": "Cookie Settings",
+  "description": "Manage your cookie preferences",
+  "setting.title": "Update Cookie Preferences",
+  "setting.intro": "Muse uses different categories of cookies to provide, protect, improve, and promote our website and services. Information on these categories and their purposes are described below. For more information please see our ",
+  "privacyLink": "Privacy Policy",
+  "intro1": "We use cookies to provide, improve, protect and promote our services. Visit our ",
+  "intro2": " to learn more. You can manage your personal preferences using the “Customize cookies” button below.",
+  "customizeSettings": "Customize cookies",
+  "acceptAll": "Accept All",
+  "saveSettings": "Save Settings",
+  "reject": "Deny",
+  "categories": {
+    "essential": {
+      "name": "Strictly Necessary",
+      "description": "Cookies that are used to operate the website and services, such as to log you in and keep your account secure."
+    },
+    "marketing": {
+      "name": "General Marketing and Advertising",
+      "description": "Cookies that are used by Muse and our partners to better understand the types of individuals who are interested in our products and services and how we can promote those services based on that information."
+    },
+    "analytics": {
+      "name": "Analytics",
+      "description": "Cookies that help us and our partners understand how our websites are engaged with, such as usage statistics or to reconstruct viewed UI elements, in order to improve and customize our services."
+    },
+    "functional": {
+      "name": "Performance and Functionality",
+      "description": "Cookies which help us remember your preferences and settings in order to improve your experience when interacting with our sites and services."
+    },
+    "social": {
+      "name": "Social Media Advertising",
+      "description": "Cookies that are used by Muse and our partners to understand the effectiveness of our advertisements on social media services. These cookies also help them understand your advertising preferences so they can more effectively show you our advertisements which are relevant to your interests."
+    }
+  }
+}

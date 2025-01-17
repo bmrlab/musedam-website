@@ -1,5 +1,6 @@
 import { HTMLAttributes, useMemo, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { useLanguage } from '@/providers/Language'
@@ -211,14 +212,13 @@ export default function HeaderDesktop({ className, hideMenu }: { hideMenu?: bool
       </NavigationMenuList>}
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
-        <button
-          className="z-50 h-full w-[140px] bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
-          onClick={() => {
-            router.push(MUSEDAM_LOGIN_URL)
-          }}
+        <Link
+          href={MUSEDAM_LOGIN_URL}
+          prefetch={false}
+          className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
         >
           <p className="hidden md:block">{t('button.login')}</p>
-        </button>
+        </Link>
       </div>
     </NavigationMenu>
   )

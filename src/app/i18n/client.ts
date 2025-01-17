@@ -16,6 +16,7 @@ import {
 } from 'react-i18next'
 
 import { cookieName, getOptions, languages } from './settings'
+import { getDomain } from '@/utilities/cookieDomain'
 
 const runsOnServerSide = typeof window === 'undefined'
 
@@ -65,11 +66,11 @@ export function useTranslation<
       i18n.changeLanguage(lng)
     }, [lng, i18n])
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      if (cookies.i18next === lng) return
-      setCookie(cookieName, lng, { path: '/' })
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lng, cookies.i18next])
+    // useEffect(() => {
+    //   if (cookies['x-lang'] === lng) return
+    //   setCookie(cookieName, lng, { path: '/' })
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [lng, cookies['x-lang']])
   }
   return ret
 }

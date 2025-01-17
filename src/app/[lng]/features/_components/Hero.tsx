@@ -42,7 +42,7 @@ export default function Hero({
         <h1
           className={cn(
             'mb-[16px] font-euclid text-[32px] font-normal leading-[41.6px] tracking-[1px] md:mb-6 ',
-            lng === 'zh'
+            lng === 'zh-CN'
               ? 'md:text-[80px] md:leading-[90px]'
               : 'md:text-[100px] md:leading-[110px]',
           )}

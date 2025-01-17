@@ -30,7 +30,7 @@ export default function PrivacyPageContent({ lng }: { lng: string }) {
                     {isInChina ? '版本日期：2024年10月18日' : t('terms.update-date')}
                 </div>
                 <div className={className}>
-                    {isInChina ? <TermsInChina /> : (lng === 'zh' ? <TermsMDXZH /> : <TermsMDXEN />)}
+                    {isInChina ? <TermsInChina /> : (lng === 'zh-CN' ? <TermsMDXZH /> : <TermsMDXEN />)}
                 </div>
             </div>
         </FlexColContainer >

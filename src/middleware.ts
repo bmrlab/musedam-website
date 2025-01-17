@@ -3,6 +3,8 @@ import acceptLanguage from 'accept-language'
 
 import { cookieName, countryCookieName, fallbackLng, languages } from '@/app/i18n/settings'
 
+import { getDomain } from './utilities/cookieDomain'
+
 acceptLanguage.languages(languages)
 
 export const config = {
@@ -47,28 +49,53 @@ export async function middleware(req: NextRequest) {
 
   const response = NextResponse.next()
   if (country) response.cookies.set(countryCookieName, country)
-  let lng: string | undefined | null = country === 'CN' ? 'zh' : 'en'
 
-  if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
-  if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
-  if (!lng) lng = fallbackLng
+  // If lng in path is valid, just response with cookie set
+  const requestDefaultLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`))
+  if (typeof requestDefaultLanguage !== 'undefined') {
+    response.cookies.set(cookieName, requestDefaultLanguage!, {
+      sameSite: 'lax',
+      domain:
+        process.env.NODE_ENV === 'development'
+          ? req.nextUrl.hostname
+          : getDomain(req.nextUrl.hostname),
+    })
 
-  // Redirect if lng in path is not supported
-  if (
-    !languages.some((loc) => req.nextUrl.pathname.startsWith(`/${loc}`)) &&
-    !req.nextUrl.pathname.startsWith('/_next') &&
-    !NON_I18N_PATH.test(req.nextUrl.pathname)
-  ) {
-    return NextResponse.redirect(
-      new URL(`/${lng}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
-    )
+    return response
   }
+
+  // Otherwise, use following logic to get a default lng
+  // 1. use the valid language in referer header
   if (req.headers.has('referer')) {
     const refererUrl = new URL(req.headers.get('referer') || '')
     const lngInReferer = languages.find((l) => refererUrl.pathname.startsWith(`/${l}`))
     const response = NextResponse.next()
-    if (lngInReferer) response.cookies.set(cookieName, lngInReferer)
-    return response
+
+    if (lngInReferer) {
+      response.cookies.set(cookieName, lngInReferer, {
+        sameSite: 'lax',
+        domain:
+          process.env.NODE_ENV === 'development'
+            ? req.nextUrl.hostname
+            : getDomain(req.nextUrl.hostname),
+      })
+
+      return response
+    }
+  }
+
+  // 2. use cookie, accept-language header, etc.
+  let lng: string | undefined | null = undefined
+
+  if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
+  if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
+  if (!lng) lng = process.env.NEXT_PUBLIC_DEPLOY_REGION === 'mainland' ? 'zh-CN' : 'en-US'
+
+  // Redirect if lng in path is not supported
+  if (!req.nextUrl.pathname.startsWith('/_next') && !NON_I18N_PATH.test(req.nextUrl.pathname)) {
+    return NextResponse.redirect(
+      new URL(`/${lng}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
+    )
   }
 
   return response

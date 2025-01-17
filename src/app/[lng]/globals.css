@@ -120,7 +120,7 @@ img {
   }
 }
 @layer base {
-  html[lang="zh"], html[lang="zh"] * {
+  html[lang="zh-CN"], html[lang="zh-CN"] * {
     font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }

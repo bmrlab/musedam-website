@@ -29,11 +29,11 @@ export default function LngSelector() {
 
   const LANGUAGES = [
     {
-      key: 'en',
+      key: 'en-US',
       label: 'English',
     },
     {
-      key: 'zh',
+      key: 'zh-CN',
       label: '简体中文',
     },
   ]

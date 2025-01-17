@@ -1,9 +1,9 @@
-export const zhLng = 'zh'
-export const enLng = 'en'
+export const zhLng = 'zh-CN'
+export const enLng = 'en-US'
 export const fallbackLng = enLng
-export const languages = [fallbackLng, zhLng]
+export const languages = [enLng, zhLng]
 export const defaultNS = 'translation'
-export const cookieName = 'i18next'
+export const cookieName = 'x-lang'
 export const countryCookieName = 'country'
 
 export function getOptions(lng = fallbackLng, ns: string | string[] = defaultNS) {
@@ -20,5 +20,5 @@ export function getOptions(lng = fallbackLng, ns: string | string[] = defaultNS)
 }
 
 export function isZh(lng: string) {
-  return lng === 'zh'
+  return lng === 'zh-CN'
 }
