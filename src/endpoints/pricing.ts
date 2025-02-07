@@ -1,3 +1,5 @@
+import { MUSE_GLOBAL_SERVER_URL, MUSE_MAINLAND_SERVER_URL } from '@/constant/url'
+
 import { EMuseProductType } from '@/components/Pricing/types/products'
 
 export interface ProductItem {
@@ -11,11 +13,14 @@ export interface ProductItem {
 
 export const getPricingList = async (country: string) => {
   try {
-    const response = await fetch(`/musedam-apigw/mini-dam-order/products/universal?type=all`, {
-      headers: {
-        'x-deploy-region': country,
+    const response = await fetch(
+      `${country === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL}/mini-dam-order/products/universal?type=all`,
+      {
+        headers: {
+          'x-deploy-region': country,
+        },
       },
-    })
+    )
 
     if (!response.ok) {
       throw new Error('Failed to fetch pricing data')
