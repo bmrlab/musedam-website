@@ -104,9 +104,15 @@ export async function middleware(req: NextRequest) {
   // 3. use compatible cookie, accept-language header, etc.
   let lng: string | undefined | null = undefined
 
-  if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
-  if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
-  if (!lng) lng = process.env.DEPLOY_REGION === 'mainland' ? 'zh-CN' : 'en-US'
+  if (req.cookies.has(cookieName)) {
+    lng = acceptLanguage.get(req.cookies.get(cookieName)?.value)
+  }
+  if (!lng && req.headers.has('Accept-Language')) {
+    lng = acceptLanguage.get(req.headers.get('Accept-Language'))
+  }
+  if (!lng) {
+    lng = process.env.DEPLOY_REGION === 'mainland' ? 'zh-CN' : 'en-US'
+  }
 
   // Redirect if lng in path is not supported
   if (!req.nextUrl.pathname.startsWith('/_next') && !NON_I18N_PATH.test(req.nextUrl.pathname)) {
