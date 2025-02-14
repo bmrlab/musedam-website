@@ -7,7 +7,7 @@ export const getPageMetadata = ({
   description: string
   url?: string
 }) => {
-  const baseUrl = 'https://www.musedam.cc'
+  const baseUrl = process.env.SITE_SERVER_URL || 'https://www.musedam.cc'
   return {
     title: title,
     description: description,

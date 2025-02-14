@@ -73,11 +73,14 @@ export default async function RootLayout({
   )
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
-  openGraph: mergeOpenGraph(),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@musedam',
-  },
+export async function generateMetadata() {
+  const metadata: Metadata = {
+    metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
+    openGraph: mergeOpenGraph(),
+    twitter: {
+      card: 'summary_large_image',
+      creator: '@musedam',
+    },
+  }
+  return metadata
 }

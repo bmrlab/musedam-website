@@ -1,4 +1,3 @@
-import { Metadata } from 'next'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { SizeFullFlexColContainer } from '@/components/StyleWrapper/Container'
@@ -25,11 +24,13 @@ export default async function RootLayout({
   )
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@musedam',
-  },
-  openGraph: mergeOpenGraph(),
+export async function generateMetadata() {
+  return {
+    metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
+    twitter: {
+      card: 'summary_large_image',
+      creator: '@musedam',
+    },
+    openGraph: mergeOpenGraph(),
+  }
 }

@@ -1,5 +1,4 @@
 import React from 'react'
-import { Metadata } from 'next'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
@@ -25,11 +24,13 @@ export default async function RootLayout({
   )
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@musedam',
-  },
-  openGraph: mergeOpenGraph(),
+export async function generateMetadata() {
+  return {
+    metadataBase: new URL(process.env.SITE_SERVER_URL || 'https://www.musedam.cc'),
+    twitter: {
+      card: 'summary_large_image',
+      creator: '@musedam',
+    },
+    openGraph: mergeOpenGraph(),
+  }
 }
