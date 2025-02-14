@@ -2,6 +2,7 @@ import { HTMLAttributes, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useCountry } from '@/providers/Country'
 import { useLanguage } from '@/providers/Language'
 import { cn, twx } from '@/utilities/cn'
 
@@ -21,7 +22,6 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
-import { useCountry } from '@/providers/Country'
 
 export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
@@ -58,7 +58,7 @@ export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElemen
 function MobileMenu({ onClose }: { onClose: () => void }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
-  const { isInChina } = useCountry()
+  // const { isInChina } = useCountry()
   const { isZhLng } = useIsZhLng()
   return (
     <nav
@@ -115,13 +115,14 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           ))}
         </AccordionItemWrapper>
 
-        {!isInChina && <AccordionItemWrapper value="pricing">
+        <AccordionItemWrapper value="pricing">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/pricing" onClick={onClose}>
               {t('nav-bar.pricing')}
             </LocaleLink>
           </AccordionTriggerWrapper>
-        </AccordionItemWrapper>}
+        </AccordionItemWrapper>
+
         <AccordionItemWrapper value="inspiration-collection">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/features/inspiration-collection" onClick={onClose}>
