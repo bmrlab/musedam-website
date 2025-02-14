@@ -1,14 +1,14 @@
 import { Metadata } from 'next'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
 import Showcase from '@/app/[lng]/features/_components/Showcase'
 import TextDisplay from '@/app/[lng]/features/_components/TextDisplay'
+import { seoTranslation } from '@/app/i18n'
 
 import fetchData from '../data'
 import PageClient from './page.client'
-import { seoTranslation } from '@/app/i18n'
-import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -31,5 +31,10 @@ export default async function DynamicFeedbackPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return getPageMetadata({ title: t('features.dynamic-feedback.title'), description: t('features.dynamic-feedback.description') })
+  const { lng } = await params
+  return getPageMetadata({
+    title: t('features.dynamic-feedback.title'),
+    description: t('features.dynamic-feedback.description'),
+    url: `${lng}/features/dynamic-feedback`,
+  })
 }

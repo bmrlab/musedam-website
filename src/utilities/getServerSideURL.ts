@@ -1,3 +1,5 @@
+'use server'
+
 const getServerSideURL = () => {
   let url = process.env.SITE_SERVER_URL
 

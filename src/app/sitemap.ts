@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next'
+import getServerSideURL from '@/utilities/getServerSideURL'
 
 import { languages } from './i18n/settings'
 
 // Generate sitemap base URLs with language paths
 const generateLangUrls = (path: string = '') => {
   return languages.map((lng) => ({
-    url: `${process.env.SITE_SERVER_URL}/${lng}${path}`,
+    url: `${getServerSideURL()}/${lng}${path}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: path === '' ? 1 : 0.8,

@@ -1,4 +1,5 @@
 import { type MetadataRoute } from 'next'
+import getServerSideURL from '@/utilities/getServerSideURL'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/', '/musedam-apigw/'],
     },
-    sitemap: `${process.env.SITE_SERVER_URL}/sitemap.xml`,
+    sitemap: `${getServerSideURL()}/sitemap.xml`,
   }
 }

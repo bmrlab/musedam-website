@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
@@ -7,7 +8,6 @@ import fetchData from '@/app/[lng]/features/data'
 import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
-import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function AiContentCreationPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -28,5 +28,10 @@ export default async function AiContentCreationPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return getPageMetadata({ title: t('features.ai.content-creation.title'), description: t('features.ai.content-creation.description') })
+  const { lng } = await params
+  return getPageMetadata({
+    title: t('features.ai.content-creation.title'),
+    description: t('features.ai.content-creation.description'),
+    url: `${lng}/features/ai-content-creation`,
+  })
 }

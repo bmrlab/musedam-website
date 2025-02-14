@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
@@ -8,7 +9,6 @@ import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
-import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function TeamManagementPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -19,7 +19,7 @@ export default async function TeamManagementPage({ params }: PropsWithLng) {
     textDisplayLength: 4,
   })
   return (
-    <div className='w-full'>
+    <div className="w-full">
       <Hero {...heroData} />
       <Showcase {...showcaseData}>
         <PageClient />
@@ -31,5 +31,10 @@ export default async function TeamManagementPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return getPageMetadata({ title: t('features.team-management.title'), description: t('features.team-management.description') })
+  const { lng } = await params
+  return getPageMetadata({
+    title: t('features.team-management.title'),
+    description: t('features.team-management.description'),
+    url: `${lng}/features/team-management`,
+  })
 }

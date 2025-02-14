@@ -35,8 +35,10 @@ export default async function InspirationCollectionPage({ params }: PropsWithLng
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
+  const { lng } = await params
   return getPageMetadata({
     title: t('features.inspiration-collection.title'),
     description: t('features.inspiration-collection.description'),
+    url: `${lng}/features/inspiration-collection`,
   })
 }

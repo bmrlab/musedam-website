@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import Hero from '@/app/[lng]/features/_components/Hero'
@@ -8,7 +9,6 @@ import fetchData from '@/app/[lng]/features/(team-collaboration)/data'
 import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
-import { getPageMetadata } from '@/utilities/getMetadata'
 
 export default async function EncryptedSharingPage({ params }: PropsWithLng) {
   const { lng } = await params
@@ -31,5 +31,10 @@ export default async function EncryptedSharingPage({ params }: PropsWithLng) {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { t } = await seoTranslation(params)
-  return getPageMetadata({ title: t('features.encrypted-sharing.title'), description: t('features.encrypted-sharing.description') })
+  const { lng } = await params
+  return getPageMetadata({
+    title: t('features.encrypted-sharing.title'),
+    description: t('features.encrypted-sharing.description'),
+    url: `${lng}/features/encrypted-sharing`,
+  })
 }
