@@ -3,6 +3,8 @@ import getServerSideURL from '@/utilities/getServerSideURL'
 
 import { languages } from './i18n/settings'
 
+export const dynamic = 'force-dynamic'
+
 // Generate sitemap base URLs with language paths
 const generateLangUrls = (path: string = '') => {
   return languages.map((lng) => ({
