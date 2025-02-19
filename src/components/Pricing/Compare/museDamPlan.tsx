@@ -187,11 +187,10 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
           },
         },
-        {
+        ...(isInChina ? [] : [{
           key: 'points',
           label: t('pricing.planMuseDAM.points'),
           hintText: t('pricing.planMuseDAM.points.hint1'),
-
           hintLinkCustom: {
             type: "common",
             text: t('pricing.planMuseDAM.points.hint2'),
@@ -203,7 +202,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: t("pricing.points.perMonth", { val: '4,000' }),
             [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
           },
-        },
+        }] as const),
       ],
     },
     {

@@ -81,7 +81,7 @@ export default function DetailTableOfMuseAI() {
     const checkIfNeedsScroll = () => {
       if (container && header) {
         const needsScroll = container.scrollWidth > container.clientWidth;
-        console.log("needsScroll", needsScroll)
+        // console.log("needsScroll", needsScroll)
         container.style.overflowX = needsScroll ? 'auto' : ''
         header.style.top = needsScroll ? '0' : '70px';
       }

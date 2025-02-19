@@ -1,5 +1,5 @@
 import { useCountry } from '@/providers/Country'
-import { useContext, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BillingType, EPlanProductType, PlanType } from './types/plan'
 import { EMuseProductType } from './types/products'
@@ -14,26 +14,26 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
         [EPlanProductType.PERSON_FREE]: [
             t("pricing.summary.storage.personal", { val: '5GB' }),
             t("pricing.1.person.no.expansion.allowed"),
-            t('pricing.summary.points.onetime', { val: 100 }),
+            isInChina ? undefined : t('pricing.summary.points.onetime', { val: 100 }),
         ],
         [EPlanProductType.PERSON_PRO]: [
             t("pricing.summary.storage.personal", { val: '100G' }),
             t("pricing.1.person.no.expansion.allowed"),
-            t("pricing.summary.points", { val: 200 }),
+            isInChina ? undefined : t("pricing.summary.points", { val: 200 }),
             t('pricing.summary.ai'),
             t('pricing.encrypted_sharing.label'),
         ],
         [EPlanProductType.PERSON_PRO_PLUS]: [
             t('pricing.summary.storage.personal', { val: '1T (1024G) ' }),
             t("pricing.1.person.no.expansion.allowed"),
-            t("pricing.summary.points", { val: 800 }),
+            isInChina ? undefined : t("pricing.summary.points", { val: 800 }),
             t('pricing.summary.ai'),
             t('pricing.encrypted_sharing.label'),
         ],
         [EPlanProductType.PERSON_PRO_MASTER]: [
             t('pricing.summary.storage.personal', { val: '5T (5120G) ' }),
             t("pricing.1.person.no.expansion.allowed"),
-            t("pricing.summary.points", { val: '2,000' }),
+            isInChina ? undefined : t("pricing.summary.points", { val: '2,000' }),
             t('pricing.summary.ai'),
             t('pricing.summary.accelerated'),
         ],
@@ -42,21 +42,21 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
             t('pricing.summary.ai'),
             t("pricing.summary.storage", { val: isInChina ? '100G' : '300G' }),
             t("pricing.summary.seats", { val: 5 }),
-            t("pricing.summary.points", { val: '4,000' }),
+            isInChina ? undefined : t("pricing.summary.points", { val: '4,000' }),
             t("pricing.summary.folderAuth")
         ],
         [EPlanProductType.TEAM_PRO]: [
             t('pricing.summary.ai'),
             t("pricing.summary.storage", { val: '1T(1024G)' }),
             t("pricing.summary.seats", { val: 10 }),
-            t("pricing.summary.points", { val: '8,000' }),
+            isInChina ? undefined : t("pricing.summary.points", { val: '8,000' }),
             t("pricing.summary.folderAuth")
         ],
         [EPlanProductType.TEAM_FLAGSHIP]: [
             t('pricing.summary.ai'),
-            t("pricing.summary.storage", { val: '5T(5120G)' }),
+            t("pricing.summary.storage", { val: isInChina ? '3T(3072G)' : '5T(5120G)' }),
             t("pricing.summary.seats", { val: 30 }),
-            t("pricing.summary.points", { val: '24,000' }),
+            isInChina ? undefined : t("pricing.summary.points", { val: '24,000' }),
             t("pricing.summary.folderAuth")
         ],
         [EPlanProductType.ENTERPRISE]: [

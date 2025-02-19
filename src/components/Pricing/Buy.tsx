@@ -311,7 +311,7 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
                   </a>
                 )}
                 <ul className="mt-[30px] space-y-3">
-                  {summary.map((feature) => (
+                  {summary.filter((v) => !!v).map((feature) => (
                     <li className="flex items-center gap-2 " key={feature}>
                       <CheckIcon className="shrink-0 text-[#20C997]" width={16} height={16} />
                       <span className="font-mono text-[13px] font-light leading-[18px]">
