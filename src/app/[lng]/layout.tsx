@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 import './globals.css'
 
@@ -69,6 +70,7 @@ export default async function RootLayout({
         <TailwindIndicator />
         <Toaster />
       </body>
+      {process.env.GA_TRACKING_ID ? <GoogleAnalytics gaId={process.env.GA_TRACKING_ID} /> : null}
     </html>
   )
 }
