@@ -7,7 +7,7 @@ import DetailTableOfMuseDam from '@/components/Pricing/Compare/MuseDam'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 
-export default async function AboutUsPage() {
+export default async function MuseDAMPricingPage() {
   return (
     <FlexColContainer className="w-full items-center">
       <FlexColContainer className="max-w-full items-center md:w-[1260px]">

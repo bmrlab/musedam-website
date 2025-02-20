@@ -37,6 +37,9 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
   const { country, isInChina } = useCountry()
   const [pricingData, setPricingData] = useState<[EMuseProductType, ProductItem][]>(cache)
 
+  // 后端限制的两个值，注意大小写
+  const source = useMemo(() => isMuseAI ? 'museAI' : "museDAM", [isMuseAI])
+
   useEffect(() => {
     console.log('fetch pricing list')
 
@@ -124,7 +127,7 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
             )}
             onClick={() => {
               window.open(
-                `${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/points?source=MuseDAM`,
+                `${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/points?source=${source}`,
               )
             }}
           >
@@ -287,7 +290,7 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
                       }
                     } else if (buttonType === 'buy') {
                       window.open(
-                        `${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/plan?product=${pricingMap.get(priceKey)?.id}`,
+                        `${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/plan?product=${pricingMap.get(priceKey)?.id}&source=${source}`,
                         '_blank',
                       )
                     } else if (buttonType === 'try') {
@@ -303,7 +306,7 @@ export default function Buy({ isMuseAI }: { isMuseAI?: boolean }) {
                 </Button>
                 {linkText && (
                   <a
-                    href={`${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/plan?product=${pricingMap.get(priceKey)?.id}`}
+                    href={`${country === 'global' ? MUSE_GLOBAL_CHECKOUT_URL : MUSE_MAINLAND_CHECKOUT_URL}/checkout/plan?product=${pricingMap.get(priceKey)?.id}&source=${source}`}
                     target="_blank"
                     className="mt-4 block font-mono text-sm"
                   >
