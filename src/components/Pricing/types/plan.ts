@@ -48,6 +48,7 @@ export interface PlanDetailInfo {
     items: Array<{
         key?: string
         label: string
+        showSparkles?: boolean
         hintText: string
         hintLink?: string
         hintLinkCustom?: CommonLink | fileSupportLink

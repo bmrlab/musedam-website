@@ -69,7 +69,7 @@ export default function DetailTableOfMuseDam() {
                 <table className="pricing-table w-full min-w-[915px] table-fixed text-center text-sm leading-5">
                     <thead className="sticky top-[70px] z-[11]" ref={headerRef}>
                         <tr>
-                            <th scope="col" className="w-[170px] font-euclid text-sm leading-5 text-[#676C77] md:w-[228px]">
+                            <th scope="col" className="w-[170px] font-euclid text-sm leading-5 text-[#676C77] md:w-[240px]">
                                 {t('pricing.services')}
                             </th>
 
@@ -120,7 +120,10 @@ export default function DetailTableOfMuseDam() {
                                     >
                                         <td className="cell text-[#676C77]">
                                             <div className="flex items-center justify-between">
-                                                <span>{row.label}</span>
+                                                <div className='flex items-center gap-1'>
+                                                    <span>{row.label}</span>
+                                                    {row.showSparkles && <Image src='/assets/Pricing/IconSparkles.svg' alt='icon-sparkles' width={20} height={20} />}
+                                                </div>
                                                 <InfoTooltip hintText={row.hintText} hintLink={isInChina ? row.hintLink : undefined} hintLinkCustom={isInChina ? row.hintLinkCustom : undefined} />
                                             </div>
                                         </td>

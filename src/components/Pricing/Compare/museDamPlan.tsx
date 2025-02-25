@@ -328,10 +328,23 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+
         {
-          key: 'ai_analysis',
-          label: t('pricing.ai_analysis.label'),
-          hintText: t('pricing.ai_analysis.hint'),
+          key: 'ai_smart_rename',
+          label: t('pricing.ai_smart_rename.label'),
+          hintText: t('pricing.ai_smart_rename.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
+            [ESpaceType.TEAM]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+        {
+          key: 'ai_auto_smart_parsing',
+          label: t('pricing.ai_auto_smart_parsing.label'),
+          hintText: t('pricing.ai_auto_smart_parsing.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: true,
@@ -339,6 +352,42 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+        {
+          key: 'ai_custom_smart_parsing',
+          label: t('pricing.ai_custom_smart_parsing.label'),
+          hintText: t('pricing.ai_custom_smart_parsing.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+        {
+          key: 'ai_auto_smart_tagging',
+          label: t('pricing.ai_auto_smart_tagging.label'),
+          hintText: t('pricing.ai_auto_smart_tagging.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: true,
+            [ESpaceType.TEAM]: true,
+            [ESpaceType.ENTERPRISE]: true,
+          },
+        },
+        {
+          key: 'ai_custom_smart_tagging',
+          label: t('pricing.ai_custom_smart_tagging.label'),
+          hintText: t('pricing.ai_custom_smart_tagging.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+
         {
           key: 'ai_content',
           label: t('pricing.ai_content.label'),
@@ -350,17 +399,17 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
-        {
-          key: 'ai_tag',
-          label: t('pricing.ai_tag.label'),
-          hintText: t('pricing.ai_tag.hint'),
-          plans: {
-            [ESpaceType.PERSON_FREE]: false,
-            [ESpaceType.PERSON_PRO]: true,
-            [ESpaceType.TEAM]: true,
-            [ESpaceType.ENTERPRISE]: true,
-          },
-        },
+        // {
+        //   key: 'ai_tag',
+        //   label: t('pricing.ai_tag.label'),
+        //   hintText: t('pricing.ai_tag.hint'),
+        //   plans: {
+        //     [ESpaceType.PERSON_FREE]: false,
+        //     [ESpaceType.PERSON_PRO]: true,
+        //     [ESpaceType.TEAM]: true,
+        //     [ESpaceType.ENTERPRISE]: true,
+        //   },
+        // },
         {
           key: 'image_ocr_text_recognition',
           label: t('pricing.image_ocr_text_recognition.label'),
@@ -386,7 +435,7 @@ export const usePlanMuseDAM = () => {
           },
         },
         // MuseAI 能力相关
-        ...(isInChina ? AIPlans : [])
+        // ...(isInChina ? AIPlans : [])
       ],
     },
     {
@@ -424,6 +473,18 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: t('pricing.6g'),
             [ESpaceType.ENTERPRISE]: t('pricing.6g'),
           },
+        },
+        {
+          key: 'local_app',
+          label: t('pricing.local_app.label'),
+          hintText: t('pricing.local_app.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: t('pricing.coming.soon'),
+            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
+            [ESpaceType.TEAM]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
         },
         {
           key: 'bin_saved_days',
@@ -513,6 +574,30 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+        {
+          key: 'file_version',
+          label: t('pricing.file_version.label'),
+          hintText: t('pricing.file_version.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+        {
+          key: 'file_comment',
+          label: t('pricing.file_comment.label'),
+          hintText: t('pricing.file_comment.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
       ],
     },
     {
@@ -577,6 +662,18 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: true,
             [ESpaceType.ENTERPRISE]: true,
           },
+        },
+        {
+          key: 'whitelist_sharing',
+          label: t('pricing.whitelist_sharing.label'),
+          hintText: t('pricing.whitelist_sharing.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
+            [ESpaceType.TEAM]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
         },
         {
           key: 'sharing_link_management',
@@ -665,6 +762,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: false,
             [ESpaceType.ENTERPRISE]: true,
           },
+          showSparkles: true
         },
         {
           key: 'audio',
@@ -943,21 +1041,7 @@ export const usePlanMuseDAM = () => {
         //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
         //   },
         // },
-        // {
-        //   key: 'batch_edit',
-        //   label: t('pricing.batch_edit.label'),
-        //   hints: (
-        //     <div className="relative z-10 max-w-xs whitespace-normal break-words rounded text-[12px] leading-[18px]">
-        //       {t('pricing.batch_edit.hint')}
-        //     </div>
-        //   ),
-        //   plans: {
-        //     [ESpaceType.PERSON_FREE]: true,
-        //     [ESpaceType.PERSON_PRO]: true,
-        //     [ESpaceType.TEAM]: true,
-        //     [ESpaceType.ENTERPRISE]: true,
-        //   },
-        // },
+
         {
           key: 'batch_rename',
           label: t('pricing.batch_rename.label'),
@@ -968,10 +1052,11 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.TEAM]: true,
             [ESpaceType.ENTERPRISE]: true,
           },
-        }, {
-          key: 'batch_tag',
-          label: t('pricing.batch_tag.label'),
-          hintText: t('pricing.batch_tag.hint'),
+        },
+        {
+          key: 'batch_edit',
+          label: t('pricing.batch_edit.label'),
+          hintText: t('pricing.batch_edit.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: true,
@@ -979,6 +1064,42 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+        {
+          key: 'batch_tag',
+          label: t('pricing.batch_tag.label'),
+          hintText: t('pricing.batch_tag.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: true,
+          },
+        },
+        {
+          key: 'custom_metadata',
+          label: t('pricing.custom_metadata.label'),
+          hintText: t('pricing.custom_metadata.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+        {
+          key: 'compliance_check',
+          label: t('pricing.compliance_check.label'),
+          hintText: t('pricing.compliance_check.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+
       ],
     },
     {
@@ -1065,6 +1186,29 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+        {
+          key: 'project_management',
+          label: t('pricing.project_management.label'),
+          hintText: t('pricing.project_management.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+        },
+        {
+          key: 'approval_entry',
+          label: t('pricing.approval_entry.label'),
+          hintText: t('pricing.approval_entry.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+        },
+
       ],
     },
     {
@@ -1115,6 +1259,19 @@ export const usePlanMuseDAM = () => {
           },
         },
         {
+          key: 'team_home_page',
+          label: t('pricing.team_home_page.label'),
+          hintText: t('pricing.team_home_page.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+          showSparkles: true
+        },
+
+        {
           key: 'invite_specific_members',
           label: t('pricing.invite_specific_members.label'),
           hintText: t('pricing.invite_specific_members.hint'),
@@ -1136,6 +1293,34 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: true,
           },
         },
+
+
+        {
+          key: 'team_group_management',
+          label: t('pricing.team_group_management.label'),
+          hintText: t('pricing.team_group_management.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+        },
+
+
+
+        {
+          key: 'team_visitor_and_whitelist',
+          label: t('pricing.team_visitor_and_whitelist.label'),
+          hintText: t('pricing.team_visitor_and_whitelist.hint'),
+          plans: {
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+          },
+        },
+
         {
           key: 'import_members_and_departments_in_batches',
           label: t('pricing.import_members_and_departments_in_batches.label'),
