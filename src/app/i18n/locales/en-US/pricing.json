@@ -14,6 +14,7 @@
   "pricing.summary.ai": "AI parsing & creation",
   "pricing.summary.storage": "{{val}} team storage",
   "pricing.summary.storage.personal": "{{val}} storage",
+  "pricing.summary.storage.personal.start": "Starting from {{val}}",
   "pricing.summary.seats": "{{val}} seats . expandable",
   "pricing.summary.points": "{{val}} points/month",
   "pricing.summary.folderAuth": "Folder permissions",

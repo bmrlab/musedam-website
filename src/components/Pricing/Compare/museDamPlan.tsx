@@ -171,7 +171,7 @@ export const usePlanMuseDAM = () => {
           hintText: t(isInChina ? 'pricing.planMuseDAM.storage.hint.zh' : 'pricing.planMuseDAM.storage.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: "5G",
-            [ESpaceType.PERSON_PRO]: t('pricing.1t.1024g'),
+            [ESpaceType.PERSON_PRO]: t('pricing.summary.storage.personal.start', { val: '100G' }),
             [ESpaceType.TEAM]: t('pricing.capacity.expansion.on.demand'),
             [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
           },
@@ -198,7 +198,7 @@ export const usePlanMuseDAM = () => {
           },
           plans: {
             [ESpaceType.PERSON_FREE]: t('pricing.points.one.time', { val: 100 }),
-            [ESpaceType.PERSON_PRO]: t("pricing.points.perMonth", { val: 800 }),
+            [ESpaceType.PERSON_PRO]: t("pricing.points.perMonth", { val: 200 }),
             [ESpaceType.TEAM]: t("pricing.points.perMonth", { val: '4,000' }),
             [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
           },

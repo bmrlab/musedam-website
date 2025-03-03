@@ -76,6 +76,7 @@
   "pricing.summary.ai": "AI 智能解析 & 内容创作",
   "pricing.summary.storage": "{{val}} 存储空间",
   "pricing.summary.storage.personal": "{{val}} 存储空间",
+  "pricing.summary.storage.personal.start": "{{val}} 起",
   "plan.details.points": "算力点数",
   "pricing.summary.points.onetime": "一次性 {{val}} 算力点数",
   "pricing.summary.seats": "{{val}} 人席位·可扩席",
