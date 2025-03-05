@@ -3,7 +3,7 @@ export const enLng = 'en-US'
 export const fallbackLng = enLng
 export const languages = [enLng, zhLng]
 export const defaultNS = 'translation'
-export const cookieName = 'x-lang'
+export const languageCookieName = 'x-lang'
 export const countryCookieName = 'country'
 
 export function getOptions(lng = fallbackLng, ns: string | string[] = defaultNS) {

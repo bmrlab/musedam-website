@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/providers/Language'
+import { getDomain } from '@/utilities/cookieDomain'
 import i18next, { FlatNamespace, KeyPrefix } from 'i18next'
 // import LocizeBackend from 'i18next-locize-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
@@ -15,8 +16,7 @@ import {
   UseTranslationResponse,
 } from 'react-i18next'
 
-import { cookieName, getOptions, languages } from './settings'
-import { getDomain } from '@/utilities/cookieDomain'
+import { getOptions, languageCookieName, languages } from './settings'
 
 const runsOnServerSide = typeof window === 'undefined'
 
@@ -46,7 +46,7 @@ export function useTranslation<
   ns?: Ns,
   options?: UseTranslationOptions<KPrefix>,
 ): UseTranslationResponse<FallbackNs<Ns>, KPrefix> {
-  const [cookies, setCookie] = useCookies([cookieName])
+  const [cookies, setCookie] = useCookies([languageCookieName])
   const ret = useTranslationOrg(ns, options)
   const { i18n } = ret
   const { language: lng } = useLanguage()
