@@ -1,4 +1,7 @@
-export function getDomain(hostname: string) {
+export function getCookieDomain(hostname: string) {
+  // Remove port if present
+  hostname = hostname.split(':')[0]
+
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return hostname
   } else {

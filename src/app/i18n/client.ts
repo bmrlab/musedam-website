@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/providers/Language'
-import { getDomain } from '@/utilities/cookieDomain'
 import i18next, { FlatNamespace, KeyPrefix } from 'i18next'
 // import LocizeBackend from 'i18next-locize-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'

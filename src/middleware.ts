@@ -3,7 +3,7 @@ import acceptLanguage from 'accept-language'
 
 import { countryCookieName, fallbackLng, languageCookieName, languages } from '@/app/i18n/settings'
 
-import { getDomain } from './utilities/cookieDomain'
+import { getCookieDomain } from './utilities/cookieDomain'
 
 acceptLanguage.languages(languages)
 
@@ -55,7 +55,7 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
   const domain =
     process.env.NODE_ENV === 'development'
       ? req.nextUrl.hostname
-      : getDomain(req.headers.get('host') ?? req.nextUrl.hostname)
+      : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
 
   // If lng in path is valid, just response with cookie set
   const requestDefaultLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`))
@@ -110,6 +110,29 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
   )
 }
 
+function storeFirstVisitReferrer(req: NextRequest, response: NextResponse) {
+  const cookieName = '_fv_s' // first visit source
+  const referer = req.headers.get('referer')
+  function getRefererName(refererUrl: string) {
+    const domain = new URL(refererUrl).hostname
+    return domain
+  }
+  if (referer && !req.cookies.has(cookieName)) {
+    try {
+      const refererName = getRefererName(referer)
+      const domain = getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
+      response.cookies.set(cookieName, refererName, {
+        sameSite: 'lax',
+        domain,
+        httpOnly: false,
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      })
+    } catch (e) {
+      console.log('Error in storeFirstVisitReferrer', e)
+    }
+  }
+}
+
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.endsWith('.ping')) {
     return handlePingRequest(req)
@@ -125,7 +148,9 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  const country = getRequestCountry(req, response)
+  getRequestCountry(req, response)
+
+  storeFirstVisitReferrer(req, response)
 
   return determineLanguageAndSetCookie(req, response)
 }
