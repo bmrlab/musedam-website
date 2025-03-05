@@ -69,8 +69,8 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
   if (req.headers.has('referer')) {
     const refererUrl = new URL(req.headers.get('referer') || '')
     const lngInReferer = languages.find((l) => refererUrl.pathname.startsWith(`/${l}`))
-    const response = NextResponse.next()
     if (lngInReferer) {
+      const response = NextResponse.next()
       response.cookies.set(languageCookieName, lngInReferer, { sameSite: 'lax', domain })
       return response
     }
@@ -111,21 +111,35 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
 }
 
 function storeFirstVisitReferrer(req: NextRequest, response: NextResponse) {
+  const domain =
+    process.env.NODE_ENV === 'development'
+      ? req.nextUrl.hostname
+      : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
   const cookieName = '_fv_s' // first visit source
-  const referer = req.headers.get('referer')
-  function getRefererName(refererUrl: string) {
+  function getRefererName(refererUrl: string | null) {
+    if (!refererUrl) return ''
     const domain = new URL(refererUrl).hostname
+    if (/musedam|museai|tezign/.test(domain)) {
+      return ''
+    }
     return domain
   }
-  if (referer && !req.cookies.has(cookieName)) {
+  const refererName = getRefererName(req.headers.get('referer'))
+  function getRefererNameExists() {
+    const refererName = req.cookies.get(cookieName)?.value ?? ''
+    if (/musedam|museai|tezign/.test(refererName)) {
+      return ''
+    }
+    return refererName
+  }
+  const refererNameExists = getRefererNameExists()
+  if (refererName && !refererNameExists) {
     try {
-      const refererName = getRefererName(referer)
-      const domain = getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
       response.cookies.set(cookieName, refererName, {
         sameSite: 'lax',
         domain,
         httpOnly: false,
-        maxAge: 60 * 60 * 24 * 365, // 1 year
+        maxAge: 60 * 60 * 24 * 30, // 30 days
       })
     } catch (e) {
       console.log('Error in storeFirstVisitReferrer', e)
