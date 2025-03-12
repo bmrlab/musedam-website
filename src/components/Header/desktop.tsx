@@ -1,14 +1,15 @@
+'use client'
+
 import { HTMLAttributes, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { useCountry } from '@/providers/Country'
-import { useLanguage } from '@/providers/Language'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LucideProps } from 'lucide-react'
 
+import { SessionUser } from '@/types/user'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -37,11 +38,11 @@ const IconWrapper: React.FC<LucideProps & { icon: React.ComponentType<LucideProp
 export default function HeaderDesktop({
   className,
   hideMenu,
-}: { hideMenu?: boolean } & HTMLAttributes<HTMLDivElement>) {
+  user,
+}: { hideMenu?: boolean; user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
-  const router = useRouter()
-  // const { isInChina } = useCountry()
+
   const { data: features } = useHeaderData()
 
   const categories = useMemo(() => features.map((f) => f.category), [features])
@@ -186,7 +187,11 @@ export default function HeaderDesktop({
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <LocaleLink href="/pricing" legacyBehavior passHref>
+            <LocaleLink
+              href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
+              legacyBehavior
+              passHref
+            >
               <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
                 {t('nav-bar.pricing')}
               </NavigationMenuLink>
@@ -222,7 +227,7 @@ export default function HeaderDesktop({
           prefetch={false}
           className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
         >
-          <p className="hidden md:block">{t('button.login')}</p>
+          <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
         </Link>
       </div>
     </NavigationMenu>

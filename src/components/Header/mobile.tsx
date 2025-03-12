@@ -1,11 +1,12 @@
+'use client'
+
 import { HTMLAttributes, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { useCountry } from '@/providers/Country'
-import { useLanguage } from '@/providers/Language'
 import { cn, twx } from '@/utilities/cn'
 
+import { SessionUser } from '@/types/user'
 import useIsZhLng from '@/hooks/useIsZhLng'
 import {
   Accordion,
@@ -23,7 +24,10 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
 
-export default function HeaderMobile({ className }: HTMLAttributes<HTMLDivElement>) {
+export default function HeaderMobile({
+  className,
+  user,
+}: { user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
 
