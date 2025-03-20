@@ -36,7 +36,7 @@ export default function HeaderMobile({
       ref={scope}
       className={cn('hidden h-full w-screen justify-start md:flex', className)}
     >
-      <MobileMenu onClose={() => setIsOpen(false)} />
+      <MobileMenu onClose={() => setIsOpen(false)} user={user} />
       <div className="shrink-0 px-4">
         <LocaleLink href="/">
           <div className="relative size-9">
@@ -59,7 +59,7 @@ export default function HeaderMobile({
   )
 }
 
-function MobileMenu({ onClose }: { onClose: () => void }) {
+function MobileMenu({ onClose, user }: { onClose: () => void; user: SessionUser | null }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
   // const { isInChina } = useCountry()
@@ -150,9 +150,9 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         </AccordionItemWrapper>
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
-        <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+        <Link href={user ? '/home/all' : '/auth'} prefetch={false}>
           <button className="size-full h-[50px] rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
-            {t('button.login')}
+            {user ? t('button.enter') : t('button.login')}
           </button>
         </Link>
       </div>
