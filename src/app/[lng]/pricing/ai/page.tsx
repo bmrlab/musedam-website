@@ -25,9 +25,9 @@ export default async function MuseAIPricingPage({
   // 没指定版本且用户已登录，要切换对对应的版本
   if (user && typeof plan === 'undefined') {
     if (user.isOrg) {
-      redirect(`/${lng}/pricing?plan=team`)
+      redirect(`/${lng}/pricing/ai?plan=team`)
     } else {
-      redirect(`/${lng}/pricing?plan=personal`)
+      redirect(`/${lng}/pricing/ai?plan=personal`)
     }
   }
 
