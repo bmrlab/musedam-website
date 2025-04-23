@@ -41,6 +41,7 @@ export default function HeaderDesktop({
 }: { hideMenu?: boolean; user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
+  const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
 
   const { data: features } = useHeaderData()
 
@@ -185,7 +186,8 @@ export default function HeaderDesktop({
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          {/* 海外版-隐藏Pricing */}
+          {!isGlobal && <NavigationMenuItem>
             <LocaleLink
               href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
               legacyBehavior
@@ -195,7 +197,7 @@ export default function HeaderDesktop({
                 {t('nav-bar.pricing')}
               </NavigationMenuLink>
             </LocaleLink>
-          </NavigationMenuItem>
+          </NavigationMenuItem>}
           <NavigationMenuItem>
             <LocaleLink href="/features/inspiration-collection" legacyBehavior passHref>
               <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
