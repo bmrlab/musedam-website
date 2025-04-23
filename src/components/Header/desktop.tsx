@@ -3,7 +3,6 @@
 import { HTMLAttributes, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LucideProps } from 'lucide-react'
@@ -24,7 +23,6 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
-import { useCountry } from '@/providers/Country'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -39,12 +37,10 @@ export default function HeaderDesktop({
   className,
   hideMenu,
   user,
-}: { hideMenu?: boolean; user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
+  isGlobal,
+}: { hideMenu?: boolean; user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
-
-  const { isInChina } = useCountry()
-
   const { data: features } = useHeaderData()
 
   const categories = useMemo(() => features.map((f) => f.category), [features])
@@ -190,7 +186,7 @@ export default function HeaderDesktop({
             </NavigationMenuContent>
           </NavigationMenuItem>
           {/* 海外版-隐藏Pricing */}
-          {isInChina && <NavigationMenuItem>
+          {!isGlobal && <NavigationMenuItem>
             <LocaleLink
               href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
               legacyBehavior

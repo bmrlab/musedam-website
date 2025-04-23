@@ -49,7 +49,7 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers lng={lng} country={process.env.DEPLOY_REGION?.toLowerCase()}>
-          <Header />
+          <Header isGlobal={isGlobal} />
           <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
             <NextTopLoader
               color="#000"

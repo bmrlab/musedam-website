@@ -27,7 +27,8 @@ import { LocaleSwitch } from './LocalSwitch'
 export default function HeaderMobile({
   className,
   user,
-}: { user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
+  isGlobal,
+}: { user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
 
@@ -36,7 +37,7 @@ export default function HeaderMobile({
       ref={scope}
       className={cn('hidden h-full w-screen justify-start md:flex', className)}
     >
-      <MobileMenu onClose={() => setIsOpen(false)} user={user} />
+      <MobileMenu onClose={() => setIsOpen(false)} user={user} isGlobal={isGlobal} />
       <div className="shrink-0 px-4">
         <LocaleLink href="/">
           <div className="relative size-9">
@@ -59,7 +60,7 @@ export default function HeaderMobile({
   )
 }
 
-function MobileMenu({ onClose, user }: { onClose: () => void; user: SessionUser | null }) {
+function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: SessionUser | null; isGlobal: boolean }) {
   const { t } = useHeaderTranslation()
   const { data } = useHeaderData()
   // const { isInChina } = useCountry()
@@ -119,13 +120,13 @@ function MobileMenu({ onClose, user }: { onClose: () => void; user: SessionUser 
           ))}
         </AccordionItemWrapper>
 
-        <AccordionItemWrapper value="pricing">
+        {!isGlobal && <AccordionItemWrapper value="pricing">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/pricing" onClick={onClose}>
               {t('nav-bar.pricing')}
             </LocaleLink>
           </AccordionTriggerWrapper>
-        </AccordionItemWrapper>
+        </AccordionItemWrapper>}
 
         <AccordionItemWrapper value="inspiration-collection">
           <AccordionTriggerWrapper disabled>

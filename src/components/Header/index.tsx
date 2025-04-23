@@ -5,7 +5,7 @@ import { cn } from '@/utilities/cn'
 import HeaderDesktop from '@/components/Header/desktop'
 import HeaderMobile from '@/components/Header/mobile'
 
-export async function Header() {
+export async function Header({ isGlobal }: { isGlobal: boolean }) {
   const headersList = await headers()
   // 检查是否是 pricing/ai 页面
   const pathname = headersList.get('x-url') || headersList.get('referer') || ''
@@ -20,8 +20,8 @@ export async function Header() {
         'fixed z-50 flex h-[56px] w-full items-center border-b border-[#EBECEE] bg-white/90 font-mono transition-all duration-300 ease-in-out md:h-[70px]',
       )}
     >
-      <HeaderDesktop className="hidden md:flex" hideMenu={isPricingAiPage} user={user} />
-      <HeaderMobile className="flex md:hidden" user={user} />
+      <HeaderDesktop className="hidden md:flex" hideMenu={isPricingAiPage} user={user} isGlobal={isGlobal} />
+      <HeaderMobile className="flex md:hidden" user={user} isGlobal={isGlobal} />
     </nav>
   )
 }
