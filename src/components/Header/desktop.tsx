@@ -57,6 +57,7 @@ export default function HeaderDesktop({
     })
     return rowFlatItems
   }, [features])
+
   return (
     <NavigationMenu
       className={cn('flex h-full max-w-none justify-start', className)}
