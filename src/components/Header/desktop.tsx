@@ -190,7 +190,7 @@ export default function HeaderDesktop({
             </NavigationMenuContent>
           </NavigationMenuItem>
           {/* 海外版-隐藏Pricing */}
-          {!isInChina && <NavigationMenuItem>
+          {isInChina && <NavigationMenuItem>
             <LocaleLink
               href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
               legacyBehavior
