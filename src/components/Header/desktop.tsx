@@ -24,6 +24,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
+import { useCountry } from '@/providers/Country'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -41,7 +42,8 @@ export default function HeaderDesktop({
 }: { hideMenu?: boolean; user: SessionUser | null } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
-  const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+
+  const { isInChina } = useCountry()
 
   const { data: features } = useHeaderData()
 
@@ -188,7 +190,7 @@ export default function HeaderDesktop({
             </NavigationMenuContent>
           </NavigationMenuItem>
           {/* 海外版-隐藏Pricing */}
-          {!isGlobal && <NavigationMenuItem>
+          {!isInChina && <NavigationMenuItem>
             <LocaleLink
               href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
               legacyBehavior
