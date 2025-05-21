@@ -151,7 +151,7 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
         </AccordionItemWrapper>
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
-        <Link href={user ? '/home/all' : '/auth'} prefetch={false}>
+        <Link href={user ? '/home' : '/auth'} prefetch={false}>
           <button className="size-full h-[50px] rounded-[8px] bg-white font-mono text-[16px] font-normal leading-[22px] text-[#141414]">
             {user ? t('button.enter') : t('button.login')}
           </button>

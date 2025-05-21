@@ -306,17 +306,18 @@ export const usePlanMuseDAM = () => {
     {
       group: t('pricing.ai.capabilities'),
       items: [
-        {
-          key: 'points_validity',
-          label: t('pricing.points.validity'),
-          hintText: t('pricing.points.validity.hint'),
-          plans: {
-            [ESpaceType.PERSON_FREE]: t('pricing.summary.points.onetime', { val: 100 }),
-            [ESpaceType.PERSON_PRO]: t('pricing.monthly.issuance.and.reset'),
-            [ESpaceType.TEAM]: t('pricing.monthly.issuance.and.reset'),
-            [ESpaceType.ENTERPRISE]: t('pricing.monthly.issuance.and.reset'),
-          },
-        },
+        // 点数相关 - 暂时隐藏
+        // {
+        //   key: 'points_validity',
+        //   label: t('pricing.points.validity'),
+        //   hintText: t('pricing.points.validity.hint'),
+        //   plans: {
+        //     [ESpaceType.PERSON_FREE]: t('pricing.summary.points.onetime', { val: 100 }),
+        //     [ESpaceType.PERSON_PRO]: t('pricing.monthly.issuance.and.reset'),
+        //     [ESpaceType.TEAM]: t('pricing.monthly.issuance.and.reset'),
+        //     [ESpaceType.ENTERPRISE]: t('pricing.monthly.issuance.and.reset'),
+        //   },
+        // },
         {
           key: 'ai_search',
           label: t('pricing.ai_search.label'),
