@@ -68,6 +68,29 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     ],
   }
 
+  // 企业官网-团队版
+  const enterpriseSummary = {
+    [EPlanProductType.TEAM_BASIC]: [
+      t('pricing.summary.seats', { val: 1 }),
+      t('pricing.summary.storage', { val: isInChina ? '100G' : '300G' }),
+      t('pricing.summary.ai'),
+      t('pricing.summary.folderAuth'),
+    ],
+    [EPlanProductType.TEAM_FLAGSHIP]: [
+      t('pricing.summary.seats', { val: 30 }),
+      t('pricing.summary.storage', { val: isInChina ? '3T(3072G)' : '5T(5120G)' }),
+      'Includes all Basic Plan features',
+      t('pricing.summary.folderAuth'),
+      'Advanced extension module options',
+    ],
+    [EPlanProductType.ENTERPRISE]: [
+      t('pricing.summary.enterprise.seatSet'),
+      'Dedicated customer success manager',
+      'AWS private deployment',
+      'SLA service level agreements',
+    ],
+  }
+
   // museAI
   const museAIBillingMenu = {
     [PlanType.personal]: [
@@ -218,6 +241,44 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       },
     ],
   }
+
+  // 企业版(团队)
+  const enterpriseBillingMenu = [
+    {
+      key: EPlanProductType.TEAM_BASIC,
+      title: 'Basic',
+      description: 'Ideal for individuals or small teams',
+      buttonType: 'try',
+      linkText: t('pricing.plan.actions.buy-now'),
+      summary: enterpriseSummary[EPlanProductType.TEAM_BASIC],
+      [BillingType.monthly]: EMuseProductType.ABROAD_ORG_BASIC_MONTHLY,
+      [BillingType.yearly]: EMuseProductType.ABROAD_ORG_BASIC_YEARLY,
+      period: t('pricing.perMonth'),
+    },
+    {
+      key: EPlanProductType.TEAM_FLAGSHIP,
+      title: 'Advanced',
+      description: 'Suitable for medium to large teams and enterprises',
+      buttonType: 'contact',
+      linkText: t('pricing.plan.actions.buy-now'),
+      isHighlight: true,
+      summary: enterpriseSummary[EPlanProductType.TEAM_FLAGSHIP],
+      [BillingType.monthly]: EMuseProductType.ABROAD_ORG_PROFESSION_MONTHLY,
+      [BillingType.yearly]: EMuseProductType.ABROAD_ORG_PROFESSION_YEARLY,
+      period: t('pricing.perMonth'),
+    },
+    {
+      key: EPlanProductType.ENTERPRISE,
+      title: 'Custom',
+      description: 'Designed for large organizations with special requirements',
+      buttonType: 'contact',
+      summary: enterpriseSummary[EPlanProductType.ENTERPRISE],
+      icon: '/assets/Pricing/vip.svg',
+      [BillingType.monthly]: 'Contact Sales',
+      [BillingType.yearly]: 'Contact Sales',
+      period: null,
+    },
+  ]
   // 国内
   const domesticBillingMenu = {
     [PlanType.personal]: [
@@ -437,5 +498,5 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     [isMuseAI, isInChina, t],
   )
 
-  return { billingMenu }
+  return { billingMenu, enterpriseBillingMenu }
 }
