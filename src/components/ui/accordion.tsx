@@ -31,7 +31,7 @@ const AccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
-      {props.disabled ? null : <ChevronDownIcon className="size-3 shrink-0 text-white" />}
+      {props.disabled || props['icon-hidden'] ? null : <ChevronDownIcon className="size-3 shrink-0 text-white" />}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))

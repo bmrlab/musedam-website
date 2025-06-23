@@ -23,6 +23,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
+import { DarkButton } from '../StyleWrapper/button'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -231,13 +232,19 @@ export default function HeaderDesktop({
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
-        <Link
+        {isEnterprisePage ? <DarkButton className={'h-[48px] mr-5'}>
+          <Link
+            href={user ? '/home' : '/auth'}
+            prefetch={false}>
+            <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
+          </Link>
+        </DarkButton> : <Link
           href={user ? '/home' : '/auth'}
           prefetch={false}
           className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
         >
           <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
-        </Link>
+        </Link>}
       </div>
     </NavigationMenu>
   )
