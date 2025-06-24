@@ -7,6 +7,8 @@ import Precept from '@/components/LandingPage/Precept'
 import SubscribeBlock from '@/components/LandingPage/Subscribe'
 import AINatives from './AINatives'
 import WhyMuse from './WhyMuse'
+import Brands from './Brands'
+import FAQ from '@/components/Pricing/Enterprise/FAQ'
 
 export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
     const { lng } = await params
@@ -19,7 +21,8 @@ export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
             <ContainerWithMaxWidth>
                 <WhyMuse />
             </ContainerWithMaxWidth>
-            <Precept />
+            <Brands />
+            <FAQ />
         </div>
     )
 }

@@ -13,7 +13,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 export default async function Hero({ lng }: { lng: string }) {
     const { t } = await ssTranslation(lng, 'landing-page')
     return (
-        <div className="flex flex-col items-center justify-center md:w-full md:px-[80px]">
+        <div className="flex flex-col items-center justify-center pb-[120px] md:w-full md:px-[80px]">
             <h1 className="mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px]  md:px-0 md:text-[72px] md:leading-[90px]">
                 {'Muse AI-Native DAM '}
             </h1>
@@ -40,55 +40,65 @@ export default async function Hero({ lng }: { lng: string }) {
                     </DarkButton>
                 </Link>
             </FadeInUpContainer>
-            <div className="mt-12 flex h-auto w-full gap-4 rounded-[6px] px-[5px] md:mt-[80px] md:px-0">
-                <div className='left-content flex w-[540px] items-center justify-center'>
-                    <Accordion type="single" defaultValue="growth" collapsible={false} className="flex w-full max-w-[480px] flex-col gap-6">
+            <div className="mt-12 flex h-auto w-full flex-col gap-4 rounded-[6px] px-5 md:mt-[80px] md:flex-row  md:px-0">
+                <div className='left-content flex w-[540px] max-w-full items-center justify-center'>
+                    <Accordion type="single" defaultValue="growth" collapsible={false} className="flex w-full flex-col gap-6">
                         {[{
                             key: "growth",
                             title: "Drive Business Growth",
-                            Icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="4" y="4" width="8" height="8" rx="2" fill="white" />
-                                <rect x="4" y="20" width="8" height="8" rx="2" fill="white" />
-                                <rect x="20" y="4" width="8" height="8" rx="2" fill="white" />
-                                <rect x="20" y="20" width="8" height="8" rx="2" fill="white" />
-                            </svg>
+                            description: "Transform static assets into growth engines",
+                            lines: [
+                                { name: 'AskMuse AI Engine:', info: ' Generate professional marketing copy in 3 minutes, eliminating content creation struggles' },
+                                { name: 'Smart Content Insights:', info: ' AI analyzes high-performing content patterns to guide data-driven creative decisions' },
+                                { name: 'Value Discovery:', info: ' Automatically uncover hidden commercial potential in dormant digital assets' },
+                            ],
+                            result: <><span className="font-medium">300%</span> faster content production, <span className="font-medium">60%</span> higher asset reuse rates</>,
+                            Icon: 'icon1.png'
                         }, {
                             key: "lifecycle",
                             title: "Streamline Content Lifecycle",
-                            Icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="16" cy="16" r="12" fill="white" />
-                                <rect x="14" y="8" width="4" height="16" rx="2" fill="#1B8A3A" />
-                            </svg>
+                            description: "AI-native technology simplifies every stage from creation to archive",
+                            lines: [
+                                { name: 'Natural Language Search:', info: ' Simply say "find a red product background" and AI delivers instant results' },
+                                { name: 'Auto-Classification:', info: ' Upload and instantly categorize content, scenes, and colors without manual effort' },
+                                { name: 'Efficient Version Control:', info: ' One-click rollback—never lose important edits again' },
+                                { name: 'Seamless Team Collaboration:', info: ' @mentions, comments, and permission settings make teamwork effortless' },
+                            ],
+                            result: <><span className="font-medium">90%</span> faster asset discovery, <span className="font-medium">80%</span> improved team efficiency, <span className="font-medium">35%</span> shorter delivery cycles</>,
+                            Icon: 'icon2.png'
                         }, {
                             key: "assets",
                             title: "Protect Digital Assets",
-                            Icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="8" y="8" width="16" height="16" rx="8" fill="white" />
-                                <rect x="14" y="14" width="4" height="4" rx="2" fill="#4B3AFF" />
-                            </svg>
+                            description: "Enterprise-grade security with intelligent controls ensure brand asset safety",
+                            lines: [
+                                { name: 'Granular Permission Control:', info: ' Three-tier access management across departments, projects, and individual files' },
+                                { name: 'Smart Watermark Protection:', info: ' Dynamic visitor information display prevents unauthorized usage' },
+                                { name: 'Complete Operation Logs:', info: ' 60+ core actions tracked for full asset usage transparency' },
+                                { name: 'Secure Sharing:', info: ' Whitelist controls, expiration dates, and password protection for multi-layer security' },
+                            ],
+                            result: <><span className="font-medium">85%</span> reduced data breach risk, <span className="font-medium">100%</span> operation traceability</>,
+                            Icon: 'icon3.png'
                         }
                         ].map((item, index) => {
                             return <AccordionItem value={item.key} className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-0" key={item.key}>
                                 <AccordionTrigger className="p-0" icon-hidden>
                                     <div className="flex items-center gap-4 p-6">
-                                        <div className="flex size-[56px] items-center justify-center rounded-full">
-                                            {item.Icon}
-                                        </div>
+                                        <Image src={`/assets/Enterprise/AiNatives/${item.Icon}`} alt={item.Icon} className='size-9 rounded-[30px] object-cover md:size-[56px]' width={56} height={56} />
                                         <span className="text-left font-euclid text-[22px] font-medium text-white">{item.title}</span>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                    <Card className="ml-[96px] border-none bg-[#141414] shadow-none">
+                                    <Card className="ml-[76px] border-none bg-[#141414] shadow-none md:ml-[96px]">
                                         <CardContent className="space-y-3 p-0 pb-6 pr-6 text-[rgba(255,255,255,0.48)]">
-                                            <span className="text-[16px] ">Transform static assets into growth engines</span>
+                                            <span className="text-[16px] ">{item.description}</span>
                                             <ul className="list-disc space-y-3 pl-5 text-[15px] leading-[22.5px]">
-                                                <li><b>AskMuse AI Engine:</b> Generate professional marketing copy in 3 minutes, eliminating content creation struggles</li>
-                                                <li><b>Smart Content Insights:</b> AI analyzes high-performing content patterns to guide data-driven creative decisions</li>
-                                                <li><b>Value Discovery:</b> Automatically uncover hidden commercial potential in dormant digital assets</li>
+                                                {item.lines.map(({ name, info }, i) => {
+                                                    return <li key={`item${index}-lines${i}`}><b>{name}</b>{info}</li>
+                                                })}
                                             </ul>
                                             <div className='my-5 h-px w-full bg-[rgba(255,255,255,0.05)]' />
                                             <div className=" pt-4 text-[15px]">
-                                                <b>Results:</b> <span className="font-medium">300%</span> faster content production, <span className="font-medium">60%</span> higher asset reuse rates
+                                                <b>Results:</b> {item.result}
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -99,12 +109,12 @@ export default async function Hero({ lng }: { lng: string }) {
                 </div>
                 <div className='flex flex-1 shrink-0 items-center justify-center rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-[30px]'>
                     <Image
-                        src="/assets/Hero/MuseDAM-Asset-Car-V2.png"
-                        width={725}
-                        height={648}
+                        src="/assets/Enterprise/Multimodal_Asset_Library.png"
+                        width={665}
+                        height={588}
                         priority
-                        alt="MuseDAM-Asset-Car-V2"
-                        className='size-full'
+                        alt="Multimodal_Asset_Library"
+                        className='size-full object-contain'
                     />
                 </div>
             </div>

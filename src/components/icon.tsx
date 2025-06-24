@@ -232,7 +232,7 @@ const Icons = {
     >
       <path
         d="M11.2835 10.5L16 5.5M16 5.5L11.2835 0.5M16 5.5H0"
-        stroke="#141414"
+        stroke="currentColor"
         strokeWidth="1.3"
         strokeMiterlimit="10"
         strokeLinejoin="bevel"
