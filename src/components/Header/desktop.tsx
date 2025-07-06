@@ -232,7 +232,7 @@ export default function HeaderDesktop({
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         <LocaleSwitch />
-        {isEnterprisePage ? <DarkButton className={'h-[48px] mr-5'}>
+        {isEnterprisePage ? <DarkButton className={'mr-5 h-[48px]'}>
           <Link
             href={user ? '/home' : '/auth'}
             prefetch={false}>

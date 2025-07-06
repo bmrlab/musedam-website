@@ -42,6 +42,6 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     return getPageMetadata({
         title: t('pricing.ai.title'),
         description: t('pricing.ai.description'),
-        url: `${lng}/pricing/ai`,
+        url: `${lng}/enterprise/pricing`,
     })
 }

@@ -1,10 +1,10 @@
-
 import React from 'react'
 import type { Metadata } from 'next'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { usePathname } from 'next/navigation'
 
 import './globals.css'
 
@@ -17,6 +17,7 @@ import { CookieConsent } from '@/components/CookieConsent'
 import Footer from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
+import { LayoutContent } from './layout-content'
 
 import { euclidCircularA, plexMono } from './fonts'
 
@@ -50,16 +51,9 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers lng={lng} country={process.env.DEPLOY_REGION?.toLowerCase()}>
-          <Header isGlobal={isGlobal} />
-          <div className="flex flex-col items-center justify-center pt-[56px] md:pt-[70px]">
-            <NextTopLoader
-              color="#000"
-              height={1}
-              showSpinner={false} // 隐藏移动端右上角转圈圈
-            />
+          <LayoutContent isGlobal={isGlobal}>
             {children}
-          </div>
-          <Footer />
+          </LayoutContent>
           {isGlobal && <CookieConsent />}
         </Providers>
         <TailwindIndicator />

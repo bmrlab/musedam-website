@@ -17,11 +17,11 @@ export default async function Hero({ lng }: { lng: string }) {
             <h1 className="mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px]  md:px-0 md:text-[72px] md:leading-[90px]">
                 {'Muse AI-Native DAM '}
             </h1>
-            <span className='w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]'>for brands that drive growth, streamline content. and protect assets</span>
+            <span className='w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]'>for brands that drive growth, streamline content, and protect assets</span>
             <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
-                <button className="mb-12 mt-6 h-[48px] w-[151px] rounded-lg bg-white font-medium leading-[20px] text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
+                <Button className="mb-12 mt-6 h-[48px] w-[151px] rounded-lg bg-white font-medium leading-[20px] text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
                     Book a demo
-                </button>
+                </Button>
             </Link>
             <Banner />
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
