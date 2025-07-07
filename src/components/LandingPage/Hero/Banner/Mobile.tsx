@@ -19,10 +19,17 @@ import {
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
 
-export default function MobileBanner({ className }: { className?: string }) {
+export default function MobileBanner({ className, isDark }: { className?: string, isDark?: boolean }) {
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { getUrl } = usePublicUrl('/assets/Hero')
   const { isZhLng } = useIsZhLng()
+
+  const getUrlWithDark = (path: string) => {
+    if (!isDark) return getUrl(path)
+
+    return getUrl(`Dark/${path}`)
+  }
+
 
   return (
     <div className="no-scrollbar flex justify-center overflow-hidden px-6">
@@ -34,7 +41,7 @@ export default function MobileBanner({ className }: { className?: string }) {
       >
         <FlexColContainer>
           <TopToBottomImage
-            src={getUrl('MuseDAM-Kanban.png')}
+            src={getUrlWithDark('MuseDAM-Kanban.png')}
             width={137.25}
             height={30.94}
             priority
@@ -60,7 +67,7 @@ export default function MobileBanner({ className }: { className?: string }) {
             </video>
             <div className="absolute bottom-[19.13px] right-[-29.58px] z-[1] flex flex-col gap-2">
               <RightToLeftImage
-                src={getUrl('Tag-Automobile.png')}
+                src={getUrlWithDark('Tag-Automobile.png')}
                 width={isZhLng ? 34.08 : 65.08}
                 height={17.87}
                 priority
@@ -68,7 +75,7 @@ export default function MobileBanner({ className }: { className?: string }) {
                 className="shadow-[0px_4px_30px_4px_#00000014] duration-600 delay-2650"
               />
               <RightToLeftImage
-                src={getUrl('Tag-Raining.png')}
+                src={getUrlWithDark('Tag-Raining.png')}
                 width={isZhLng ? 42.08 : 51.08}
                 height={17.87}
                 priority
@@ -76,7 +83,7 @@ export default function MobileBanner({ className }: { className?: string }) {
                 className="shadow-[0px_4px_30px_4px_#00000014] duration-800 delay-2750"
               />
               <RightToLeftImage
-                src={getUrl('Tag-Photography.png')}
+                src={getUrlWithDark('Tag-Photography.png')}
                 width={isZhLng ? 50.08 : 69.08}
                 height={17.87}
                 priority

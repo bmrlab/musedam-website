@@ -15,28 +15,28 @@ export default async function Hero({ lng }: { lng: string }) {
     return (
         <div className="flex flex-col items-center justify-center pb-[120px] md:w-full md:px-[80px]">
             <h1 className="mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px]  md:px-0 md:text-[72px] md:leading-[90px]">
-                {'Muse AI-Native DAM '}
+                {t('hero.enterprise.title')}
             </h1>
-            <span className='w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]'>for brands that drive growth, streamline content, and protect assets</span>
+            <span className='w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]'>{t('hero.enterprise.subtitle')}</span>
             <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
                 <Button className="mb-12 mt-6 h-[48px] w-[151px] rounded-lg bg-white font-medium leading-[20px] text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
-                    Book a demo
+                    {t('hero.enterprise.button')}
                 </Button>
             </Link>
-            <Banner />
+            <Banner isDark />
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-6 px-6 md:items-start md:gap-10">
                     <h1 className="text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]">
-                        Why AI-Native Digital Asset Management?
+                        {t('hero.enterprise.why.title')}
                     </h1>
                     <p className="text-center font-mono text-[14px] font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px]">
-                        MuseDAM leverages AI to revolutionize digital asset management, delivering three core values
+                        {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
 
                 <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
                     <DarkButton className="h-[56px] w-[143px] rounded-[8px]">
-                        Book a demo
+                        {t('hero.enterprise.button')}
                     </DarkButton>
                 </Link>
             </FadeInUpContainer>
@@ -45,38 +45,38 @@ export default async function Hero({ lng }: { lng: string }) {
                     <Accordion type="single" defaultValue="growth" collapsible={false} className="flex w-full flex-col gap-6">
                         {[{
                             key: "growth",
-                            title: "Drive Business Growth",
-                            description: "Transform static assets into growth engines",
+                            title: t('hero.enterprise.accordion.growth.title'),
+                            description: t('hero.enterprise.accordion.growth.desc'),
                             lines: [
-                                { name: 'AskMuse AI Engine:', info: ' Generate professional marketing copy in 3 minutes, eliminating content creation struggles' },
-                                { name: 'Smart Content Insights:', info: ' AI analyzes high-performing content patterns to guide data-driven creative decisions' },
-                                { name: 'Value Discovery:', info: ' Automatically uncover hidden commercial potential in dormant digital assets' },
+                                { name: t('hero.enterprise.accordion.growth.line1.title'), info: t('hero.enterprise.accordion.growth.line1.desc') },
+                                { name: t('hero.enterprise.accordion.growth.line2.title'), info: t('hero.enterprise.accordion.growth.line2.desc') },
+                                { name: t('hero.enterprise.accordion.growth.line3.title'), info: t('hero.enterprise.accordion.growth.line3.desc') },
                             ],
-                            result: <><span className="font-medium">300%</span> faster content production, <span className="font-medium">60%</span> higher asset reuse rates</>,
+                            result: <><span className="font-medium">300%</span> {t('hero.enterprise.accordion.growth.result1')}, <span className="font-medium">60%</span> {t('hero.enterprise.accordion.growth.result2')}</>,
                             Icon: 'icon1.png'
                         }, {
                             key: "lifecycle",
-                            title: "Streamline Content Lifecycle",
-                            description: "AI-native technology simplifies every stage from creation to archive",
+                            title: t('hero.enterprise.accordion.lifecycle.title'),
+                            description: t('hero.enterprise.accordion.lifecycle.desc'),
                             lines: [
-                                { name: 'Natural Language Search:', info: ' Simply say "find a red product background" and AI delivers instant results' },
-                                { name: 'Auto-Classification:', info: ' Upload and instantly categorize content, scenes, and colors without manual effort' },
-                                { name: 'Efficient Version Control:', info: ' One-click rollback—never lose important edits again' },
-                                { name: 'Seamless Team Collaboration:', info: ' @mentions, comments, and permission settings make teamwork effortless' },
+                                { name: t('hero.enterprise.accordion.lifecycle.line1.title'), info: t('hero.enterprise.accordion.lifecycle.line1.desc') },
+                                { name: t('hero.enterprise.accordion.lifecycle.line2.title'), info: t('hero.enterprise.accordion.lifecycle.line2.desc') },
+                                { name: t('hero.enterprise.accordion.lifecycle.line3.title'), info: t('hero.enterprise.accordion.lifecycle.line3.desc') },
+                                { name: t('hero.enterprise.accordion.lifecycle.line4.title'), info: t('hero.enterprise.accordion.lifecycle.line4.desc') },
                             ],
-                            result: <><span className="font-medium">90%</span> faster asset discovery, <span className="font-medium">80%</span> improved team efficiency, <span className="font-medium">35%</span> shorter delivery cycles</>,
+                            result: <><span className="font-medium">90%</span> {t('hero.enterprise.accordion.lifecycle.result1')}, <span className="font-medium">80%</span> {t('hero.enterprise.accordion.lifecycle.result2')}, <span className="font-medium">35%</span> {t('hero.enterprise.accordion.lifecycle.result3')}</>,
                             Icon: 'icon2.png'
                         }, {
                             key: "assets",
-                            title: "Protect Digital Assets",
-                            description: "Enterprise-grade security with intelligent controls ensure brand asset safety",
+                            title: t('hero.enterprise.accordion.assets.title'),
+                            description: t('hero.enterprise.accordion.assets.desc'),
                             lines: [
-                                { name: 'Granular Permission Control:', info: ' Three-tier access management across departments, projects, and individual files' },
-                                { name: 'Smart Watermark Protection:', info: ' Dynamic visitor information display prevents unauthorized usage' },
-                                { name: 'Complete Operation Logs:', info: ' 60+ core actions tracked for full asset usage transparency' },
-                                { name: 'Secure Sharing:', info: ' Whitelist controls, expiration dates, and password protection for multi-layer security' },
+                                { name: t('hero.enterprise.accordion.assets.line1.title'), info: t('hero.enterprise.accordion.assets.line1.desc') },
+                                { name: t('hero.enterprise.accordion.assets.line2.title'), info: t('hero.enterprise.accordion.assets.line2.desc') },
+                                { name: t('hero.enterprise.accordion.assets.line3.title'), info: t('hero.enterprise.accordion.assets.line3.desc') },
+                                { name: t('hero.enterprise.accordion.assets.line4.title'), info: t('hero.enterprise.accordion.assets.line4.desc') },
                             ],
-                            result: <><span className="font-medium">85%</span> reduced data breach risk, <span className="font-medium">100%</span> operation traceability</>,
+                            result: <><span className="font-medium">85%</span> {t('hero.enterprise.accordion.assets.result1')}, <span className="font-medium">100%</span> {t('hero.enterprise.accordion.assets.result2')}</>,
                             Icon: 'icon3.png'
                         }
                         ].map((item, index) => {
@@ -98,7 +98,7 @@ export default async function Hero({ lng }: { lng: string }) {
                                             </ul>
                                             <div className='my-5 h-px w-full bg-[rgba(255,255,255,0.05)]' />
                                             <div className=" pt-4 text-[15px]">
-                                                <b>Results:</b> {item.result}
+                                                <b>{t('hero.enterprise.accordion.result')}</b> {item.result}
                                             </div>
                                         </CardContent>
                                     </Card>

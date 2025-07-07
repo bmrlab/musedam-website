@@ -9,6 +9,7 @@ import AINatives from './AINatives'
 import WhyMuse from './WhyMuse'
 import Brands from './Brands'
 import FAQ from '@/components/Pricing/Enterprise/FAQ'
+import { Information } from '@/components/Pricing/Enterprise/information'
 
 export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
     const { lng } = await params
@@ -23,6 +24,7 @@ export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
             </ContainerWithMaxWidth>
             <Brands />
             <FAQ />
+            <Information />
         </div>
     )
 }

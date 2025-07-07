@@ -1,11 +1,6 @@
 'use client'
+import { useTranslation } from '@/app/i18n/client'
 
-import { useMemo } from 'react'
-
-import useIsMobile from '@/hooks/useIsMobile'
-import { useHighlightTranslation, useTranslation } from '@/app/i18n/client'
-
-import usePublicUrl from '@/hooks/usePublicUrl'
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
 import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
@@ -20,44 +15,44 @@ export type AINativeCard = {
 }
 
 export default function AINatives() {
-    const { t } = useHighlightTranslation()
+    const { t } = useTranslation('ai-natives')
     const getUrl = (fileName: string) => `/assets/Enterprise/AiNatives/${fileName}`
 
     const data: AINativeCard[] = [
         {
             key: 'collect',
-            title: 'Intelligent Asset Management & Organization',
-            description: 'Streamline Content Lifecycle',
+            title: t('collect.title'),
+            description: t('collect.description'),
             image: getUrl('1.png'),
         },
         {
             key: 'organize',
-            title: 'Conversational Search & Discovery',
-            description: 'Simplify Content Access',
+            title: t('organize.title'),
+            description: t('organize.description'),
             image: getUrl('2.png'),
         },
         {
             key: 'collaborate',
-            title: 'Smart Distribution & Publishing',
-            description: 'Streamline Team Collaboration',
+            title: t('collaborate.title'),
+            description: t('collaborate.description'),
             image: getUrl('3.png'),
         },
         {
             key: 'ai-generate',
-            title: 'Enterprise Security & Compliance',
-            description: 'Drive Multi-Channel Content Strategy',
+            title: t('ai-generate.title'),
+            description: t('ai-generate.description'),
             image: getUrl('4.png'),
         },
         {
-            key: 'Compliance',
-            title: 'Enterprise Security & Compliance',
-            description: 'Protect Digital Asset Value',
+            key: 'compliance',
+            title: t('compliance.title'),
+            description: t('compliance.description'),
             image: getUrl('5.png'),
         },
         {
-            key: 'Data-Driven',
-            title: 'Data-Driven Insights',
-            description: 'Drive Strategic Decisions & Growth',
+            key: 'data-driven',
+            title: t('data-driven.title'),
+            description: t('data-driven.description'),
             image: getUrl('6.png'),
         },
     ]
@@ -67,26 +62,25 @@ export default function AINatives() {
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-6 px-6 md:items-start md:gap-10">
                     <h1 className="text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]">
-                        Six AI-Native Capabilities Powering Brand Growth
+                        {t('section.title')}
                     </h1>
                     <p className="text-center font-mono text-[14px] font-light text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
-                        MuseDAM Enterprise enhances six core digital asset management capabilities through AI-native technology.
+                        {t('section.desc')}
                     </p>
                 </div>
 
                 <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
                     <DarkButton className="w-[143px] rounded-[8px] md:h-[56px]">
-                        Book a demo
+                        {t('button.book-demo')}
                     </DarkButton>
                 </Link>
             </FadeInUpContainer>
 
-
-            <div className='mt-[60px] grid grid-cols-1 gap-10 px-5 md:mt-[100px] md:grid-cols-3 md:px-0'>
+            <div className='mt-[60px] -mr-3 grid grid-cols-1 gap-10 px-5 md:mt-[100px] md:grid-cols-3 md:px-0'>
                 {data.map(({ key, title, description, image }) => <div key={key} className='overflow-hidden rounded-[30px] bg-[#F1F5F9]'>
                     <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
-                    <div className='mx-5 mb-[10px] mt-[30px] text-[22px]'>{title}</div>
-                    <div className='mx-5 mb-[30px] text-[18px] font-light'>{description}</div>
+                    <div className='mx-5 mb-[10px] mt-[30px] text-[22px] font-euclid'>{title}</div>
+                    <div className='mx-5 mb-[30px] text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
                 </div>)}
             </div>
         </div>

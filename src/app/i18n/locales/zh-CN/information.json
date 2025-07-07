@@ -1,0 +1,22 @@
+{
+    "title": "准备好了解 MuseDAM 企业版了吗？",
+    "desc": "与我们聊聊，了解为什么众多知名品牌选择 MuseDAM 的AI原生技术来升级他们的数字资产管理。",
+    "list": [
+        "免费咨询，没有任何义务",
+        "轻松的10分钟交流，了解您的实际需求",
+        "接下来安排专属产品演示，展示真正适合您的功能"
+    ],
+    "security": "专为企业安全而打造",
+    "form": {
+        "title": "让我们稍微了解您",
+        "name.label": "1. 您的姓名",
+        "name.placeholder": "请输入您的姓名",
+        "email.label": "2. 公司邮箱",
+        "email.placeholder": "请输入您的公司邮箱",
+        "company.label": "3. 公司全称",
+        "company.placeholder": "请输入您的公司全称",
+        "size.label": "4. 选择的公司/团队人数",
+        "submit": "预约演示"
+    },
+    "privacy": "了解我们如何保护您的数据，查看<1>隐私政策</1>"
+}

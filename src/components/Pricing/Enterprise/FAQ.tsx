@@ -1,33 +1,34 @@
 'use client'
 import React, { useState } from 'react';
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
-
-const faqData = [
-    {
-        question: 'How does Nayzak work?',
-        answer:
-            'All things starts with a homepage – Get inspired without breaking your wallet with premium Figma and Sketch templates. Capitalize hanging fruit to identify a ballpark value added activity to beta test. Podcasting operational – change management inside of workflows and operations.',
-    },
-    {
-        question: 'Supported platforms',
-        answer: 'xxx',
-    },
-    {
-        question: 'Payment methods',
-        answer: 'xxx',
-    },
-    {
-        question: 'Help and support',
-        answer: 'xxx',
-    },
-    {
-        question: 'Data and statistics',
-        answer: 'xxx',
-    },
-];
+import { useFAQTranslation } from '@/app/i18n/client';
 
 const FAQ = () => {
+    const { t } = useFAQTranslation();
     const [expandedIndex, setExpandedIndex] = useState(0); // 默认展开第一个
+
+    const faqData = [
+        {
+            question: t('questions.ai-native-dam.question'),
+            answer: t('questions.ai-native-dam.answer'),
+        },
+        {
+            question: t('questions.why-better.question'),
+            answer: t('questions.why-better.answer'),
+        },
+        {
+            question: t('questions.pricing.question'),
+            answer: t('questions.pricing.answer'),
+        },
+        {
+            question: t('questions.free-trial.question'),
+            answer: t('questions.free-trial.answer'),
+        },
+        {
+            question: t('questions.prove-value.question'),
+            answer: t('questions.prove-value.answer'),
+        },
+    ];
 
     const toggleIndex = (idx) => {
         setExpandedIndex(expandedIndex === idx ? null : idx);
@@ -35,7 +36,7 @@ const FAQ = () => {
 
     return (
         <div className="w-full bg-black p-4 font-euclid text-white md:px-[80px] md:py-[104px]">
-            <h2 className="mb-10 text-[64px]">FAQ</h2>
+            <h2 className="mb-10 text-[64px]">{t('title')}</h2>
             <div className="flex  flex-col divide-y divide-[rgba(255,255,255,0.2)] border-y border-[#fff2]">
                 {faqData.map((item, idx) => (
                     <div key={item.question}>
