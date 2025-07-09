@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useEnterprisePlan } from './listPlan';
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
-
 const FeatureList = () => {
     const { allFeature } = useEnterprisePlan();
     const [expandedCategories, setExpandedCategories] = useState({});
@@ -18,8 +17,8 @@ const FeatureList = () => {
         <div className="w-full bg-[#F0F0EA] p-4 md:px-[80px] md:py-[104px]">
             {/* 顶部标题和报价按钮 */}
             <div className="mb-10 flex flex-col items-center">
-                <h2 className="mb-10 text-[64px] font-bold text-gray-900">Feature List</h2>
-                <button className="rounded-lg bg-black px-6 py-3 text-white shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <h2 className="mb-10 text-[64px] font-bold text-[#070707]">Feature List</h2>
+                <button className=" text-[rgba(255,255,255,0.72)] rounded-xl bg-black px-6 py-3 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     Generate a quotation
                 </button>
             </div>

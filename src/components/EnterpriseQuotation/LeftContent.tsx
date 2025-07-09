@@ -241,7 +241,7 @@ export const LeftContent: FC = () => {
                 <div className="shrink-0 px-4">
                     <LocaleLink href="/">
                         <div className="relative size-9">
-                            <Image src="/assets/logo.svg" fill alt="muse logo" />
+                            <Image src="/assets/logo-dark.svg" fill alt="muse logo" />
                         </div>
                     </LocaleLink>
                 </div>

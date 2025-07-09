@@ -39,8 +39,9 @@ export default function HeaderDesktop({
   hideMenu,
   user,
   isGlobal,
-  isEnterprisePage
-}: { isEnterprisePage?: boolean; hideMenu?: boolean; user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
+  isEnterprisePage,
+  showDarkLogo
+}: { showDarkLogo?: boolean; isEnterprisePage?: boolean; hideMenu?: boolean; user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const { data: features } = useHeaderData()
@@ -183,7 +184,8 @@ export default function HeaderDesktop({
       {/* 海外版-隐藏Pricing */}
       {!isGlobal && <NavigationMenuItem>
         <LocaleLink
-          href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
+          // href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
+          href={`/enterprise/pricing`}
           legacyBehavior
           passHref
         >
@@ -223,11 +225,13 @@ export default function HeaderDesktop({
     >
       <div className="shrink-0 px-4">
         <LocaleLink href="/">
-          <Image src="/assets/logo.svg" width={36} height={36} alt="muse logo"></Image>
+          <Image src={showDarkLogo ? "/assets/logo-dark.svg" : "/assets/logo.svg"} width={36} height={36} alt="muse logo"></Image>
         </LocaleLink>
       </div>
       {!hideMenu && (
-        isEnterprisePage ? <div className='absolute left-1/2 flex h-[48px] -translate-x-1/2 items-center rounded-xl border border-[#D1D1CC] px-[10px]'>{renderMenus()}</div> : renderMenus()
+        isEnterprisePage ? <div className='absolute left-1/2 flex h-[48px] -translate-x-1/2 items-center rounded-xl border border-[#D1D1CC] px-[10px]'>
+          {renderMenus()}
+        </div> : renderMenus()
       )}
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">

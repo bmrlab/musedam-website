@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/utilities/cn'
 import HeaderDesktop from '@/components/Header/desktop'
 import HeaderMobile from '@/components/Header/mobile'
@@ -9,12 +9,14 @@ import { useWindowScroll } from 'react-use'
 export function Header({ isGlobal }: { isGlobal: boolean }) {
   const [user, setUser] = useState<any>(null)
   const [isPricingAiPage, setIsPricingAiPage] = useState(false)
-  const [isEnterprisePage, setIsEnterprisePage] = useState(false)
+
+  const newHeaderPath = ['', '/', '/enterprise/pricing', '/enterprise/quotation']
+
+  const isEnterprisePage = useMemo(() => newHeaderPath.includes(window.location.pathname.replace('/en-US', '').replace('/zh-CN', '')), [window.location.pathname])
 
   useEffect(() => {
     // Check if we're on the pricing/ai page
     setIsPricingAiPage(window.location.pathname.includes('/pricing/ai'))
-    setIsEnterprisePage(window.location.pathname.includes('/enterprise'))
 
     // Fetch user session
     const fetchUser = async () => {
@@ -39,7 +41,14 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
         isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')
       )}
     >
-      <HeaderDesktop className="hidden md:flex" hideMenu={isPricingAiPage} user={user} isGlobal={isGlobal} isEnterprisePage={isEnterprisePage} />
+      <HeaderDesktop
+        className="hidden md:flex"
+        hideMenu={isPricingAiPage}
+        user={user}
+        isGlobal={isGlobal}
+        isEnterprisePage={isEnterprisePage}
+        showDarkLogo={isEnterprisePage && scrollTop === 0}
+      />
       <HeaderMobile className="flex md:hidden" user={user} isGlobal={isGlobal} />
     </nav>
   )

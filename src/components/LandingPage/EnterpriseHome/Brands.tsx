@@ -5,6 +5,7 @@ import { FadeInUpContainer } from '@/components/StyleWrapper/Container/Animation
 import Image from 'next/image'
 import { LocaleLink } from '@/components/LocalLink'
 import { HoverTranslateXArrowRight } from '@/components/StyleWrapper/icon'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export type AINativeCard = {
     key: string
@@ -13,7 +14,7 @@ export type AINativeCard = {
 
 export default function Brands() {
     const { t } = useTranslation('brands')
-    const getUrl = (fileName: string) => `/assets/Enterprise/Brands/${fileName}`
+    const { getUrl } = usePublicUrl('/assets/Enterprise/Brands')
 
     return <div className='flex w-full flex-col items-center overflow-hidden'>
         <div className='w-full overflow-x-scroll p-5 md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
@@ -35,12 +36,12 @@ export default function Brands() {
 
         <div className='no-scrollbar w-full overflow-scroll p-5 md:px-[80px] md:py-[60px] md:pb-[120px]'>
             <div className='flex w-fit gap-10'>
-                {['1.png', '2.png', '3.png', '4.png'].map((key) =>
+                {['brand1.jpeg', 'brand2.jpeg', 'brand3.jpeg', 'brand4.jpeg'].map((key) =>
                     <Image src={getUrl(key)} key={key} alt={key} className='h-auto w-[200px] shrink-0 object-cover md:h-[257px] md:w-[450px]' width={450} height={250} />
                 )}
             </div>
             <div className='mt-10 flex w-fit gap-10'>
-                {['5.png', '6.png', '7.png', '8.png'].map((key) =>
+                {['brand5.jpeg', 'brand6.jpeg', 'brand7.jpeg', 'brand8.jpeg'].map((key) =>
                     <Image src={getUrl(key)} key={key} alt={key} className='h-auto w-[200px] shrink-0 object-cover  md:h-[257px] md:w-[450px]' width={450} height={250} />
                 )}
             </div>

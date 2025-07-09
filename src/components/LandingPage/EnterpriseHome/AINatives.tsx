@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { DarkButton } from '@/components/StyleWrapper/button'
 import Image from 'next/image'
+import usePublicUrl from '@/hooks/usePublicUrl'
 
 export type AINativeCard = {
     key: string
@@ -16,7 +17,7 @@ export type AINativeCard = {
 
 export default function AINatives() {
     const { t } = useTranslation('ai-natives')
-    const getUrl = (fileName: string) => `/assets/Enterprise/AiNatives/${fileName}`
+    const { getUrl } = usePublicUrl('/assets/Enterprise/AiNatives')
 
     const data: AINativeCard[] = [
         {
