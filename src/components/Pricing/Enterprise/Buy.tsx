@@ -55,6 +55,7 @@ export default function Buy({
     }, [pricingData])
 
     const updatePlan = (newPlan: PlanType) => {
+        if (!searchParams) return;
         const params = new URLSearchParams(searchParams.toString())
         params.set('plan', newPlan)
         router.push(`?${params.toString()}`)
@@ -117,7 +118,7 @@ export default function Buy({
         <>
             <FlexColContainer className="w-full items-center pb-[120px] pt-5 font-euclid md:pt-[80px]">
                 <FlexRowContainer className="mb-6 w-full justify-between  px-5 md:px-[80px]">
-                    <h1 className='my-10 w-full text-center text-[76px] leading-[87px] text-white md:my-[60px]'>Pricing</h1>
+                    <h1 className='my-10 w-full text-center text-[76px] leading-[87px] text-white md:my-[60px]'>{t('pricing.title')}</h1>
                     {/* TODO 购买算力点数，需确认企业版是否需要  */}
                     {user &&
                         (user.isOrg && currentPlan === PlanType.team) && (
@@ -149,7 +150,8 @@ export default function Buy({
                                 buttonType,
                                 summary,
                                 // uncheckSummary,
-                            } = plan
+                            } = plan;
+                            const priceKey = BillingType.monthly;
                             const renderPrice = getPriceRender(plan[BillingType.monthly])
                             return <div key={key} className="relative h-fit min-w-[300px] max-w-sm flex-1 shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#141414] px-6 pb-6 pt-[30px]"> {/* Add relative positioning and hide overflow */}
                                 {/* Tag */}
@@ -168,7 +170,7 @@ export default function Buy({
                                 </div>
                                 <div className='h-[40px] w-full' />
                                 {index === 1 && <Button className='mb-4 h-[40px] w-full border-white/10 bg-[#FF2EE7] text-[14px] font-normal  text-white transition-all duration-300 ease-in-out hover:bg-[rgba(255,46,231,0.8)]'>
-                                    Book a demo
+                                    {t('pricing.bookDemo')}
                                 </Button>}
                                 <Button
                                     className="h-[40px] w-full rounded border border-white/10 text-[14px] font-normal text-white transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white"
