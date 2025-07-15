@@ -7,6 +7,9 @@ import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { DarkButton } from '@/components/StyleWrapper/button'
 import Image from 'next/image'
 import usePublicUrl from '@/hooks/usePublicUrl'
+import { cn } from '@/utilities/cn'
+import { useLanguage } from '@/providers/Language'
+import { LocaleLink } from '@/components/LocalLink'
 
 export type AINativeCard = {
     key: string
@@ -18,7 +21,8 @@ export type AINativeCard = {
 export default function AINatives() {
     const { t } = useTranslation('ai-natives')
     const { getUrl } = usePublicUrl('/assets/Enterprise/AiNatives')
-
+    const { language } = useLanguage()
+    const isEn = language === 'en-US'
     const data: AINativeCard[] = [
         {
             key: 'collect',
@@ -61,26 +65,29 @@ export default function AINatives() {
     return <div className='flex w-full justify-center bg-white text-black'>
         <div className='w-full overflow-x-scroll md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
-                <div className="flex max-w-[750px] flex-col items-center gap-6 px-6 md:items-start md:gap-10">
-                    <h1 className="text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]">
+                <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
+                    <h1 className={cn(
+                        "text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]",
+                        isEn && 'font-feature'
+                    )}>
                         {t('section.title')}
                     </h1>
-                    <p className="text-center font-mono text-[14px] font-light text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center text-[14px] font-light text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
                         {t('section.desc')}
                     </p>
                 </div>
 
-                <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <DarkButton className="w-[143px] rounded-[8px] md:h-[56px]">
                         {t('button.book-demo')}
                     </DarkButton>
-                </Link>
+                </LocaleLink>
             </FadeInUpContainer>
 
-            <div className='mt-[60px] -mr-3 grid grid-cols-1 gap-10 px-5 md:mt-[100px] md:grid-cols-3 md:px-0'>
+            <div className='-mr-3 mt-[60px] grid grid-cols-1 gap-10 px-5 md:mt-[100px] md:grid-cols-3 md:px-0'>
                 {data.map(({ key, title, description, image }) => <div key={key} className='overflow-hidden rounded-[30px] bg-[#F1F5F9]'>
                     <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
-                    <div className='mx-5 mb-[10px] mt-[30px] text-[22px] font-euclid'>{title}</div>
+                    <div className='mx-5 mb-[10px] mt-[30px] text-[22px]'>{title}</div>
                     <div className='mx-5 mb-[30px] text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
                 </div>)}
             </div>

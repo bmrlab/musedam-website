@@ -5,19 +5,17 @@ import { cn } from '@/utilities/cn'
 import HeaderDesktop from '@/components/Header/desktop'
 import HeaderMobile from '@/components/Header/mobile'
 import { useWindowScroll } from 'react-use'
+import { usePathname } from 'next/navigation'
 
 export function Header({ isGlobal }: { isGlobal: boolean }) {
   const [user, setUser] = useState<any>(null)
-  const [isPricingAiPage, setIsPricingAiPage] = useState(false)
-
+  const pathname = usePathname()
   const newHeaderPath = ['', '/', '/enterprise/pricing', '/enterprise/quotation']
 
-  const isEnterprisePage = useMemo(() => newHeaderPath.includes(window.location.pathname.replace('/en-US', '').replace('/zh-CN', '')), [window.location.pathname])
+  const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+  const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
 
   useEffect(() => {
-    // Check if we're on the pricing/ai page
-    setIsPricingAiPage(window.location.pathname.includes('/pricing/ai'))
-
     // Fetch user session
     const fetchUser = async () => {
       try {
@@ -31,6 +29,7 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
 
     fetchUser()
   }, [])
+
   const { y: scrollTop } = useWindowScroll()
 
   return (

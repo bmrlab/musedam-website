@@ -9,36 +9,48 @@ import { ssTranslation } from '@/app/i18n'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { cn } from '@/utilities/cn'
+import { LocaleLink } from '@/components/LocalLink'
 
 export default async function Hero({ lng }: { lng: string }) {
     const { t } = await ssTranslation(lng, 'landing-page')
+    const isEn = lng === 'en-US'
     return (
         <div className="flex flex-col items-center justify-center pb-[120px] md:w-full md:px-[80px]">
-            <h1 className="mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px]  md:px-0 md:text-[72px] md:leading-[90px]">
+            <h1 className={cn(
+                "mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px] md:px-0 md:text-[72px] md:leading-[90px]",
+                isEn && 'font-feature'
+            )}>
                 {t('hero.enterprise.title')}
             </h1>
-            <span className='w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]'>{t('hero.enterprise.subtitle')}</span>
-            <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+            <span className={cn(
+                'w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]',
+                isEn && 'font-feature'
+            )}>{t('hero.enterprise.subtitle')}</span>
+            <LocaleLink href={'/bookDemo'} prefetch={false}>
                 <Button className="mb-12 mt-6 h-[48px] w-[151px] rounded-lg bg-white font-medium leading-[20px] text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
                     {t('hero.enterprise.button')}
                 </Button>
-            </Link>
+            </LocaleLink>
             <Banner isDark />
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
-                <div className="flex max-w-[750px] flex-col items-center gap-6 px-6 md:items-start md:gap-10">
-                    <h1 className="text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]">
+                <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
+                    <h1 className={cn(
+                        "text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]",
+                        isEn && 'font-feature'
+                    )}>
                         {t('hero.enterprise.why.title')}
                     </h1>
-                    <p className="text-center font-mono text-[14px] font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center font-euclid text-[14px] font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px]">
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
 
-                <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <DarkButton className="h-[56px] w-[143px] rounded-[8px]">
                         {t('hero.enterprise.button')}
                     </DarkButton>
-                </Link>
+                </LocaleLink>
             </FadeInUpContainer>
             <div className="mt-12 flex h-auto w-full flex-col gap-4 rounded-[6px] px-5 md:mt-[80px] md:flex-row  md:px-0">
                 <div className='left-content flex w-[540px] max-w-full items-center justify-center'>
@@ -80,7 +92,7 @@ export default async function Hero({ lng }: { lng: string }) {
                             Icon: 'icon3.png'
                         }
                         ].map((item, index) => {
-                            return <AccordionItem value={item.key} className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-0" key={item.key}>
+                            return <AccordionItem value={item.key} className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-0 font-euclid" key={item.key}>
                                 <AccordionTrigger className="p-0" icon-hidden>
                                     <div className="flex items-center gap-4 p-6">
                                         <Image src={`/assets/Enterprise/AiNatives/${item.Icon}`} alt={item.Icon} className='size-9 rounded-[30px] object-cover md:size-[56px]' width={56} height={56} />
@@ -89,16 +101,16 @@ export default async function Hero({ lng }: { lng: string }) {
                                 </AccordionTrigger>
                                 <AccordionContent>
                                     <Card className="ml-[76px] border-none bg-[#141414] shadow-none md:ml-[96px]">
-                                        <CardContent className="space-y-3 p-0 pb-6 pr-6 text-[rgba(255,255,255,0.48)]">
+                                        <CardContent className="space-y-3 p-0 pb-6 pr-6 font-euclid text-[rgba(255,255,255,0.48)]">
                                             <span className="text-[16px] ">{item.description}</span>
-                                            <ul className="list-disc space-y-3 pl-5 text-[15px] leading-[22.5px]">
+                                            <ul className="list-disc space-y-3 pl-5 text-[15px] leading-[22.5px] ">
                                                 {item.lines.map(({ name, info }, i) => {
-                                                    return <li key={`item${index}-lines${i}`}><b>{name}</b>{info}</li>
+                                                    return <li key={`item${index}-lines${i}`}><b className=' text-white/70'>{name}</b>{info}</li>
                                                 })}
                                             </ul>
                                             <div className='my-5 h-px w-full bg-[rgba(255,255,255,0.05)]' />
                                             <div className=" pt-4 text-[15px]">
-                                                <b>{t('hero.enterprise.accordion.result')}</b> {item.result}
+                                                <b className='text-white/70'>{t('hero.enterprise.accordion.result')}</b> {item.result}
                                             </div>
                                         </CardContent>
                                     </Card>

@@ -184,8 +184,8 @@ export default function HeaderDesktop({
       {/* 海外版-隐藏Pricing */}
       {!isGlobal && <NavigationMenuItem>
         <LocaleLink
-          // href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
-          href={`/enterprise/pricing`}
+          href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
+          // href={`/enterprise/pricing`}
           legacyBehavior
           passHref
         >

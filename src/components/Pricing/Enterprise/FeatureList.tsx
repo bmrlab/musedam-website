@@ -20,7 +20,7 @@ const FeatureList = () => {
             {/* 顶部标题和报价按钮 */}
             <div className="mb-10 flex flex-col items-center">
                 <h2 className="mb-10 text-[64px] font-bold text-[#070707]">{t('title')}</h2>
-                <button className=" text-[rgba(255,255,255,0.72)] rounded-xl bg-black px-6 py-3 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <button className=" rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     {t('button')}
                 </button>
             </div>
@@ -55,7 +55,7 @@ const FeatureList = () => {
                                 {Object.entries(categoryData.list).map(([groupKey], index) => (
                                     <div key={groupKey} className="grid grid-cols-12 items-center " onClick={() => toggleCategory(categoryKey)}>
                                         <div className="col-span-3 p-4 font-medium text-[#141414]">
-                                            <span className='inline-block mr-[10px]'>0{index + 1}</span>{groupKey}
+                                            <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
                                         </div>
                                         <div className="col-span-9 p-4"></div>
                                     </div>
@@ -71,7 +71,7 @@ const FeatureList = () => {
                                         {/* 小组标题 */}
                                         <div className="grid grid-cols-12">
                                             <div className="col-span-3  p-4 font-semibold text-[#141414]">
-                                                <span className='inline-block mr-[10px]'>0{index + 1}</span>{groupKey}
+                                                <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
                                             </div>
                                         </div>
                                         {/* 小组下的功能项 */}

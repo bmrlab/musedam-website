@@ -36,7 +36,7 @@ const FAQ = () => {
 
     return (
         <div className="w-full bg-black p-4 font-euclid text-white md:px-[80px] md:py-[104px]">
-            <h2 className="mb-10 text-[64px]">{t('title')}</h2>
+            <h2 className="mb-10 font-feature text-[64px]">{t('title')}</h2>
             <div className="flex  flex-col divide-y divide-[rgba(255,255,255,0.2)] border-y border-[#fff2]">
                 {faqData.map((item, idx) => (
                     <div key={item.question}>

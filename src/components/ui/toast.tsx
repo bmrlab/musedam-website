@@ -29,8 +29,8 @@ const toastVariants = cva(
     // 基础样式
     'group pointer-events-auto relative',
     'flex w-full items-center justify-between space-x-2',
-    'overflow-hidden rounded-md border',
-    'p-4 pr-6 shadow-lg',
+    'overflow-hidden !rounded-[8px] border',
+    '!px-4 !py-3 shadow-lg',
 
     // 过渡效果
     'transition-all',

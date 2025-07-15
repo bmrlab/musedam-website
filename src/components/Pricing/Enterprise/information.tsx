@@ -3,46 +3,128 @@
 import { useState } from "react";
 import { Trans } from 'react-i18next';
 import { useInformationTranslation } from '@/app/i18n/client';
-import { twx } from "@/utilities/cn";
+import { cn, twx } from "@/utilities/cn";
 import Image from 'next/image'
+import ContactUsDialog from "../ContactUsDialog";
+import { useToast } from '@/hooks/use-toast'
+import { EExpectTime, EOrgSize } from "@/utilities/feishu";
 
 const FormInput = twx.input`w-full border border-[#C5CEE0] rounded-lg px-4 py-3 focus:outline-none hover:ring-1 hover:ring-black focus:ring-1 focus:ring-black`
 export const Information = () => {
+    const isGlobal = process.env.DEPLOY_REGION === 'global'
     const { t } = useInformationTranslation();
-    const [teamSize, setTeamSize] = useState<string>("");
+    const { toast } = useToast()
     const getUrl = (fileName: string) => `/assets/Enterprise/Home/${fileName}`
+    const [open, setOpen] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
+
+    // 合并所有表单项为一个对象
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        company: "",
+        position: "",
+        phone: "",
+        teamSize: undefined as EOrgSize | undefined,
+        expectTime: undefined as EExpectTime | undefined,
+    });
+
+    const handleChange = (key: keyof typeof formData, value: any) => {
+        setFormData(prev => ({ ...prev, [key]: value }));
+    };
 
     const teamSizes = [
-        { label: "2-10", value: "2-10" },
-        { label: "11-50", value: "11-50" },
-        { label: "51-200", value: "51-200" },
-        { label: "201-500", value: "201-500" },
-        { label: "501-1,000", value: "501-1,000" },
-        { label: "1,000+", value: "1000+" },
+        { label: t('form.size.2-10'), value: EOrgSize.TEN },
+        { label: t('form.size.11-50'), value: EOrgSize.FIFTY },
+        { label: t('form.size.51-200'), value: EOrgSize.TWO_HUNDRED },
+        { label: t('form.size.201-500'), value: EOrgSize.FIVE_HUNDRED },
+        { label: t('form.size.501-1,000'), value: EOrgSize.ONE_THOUSAND },
+        { label: t('form.size.1000+'), value: EOrgSize.MORE_THOUSAND },
     ];
-    return (
-        <div className="bg-white text-[#141414] w-full flex flex-row justify-between items-start p-4 md:px-[80px] md:py-[104px] gap-8">
+
+    const expectTimes = [
+        { label: t('form.expect.1month'), value: EExpectTime.ONE_MONTH },
+        { label: t('form.expect.3months'), value: EExpectTime.THREE_MONTH },
+        { label: t('form.expect.6months'), value: EExpectTime.SIX_MONTH },
+        { label: t('form.expect.1year'), value: EExpectTime.ONE_YEAR },
+        { label: t('form.expect.notSure'), value: EExpectTime.NOT_SURE },
+    ];
+
+    // 统一 disable 校验
+    // 手机号格式校验（中国大陆）
+    const isValidPhone = (phone: string) => /^1[3-9]\d{9}$/.test(phone);
+    const getIsDisabled = (form: typeof formData, isGlobal: boolean) => {
+        if (isGlobal) {
+            return !form.email || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
+        } else {
+            return !form.phone || !isValidPhone(form.phone) || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
+        }
+    };
+    const isDisabled = getIsDisabled(formData, isGlobal);
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (isDisabled) {
+            if (!isGlobal && !isValidPhone(formData.phone)) {
+                toast({ duration: 0, description: t('form.phone.invalid') });
+            } else {
+                toast({ duration: 2000, description: t('form.required') });
+            }
+            return;
+        }
+        setSubmitting(true)
+        try {
+            const { name, email, company, position, teamSize, expectTime, phone } = formData;
+            const submitData = isGlobal
+                ? { name, email, company, position, teamSize, expectTime }
+                : { name, phone, company, position, teamSize, expectTime };
+            const res = await fetch('/api/feishu/book-demo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submitData),
+            })
+            const data = await res.json()
+            if (!data.success || (data.data && data.data.code !== 0)) {
+                throw new Error(data.data?.msg || data.error)
+            }
+            toast({ duration: 2000, description: t('form.submitSuccess') });
+            setOpen(true);
+            setFormData({
+                name: "",
+                email: "",
+                company: "",
+                position: "",
+                phone: "",
+                teamSize: undefined,
+                expectTime: undefined,
+            });
+        } catch (err) {
+            toast({ duration: 2000, description: err.message ?? t('form.submitError') });
+        }
+        setSubmitting(false)
+    }
+    return (<>
+        <div className="flex w-full flex-col items-start justify-between gap-8 bg-white p-4 font-euclid text-[#141414] md:flex-row md:px-[80px]  md:py-[104px]">
             {/* 左侧介绍 */}
-            <div className="w-1/2 flex flex-col justify-between h-full">
+            <div className="hidden flex-col justify-between md:flex md:flex-1">
                 <div>
-                    <h1 className="text-[54px] font-medium leading-tight mb-4">
+                    <h1 className="mb-4 font-feature text-[54px] font-medium leading-tight">
                         <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                     </h1>
-                    <p className="text-[22px] text-[rgba(20,20,20,0.72)] mb-[60px] font-light">
+                    <p className="mb-[60px] text-[22px] font-light text-[rgba(20,20,20,0.72)]">
                         <Trans i18nKey="desc" t={t} components={{ 1: <br /> }} />
                     </p>
                     <ul className="mb-[60px] space-y-5 text-lg">
                         {(t('list', { returnObjects: true }) as string[]).map((item, idx) => (
                             <li className="flex items-start gap-[10px]" key={idx}>
-                                <span className="text-green-500 text-xl">✓</span>
+                                <span className="text-xl text-green-500">✓</span>
                                 <span><Trans i18nKey={`list.${idx}`} t={t} components={{ 1: <strong /> }} /></span>
                             </li>
                         ))}
                     </ul>
                 </div>
                 <div>
-                    <div className="text-base font-light mb-4">{t('security')}</div>
-                    <div className="flex flex-row gap-6 bg-[#F8F8F8] px-6 py-3 rounded-full w-fit">
+                    <div className="mb-4 text-base font-light">{t('security')}</div>
+                    <div className="flex w-fit flex-row gap-6 rounded-full bg-[#F8F8F8] px-6 py-3">
                         {/* 认证徽章占位符，可替换为图片 */}
                         {[getUrl('ISO001.png'), getUrl('ISO017.png'), getUrl('ISO9001.png'), getUrl('MLPS3.png')].map((v) => {
                             return <Image src={v} width={200} height={100} alt={v} className="aspect-[1/1] size-16 rounded-full object-cover" key={v} />
@@ -51,46 +133,81 @@ export const Information = () => {
                 </div>
             </div>
             {/* 右侧表单 */}
-            <div className="w-1/2 h-full bg-white rounded-xl shadow-none px-8 ">
-                <form className="h-full gap-4 flex flex-col justify-between">
-                    <h2 className="text-2xl font-semibold mb-6">{t('form.title')}</h2>
-
-                    <div>
-                        <label className="block text-sm mb-1">{t('form.name.label')}</label>
-                        <FormInput type="text" placeholder={t('form.name.placeholder')} />
+            <div className="rounded-xl bg-white px-2 shadow-none md:flex-1 md:px-8 ">
+                <h2 className="mb-10 text-2xl font-semibold">{t('form.title')}</h2>
+                <form className="grid h-full grid-cols-2  justify-between gap-3" onSubmit={handleSubmit} >
+                    <div className="col-span-2 md:col-span-1">
+                        <label className="mb-3 block text-sm">{t('form.name.label')}</label>
+                        <FormInput type="text" placeholder={t('form.name.placeholder')} value={formData.name} onChange={e => handleChange('name', e.target.value)} />
                     </div>
-                    <div>
-                        <label className="block text-sm mb-1">{t('form.email.label')}</label>
-                        <FormInput type="email" placeholder={t('form.email.placeholder')} />
+                    {isGlobal ? <div className="col-span-2 md:col-span-1">
+                        <label className="mb-3 block text-sm">{t('form.email.label')}</label>
+                        <FormInput type="email" placeholder={t('form.phone.placeholder')} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
+                    </div> : <div className="col-span-2 md:col-span-1">
+                        <label className="mb-3 block text-sm">{t('form.phone.label')}</label>
+                        <FormInput type="phone" placeholder={t('form.phone.placeholder')} value={formData.phone} onChange={e => handleChange('phone', e.target.value)} />
+                    </div>}
+                    <div className="col-span-2 md:col-span-1">
+                        <label className="mb-3 block text-sm">{t('form.company.label')}</label>
+                        <FormInput type="text" placeholder={t('form.company.placeholder')} value={formData.company} onChange={e => handleChange('company', e.target.value)} />
                     </div>
-                    <div>
-                        <label className="block text-sm mb-1">{t('form.company.label')}</label>
-                        <FormInput type="text" placeholder={t('form.company.placeholder')} />
+                    <div className="col-span-2 md:col-span-1">
+                        <label className="mb-3 block text-sm">{t('form.position.label')}</label>
+                        <FormInput type="text" placeholder={t('form.position.placeholder')} value={formData.position} onChange={e => handleChange('position', e.target.value)} />
                     </div>
-                    <div>
-                        <label className="block text-sm mb-2">{t('form.size.label')}</label>
+                    <div className="col-span-2">
+                        <label className="mb-2 block text-sm">{t('form.size.label')}</label>
                         <div className="grid grid-cols-3 gap-2">
                             {teamSizes.map((item) => (
                                 <button
                                     type="button"
                                     key={item.value}
-                                    className={`flex items-center justify-center border rounded-lg px-4 py-3 text-sm transition-all
-                                        ${teamSize === item.value ? "border-black bg-gray-100" : "border-gray-200 bg-white"}`}
-                                    onClick={() => setTeamSize(item.value)}
+                                    className={`flex items-center justify-center rounded-lg border px-4 py-3 text-sm transition-all
+                                        ${formData.teamSize === item.value ? "border-black bg-gray-100" : "border-gray-200 bg-white"}`}
+                                    onClick={() => handleChange('teamSize', item.value)}
                                 >
                                     {item.label}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    <div>
-                        <button type="submit" className="mt-6 w-full bg-black text-white rounded-lg py-4 text-lg font-semibold transition-all hover:bg-gray-900">{t('form.submit')}</button>
-                        <div className="text-xs text-gray-400 text-center mt-4">
+
+                    <div className="col-span-2">
+                        <label className="mb-2 block text-sm">{t('form.expect.label')}</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {expectTimes.map((item, index) => (
+                                <button
+                                    type="button"
+                                    key={item.value}
+                                    className={cn('flex items-center justify-center rounded-lg border px-4 py-3 text-sm transition-all',
+                                        formData.expectTime === item.value ? "border-black bg-gray-100" : "border-gray-200 bg-white",
+                                        index + 1 === expectTimes.length && 'col-span-2'
+                                    )}
+                                    onClick={() => handleChange('expectTime', item.value)}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="col-span-2 mt-7">
+                        <button
+                            disabled={submitting || isDisabled}
+                            type="submit"
+                            className={cn(
+                                "h-[50px] w-full rounded-lg text-[20px] font-medium text-white ",
+                                isDisabled ? 'cursor-not-allowed bg-black/30' : 'bg-black transition-all hover:bg-gray-900'
+                            )}
+                        >{t('form.submit')}</button>
+                        <div className="mt-4 text-center text-xs text-gray-400">
                             <Trans i18nKey="privacy" t={t} components={{ 1: <a href={'/privacy'} target="_blank" className="underline underline-offset-4" /> }} />
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+        <ContactUsDialog open={open} setOpen={setOpen} />
+
+    </>
     );
 }

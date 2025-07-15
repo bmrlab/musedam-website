@@ -4,7 +4,8 @@
     "list": [
         "<1>Free consultation</1>, no obligations whatsoever",
         "<1>Relaxed 15-minute conversation</1> to understand your real needs",
-        "<1>Followed by a personalized product demo</1> showcasing features that truly fit your workflow"
+        "<1>Followed by a personalized product demo</1> showcasing features that truly fit your workflow",
+        "<1>Detailed implementation guidance</1> to get you up and running quickly"
     ],
     "security": "Built for enterprise security",
     "form": {
@@ -13,10 +14,36 @@
         "name.placeholder": "Enter your name",
         "email.label": "2. Company Email",
         "email.placeholder": "Enter your company email",
+        "phone.label": "2. Phone Number",
+        "phone.placeholder": "Enter your phone number",
+        "phone.invalid": "Please enter a correct phone number",
         "company.label": "3. Company Name",
         "company.placeholder": "Enter your company name",
         "size.label": "4. Select your company/team size",
-        "submit": "Book a Demo"
+        "size": {
+            "2-10": "2-10",
+            "11-50": "11-50",
+            "51-200": "51-200",
+            "201-500": "201-500",
+            "501-1,000": "501-1,000",
+            "1000+": "1,000+"
+        },
+        "position": {
+            "label": "4. Your Position",
+            "placeholder": "Enter your position"
+        },
+        "expect": {
+            "1month": "Within 1 month",
+            "3months": "Within 3 months",
+            "6months": "Within 6 months",
+            "1year": "Within 1 year",
+            "notSure": "Not sure yet, just exploring options",
+            "label": "5. When do you expect to purchase MuseDAM?"
+        },
+        "submit": "Book a Demo",
+        "submitSuccess": "Submitted successfully",
+        "submitError": "Submission failed, please try again",
+        "required": "Please fill in all required fields"
     },
     "privacy": "See how we protect your data in our <1>Privacy</1>"
 }
