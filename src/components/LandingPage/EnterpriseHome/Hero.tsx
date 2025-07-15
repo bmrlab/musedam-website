@@ -28,7 +28,7 @@ export default async function Hero({ lng }: { lng: string }) {
                 isEn && 'font-feature'
             )}>{t('hero.enterprise.subtitle')}</span>
             <LocaleLink href={'/bookDemo'} prefetch={false}>
-                <Button className="mb-12 mt-6 h-[48px] w-[151px] rounded-lg bg-white font-medium leading-[20px] text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
+                <Button className="mb-12 mt-6 h-[48px] w-[163px] rounded-2xl bg-white font-euclid text-xl font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:text-[rgba(0,0,0,0.6)] md:mb-[60px] md:mt-10">
                     {t('hero.enterprise.button')}
                 </Button>
             </LocaleLink>
@@ -47,7 +47,7 @@ export default async function Hero({ lng }: { lng: string }) {
                 </div>
 
                 <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <DarkButton className="h-[56px] w-[143px] rounded-[8px]">
+                    <DarkButton className="h-[56px] w-[167px] rounded-2xl font-euclid text-xl">
                         {t('hero.enterprise.button')}
                     </DarkButton>
                 </LocaleLink>

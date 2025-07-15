@@ -78,7 +78,7 @@ export default function AINatives() {
                 </div>
 
                 <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <DarkButton className="w-[143px] rounded-[8px] md:h-[56px]">
+                    <DarkButton className="w-[167px] rounded-2xl font-euclid text-xl md:h-[56px]">
                         {t('button.book-demo')}
                     </DarkButton>
                 </LocaleLink>

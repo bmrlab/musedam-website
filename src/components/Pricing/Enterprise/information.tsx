@@ -195,7 +195,7 @@ export const Information = () => {
                             disabled={submitting || isDisabled}
                             type="submit"
                             className={cn(
-                                "h-[50px] w-full rounded-lg text-[20px] font-medium text-white ",
+                                "h-[50px] w-full rounded-2xl text-[20px] font-medium text-white ",
                                 isDisabled ? 'cursor-not-allowed bg-black/30' : 'bg-black transition-all hover:bg-gray-900'
                             )}
                         >{t('form.submit')}</button>
