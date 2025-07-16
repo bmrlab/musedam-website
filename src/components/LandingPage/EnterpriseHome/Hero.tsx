@@ -32,7 +32,7 @@ export default function Hero() {
             { name: t('hero.enterprise.accordion.growth.line3.title'), info: t('hero.enterprise.accordion.growth.line3.desc') },
         ],
         result: <>{isEn && <span className="font-medium">300%</span>} {t('hero.enterprise.accordion.growth.result1')}, {isEn && <span className="font-medium">60%</span>} {t('hero.enterprise.accordion.growth.result2')}</>,
-        Icon: 'icon1.svg',
+        Icon: 'Icon1.svg',
         Cover: 'img1.png'
     }, {
         key: "lifecycle",
@@ -45,7 +45,7 @@ export default function Hero() {
             { name: t('hero.enterprise.accordion.lifecycle.line4.title'), info: t('hero.enterprise.accordion.lifecycle.line4.desc') },
         ],
         result: <>{isEn && <span className="font-medium">90%</span>} {t('hero.enterprise.accordion.lifecycle.result1')}, {isEn && <span className="font-medium">80%</span>} {t('hero.enterprise.accordion.lifecycle.result2')}, <span className="font-medium">35%</span> {t('hero.enterprise.accordion.lifecycle.result3')}</>,
-        Icon: 'icon2.svg',
+        Icon: 'Icon2.svg',
         Cover: 'img2.png'
     }, {
         key: "assets",
@@ -58,7 +58,7 @@ export default function Hero() {
             { name: t('hero.enterprise.accordion.assets.line4.title'), info: t('hero.enterprise.accordion.assets.line4.desc') },
         ],
         result: <>{isEn && <span className="font-medium">85%</span>} {t('hero.enterprise.accordion.assets.result1')}, {isEn && <span className="font-medium">100%</span>} {t('hero.enterprise.accordion.assets.result2')}</>,
-        Icon: 'icon3.svg',
+        Icon: 'Icon3.svg',
         Cover: 'img3.png'
     }
     ]
