@@ -42,8 +42,8 @@ export default function Buy({
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentPlan = useMemo(
-    () => searchParams.get('plan') ?? (PlanType.team as PlanType),
-    [searchParams.get('plan')],
+    () => searchParams?.get('plan') ?? (PlanType.team as PlanType),
+    [searchParams],
   )
   const { country, isInChina } = useCountry()
   // const [pricingData, setPricingData] = useState<[EMuseProductType, ProductItem][]>(cache)
@@ -58,7 +58,7 @@ export default function Buy({
   }, [pricingData])
 
   const updatePlan = (newPlan: PlanType) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams ? searchParams.toString() : '')
     params.set('plan', newPlan)
     router.push(`?${params.toString()}`)
   }
@@ -336,8 +336,8 @@ export default function Buy({
                   {buttonType === 'contact'
                     ? t('pricing.contact.now')
                     : (buttonType === 'try' &&
-                          (!user || (!!user && currentPlan === PlanType.team && !user.hasOrg))) ||
-                        (pricingMap?.get(priceKey)?.price || 0) === 0
+                      (!user || (!!user && currentPlan === PlanType.team && !user.hasOrg))) ||
+                      (pricingMap?.get(priceKey)?.price || 0) === 0
                       ? t('pricing.plan.actions.try')
                       : t('pricing.plan.button.buy')}
                 </Button>

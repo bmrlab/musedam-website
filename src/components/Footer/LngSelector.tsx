@@ -19,7 +19,7 @@ export default function LngSelector() {
 
   const onLngChange = useCallback(
     (value: string) => {
-      router.replace(pathname.replace(language, value), {
+      pathname && router.replace(pathname.replace(language, value), {
         scroll: true,
       })
       setLanguage(value)
