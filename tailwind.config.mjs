@@ -94,6 +94,7 @@ export default {
       fontFamily: {
         mono: ['var(--font-plex_mono)'],
         euclid: ['var(--font-euclid_circular_a)'],
+        euclidlight: ['var(--font-euclid_circular_a_light)'],
         feature: ['var(--font-featureDisplay-regular-trial)'],
         zh: ['PingFang SC', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },

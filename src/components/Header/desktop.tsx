@@ -229,9 +229,10 @@ export default function HeaderDesktop({
         </LocaleLink>
       </div>
       {!hideMenu && (
-        isEnterprisePage ? <div className='absolute left-1/2 flex h-[48px] -translate-x-1/2 items-center rounded-xl border border-[#D1D1CC] px-[10px]'>
-          {renderMenus()}
-        </div> : renderMenus()
+        // isEnterprisePage ? <div className='absolute left-1/2 flex h-[48px] -translate-x-1/2 items-center rounded-xl border border-[#D1D1CC] px-[10px]'>
+        //   {renderMenus()}
+        // </div> : 
+        renderMenus()
       )}
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">

@@ -1,79 +1,95 @@
 'use client'
 
-import { ReactNode, useMemo } from 'react'
-
-import useIsMobile from '@/hooks/useIsMobile'
-import { useHighlightTranslation, useTranslation } from '@/app/i18n/client'
-
-import usePublicUrl from '@/hooks/usePublicUrl'
-import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
-import Link from 'next/link'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { DarkButton } from '@/components/StyleWrapper/button'
+import { ReactNode } from 'react'
+import { useTranslation } from '@/app/i18n/client'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { BarChartIcon, HomeIcon, ImageIcon, StarFilledIcon, TableIcon } from '@radix-ui/react-icons'
 import { LocaleLink } from '@/components/LocalLink'
+import { useRef, useEffect } from 'react'
+import { useLanguage } from '@/providers/Language'
 
 export type AINativeCard = {
     key: string
     title: string
     description: string
-    icon: ReactNode
+    icon: string
 }
 
 export default function WhyMuse() {
     const { t } = useTranslation('why-muse')
     const getUrl = (fileName: string) => `/assets/Enterprise/WhyMuse/${fileName}`
+    const { language } = useLanguage()
 
     const data: AINativeCard[] = [
         {
             key: 'collect',
             title: t('collect.title'),
             description: t('collect.description'),
-            icon: <StarFilledIcon />,
+            icon: 'Icon-Star.svg',
         },
         {
             key: 'organize',
             title: t('organize.title'),
             description: t('organize.description'),
-            icon: <HomeIcon />,
+            icon: 'Icon-Clients.svg',
         },
         {
             key: 'collaborate',
             title: t('collaborate.title'),
             description: t('collaborate.description'),
-            icon: <TableIcon />,
+            icon: 'Icon-data.svg',
         },
         {
             key: 'ai-generate',
             title: t('ai-generate.title'),
             description: t('ai-generate.description'),
-            icon: <ImageIcon />,
+            icon: 'Icon-Images.svg',
         },
         {
             key: 'compliance',
             title: t('compliance.title'),
             description: t('compliance.description'),
-            icon: <TableIcon />,
+            icon: 'Icon-Dots.svg',
         },
         {
             key: 'data-driven',
             title: t('data-driven.title'),
             description: t('data-driven.description'),
-            icon: <BarChartIcon />,
+            icon: 'Icon-Cube.svg',
         }
     ]
 
+    const scrollRef = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        const container = scrollRef.current
+        if (!container) return
+        let speed = 0.5 // 每帧滚动的像素数，可调整速度
+        let animationFrame: number
+        function scroll() {
+            if (!container) return
+            // 如果滚动到一半（原始6张图片宽度），瞬间跳回开头
+            const singleListWidth = container.scrollWidth / 2
+            if (container.scrollLeft >= singleListWidth) {
+                container.scrollLeft = 0
+            } else {
+                container.scrollLeft += speed
+            }
+            animationFrame = requestAnimationFrame(scroll)
+        }
+        animationFrame = requestAnimationFrame(scroll)
+        return () => cancelAnimationFrame(animationFrame)
+    }, [])
+
     return <div className='p-5 md:px-[80px] md:py-[60px] md:pb-[120px]'>
         <div className='flex w-full flex-col items-center overflow-x-scroll md:max-w-[1440px]'>
-            <h1 className="w-[800px] max-w-full text-start font-feature text-[32px] font-normal leading-[41.6px] text-[rgba(255,255,255,0.72)]  md:text-[64px] md:leading-[73.6px]">
+            <h1 className="w-[800px] max-w-full text-start font-feature text-[32px] font-normal leading-[41.6px] text-[rgba(255,255,255,0.72)]  md:text-[64px] md:leading-[1.45em]">
                 {t('section.title')}
             </h1>
 
             <div className='mt-[80px] flex w-full flex-col items-center justify-between gap-2 rounded-[34px] bg-[#FF2EE7] p-5 md:flex-row md:rounded-[56px] md:px-[60px] md:py-[50px]'>
-                <div className='flex-1 font-feature text-3xl md:max-w-[910px] md:text-[54px]  md:leading-[60px]'>
-                    <span className='text-black'>{t('banner.text.1')} <span className='text-white'>{t('banner.text.2')}</span></span>
+                <div className='flex-1 font-feature text-3xl md:max-w-[910px] md:text-[54px]  md:leading-[1.25em]'>
+                    <span className='text-black'>{t('banner.text.1')}{language === 'zh-CN' && <br />}<span className='text-white/80'>{t('banner.text.2')}</span></span>
                 </div>
                 <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <Button className='h-[56px] w-[226px] gap-[6px] rounded-2xl bg-white px-0 font-euclid text-xl text-black hover:bg-white/80'>
@@ -88,32 +104,37 @@ export default function WhyMuse() {
 
         <div className='mt-20 flex flex-col gap-4 md:flex-row'>
             <div className='flex w-full flex-col justify-between rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-5 md:flex-1'>
-                <div className='flex flex-col gap-2'>
-                    <span className='text-6 max-w-full overflow-hidden text-ellipsis text-nowrap font-medium'>
+                <div className='flex flex-col gap-2 font-euclid '>
+                    <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                         {t('why.title')}
                     </span>
-                    <span className='text-4 max-w-full overflow-hidden text-ellipsis text-nowrap font-light text-[rgba(255,255,255,0.72)]'>
+                    <span className='text-4 max-w-full overflow-hidden  text-ellipsis text-nowrap font-euclidlight font-light text-[rgba(255,255,255,0.72)]'>
                         {t('why.subtitle')}
                     </span>
                 </div>
-                <div className='no-scrollbar flex h-1/2 w-full gap-[10px] overflow-scroll rounded-[18px] bg-[#070707] p-[25px] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
-                    {[getUrl('Top-Lists-1.png'), getUrl('Top-Lists-2.png'), getUrl('Top-Lists-3.png')].map((v) => {
-                        return <Image src={v} width={200} height={100} alt={v} className="aspect-[2/1] h-full rounded-[8px] object-cover" key={v} />
+                <div
+                    ref={scrollRef}
+                    className='no-scrollbar flex h-1/2 w-full gap-[10px] overflow-x-scroll rounded-[18px] bg-[#070707] p-[25px] shadow-[0px_2px_12px_0px_#FFFFFF12]'
+                    style={{ scrollBehavior: 'auto' }}
+                >
+                    {Array.from({ length: 12 }).map((_, index) => {
+                        const imgPath = `Top-Lists-${(index % 6) + 1}.png`
+                        return <Image src={getUrl(imgPath)} width={200} height={100} alt={imgPath} className="aspect-[2/1] h-full rounded-[8px] object-cover" key={imgPath + '-' + index} />
                     })}
                 </div>
             </div>
 
-            <div className='grid grid-cols-1 gap-4 md:w-[696px] md:grid-cols-2'>
+            <div className='grid grid-cols-1 gap-4 font-euclid md:w-[696px] md:grid-cols-2 '>
                 {data.map(({ key, title, description, icon }) => {
                     return <div key={key} className='flex gap-[18px] rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-5'>
                         <div className='flex size-[56px] items-center justify-center rounded-[14px] bg-[#202020]'>
-                            {icon}
+                            <Image src={getUrl(icon)} alt={icon} className='size-6 object-contain' width={56} height={56} />
                         </div>
                         <div className='flex flex-col justify-between'>
-                            <span className='text-6 max-w-full overflow-hidden text-ellipsis text-nowrap font-medium'>
+                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                                 {title}
                             </span>
-                            <span className='text-4 max-w-full overflow-hidden text-ellipsis text-nowrap font-light text-[rgba(255,255,255,0.72)]'>
+                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[16px] font-light text-[rgba(255,255,255,0.72)]'>
                                 {description}
                             </span>
                         </div>

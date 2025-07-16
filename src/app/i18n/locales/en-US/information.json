@@ -43,7 +43,7 @@
         "submit": "Book a Demo",
         "submitSuccess": "Submitted successfully",
         "submitError": "Submission failed, please try again",
-        "required": "Please fill in all required fields"
+        "required": "Please fill in all fields"
     },
     "privacy": "See how we protect your data in our <1>Privacy</1>"
 }

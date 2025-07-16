@@ -19,7 +19,7 @@ import { Header } from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
 import { LayoutContent } from './layout-content'
 
-import { euclidCircularA, featureDisplayRegularTrial, plexMono } from './fonts'
+import { euclidCircularA, euclidCircularALight, featureDisplayRegularTrial, plexMono } from './fonts'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -42,7 +42,7 @@ export default async function RootLayout({
       lang={lng}
       dir={dir(lng)}
       suppressHydrationWarning
-      className={` ${plexMono.variable} ${euclidCircularA.variable} ${featureDisplayRegularTrial.variable}`}
+      className={` ${plexMono.variable} ${euclidCircularA.variable} ${featureDisplayRegularTrial.variable} ${euclidCircularALight.variable}`}
     >
       <head>
         <InitTheme />

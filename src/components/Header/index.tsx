@@ -36,8 +36,8 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
     <nav
       className={cn(
         'fixed z-50 flex h-[56px] w-full items-center font-mono transition-all duration-300 ease-in-out md:h-[70px]',
-        'border-b border-[#EBECEE] bg-white/90 ',
-        isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')
+        isEnterprisePage ? 'border-none bg-[#070707] text-white' : 'border-b border-[#EBECEE] bg-white/90 ',
+        // isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')
       )}
     >
       <HeaderDesktop

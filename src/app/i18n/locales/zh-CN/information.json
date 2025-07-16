@@ -43,7 +43,7 @@
         "submit": "预约演示",
         "submitSuccess": "提交成功",
         "submitError": "提交失败，请重试",
-        "required": "请填写所有必填项"
+        "required": "请填写您的信息"
     },
     "privacy": "了解我们如何保护您的数据，查看<1>隐私政策</1>"
 }

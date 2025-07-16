@@ -2,8 +2,6 @@
 import { useTranslation } from '@/app/i18n/client'
 
 import { FadeInUpContainer } from '@/components/StyleWrapper/Container/AnimationContainer'
-import Link from 'next/link'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { DarkButton } from '@/components/StyleWrapper/button'
 import Image from 'next/image'
 import usePublicUrl from '@/hooks/usePublicUrl'
@@ -16,6 +14,7 @@ export type AINativeCard = {
     title: string
     description: string
     image: string
+    color: string
 }
 
 export default function AINatives() {
@@ -29,36 +28,42 @@ export default function AINatives() {
             title: t('collect.title'),
             description: t('collect.description'),
             image: getUrl('1.png'),
+            color: '#04625D'
         },
         {
             key: 'organize',
             title: t('organize.title'),
             description: t('organize.description'),
             image: getUrl('2.png'),
+            color: '#BFA3E7'
         },
         {
             key: 'collaborate',
             title: t('collaborate.title'),
             description: t('collaborate.description'),
             image: getUrl('3.png'),
+            color: '#D1E6D1'
         },
         {
             key: 'ai-generate',
             title: t('ai-generate.title'),
             description: t('ai-generate.description'),
             image: getUrl('4.png'),
+            color: '#6D83E6'
         },
         {
             key: 'compliance',
             title: t('compliance.title'),
             description: t('compliance.description'),
             image: getUrl('5.png'),
+            color: '#803A2B'
         },
         {
             key: 'data-driven',
             title: t('data-driven.title'),
             description: t('data-driven.description'),
             image: getUrl('6.png'),
+            color: '#084354'
         },
     ]
 
@@ -72,7 +77,7 @@ export default function AINatives() {
                     )}>
                         {t('section.title')}
                     </h1>
-                    <p className="text-center text-[14px] font-light text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center font-euclidlight text-[14px] text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
                         {t('section.desc')}
                     </p>
                 </div>
@@ -84,12 +89,18 @@ export default function AINatives() {
                 </LocaleLink>
             </FadeInUpContainer>
 
-            <div className='-mr-3 mt-[60px] grid grid-cols-1 gap-10 px-5 md:mt-[100px] md:grid-cols-3 md:px-0'>
-                {data.map(({ key, title, description, image }) => <div key={key} className='overflow-hidden rounded-[30px] bg-[#F1F5F9]'>
-                    <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
-                    <div className='mx-5 mb-[10px] mt-[30px] text-[22px]'>{title}</div>
-                    <div className='mx-5 mb-[30px] text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
-                </div>)}
+            <div className='-mr-3 mt-[60px] grid grid-cols-1 gap-10 px-5 font-euclid md:mt-[100px] md:grid-cols-3 md:px-0'>
+                {data.map(({ key, title, description, image, color }) =>
+                    <div key={key} className='group overflow-hidden rounded-[30px] bg-[#F1F5F9] transition-transform duration-300 ease-in-out hover:-translate-y-2'>
+                        <div className='aspect-[4/3] w-full rounded-[30px] object-cover' style={{
+                            backgroundColor: color
+                        }}>
+                            <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
+                        </div>
+                        <div className='mx-5 mb-[10px] mt-[30px] text-[22px]'>{title}</div>
+                        <div className='mx-5 mb-[30px] font-euclidlight text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
+                    </div>
+                )}
             </div>
         </div>
     </div>
