@@ -136,7 +136,7 @@ export default function Hero() {
                     </Accordion>
                 </div>
                 <div className='flex flex-1 shrink-0 items-center justify-center rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-[30px]'>
-                    <div className='size-full rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
+                    <div className='flex size-full items-center rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
                         <Image
                             src={getUrl(businessMap[activeIndex].Cover)}
                             width={1328}
