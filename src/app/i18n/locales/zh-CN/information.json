@@ -19,8 +19,8 @@
         "email.placeholder": "请输入您的公司邮箱",
         "company.label": "3. 公司全称",
         "company.placeholder": "请输入您的公司全称",
-        "size.label": "4. 选择公司/团队人数",
         "size": {
+            "label": "4. 选择公司/团队人数",
             "2-10": "2-10",
             "11-50": "11-50",
             "51-200": "51-200",

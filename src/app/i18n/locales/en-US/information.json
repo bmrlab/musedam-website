@@ -19,8 +19,8 @@
         "phone.invalid": "Please enter a correct phone number",
         "company.label": "3. Company Name",
         "company.placeholder": "Enter your company name",
-        "size.label": "4. Select your company/team size",
         "size": {
+            "label": "4. Select your company/team size",
             "2-10": "2-10",
             "11-50": "11-50",
             "51-200": "51-200",

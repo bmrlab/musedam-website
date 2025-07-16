@@ -8,10 +8,12 @@ import Image from 'next/image'
 import ContactUsDialog from "../ContactUsDialog";
 import { useToast } from '@/hooks/use-toast'
 import { EExpectTime, EOrgSize } from "@/utilities/feishu";
+import { env } from "process";
+import { useCountry } from "@/providers/Country";
 
 const FormInput = twx.input`w-full border border-[#C5CEE0] rounded-lg px-4 py-3 focus:outline-none hover:ring-1 hover:ring-black focus:ring-1 focus:ring-black`
 export const Information = () => {
-    const isGlobal = process.env.DEPLOY_REGION === 'global'
+    const { isInChina } = useCountry()
     const { t } = useInformationTranslation();
     const { toast } = useToast()
     const getUrl = (fileName: string) => `/assets/Enterprise/Home/${fileName}`
@@ -60,11 +62,11 @@ export const Information = () => {
             return !form.phone || !isValidPhone(form.phone) || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
         }
     };
-    const isDisabled = getIsDisabled(formData, isGlobal);
+    const isDisabled = getIsDisabled(formData, !isInChina);
     const handleSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (isDisabled) {
-            if (!isGlobal && !isValidPhone(formData.phone)) {
+            if (isInChina && !isValidPhone(formData.phone)) {
                 toast({ duration: 0, description: t('form.phone.invalid') });
             } else {
                 toast({ duration: 2000, description: t('form.required') });
@@ -74,9 +76,12 @@ export const Information = () => {
         setSubmitting(true)
         try {
             const { name, email, company, position, teamSize, expectTime, phone } = formData;
-            const submitData = isGlobal
-                ? { name, email, company, position, teamSize, expectTime }
-                : { name, phone, company, position, teamSize, expectTime };
+            const submitData = { name, company, position, teamSize, expectTime };
+            if (isInChina) {
+                submitData['phone'] = phone
+            } else {
+                submitData['email'] = email
+            }
             const res = await fetch('/api/feishu/book-demo', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -140,7 +145,7 @@ export const Information = () => {
                         <label className="mb-3 block text-sm">{t('form.name.label')}</label>
                         <FormInput type="text" placeholder={t('form.name.placeholder')} value={formData.name} onChange={e => handleChange('name', e.target.value)} />
                     </div>
-                    {isGlobal ? <div className="col-span-2 md:col-span-1">
+                    {!isInChina ? <div className="col-span-2 md:col-span-1">
                         <label className="mb-3 block text-sm">{t('form.email.label')}</label>
                         <FormInput type="email" placeholder={t('form.phone.placeholder')} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
                     </div> : <div className="col-span-2 md:col-span-1">
