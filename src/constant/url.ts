@@ -1,6 +1,6 @@
 export const MUSEDAM_LOGIN_URL = '/auth'
 export const BROWSER_EXTENSION_URL =
-  'https://chrome.google.com/webstore/detail/musedam-extension/pgfabgncjjnknojglnhjlcfjhgjlocog'
+  'https://chromewebstore.google.com/detail/musedam-collector/acheegccgdmgeibdnjoolajjdnohpanl'
 export const BROWSER_EXTENSION_URL_ZH = 'https://tezign.feishu.cn/wiki/wikcnAlxBEhe4KNaEpijwk8lhAh'
 export const MUSE_GLOBAL_CHECKOUT_URL = '/settings'
 export const MUSE_MAINLAND_CHECKOUT_URL = 'https://app.museai.cc/settings'

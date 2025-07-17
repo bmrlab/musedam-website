@@ -1,0 +1,25 @@
+{
+    "title": "FAQ",
+    "questions": {
+        "ai-native-dam": {
+            "question": "What is an AI-native DAM?",
+            "answer": "An AI-native digital asset management (DAM) platform like MuseDAM is built from the ground up with artificial intelligence at its core. Unlike traditional DAM systems that rely on manual processes, an AI-native DAM automatically analyzes, tags, and organizes your digital content—from high-resolution images and videos to design files and documents. It provides intelligent search capabilities through natural language queries, automated content discovery, and smart recommendations. Most importantly, AI-native DAM systems like MuseDAM transform creative workflows by eliminating manual tasks, dramatically increasing productivity, and ensuring consistent brand management across all channels."
+        },
+        "why-better": {
+            "question": "Why is MuseDAM better than alternative DAMs out there?",
+            "answer": "MuseDAM stands apart in the digital asset management category by being AI-native, intelligent, and remarkably intuitive on a secure platform designed to scale with your business. Our AI-powered capabilities streamline your entire content lifecycle like no other DAM on the market. Our intelligent automation features, including AI auto-tagging and smart search, empower you to eliminate manual tasks and dramatically boost creative productivity. Plus, we offer flexible sharing options with granular permission controls, so you can maximize content value by securely collaborating with internal teams and external partners."
+        },
+        "pricing": {
+            "question": "How much does MuseDAM cost? And what features are included in the cost?",
+            "answer": "MuseDAM grows with your business, whether you're a startup or a global enterprise. We have Basic and Premium plans designed to help you work smarter, break down content silos. The Basic plan covers all the essentials—intelligent tagging, powerful search, and unlimited uploads—while Premium unlocks our advanced features like the AskMuse AI assistant, full version history, and enterprise security controls. We'd love to chat with you about your specific needs and help you find the right fit for your team."
+        },
+        "free-trial": {
+            "question": "Is there a free trial?",
+            "answer": "Currently, we offer a personal free version and a free trial of our team basic plan. The best way to experience MuseDAM Enterprise is to schedule an online product demo—we'd love to show you the powerful capabilities of MuseDAM Enterprise! Want to see how MuseDAM can transform your digital asset management? Just reach out to our team—we're here to answer any questions and help you discover the unlimited potential for your brand."
+        },
+        "prove-value": {
+            "question": "How can I prove the value of MuseDAM to my team?",
+            "answer": "If you're looking for a straightforward way to calculate and demonstrate the potential return on investment for MuseDAM, check out our \"6 AI-Native Capabilities Powering Brand Growth\" overview. Our customers typically see remarkable results: up to 85% reduction in asset search time, 70% decrease in duplicate content creation, and 15-30% improvement in marketing ROI. These aren't just numbers—they represent real time savings and productivity gains that your team will experience from day one."
+        }
+    }
+}

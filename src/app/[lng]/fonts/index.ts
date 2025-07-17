@@ -14,3 +14,15 @@ export const euclidCircularA = localFont({
   display: 'swap',
   variable: '--font-euclid_circular_a',
 })
+
+export const euclidCircularALight = localFont({
+  src: './Euclid_Circular_A_Light.ttf',
+  display: 'swap',
+  variable: '--font-euclid_circular_a_light',
+})
+
+export const featureDisplayRegularTrial = localFont({
+  src: './FeatureDisplay-Regular-Trial.otf',
+  display: 'swap',
+  variable: '--font-featureDisplay-regular-trial',
+})

@@ -19,17 +19,23 @@ import {
   TopToBottomImage,
 } from '@/components/StyleWrapper/image'
 
-export default function DesktopBanner({ className }: { className?: string }) {
+export default function DesktopBanner({ className, isDark }: { className?: string, isDark?: boolean }) {
   const [aiParseTagRef, aiParseTagHovering] = useHover()
   const [assetMoreRef, assetMoreHovering] = useHover()
   const { getUrl } = usePublicUrl('/assets/Hero')
   const { isZhLng } = useIsZhLng()
 
+  const getUrlWithDark = (path: string) => {
+    if (!isDark) return getUrl(path)
+
+    return getUrl(`Dark/${path}`)
+  }
+
   return (
     <div className={cn('flex select-none justify-center gap-6', className)}>
       <FlexColContainer>
         <TopToBottomImage
-          src={getUrl('MuseDAM-Kanban.png')}
+          src={getUrlWithDark('MuseDAM-Kanban.png')}
           width={237}
           height={52}
           alt="MuseDAM-Kanban"
@@ -59,7 +65,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             )}
           >
             <RightToLeftImage
-              src={getUrl('Tag-Automobile.png')}
+              src={getUrlWithDark('Tag-Automobile.png')}
               width={isZhLng ? 58 : 110}
               height={30}
               priority
@@ -67,7 +73,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               className="shadow-[0px_4px_30px_4px_#00000014] duration-600 delay-2650"
             />
             <RightToLeftImage
-              src={getUrl('Tag-Raining.png')}
+              src={getUrlWithDark('Tag-Raining.png')}
               width={isZhLng ? 71 : 87}
               height={30}
               priority
@@ -75,7 +81,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
               className="shadow-[0px_4px_30px_4px_#00000014] duration-800 delay-2750"
             />
             <RightToLeftImage
-              src={getUrl('Tag-Photography.png')}
+              src={getUrlWithDark('Tag-Photography.png')}
               width={isZhLng ? 84 : 118}
               height={30}
               priority
@@ -140,7 +146,7 @@ export default function DesktopBanner({ className }: { className?: string }) {
             className="duration-600 delay-50"
           />
           <RightToLeftImage
-            src={getUrl('MuseDAM-Comment.png')}
+            src={getUrlWithDark('MuseDAM-Comment.png')}
             width={244}
             height={60}
             priority

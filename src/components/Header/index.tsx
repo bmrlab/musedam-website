@@ -1,26 +1,55 @@
-import { headers } from 'next/headers'
-import { getServerSession } from '@/utilities/auth'
-import { cn } from '@/utilities/cn'
+'use client'
 
+import { useEffect, useMemo, useState } from 'react'
+import { cn } from '@/utilities/cn'
 import HeaderDesktop from '@/components/Header/desktop'
 import HeaderMobile from '@/components/Header/mobile'
+import { useWindowScroll } from 'react-use'
+import { usePathname } from 'next/navigation'
 
-export async function Header({ isGlobal }: { isGlobal: boolean }) {
-  const headersList = await headers()
-  // 检查是否是 pricing/ai 页面
-  const pathname = headersList.get('x-url') || headersList.get('referer') || ''
+export function Header({ isGlobal }: { isGlobal: boolean }) {
+  const [user, setUser] = useState<any>(null)
+  const pathname = usePathname()
+  const newHeaderPath = ['', '/', '/enterprise/quotation']
 
-  const isPricingAiPage = pathname.includes('/pricing/ai')
+  const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+  const isPricingPage = useMemo(() => !!pathname && ['/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+  const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
 
-  const user = await getServerSession()
+  useEffect(() => {
+    // Fetch user session
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        const data = await response.json()
+        setUser(data)
+      } catch (error) {
+        console.error('Failed to fetch user session:', error)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
+  const { y: scrollTop } = useWindowScroll()
 
   return (
     <nav
       className={cn(
-        'fixed z-50 flex h-[56px] w-full items-center border-b border-[#EBECEE] bg-white/90 font-mono transition-all duration-300 ease-in-out md:h-[70px]',
+        'fixed z-50 flex h-[56px] w-full items-center font-mono transition-all duration-300 ease-in-out md:h-[70px]',
+        isPricingPage ? 'border-none bg-[#F0F0EA]' :
+          (isEnterprisePage ? 'border-none bg-[#070707] text-white' : 'border-b border-[#EBECEE] bg-white/90 '),
+        // isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')
       )}
     >
-      <HeaderDesktop className="hidden md:flex" hideMenu={isPricingAiPage} user={user} isGlobal={isGlobal} />
+      <HeaderDesktop
+        className="hidden md:flex"
+        hideMenu={isPricingAiPage}
+        user={user}
+        isGlobal={isGlobal}
+        isEnterprisePage={isEnterprisePage}
+        showDarkLogo={isEnterprisePage && !isPricingPage && scrollTop === 0}
+      />
       <HeaderMobile className="flex md:hidden" user={user} isGlobal={isGlobal} />
     </nav>
   )

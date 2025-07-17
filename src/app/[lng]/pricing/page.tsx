@@ -10,6 +10,8 @@ import DetailTableOfMuseDam from '@/components/Pricing/Compare/MuseDam'
 import { EMuseProductType } from '@/components/Pricing/types/products'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
+import FeatureList from '@/components/Pricing/Enterprise/FeatureList'
+import FAQ from '@/components/Pricing/Enterprise/FAQ'
 
 export default async function MuseDAMPricingPage({
   searchParams,
@@ -35,14 +37,22 @@ export default async function MuseDAMPricingPage({
     process.env.DEPLOY_REGION === 'mainland' ? 'mainland' : 'global',
   ).then((res) => res.map((item) => [item.productType, item] as [EMuseProductType, ProductItem]))
 
-  return (
-    <FlexColContainer className="w-full items-center">
-      <FlexColContainer className="max-w-full items-center md:w-[1260px]">
-        <Buy pricingData={pricingData} user={user} />
-        <DetailTableOfMuseDam />
-      </FlexColContainer>
+  return <FlexColContainer className="w-full items-center bg-[#070707]">
+    <FlexColContainer className="w-full items-center bg-[#F0F0EA]">
+      <Buy pricingData={pricingData} user={user} isDark={true} />
+      <div className='h-[20px] w-full'></div>
+      <FeatureList />
     </FlexColContainer>
-  )
+    <FAQ />
+  </FlexColContainer>
+  // return (
+  //   <FlexColContainer className="w-full items-center">
+  //     <FlexColContainer className="max-w-full items-center md:w-[1260px]">
+  //       <Buy pricingData={pricingData} user={user} />
+  //       <DetailTableOfMuseDam />
+  //     </FlexColContainer>
+  //   </FlexColContainer>
+  // )
 }
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {

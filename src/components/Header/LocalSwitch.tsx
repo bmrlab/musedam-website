@@ -10,6 +10,7 @@ export const LocaleSwitch: React.FC = () => {
     const otherLocale = language === 'zh-CN' ? 'en-US' : 'zh-CN'
 
     const changeLocale = useCallback(() => {
+        if (!searchParams) return
         const currentParams = new URLSearchParams(searchParams)
         const queryString = currentParams.toString()
         const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + otherLocale) || ''

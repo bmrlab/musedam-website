@@ -7,11 +7,14 @@ html {
 }
 
 img {
-  user-select: none; /* 禁止文本选择 */
-  -webkit-user-drag: none; /* 禁止拖动 */
+  user-select: none;
+  /* 禁止文本选择 */
+  -webkit-user-drag: none;
+  /* 禁止拖动 */
 }
 
 @layer utilities {
+
   /* 隐藏横向滚动条，className="no-scrollbar" */
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -59,6 +62,7 @@ img {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -91,6 +95,7 @@ img {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-[#141414];
   }
@@ -119,8 +124,27 @@ img {
     height: 0;
   }
 }
+
 @layer base {
-  html[lang="zh-CN"], html[lang="zh-CN"] * {
+
+  html[lang="zh-CN"],
+  html[lang="zh-CN"] * {
     font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
   }
+}
+
+/* smooth-toggle 动画样式 */
+.smooth-toggle {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: max-height;
+}
+
+.smooth-toggle.closed {
+  max-height: 0;
+}
+
+.smooth-toggle.open {
+  max-height: 2000px;
+  /* 设一个足够大的值，能容纳内容 */
 }

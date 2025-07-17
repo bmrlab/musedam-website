@@ -42,7 +42,7 @@ export default function Footer() {
     <FooterMobile />
   ) : (
     <>
-      <footer className="grid grid-cols-1 justify-items-start bg-white px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+      <footer className="grid grid-cols-1 justify-items-start bg-white px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 dark:bg-[#070707]">
         <div className="flex h-full w-[101px] flex-col gap-6">
           {/* <Image src="/assets/logo.svg" width={48} height={48} alt="muse logo" /> */}
           <LngSelector />
@@ -54,13 +54,13 @@ export default function Footer() {
         {Array.from(map.entries()).map(([group, item], i) => {
           return (
             <div key={i} className="flex select-none flex-col gap-4">
-              <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50">
+              <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50 dark:text-[rgba(255,255,255,0.5)]">
                 {group}
               </h3>
               <div className="flex flex-col gap-3">
                 {item.map(({ link }, j) => (
                   <LocaleLink key={j} href={link.url ?? ''}>
-                    <span className="underline-animation font-mono text-[14px] font-light leading-[18.2px] text-[#141414]">
+                    <span className="underline-animation font-mono text-[14px] font-light leading-[18.2px] text-[#141414] dark:text-white">
                       {link.label}
                     </span>
                   </LocaleLink>
@@ -72,7 +72,7 @@ export default function Footer() {
       </footer>
       {/* https://applink.feishu.cn/client/message/link/open?token=AmOrmXGzAAADZ1FER5UfAAQ%3D */}
       {isInChina && (
-        <div className=" flex w-full items-center justify-center space-x-4 border-t px-[10px] py-[24px] text-[12px] font-light text-[#141414]">
+        <div className=" flex w-full items-center justify-center space-x-4 border-t px-[10px] py-[24px] text-[12px] font-light text-[#141414] dark:bg-[#070707] dark:text-white">
           <span>© 特赞（上海）信息科技有限公司</span>
           <a
             href="http://beian.miit.gov.cn"
