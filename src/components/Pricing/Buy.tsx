@@ -301,7 +301,7 @@ export default function Buy({
                   - 如果有团队，则类似于上一种情况的 4
                   */}
                 <Button
-                  className="mt-[30px] h-[40px] w-full rounded border-[#262626] text-[14px] font-normal transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white"
+                  className="mt-[30px] h-[40px] w-full rounded border-[#262626] bg-transparent text-[14px] font-normal transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white"
                   variant="outline"
                   onClick={() => {
                     // 注意这里的判断条件和下面按钮文字的

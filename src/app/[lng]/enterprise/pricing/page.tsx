@@ -5,13 +5,14 @@ import { getServerSession } from '@/utilities/auth'
 import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
-import Buy from '@/components/Pricing/Enterprise/Buy'
+// import Buy from '@/components/Pricing/Enterprise/Buy'
 import DetailTableOfMuseAI from '@/components/Pricing/Compare/MuseAI'
 import { EMuseProductType } from '@/components/Pricing/types/products'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 import FeatureList from '@/components/Pricing/Enterprise/FeatureList'
 import FAQ from '@/components/Pricing/Enterprise/FAQ'
+import Buy from '@/components/Pricing/Buy'
 
 export default async function MuseAIPricingPage({
     searchParams,
@@ -27,11 +28,12 @@ export default async function MuseAIPricingPage({
 
     return (
         <FlexColContainer className="w-full items-center bg-[#070707]">
-            <FlexColContainer className="w-full items-center">
+            <FlexColContainer className="w-full items-center bg-[#F0F0EA]">
                 <Buy pricingData={pricingData} user={user} />
+                <div className='h-[80px] w-full'></div>
                 <FeatureList />
-                <FAQ />
             </FlexColContainer>
+            <FAQ />
         </FlexColContainer>
     )
 }

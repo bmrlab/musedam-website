@@ -70,13 +70,13 @@ const NumControl = ({ value, step, max, min, onChange }: NumControlProps) => {
 }
 
 
-const TitleDiv = twx.h3`text-lg font-medium text-[rgba(255,255,255,0.72)]`
+const TitleDiv = twx.h3`text-lg font-medium text-[rgba(255,255,255,0.72)] font-feature`
 
 const BlockBox = twx.div`rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] px-5 py-6 space-y-6`
 
 const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
     return <div className="border-t border-gray-700 pt-4">
-        <div className="flex items-center justify-between text-white">
+        <div className="flex items-center justify-between text-white ">
             <Label className="text-lg font-normal">{costTitle ?? 'Base Cost'}</Label>
             <span className="flex items-center text-xl font-medium">${cost}<span className='text-sm'>/year</span></span>
         </div>
