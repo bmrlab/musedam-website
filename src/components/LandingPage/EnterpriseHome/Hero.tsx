@@ -99,7 +99,7 @@ export default function Hero() {
 
                 <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
                     <DarkButton className="md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid md:text-xl text-base">
-                        {isInChina ? t('button.book-demo') : t('hero.button.start')}
+                        {isInChina ? t('hero.enterprise.button') : t('hero.button.start')}
                     </DarkButton>
                 </LocaleLink>
 
