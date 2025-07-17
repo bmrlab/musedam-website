@@ -11,15 +11,21 @@ import { EExpectTime, EOrgSize } from "@/utilities/feishu";
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
+import useIsMobile from "@/hooks/useIsMobile";
+import { useLanguage } from "@/providers/Language";
 
+const FormLabel = twx.label`mb-3 block md:text-sm text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border border-[#C5CEE0] rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 hover:border-[#141414] focus:ring-0 focus:border-[#141414] ease-in-out duration-300 transition-all`
 export const Information = () => {
     const { isInChina } = useCountry()
     const { t } = useInformationTranslation();
+    const { language } = useLanguage()
+    const isEn = language === 'en-US'
     const { toast } = useToast()
     const getUrl = (fileName: string) => `/assets/Enterprise/Home/${fileName}`
     const [open, setOpen] = useState(false)
     const [submitting, setSubmitting] = useState(false)
+    const isMobile = useIsMobile()
 
     // 合并所有表单项为一个对象
     const [formData, setFormData] = useState({
@@ -111,17 +117,21 @@ export const Information = () => {
     }
     return (<>
         <div className="flex w-full justify-center bg-white font-euclid text-[#141414]">
-            <div className="flex w-full flex-col items-start justify-between p-4 md:max-w-[1440px] md:flex-row md:px-[80px] md:py-[104px]">
+            <div className="flex w-full flex-col items-start justify-between py-[60px] px-6 md:max-w-[1440px] md:flex-row md:px-[80px] md:py-[104px] h-fit">
                 {/* 左侧介绍 */}
-                <div className="hidden h-full flex-col justify-between md:pr-[80px] md:flex md:flex-1">
+                <div className="md:h-full flex-col justify-between md:pr-[80px] flex flex-1">
                     <div>
-                        <h1 className="mb-4 font-feature text-[54px] font-medium leading-tight">
+                        <h1 className={cn("mb-4 font-feature md:text-[54px] md:font-medium md:text-start text-center",
+                            isEn ? " text-[40px]" : " text-[32px]"
+                        )}>
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                         </h1>
-                        <p className="mb-[60px] font-euclidlight text-[22px] font-light text-[rgba(20,20,20,0.72)]">
-                            <Trans i18nKey="desc" t={t} components={{ 1: <br /> }} />
+                        <p className="md:text-start text-center mb-[30px] md:mb-[60px] font-euclidlight text-base md:text-[22px] font-light text-[rgba(20,20,20,0.72)]">
+                            <Trans i18nKey="desc" t={t} components={{ 1: isMobile ? <></> : <br /> }} />
                         </p>
-                        <ul className="mb-[60px] space-y-5 text-lg">
+                        <ul className={cn("md:mb-[60px] mb-[30px]",
+                            isEn ? "text-lg space-y-5 " : "text-base space-y-3"
+                        )}>
                             {(t('list', { returnObjects: true }) as string[]).map((item, idx) => (
                                 <li className="flex items-start gap-[10px] font-euclid" key={idx}>
                                     <CheckIcon className="shrink-0 text-[#20C997]" width={24} height={24} />
@@ -130,7 +140,7 @@ export const Information = () => {
                             ))}
                         </ul>
                     </div>
-                    <div>
+                    <div className="md:block hidden">
                         <div className="mb-4 font-euclidlight text-base font-light">{t('security')}</div>
                         <div className="flex w-fit flex-row gap-6 rounded-full bg-[#F8F8F8] px-6 py-3">
                             {/* 认证徽章占位符，可替换为图片 */}
@@ -142,29 +152,29 @@ export const Information = () => {
                 </div>
                 {/* 右侧表单 */}
                 <div className="font-euclid shadow-none md:flex-1 w-full">
-                    <h2 className="mb-10 text-2xl font-medium">{t('form.title')}</h2>
-                    <form className="grid h-full grid-cols-2  justify-between gap-x-3 gap-y-[30px]" onSubmit={handleSubmit} >
+                    <h2 className="md:mb-10 mb-6 text-[28px] md:text-2xl font-medium text-center md:text-start">{t('form.title')}</h2>
+                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[30px]" onSubmit={handleSubmit} >
                         <div className="col-span-2 md:col-span-1">
-                            <label className="mb-3 block text-sm">{t('form.name.label')}</label>
+                            <FormLabel >{t('form.name.label')}</FormLabel>
                             <FormInput type="text" placeholder={t('form.name.placeholder')} value={formData.name} onChange={e => handleChange('name', e.target.value)} />
                         </div>
                         {!isInChina ? <div className="col-span-2 md:col-span-1">
-                            <label className="mb-3 block text-sm">{t('form.email.label')}</label>
+                            <FormLabel >{t('form.email.label')}</FormLabel>
                             <FormInput type="email" placeholder={t('form.email.placeholder')} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
                         </div> : <div className="col-span-2 md:col-span-1">
-                            <label className="mb-3 block text-sm">{t('form.phone.label')}</label>
+                            <FormLabel >{t('form.phone.label')}</FormLabel>
                             <FormInput type="phone" placeholder={t('form.phone.placeholder')} value={formData.phone} onChange={e => handleChange('phone', e.target.value)} />
                         </div>}
                         <div className="col-span-2 md:col-span-1">
-                            <label className="mb-3 block text-sm">{t('form.company.label')}</label>
+                            <FormLabel >{t('form.company.label')}</FormLabel>
                             <FormInput type="text" placeholder={t('form.company.placeholder')} value={formData.company} onChange={e => handleChange('company', e.target.value)} />
                         </div>
                         <div className="col-span-2 md:col-span-1">
-                            <label className="mb-3 block text-sm">{t('form.position.label')}</label>
+                            <FormLabel >{t('form.position.label')}</FormLabel>
                             <FormInput type="text" placeholder={t('form.position.placeholder')} value={formData.position} onChange={e => handleChange('position', e.target.value)} />
                         </div>
                         <div className="col-span-2">
-                            <label className="mb-3 block text-sm">{t('form.size.label')}</label>
+                            <FormLabel >{t('form.size.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.teamSize?.toString()}>
@@ -193,7 +203,7 @@ export const Information = () => {
                         </div>
 
                         <div className="col-span-2">
-                            <label className="mb-3 block text-sm">{t('form.expect.label')}</label>
+                            <FormLabel >{t('form.expect.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.expectTime?.toString()}
@@ -246,7 +256,7 @@ export const Information = () => {
                                 disabled={submitting}
                                 type="submit"
                                 className={cn(
-                                    "h-[50px] w-full rounded-2xl bg-black text-[20px] font-medium text-white transition-all hover:bg-gray-900",
+                                    "h-[50px] w-full rounded-lg bg-black text-[16px] font-medium text-white transition-all hover:bg-gray-900",
                                 )}
                             >{t('form.submit')}</button>
                             <div className="mt-4 text-center text-xs text-gray-400">

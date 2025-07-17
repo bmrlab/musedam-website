@@ -63,38 +63,38 @@ export default function Hero() {
     }
     ]
     return (
-        <div className="flex flex-col items-center justify-center pb-[120px] md:w-full md:px-[80px]">
+        <div className="flex flex-col items-center justify-center pb-[60px] md:pb-[120px] md:w-full md:px-[80px]">
             <h1 className={cn(
-                "mt-[59px] px-6 text-center text-[32px] font-normal leading-[41.6px] md:px-0 md:text-[72px] md:leading-[90px]",
+                "mt-[59px] px-6 text-center text-[40px] font-normal md:px-0 md:text-[72px] md:leading-[90px]",
                 isEn && 'font-feature'
             )}>
                 {t('hero.enterprise.title')}
             </h1>
             <span className={cn(
-                'w-[800px] max-w-full text-center text-[40px] text-[rgba(255,255,255,0.72)]',
-                isEn ? 'font-feature font-normal' : 'font-extralight'
+                'w-[800px] max-w-full px-6 text-center   md:text-[40px] text-[rgba(255,255,255,0.72)] md:font-normal font-light',
+                isEn ? 'font-feature text-[20px]' : 'font-extralight text-[16px]'
             )}>{t('hero.enterprise.subtitle')}</span>
             <LocaleLink href={'/bookDemo'} prefetch={false}>
-                <Button className="mb-12 mt-6 h-[48px] w-[163px] rounded-2xl bg-white font-euclid text-xl font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E] md:mb-[60px] md:mt-10">
+                <Button className="mb-12 h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base md:text-xl font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E] md:mb-[60px] mt-10">
                     {t('hero.enterprise.button')}
                 </Button>
             </LocaleLink>
             <Banner isDark />
-            <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
+            <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-6 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
                     <h1 className={cn(
-                        "text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]",
-                        isEn && 'font-feature'
+                        "text-center font-normal md:text-left md:text-[64px] md:leading-[73.6px]",
+                        isEn ? 'font-feature text-[40px]' : 'text-[38px]'
                     )}>
                         {t('hero.enterprise.why.title')}
                     </h1>
-                    <p className="text-center font-euclid text-[14px] font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center md:font-euclid font-euclidlight text-base font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px]">
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
 
                 <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <DarkButton className="h-[56px] w-[167px] rounded-2xl font-euclid text-xl">
+                    <DarkButton className="md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid md:text-xl text-base">
                         {t('hero.enterprise.button')}
                     </DarkButton>
                 </LocaleLink>
@@ -107,14 +107,14 @@ export default function Hero() {
                                 setActiveIndex(index)
                             }}>
                                 <AccordionTrigger className="p-0" icon-hidden>
-                                    <div className="flex items-center gap-4 p-6">
-                                        <Image src={`/assets/Enterprise/AiNatives/${item.Icon}`} alt={item.Icon} className='size-9 rounded-[30px] object-cover md:size-[56px]' width={56} height={56} />
-                                        <span className="text-left font-euclid text-[22px] font-medium text-white">{item.title}</span>
+                                    <div className="flex items-center gap-4 md:p-6 p-5 pb-4">
+                                        <Image src={`/assets/Enterprise/AiNatives/${item.Icon}`} alt={item.Icon} className='size-[56px]' width={56} height={56} />
+                                        <span className="text-left font-euclid text-[18px] md:text-[22px] font-medium text-white">{item.title}</span>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                    <Card className="ml-[76px] border-none bg-[#141414] shadow-none md:ml-[96px]">
-                                        <CardContent className="space-y-3 p-0 pb-6 pr-6 font-euclid text-[15px] text-[rgba(255,255,255,0.48)]">
+                                    <Card className="ml-5 border-none bg-[#141414] shadow-none md:ml-[96px]">
+                                        <CardContent className="space-y-4 md:space-y-3 p-0 md:pb-6 pr-6 font-euclid text-[16px] md:text-[15px] text-[rgba(255,255,255,0.48)]">
                                             <span className={isEn ? '' : 'font-light'}>{item.description}</span>
                                             <ul className="list-disc space-y-3 pl-5 leading-[22.5px]">
                                                 {item.lines.map(({ name, info }, i) => {
@@ -135,7 +135,7 @@ export default function Hero() {
                         })}
                     </Accordion>
                 </div>
-                <div className='flex flex-1 shrink-0 items-center justify-center rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-[30px]'>
+                <div className='md:flex hidden flex-1 shrink-0 items-center justify-center rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-[30px]'>
                     <div className='flex size-full items-center rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
                         <Image
                             src={getUrl(businessMap[activeIndex].Cover)}

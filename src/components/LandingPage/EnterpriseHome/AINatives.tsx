@@ -69,36 +69,38 @@ export default function AINatives() {
 
     return <div className='flex w-full justify-center bg-white text-black'>
         <div className='w-full overflow-x-scroll md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
-            <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
+            <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-12 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
                     <h1 className={cn(
-                        "text-center text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]",
+                        "text-center text-[40px] font-feature font-normal md:text-left md:text-[64px] md:leading-[73.6px]",
                         isEn && 'font-feature'
                     )}>
                         {t('section.title')}
                     </h1>
-                    <p className="text-center font-euclidlight text-[14px] text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center font-euclidlight text-base text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
                         {t('section.desc')}
                     </p>
                 </div>
 
                 <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <DarkButton className="w-[167px] rounded-2xl font-euclid text-xl md:h-[56px]">
+                    <DarkButton className="w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:text-xl md:h-[56px]">
                         {t('button.book-demo')}
                     </DarkButton>
                 </LocaleLink>
             </FadeInUpContainer>
 
-            <div className='-mr-3 mt-[60px] grid grid-cols-1 gap-10 px-5 font-euclid md:mt-[100px] md:grid-cols-3 md:px-0'>
+            <div className='md:-mr-3 my-[60px] md:mb-0 grid grid-cols-1 gap-6 md:gap-10 px-5 font-euclid md:mt-[100px] md:grid-cols-3 md:px-0'>
                 {data.map(({ key, title, description, image, color }) =>
-                    <div key={key} className='group overflow-hidden rounded-[30px] bg-[#F1F5F9] transition-transform duration-300 ease-in-out hover:-translate-y-2'>
+                    <div key={key} className='group overflow-hidden rounded-[30px] bg-[#F1F5F9] transition-transform duration-300 ease-in-out md:hover:-translate-y-2'>
                         <div className='aspect-[4/3] w-full rounded-[30px] object-cover' style={{
                             backgroundColor: color
                         }}>
                             <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
                         </div>
-                        <div className='mx-5 mb-[10px] mt-[30px] text-[22px]'>{title}</div>
-                        <div className='mx-5 mb-[30px] font-euclidlight text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
+                        <div className={cn('md:mx-5 mx-4 mb-[10px] mt-6 md:mt-[30px] md:text-[22px]',
+                            isEn ? 'text-[18px]' : 'text-[20px]'
+                        )}>{title}</div>
+                        <div className='md:mx-5 mx-4 mb-6 md:mb-[30px] font-euclidlight text-[15px] md:text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
                     </div>
                 )}
             </div>

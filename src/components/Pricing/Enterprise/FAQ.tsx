@@ -35,27 +35,27 @@ const FAQ = () => {
     };
 
     return (
-        <div className="w-full bg-black p-4 font-euclid text-white md:max-w-[1440px] md:px-[80px] md:py-[104px]">
-            <h2 className="mb-10 font-feature text-[64px]">{t('title')}</h2>
+        <div className="w-full bg-black px-6 pt-[30px] pb-[60px] font-euclid text-white md:max-w-[1440px] md:px-[80px] md:py-[104px]">
+            <h2 className="mb-10 font-feature text-[40px] md:text-[64px] md:text-start text-center">{t('title')}</h2>
             <div className="flex  flex-col divide-y divide-[rgba(255,255,255,0.2)] border-y border-[#fff2]">
                 {faqData.map((item, idx) => (
                     <div key={item.question}>
                         <button
-                            className="flex w-full items-center justify-between py-8 text-left focus:outline-none"
+                            className="flex w-full items-center justify-between md:py-8 py-5 text-left focus:outline-none"
                             onClick={() => toggleIndex(idx)}
                             aria-expanded={expandedIndex === idx}
                         >
-                            <span className="font-euclid text-[24px] leading-[34px]">{item.question}</span>
+                            <span className="font-euclid md:text-[24px] md:leading-[34px] text-lg">{item.question}</span>
                             <span className="ml-4">
                                 {expandedIndex === idx ? (
-                                    <MinusIcon className="size-7" />
+                                    <MinusIcon className="size-[22px] md:size-7" />
                                 ) : (
-                                    <PlusIcon className="size-7" />
+                                    <PlusIcon className="size-[22px] md:size-7" />
                                 )}
                             </span>
                         </button>
                         {expandedIndex === idx && (
-                            <div className="pb-8 pl-1 pr-8 text-left font-euclidlight text-[18px] font-light leading-[30px] text-[rgba(255,255,255,0.72)]">
+                            <div className="mt-5 md:mt-0 pb-8 md:pl-1 md:pr-8 text-left font-euclidlight text-[15px] md:text-[18px] font-light leading-[30px] text-[rgba(255,255,255,0.72)]">
                                 {item.answer}
                             </div>
                         )}

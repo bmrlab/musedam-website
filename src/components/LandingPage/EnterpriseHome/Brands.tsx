@@ -19,6 +19,7 @@ export default function Brands() {
     const { t } = useTranslation('brands')
     const { getUrl } = usePublicUrl('/assets/Enterprise/Brands')
     const { language } = useLanguage()
+    const isEn = language === 'en-US'
     const row1Ref = useRef<HTMLDivElement>(null)
     const row2Ref = useRef<HTMLDivElement>(null)
 
@@ -75,10 +76,15 @@ export default function Brands() {
     const row2 = ['brand5.jpeg', 'brand6.jpeg', 'brand7.jpeg', 'brand8.jpeg']
 
     return <div className='flex w-full flex-col items-center overflow-hidden'>
-        <div className='w-full p-5 md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
-            <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-4 md:mt-[80px] md:flex-row md:justify-between md:gap-0 ">
+        <div className='w-full px-5 py-0 md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
+            <FadeInUpContainer className="mt-[30px] flex w-full flex-col items-center gap-10 md:mt-[80px] md:flex-row md:justify-between md:gap-0 ">
                 <div className={cn("flex flex-col items-center gap-6 px-6 md:items-start md:gap-10", language === 'en-US' && 'md:max-w-[800px]')}>
-                    <h1 className="text-center font-feature text-[32px] font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]">
+                    <h1 className={
+                        cn(
+                            "text-center font-feature  font-normal leading-[41.6px]  md:text-left md:text-[64px] md:leading-[73.6px]",
+                            isEn ? "text-[32px]" : "text-[40px]"
+                        )
+                    }>
                         {t('section.title')}
                     </h1>
                 </div>
@@ -92,7 +98,7 @@ export default function Brands() {
             </FadeInUpContainer>
         </div>
 
-        <div className='w-full py-5 md:pb-[120px] md:pt-[60px]'>
+        <div className='w-full md:mb-[120px] md:mt-[60px] mt-10 mb-[60px]'>
             <div
                 ref={row1Ref}
                 className='no-scrollbar flex min-w-[1200px] flex-nowrap gap-10 overflow-x-scroll'
