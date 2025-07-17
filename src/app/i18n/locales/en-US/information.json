@@ -20,7 +20,7 @@
         "company.label": "3. Company Name",
         "company.placeholder": "Enter your company name",
         "size": {
-            "label": "4. Select your company/team size",
+            "label": "5. Select your company/team size",
             "2-10": "2-10",
             "11-50": "11-50",
             "51-200": "51-200",
@@ -38,7 +38,7 @@
             "6months": "Within 6 months",
             "1year": "Within 1 year",
             "notSure": "Not sure yet, just exploring options",
-            "label": "5. When do you expect to purchase MuseDAM?"
+            "label": "6. When do you expect to purchase MuseDAM?"
         },
         "submit": "Book a Demo",
         "submitSuccess": "Submitted successfully",

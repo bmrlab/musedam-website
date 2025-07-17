@@ -20,7 +20,7 @@
         "company.label": "3. 公司全称",
         "company.placeholder": "请输入您的公司全称",
         "size": {
-            "label": "4. 选择公司/团队人数",
+            "label": "5. 选择公司/团队人数",
             "2-10": "2-10",
             "11-50": "11-50",
             "51-200": "51-200",
@@ -38,7 +38,7 @@
             "6months": "半年内",
             "1year": "1年内",
             "notSure": "暂不确定，只是期望了解",
-            "label": "5. 预估多久内需要采购 MuseDAM？"
+            "label": "6. 预估多久内需要采购 MuseDAM？"
         },
         "submit": "预约演示",
         "submitSuccess": "提交成功",

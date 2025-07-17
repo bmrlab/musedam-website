@@ -1,6 +1,6 @@
 {
-    "Basic": "Basic",
-    "Advanced": "Advanced",
+    "Basic": "Team",
+    "Advanced": "Enterprise",
     "ValueAddedServices": "Value-Added Services",
     "aiCapabilities.title": "AI Capabilities",
     "aiCapabilities.0.name": "AI Auto Parsing",

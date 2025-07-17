@@ -19,12 +19,12 @@ const FeatureList = () => {
 
     return (
         <div className="w-full bg-[#F0F0EA] p-4 md:px-[80px] md:py-[104px]">
-            {/* 顶部标题和报价按钮 */}
             <div className="mb-10 flex flex-col items-center">
                 <h2 className="mb-10 font-feature text-[64px] text-[#070707]">{t('title')}</h2>
-                <button className=" rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {/* 生成报价单 */}
+                {/* <button className=" rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     {t('button')}
-                </button>
+                </button> */}
             </div>
 
             <div className="flex flex-col gap-6 font-euclid">

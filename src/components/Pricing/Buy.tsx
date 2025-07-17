@@ -31,13 +31,14 @@ export default function Buy({
   isMuseAI,
   user,
   pricingData: pricingDataPromise,
+  isDark
 }: {
   isMuseAI?: boolean
   user: SessionUser | null
   pricingData: Promise<[EMuseProductType, ProductItem][]>
+  isDark?: boolean
 }) {
   const pricingData = use(pricingDataPromise)
-
   const { billingMenu } = useBillingMenu({ isMuseAI: isMuseAI ?? false }) // 在组件内
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -136,10 +137,17 @@ export default function Buy({
             )}
         </FlexRowContainer>
         {/* Plan Type Toggle */}
-        <FlexRowContainer className="relative h-[42px] rounded-full bg-[#F4F5F6] p-[4px]">
+        <FlexRowContainer className={cn("relative rounded-full p-[4px]",
+          isDark ? 'bg-[#E1E1DC] h-[56px] ' : 'bg-[#F4F5F6] h-[42px] '
+        )}>
           {/* 滑动的白色背景 */}
           <div
-            className="absolute h-[34px] rounded-full bg-white transition-all duration-300 ease-in-out"
+            className={
+              cn(
+                "absolute rounded-full bg-white transition-all duration-300 ease-in-out",
+                isDark ? 'bg-black h-[48px] ' : 'bg-white h-[34px] '
+              )
+            }
             style={{
               width: '125px',
               left: currentPlan === PlanType.personal ? '4px' : '50%',
@@ -153,9 +161,8 @@ export default function Buy({
               <FlexColContainer
                 onClick={() => updatePlan(tab.type)}
                 className={cn(
-                  'z-10 h-full w-[125px] cursor-pointer justify-center text-center text-[14px] font-medium transition-colors duration-300',
-                  'hover:text-[#141414]',
-                  isActive ? 'text-[#141414]' : 'text-[#95989F]',
+                  'z-10 h-full w-[125px] cursor-pointer justify-center text-center text-[14px] font-medium transition-colors duration-300 hover:text-[#141414]',
+                  isActive ? (isDark ? 'text-white hover:text-white' : 'text-[#141414] ') : 'text-[#95989F]',
                 )}
                 key={tab.type}
               >

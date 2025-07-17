@@ -14,10 +14,13 @@ import { LocaleLink } from '@/components/LocalLink'
 import { useLanguage } from '@/providers/Language'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import { useState } from 'react'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useCountry } from '@/providers/Country'
 
 export default function Hero() {
     const { t } = useTranslation('landing-page')
     const { language } = useLanguage()
+    const { isInChina } = useCountry()
     const isEn = language === 'en-US'
     const { getUrl } = usePublicUrl('/assets/Enterprise/WhyMuse/Cover')
     const [activeIndex, setActiveIndex] = useState(0)
@@ -74,9 +77,10 @@ export default function Hero() {
                 'w-[800px] max-w-full px-6 text-center   md:text-[40px] text-[rgba(255,255,255,0.72)] md:font-normal font-light',
                 isEn ? 'font-feature text-[20px]' : 'font-extralight text-[16px]'
             )}>{t('hero.enterprise.subtitle')}</span>
-            <LocaleLink href={'/bookDemo'} prefetch={false}>
+
+            <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
                 <Button className="mb-12 h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base md:text-xl font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E] md:mb-[60px] mt-10">
-                    {t('hero.enterprise.button')}
+                    {isInChina ? t('hero.enterprise.button') : t('hero.button.start')}
                 </Button>
             </LocaleLink>
             <Banner isDark />
@@ -93,11 +97,12 @@ export default function Hero() {
                     </p>
                 </div>
 
-                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
                     <DarkButton className="md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid md:text-xl text-base">
-                        {t('hero.enterprise.button')}
+                        {isInChina ? t('button.book-demo') : t('hero.button.start')}
                     </DarkButton>
                 </LocaleLink>
+
             </FadeInUpContainer>
             <div className="mt-12 flex h-auto w-full flex-col gap-4 rounded-[6px] px-5 md:mt-[80px] md:flex-row  md:px-0">
                 <div className='left-content flex w-[540px] max-w-full items-center justify-center'>

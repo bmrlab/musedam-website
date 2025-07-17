@@ -115,6 +115,8 @@ export const Information = () => {
         }
         setSubmitting(false)
     }
+    // 海外版暂时隐藏
+    if (!isInChina) return <></>
     return (<>
         <div className="flex w-full justify-center bg-white font-euclid text-[#141414]">
             <div className="flex w-full flex-col items-start justify-between py-[60px] px-6 md:max-w-[1440px] md:flex-row md:px-[80px] md:py-[104px] h-fit">

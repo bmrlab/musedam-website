@@ -9,6 +9,8 @@ import { LocaleLink } from '@/components/LocalLink'
 import { useRef, useEffect } from 'react'
 import { useLanguage } from '@/providers/Language'
 import { cn } from '@/utilities/cn'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useCountry } from '@/providers/Country'
 
 export type AINativeCard = {
     key: string
@@ -21,6 +23,7 @@ export default function WhyMuse() {
     const { t } = useTranslation('why-muse')
     const getUrl = (fileName: string) => `/assets/Enterprise/WhyMuse/${fileName}`
     const { language } = useLanguage()
+    const { isInChina } = useCountry()
     const isEn = language === 'en-US'
     const data: AINativeCard[] = [
         {
@@ -100,12 +103,12 @@ export default function WhyMuse() {
                     {!isEn && <br />}
                     <span className='text-white/80'>{t('banner.text.2')}</span>
                 </div>
-                <LocaleLink href={'/bookDemo'} prefetch={false} className='w-full md:w-fit'>
+                <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false} className='w-full md:w-fit'>
                     <Button className='h-[48px] md:h-[56px] w-full md:w-[226px] gap-[6px] rounded-lg bg-white px-0 font-euclid text-base md:text-xl text-black hover:bg-white/80'>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='!size-6'>
                             <path d="M8 5.67075C8 6.22692 7.55556 6.67186 7 6.67186C6.44444 6.67186 6 6.22692 6 5.67075V3.00111C6 2.44494 6.44444 2 7 2C7.55556 2 8 2.44494 8 3.00111V5.67075ZM17.7778 3.00111C17.7778 2.44494 17.3333 2 16.7778 2C16.2222 2 15.7778 2.44494 15.7778 3.00111V5.67075C15.7778 6.22692 16.2222 6.67186 16.7778 6.67186C17.3333 6.67186 17.7778 6.22692 17.7778 5.67075V3.00111ZM22 5.53726V20.9099C22 21.5106 21.5111 22 20.8889 22H3.11111C2.48889 22 2 21.5106 2 20.9099V5.53726C2 4.9366 2.48889 4.44716 3.11111 4.44716H5.33333V5.67075C5.33333 6.62736 6.04444 7.38376 7 7.38376C7.95556 7.38376 8.66667 6.60512 8.66667 5.67075V4.44716H15.1111V5.67075C15.1111 6.62736 15.8222 7.38376 16.7778 7.38376C17.7333 7.38376 18.4444 6.60512 18.4444 5.67075V4.44716H20.8667C21.4667 4.44716 22 4.9366 22 5.53726ZM20.2222 9.54171C20.2222 9.31924 20.0222 9.11902 19.7778 9.11902H4.22222C3.97778 9.11902 3.77778 9.297 3.77778 9.54171V19.8198C3.77778 20.0423 3.97778 20.2425 4.22222 20.2425H19.7778C20.0222 20.2425 20.2222 20.0645 20.2222 19.8198V9.54171Z" fill="#5B616D" />
                         </svg>
-                        {t('button.schedule-demo')}
+                        {isInChina ? t('button.schedule-demo') : t('button.start')}
                     </Button>
                 </LocaleLink>
             </div>

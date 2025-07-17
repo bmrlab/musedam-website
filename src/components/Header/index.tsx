@@ -10,10 +10,10 @@ import { usePathname } from 'next/navigation'
 export function Header({ isGlobal }: { isGlobal: boolean }) {
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
-  const newHeaderPath = ['', '/', '/enterprise/pricing', '/enterprise/quotation']
+  const newHeaderPath = ['', '/', '/enterprise/quotation']
 
   const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
-  const isEnterprisePricingPage = useMemo(() => !!pathname && ['/enterprise/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+  const isPricingPage = useMemo(() => !!pathname && ['/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
   const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
     <nav
       className={cn(
         'fixed z-50 flex h-[56px] w-full items-center font-mono transition-all duration-300 ease-in-out md:h-[70px]',
-        isEnterprisePricingPage ? 'border-none bg-[#F0F0EA]' :
+        isPricingPage ? 'border-none bg-[#F0F0EA]' :
           (isEnterprisePage ? 'border-none bg-[#070707] text-white' : 'border-b border-[#EBECEE] bg-white/90 '),
         // isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')
       )}
@@ -48,7 +48,7 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
         user={user}
         isGlobal={isGlobal}
         isEnterprisePage={isEnterprisePage}
-        showDarkLogo={isEnterprisePage && !isEnterprisePricingPage && scrollTop === 0}
+        showDarkLogo={isEnterprisePage && !isPricingPage && scrollTop === 0}
       />
       <HeaderMobile className="flex md:hidden" user={user} isGlobal={isGlobal} />
     </nav>

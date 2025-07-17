@@ -1,6 +1,6 @@
 {
-    "Basic": "基础版",
-    "Advanced": "高级版",
+    "Basic": "团队版",
+    "Advanced": "企业版",
     "ValueAddedServices": "增值服务",
     "aiCapabilities.title": "AI 能力",
     "aiCapabilities.0.name": "AI 自动解析",

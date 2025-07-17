@@ -8,6 +8,8 @@ import usePublicUrl from '@/hooks/usePublicUrl'
 import { cn } from '@/utilities/cn'
 import { useLanguage } from '@/providers/Language'
 import { LocaleLink } from '@/components/LocalLink'
+import { MUSEDAM_LOGIN_URL } from '@/constant/url'
+import { useCountry } from '@/providers/Country'
 
 export type AINativeCard = {
     key: string
@@ -21,6 +23,7 @@ export default function AINatives() {
     const { t } = useTranslation('ai-natives')
     const { getUrl } = usePublicUrl('/assets/Enterprise/AiNatives')
     const { language } = useLanguage()
+    const { isInChina } = useCountry()
     const isEn = language === 'en-US'
     const data: AINativeCard[] = [
         {
@@ -81,10 +84,9 @@ export default function AINatives() {
                         {t('section.desc')}
                     </p>
                 </div>
-
-                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
                     <DarkButton className="w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:text-xl md:h-[56px]">
-                        {t('button.book-demo')}
+                        {isInChina ? t('button.book-demo') : t('button.start')}
                     </DarkButton>
                 </LocaleLink>
             </FadeInUpContainer>
