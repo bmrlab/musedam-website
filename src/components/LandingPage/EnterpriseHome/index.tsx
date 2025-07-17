@@ -11,7 +11,7 @@ import { Information } from '@/components/Pricing/Enterprise/information'
 export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
     const { lng } = await params
     return (
-        <div className="grid w-screen justify-items-center bg-[#070707] text-white">
+        <div className="w-screen justify-items-center bg-[#070707] text-white">
             <ContainerWithMaxWidth>
                 <Hero />
             </ContainerWithMaxWidth>

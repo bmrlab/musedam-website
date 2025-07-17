@@ -113,7 +113,7 @@ export const Information = () => {
         <div className="flex w-full justify-center bg-white font-euclid text-[#141414]">
             <div className="flex w-full flex-col items-start justify-between p-4 md:max-w-[1440px] md:flex-row md:px-[80px] md:py-[104px]">
                 {/* 左侧介绍 */}
-                <div className="hidden h-full flex-col justify-between pr-[80px] md:flex md:flex-1">
+                <div className="hidden h-full flex-col justify-between md:pr-[80px] md:flex md:flex-1">
                     <div>
                         <h1 className="mb-4 font-feature text-[54px] font-medium leading-tight">
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
@@ -141,7 +141,7 @@ export const Information = () => {
                     </div>
                 </div>
                 {/* 右侧表单 */}
-                <div className="font-euclid shadow-none md:flex-1 ">
+                <div className="font-euclid shadow-none md:flex-1 w-full">
                     <h2 className="mb-10 text-2xl font-medium">{t('form.title')}</h2>
                     <form className="grid h-full grid-cols-2  justify-between gap-x-3 gap-y-[30px]" onSubmit={handleSubmit} >
                         <div className="col-span-2 md:col-span-1">
@@ -166,7 +166,7 @@ export const Information = () => {
                         <div className="col-span-2">
                             <label className="mb-3 block text-sm">{t('form.size.label')}</label>
                             <RadioGroup.Root
-                                className="grid grid-cols-3 gap-2"
+                                className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.teamSize?.toString()}>
                                 {teamSizes.map((item) => (
                                     <RadioGroup.Item
@@ -195,7 +195,7 @@ export const Information = () => {
                         <div className="col-span-2">
                             <label className="mb-3 block text-sm">{t('form.expect.label')}</label>
                             <RadioGroup.Root
-                                className="grid grid-cols-3 gap-2"
+                                className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.expectTime?.toString()}
                             >
                                 {expectTimes.map((item, index) => {
