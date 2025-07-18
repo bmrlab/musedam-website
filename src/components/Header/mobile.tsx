@@ -23,6 +23,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
+import { useCountry } from '@/providers/Country'
 
 export default function HeaderMobile({
   className,
@@ -31,6 +32,7 @@ export default function HeaderMobile({
 }: { user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
+  const { isInChina } = useCountry()
 
   return (
     <FlexCenterContainer
@@ -46,7 +48,7 @@ export default function HeaderMobile({
         </LocaleLink>
       </div>
       <div className="flex size-full flex-1 items-center justify-end gap-6">
-        <LocaleSwitch />
+        {isInChina && <LocaleSwitch />}
         <div
           className="z-50 h-full w-[56px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
           onClick={() => setIsOpen(!isOpen)}

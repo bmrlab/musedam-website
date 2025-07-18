@@ -24,6 +24,7 @@ import { useHeaderTranslation } from '@/app/i18n/client'
 import { LocaleLink } from '../LocalLink'
 import { LocaleSwitch } from './LocalSwitch'
 import { DarkButton } from '../StyleWrapper/button'
+import { useCountry } from '@/providers/Country'
 
 const DEFAULT_HERO_IMAGE = '/assets/Navbar-Images/BMR-Logo.svg'
 
@@ -45,6 +46,7 @@ export default function HeaderDesktop({
   const { t } = useHeaderTranslation()
   const [currentHeroImage, setCurrentHeroImage] = useState<string>()
   const { data: features } = useHeaderData()
+  const { isInChina } = useCountry()
 
   const categories = useMemo(() => features.map((f) => f.category), [features])
 
@@ -236,7 +238,7 @@ export default function HeaderDesktop({
       )}
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">
-        <LocaleSwitch />
+        {isInChina && <LocaleSwitch />}
         {isEnterprisePage ? <DarkButton className={'mr-5 h-[48px]'}>
           <Link
             href={user ? '/home' : '/auth'}
