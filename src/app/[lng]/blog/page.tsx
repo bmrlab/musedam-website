@@ -1,14 +1,17 @@
 import type { Metadata } from 'next/types'
-
-import { CollectionArchive } from '@/components/CollectionArchive'
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
-import { CategoryFilter } from '@/components/CategoryFilter'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
-import type { Category } from '@/payload-types'
+
+// Mock 数据和组件
+import {
+  mockHeroArticle,
+  mockTopArticles,
+  mockAllArticles,
+  mockCategories
+} from '@/data/mockBlogData'
+import { HeroSection } from '@/components/Blog/HeroSection'
+import { TopArticles } from '@/components/Blog/TopArticles'
+import { AllArticles } from '@/components/Blog/AllArticles'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -21,69 +24,22 @@ type Args = {
 
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
   const { category } = await searchParamsPromise
-  const payload = await getPayload({ config: configPromise })
-
-  // 构建查询条件
-  const whereCondition: any = {}
-  if (category) {
-    whereCondition.categories = {
-      in: [category]
-    }
-  }
-
-  // 获取文章数据
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    overrideAccess: false,
-    ...(Object.keys(whereCondition).length > 0 ? { where: whereCondition } : {})
-  })
-
-  // 获取所有分类
-  const categories = await payload.find({
-    collection: 'categories',
-    limit: 100,
-    overrideAccess: false,
-  })
 
   return (
-    <div className="py-24">
+    <div className="min-h-screen bg-white">
       <PageClient />
-      <div className="container mb-16">
-        <div className="prose max-w-none dark:prose-invert">
-          <h1>博客</h1>
-        </div>
-      </div>
 
-      {/* 分类筛选 */}
-      <div className="container mb-8">
-        <CategoryFilter
-          categories={categories.docs as Category[]}
-          basePath="/blog"
-        />
-      </div>
+      {/* Hero Section - 特色文章 */}
+      <HeroSection article={mockHeroArticle} />
 
-      <div className="container mb-8">
-        <PageRange
-          collection="posts"
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
+      {/* Top Articles - 精选文章 */}
+      <TopArticles articles={mockTopArticles} />
 
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts.totalPages > 1 && posts.page && (
-          <Pagination
-            page={posts.page}
-            totalPages={posts.totalPages}
-            basePath="/blog/page"
-          />
-        )}
-      </div>
+      {/* All Articles - 所有文章（包含分类筛选） */}
+      <AllArticles
+        articles={mockAllArticles}
+        categories={mockCategories}
+      />
     </div>
   )
 }
@@ -94,15 +50,9 @@ export async function generateMetadata({ searchParams: searchParamsPromise }: Ar
   let title = 'MuseDAM 博客'
 
   if (category) {
-    const payload = await getPayload({ config: configPromise })
-    const categoryDoc = await payload.findByID({
-      collection: 'categories',
-      id: category,
-      overrideAccess: false,
-    }).catch(() => null)
-
-    if (categoryDoc) {
-      title = `${categoryDoc.title} | MuseDAM 博客`
+    const selectedCategory = mockCategories.find(cat => cat.id === category)
+    if (selectedCategory) {
+      title = `${selectedCategory.title} | MuseDAM 博客`
     }
   }
 
