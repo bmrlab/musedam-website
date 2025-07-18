@@ -1,10 +1,10 @@
 import React from 'react'
 import { cn } from '@/utilities/cn'
 import { ArticleCard } from './ArticleCard'
-import type { MockArticle } from '@/data/mockBlogData'
+import type { Post } from '@/payload-types'
 
 interface TopArticlesProps {
-  articles: MockArticle[]
+  articles: Post[]
   className?: string
 }
 

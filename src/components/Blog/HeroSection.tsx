@@ -1,9 +1,9 @@
 import React from 'react'
 import { cn } from '@/utilities/cn'
-import type { MockArticle } from '@/data/mockBlogData'
+import type { Post } from '@/payload-types'
 
 interface HeroSectionProps {
-  article: MockArticle
+  article: Post
   className?: string
 }
 
@@ -18,10 +18,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
           </h1>
 
           <p className="text-lg leading-relaxed text-gray-600">
-            {article.description}
+            {article.meta?.description ||
+             (typeof article.content === 'object' && article.content?.root?.children?.[0]?.children?.[0]?.text) ||
+             'Discover insights and best practices in this featured article.'}
           </p>
 
-          <button className="group inline-flex items-center font-medium text-gray-900 transition-colors hover:text-gray-700">
+          <a
+            href={`/posts/${article.slug}`}
+            className="group inline-flex items-center font-medium text-gray-900 transition-colors hover:text-gray-700"
+          >
             <span>Read More</span>
             <svg
               className="ml-2 size-4 transition-transform group-hover:translate-x-1"
@@ -31,17 +36,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </button>
+          </a>
         </div>
 
         {/* 右侧图片区域 */}
         <div className="relative">
-          <div
-            className="aspect-[4/3] rounded-2xl"
-            style={{ backgroundColor: article.color }}
-          >
-            {/* 这里可以放置实际的图片 */}
-            <div className="size-full rounded-2xl bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>
+          <div className="aspect-[4/3] rounded-2xl">
+            {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
+            {article.meta?.image && typeof article.meta.image === 'object' && 'url' in article.meta.image ? (
+              <img
+                src={article.meta.image.url ?? ''}
+                alt={article.meta.image.alt || article.title}
+                className="size-full rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="size-full rounded-2xl bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>
+            )}
           </div>
         </div>
       </div>
