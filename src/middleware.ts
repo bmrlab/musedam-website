@@ -64,6 +64,13 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     return response
   }
 
+  // 海外默认就是英文
+  if (process.env.DEPLOY_REGION === 'global') {
+    return NextResponse.redirect(
+      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
+    )
+  }
+
   // Otherwise, use following logic to get a default lng
   // 1. use the valid language in referer header
   if (req.headers.has('referer')) {
@@ -76,11 +83,6 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     }
   }
 
-  if (process.env.DEPLOY_REGION === 'global') {
-    return NextResponse.redirect(
-      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
-    )
-  }
   // 2. use compatible languages
   const requestCompatibleLanguage = ['zh', 'en'].find((loc) =>
     req.nextUrl.pathname.startsWith(`/${loc}`),
