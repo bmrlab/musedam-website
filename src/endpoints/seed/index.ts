@@ -8,6 +8,12 @@ import { image2 } from './image-2'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { blogPost1 } from './blog-post-1'
+import { blogPost2 } from './blog-post-2'
+import { blogPost3 } from './blog-post-3'
+import { blogPost4 } from './blog-post-4'
+import { blogPost5 } from './blog-post-5'
+import { blogPost6 } from './blog-post-6'
 
 const collections: CollectionSlug[] = [
   'categories',
@@ -52,20 +58,30 @@ export const seed = async ({
   // }
 
   for (const collection of collections) {
-    await payload.delete({
-      collection: collection,
-      where: {
-        id: {
-          exists: true,
+    try {
+      await payload.delete({
+        collection: collection,
+        where: {
+          id: {
+            exists: true,
+          },
         },
-      },
-    })
+      })
+      payload.logger.info(`— Cleared ${collection}`)
+    } catch (error) {
+      payload.logger.info(`— Skipped ${collection} (might be empty or have constraints)`)
+    }
   }
 
-  const pages = await payload.delete({
-    collection: 'pages',
-    where: {},
-  })
+  try {
+    const pages = await payload.delete({
+      collection: 'pages',
+      where: {},
+    })
+    payload.logger.info(`— Cleared pages`)
+  } catch (error) {
+    payload.logger.info(`— Skipped pages (might be empty or have constraints)`)
+  }
 
   payload.logger.info(`— Seeding demo author and user...`)
 
@@ -127,6 +143,72 @@ export const seed = async ({
   })
 
   payload.logger.info(`— Seeding categories...`)
+
+  // 创建与设计图匹配的分类
+  const digitalTransformationCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Digital Transformation',
+    },
+  })
+
+  const workflowMasteryCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Workflow Mastery',
+    },
+  })
+
+  const assetIntelligenceCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Asset Intelligence',
+    },
+  })
+
+  const buildingBrandsCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Building Brands',
+    },
+  })
+
+  const industrySpotlightCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Industry Spotlight',
+    },
+  })
+
+  const contentLeadershipCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Content Leadership',
+    },
+  })
+
+  const creativeOpsCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Creative Ops',
+    },
+  })
+
+  const communityVoicesCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Community Voices',
+    },
+  })
+
+  const pressNewsCategory = await payload.create({
+    collection: 'categories',
+    data: {
+      title: 'Press News',
+    },
+  })
+
+  // 保留原有分类以兼容现有文章
   const technologyCategory = await payload.create({
     collection: 'categories',
     data: {
@@ -145,27 +227,6 @@ export const seed = async ({
     collection: 'categories',
     data: {
       title: 'Finance',
-    },
-  })
-
-  await payload.create({
-    collection: 'categories',
-    data: {
-      title: 'Design',
-    },
-  })
-
-  await payload.create({
-    collection: 'categories',
-    data: {
-      title: 'Software',
-    },
-  })
-
-  await payload.create({
-    collection: 'categories',
-    data: {
-      title: 'Engineering',
     },
   })
 
@@ -216,6 +277,57 @@ export const seed = async ({
     ),
   })
 
+  // 创建新的博客文章
+  payload.logger.info(`— Seeding additional blog posts...`)
+
+  const blogPost1Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost1, categories: [digitalTransformationCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
+  const blogPost2Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost2, categories: [assetIntelligenceCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
+  const blogPost3Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost3, categories: [buildingBrandsCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
+  const blogPost4Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost4, categories: [workflowMasteryCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
+  const blogPost5Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost5, categories: [industrySpotlightCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
+  const blogPost6Doc = await payload.create({
+    collection: 'posts',
+    data: JSON.parse(
+      JSON.stringify({ ...blogPost6, categories: [creativeOpsCategory.id] })
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+    ),
+  })
+
   // update each post with related posts
   await payload.update({
     id: post1Doc.id,
@@ -236,6 +348,29 @@ export const seed = async ({
     collection: 'posts',
     data: {
       relatedPosts: [post1Doc.id, post2Doc.id],
+    },
+  })
+
+  // 为新博客文章添加相关文章
+  await payload.update({
+    id: blogPost1Doc.id,
+    collection: 'posts',
+    data: {
+      relatedPosts: [blogPost2Doc.id, blogPost3Doc.id],
+    },
+  })
+  await payload.update({
+    id: blogPost2Doc.id,
+    collection: 'posts',
+    data: {
+      relatedPosts: [blogPost1Doc.id, blogPost4Doc.id],
+    },
+  })
+  await payload.update({
+    id: blogPost3Doc.id,
+    collection: 'posts',
+    data: {
+      relatedPosts: [blogPost1Doc.id, blogPost5Doc.id],
     },
   })
 
