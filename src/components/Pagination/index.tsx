@@ -9,22 +9,38 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { cn } from '@/utilities/cn'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 
 export const Pagination: React.FC<{
   className?: string
   page: number
   totalPages: number
+  basePath?: string // 新增：支持自定义路由前缀
 }> = (props) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const { className, page, totalPages } = props
+  const { className, page, totalPages, basePath = '/posts/page' } = props
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
   const hasExtraPrevPages = page - 1 > 1
   const hasExtraNextPages = page + 1 < totalPages
+
+  // 构建 URL 的辅助函数
+  const buildUrl = (pageNumber: number) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+
+    // 如果是第一页且 basePath 是 /blog/page，则跳转到 /blog
+    if (pageNumber === 1 && basePath === '/blog/page') {
+      const baseUrl = '/blog'
+      return params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl
+    }
+
+    const url = `${basePath}/${pageNumber}`
+    return params.toString() ? `${url}?${params.toString()}` : url
+  }
 
   return (
     <div className={cn('my-12', className)}>
@@ -34,7 +50,7 @@ export const Pagination: React.FC<{
             <PaginationPrevious
               disabled={!hasPrevPage}
               onClick={() => {
-                router.push(`/posts/page/${page - 1}`)
+                router.push(buildUrl(page - 1))
               }}
             />
           </PaginationItem>
@@ -49,7 +65,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`/posts/page/${page - 1}`)
+                  router.push(buildUrl(page - 1))
                 }}
               >
                 {page - 1}
@@ -61,7 +77,7 @@ export const Pagination: React.FC<{
             <PaginationLink
               isActive
               onClick={() => {
-                router.push(`/posts/page/${page}`)
+                router.push(buildUrl(page))
               }}
             >
               {page}
@@ -72,7 +88,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`/posts/page/${page + 1}`)
+                  router.push(buildUrl(page + 1))
                 }}
               >
                 {page + 1}
@@ -90,7 +106,7 @@ export const Pagination: React.FC<{
             <PaginationNext
               disabled={!hasNextPage}
               onClick={() => {
-                router.push(`/posts/page/${page + 1}`)
+                router.push(buildUrl(page + 1))
               }}
             />
           </PaginationItem>
