@@ -76,6 +76,11 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     }
   }
 
+  if (process.env.DEPLOY_REGION === 'global') {
+    return NextResponse.redirect(
+      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
+    )
+  }
   // 2. use compatible languages
   const requestCompatibleLanguage = ['zh', 'en'].find((loc) =>
     req.nextUrl.pathname.startsWith(`/${loc}`),
