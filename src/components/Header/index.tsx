@@ -48,7 +48,7 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
         user={user}
         isGlobal={isGlobal}
         isEnterprisePage={isEnterprisePage}
-        showDarkLogo={isEnterprisePage && !isPricingPage && scrollTop === 0}
+        showDarkLogo={isEnterprisePage && !isPricingPage}
       />
       <HeaderMobile className="flex md:hidden" user={user} isGlobal={isGlobal} />
     </nav>

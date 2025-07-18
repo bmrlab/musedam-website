@@ -76,8 +76,8 @@
                 "description": "MuseDAM's AI Tags feature automatically assigns accurate tags to materials, greatly improving retrieval efficiency and making digital asset management smarter and more efficient."
             },
             "parsing": {
-                "title": "MuseDAM | AI Parsing - Efficient Material Analysis for Asset Management",
-                "description": "Effortlessly manage digital assets with MuseDAM AI Parsing. Intelligent recognition and analysis for streamlined resource handling."
+                "title": "MuseDAM | AI analyze - Efficient Material Analysis for Asset Management",
+                "description": "Effortlessly manage digital assets with MuseDAM AI analyze. Intelligent recognition and analysis for streamlined resource handling."
             },
             "content-creation": {
                 "title": "MuseDAM | AI Content Creation - Intelligent Summarization and Article Generation",

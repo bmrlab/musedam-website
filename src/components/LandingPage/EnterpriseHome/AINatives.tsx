@@ -73,19 +73,21 @@ export default function AINatives() {
     return <div className='flex w-full justify-center bg-white text-black'>
         <div className='w-full overflow-x-scroll md:max-w-[1440px] md:px-[80px] md:py-[60px] md:pb-[120px]'>
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-12 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
-                <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
+                <div className="flex max-w-[770px] flex-col items-center gap-3 px-6 md:items-start">
                     <h1 className={cn(
                         "text-center text-[40px] font-feature font-normal md:text-left md:text-[64px] md:leading-[73.6px]",
                         isEn && 'font-feature'
                     )}>
                         {t('section.title')}
                     </h1>
-                    <p className="text-center font-euclidlight text-base text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
+                    <p className="text-center font-euclidlight text-base text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px] font-light">
                         {t('section.desc')}
                     </p>
                 </div>
                 <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
-                    <DarkButton className="w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:text-xl md:h-[56px]">
+                    <DarkButton className={cn("w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:h-[56px]",
+                        isEn && 'md:text-[18px]'
+                    )}>
                         {isInChina ? t('button.book-demo') : t('button.start')}
                     </DarkButton>
                 </LocaleLink>

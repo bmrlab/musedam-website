@@ -128,7 +128,7 @@ export const Information = () => {
                         )}>
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                         </h1>
-                        <p className="md:text-start text-center mb-[30px] md:mb-[60px] font-euclidlight text-base md:text-[22px] font-light text-[rgba(20,20,20,0.72)]">
+                        <p className="md:text-start text-center mb-[30px] md:mb-[60px] font-euclidlight text-base md:text-[22px] font-light text-[rgba(20,20,20,0.72)] md:leading-[1.45em]">
                             <Trans i18nKey="desc" t={t} components={{ 1: isMobile ? <></> : <br /> }} />
                         </p>
                         <ul className={cn("md:mb-[60px] mb-[30px]",
@@ -258,7 +258,8 @@ export const Information = () => {
                                 disabled={submitting}
                                 type="submit"
                                 className={cn(
-                                    "h-[50px] w-full rounded-lg bg-black text-[16px] font-medium text-white transition-all hover:bg-gray-900",
+                                    "h-[50px] w-full rounded-lg bg-black text-base font-medium text-white transition-all hover:bg-gray-900",
+                                    isEn && "md:text-[18px]"
                                 )}
                             >{t('form.submit')}</button>
                             <div className="mt-4 text-center text-xs text-gray-400">

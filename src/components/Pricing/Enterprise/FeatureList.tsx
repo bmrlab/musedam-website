@@ -30,8 +30,8 @@ const FeatureList = () => {
             <div className="flex flex-col gap-6 font-euclid">
                 {/* 表头部分 */}
                 <div className="grid grid-cols-12 rounded-2xl border border-[#D1D1CC] bg-[#E1E1DC] text-[rgba(0,0,0,0.72)]">
-                    <div className="col-span-3 p-4 font-semibold">{t('category')}</div>
-                    <div className="col-span-9 border-l border-[#D1D1CC] p-4 font-semibold">{t('details')}</div>
+                    <div className="md:col-span-3 col-span-4 p-4 font-semibold">{t('category')}</div>
+                    <div className="md:col-span-9 col-span-8 border-l border-[#D1D1CC] p-4 font-semibold">{t('details')}</div>
                 </div>
 
                 {/* 分类内容 */}
@@ -42,11 +42,13 @@ const FeatureList = () => {
                     return <div key={categoryKey} className='rounded-2xl '>
                         {/* 分组标题行 */}
                         <div className="sticky md:top-[70px] top-[56px] w-full bg-[#F0F0EA]">
-                            <div className=' flex  items-center rounded-t-2xl border border-[#D1D1CC] bg-[#E1E1DC] py-3'>
-                                <div className="flex-1 pl-2 text-lg font-bold text-[#141414]">{categoryData.title}</div>
+                            <div
+                                className='flex cursor-pointer items-center rounded-t-2xl border border-[#D1D1CC] bg-[#E1E1DC] py-3'
+                                onClick={() => toggleCategory(categoryKey)}
+                            >
+                                <div className="flex-1 pl-4 text-lg font-bold text-[#141414]">{categoryData.title}</div>
                                 <button
                                     className="mr-4 p-2 transition-all duration-300 ease-in-out hover:opacity-80"
-                                    onClick={() => toggleCategory(categoryKey)}
                                     aria-label={isExpend ? 'Collapse' : 'Expand'}
                                 >
                                     {isExpend ? <MinusIcon className="size-5" /> : <PlusIcon className="size-5" />}

@@ -6,6 +6,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  overscroll-behavior: none;
+}
+
+
 img {
   user-select: none;
   /* 禁止文本选择 */
