@@ -72,7 +72,7 @@ export default function Footer() {
       </footer>
       {/* https://applink.feishu.cn/client/message/link/open?token=AmOrmXGzAAADZ1FER5UfAAQ%3D */}
       {isInChina && (
-        <div className=" flex w-full items-center justify-center space-x-4 border-t px-[10px] py-[24px] text-[12px] font-light text-[#141414] dark:bg-[#070707] dark:text-white">
+        <div className=" flex w-full items-center justify-center space-x-4 border-t dark:border-t-[rgba(255,255,255,0.1)] px-[10px] py-[24px] text-[12px] font-light text-[#141414] dark:bg-[#070707] dark:text-white/60">
           <span>© 特赞（上海）信息科技有限公司</span>
           <a
             href="http://beian.miit.gov.cn"

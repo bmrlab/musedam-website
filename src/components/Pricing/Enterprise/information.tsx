@@ -147,7 +147,7 @@ export const Information = () => {
                         <div className="flex w-fit flex-row gap-6 rounded-full bg-[#F8F8F8] px-6 py-3">
                             {/* 认证徽章占位符，可替换为图片 */}
                             {[getUrl('ISO001.png'), getUrl('ISO017.png'), getUrl('ISO9001.png'), getUrl('MLPS3.png')].map((v) => {
-                                return <Image src={v} width={200} height={100} alt={v} className="aspect-[1/1] size-16 rounded-full object-cover" key={v} />
+                                return <Image src={v} width={200} height={200} alt={v} className="size-16" key={v} />
                             })}
                         </div>
                     </div>
