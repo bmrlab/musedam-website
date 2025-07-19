@@ -6,13 +6,15 @@ import NextTopLoader from 'nextjs-toploader'
 import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useLanguage } from '@/providers/Language'
+import { SessionUser } from '@/types/user'
 
 interface LayoutContentProps {
     children: React.ReactNode
     isGlobal: boolean
+    user: SessionUser | null
 }
 
-export function LayoutContent({ children, isGlobal }: LayoutContentProps) {
+export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) {
     const pathname = usePathname()
     const router = useRouter()
     const isQuotationPage = pathname?.includes('/quotation')
@@ -41,7 +43,7 @@ export function LayoutContent({ children, isGlobal }: LayoutContentProps) {
         children
     ) : (
         <>
-            <Header isGlobal={isGlobal} />
+            <Header isGlobal={isGlobal} user={user} />
             <div className="flex flex-col items-center justify-center w-full pt-[56px] md:pt-[70px]">
                 <NextTopLoader
                     color="#000"

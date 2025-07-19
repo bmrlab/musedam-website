@@ -8,31 +8,15 @@ import { useWindowScroll } from 'react-use'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useLanguage } from '@/providers/Language'
 import { useCountry } from '@/providers/Country'
+import { SessionUser } from '@/types/user'
 
-export function Header({ isGlobal }: { isGlobal: boolean }) {
-  const [user, setUser] = useState<any>(null)
+export function Header({ isGlobal, user }: { isGlobal: boolean, user: SessionUser | null }) {
   const pathname = usePathname()
   const newHeaderPath = ['', '/', '/enterprise/quotation']
 
   const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
   const isPricingPage = useMemo(() => !!pathname && ['/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
   const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
-
-
-  useEffect(() => {
-    // Fetch user session
-    const fetchUser = async () => {
-      try {
-        const response = await fetch('/api/auth/session')
-        const data = await response.json()
-        setUser(data)
-      } catch (error) {
-        console.error('Failed to fetch user session:', error)
-      }
-    }
-    fetchUser()
-  }, [])
-
 
   return (
     <nav

@@ -20,6 +20,7 @@ import { languages } from '@/app/i18n/settings'
 import { LayoutContent } from './layout-content'
 
 import { euclidCircularA, euclidCircularALight, featureDisplayRegularTrial, plexMono } from './fonts'
+import { getServerSession } from '@/utilities/auth'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -36,6 +37,7 @@ export default async function RootLayout({
 }) {
   const { lng } = await params
   const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+  const user = await getServerSession()
 
   return (
     <html
@@ -51,7 +53,7 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers lng={lng} country={process.env.DEPLOY_REGION?.toLowerCase()}>
-          <LayoutContent isGlobal={isGlobal}>
+          <LayoutContent isGlobal={isGlobal} user={user}>
             {children}
           </LayoutContent>
           {isGlobal && <CookieConsent />}
