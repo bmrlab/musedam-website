@@ -56,7 +56,7 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     process.env.NODE_ENV === 'development'
       ? req.nextUrl.hostname
       : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
-
+  const isGlobal = process.env.DEPLOY_REGION === 'global'
   // If lng in path is valid, just response with cookie set
   const requestDefaultLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`))
   if (typeof requestDefaultLanguage !== 'undefined') {
@@ -64,16 +64,24 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     return response
   }
 
-  // 海外默认就是英文
-  if (process.env.DEPLOY_REGION === 'global') {
+  // 1. 如果路径中已包含有效语言，直接设置 Cookie 并返回
+  const pathLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`));
+  if (pathLanguage) {
+    response.cookies.set(languageCookieName, pathLanguage, { sameSite: 'lax', domain });
+    return response;
+  }
+
+  // 2. 全局区域（海外）强制跳转英文，并清除可能存在的语言 Cookie
+  if (isGlobal) {
+    response.cookies.delete(languageCookieName); // 清除旧 Cookie
     return NextResponse.redirect(
-      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
-    )
+      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url)
+    );
   }
 
   // Otherwise, use following logic to get a default lng
   // 1. use the valid language in referer header
-  if (req.headers.has('referer')) {
+  if (req.headers.has('referer') && !isGlobal) {
     const refererUrl = new URL(req.headers.get('referer') || '')
     const lngInReferer = languages.find((l) => refererUrl.pathname.startsWith(`/${l}`))
     if (lngInReferer) {
@@ -88,7 +96,7 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     req.nextUrl.pathname.startsWith(`/${loc}`),
   )
 
-  if (typeof requestCompatibleLanguage !== 'undefined') {
+  if (typeof requestCompatibleLanguage !== 'undefined' && !isGlobal) {
     const original = `${req.nextUrl.pathname}${req.nextUrl.search}`
     if (requestCompatibleLanguage === 'zh') {
       return NextResponse.redirect(new URL(original.replace('/zh', '/zh-CN'), req.url))
@@ -101,10 +109,10 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
   // 3. use compatible cookie, accept-language header, etc.
   let lng: string | undefined | null = undefined
 
-  if (req.cookies.has(languageCookieName)) {
+  if (req.cookies.has(languageCookieName) && !isGlobal) {
     lng = acceptLanguage.get(req.cookies.get(languageCookieName)?.value)
   }
-  if (!lng && req.headers.has('Accept-Language')) {
+  if (!lng && req.headers.has('Accept-Language') && !isGlobal) {
     lng = acceptLanguage.get(req.headers.get('Accept-Language'))
   }
   if (!lng) {
