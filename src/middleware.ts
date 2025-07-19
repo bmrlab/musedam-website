@@ -56,19 +56,13 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
     process.env.NODE_ENV === 'development'
       ? req.nextUrl.hostname
       : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
-  const isGlobal = process.env.DEPLOY_REGION === 'global'
+  const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+
   // If lng in path is valid, just response with cookie set
   const requestDefaultLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`))
   if (typeof requestDefaultLanguage !== 'undefined') {
     response.cookies.set(languageCookieName, requestDefaultLanguage!, { sameSite: 'lax', domain })
     return response
-  }
-
-  // 1. 如果路径中已包含有效语言，直接设置 Cookie 并返回
-  const pathLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`));
-  if (pathLanguage) {
-    response.cookies.set(languageCookieName, pathLanguage, { sameSite: 'lax', domain });
-    return response;
   }
 
   // 2. 全局区域（海外）强制跳转英文，并清除可能存在的语言 Cookie
