@@ -13,30 +13,13 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
   const newHeaderPath = ['', '/', '/enterprise/quotation']
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { setLanguage } = useLanguage()
-  const { isInChina } = useCountry()
-
-
-  const changeLocale = useCallback((lang: 'zh-CN' | 'en-US') => {
-    if (!searchParams) return
-    const currentParams = new URLSearchParams(searchParams)
-    const queryString = currentParams.toString()
-    const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + lang) || ''
-    const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
-    router.replace(newUrl)
-    setLanguage(lang)
-  }, [pathname, router, setLanguage, searchParams])
 
   const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
   const isPricingPage = useMemo(() => !!pathname && ['/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
   const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
 
+
   useEffect(() => {
-    if (!isInChina) {
-      changeLocale('en-US')
-    }
     // Fetch user session
     const fetchUser = async () => {
       try {
@@ -50,7 +33,6 @@ export function Header({ isGlobal }: { isGlobal: boolean }) {
     fetchUser()
   }, [])
 
-  const { y: scrollTop } = useWindowScroll()
 
   return (
     <nav

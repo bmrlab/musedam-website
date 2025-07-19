@@ -1,18 +1,11 @@
-/*
- * @Author: fuxuewei fuxuewei@tezign.com
- * @Date: 2025-06-24 17:21:38
- * @LastEditors: fuxuewei fuxuewei@tezign.com
- * @LastEditTime: 2025-07-17 15:56:26
- * @FilePath: /musedam-website/src/app/[lng]/layout-content.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 'use client'
 
-import React from 'react'
-import { usePathname } from 'next/navigation'
+import React, { useCallback, useEffect } from 'react'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useLanguage } from '@/providers/Language'
 
 interface LayoutContentProps {
     children: React.ReactNode
@@ -21,7 +14,28 @@ interface LayoutContentProps {
 
 export function LayoutContent({ children, isGlobal }: LayoutContentProps) {
     const pathname = usePathname()
+    const router = useRouter()
     const isQuotationPage = pathname?.includes('/quotation')
+    const { language, setLanguage } = useLanguage()
+    const searchParams = useSearchParams()
+
+    const changeLocale = useCallback((lang: string) => {
+        if (language == lang) return
+        if (!searchParams) return
+        const currentParams = new URLSearchParams(searchParams)
+        const queryString = currentParams.toString()
+        const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + lang) || ''
+        const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
+        router.replace(newUrl)
+        setLanguage(lang)
+    }, [language, pathname, router, setLanguage, searchParams])
+
+    useEffect(() => {
+        console.log("isGlobal", isGlobal)
+        if (isGlobal) {
+            changeLocale('en-US')
+        }
+    }, [isGlobal])
 
     return isQuotationPage ? (
         children
