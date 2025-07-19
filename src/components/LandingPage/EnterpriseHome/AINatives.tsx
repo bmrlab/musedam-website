@@ -10,6 +10,7 @@ import { useLanguage } from '@/providers/Language'
 import { LocaleLink } from '@/components/LocalLink'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { useCountry } from '@/providers/Country'
+import Link from 'next/link'
 
 export type AINativeCard = {
     key: string
@@ -84,13 +85,20 @@ export default function AINatives() {
                         {t('section.desc')}
                     </p>
                 </div>
-                <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
+                {isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <DarkButton className={cn("w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:h-[56px]",
                         isEn && 'md:text-[18px]'
                     )}>
-                        {isInChina ? t('button.book-demo') : t('button.start')}
+                        {t('button.book-demo')}
                     </DarkButton>
-                </LocaleLink>
+                </LocaleLink> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                    <DarkButton className={cn("w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:h-[56px]",
+                        isEn && 'md:text-[18px]'
+                    )}>
+                        {t('button.start')}
+                    </DarkButton>
+                </Link>}
+
             </FadeInUpContainer>
 
             <div className='md:-mr-3 my-[60px] md:mb-0 grid grid-cols-1 gap-6 md:gap-10 px-5 font-euclid md:mt-[100px] md:grid-cols-3 md:px-0'>

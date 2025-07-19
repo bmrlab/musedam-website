@@ -16,6 +16,7 @@ import usePublicUrl from '@/hooks/usePublicUrl'
 import { useState } from 'react'
 import { MUSEDAM_LOGIN_URL } from '@/constant/url'
 import { useCountry } from '@/providers/Country'
+import Link from 'next/link'
 
 export default function Hero() {
     const { t } = useTranslation('landing-page')
@@ -77,16 +78,25 @@ export default function Hero() {
                 'w-[800px] max-w-full px-6 text-center md:text-[40px] text-[rgba(255,255,255,0.72)] font-light',
                 isEn ? 'font-feature text-[20px] md:font-normal' : 'font-extralight text-[16px]'
             )}>{t('hero.enterprise.subtitle')}</span>
-
-            <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
-                <Button className={cn(" h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base font-medium text-[#0e0e0e]",
-                    "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
-                    "mb-12  md:mb-[60px] mt-10",
-                    isEn && 'md:text-[18px]'
-                )}>
-                    {isInChina ? t('hero.enterprise.button') : t('hero.button.start')}
-                </Button>
-            </LocaleLink>
+            {
+                isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
+                    <Button className={cn(" h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base font-medium text-[#0e0e0e]",
+                        "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+                        "mb-12  md:mb-[60px] mt-10",
+                        isEn && 'md:text-[18px]'
+                    )}>
+                        {t('hero.enterprise.button')}
+                    </Button>
+                </LocaleLink> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                    <Button className={cn(" h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base font-medium text-[#0e0e0e]",
+                        "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+                        "mb-12  md:mb-[60px] mt-10",
+                        isEn && 'md:text-[18px]'
+                    )}>
+                        {t('hero.button.start')}
+                    </Button>
+                </Link>
+            }
             <Banner isDark />
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-6 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
@@ -100,15 +110,22 @@ export default function Hero() {
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
-
-                <LocaleLink href={isInChina ? '/bookDemo' : MUSEDAM_LOGIN_URL} prefetch={false}>
+                {isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <DarkButton className={cn(
                         "md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid text-base",
                         isEn && "md:text-[18px]"
                     )}>
-                        {isInChina ? t('hero.enterprise.button') : t('hero.button.start')}
+                        {t('hero.enterprise.button')}
                     </DarkButton>
-                </LocaleLink>
+                </LocaleLink> :
+                    <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                        <DarkButton className={cn(
+                            "md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid text-base",
+                            isEn && "md:text-[18px]"
+                        )}>
+                            {t('hero.button.start')}
+                        </DarkButton>
+                    </Link>}
 
             </FadeInUpContainer>
             <div className="mt-12 flex h-auto w-full flex-col gap-4 rounded-[6px] px-5 md:mt-[80px] md:flex-row  md:px-0">
