@@ -7,7 +7,7 @@ import { cn, twx } from "@/utilities/cn";
 import Image from 'next/image'
 import ContactUsDialog from "../ContactUsDialog";
 import { useToast } from '@/hooks/use-toast'
-import { EExpectTime, EOrgSize } from "@/utilities/feishu";
+import { EExpectTime, EOrgSize, isValidEmail } from "@/utilities/feishu";
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
@@ -36,6 +36,8 @@ export const Information = () => {
         phone: "",
         teamSize: undefined as EOrgSize | undefined,
         expectTime: undefined as EExpectTime | undefined,
+        wechat: "",
+        companyEmail: ""
     });
 
     const handleChange = (key: keyof typeof formData, value: any) => {
@@ -66,7 +68,7 @@ export const Information = () => {
         if (isGlobal) {
             return !form.email || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
         } else {
-            return !form.phone || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
+            return !form.phone || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime || !form.wechat || !form.companyEmail;
         }
     };
     const isDisabled = getIsDisabled(formData, !isInChina);
@@ -81,12 +83,20 @@ export const Information = () => {
             toast({ duration: 2000, description: t('form.phone.invalid') });
             return
         }
+
+        if (isInChina && !isValidEmail(formData.companyEmail)) {
+            toast({ duration: 2000, description: t('form.email.invalid') });
+            return
+        }
+
         setSubmitting(true)
         try {
-            const { name, email, company, position, teamSize, expectTime, phone } = formData;
+            const { name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat } = formData;
             const submitData = { name, company, position, teamSize, expectTime };
             if (isInChina) {
                 submitData['phone'] = phone
+                submitData['companyEmail'] = companyEmail
+                submitData['wechat'] = wechat
             } else {
                 submitData['email'] = email
             }
@@ -109,12 +119,28 @@ export const Information = () => {
                 phone: "",
                 teamSize: undefined,
                 expectTime: undefined,
+                companyEmail: "",
+                wechat: ""
             });
         } catch (err) {
             toast({ duration: 2000, description: err.message ?? t('form.submitError') });
         }
         setSubmitting(false)
     }
+
+    const formInputLabelKeys = isInChina ? [
+        "name",
+        "phone",
+        "company",
+        "position",
+        "companyEmail",
+        "wechat"
+    ] as const : [
+        "name",
+        "email",
+        "company",
+        "position"
+    ] as const
     // 海外版暂时隐藏
     if (!isInChina) return <></>
     return (<>
@@ -156,27 +182,17 @@ export const Information = () => {
                 <div className="font-euclid shadow-none md:flex-1 w-full">
                     <h2 className="md:mb-10 mb-6 text-[28px] md:text-2xl font-medium text-center md:text-start">{t('form.title')}</h2>
                     <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[30px]" onSubmit={handleSubmit} >
-                        <div className="col-span-2 md:col-span-1">
-                            <FormLabel >{t('form.name.label')}</FormLabel>
-                            <FormInput type="text" placeholder={t('form.name.placeholder')} value={formData.name} onChange={e => handleChange('name', e.target.value)} />
-                        </div>
-                        {!isInChina ? <div className="col-span-2 md:col-span-1">
-                            <FormLabel >{t('form.email.label')}</FormLabel>
-                            <FormInput type="email" placeholder={t('form.email.placeholder')} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
-                        </div> : <div className="col-span-2 md:col-span-1">
-                            <FormLabel >{t('form.phone.label')}</FormLabel>
-                            <FormInput type="phone" placeholder={t('form.phone.placeholder')} value={formData.phone} onChange={e => handleChange('phone', e.target.value)} />
-                        </div>}
-                        <div className="col-span-2 md:col-span-1">
-                            <FormLabel >{t('form.company.label')}</FormLabel>
-                            <FormInput type="text" placeholder={t('form.company.placeholder')} value={formData.company} onChange={e => handleChange('company', e.target.value)} />
-                        </div>
-                        <div className="col-span-2 md:col-span-1">
-                            <FormLabel >{t('form.position.label')}</FormLabel>
-                            <FormInput type="text" placeholder={t('form.position.placeholder')} value={formData.position} onChange={e => handleChange('position', e.target.value)} />
-                        </div>
+                        {
+                            formInputLabelKeys.map((key, index) => {
+                                return <div className="col-span-2 md:col-span-1">
+                                    <FormLabel >{index + 1}{'. '}{t(`form.${key}.label`)}</FormLabel>
+                                    <FormInput type="text" placeholder={t(`form.${key}.placeholder`)} value={formData[key]} onChange={e => handleChange(key, e.target.value)} />
+                                </div>
+                            })
+                        }
+
                         <div className="col-span-2">
-                            <FormLabel >{t('form.size.label')}</FormLabel>
+                            <FormLabel >{formInputLabelKeys.length + 1}{'. '}{t('form.size.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.teamSize?.toString()}>
@@ -205,7 +221,7 @@ export const Information = () => {
                         </div>
 
                         <div className="col-span-2">
-                            <FormLabel >{t('form.expect.label')}</FormLabel>
+                            <FormLabel >{formInputLabelKeys.length + 2}{'. '}{t('form.expect.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid md:grid-cols-3 grid-cols-2 gap-2"
                                 defaultValue={formData.expectTime?.toString()}

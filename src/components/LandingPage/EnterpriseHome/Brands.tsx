@@ -101,7 +101,7 @@ export default function Brands() {
         <div className='w-full md:mb-[120px] md:mt-[60px] mt-10 mb-[60px]'>
             <div
                 ref={row1Ref}
-                className='no-scrollbar flex min-w-[1200px] flex-nowrap gap-10 overflow-x-scroll'
+                className='no-scrollbar flex min-w-[600px] md:min-w-[1200px] flex-nowrap gap-10 overflow-x-scroll'
                 style={{ scrollBehavior: 'auto' }}
             >
                 {[...row1, ...row1].map((key, idx) =>

@@ -70,11 +70,10 @@ export default function WhyMuse() {
     useEffect(() => {
         const container = scrollRef.current
         if (!container) return
-        let speed = 0.5 // 每帧滚动的像素数，可调整速度
+        let speed = 0.5 // 滚动速度
         let animationFrame: number
         function scroll() {
             if (!container) return
-            // 如果滚动到一半（原始6张图片宽度），瞬间跳回开头
             const singleListWidth = container.scrollWidth / 2
             if (container.scrollLeft >= singleListWidth) {
                 container.scrollLeft = 0
@@ -83,8 +82,13 @@ export default function WhyMuse() {
             }
             animationFrame = requestAnimationFrame(scroll)
         }
-        animationFrame = requestAnimationFrame(scroll)
-        return () => cancelAnimationFrame(animationFrame)
+        const timer = setTimeout(() => {
+            animationFrame = requestAnimationFrame(scroll)
+        }, 500)
+        return () => {
+            clearTimeout(timer)
+            cancelAnimationFrame(animationFrame)
+        }
     }, [])
 
     return <div className='px-6 md:px-[80px] py-[60px] md:pb-[120px] md:pt-[120px]'>

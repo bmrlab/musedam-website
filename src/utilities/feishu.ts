@@ -21,12 +21,20 @@ export enum EExpectTime {
   NOT_SURE
 }
 
+export const emailSchema = z.string().email()
+
+export function isValidEmail(value: string): boolean {
+  return emailSchema.safeParse(value).success
+}
+
 export const bookDemoFormSchema = z.object({
   phone: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   name: z.string().max(50).optional().nullable(),
   company: z.string().max(200).optional().nullable(),
   position: z.string().max(200).optional().nullable(),
+  wechat: z.string().max(400).optional().nullable(),
+  companyEmail: z.string().max(200).optional().nullable(),
   teamSize: z.nativeEnum(EOrgSize).transform((value) => Number(value)),
   expectTime: z.nativeEnum(EExpectTime).transform((value) => Number(value)),
 })
@@ -57,13 +65,15 @@ function _teamFormToFields(
   result['手机号'] = data.phone
   result['公司全称'] = data.company
   result['职位'] = data.position
+  result['微信号'] = data.wechat
+  result['企业邮箱'] = data.companyEmail
 
   result['团队规模'] = match(data.teamSize)
     .with(EOrgSize.TEN, () => '2-10')
-    .with(EOrgSize.FIFTY, () => '11-50')
-    .with(EOrgSize.TWO_HUNDRED, () => '51-200')
-    .with(EOrgSize.FIVE_HUNDRED, () => '201-500')
-    .with(EOrgSize.ONE_THOUSAND, () => '501-1,000')
+    .with(EOrgSize.FIFTY, () => '11-30')
+    .with(EOrgSize.TWO_HUNDRED, () => '31-100')
+    .with(EOrgSize.FIVE_HUNDRED, () => '101-300')
+    .with(EOrgSize.ONE_THOUSAND, () => '301-1,000')
     .with(EOrgSize.MORE_THOUSAND, () => '1,000+')
     .otherwise(() => data.teamSize)
   result['预计采购时间'] = match(data.expectTime)

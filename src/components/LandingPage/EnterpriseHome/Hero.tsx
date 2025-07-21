@@ -78,25 +78,37 @@ export default function Hero() {
                 'w-[800px] max-w-full px-6 text-center md:text-[40px] text-[rgba(255,255,255,0.72)] font-light',
                 isEn ? 'font-feature text-[20px] md:font-normal' : 'font-extralight text-[16px]'
             )}>{t('hero.enterprise.subtitle')}</span>
-            {
-                isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <Button className={cn(" h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base font-medium text-[#0e0e0e]",
-                        "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
-                        "mb-12  md:mb-[60px] mt-10",
-                        isEn && 'md:text-[18px]'
-                    )}>
-                        {t('hero.enterprise.button')}
-                    </Button>
-                </LocaleLink> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
-                    <Button className={cn(" h-[48px] w-[240px] md:w-[163px] rounded-lg bg-white font-euclid text-base font-medium text-[#0e0e0e]",
-                        "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
-                        "mb-12  md:mb-[60px] mt-10",
-                        isEn && 'md:text-[18px]'
-                    )}>
-                        {t('hero.button.start')}
-                    </Button>
-                </Link>
-            }
+
+            {/* 按钮 */}
+            <div className='flex flex-col md:flex-row gap-5 items-center mb-12 md:mb-[60px] mt-10 font-euclid'>
+
+                {
+                    isInChina ? <><LocaleLink href={'/pricing'} prefetch={false}>
+                        <DarkButton className={
+                            cn("h-[48px] w-[240px] md:w-[180px] rounded-lg  text-base font-medium",
+                                isEn && 'md:text-[18px]'
+                            )}>
+                            {t("hero.enterprise.seePricing")}
+                        </DarkButton>
+                    </LocaleLink>
+                        <LocaleLink href={'/bookDemo'} prefetch={false}>
+                            <Button className={cn("h-[48px] w-[240px] md:w-[180px] rounded-lg bg-white text-base font-medium text-[#0e0e0e]",
+                                "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+                                isEn && 'md:text-[18px]'
+                            )}>
+                                {t('hero.enterprise.contactUs')}
+                            </Button>
+                        </LocaleLink></> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
+                        <Button className={cn("h-[48px] w-[240px] md:w-[180px] rounded-lg bg-white  text-base font-medium text-[#0e0e0e]",
+                            "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+                            isEn && 'md:text-[18px]'
+                        )}>
+                            {t('hero.enterprise.contactUs')}
+                        </Button>
+                    </Link>
+                }
+
+            </div>
             <Banner isDark />
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-6 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[750px] flex-col items-center gap-3 px-6 md:items-start">
@@ -164,8 +176,8 @@ export default function Hero() {
                         })}
                     </Accordion>
                 </div>
-                <div className='md:flex hidden flex-1 shrink-0 items-center justify-center rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-[30px]'>
-                    <div className='flex size-full items-center rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
+                <div className='flex flex-1 shrink-0 items-center justify-center rounded-[20px] md:rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] md:p-[30px] p-4'>
+                    <div className='flex size-full items-center rounded-xl md:rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
                         <Image
                             src={getUrl(businessMap[activeIndex].Cover)}
                             width={1328}
