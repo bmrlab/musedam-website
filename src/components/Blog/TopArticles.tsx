@@ -18,7 +18,12 @@ export const TopArticles: React.FC<TopArticlesProps> = ({ articles, className })
 
       <div className="no-scrollbar grid w-full auto-cols-max grid-flow-col gap-[30px] overflow-x-auto px-[80px] pt-[60px]">
         {articles.map((article) => (
-          <ArticleCard key={article.id} article={article} className="w-[520px]" />
+          <ArticleCard
+            key={article.id}
+            article={article}
+            className="w-[520px]"
+            variant="featured"
+          />
         ))}
       </div>
     </section>

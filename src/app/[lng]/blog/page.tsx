@@ -89,6 +89,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         currentPage={filteredPosts.page || 1}
         totalPages={filteredPosts.totalPages || 1}
         selectedCategory={category}
+        className="p-20"
       />
     </div>
   )
