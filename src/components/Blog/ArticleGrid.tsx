@@ -1,7 +1,8 @@
 import React from 'react'
-import { cn } from '@/utilities/cn'
-import { ArticleCard } from './ArticleCard'
 import type { Post } from '@/payload-types'
+import { cn } from '@/utilities/cn'
+
+import { ArticleCard } from './ArticleCard'
 
 interface ArticleGridProps {
   articles: Post[]
@@ -11,12 +12,9 @@ interface ArticleGridProps {
 export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles, className }) => {
   return (
     <div className={cn('', className)}>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+      <div className="grid grid-cols-1 gap-x-[30px] gap-y-[40px] md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
-          <ArticleCard
-            key={article.id}
-            article={article}
-          />
+          <ArticleCard key={article.id} article={article} />
         ))}
       </div>
 
