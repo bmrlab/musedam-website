@@ -70,12 +70,12 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const topArticles = allPosts.docs.slice(1, 4)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen w-full max-w-[1440px] bg-white">
       <PageClient />
 
       {/* Hero Section - 特色文章 */}
       {heroArticle && (
-        <HeroSection article={heroArticle as Post} />
+        <HeroSection article={heroArticle as Post} className="p-[80px]" />
       )}
 
       {/* Top Articles - 精选文章 */}

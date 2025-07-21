@@ -1,6 +1,8 @@
 import React from 'react'
-import { cn } from '@/utilities/cn'
 import type { Post } from '@/payload-types'
+import { cn } from '@/utilities/cn'
+
+import Icons from '@/components/icon'
 
 interface HeroSectionProps {
   article: Post
@@ -9,41 +11,46 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) => {
   return (
-    <section className={cn('container mx-auto px-4 py-12', className)}>
-      <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+    <section className={cn(className)}>
+      <div className="flex justify-between gap-[120px]">
+        {/* 分类 */}
+
         {/* 左侧内容 */}
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+        <div className="flex flex-1 flex-col gap-3">
+          <p className="!font-euclid text-[14px] uppercase text-black">Digital Transformation</p>
+
+          <h1 className="!font-euclid text-[40px] font-semibold leading-[41.6px] text-black">
             {article.title}
           </h1>
 
-          <p className="text-lg leading-relaxed text-gray-600">
+          <p className="flex-1 !font-euclid text-lg leading-relaxed text-gray-600">
             {article.meta?.description ||
-             (typeof article.content === 'object' && article.content?.root?.children?.[0]?.children?.[0]?.text) ||
-             'Discover insights and best practices in this featured article.'}
+              (typeof article.content === 'object' &&
+                article.content?.root?.children?.[0]?.children?.[0]?.text) ||
+              'Discover insights and best practices in this featured article.'}
           </p>
 
           <a
             href={`/posts/${article.slug}`}
-            className="group inline-flex items-center font-medium text-gray-900 transition-colors hover:text-gray-700"
+            className="group inline-flex items-center gap-3 font-medium text-gray-900 transition-colors hover:text-gray-700"
           >
-            <span>Read More</span>
-            <svg
-              className="ml-2 size-4 transition-transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            <span className="!font-euclid text-[18px] font-medium leading-[30px] underline underline-offset-[6px]">
+              Read More
+            </span>
+
+            <div className="transition-transform group-hover:translate-x-1">
+              <Icons.arrowRightLong width={24} height={24} />
+            </div>
           </a>
         </div>
 
         {/* 右侧图片区域 */}
-        <div className="relative">
-          <div className="aspect-[4/3] rounded-2xl">
+        <div className="relative flex-1">
+          <div className="aspect-[4/3] max-h-[440px]  rounded-2xl">
             {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
-            {article.meta?.image && typeof article.meta.image === 'object' && 'url' in article.meta.image ? (
+            {article.meta?.image &&
+            typeof article.meta.image === 'object' &&
+            'url' in article.meta.image ? (
               <img
                 src={article.meta.image.url ?? ''}
                 alt={article.meta.image.alt || article.title}
