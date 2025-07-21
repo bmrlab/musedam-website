@@ -67,15 +67,15 @@ export default function WhyMuse() {
     ]
 
     const scrollRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         const container = scrollRef.current
         if (!container) return
-        let speed = 0.5 // 滚动速度
+        let speed = 1 // 滚动速度
         let animationFrame: number
         function scroll() {
             if (!container) return
             const singleListWidth = container.scrollWidth / 2
-
             if (container.scrollLeft >= singleListWidth) {
                 container.scrollLeft = 0
             } else {
@@ -137,7 +137,7 @@ export default function WhyMuse() {
         </FadeInUpContainer>
 
         <div className='mt-10 md:mt-20 flex flex-col gap-4 md:flex-row'>
-            <div className='flex w-full flex-col justify-between rounded-2xl md:rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-5 md:flex-1'>
+            <div className='overflow-hidden flex w-full flex-col justify-between rounded-2xl md:rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-5 md:flex-1'>
                 <div className='flex flex-col gap-2 font-euclid mb-12 md:mb-0'>
                     <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                         {t('why.title')}
@@ -156,7 +156,6 @@ export default function WhyMuse() {
                     })}
                 </div>
             </div>
-
             <div className='grid grid-cols-1 gap-4 font-euclid md:w-[696px] md:grid-cols-2 '>
                 {data.map(({ key, title, description, icon }) => {
                     return <div key={key} className='flex gap-[18px] rounded-2xl md:rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-5'>

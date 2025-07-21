@@ -34,7 +34,7 @@
             "1000+": "1,000+"
         },
         "position": {
-            "label": "4. 您的职位",
+            "label": "您的职位",
             "placeholder": "请输入您的职位"
         },
         "expect": {
@@ -43,7 +43,7 @@
             "6months": "半年内",
             "1year": "1年内",
             "notSure": "暂不确定，只是期望了解",
-            "label": "6. 预估多久内需要采购 MuseDAM？"
+            "label": "预估多久内需要采购 MuseDAM？"
         },
         "submit": "获取解决方案",
         "submitSuccess": "提交成功",

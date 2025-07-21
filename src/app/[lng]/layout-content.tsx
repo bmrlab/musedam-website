@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useLanguage } from '@/providers/Language'
 import { SessionUser } from '@/types/user'
+import { useTheme } from '@/providers/Theme'
 
 interface LayoutContentProps {
     children: React.ReactNode
@@ -21,6 +22,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     const { language, setLanguage } = useLanguage()
     const searchParams = useSearchParams()
 
+    const darkHeadPage = useMemo(() => !!pathname && ['', '/'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
     const changeLocale = useCallback((lang: string) => {
         if (language == lang) return
         if (!searchParams) return
@@ -33,7 +35,6 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     }, [language, pathname, router, setLanguage, searchParams])
 
     useEffect(() => {
-        console.log("isGlobal", isGlobal)
         if (isGlobal) {
             changeLocale('en-US')
         }
@@ -46,7 +47,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
             <Header isGlobal={isGlobal} user={user} />
             <div className="flex flex-col items-center justify-center w-full pt-[56px] md:pt-[70px]">
                 <NextTopLoader
-                    color="#000"
+                    color={darkHeadPage ? "#fff" : "#000"}
                     height={1}
                     showSpinner={false}
                 />
