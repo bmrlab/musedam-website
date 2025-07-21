@@ -1,14 +1,15 @@
-import type { Metadata } from 'next/types'
 import React from 'react'
-import PageClient from './page.client'
+import type { Metadata } from 'next/types'
+import type { Category, Post } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import type { Category, Post } from '@/payload-types'
 
+import { AllArticles } from '@/components/Blog/AllArticles'
 // 真实数据组件
 import { HeroSection } from '@/components/Blog/HeroSection'
 import { TopArticles } from '@/components/Blog/TopArticles'
-import { AllArticles } from '@/components/Blog/AllArticles'
+
+import PageClient from './page.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -34,7 +35,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const whereCondition: any = {}
   if (category) {
     whereCondition.categories = {
-      in: [category]
+      in: [category],
     }
   }
 
@@ -45,9 +46,9 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     limit: 50, // 获取足够的文章用于筛选
     overrideAccess: false,
     where: {
-      _status: { equals: 'published' }
+      _status: { equals: 'published' },
     },
-    sort: '-publishedAt'
+    sort: '-publishedAt',
   })
 
   // 获取筛选后的文章（用于 All Articles 部分）
@@ -58,9 +59,9 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
-      ...(Object.keys(whereCondition).length > 0 ? whereCondition : {})
+      ...(Object.keys(whereCondition).length > 0 ? whereCondition : {}),
     },
-    sort: '-publishedAt'
+    sort: '-publishedAt',
   })
 
   // 选择 Hero 文章（最新的文章）
@@ -74,13 +75,11 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       <PageClient />
 
       {/* Hero Section - 特色文章 */}
-      {heroArticle && (
-        <HeroSection article={heroArticle as Post} className="p-[80px]" />
-      )}
+      {heroArticle && <HeroSection article={heroArticle as Post} className="p-[80px]" />}
 
       {/* Top Articles - 精选文章 */}
       {topArticles.length > 0 && (
-        <TopArticles articles={topArticles as Post[]} />
+        <TopArticles articles={topArticles as Post[]} className="mt-[60px] pb-[100px]" />
       )}
 
       {/* All Articles - 所有文章（包含分类筛选） */}
@@ -95,7 +94,9 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   )
 }
 
-export async function generateMetadata({ searchParams: searchParamsPromise }: Args): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams: searchParamsPromise,
+}: Args): Promise<Metadata> {
   const { category } = await searchParamsPromise
 
   let title = 'MuseDAM 博客'
@@ -118,6 +119,7 @@ export async function generateMetadata({ searchParams: searchParamsPromise }: Ar
 
   return {
     title,
-    description: 'Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.',
+    description:
+      'Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.',
   }
 }

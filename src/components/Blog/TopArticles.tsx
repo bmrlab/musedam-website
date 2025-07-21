@@ -1,7 +1,8 @@
 import React from 'react'
-import { cn } from '@/utilities/cn'
-import { ArticleCard } from './ArticleCard'
 import type { Post } from '@/payload-types'
+import { cn } from '@/utilities/cn'
+
+import { ArticleCard } from './ArticleCard'
 
 interface TopArticlesProps {
   articles: Post[]
@@ -10,20 +11,14 @@ interface TopArticlesProps {
 
 export const TopArticles: React.FC<TopArticlesProps> = ({ articles, className }) => {
   return (
-    <section className={cn('container mx-auto px-4 py-16', className)}>
-      <div className="mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-          Top Articles
-        </h2>
+    <section className={cn('', className)}>
+      <div className="px-[80px]">
+        <h2 className="!font-feature text-[54px]/[54px] font-medium text-black">Top Articles</h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+      <div className="no-scrollbar grid w-full auto-cols-max grid-flow-col gap-[30px] overflow-x-auto px-[80px] pt-[60px]">
         {articles.map((article) => (
-          <ArticleCard
-            key={article.id}
-            article={article}
-            variant="featured"
-          />
+          <ArticleCard key={article.id} article={article} className="w-[520px]" />
         ))}
       </div>
     </section>
