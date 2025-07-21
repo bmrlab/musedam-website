@@ -103,7 +103,7 @@ export default function Hero() {
                             "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
                             isEn && 'md:text-[18px]'
                         )}>
-                            {t('hero.enterprise.contactUs')}
+                            {t('hero.button.start')}
                         </Button>
                     </Link>
                 }

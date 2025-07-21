@@ -104,7 +104,7 @@ export default function Brands() {
                 className='no-scrollbar flex min-w-[600px] md:min-w-[1200px] flex-nowrap gap-10 overflow-x-scroll'
                 style={{ scrollBehavior: 'auto' }}
             >
-                {[...row1, ...row1].map((key, idx) =>
+                {[...row1, ...row1, ...row1].map((key, idx) =>
                     <Image src={getUrl(key)} key={key + '-' + idx} alt={key} className='h-auto w-[200px] shrink-0 object-cover md:h-[257px] md:w-[450px]' width={450} height={250} />
                 )}
             </div>
@@ -113,7 +113,7 @@ export default function Brands() {
                 className='no-scrollbar mt-10 flex min-w-[1200px] flex-nowrap gap-10 overflow-x-scroll'
                 style={{ scrollBehavior: 'auto' }}
             >
-                {[...row2, ...row2].map((key, idx) =>
+                {[...row2, ...row2, ...row2].map((key, idx) =>
                     <Image src={getUrl(key)} key={key + '-' + idx} alt={key} className='h-auto w-[200px] shrink-0 object-cover  md:h-[257px] md:w-[450px]' width={900} height={500} />
                 )}
             </div>

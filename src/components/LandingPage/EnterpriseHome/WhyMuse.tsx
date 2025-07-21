@@ -75,6 +75,7 @@ export default function WhyMuse() {
         function scroll() {
             if (!container) return
             const singleListWidth = container.scrollWidth / 2
+
             if (container.scrollLeft >= singleListWidth) {
                 container.scrollLeft = 0
             } else {
@@ -91,6 +92,7 @@ export default function WhyMuse() {
         }
     }, [])
 
+    const images = Array.from({ length: 6 }).map((_, i) => `Top-Lists-${i + 1}.png`)
     return <div className='px-6 md:px-[80px] py-[60px] md:pb-[120px] md:pt-[120px]'>
         <FadeInUpContainer className='flex w-full flex-col items-center overflow-x-scroll md:max-w-[1440px]'>
             <h1 className={cn(
@@ -140,18 +142,17 @@ export default function WhyMuse() {
                     <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                         {t('why.title')}
                     </span>
-                    <span className='text-4 max-w-full overflow-hidden  text-ellipsis text-nowrap font-euclidlight font-light text-[rgba(255,255,255,0.72)]'>
+                    <span className='text-4 max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight font-light text-[rgba(255,255,255,0.72)]'>
                         {t('why.subtitle')}
                     </span>
                 </div>
                 <div
                     ref={scrollRef}
-                    className='no-scrollbar flex h-1/2 w-full gap-[10px] overflow-x-scroll rounded-[18px] bg-[#070707] p-[25px] shadow-[0px_2px_12px_0px_#FFFFFF12]'
+                    className='no-scrollbar flex flex-nowrap h-[150px] gap-[10px] overflow-x-scroll rounded-[18px] bg-[#070707] p-[25px] shadow-[0px_2px_12px_0px_#FFFFFF12]'
                     style={{ scrollBehavior: 'auto' }}
                 >
-                    {Array.from({ length: 12 }).map((_, index) => {
-                        const imgPath = `Top-Lists-${(index % 6) + 1}.png`
-                        return <Image src={getUrl(imgPath)} width={200} height={100} alt={imgPath} className="aspect-[2/1] h-full rounded-[8px] object-cover" key={imgPath + '-' + index} />
+                    {[...images, ...images].map((imgPath, index) => {
+                        return <Image src={getUrl(imgPath)} width={400} height={200} alt={imgPath} className="aspect-[200px] h-[100px] rounded-[8px] object-cover" key={imgPath + '-' + index} />
                     })}
                 </div>
             </div>
