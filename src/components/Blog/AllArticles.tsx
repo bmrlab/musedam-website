@@ -52,7 +52,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
             const url = categoryId === 'all' ? '/blog' : `/blog?category=${categoryId}`
             window.location.href = url
           }}
-          className="w-[240px] lg:sticky lg:top-8 lg:self-start"
+          className="sticky w-[240px] lg:sticky lg:top-8 lg:self-start"
         />
 
         {/* 右侧文章网格 */}
