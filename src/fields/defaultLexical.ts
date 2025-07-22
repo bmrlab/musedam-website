@@ -1,28 +1,36 @@
-import { Config } from 'payload'
 import {
   BoldFeature,
+  EXPERIMENTAL_TableFeature,
+  HeadingFeature,
   ItalicFeature,
-  LinkFeature,
-  ParagraphFeature,
   lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  ParagraphFeature,
   UnderlineFeature,
+  UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
+import { Config } from 'payload'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
     return [
       ParagraphFeature(),
       UnderlineFeature(),
+      HeadingFeature({
+        enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5'],
+      }),
       BoldFeature(),
       ItalicFeature(),
+      OrderedListFeature(),
+      UnorderedListFeature(),
+      EXPERIMENTAL_TableFeature(),
       LinkFeature({
         enabledCollections: ['pages', 'posts'],
         fields: ({ defaultFields }) => {
           const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
-            if ('name' in field && field.name === 'url') return false
-            return true
+            return !('name' in field && field.name === 'url')
           })
-
           return [
             ...defaultFieldsWithoutUrl,
             {
