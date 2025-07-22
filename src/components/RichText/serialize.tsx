@@ -8,7 +8,13 @@ import type {
   CallToActionBlock as CTABlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
-import { DefaultNodeTypes, SerializedBlockNode } from '@payloadcms/richtext-lexical'
+import {
+  DefaultNodeTypes,
+  SerializedBlockNode,
+  SerializedTableCellNode,
+  SerializedTableNode,
+  SerializedTableRowNode,
+} from '@payloadcms/richtext-lexical'
 
 import { CMSLink } from '@/components/Link'
 
@@ -24,6 +30,9 @@ import {
 
 export type NodeTypes =
   | DefaultNodeTypes
+  | SerializedTableNode
+  | SerializedTableCellNode
+  | SerializedTableRowNode
   | SerializedBlockNode<CTABlockProps | MediaBlockProps | BannerBlockProps | CodeBlockProps>
 
 type Props = {
@@ -234,41 +243,91 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 </CMSLink>
               )
             }
-
             case 'table': {
               return (
-                <div className="my-8 overflow-x-auto rounded-lg border border-gray-200" key={index}>
-                  <table className="min-w-full divide-y divide-gray-200">
-                    {serializedChildren}
+                <div
+                  className="my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]"
+                  key={index}
+                >
+                  <table className="w-full">
+                    <tbody>
+                      {node.children?.map((rowNode: SerializedTableRowNode, rowIndex) => {
+                        if (rowNode.type === 'tablerow') {
+                          // 如果第一个单元格有内容且其他单元格为空，则作为标题行
+                          if (rowIndex === 0) {
+                            // 检查是否是第一行且第一个单元格有内容（作为标题行）
+                            const firstCell = rowNode.children?.[0] as SerializedTableCellNode
+                            // 检查其他单元格是否为空
+                            const otherCellsEmpty = rowNode.children
+                              ?.slice(1)
+                              .every((cell: any) => {
+                                // console.log('c', cell.children)
+                                return cell.children?.[0]?.children?.length === 0
+                              })
+                            if (otherCellsEmpty) {
+                              const titleContent = firstCell.children
+                                ? serializeLexical({ nodes: firstCell.children as NodeTypes[] })
+                                : ''
+                              return (
+                                <tr key={rowIndex} className="border-b border-[#E3E3E3]">
+                                  <td
+                                    colSpan={rowNode.children?.length || 1}
+                                    className="bg-[#F2F2F2] p-4 text-left !font-euclid text-[24px] font-medium leading-normal text-[#141414] [&>p]:mb-0"
+                                  >
+                                    {titleContent}
+                                  </td>
+                                </tr>
+                              )
+                            }
+                          }
+
+                          return (
+                            <tr
+                              key={rowIndex}
+                              className="border-b border-[#E3E3E3] last:border-b-0"
+                            >
+                              {rowNode.children?.map(
+                                (cellNode: SerializedTableCellNode, cellIndex) => {
+                                  if (cellNode.type === 'tablecell') {
+                                    // export const TableCellHeaderStates = {
+                                    //   NO_STATUS: 0,    // 普通单元格，不是表头
+                                    //   ROW: 1,          // 行表头
+                                    //   COLUMN: 2,       // 列表头
+                                    //   BOTH: 3,         // 既是行表头又是列表头
+                                    // };
+
+                                    const Tag =
+                                      cellNode.headerState === 2 ||
+                                      cellNode.headerState === 1 ||
+                                      cellNode.headerState === 3
+                                        ? 'th'
+                                        : 'td'
+                                    return (
+                                      <Tag
+                                        key={cellIndex}
+                                        className="max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-[1.4285714285714286] text-[#262626] last:border-r-0"
+                                      >
+                                        {cellNode.children
+                                          ? serializeLexical({
+                                              nodes: cellNode.children as NodeTypes[],
+                                            })
+                                          : ''}
+                                      </Tag>
+                                    )
+                                  }
+                                  return null
+                                },
+                              )}
+                            </tr>
+                          )
+                        }
+                        return null
+                      })}
+                    </tbody>
                   </table>
                 </div>
               )
             }
-
-            case 'tablerow': {
-              return (
-                <tr key={index} className="divide-x divide-gray-200">
-                  {serializedChildren}
-                </tr>
-              )
-            }
-
-            case 'tablecell': {
-              const Tag = node.headerState === 'header' ? 'th' : 'td'
-              return (
-                <Tag
-                  key={index}
-                  className={`px-6 py-4 text-left text-sm ${
-                    node.headerState === 'header'
-                      ? 'bg-gray-50 font-semibold uppercase tracking-wider text-gray-900'
-                      : 'whitespace-nowrap text-gray-700'
-                  }`}
-                >
-                  {serializedChildren}
-                </Tag>
-              )
-            }
-
             default:
               return null
           }
