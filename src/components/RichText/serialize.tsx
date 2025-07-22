@@ -165,8 +165,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'heading': {
               const Tag = node?.tag
               const headingClasses = {
-                h1:
-                  '!font-euclid text-[40px] font-semibold leading-[1.5] text-[#242424] mt-12 mb-6',
+                h1: '!font-euclid text-[40px] font-semibold leading-[1.5] text-[#242424] mt-12 mb-6',
                 h2: '!font-euclid text-[32px] font-semibold leading-[1.5] text-[#242424] mt-10 mb-5',
                 h3: '!font-euclid text-[24px] font-semibold leading-[1.5] text-[#242424] mt-8 mb-4',
                 h4: '!font-euclid text-[20px] font-semibold leading-[1.5] text-[#242424] mt-6 mb-3',
@@ -248,10 +247,10 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'table': {
               return (
                 <div
-                  className="my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]"
+                  className="no-scrollbar my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]"
                   key={index}
                 >
-                  <table className="w-full">
+                  <table className="w-max">
                     <tbody>
                       {node.children?.map((rowNode: SerializedTableRowNode, rowIndex) => {
                         if (rowNode.type === 'tablerow') {
