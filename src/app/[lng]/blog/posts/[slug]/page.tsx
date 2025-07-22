@@ -42,7 +42,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="mx-auto min-h-screen w-full max-w-[1440px] bg-white">
+    <article className="mx-auto w-full max-w-[1440px] bg-white">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -50,7 +50,7 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="px-20">
+      <div className="px-20 pb-[120px]">
         <div className="mx-auto max-w-[720px]">
           <RichText
             className="max-w-none"
