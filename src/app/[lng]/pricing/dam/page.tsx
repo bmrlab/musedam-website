@@ -5,13 +5,11 @@ import { getServerSession } from '@/utilities/auth'
 import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
-import DetailTableOfMuseDam from '@/components/Pricing/Compare/MuseDam'
+import Buy from '@/components/Pricing/Buy'
 import { EMuseProductType } from '@/components/Pricing/types/products'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
-import FeatureList from '@/components/Pricing/Enterprise/FeatureList'
-import FAQ from '@/components/Pricing/Enterprise/FAQ'
-import Buy from '@/components/Pricing/Enterprise/Buy'
+import DetailTableOfMuseDam from '@/components/Pricing/Compare/MuseDam'
 
 export default async function MuseDAMPricingPage({
   searchParams,
@@ -33,14 +31,16 @@ export default async function MuseDAMPricingPage({
     }
   }
 
+  const pricingData = getPricingList(
+    process.env.DEPLOY_REGION === 'mainland' ? 'mainland' : 'global',
+  ).then((res) => res.map((item) => [item.productType, item] as [EMuseProductType, ProductItem]))
+
   return (
-    <FlexColContainer className="w-full items-center bg-[#070707]">
-      <FlexColContainer className="w-full items-center ">
-        <Buy user={user} />
-        <div className='h-[20px] w-full'></div>
-        <FeatureList />
+    <FlexColContainer className="w-full items-center">
+      <FlexColContainer className="max-w-full items-center md:w-[1260px]">
+        <Buy pricingData={pricingData} user={user} />
+        <DetailTableOfMuseDam />
       </FlexColContainer>
-      <FAQ />
     </FlexColContainer>
   )
 }

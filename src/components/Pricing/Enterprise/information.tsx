@@ -144,12 +144,15 @@ export const Information = () => {
     // 海外版暂时隐藏
     if (!isInChina) return <></>
     return (<>
-        <div className="flex w-full justify-center bg-white font-euclid text-[#141414]">
-            <div className="flex w-full flex-col items-start justify-between py-[60px] px-6 md:max-w-[1440px] md:flex-row md:px-[80px] md:py-[104px] h-fit">
+        <div className="flex w-full justify-center bg-white font-euclid text-[#141414] ">
+            <div className={cn(
+                "flex w-full flex-col items-start justify-between px-6 md:max-w-[1440px] md:px-[80px] md:flex-row ",
+                isMobile && 'h-fit'
+            )}>
                 {/* 左侧介绍 */}
-                <div className="md:h-full flex-col justify-between md:pr-[80px] flex flex-1">
-                    <div>
-                        <h1 className={cn("mb-4 font-feature md:text-[54px] md:font-medium md:text-start text-center",
+                <div className="md:h-full flex-col flex flex-1 md:pb-[100px] md:pr-[80px] md:py-[90px] pt-[60px] pb-0">
+                    <div className="flex-1">
+                        <h1 className={cn("mb-4 font-feature md:text-[54px] font-medium md:text-start text-center",
                             isEn ? " text-[40px]" : " text-[32px]"
                         )}>
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
@@ -179,9 +182,9 @@ export const Information = () => {
                     </div>
                 </div>
                 {/* 右侧表单 */}
-                <div className="font-euclid shadow-none md:flex-1 w-full">
+                <div className="font-euclid shadow-none md:flex-1 w-full md:pt-[100px] md:pb-[90px] pb-[60px] ">
                     <h2 className="md:mb-10 mb-6 text-[28px] md:text-2xl font-medium text-center md:text-start">{t('form.title')}</h2>
-                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[30px]" onSubmit={handleSubmit} >
+                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-5" onSubmit={handleSubmit} >
                         {
                             formInputLabelKeys.map((key, index) => {
                                 return <div className="col-span-2 md:col-span-1">

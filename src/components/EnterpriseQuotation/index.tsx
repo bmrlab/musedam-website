@@ -193,10 +193,10 @@ export default function EnterpriseQuotation() {
         }}>
             {isPreview ? <QuotationPreviewContent /> :
                 <div className="flex size-full">
-                    <div className='h-full flex-1'>
+                    <div className=' flex-1'>
                         <LeftContent />
                     </div>
-                    <div className='h-full flex-1'>
+                    <div className=' flex-1'>
                         <RightContent />
                     </div>
                 </div>}

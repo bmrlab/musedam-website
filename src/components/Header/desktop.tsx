@@ -239,19 +239,21 @@ export default function HeaderDesktop({
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">
         {isInChina && <LocaleSwitch />}
-        {isEnterprisePage ? <DarkButton className={'mr-5 h-[48px]'}>
+        {isEnterprisePage ?
           <Link
             href={user ? '/home' : '/auth'}
-            prefetch={false}>
+            prefetch={false}
+          >
+            <DarkButton className={'mr-5 h-[48px]'}>
+              <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
+            </DarkButton>
+          </Link> : <Link
+            href={user ? '/home' : '/auth'}
+            prefetch={false}
+            className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
+          >
             <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
-          </Link>
-        </DarkButton> : <Link
-          href={user ? '/home' : '/auth'}
-          prefetch={false}
-          className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
-        >
-          <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
-        </Link>}
+          </Link>}
       </div>
     </NavigationMenu>
   )

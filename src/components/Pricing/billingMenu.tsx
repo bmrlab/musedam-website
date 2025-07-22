@@ -71,23 +71,23 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
   // 企业官网-团队版
   const enterpriseSummary = {
     [EPlanProductType.TEAM_BASIC]: [
-      t('pricing.summary.seats', { val: 1 }),
-      t('pricing.summary.storage', { val: isInChina ? '100G' : '300G' }),
-      t('pricing.summary.ai'),
-      t('pricing.summary.folderAuth'),
+      t('pricing.summary.seats', { val: 2 }),
+      t('pricing.summary.storage.expand', { val: '100GB' }),
+      t('pricing.summary.ai.new'),
+      t('pricing.enterpriseSummary.basicFolderPermissions'),
     ],
     [EPlanProductType.TEAM_FLAGSHIP]: [
-      t('pricing.summary.seats', { val: 30 }),
+      t('pricing.summary.seats', { val: 10 }),
       t('pricing.summary.storage', { val: isInChina ? '3T(3072G)' : '5T(5120G)' }),
-      'Includes all Basic Plan features',
-      t('pricing.summary.folderAuth'),
-      'Advanced extension module options',
+      t('pricing.enterpriseSummary.includesAllBasic'),
+      t('pricing.enterpriseSummary.advancedPermissions'),
+      t('pricing.enterpriseSummary.advancedExtensions'),
     ],
     [EPlanProductType.ENTERPRISE]: [
-      t('pricing.summary.enterprise.seatSet'),
-      'Dedicated customer success manager',
-      'AWS private deployment',
-      'SLA service level agreements',
+      t('pricing.enterpriseSummary.customPlans'),
+      t('pricing.enterpriseSummary.dedicatedManager'),
+      t('pricing.enterpriseSummary.awsDeployment'),
+      t('pricing.enterpriseSummary.sla'),
     ],
   }
 
@@ -246,37 +246,44 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
   const enterpriseBillingMenu = [
     {
       key: EPlanProductType.TEAM_BASIC,
-      title: 'Basic',
-      description: 'Ideal for individuals or small teams',
+      title: t('pricing.enterpriseBilling.basic.title'),
+      description: t('pricing.enterpriseBilling.basic.description'),
       buttonType: 'try',
       linkText: t('pricing.plan.actions.buy-now'),
       summary: enterpriseSummary[EPlanProductType.TEAM_BASIC],
       [BillingType.monthly]: EMuseProductType.ABROAD_ORG_BASIC_MONTHLY,
       [BillingType.yearly]: EMuseProductType.ABROAD_ORG_BASIC_YEARLY,
       period: t('pricing.perMonth'),
+      priceGlobal: '60',
+      price: '255',
+      color: '#BBB3FF'
     },
     {
       key: EPlanProductType.TEAM_FLAGSHIP,
-      title: 'Advanced',
-      description: 'Suitable for medium to large teams and enterprises',
-      buttonType: 'contact',
+      title: t('pricing.enterpriseBilling.advanced.title'),
+      description: t('pricing.enterpriseBilling.advanced.description'),
+      buttonType: 'bookDemo',
       linkText: t('pricing.plan.actions.buy-now'),
       isHighlight: true,
       summary: enterpriseSummary[EPlanProductType.TEAM_FLAGSHIP],
       [BillingType.monthly]: EMuseProductType.ABROAD_ORG_PROFESSION_MONTHLY,
       [BillingType.yearly]: EMuseProductType.ABROAD_ORG_PROFESSION_YEARLY,
       period: t('pricing.perMonth'),
+      priceGlobal: '1,250',
+      price: '4,200',
+      color: '#FFA3F2'
     },
     {
       key: EPlanProductType.ENTERPRISE,
-      title: 'Custom',
-      description: 'Designed for large organizations with special requirements',
+      title: t('pricing.enterpriseBilling.custom.title'),
+      description: t('pricing.enterpriseBilling.custom.description'),
       buttonType: 'contact',
       summary: enterpriseSummary[EPlanProductType.ENTERPRISE],
       icon: '/assets/Pricing/vip.svg',
-      [BillingType.monthly]: 'Contact Sales',
-      [BillingType.yearly]: 'Contact Sales',
+      [BillingType.monthly]: t('pricing.contact.sales'),
+      [BillingType.yearly]: t('pricing.contact.sales'),
       period: null,
+      color: '#070707'
     },
   ]
   // 国内
@@ -379,7 +386,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       {
         key: EPlanProductType.ENTERPRISE,
         title: t('pricing.team.enterprise'),
-        description: t('pricing.team.enterprise.des.domestic'),
+        description: t('pricing.team.enterprise.des'),
         buttonType: 'contact',
         summary: featuresSummary[EPlanProductType.ENTERPRISE],
         icon: '/assets/Pricing/vip.svg',
@@ -486,8 +493,8 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
         summary: featuresSummary[EPlanProductType.ENTERPRISE],
         icon: '/assets/Pricing/vip.svg',
 
-        [BillingType.monthly]: 'Custom',
-        [BillingType.yearly]: 'Custom',
+        [BillingType.monthly]: t('pricing.contact'),
+        [BillingType.yearly]: t('pricing.contact'),
         period: null,
       },
     ],

@@ -215,27 +215,51 @@ export const RightContent: FC = () => {
         subscriptionYears,
     } = useQuotationContext()
 
+    const expansions = [
+        {
+            name: 'Member Seats',
+            description: 'Admin, Contributor, and Member roles configurable',
+            value: '$300/seat/year'
+        },
+
+        {
+            name: 'Storage Space',
+            description: 'Monthly download traffic follows storage size',
+            value: activeTab === 'basic' ? '1,000/TB' : '1,200/TB'
+        },
+
+        {
+            name: 'AI Points Expansion',
+            description: 'One-time permanent team AI points (valid until consumed);\n AI points can be used for manual AI search, tagging, parsing, and content creation',
+            value: '1000\n /20,000 points'
+        },
+
+        {
+            name: 'Download Data Expansion',
+            description: 'Download data package (valid until consumed)',
+            value: '30/TB'
+        }
+    ]
+
     return (
-        <div className="no-scrollbar size-full overflow-scroll bg-white p-[60px] text-black">
+        <div className="no-scrollbar size-full overflow-scroll bg-[#F0F0EA] h-full p-[60px] text-black">
             <div className="space-y-6">
                 <div className="text-[40px] font-semibold">MuseDAM Quote Overview</div>
                 <div className="space-y-6">
                     {/* Customer Information */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 font-semibold">
                         <div>
-                            <h3 className="mb-3 text-lg font-semibold">Customer Information</h3>
-                            <div className="space-y-2 text-base leading-[16px]" >
-                                <strong>{customerInfo.company}</strong>
+                            <div className="mb-3 text-base">Customer Information</div>
+                            <div className="space-y-2 text-base " >
+                                <p>{customerInfo.company}</p>
                                 <p>{customerInfo.contact}</p>
                                 {!!customerInfo.email.length && <p>Email: {customerInfo.email}</p>}
                             </div>
                         </div>
                         <div>
-                            <h3 className="mb-3 text-lg font-semibold ">Service Provider</h3>
-                            <div className="space-y-2 text-base leading-[16px]">
-                                <strong>Tezign (Shanghai) Information & Technology Co., Ltd.</strong>
-                                <p>Contact: Account Manager</p>
-                                <p>Email: melody@musedam.cc</p>
+                            <div className="mb-3 text-base ">Service Provider</div>
+                            <div className="space-y-2 text-sm">
+                                Tezign (Shanghai) Information & Technology Co., Ltd.
                             </div>
                         </div>
                     </div>
@@ -257,29 +281,20 @@ export const RightContent: FC = () => {
                     </div>
 
                     {/* Capacity Expansion */}
-                    <div>
-                        <h3 className="mb-2 font-semibold">Capacity Expansion</h3>
+                    <div className='border'>
+                        <div className="font-bold px-5 py-[10px] text-sm">Capacity Expansion</div>
                         <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                                <span>Member Seats</span>
-                                <span>${activeTab === 'basic' ? '$300' : '$240'}/seat/year</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Storage Space</span>
-                                <span>${activeTab === 'basic' ? '$1,000/TB' : '$1,200/TB'}/year</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>AI Points Expansion</span>
-                                <span>$1000</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span></span>
-                                <span>/20,000 points</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Download Data Expansion</span>
-                                <span>$30/T</span>
-                            </div>
+                            {expansions.map(({ name, description, value }) => {
+                                return <div className="flex justify-between border-t px-5 py-2" key={name}>
+                                    <div className='flex flex-col gap-[2px]'>
+                                        <span className=' font-euclid text-sm'>{name}</span>
+                                        <span className='font-euclidlight text-xs whitespace-pre-line'>{description}</span>
+                                    </div>
+                                    <div className="whitespace-pre-line text-end">
+                                        ${value}
+                                    </div>
+                                </div>
+                            })}
                         </div>
                     </div>
                 </div>
