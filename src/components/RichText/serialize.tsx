@@ -8,6 +8,7 @@ import type {
   CallToActionBlock as CTABlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
+import { cn } from '@/utilities/cn'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -272,7 +273,10 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                                 <tr key={rowIndex} className="border-b border-[#E3E3E3]">
                                   <td
                                     colSpan={rowNode.children?.length || 1}
-                                    className="bg-[#F2F2F2] p-4 text-left !font-euclid text-[24px] font-medium leading-normal text-[#141414] [&>p]:mb-0"
+                                    className={cn(
+                                      'bg-[#F2F2F2] p-4 text-left !font-euclid',
+                                      '[&>p]:mb-0 [&>p]:text-[24px]/[36px] [&>p]:font-medium [&>p]:text-[#141414]',
+                                    )}
                                   >
                                     {titleContent}
                                   </td>
@@ -305,7 +309,10 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                                     return (
                                       <Tag
                                         key={cellIndex}
-                                        className="max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-[1.4285714285714286] text-[#262626] last:border-r-0"
+                                        className={cn(
+                                          'max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-5 text-[#262626] last:border-r-0',
+                                          '[&>p]:mb-0 [&>p]:text-[14px]/[20px] [&>p]:font-normal [&>p]:text-[#262626]',
+                                        )}
                                       >
                                         {cellNode.children
                                           ? serializeLexical({
