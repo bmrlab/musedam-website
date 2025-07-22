@@ -83,7 +83,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
   const backgroundColor = colors[colorIndex]
 
   return (
-    <a href={`/posts/${article.slug}`} className={articleVariants({ variant, className })}>
+    <a href={`/blog/posts/${article.slug}`} className={articleVariants({ variant, className })}>
       {/* 图片区域 */}
       <div className={cn('relative aspect-[3/2] rounded-[20px]')} style={{ backgroundColor }}>
         {/* 如果有图片，显示图片，否则显示颜色背景 */}

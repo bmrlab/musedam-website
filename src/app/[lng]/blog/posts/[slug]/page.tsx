@@ -1,4 +1,4 @@
-import React, { cache } from 'react'
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
@@ -42,7 +42,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="py-16">
+    <article className="mx-auto min-h-screen w-full max-w-[1440px] bg-white">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -50,20 +50,23 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container grid-rows-[1fr] lg:mx-0 lg:grid lg:grid-cols-[1fr_48rem_1fr]">
+      <div className="px-20">
+        <div className="mx-auto max-w-[720px]">
           <RichText
-            className="col-span-3 col-start-1 grid-rows-[1fr] lg:grid lg:grid-cols-subgrid"
+            className="max-w-none"
             content={post.content}
             enableGutter={false}
+            enableProse={false}
           />
         </div>
 
         {post.relatedPosts && post.relatedPosts.length > 0 && (
-          <RelatedPosts
-            className="mt-12"
-            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-          />
+          <div className="mt-16 border-t border-gray-200 pt-16">
+            <RelatedPosts
+              className=""
+              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+            />
+          </div>
         )}
       </div>
     </article>
