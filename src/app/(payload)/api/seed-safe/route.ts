@@ -5,15 +5,15 @@ import configPromise from '@payload-config'
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const payload = await getPayload({ config: configPromise })
-    
+
     console.log('🌱 Starting safe database seed...')
-    
+
     // 创建分类
     console.log('📂 Creating categories...')
-    
+
     const categories = [
       'Digital Transformation',
-      'Workflow Mastery', 
+      'Workflow Mastery',
       'Asset Intelligence',
       'Building Brands',
       'Industry Spotlight',
@@ -22,9 +22,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       'Community Voices',
       'Press News'
     ]
-    
+
     const createdCategories: Record<string, any> = {}
-    
+
     for (const categoryTitle of categories) {
       try {
         const category = await payload.create({
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         }
       }
     }
-    
+
     // 创建演示用户（如果不存在）
     console.log('👤 Creating demo author...')
     let demoAuthor
@@ -80,10 +80,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         console.log('⚠️  No author found, posts will be created without author')
       }
     }
-    
+
     // 创建文章
     console.log('📝 Creating blog posts...')
-    
+
     const posts = [
       {
         title: 'How to create a website from scratch in 11 steps',
@@ -122,13 +122,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         content: 'Learn how to scale your creative operations effectively. Discover frameworks, processes, and tools that help creative teams maintain quality and efficiency as they grow and take on more complex projects.'
       }
     ]
-    
-    const createdPosts = []
-    
+
+    const createdPosts: any[] = []
+
     for (const postData of posts) {
       try {
         const category = createdCategories[postData.category]
-        
+
         const post = await payload.create({
           collection: 'posts',
           data: {
@@ -179,11 +179,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         console.log(`⚠️  Post ${postData.title} might already exist`)
       }
     }
-    
+
     console.log('🎉 Safe seed completed successfully!')
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Database seeded successfully!',
       data: {
         categories: Object.keys(createdCategories).length,
@@ -194,9 +194,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error('❌ Safe seed failed:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )

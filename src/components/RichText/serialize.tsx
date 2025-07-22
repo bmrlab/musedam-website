@@ -1,11 +1,16 @@
+import React, { Fragment, JSX } from 'react'
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import React, { Fragment, JSX } from 'react'
-import { CMSLink } from '@/components/Link'
+import type {
+  BannerBlock as BannerBlockProps,
+  CallToActionBlock as CTABlockProps,
+  MediaBlock as MediaBlockProps,
+} from '@/payload-types'
 import { DefaultNodeTypes, SerializedBlockNode } from '@payloadcms/richtext-lexical'
-import type { BannerBlock as BannerBlockProps } from '@/payload-types'
+
+import { CMSLink } from '@/components/Link'
 
 import {
   IS_BOLD,
@@ -16,10 +21,6 @@ import {
   IS_SUPERSCRIPT,
   IS_UNDERLINE,
 } from './nodeFormat'
-import type {
-  CallToActionBlock as CTABlockProps,
-  MediaBlock as MediaBlockProps,
-} from '@/payload-types'
 
 export type NodeTypes =
   | DefaultNodeTypes
@@ -40,7 +41,11 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
         if (node.type === 'text') {
           let text = <React.Fragment key={index}>{node.text}</React.Fragment>
           if (node.format & IS_BOLD) {
-            text = <strong key={index}>{text}</strong>
+            text = (
+              <strong className="!font-euclid font-semibold text-[#242424]" key={index}>
+                {text}
+              </strong>
+            )
           }
           if (node.format & IS_ITALIC) {
             text = <em key={index}>{text}</em>
@@ -60,7 +65,14 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             )
           }
           if (node.format & IS_CODE) {
-            text = <code key={index}>{node.text}</code>
+            text = (
+              <code
+                className="rounded bg-[#F2F2F2] px-1 py-0.5 font-euclid text-[14px] text-[#242424]"
+                key={index}
+              >
+                {node.text}
+              </code>
+            )
           }
           if (node.format & IS_SUBSCRIPT) {
             text = <sub key={index}>{text}</sub>
@@ -109,46 +121,66 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'mediaBlock':
               return (
                 <MediaBlock
-                  className="col-span-3 col-start-1"
-                  imgClassName="m-0"
+                  className="my-8"
+                  imgClassName="rounded-lg"
                   key={index}
                   {...block}
-                  captionClassName="mx-auto max-w-[48rem]"
+                  captionClassName="text-center text-sm text-gray-500 mt-2"
                   enableGutter={false}
                   disableInnerContainer={true}
                 />
               )
             case 'banner':
-              return <BannerBlock className="col-start-2 mb-4" key={index} {...block} />
+              return <BannerBlock className="mb-8" key={index} {...block} />
             case 'code':
-              return <CodeBlock className="col-start-2" key={index} {...block} />
+              return <CodeBlock className="my-6" key={index} {...block} />
             default:
               return null
           }
         } else {
           switch (node.type) {
             case 'linebreak': {
-              return <br className="col-start-2" key={index} />
+              return <br key={index} />
             }
             case 'paragraph': {
               return (
-                <p className="col-start-2" key={index}>
+                <p
+                  className="mb-3 !font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]"
+                  key={index}
+                >
                   {serializedChildren}
                 </p>
               )
             }
             case 'heading': {
               const Tag = node?.tag
+              const headingClasses = {
+                h1: '!font-euclid text-[40px] font-semibold leading-[1.5] text-[#242424] mt-12 mb-6',
+                h2: '!font-euclid text-[32px] font-semibold leading-[1.5] text-[#242424] mt-10 mb-5',
+                h3: '!font-euclid text-[24px] font-semibold leading-[1.5] text-[#242424] mt-8 mb-4',
+                h4: '!font-euclid text-[20px] font-semibold leading-[1.5] text-[#242424] mt-6 mb-3',
+                h5: '!font-euclid text-[18px] font-semibold leading-[1.5] text-[#242424] mt-4 mb-2',
+                h6: '!font-euclid text-[18px] font-semibold leading-[1.5] text-[#242424] mt-4 mb-2',
+              }
               return (
-                <Tag className="col-start-2" key={index}>
+                <Tag
+                  className={
+                    headingClasses[Tag as keyof typeof headingClasses] || headingClasses.h2
+                  }
+                  key={index}
+                >
                   {serializedChildren}
                 </Tag>
               )
             }
             case 'list': {
               const Tag = node?.tag
+              const listClasses =
+                Tag === 'ol'
+                  ? 'list-decimal list-inside mb-6 space-y-2 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]'
+                  : 'list-disc list-inside mb-6 space-y-2 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]'
               return (
-                <Tag className="list col-start-2" key={index}>
+                <Tag className={listClasses} key={index}>
                   {serializedChildren}
                 </Tag>
               )
@@ -158,19 +190,20 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 return (
                   <li
                     aria-checked={node.checked ? 'true' : 'false'}
-                    className={` ${node.checked ? '' : ''}`}
+                    className={`flex items-center gap-2 ${node.checked ? 'text-gray-500 line-through' : ''}`}
                     key={index}
                     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
                     role="checkbox"
                     tabIndex={-1}
                     value={node?.value}
                   >
+                    <input type="checkbox" checked={node.checked} readOnly className="mr-2" />
                     {serializedChildren}
                   </li>
                 )
               } else {
                 return (
-                  <li key={index} value={node?.value}>
+                  <li key={index} value={node?.value} className="leading-relaxed">
                     {serializedChildren}
                   </li>
                 )
@@ -178,7 +211,10 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             }
             case 'quote': {
               return (
-                <blockquote className="col-start-2" key={index}>
+                <blockquote
+                  className="my-6 border-l-4 border-gray-300 pl-6 text-lg italic text-gray-600"
+                  key={index}
+                >
                   {serializedChildren}
                 </blockquote>
               )
@@ -196,6 +232,40 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 >
                   {serializedChildren}
                 </CMSLink>
+              )
+            }
+
+            case 'table': {
+              return (
+                <div className="my-8 overflow-x-auto rounded-lg border border-gray-200" key={index}>
+                  <table className="min-w-full divide-y divide-gray-200">
+                    {serializedChildren}
+                  </table>
+                </div>
+              )
+            }
+
+            case 'tablerow': {
+              return (
+                <tr key={index} className="divide-x divide-gray-200">
+                  {serializedChildren}
+                </tr>
+              )
+            }
+
+            case 'tablecell': {
+              const Tag = node.headerState === 'header' ? 'th' : 'td'
+              return (
+                <Tag
+                  key={index}
+                  className={`px-6 py-4 text-left text-sm ${
+                    node.headerState === 'header'
+                      ? 'bg-gray-50 font-semibold uppercase tracking-wider text-gray-900'
+                      : 'whitespace-nowrap text-gray-700'
+                  }`}
+                >
+                  {serializedChildren}
+                </Tag>
               )
             }
 
