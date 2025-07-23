@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 import { AllArticles } from '@/components/Blog/AllArticles'
 // 真实数据组件
 import { HeroSection } from '@/components/Blog/HeroSection'
-import { TopArticles } from '@/components/Blog/TopArticles'
+import { TopArticlesClient } from '@/components/Blog/TopArticlesClient'
 
 import PageClient from './page.client'
 
@@ -81,9 +81,10 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       {/* Top Articles - 精选文章 */}
       {topArticles.length > 0 && (
-        <TopArticles
+        <TopArticlesClient
           articles={topArticles as Post[]}
-          className="mt-0 px-6 pb-[100px] md:mt-[60px] md:px-0"
+          categories={categories.docs as Category[]}
+          className="mt-0 pb-[100px] md:mt-[60px]"
         />
       )}
 

@@ -7,7 +7,7 @@ import { cn } from '@/utilities/cn'
 import { Pagination } from '@/components/Pagination'
 
 import { ArticleGrid } from './ArticleGrid'
-import { CategorySidebar } from './CategorySidebar'
+import { CategorySidebar } from './category/CategorySidebar'
 
 interface AllArticlesProps {
   articles: Post[]

@@ -23,7 +23,7 @@ const contentVariants = cva('', {
   variants: {
     variant: {
       default: 'space-y-2 px-[10px] pb-[20px] pt-[25px]',
-      featured: 'space-y-[10px] p-[30px]',
+      featured: 'space-y-[10px] p-4 md:p-[30px]',
     },
   },
   defaultVariants: {
@@ -35,7 +35,7 @@ const titleVariants = cva('line-clamp-2 h-[60px] !font-euclid font-medium text-b
   variants: {
     variant: {
       default: 'text-[18px]',
-      featured: 'text-[24px]/[30px]',
+      featured: 'text-[18px]/[22px] md:text-[24px]/[30px]',
     },
   },
   defaultVariants: {
@@ -79,7 +79,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
     '#059669',
     '#EA580C',
   ]
-  const colorIndex = typeof article.id === 'string' ? article.id.charCodeAt(0) % colors.length : 0
+  const colorIndex = typeof article.id === 'number' ? article.id % colors.length : 0
   const backgroundColor = colors[colorIndex]
 
   return (
