@@ -40,7 +40,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 <Checkbox
                   id={category.id}
                   checked={isSelected}
-                  onCheckedChange={() => onCategoryChange(category.id)}
+                  onChange={() => onCategoryChange(category.id)}
                   className="border-2 border-none border-[#00000033]"
                 />
                 <Label
@@ -59,12 +59,13 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
 }
 
 interface CheckboxProps {
+  id: string
   checked?: boolean
   onChange?: (checked: boolean) => void
   className?: string
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ checked = false, onChange, className = '' }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ id, checked = false, onChange, className = '' }) => {
   const [isChecked, setIsChecked] = useState(checked)
 
   const handleChange = () => {
@@ -76,6 +77,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ checked = false, onChange, classNam
   return (
     <div className={`inline-flex items-center ${className}`}>
       <button
+        id={id}
         type="button"
         onClick={handleChange}
         className={cn(
