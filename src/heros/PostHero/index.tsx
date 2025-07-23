@@ -33,74 +33,72 @@ export const PostHero: React.FC<{
   }
 
   return (
-    <div className="bg-white pb-[30px] pt-20">
+    <div className="bg-white pb-[60px] pt-20">
       <div className="px-20">
         <div className="mx-auto max-w-[1000px]">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-5">
-              {/* 阅读时间和发布信息 */}
-              <div className="flex items-center gap-3">
-                <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]">
-                  {getReadingTime(post.content)}
-                </span>
-                <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)] opacity-60">
-                  ·
-                </span>
-                {publishedAt && (
-                  <time
-                    dateTime={publishedAt}
-                    className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]"
-                  >
-                    {formatDateTime(publishedAt)}
-                  </time>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {/* 标题 */}
-                <h1 className="!font-euclid text-[54px] font-semibold leading-[1.15] text-[#242424]">
-                  {title}
-                </h1>
-
-                {/* 描述 */}
-                {meta?.description && (
-                  <p className="!font-euclid text-[22px] font-normal leading-[1.45] text-[rgba(36,36,36,0.7)]">
-                    {meta.description}
-                  </p>
-                )}
-              </div>
-
-              {/* 分类标签 */}
-              {categories && categories.length > 0 && (
-                <div className="mb-3">
-                  {categories.map((category, index) => {
-                    if (typeof category === 'object' && category !== null) {
-                      const { title: categoryTitle } = category
-                      return (
-                        <span
-                          key={index}
-                          className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px] font-normal uppercase leading-[1.067] text-[rgba(36,36,36,0.8)]"
-                        >
-                          {categoryTitle || 'Digital Transformation'}
-                        </span>
-                      )
-                    }
-                    return null
-                  })}
-                </div>
-              )}
-
-              {metaImage && (
-                <div className="relative aspect-[2/1] w-full rounded-[16px]">
-                  <Image
-                    src={metaImage.src ?? ''}
-                    fill
-                    alt={metaImage.alt ?? ''}
-                    className="rounded-[16px] object-cover"
-                  />
-                </div>
+          <div className="flex flex-col">
+            {/* 阅读时间和发布信息 */}
+            <div className="flex items-center gap-3">
+              <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]">
+                {getReadingTime(post.content)}
+              </span>
+              <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)] opacity-60">
+                ·
+              </span>
+              {publishedAt && (
+                <time
+                  dateTime={publishedAt}
+                  className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]"
+                >
+                  {formatDateTime(publishedAt)}
+                </time>
               )}
             </div>
+
+            <div className="mt-5 flex flex-col gap-2">
+              {/* 标题 */}
+              <h1 className="!font-euclid text-[54px] font-semibold leading-[1.15] text-[#242424]">
+                {title}
+              </h1>
+
+              {/* 描述 */}
+              {meta?.description && (
+                <p className="!font-euclid text-[22px] font-normal leading-[1.45] text-[rgba(36,36,36,0.7)]">
+                  {meta.description}
+                </p>
+              )}
+            </div>
+
+            {/* 分类标签 */}
+            {categories && categories.length > 0 && (
+              <div className="mt-3">
+                {categories.map((category, index) => {
+                  if (typeof category === 'object' && category !== null) {
+                    const { title: categoryTitle } = category
+                    return (
+                      <span
+                        key={index}
+                        className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px] font-normal uppercase leading-[1.067] text-[rgba(36,36,36,0.8)]"
+                      >
+                        {categoryTitle || 'Digital Transformation'}
+                      </span>
+                    )
+                  }
+                  return null
+                })}
+              </div>
+            )}
+
+            {metaImage && (
+              <div className="relative mt-[60px] aspect-[2/1] w-full rounded-[16px]">
+                <Image
+                  src={metaImage.src ?? ''}
+                  fill
+                  alt={metaImage.alt ?? ''}
+                  className="rounded-[16px] object-cover"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
