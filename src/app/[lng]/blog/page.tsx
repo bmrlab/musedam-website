@@ -5,9 +5,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { AllArticles } from '@/components/Blog/AllArticles'
-// 真实数据组件
 import { HeroSection } from '@/components/Blog/HeroSection'
-import { TopArticlesClient } from '@/components/Blog/TopArticlesClient'
+import { TopArticles } from '@/components/Blog/TopArticles'
 
 import PageClient from './page.client'
 
@@ -81,11 +80,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       {/* Top Articles - 精选文章 */}
       {topArticles.length > 0 && (
-        <TopArticlesClient
-          articles={topArticles as Post[]}
-          categories={categories.docs as Category[]}
-          className="mt-0 pb-[100px] md:mt-[60px]"
-        />
+        <TopArticles articles={topArticles as Post[]} className="mt-0 pb-[100px] md:mt-[60px]" />
       )}
 
       {/* All Articles - 所有文章（包含分类筛选） */}
@@ -95,7 +90,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         currentPage={filteredPosts.page || 1}
         totalPages={filteredPosts.totalPages || 1}
         selectedCategory={category}
-        className="p-20"
+        className="px-6 pb-[60px] pt-0 md:p-20"
       />
     </div>
   )
