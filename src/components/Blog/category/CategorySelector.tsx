@@ -78,26 +78,17 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
               <span className="text-[20px] font-medium text-black">Category</span>
               <button onClick={handleClose} className="flex size-6 items-center justify-center">
                 <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
+                  width="24"
+                  height="25"
+                  viewBox="0 0 24 25"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-6"
                 >
                   <path
-                    d="M12 4L4 12"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M4 4L12 12"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M18.532 4.5L19.9999 5.96788L13.4679 12.4999L20 19.032L18.5321 20.4999L12 13.9678L5.46788 20.4999L4 19.032L10.5321 12.4999L4.00013 5.96788L5.46801 4.5L12 11.032L18.532 4.5Z"
+                    fill="black"
                   />
                 </svg>
               </button>
