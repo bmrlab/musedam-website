@@ -12,9 +12,7 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) => {
   return (
     <section className={cn(className)}>
-      <div className="flex justify-between gap-[120px]">
-        {/* 分类 */}
-
+      <div className="flex flex-col justify-between gap-10 md:flex-row md:gap-[120px]">
         {/* 左侧内容 */}
         <div className="flex flex-1 flex-col gap-3">
           <p className="!font-euclid text-[14px] uppercase text-black">Digital Transformation</p>
@@ -46,7 +44,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
 
         {/* 右侧图片区域 */}
         <div className="relative flex-1">
-          <div className="aspect-[4/3] max-h-[440px]  rounded-2xl">
+          <div className="aspect-[4/3] max-h-[440px]  rounded-[14px]">
             {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
             {article.meta?.image &&
             typeof article.meta.image === 'object' &&
@@ -54,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
               <img
                 src={article.meta.image.url ?? ''}
                 alt={article.meta.image.alt || article.title}
-                className="size-full rounded-2xl object-cover"
+                className="size-full rounded-[14px] object-cover"
               />
             ) : (
               <div className="size-full rounded-2xl bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>

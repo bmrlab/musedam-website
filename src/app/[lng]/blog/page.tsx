@@ -75,11 +75,16 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       <PageClient />
 
       {/* Hero Section - 特色文章 */}
-      {heroArticle && <HeroSection article={heroArticle as Post} className="p-[80px]" />}
+      {heroArticle && (
+        <HeroSection article={heroArticle as Post} className="px-6 py-[60px] md:p-[80px]" />
+      )}
 
       {/* Top Articles - 精选文章 */}
       {topArticles.length > 0 && (
-        <TopArticles articles={topArticles as Post[]} className="mt-[60px] pb-[100px]" />
+        <TopArticles
+          articles={topArticles as Post[]}
+          className="mt-0 px-6 pb-[100px] md:mt-[60px] md:px-0"
+        />
       )}
 
       {/* All Articles - 所有文章（包含分类筛选） */}
