@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { Category } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -22,6 +22,22 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [tempSelected, setTempSelected] = useState<number[]>(selectedCategories)
+
+  // 控制body滚动
+  useEffect(() => {
+    if (isOpen) {
+      // 禁用body滚动
+      document.body.style.overflow = 'hidden'
+    } else {
+      // 恢复body滚动
+      document.body.style.overflow = ''
+    }
+
+    // 清理函数，在组件卸载时恢复滚动
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
   // 处理复选框变化
   const handleCheckboxChange = (categoryId: number, checked: boolean) => {
@@ -57,15 +73,17 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   return (
     <div className={cn('', className)}>
       {/* 触发器 */}
-      <div
-        className="flex cursor-pointer items-center justify-between border-b border-black/10 pb-2"
+      <button
+        type="button"
+        className="flex w-full cursor-pointer items-center justify-between border-b border-black/10 pb-2"
         onClick={() => setIsOpen(true)}
+        aria-label="Open category selector"
       >
         <span className="text-[20px] font-medium text-black">{getDisplayText()}</span>
         <div className="flex size-6 items-center justify-center">
           <Icons.caretDown className="size-4 text-black/80" />
         </div>
-      </div>
+      </button>
 
       {/* 模态框 */}
       <AnimatePresence>
