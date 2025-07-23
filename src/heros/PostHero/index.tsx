@@ -6,7 +6,7 @@ import { formatDateTime } from 'src/utilities/formatDateTime'
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
-  const { categories, populatedAuthors, publishedAt, title, meta } = post
+  const { categories, publishedAt, title, meta } = post
 
   const metaImage = useMemo(() => {
     if (!meta?.image) return undefined
