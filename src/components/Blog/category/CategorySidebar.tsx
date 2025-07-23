@@ -65,7 +65,12 @@ interface CheckboxProps {
   className?: string
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ id, checked = false, onChange, className = '' }) => {
+export const Checkbox: React.FC<CheckboxProps> = ({
+  id,
+  checked = false,
+  onChange,
+  className = '',
+}) => {
   const [isChecked, setIsChecked] = useState(checked)
 
   const handleChange = () => {
@@ -81,16 +86,8 @@ const Checkbox: React.FC<CheckboxProps> = ({ id, checked = false, onChange, clas
         type="button"
         onClick={handleChange}
         className={cn(
-          `relative flex size-[18px] items-center
-          justify-center
-          border-2 bg-white
-          transition-all
-          duration-200
-          focus:outline-none
-          focus:ring-2
-          focus:ring-blue-500
-          focus:ring-offset-2`,
-          isChecked ? 'border-black' : 'border-gray-300 bg-white hover:border-gray-400',
+          'relative flex size-[18px] items-center justify-center border-2 bg-white transition-all duration-300',
+          isChecked ? 'border-black' : 'border-[#CCC] bg-white hover:border-gray-400',
         )}
       >
         {/* 选中状态的对勾 */}

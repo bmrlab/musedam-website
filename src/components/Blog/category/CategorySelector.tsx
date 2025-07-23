@@ -5,6 +5,8 @@ import type { Category } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/Blog/category/CategorySidebar'
 import Icons from '@/components/icon'
 
 interface CategorySelectorProps {
@@ -46,12 +48,6 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     } else {
       setTempSelected((prev) => prev.filter((id) => id !== categoryId))
     }
-  }
-
-  // 应用选择并关闭模态框
-  const handleApply = () => {
-    onCategoryChange?.(tempSelected)
-    setIsOpen(false)
   }
 
   // 关闭模态框时重置临时选择
@@ -106,17 +102,16 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                 <span className="text-[20px] font-medium text-black">Category</span>
                 <button onClick={handleClose} className="flex size-6 items-center justify-center">
                   <svg
-                    width="24"
-                    height="25"
-                    viewBox="0 0 24 25"
+                    width="12"
+                    height="8"
+                    viewBox="0 0 12 8"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M18.532 4.5L19.9999 5.96788L13.4679 12.4999L20 19.032L18.5321 20.4999L12 13.9678L5.46788 20.4999L4 19.032L10.5321 12.4999L4.00013 5.96788L5.46801 4.5L12 11.032L18.532 4.5Z"
+                      d="M11.1315 0.879883H0.868974C0.561161 0.879883 0.389286 1.20488 0.579911 1.42676L5.71116 7.37676C5.85804 7.54707 6.14085 7.54707 6.28929 7.37676L11.4205 1.42676C11.6112 1.20488 11.4393 0.879883 11.1315 0.879883Z"
                       fill="black"
+                      fillOpacity="0.8"
                     />
                   </svg>
                 </button>
@@ -125,78 +120,36 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
               {/* 分类列表 */}
               <div className="max-h-[464px] space-y-6 overflow-y-auto py-6 [&>div]:px-6">
                 {/* All 选项 */}
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      id="category-all"
-                      checked={tempSelected.length === 0}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setTempSelected([])
-                        }
-                      }}
-                      className="peer size-[18px] appearance-none rounded-sm border-2 border-black/20 checked:border-black checked:bg-white"
-                    />
-                    {tempSelected.length === 0 && (
-                      <svg
-                        className="pointer-events-none absolute left-1 top-1.5 size-2.5"
-                        viewBox="0 0 11 8"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M1 4L4 7L10 1"
-                          stroke="black"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <label
+                <div className="flex h-5 items-center gap-2">
+                  <Checkbox
+                    id="category-all"
+                    checked={tempSelected.length === 0}
+                    onChange={() => setTempSelected([])}
+                  />
+                  <Label
                     htmlFor="category-all"
-                    className="cursor-pointer text-[16px] font-medium text-[#262626]"
+                    className="cursor-pointer text-[16px] font-medium leading-none text-[#262626]"
                   >
                     All
-                  </label>
+                  </Label>
                 </div>
 
                 {/* 分类选项 */}
                 {categories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
+                    <div className="flex h-5 items-center gap-2">
+                      <Checkbox
                         id={`category-${category.id}`}
                         checked={tempSelected.includes(category.id)}
-                        onChange={(e) => handleCheckboxChange(category.id, e.target.checked)}
-                        className="peer size-[18px] appearance-none rounded-sm border-2 border-black/20 checked:border-black checked:bg-white"
+                        onChange={(e) => handleCheckboxChange(category.id, e)}
                       />
-                      {tempSelected.includes(category.id) && (
-                        <svg
-                          className="pointer-events-none absolute left-1 top-1.5 size-2.5"
-                          viewBox="0 0 11 8"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 4L4 7L10 1"
-                            stroke="black"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      )}
                     </div>
-                    <label
+                    <Label
                       htmlFor={`category-${category.id}`}
-                      className="cursor-pointer text-[16px] text-[#262626]"
+                      className="cursor-pointer text-[16px] leading-none text-[#262626]"
                     >
                       {category.title}
-                    </label>
+                    </Label>
                   </div>
                 ))}
               </div>
