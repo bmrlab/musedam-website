@@ -1,11 +1,25 @@
-import React from 'react'
-import type { Post } from '@/payload-types'
+import React, { useMemo } from 'react'
+import Image from 'next/image'
+import type { Media, Post } from '@/payload-types'
 import { formatDateTime } from 'src/utilities/formatDateTime'
 
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
   const { categories, populatedAuthors, publishedAt, title, meta } = post
+
+  const metaImage = useMemo(() => {
+    if (!meta?.image) return undefined
+    if (typeof meta?.image === 'object') {
+      const image = meta.image as Media
+      return {
+        src: image.url,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+      }
+    }
+  }, [meta?.image])
 
   // 计算阅读时间（简单估算：每分钟200字）
   const getReadingTime = (content: any): string => {
@@ -73,6 +87,17 @@ export const PostHero: React.FC<{
                     }
                     return null
                   })}
+                </div>
+              )}
+
+              {metaImage && (
+                <div className="relative aspect-[2/1] w-full rounded-[16px]">
+                  <Image
+                    src={metaImage.src ?? ''}
+                    fill
+                    alt={metaImage.alt ?? ''}
+                    className="rounded-[16px] object-cover"
+                  />
                 </div>
               )}
             </div>
