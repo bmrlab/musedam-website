@@ -165,11 +165,11 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'heading': {
               const Tag = node?.tag
               const headingClasses = {
-                h1: '!font-euclid text-[40px] font-semibold leading-[1.5] text-[#242424] mt-12 mb-6',
-                h2: '!font-euclid text-[32px] font-semibold leading-[1.5] text-[#242424] mt-10 mb-5',
-                h3: '!font-euclid text-[24px] font-semibold leading-[1.5] text-[#242424] mt-8 mb-4',
-                h4: '!font-euclid text-[20px] font-semibold leading-[1.5] text-[#242424] mt-6 mb-3',
-                h5: '!font-euclid text-[18px] font-semibold leading-[1.5] text-[#242424] mt-4 mb-2',
+                h1: '!font-euclid text-[40px] font-semibold leading-[1.5] text-[#242424]',
+                h2: '!font-euclid text-[32px] font-semibold leading-[1.5] text-[#242424]',
+                h3: '!font-euclid text-[24px] font-semibold leading-[1.5] text-[#242424]',
+                h4: '!font-euclid text-[20px] font-semibold leading-[1.5] text-[#242424]',
+                h5: '!font-euclid text-[18px] font-semibold leading-[1.5] text-[#242424]',
               }
               return (
                 <Tag
