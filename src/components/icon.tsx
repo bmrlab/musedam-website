@@ -590,6 +590,21 @@ const headerIcons = {
       />
     </svg>
   ),
+  check: (props: IconProps) => (
+    <svg
+      width="11"
+      height="8"
+      viewBox="0 0 11 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M4.41747 7.60407L4.39985 7.62169L0 3.22185L1.43268 1.78917L4.41752 4.77402L9.19154 0L10.6242 1.43268L4.43514 7.62175L4.41747 7.60407Z"
+        fill="black"
+      />
+    </svg>
+  ),
 }
 
 const combinedIcons = {
