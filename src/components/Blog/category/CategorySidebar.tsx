@@ -27,51 +27,56 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
         <Divider className="mb-6 mt-[10px] border-[#E5E5E5]" />
         <nav className="space-y-2">
-          {categories.map((category) => {
-            let isSelected = selectedCategory.includes(category.id)
-            if (category.id === 'all') {
-              isSelected = selectedCategory.length === 0
-            }
+          <div
+            key="category-all"
+            className={cn('flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors')}
+          >
+            <Checkbox
+              id="category-all"
+              checked={selectedCategory.length === 0}
+              onChange={(e) => {
+                if (e) {
+                  // 当 all 被选中的时候，移除 category 的筛选条件
+                  onCategoryChange([])
+                }
+              }}
+              className="border-2 border-none border-[#00000033]"
+            />
+            <Label
+              htmlFor="category-all"
+              className="cursor-pointer !font-euclid  text-[16px] text-[#262626]"
+            >
+              All
+            </Label>
+          </div>
 
-            return (
-              <div
-                key={category.id}
-                className={cn(
-                  'flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors',
-                )}
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              className={cn(
+                'flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors',
+              )}
+            >
+              <Checkbox
+                id={category.id}
+                checked={selectedCategory.includes(category.id)}
+                onChange={(e) => {
+                  if (e) {
+                    onCategoryChange([...selectedCategory, category.id])
+                  } else {
+                    onCategoryChange(selectedCategory.filter((id) => id !== category.id))
+                  }
+                }}
+                className="border-2 border-none border-[#00000033]"
+              />
+              <Label
+                htmlFor={category.id}
+                className="cursor-pointer !font-euclid  text-[16px] text-[#262626]"
               >
-                <Checkbox
-                  id={category.id}
-                  checked={isSelected}
-                  onChange={(e) => {
-                    if (category.id === 'all') {
-                      if (e) {
-                        // 当 all 被选中的时候，移除 category 的筛选条件
-                        onCategoryChange([])
-                        return
-                      } else {
-                        // 当没有 category 被选中的时候，all 不能被取消
-                        return
-                      }
-                    }
-
-                    if (e) {
-                      onCategoryChange([...selectedCategory, category.id])
-                    } else {
-                      onCategoryChange(selectedCategory.filter((id) => id !== category.id))
-                    }
-                  }}
-                  className="border-2 border-none border-[#00000033]"
-                />
-                <Label
-                  htmlFor={category.id}
-                  className="cursor-pointer !font-euclid  text-[16px] text-[#262626]"
-                >
-                  {category.title}
-                </Label>
-              </div>
-            )
-          })}
+                {category.title}
+              </Label>
+            </div>
+          ))}
         </nav>
       </div>
     </aside>

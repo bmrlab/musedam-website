@@ -29,6 +29,7 @@ export function AllArticlesPagination({
   gotoNextPage,
   gotoFirstPage,
   gotoLastPage,
+  className,
 }: {
   currentPage: number
   totalPages: number
@@ -36,12 +37,13 @@ export function AllArticlesPagination({
   gotoNextPage: () => void
   gotoFirstPage: () => void
   gotoLastPage: () => void
+  className?: string
 }) {
   const canGotoPrev = useMemo(() => currentPage > 1, [currentPage])
   const canGotoNext = useMemo(() => currentPage < totalPages, [currentPage, totalPages])
 
   return (
-    <div className="mt-10 flex items-center justify-center">
+    <div className={cn('mt-10 flex items-center justify-center', className)}>
       <div
         className={cn(iconContainerVariants({ isActive: canGotoPrev }))}
         onClick={canGotoPrev ? gotoFirstPage : undefined}

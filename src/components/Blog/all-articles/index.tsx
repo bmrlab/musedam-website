@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 import { AllArticlesPagination } from '@/components/Blog/all-articles/pagination'
-import { useCreateUrlQuery } from '@/components/Blog/all-articles/useCreateUrlQuery'
+import { useUrlQuery } from '@/components/Blog/all-articles/useUrlQuery'
 
 import { ArticleGrid } from '../ArticleGrid'
 import { CategorySelector } from '../category/CategorySelector'
@@ -28,7 +28,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
   selectedCategory,
   className,
 }) => {
-  const { routeWithQuery, routeWithQueryAndRemove, routeWithRemove } = useCreateUrlQuery()
+  const { routeWithQuery, routeWithQueryAndRemove, routeWithRemove } = useUrlQuery()
 
   const setCurrentPage = useCallback(
     (pageNumber: number) => {
@@ -37,17 +37,12 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
     [routeWithQuery],
   )
 
-  // 移动端分类选择状态
-  const [mobileSelectedCategories, setMobileSelectedCategories] = useState<number[]>([])
-
   const categoryOptions = useMemo(
-    () => [
-      { id: 'all', title: 'All', count: 0 },
-      ...categories.map((cat) => ({
+    () =>
+      categories.map((cat) => ({
         id: cat.id.toString(),
         title: cat.title,
       })),
-    ],
     [categories],
   )
 
@@ -65,18 +60,6 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
     [routeWithRemove, routeWithQueryAndRemove],
   )
 
-  // 处理移动端分类变化
-  const handleMobileCategoryChange = (newCategories: number[]) => {
-    setMobileSelectedCategories(newCategories)
-
-    // 更新URL
-    if (newCategories.length === 0) {
-      window.location.href = '/blog'
-    } else {
-      window.location.href = `/blog?category=${newCategories[0]}`
-    }
-  }
-
   return (
     <section className={cn(className)}>
       <div className="mb-[60px]">
@@ -86,9 +69,9 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
       {/* 移动端分类选择器 */}
       <div className="mb-6 block md:hidden">
         <CategorySelector
-          categories={categories}
-          selectedCategories={mobileSelectedCategories}
-          onCategoryChange={handleMobileCategoryChange}
+          categories={categoryOptions}
+          selectedCategories={selectedCategory}
+          onCategoryChange={handleCategoryChange}
         />
       </div>
 
@@ -114,6 +97,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
               gotoNextPage={() => setCurrentPage(currentPage + 1)}
               gotoFirstPage={() => setCurrentPage(1)}
               gotoLastPage={() => setCurrentPage(totalPages)}
+              className="hidden md:block"
             />
           )}
         </div>

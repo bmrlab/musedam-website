@@ -11,7 +11,7 @@ interface ArticleGridProps {
 
 export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles, className }) => {
   return (
-    <div className={cn('', className)}>
+    <div className={cn('w-full', className)}>
       <div className="grid grid-cols-1 gap-x-[30px] gap-y-[40px] md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
           <ArticleCard key={article.id} article={article} />
