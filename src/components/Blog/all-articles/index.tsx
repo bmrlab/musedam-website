@@ -1,11 +1,11 @@
 'use client'
 
-import React, { startTransition, useEffect, useState } from 'react'
-import { getPosts } from '@/data/blog'
+import React, { useCallback, useMemo, useState } from 'react'
 import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 import { AllArticlesPagination } from '@/components/Blog/all-articles/pagination'
+import { useCreateUrlQuery } from '@/components/Blog/all-articles/useCreateUrlQuery'
 
 import { ArticleGrid } from '../ArticleGrid'
 import { CategorySelector } from '../category/CategorySelector'
@@ -16,50 +16,40 @@ interface AllArticlesProps {
   categories: Category[]
   currentPage?: number
   totalPages?: number
-  selectedCategory?: string
+  selectedCategory: string[]
   className?: string
 }
 
 export const AllArticles: React.FC<AllArticlesProps> = ({
-  articles: initialArticles,
+  articles,
   categories,
-  currentPage: initialPage = 1,
+  currentPage = 1,
   totalPages = 1,
   selectedCategory,
   className,
 }) => {
-  const [articles, setArticles] = useState(initialArticles)
-  const [currentPage, setCurrentPage] = useState<number>(initialPage)
+  const { routeWithQuery, routeWithRemoveQuery } = useCreateUrlQuery()
 
-  useEffect(() => {
-    startTransition(async () => {
-      const posts = await getPosts({
-        page: currentPage,
-        category: [],
-      })
-      console.log('posts', posts)
-      setArticles(posts.docs)
-    })
-  }, [currentPage])
+  const setCurrentPage = useCallback(
+    (pageNumber: number) => {
+      routeWithQuery({ name: 'pageNumber', value: String(pageNumber) })
+    },
+    [routeWithQuery],
+  )
 
   // 移动端分类选择状态
-  const [mobileSelectedCategories, setMobileSelectedCategories] = useState<number[]>(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      const categoryId = parseInt(selectedCategory, 10)
-      return !isNaN(categoryId) ? [categoryId] : []
-    }
-    return []
-  })
+  const [mobileSelectedCategories, setMobileSelectedCategories] = useState<number[]>([])
 
-  // 转换分类数据格式以兼容 CategorySidebar
-  const categoryOptions = [
-    { id: 'all', title: 'All', count: 0 },
-    ...categories.map((cat) => ({
-      id: cat.id.toString(),
-      title: cat.title,
-      count: 0, // 这里可以后续添加文章计数逻辑
-    })),
-  ]
+  const categoryOptions = useMemo(
+    () => [
+      { id: 'all', title: 'All', count: 0 },
+      ...categories.map((cat) => ({
+        id: cat.id.toString(),
+        title: cat.title,
+      })),
+    ],
+    [categories],
+  )
 
   // 处理移动端分类变化
   const handleMobileCategoryChange = (newCategories: number[]) => {
@@ -92,11 +82,14 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
         {/* 左侧分类筛选 - 仅桌面端显示 */}
         <CategorySidebar
           categories={categoryOptions}
-          selectedCategory={selectedCategory || 'all'}
+          selectedCategory={selectedCategory}
           onCategoryChange={(categoryId) => {
-            // 使用 URL 导航而不是本地状态
-            const url = categoryId === 'all' ? '/blog' : `/blog?category=${categoryId}`
-            window.location.href = url
+            console.log('categoryId', categoryId)
+            if (categoryId.length === 0) {
+              routeWithRemoveQuery('category')
+            } else {
+              routeWithQuery({ name: 'category', value: categoryId.join(',') })
+            }
           }}
           className="sticky hidden w-[240px] md:block lg:sticky lg:top-8 lg:self-start"
         />
