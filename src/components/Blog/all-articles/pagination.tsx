@@ -10,7 +10,7 @@ const iconContainerVariants = cva(
     variants: {
       isActive: {
         true: 'text-black',
-        false: 'text-[#999]',
+        false: 'cursor-not-allowed text-[#999] hover:bg-transparent',
       },
       single: {
         true: '[&>svg]:size-[14px]',
