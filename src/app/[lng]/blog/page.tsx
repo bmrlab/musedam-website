@@ -26,8 +26,6 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
   const filterCategory = category === '' ? [] : category?.split(',') || []
 
-  console.log('searchParamsPromise', await searchParamsPromise)
-
   // 获取所有分类
   const categories = await payload.find({
     collection: 'categories',
@@ -85,7 +83,8 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       <AllArticles
         articles={allPosts.docs as Post[]}
         categories={categories.docs as Category[]}
-        currentPage={allPosts.page || 1}
+        // page 类型是 string
+        currentPage={parseInt(allPosts.page?.toString() ?? '1')}
         totalPages={allPosts.totalPages || 1}
         selectedCategory={filterCategory}
         className="px-6 pb-[60px] pt-0 md:p-20"
