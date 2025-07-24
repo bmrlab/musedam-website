@@ -50,13 +50,6 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, className }) => {
-  // 获取文章描述
-  const description =
-    article.meta?.description ||
-    (typeof article.content === 'object' &&
-      article.content?.root?.children?.[0]?.children?.[0]?.text) ||
-    'Read this article to learn more...'
-
   // 获取第一个分类
   const category = useMemo(
     () =>

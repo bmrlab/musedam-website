@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import type { Category } from '@/payload-types'
+import React, { useCallback, useEffect, useState } from 'react'
 import { cn } from '@/utilities/cn'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -10,9 +9,9 @@ import { Checkbox } from '@/components/Blog/category/CategorySidebar'
 import Icons from '@/components/icon'
 
 interface CategorySelectorProps {
-  categories?: Category[]
-  selectedCategories?: number[]
-  onCategoryChange?: (categories: number[]) => void
+  categories: { id: string; title: string }[]
+  selectedCategories: string[]
+  onCategoryChange?: (categories: string[]) => void
   className?: string
 }
 
@@ -23,7 +22,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [tempSelected, setTempSelected] = useState<number[]>(selectedCategories)
+  const [tempSelected, setTempSelected] = useState<string[]>(selectedCategories)
 
   // 控制body滚动
   useEffect(() => {
@@ -42,29 +41,21 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   }, [isOpen])
 
   // 处理复选框变化
-  const handleCheckboxChange = (categoryId: number, checked: boolean) => {
-    if (checked) {
-      setTempSelected((prev) => [...prev, categoryId])
-    } else {
-      setTempSelected((prev) => prev.filter((id) => id !== categoryId))
-    }
-  }
+  const handleCheckboxChange = useCallback(
+    (categoryId: string, checked: boolean) => {
+      if (checked) {
+        setTempSelected((prev) => [...prev, categoryId])
+      } else {
+        setTempSelected((prev) => prev.filter((id) => id !== categoryId))
+      }
+    },
+    [setTempSelected],
+  )
 
-  // 关闭模态框时重置临时选择
-  const handleClose = () => {
-    setTempSelected(selectedCategories)
+  const handleClose = useCallback(() => {
+    onCategoryChange?.(tempSelected)
     setIsOpen(false)
-  }
-
-  // 获取显示文本
-  const getDisplayText = () => {
-    if (selectedCategories.length === 0) return 'Category'
-    if (selectedCategories.length === 1) {
-      const category = categories.find((cat) => cat.id === selectedCategories[0])
-      return category?.title || 'Category'
-    }
-    return `${selectedCategories.length} Categories`
-  }
+  }, [onCategoryChange, tempSelected, setIsOpen])
 
   return (
     <div className={cn('', className)}>
@@ -75,7 +66,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label="Open category selector"
       >
-        <span className="text-[20px] font-medium text-black">{getDisplayText()}</span>
+        <span className="text-[20px] font-medium text-black">Category</span>
         <div className="flex size-6 items-center justify-center">
           <Icons.caretDown className="size-4 text-black/80" />
         </div>
