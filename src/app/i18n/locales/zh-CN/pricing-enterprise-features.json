@@ -1,6 +1,6 @@
 {
-    "Basic": "团队版",
-    "Advanced": "企业版",
+    "Basic": "基础版",
+    "Advanced": "高级版",
     "ValueAddedServices": "增值服务",
     "aiCapabilities.title": "AI 能力",
     "aiCapabilities.0.name": "AI 自动解析",
@@ -108,6 +108,7 @@
     "customSystemHomepage.5.detail": "热门素材、最近访问、共享空间和收藏夹展示模块",
     "customSystemHomepage.6.name": "背景设置",
     "customSystemHomepage.6.detail": "全屏或半屏布局选项，支持上传或在线背景图片",
+    "approvalWorkflow.title": "项目审批",
     "approvalWorkflow.0.name": "可配置审批流程",
     "approvalWorkflow.0.detail": "灵活的工作流配置，匹配组织要求和合规需求",
     "approvalWorkflow.1.name": "工作流设计",

@@ -163,7 +163,7 @@ export default function WhyMuse() {
                             <Image src={getUrl(icon)} alt={icon} className='size-6 object-contain' width={56} height={56} />
                         </div>
                         <div className='flex flex-col justify-between'>
-                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-xl md:text-[24px] font-medium'>
+                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                                 {title}
                             </span>
                             <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[15px] md:text-[16px] font-light text-[rgba(255,255,255,0.72)]'>

@@ -22,7 +22,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     const { language, setLanguage } = useLanguage()
     const searchParams = useSearchParams()
 
-    const darkHeadPage = useMemo(() => !!pathname && ['', '/'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+    const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
     const changeLocale = useCallback((lang: string) => {
         if (language == lang) return
         if (!searchParams) return

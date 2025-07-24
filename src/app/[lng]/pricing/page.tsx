@@ -21,18 +21,6 @@ export default async function MuseDAMPricingPage({
 } & PropsWithLng) {
   const user = await getServerSession()
 
-  const { lng } = await params
-  const { plan } = await searchParams
-
-  // 没指定版本且用户已登录，要切换对对应的版本
-  if (user && typeof plan === 'undefined') {
-    if (user.isOrg) {
-      redirect(`/${lng}/pricing?plan=team`)
-    } else {
-      redirect(`/${lng}/pricing?plan=personal`)
-    }
-  }
-
   return (
     <FlexColContainer className="w-full items-center bg-[#070707]">
       <FlexColContainer className="w-full items-center ">

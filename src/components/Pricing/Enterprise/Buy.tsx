@@ -19,6 +19,7 @@ import { useBillingMenu } from '../billingMenu'
 import ContactUsDialog from '../ContactUsDialog'
 import { PlanType } from '../types/plan'
 import { LocaleLink } from '@/components/LocalLink'
+import { useLanguage } from '@/providers/Language'
 
 export default function Buy({
     isMuseAI,
@@ -31,7 +32,8 @@ export default function Buy({
     const { enterpriseBillingMenu } = useBillingMenu({ isMuseAI: false }) // 在组件内
     const currentPlan = PlanType.team
     const { country, isInChina } = useCountry()
-
+    const { language } = useLanguage()
+    const isEn = language === 'en-US'
     const { t } = useTranslation('pricing')
     const [open, setOpen] = useState(false)
 
@@ -42,14 +44,14 @@ export default function Buy({
                     isInChina
                 ) {
                     return <>
-                        {t('pricing.from')} <span className='font-medium'>¥</span><span className='text-[40px] font-medium'>{price}</span> {t('pricing.perMonth')}
+                        {t('pricing.from')} <span className='font-medium'>¥</span><span className='text-[40px] font-medium font-euclid'>{price}</span> {t('pricing.perMonth.new')}
                     </>
                 }
                 return <>
-                    {t('pricing.from')} <span className='font-medium'>$</span><span className='text-[40px] font-medium'>{price}</span> {t('pricing.perMonth')}
+                    {t('pricing.from')} <span className='font-medium'>$</span><span className='text-[40px] font-medium font-euclid'>{price}</span> {t('pricing.perMonth.new')}
                 </>
             } else {
-                return <span className='text-[32px] font-medium'>{t('pricing.contact.sales')}</span>
+                return <span className='text-[32px] font-medium font-euclid'>{t('pricing.contact.sales')}</span>
             }
         },
         [isInChina, currentPlan, t],
@@ -62,14 +64,14 @@ export default function Buy({
 
     return (
         <>
-            <FlexColContainer className="w-full items-center pb-[120px] pt-5 font-euclid md:pt-[80px]">
-                <FlexRowContainer className="mb-6 w-full justify-between px-5 md:px-[80px]">
-                    <h1 className='my-10 w-full text-center text-[78px] leading-[87px] text-white md:mb-[60px] font-feature'>{t('pricing.title.new')}</h1>
+            <FlexColContainer className="w-full items-center pb-[120px] pt-5 font-euclid md:pt-[60px]">
+                <FlexRowContainer className="w-full justify-between px-5 md:px-[80px] mb-10 md:mb-[60px] ">
+                    <h1 className='w-full text-center text-[40px] leading-[51px] md:text-[78px] md:leading-[87px] text-white font-feature'>{t('pricing.title.new')}</h1>
                 </FlexRowContainer>
 
                 {/* Pricing Cards */}
                 <div className="w-full overflow-x-scroll px-5 md:px-[80px] no-scrollbar">
-                    <div className='flex w-fit min-w-full items-end justify-center gap-10'>
+                    <div className='flex md:flex-row flex-col w-fit min-w-full items-end justify-center md:gap-10 gap-[30px]'>
                         {enterpriseBillingMenu.map((plan, index) => {
                             const {
                                 key,
@@ -78,7 +80,7 @@ export default function Buy({
                                 // uncheckSummary,
                             } = plan;
                             const renderPrice = getPriceRender(isInChina ? plan.price : plan.priceGlobal)
-                            return <div key={key} className="relative h-fit min-w-[300px] max-w-sm flex-1 shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#141414] px-6 pb-6 pt-[30px]"> {/* Add relative positioning and hide overflow */}
+                            return <div key={key} className="relative h-fit w-full max-w-sm flex-1 shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#141414] px-6 pb-6 pt-[30px]"> {/* Add relative positioning and hide overflow */}
                                 {/* Tag */}
                                 <div className=' border border-white/10 rounded-[10px]  overflow-hidden w-fit h-[36px] mb-3'>
                                     <div
@@ -96,13 +98,20 @@ export default function Buy({
                                 <div className='mt-[22px] flex items-center gap-1 font-euclidlight text-xs min-h-[32px] text-white'>
                                     {renderPrice}
                                 </div>
-                                <div className='h-[40px] w-full' />
+                                <div className='h-[48px] w-full' />
 
                                 {buttonType === 'bookDemo' &&
                                     <LocaleLink href={'/bookDemo'} prefetch={false}>
-                                        <Button className={cn(
-                                            'mb-4 h-[40px] w-full border-white/10 bg-[#FF2EE7] text-[14px] font-normal  text-white transition-all duration-300 ease-in-out hover:bg-[rgba(255,46,231,0.8)]',
-                                        )}>
+                                        <Button
+                                            className={cn(
+                                                'border border-[rgba(255,255,255,0.48)]',
+                                                'mb-4 h-[48px] rounded-xl w-full border-white/10 bg-[#FF2EE7]  text-white',
+                                                'transition-all duration-300 ease-in-out hover:bg-[rgba(255,46,231,0.8)]',
+                                                // 阴影样式
+                                                'shadow-[0_0_8px_-2px_rgba(255,255,255,0.48),0_0_6px_0_rgba(255,255,255,0.16),0_0_8px_-2px_rgba(255,255,255,0.48)_inset]',
+                                                isEn ? 'text-lg' : ' text-base'
+                                            )}
+                                        >
                                             {t('pricing.bookDemo')}
                                         </Button>
                                     </LocaleLink>
@@ -110,13 +119,23 @@ export default function Buy({
 
                                 {buttonType === 'bookDemo' || buttonType === 'contact' ?
                                     <LocaleLink href={'/bookDemo'} prefetch={false}>
-                                        <Button className="h-[40px] w-full rounded border border-white/10 text-[14px] font-normal text-white transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white"
+                                        <Button className={
+                                            cn(
+                                                "h-[48px] bg-[#141414] w-full rounded-xl border border-white/10 text-lg text-[rgba(255,255,255,0.72)]",
+                                                "transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white",
+                                                isEn ? 'text-lg' : ' text-base'
+                                            )}
                                         >
                                             {t('pricing.contact.now')}
                                         </Button>
                                     </LocaleLink> :
                                     <Button
-                                        className="h-[40px] w-full rounded border border-white/10 text-[14px] font-normal text-white transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white"
+                                        className={
+                                            cn(
+                                                "h-[48px] bg-[#141414] w-full rounded-xl border border-white/10 text-lg text-[rgba(255,255,255,0.72)]",
+                                                "transition-all duration-300 ease-in-out hover:bg-[#262626] hover:text-white",
+                                                isEn ? 'text-lg' : ' text-base'
+                                            )}
                                         onClick={() => {
                                             // 如果是已登录用户，且要体验团队（说明还没创建过），则进入团队onboarding流程
                                             if (!!user && currentPlan === PlanType.team && !user.hasOrg) {
@@ -139,7 +158,7 @@ export default function Buy({
                                         .map((feature) => (
                                             <li className="flex items-center gap-2 " key={feature}>
                                                 <CheckIcon className="shrink-0 text-[#20C997]" width={16} height={16} />
-                                                <span className="font-euclid text-[13px] font-light leading-[18px]">
+                                                <span className="text-[13px] font-light leading-[18px] font-euclidlight">
                                                     {feature}
                                                 </span>
                                             </li>

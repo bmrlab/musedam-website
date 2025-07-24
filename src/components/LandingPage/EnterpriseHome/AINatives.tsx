@@ -107,7 +107,7 @@ export default function AINatives() {
                         <div className='aspect-[4/3] w-full rounded-[30px] object-cover' style={{
                             backgroundColor: color
                         }}>
-                            <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={400} height={300} />
+                            <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={800} height={600} />
                         </div>
                         <div className={cn('md:mx-5 mx-4 mb-[10px] mt-6 md:mt-[30px] md:text-[22px]',
                             isEn ? 'text-[18px]' : 'text-[20px]'

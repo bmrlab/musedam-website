@@ -14,9 +14,10 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
 
-const FormLabel = twx.label`mb-3 block md:text-sm text-[12px]`
+const FormLabel = twx.label`mb-2 block text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border border-[#C5CEE0] rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 hover:border-[#141414] focus:ring-0 focus:border-[#141414] ease-in-out duration-300 transition-all`
-export const Information = () => {
+
+export const Information = ({ inNewPage }: { inNewPage?: boolean }) => {
     const { isInChina } = useCountry()
     const { t } = useInformationTranslation();
     const { language } = useLanguage()
@@ -150,7 +151,9 @@ export const Information = () => {
                 isMobile && 'h-fit'
             )}>
                 {/* 左侧介绍 */}
-                <div className="md:h-full flex-col flex flex-1 md:pb-[100px] md:pr-[80px] md:py-[90px] pt-[60px] pb-0">
+                <div className={cn("md:h-full flex-col flex flex-1 md:pb-[100px] md:pr-[80px] pt-[60px] pb-0",
+                    inNewPage ? 'md:py-[70px]' : 'md:py-[90px]'
+                )}>
                     <div className="flex-1">
                         <h1 className={cn("mb-4 font-feature md:text-[54px] font-medium md:text-start text-center",
                             isEn ? " text-[40px]" : " text-[32px]"
@@ -182,9 +185,12 @@ export const Information = () => {
                     </div>
                 </div>
                 {/* 右侧表单 */}
-                <div className="font-euclid shadow-none md:flex-1 w-full md:pt-[100px] md:pb-[90px] pb-[60px] ">
+                <div className={cn(
+                    "font-euclid shadow-none md:flex-1 w-full md:pb-[90px] pb-[60px]",
+                    inNewPage ? 'md:pt-[80px]' : 'md:pt-[100px]'
+                )}>
                     <h2 className="md:mb-10 mb-6 text-[28px] md:text-2xl font-medium text-center md:text-start">{t('form.title')}</h2>
-                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-5" onSubmit={handleSubmit} >
+                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[12px]" onSubmit={handleSubmit} >
                         {
                             formInputLabelKeys.map((key, index) => {
                                 return <div className="col-span-2 md:col-span-1">

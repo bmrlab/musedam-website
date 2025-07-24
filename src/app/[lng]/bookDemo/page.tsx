@@ -5,7 +5,7 @@ import { getPageMetadata } from '@/utilities/getMetadata'
 import { Information } from '@/components/Pricing/Enterprise/information'
 
 export default function BookDemoPage() {
-    return <Information />
+    return <Information inNewPage={true} />
 }
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {

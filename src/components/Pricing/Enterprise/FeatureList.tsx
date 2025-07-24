@@ -9,20 +9,37 @@ const FeatureList = () => {
     const { t } = useTranslation('pricing-featureList');
     const [expandedCategories, setExpandedCategories] = useState({});
 
+    // 切换大类展开/收起
     const toggleCategory = (categoryKey) => {
         setExpandedCategories(prev => ({
             ...prev,
-            [categoryKey]: !prev[categoryKey]
+            [categoryKey]: {
+                expanded: !(prev[categoryKey]?.expanded)
+            }
+        }));
+    };
+
+    // 切换小组展开/收起
+    const toggleGroup = (categoryKey, groupKey) => {
+        setExpandedCategories(prev => ({
+            ...prev,
+            [categoryKey]: {
+                ...prev[categoryKey],
+                groups: {
+                    ...prev[categoryKey]?.groups,
+                    [groupKey]: !prev[categoryKey]?.groups?.[groupKey]
+                }
+            }
         }));
     };
 
 
     return (
-        <div className="w-full bg-[#F0F0EA] p-4 md:px-[80px] md:py-[104px]">
-            <div className="mb-10 flex flex-col items-center">
-                <h2 className="mb-10 font-feature text-[64px] text-[#070707]">{t('title')}</h2>
+        <div className="w-full bg-[#F0F0EA] px-4 py-[60px] md:px-[80px] md:py-[104px]">
+            <div className="mb-[60px] flex flex-col items-center">
+                <h2 className="font-feature text-[40px] md:text-[64px] text-[#070707]">{t('title')}</h2>
                 {/* 生成报价单 */}
-                {/* <button className=" rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {/* <button className="mt-10 rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     {t('button')}
                 </button> */}
             </div>
@@ -36,7 +53,9 @@ const FeatureList = () => {
 
                 {/* 分类内容 */}
                 {Object.entries(allFeature).map(([categoryKey, categoryData]) => {
-                    const isExpend = expandedCategories[categoryKey]
+                    const categoryState = expandedCategories[categoryKey] || {};
+                    const isExpend = categoryState.expanded;
+                    const groupStates = categoryState.groups || {};
                     const categoriesMap = Object.entries(categoryData.list)
 
                     return <div key={categoryKey} className='rounded-2xl '>
@@ -58,16 +77,21 @@ const FeatureList = () => {
                         <div className="rounded-b-2xl border border-t-0 border-b-0 border-[#D1D1CC]">
                             {categoriesMap.map(([groupKey, groupItems], index) => {
                                 const isLast = index + 1 === categoriesMap.length
+                                const isGroupExpanded = groupStates[groupKey];
                                 return <React.Fragment key={groupKey}>
                                     {/* 小组标题 */}
-                                    <div className={cn("grid grid-cols-12 items-center border-b border-[#D1D1CC]", !isExpend && isLast && 'rounded-b-2xl')}>
-                                        <div className="col-span-12 p-4 font-medium text-[#141414]">
-                                            <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
-                                        </div>
+                                    <div className={cn(
+                                        "p-4 text-[#141414] font-medium items-center border-b border-[#D1D1CC] cursor-pointer",
+                                        "transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
+                                        !isExpend && isLast && 'rounded-b-2xl'
+                                    )}
+                                        onClick={() => toggleGroup(categoryKey, groupKey)}
+                                    >
+                                        <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
                                     </div>
                                     {/* 展开时显示所有小组下的功能项 ，两列 */}
                                     <div
-                                        className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpend ? 'max-h-[2000px]' : 'max-h-0'}`}
+                                        className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpend || isGroupExpanded ? 'max-h-[2000px]' : 'max-h-0'}`}
                                     >
                                         {groupItems.map((item, index) => (
                                             <div key={index} className={

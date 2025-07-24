@@ -29,7 +29,8 @@ export default function HeaderMobile({
   className,
   user,
   isGlobal,
-}: { user: SessionUser | null; isGlobal: boolean } & HTMLAttributes<HTMLDivElement>) {
+  showDarkLogo
+}: { user: SessionUser | null; isGlobal: boolean; showDarkLogo?: boolean } & HTMLAttributes<HTMLDivElement>) {
   const [isOpen, setIsOpen] = useState(false)
   const scope = useMenuAnimation(isOpen)
   const { isInChina } = useCountry()
@@ -43,7 +44,7 @@ export default function HeaderMobile({
       <div className="shrink-0 px-4">
         <LocaleLink href="/">
           <div className="relative size-9">
-            <Image src="/assets/logo.svg" fill alt="muse logo" />
+            <Image src={showDarkLogo ? "/assets/logo-dark.svg" : "/assets/logo.svg"} fill alt="muse logo" />
           </div>
         </LocaleLink>
       </div>

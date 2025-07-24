@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
 import { useFAQTranslation } from '@/app/i18n/client';
+import { cn } from '@/utilities/cn';
 
 const FAQ = () => {
     const { t } = useFAQTranslation();
@@ -54,11 +55,13 @@ const FAQ = () => {
                                 )}
                             </span>
                         </button>
-                        {expandedIndex === idx && (
-                            <div className="mt-5 md:mt-0 pb-8 md:pl-1 md:pr-8 text-left font-euclidlight text-[15px] md:text-[18px] font-light leading-[30px] text-[rgba(255,255,255,0.72)]">
-                                {item.answer}
-                            </div>
-                        )}
+                        <div className={cn("mt-5 md:mt-0 md:pl-1 md:pr-8 text-left font-euclidlight text-[15px] md:text-[18px] font-light leading-[30px] text-[rgba(255,255,255,0.72)]",
+                            "transition-all duration-400 ease-in-out overflow-hidden",
+                            expandedIndex === idx ? 'max-h-[500px]' : 'max-h-0'
+                        )}>
+                            {item.answer}
+                            <div className='h-8 w-full'></div>
+                        </div>
                     </div>
                 ))}
             </div>
