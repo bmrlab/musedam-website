@@ -16,12 +16,12 @@ import PageClient from './page.client'
 type Args = {
   searchParams: Promise<{
     category?: string
-    pageNumber?: number
+    page?: number
   }>
 }
 
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
-  const { category, pageNumber = 1 } = await searchParamsPromise
+  const { category, page = 1 } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
 
   const filterCategory = category === '' ? [] : category?.split(',') || []
@@ -50,7 +50,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     collection: 'posts',
     depth: 1,
     limit: 9,
-    page: pageNumber,
+    page: page,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },

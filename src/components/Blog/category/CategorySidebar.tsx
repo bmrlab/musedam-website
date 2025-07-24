@@ -46,9 +46,11 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                   onChange={(e) => {
                     if (category.id === 'all') {
                       if (e) {
+                        // 当 all 被选中的时候，移除 category 的筛选条件
                         onCategoryChange([])
                         return
                       } else {
+                        // 当没有 category 被选中的时候，all 不能被取消
                         return
                       }
                     }
