@@ -97,7 +97,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
               gotoNextPage={() => setCurrentPage(currentPage + 1)}
               gotoFirstPage={() => setCurrentPage(1)}
               gotoLastPage={() => setCurrentPage(totalPages)}
-              className="hidden md:block"
+              className="hidden md:flex"
             />
           )}
         </div>
