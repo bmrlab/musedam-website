@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { startTransition, useEffect, useState } from 'react'
+import { getPosts } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
@@ -22,12 +23,24 @@ interface AllArticlesProps {
 export const AllArticles: React.FC<AllArticlesProps> = ({
   articles: initialArticles,
   categories,
-  currentPage = 1,
+  currentPage: initialPage = 1,
   totalPages = 1,
   selectedCategory,
   className,
 }) => {
   const [articles, setArticles] = useState(initialArticles)
+  const [currentPage, setCurrentPage] = useState<number>(initialPage)
+
+  useEffect(() => {
+    startTransition(async () => {
+      const posts = await getPosts({
+        page: currentPage,
+        category: [],
+      })
+      console.log('posts', posts)
+      setArticles(posts.docs)
+    })
+  }, [currentPage])
 
   // 移动端分类选择状态
   const [mobileSelectedCategories, setMobileSelectedCategories] = useState<number[]>(() => {
@@ -89,12 +102,19 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
         />
 
         {/* 右侧文章网格 */}
-        <div className="flex-1">
+        <div className="md:height-[1047px] flex flex-1 flex-col items-center justify-between">
           <ArticleGrid articles={articles} />
 
           {/* 分页 */}
           {totalPages > 1 && (
-            <AllArticlesPagination currentPage={currentPage} totalPages={totalPages} />
+            <AllArticlesPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              gotoPrevPage={() => setCurrentPage(currentPage - 1)}
+              gotoNextPage={() => setCurrentPage(currentPage + 1)}
+              gotoFirstPage={() => setCurrentPage(1)}
+              gotoLastPage={() => setCurrentPage(totalPages)}
+            />
           )}
         </div>
       </div>
