@@ -50,7 +50,7 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="px-20 pb-[120px]">
+      <div className="px-6 pb-[60px] md:px-20 md:pb-[120px]">
         <div className="mx-auto max-w-[720px]">
           <RichText
             className="max-w-none"

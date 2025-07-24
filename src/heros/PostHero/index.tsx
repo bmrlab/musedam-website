@@ -33,8 +33,8 @@ export const PostHero: React.FC<{
   }
 
   return (
-    <div className="bg-white pb-[60px] pt-20">
-      <div className="px-20">
+    <div className="bg-white pb-[40px] pt-[60px] md:pb-[60px] md:pt-20">
+      <div className="px-6 md:px-20">
         <div className="mx-auto max-w-[1000px]">
           <div className="flex flex-col">
             {/* 阅读时间和发布信息 */}
@@ -57,13 +57,13 @@ export const PostHero: React.FC<{
 
             <div className="mt-5 flex flex-col gap-2">
               {/* 标题 */}
-              <h1 className="!font-euclid text-[54px] font-semibold leading-[1.15] text-[#242424]">
+              <h1 className=" !font-euclid text-[40px]/[41.6px] font-semibold text-[#242424] md:text-[54px]/[62.1px]">
                 {title}
               </h1>
 
               {/* 描述 */}
               {meta?.description && (
-                <p className="!font-euclid text-[22px] font-normal leading-[1.45] text-[rgba(36,36,36,0.7)]">
+                <p className="!font-euclid text-[18px]/[27px] font-normal text-[rgba(36,36,36,0.7)] md:text-[22px]/[31.9px]">
                   {meta.description}
                 </p>
               )}
@@ -78,7 +78,7 @@ export const PostHero: React.FC<{
                     return (
                       <span
                         key={index}
-                        className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px] font-normal uppercase leading-[1.067] text-[rgba(36,36,36,0.8)]"
+                        className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px]/[16px] font-normal uppercase text-[rgba(36,36,36,0.8)]"
                       >
                         {categoryTitle || 'Digital Transformation'}
                       </span>
@@ -90,7 +90,7 @@ export const PostHero: React.FC<{
             )}
 
             {metaImage && (
-              <div className="relative mt-[60px] aspect-[2/1] w-full rounded-[16px]">
+              <div className="relative mt-10 aspect-[2/1] w-full rounded-[16px] md:mt-[60px]">
                 <Image
                   src={metaImage.src ?? ''}
                   fill
