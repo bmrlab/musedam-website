@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
-import type { MockCategory } from '@/data/mockBlogData'
+import React from 'react'
 import { cn } from '@/utilities/cn'
 
 import { Label } from '@/components/ui/label'
 import { Divider } from '@/components/StyleWrapper/Container'
 
 interface CategorySidebarProps {
-  categories: MockCategory[]
-  selectedCategory: string
-  onCategoryChange: (categoryId: string) => void
+  categories: { id: string; title: string }[]
+  selectedCategory: string[]
+  onCategoryChange: (categoryId: string[]) => void
+  onClearAll?: () => void
   className?: string
 }
 
@@ -28,7 +28,10 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         <Divider className="mb-6 mt-[10px] border-[#E5E5E5]" />
         <nav className="space-y-2">
           {categories.map((category) => {
-            const isSelected = selectedCategory === category.id
+            let isSelected = selectedCategory.includes(category.id)
+            if (category.id === 'all') {
+              isSelected = selectedCategory.length === 0
+            }
 
             return (
               <div
@@ -40,7 +43,22 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 <Checkbox
                   id={category.id}
                   checked={isSelected}
-                  onChange={() => onCategoryChange(category.id)}
+                  onChange={(e) => {
+                    if (category.id === 'all') {
+                      if (e) {
+                        onCategoryChange([])
+                        return
+                      } else {
+                        return
+                      }
+                    }
+
+                    if (e) {
+                      onCategoryChange([...selectedCategory, category.id])
+                    } else {
+                      onCategoryChange(selectedCategory.filter((id) => id !== category.id))
+                    }
+                  }}
                   className="border-2 border-none border-[#00000033]"
                 />
                 <Label
@@ -71,11 +89,8 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   className = '',
 }) => {
-  const [isChecked, setIsChecked] = useState(checked)
-
   const handleChange = () => {
-    const newChecked = !isChecked
-    setIsChecked(newChecked)
+    const newChecked = !checked
     onChange?.(newChecked)
   }
 
@@ -87,11 +102,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         onClick={handleChange}
         className={cn(
           'relative flex size-[18px] items-center justify-center border-2 bg-white transition-all duration-300',
-          isChecked ? 'border-black' : 'border-[#CCC] bg-white hover:border-gray-400',
+          checked ? 'border-black' : 'border-[#CCC] bg-white hover:border-gray-400',
         )}
       >
         {/* 选中状态的对勾 */}
-        {isChecked && (
+        {checked && (
           <svg
             width="11"
             height="8"

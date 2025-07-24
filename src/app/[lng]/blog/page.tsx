@@ -10,18 +10,23 @@ import { TopArticles } from '@/components/Blog/TopArticles'
 
 import PageClient from './page.client'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+// export const dynamic = 'force-static'
+// export const revalidate = 600
 
 type Args = {
   searchParams: Promise<{
     category?: string
+    pageNumber?: number
   }>
 }
 
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
-  const { category } = await searchParamsPromise
+  const { category, pageNumber = 1 } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
+
+  const filterCategory = category === '' ? [] : category?.split(',') || []
+
+  console.log('searchParamsPromise', await searchParamsPromise)
 
   // 获取所有分类
   const categories = await payload.find({
@@ -31,7 +36,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   })
 
   // 获取所有文章（用于 Hero 和 Top Articles）
-  const allPosts = await payload.find({
+  const topPosts = await payload.find({
     collection: 'posts',
     depth: 1,
     limit: 4,
@@ -43,22 +48,24 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   })
 
   // 获取筛选后的文章（用于 All Articles 部分）
-  const initialPosts = await payload.find({
+  const allPosts = await payload.find({
     collection: 'posts',
     depth: 1,
     limit: 9,
+    page: pageNumber,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
+      ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
     },
     sort: '-publishedAt',
   })
 
   // 选择 Hero 文章（最新的文章）
-  const heroArticle = allPosts.docs[0] || null
+  const heroArticle = topPosts.docs[0] || null
 
   // 选择 Top Articles（接下来的 3 篇文章）
-  const topArticles = allPosts.docs.slice(1, 4)
+  const topArticles = topPosts.docs.slice(1, 4)
 
   return (
     <div className="min-h-screen w-full max-w-[1440px] bg-white">
@@ -76,11 +83,11 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       {/* All Articles - 所有文章（包含分类筛选） */}
       <AllArticles
-        articles={initialPosts.docs as Post[]}
+        articles={allPosts.docs as Post[]}
         categories={categories.docs as Category[]}
-        currentPage={initialPosts.page || 1}
-        totalPages={initialPosts.totalPages || 1}
-        selectedCategory={category}
+        currentPage={allPosts.page || 1}
+        totalPages={allPosts.totalPages || 1}
+        selectedCategory={filterCategory}
         className="px-6 pb-[60px] pt-0 md:p-20"
       />
     </div>
