@@ -4,11 +4,11 @@ import React, { useState } from 'react'
 import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
-import { Pagination } from '@/components/Pagination'
+import { AllArticlesPagination } from '@/components/Blog/all-articles/pagination'
 
-import { ArticleGrid } from './ArticleGrid'
-import { CategorySelector } from './category/CategorySelector'
-import { CategorySidebar } from './category/CategorySidebar'
+import { ArticleGrid } from '../ArticleGrid'
+import { CategorySelector } from '../category/CategorySelector'
+import { CategorySidebar } from '../category/CategorySidebar'
 
 interface AllArticlesProps {
   articles: Post[]
@@ -20,13 +20,15 @@ interface AllArticlesProps {
 }
 
 export const AllArticles: React.FC<AllArticlesProps> = ({
-  articles,
+  articles: initialArticles,
   categories,
   currentPage = 1,
   totalPages = 1,
   selectedCategory,
   className,
 }) => {
+  const [articles, setArticles] = useState(initialArticles)
+
   // 移动端分类选择状态
   const [mobileSelectedCategories, setMobileSelectedCategories] = useState<number[]>(() => {
     if (selectedCategory && selectedCategory !== 'all') {
@@ -92,9 +94,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
 
           {/* 分页 */}
           {totalPages > 1 && (
-            <div className="mt-12">
-              <Pagination page={currentPage} totalPages={totalPages} basePath="/blog/page" />
-            </div>
+            <AllArticlesPagination currentPage={currentPage} totalPages={totalPages} />
           )}
         </div>
       </div>

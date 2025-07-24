@@ -4,7 +4,7 @@ import type { Category, Post } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { AllArticles } from '@/components/Blog/AllArticles'
+import { AllArticles } from '@/components/Blog/all-articles'
 import { HeroSection } from '@/components/Blog/HeroSection'
 import { TopArticles } from '@/components/Blog/TopArticles'
 
@@ -30,19 +30,11 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     overrideAccess: false,
   })
 
-  // 构建查询条件
-  const whereCondition: any = {}
-  if (category) {
-    whereCondition.categories = {
-      in: [category],
-    }
-  }
-
   // 获取所有文章（用于 Hero 和 Top Articles）
   const allPosts = await payload.find({
     collection: 'posts',
     depth: 1,
-    limit: 50, // 获取足够的文章用于筛选
+    limit: 4,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
@@ -51,14 +43,13 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   })
 
   // 获取筛选后的文章（用于 All Articles 部分）
-  const filteredPosts = await payload.find({
+  const initialPosts = await payload.find({
     collection: 'posts',
     depth: 1,
-    limit: 12,
+    limit: 9,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
-      ...(Object.keys(whereCondition).length > 0 ? whereCondition : {}),
     },
     sort: '-publishedAt',
   })
@@ -85,10 +76,10 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       {/* All Articles - 所有文章（包含分类筛选） */}
       <AllArticles
-        articles={filteredPosts.docs as Post[]}
+        articles={initialPosts.docs as Post[]}
         categories={categories.docs as Category[]}
-        currentPage={filteredPosts.page || 1}
-        totalPages={filteredPosts.totalPages || 1}
+        currentPage={initialPosts.page || 1}
+        totalPages={initialPosts.totalPages || 1}
         selectedCategory={category}
         className="px-6 pb-[60px] pt-0 md:p-20"
       />
