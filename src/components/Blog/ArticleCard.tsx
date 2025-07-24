@@ -4,6 +4,8 @@ import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 import { cva } from 'class-variance-authority'
 
+import { LocaleLink } from '@/components/LocalLink'
+
 const articleVariants = cva(
   'group block cursor-pointer overflow-hidden rounded-[20px] transition-all duration-300 hover:-translate-y-1',
   {
@@ -76,7 +78,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
   const backgroundColor = colors[colorIndex]
 
   return (
-    <a href={`/blog/posts/${article.slug}`} className={articleVariants({ variant, className })}>
+    <LocaleLink
+      href={`/blog/posts/${article.slug}`}
+      className={articleVariants({ variant, className })}
+    >
       {/* 图片区域 */}
       <div className={cn('relative aspect-[3/2] rounded-[20px]')} style={{ backgroundColor }}>
         {/* 如果有图片，显示图片，否则显示颜色背景 */}
@@ -113,6 +118,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
 
         <p className={titleVariants({ variant })}>{article.title}</p>
       </div>
-    </a>
+    </LocaleLink>
   )
 }

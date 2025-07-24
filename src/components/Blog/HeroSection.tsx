@@ -3,6 +3,7 @@ import type { Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 import Icons from '@/components/icon'
+import { LocaleLink } from '@/components/LocalLink'
 
 interface HeroSectionProps {
   article: Post
@@ -28,8 +29,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
               'Discover insights and best practices in this featured article.'}
           </p>
 
-          <a
-            href={`/posts/${article.slug}`}
+          <LocaleLink
+            href={`/blog/posts/${article.slug}`}
             className="group inline-flex items-center gap-3 font-medium text-gray-900 transition-colors hover:text-gray-700"
           >
             <span className="!font-euclid text-[18px] font-medium leading-[30px] underline underline-offset-[6px]">
@@ -39,7 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
             <div className="transition-transform group-hover:translate-x-1">
               <Icons.arrowRightLong width={24} height={24} />
             </div>
-          </a>
+          </LocaleLink>
         </div>
 
         {/* 右侧图片区域 */}
