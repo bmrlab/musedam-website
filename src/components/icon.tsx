@@ -617,7 +617,7 @@ const blogIcons = {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g clip-path="url(#clip0_6158_61139)">
+      <g clipPath="url(#clip0_6158_61139)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
