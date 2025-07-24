@@ -26,7 +26,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         <h3 className="!font-euclid text-[20px] font-medium text-black">Category</h3>
 
         <Divider className="mb-6 mt-[10px] border-[#E5E5E5]" />
-        <nav className="space-y-2">
+        <nav className="max-h-[1087px] space-y-2 overflow-y-auto">
           <div
             key="category-all"
             className={cn('flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors')}
@@ -50,7 +50,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             </Label>
           </div>
 
-          {categories.map((category) => (
+          {[...categories, ...categories].map((category) => (
             <div
               key={category.id}
               className={cn(
