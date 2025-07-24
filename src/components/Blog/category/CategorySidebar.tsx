@@ -50,7 +50,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             </Label>
           </div>
 
-          {[...categories, ...categories].map((category) => (
+          {categories.map((category) => (
             <div
               key={category.id}
               className={cn(
