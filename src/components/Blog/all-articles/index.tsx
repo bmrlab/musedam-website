@@ -28,11 +28,11 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
   selectedCategory,
   className,
 }) => {
-  const { routeWithQuery, routeWithRemoveQuery } = useCreateUrlQuery()
+  const { routeWithQuery, routeWithQueryAndRemove, routeWithRemove } = useCreateUrlQuery()
 
   const setCurrentPage = useCallback(
     (pageNumber: number) => {
-      routeWithQuery({ name: 'pageNumber', value: String(pageNumber) })
+      routeWithQuery([{ name: 'page', value: String(pageNumber) }])
     },
     [routeWithQuery],
   )
@@ -49,6 +49,20 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
       })),
     ],
     [categories],
+  )
+
+  const handleCategoryChange = useCallback(
+    (categoryId: string[]) => {
+      if (categoryId.length === 0) {
+        routeWithRemove(['category'])
+      } else {
+        routeWithQueryAndRemove({
+          query: [{ name: 'category', value: categoryId.join(',') }],
+          remove: ['page'],
+        })
+      }
+    },
+    [routeWithRemove, routeWithQueryAndRemove],
   )
 
   // 处理移动端分类变化
@@ -83,14 +97,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
         <CategorySidebar
           categories={categoryOptions}
           selectedCategory={selectedCategory}
-          onCategoryChange={(categoryId) => {
-            console.log('categoryId', categoryId)
-            if (categoryId.length === 0) {
-              routeWithRemoveQuery('category')
-            } else {
-              routeWithQuery({ name: 'category', value: categoryId.join(',') })
-            }
-          }}
+          onCategoryChange={handleCategoryChange}
           className="sticky hidden w-[240px] md:block lg:sticky lg:top-8 lg:self-start"
         />
 
