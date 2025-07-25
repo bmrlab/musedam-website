@@ -7,6 +7,7 @@
   "contact.title": "Contact us",
   "contact.email": "Email",
   "pricing.plan.actions.try": "Try for free",
+  "pricing.plan.actions.try.now": "Try for free",
   "contact.copy.success": "Copied successfully",
   "plan.details.storage": "Storage space",
   "plan.details.storage.hint": "The total capacity of storage space",

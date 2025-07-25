@@ -44,7 +44,7 @@ export const useEnterprisePlan = () => {
     // Advanced
     const advancedList = {
         [tFeatures('advancedFeatures.title')]: [
-            { name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail') },
+            { name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true },
             { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
             { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
             { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },

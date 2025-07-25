@@ -147,9 +147,7 @@ export default function Buy({
                                             }
                                         }}
                                     >
-                                        {!user || (!!user && currentPlan === PlanType.team && !user.hasOrg)
-                                            ? t('pricing.plan.actions.try')
-                                            : t('pricing.plan.button.buy')}
+                                        {t('pricing.plan.actions.try.now')}
                                     </Button>}
 
                                 <ul className="mt-[30px] space-y-3 text-[rgba(255,255,255,0.72)]">

@@ -56,7 +56,11 @@ const FeatureList = () => {
                     const categoryState = expandedCategories[categoryKey] || {};
                     const isExpend = categoryState.expanded;
                     const groupStates = categoryState.groups || {};
-                    const categoriesMap = Object.entries(categoryData.list)
+                    const categoriesMap: [string, {
+                        name: string;
+                        detail: string;
+                        showBeta?: boolean
+                    }[]][] = Object.entries(categoryData.list)
 
                     return <div key={categoryKey} className='rounded-2xl '>
                         {/* 分组标题行 */}
@@ -100,7 +104,10 @@ const FeatureList = () => {
                                                     isExpend && isLast && index + 1 === groupItems.length && 'rounded-b-2xl'
                                                 )
                                             }>
-                                                <div className="md:col-span-3 col-span-4 border-r border-[#D1D1CC] md:p-4 p-2">{item.name}</div>
+                                                <div className="md:col-span-3 col-span-4 border-r border-[#D1D1CC] md:p-4 p-2 relative flex items-center">
+                                                    {item.name}
+                                                    {item.showBeta && <span className='text-[10px] top-[10px] left-[78px] absolute'>BETA</span>}
+                                                </div>
                                                 <div className="md:col-span-9 col-span-8 md:p-4 p-2 whitespace-pre-line">{item.detail}</div>
                                             </div>
                                         ))}
