@@ -141,7 +141,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 />
               )
             case 'banner':
-              return <BannerBlock className="mb-8" key={index} {...block} />
+              return <BannerBlock className="mb-8 [&_p]:mb-0" key={index} {...block} />
             case 'code':
               return <CodeBlock className="my-6" key={index} {...block} />
             default:
