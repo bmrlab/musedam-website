@@ -33,14 +33,28 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     overrideAccess: false,
   })
 
-  // 获取所有文章（用于 Hero 和 Top Articles）
-  const topPosts = await payload.find({
+  // hero article
+  const heroArticles = await payload.find({
     collection: 'posts',
     depth: 1,
-    limit: 4,
+    limit: 2,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
+      isHeroArticle: { equals: true },
+    },
+    sort: '-publishedAt',
+  })
+
+  // Top Articles
+  const topArticles = await payload.find({
+    collection: 'posts',
+    depth: 1,
+    limit: 100,
+    overrideAccess: false,
+    where: {
+      _status: { equals: 'published' },
+      isTopArticle: { equals: true },
     },
     sort: '-publishedAt',
   })
@@ -59,24 +73,25 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     sort: '-publishedAt',
   })
 
-  // 选择 Hero 文章（最新的文章）
-  const heroArticle = topPosts.docs[0] || null
-
-  // 选择 Top Articles（接下来的 3 篇文章）
-  const topArticles = topPosts.docs.slice(1, 4)
-
   return (
     <div className="min-h-screen w-full max-w-[1440px] bg-white">
       <PageClient />
 
       {/* Hero Section - 特色文章 */}
-      {heroArticle && (
-        <HeroSection article={heroArticle as Post} className="px-6 py-[60px] md:p-[80px]" />
+      {heroArticles.docs.length > 0 && (
+        <div className="flex flex-col items-center gap-[60px] px-6 py-[60px] md:p-[80px]">
+          {heroArticles.docs.map((article) => (
+            <HeroSection key={article.id} article={article} />
+          ))}
+        </div>
       )}
 
       {/* Top Articles - 精选文章 */}
-      {topArticles.length > 0 && (
-        <TopArticles articles={topArticles as Post[]} className="mt-0 pb-[100px] md:mt-[60px]" />
+      {topArticles.docs.length > 0 && (
+        <TopArticles
+          articles={topArticles.docs as Post[]}
+          className="mt-0 pb-[100px] md:mt-[60px]"
+        />
       )}
 
       {/* All Articles - 所有文章（包含分类筛选） */}

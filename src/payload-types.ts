@@ -380,6 +380,8 @@ export interface Post {
   };
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
+  isHeroArticle?: boolean | null;
+  isTopArticle?: boolean | null;
   meta?: {
     title?: string | null;
     image?: (number | null) | Media;
@@ -892,6 +894,8 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   relatedPosts?: T;
   categories?: T;
+  isHeroArticle?: T;
+  isTopArticle?: T;
   meta?:
     | T
     | {
