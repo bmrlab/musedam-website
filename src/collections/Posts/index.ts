@@ -83,6 +83,7 @@ export const Posts: CollectionConfig = {
                 },
               }),
               label: false,
+              localized: true,
               required: true,
             },
           ],
