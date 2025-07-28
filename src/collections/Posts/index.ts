@@ -60,6 +60,7 @@ export const Posts: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
+      localized: true,
       required: true,
     },
     {

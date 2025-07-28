@@ -4,7 +4,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-export const getStaticBlogData = async () => {
+export const getStaticBlogData = async (locale?: 'zh' | 'en') => {
   const payload = await getPayload({ config: configPromise })
 
   const [categories, heroArticles, topArticles] = await Promise.all([
@@ -12,6 +12,7 @@ export const getStaticBlogData = async () => {
       collection: 'categories',
       limit: 100,
       overrideAccess: false,
+      ...(locale && { locale }),
     }),
     payload.find({
       collection: 'posts',
@@ -23,6 +24,7 @@ export const getStaticBlogData = async () => {
         isHeroArticle: { equals: true },
       },
       sort: '-publishedAt',
+      ...(locale && { locale }),
     }),
     payload.find({
       collection: 'posts',
@@ -34,6 +36,7 @@ export const getStaticBlogData = async () => {
         isTopArticle: { equals: true },
       },
       sort: '-publishedAt',
+      ...(locale && { locale }),
     }),
   ])
 

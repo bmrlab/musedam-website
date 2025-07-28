@@ -4,6 +4,8 @@ import { getStaticBlogData } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
+import type { PropsWithLng } from '@/types/page'
 
 import { AllArticles } from '@/components/Blog/all-articles'
 import { HeroSection } from '@/components/Blog/HeroSection'
@@ -15,19 +17,24 @@ import PageClient from './page.client'
 // export const revalidate = 600
 
 type Args = {
+  params: Promise<{ lng: string }>
   searchParams: Promise<{
     category?: string
     page?: number
   }>
 }
 
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
+export default async function Page({ params: paramsPromise, searchParams: searchParamsPromise }: Args) {
+  const { lng } = await paramsPromise
   const { category, page = 1 } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
 
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
+
   const filterCategory = category === '' ? [] : category?.split(',') || []
 
-  const { categories, heroArticles, topArticles } = await getStaticBlogData()
+  const { categories, heroArticles, topArticles } = await getStaticBlogData(payloadLocale)
 
   const allPosts = await payload.find({
     collection: 'posts',
@@ -40,6 +47,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
     },
     sort: '-publishedAt',
+    locale: payloadLocale,
   })
 
   return (
@@ -78,9 +86,14 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 }
 
 export async function generateMetadata({
+  params: paramsPromise,
   searchParams: searchParamsPromise,
 }: Args): Promise<Metadata> {
+  const { lng } = await paramsPromise
   const { category } = await searchParamsPromise
+
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
 
   let title = 'MuseDAM 博客'
 
@@ -91,6 +104,7 @@ export async function generateMetadata({
         collection: 'categories',
         id: category,
         overrideAccess: false,
+        locale: payloadLocale,
       })
       if (categoryDoc) {
         title = `${categoryDoc.title} | MuseDAM 博客`

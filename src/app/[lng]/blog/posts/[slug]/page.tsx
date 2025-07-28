@@ -6,6 +6,8 @@ import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
+import type { PropsWithLng } from '@/types/page'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
@@ -29,15 +31,13 @@ import PageClient from './page.client'
 // }
 
 type Args = {
-  params: Promise<{
-    slug?: string
-  }>
+  params: Promise<{ lng: string; slug?: string }>
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
-  const { slug = '' } = await paramsPromise
+  const { lng, slug = '' } = await paramsPromise
   const url = '/blog/posts/' + slug
-  const post = await queryPostBySlug({ slug })
+  const post = await queryPostBySlug({ slug, lng })
 
   if (!post) return <PayloadRedirects url={url} />
 
@@ -74,16 +74,19 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
-  const post = await queryPostBySlug({ slug })
+  const { lng, slug = '' } = await paramsPromise
+  const post = await queryPostBySlug({ slug, lng })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPostBySlug = cache(async ({ slug, lng }: { slug: string; lng: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
+
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
 
   const result = await payload.find({
     collection: 'posts',
@@ -95,6 +98,7 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
         equals: slug,
       },
     },
+    locale: payloadLocale,
   })
 
   return result.docs?.[0] || null
