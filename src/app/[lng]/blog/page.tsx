@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Metadata } from 'next/types'
+import { getStaticBlogData } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -26,45 +27,13 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
   const filterCategory = category === '' ? [] : category?.split(',') || []
 
-  // 获取所有分类
-  const categories = await payload.find({
-    collection: 'categories',
-    limit: 100,
-    overrideAccess: false,
-  })
+  const { categories, heroArticles, topArticles } = await getStaticBlogData()
 
-  // hero article
-  const heroArticles = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 2,
-    overrideAccess: false,
-    where: {
-      _status: { equals: 'published' },
-      isHeroArticle: { equals: true },
-    },
-    sort: '-publishedAt',
-  })
-
-  // Top Articles
-  const topArticles = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 100,
-    overrideAccess: false,
-    where: {
-      _status: { equals: 'published' },
-      isTopArticle: { equals: true },
-    },
-    sort: '-publishedAt',
-  })
-
-  // 获取筛选后的文章（用于 All Articles 部分）
   const allPosts = await payload.find({
     collection: 'posts',
     depth: 1,
     limit: 9,
-    page: page,
+    page,
     overrideAccess: false,
     where: {
       _status: { equals: 'published' },
