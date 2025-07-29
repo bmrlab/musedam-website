@@ -1,0 +1,11 @@
+{
+  "readMore": "Read More",
+  "article": {
+    "all": "All Articles",
+    "top": "Top Articles"
+  },
+  "category": {
+    "title": "Category",
+    "all": "All"
+  }
+}

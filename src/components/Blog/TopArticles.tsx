@@ -1,6 +1,10 @@
+'use client'
+
 import React from 'react'
 import type { Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
+
+import { useBlogTranslation } from '@/app/i18n/client'
 
 import { ArticleCard } from './ArticleCard'
 
@@ -10,12 +14,13 @@ interface TopArticlesProps {
 }
 
 export const TopArticles: React.FC<TopArticlesProps> = ({ articles, className }) => {
+  const { t } = useBlogTranslation()
   return (
     <section className={cn(className)}>
       {/* 标题区域 */}
       <div className="px-6 md:px-[80px]">
         <h2 className="text-center !font-feature text-[38px]/[38px] font-medium text-black md:text-start md:text-[54px]/[54px]">
-          Top Articles
+          {t('article.top')}
         </h2>
       </div>
 

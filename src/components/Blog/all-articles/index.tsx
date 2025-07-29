@@ -6,6 +6,7 @@ import { cn } from '@/utilities/cn'
 
 import { AllArticlesPagination } from '@/components/Blog/all-articles/pagination'
 import { useUrlQuery } from '@/components/Blog/all-articles/useUrlQuery'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 import { ArticleGrid } from '../ArticleGrid'
 import { CategorySelector } from '../category/CategorySelector'
@@ -28,6 +29,7 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
   selectedCategory,
   className,
 }) => {
+  const { t } = useBlogTranslation()
   const { routeWithQuery, routeWithQueryAndRemove, routeWithRemove } = useUrlQuery()
 
   const setCurrentPage = useCallback(
@@ -63,7 +65,9 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
   return (
     <section className={cn(className)}>
       <div className="mb-[60px]">
-        <h2 className="!font-feature text-[54px]/[54px] font-medium text-black">All Articles</h2>
+        <h2 className="!font-feature text-[54px]/[54px] font-medium text-black">
+          {t('article.all')}
+        </h2>
       </div>
 
       {/* 移动端分类选择器 */}

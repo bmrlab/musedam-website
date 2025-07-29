@@ -5,6 +5,7 @@ import { cn } from '@/utilities/cn'
 
 import { Label } from '@/components/ui/label'
 import { Divider } from '@/components/StyleWrapper/Container'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 interface CategorySidebarProps {
   categories: { id: string; title: string }[]
@@ -20,10 +21,11 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onCategoryChange,
   className,
 }) => {
+  const { t } = useBlogTranslation()
   return (
     <aside className={cn('w-full shrink-0 ', className)}>
       <div className="border-none">
-        <h3 className="!font-euclid text-[20px] font-medium text-black">Category</h3>
+        <h3 className="!font-euclid text-[20px] font-medium text-black">{t('category.title')}</h3>
 
         <Divider className="mb-6 mt-[10px] border-[#E5E5E5]" />
         <nav className="max-h-[1087px] space-y-2 overflow-y-auto">
@@ -46,7 +48,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
               htmlFor="category-all"
               className="cursor-pointer !font-euclid  text-[16px] text-[#262626]"
             >
-              All
+              {t('category.all')}
             </Label>
           </div>
 

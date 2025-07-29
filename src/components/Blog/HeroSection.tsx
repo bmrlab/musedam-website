@@ -1,9 +1,12 @@
+'use client'
+
 import React from 'react'
-import type { Post } from '@/payload-types'
+import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 import Icons from '@/components/icon'
 import { LocaleLink } from '@/components/LocalLink'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 interface HeroSectionProps {
   article: Post
@@ -11,12 +14,19 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) => {
+  const { t } = useBlogTranslation()
   return (
     <section className={cn(className)}>
       <div className="flex flex-col justify-between gap-10 md:flex-row md:gap-[120px]">
         {/* 左侧内容 */}
         <div className="flex flex-1 flex-col gap-3">
-          <p className="!font-euclid text-[14px] uppercase text-black">Digital Transformation</p>
+          <p className="!font-euclid text-[14px] uppercase text-black">
+            {Array.isArray(article.categories) && article.categories.length > 0
+              ? typeof article.categories[0] === 'object'
+                ? (article.categories[0] as Category).title
+                : ''
+              : ''}
+          </p>
 
           <h1 className="!font-euclid text-[40px] font-semibold leading-[41.6px] text-black">
             {article.title}
@@ -34,7 +44,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
             className="group inline-flex items-center gap-3 font-medium text-gray-900 transition-colors hover:text-gray-700"
           >
             <span className="!font-euclid text-[18px] font-medium leading-[30px] underline underline-offset-[6px]">
-              Read More
+              {t('readMore')}
             </span>
 
             <div className="transition-transform group-hover:translate-x-1">

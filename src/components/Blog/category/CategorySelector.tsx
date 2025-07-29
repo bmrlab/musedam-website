@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/Blog/category/CategorySidebar'
 import Icons from '@/components/icon'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 interface CategorySelectorProps {
   categories: { id: string; title: string }[]
@@ -21,6 +22,8 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   onCategoryChange,
   className,
 }) => {
+  const { t } = useBlogTranslation()
+
   const [isOpen, setIsOpen] = useState(false)
   const [tempSelected, setTempSelected] = useState<string[]>(selectedCategories)
 
@@ -66,7 +69,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label="Open category selector"
       >
-        <span className="text-[20px] font-medium text-black">Category</span>
+        <span className="text-[20px] font-medium text-black">{t('category.title')}</span>
         <div className="flex size-6 items-center justify-center">
           <Icons.caretDown className="size-4 text-black/80" />
         </div>
@@ -121,7 +124,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     htmlFor="category-all"
                     className="cursor-pointer text-[16px] font-medium leading-none text-[#262626]"
                   >
-                    All
+                    {t('category.all')}
                   </Label>
                 </div>
 

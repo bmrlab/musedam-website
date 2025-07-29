@@ -80,7 +80,7 @@ export const PostHero: React.FC<{
                         key={index}
                         className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px]/[16px] font-normal uppercase text-[rgba(36,36,36,0.8)]"
                       >
-                        {categoryTitle || 'Digital Transformation'}
+                        {categoryTitle || ''}
                       </span>
                     )
                   }
