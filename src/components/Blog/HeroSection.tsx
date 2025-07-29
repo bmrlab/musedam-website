@@ -20,7 +20,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
       <div className="flex flex-col justify-between gap-10 md:flex-row md:gap-[120px]">
         {/* 左侧内容 */}
         <div className="flex flex-1 flex-col gap-3">
-          <p className="!font-euclid text-[14px] uppercase text-black">
+          <p className="!font-euclid text-[14px] uppercase text-[#4F7392]">
             {Array.isArray(article.categories) && article.categories.length > 0
               ? typeof article.categories[0] === 'object'
                 ? (article.categories[0] as Category).title

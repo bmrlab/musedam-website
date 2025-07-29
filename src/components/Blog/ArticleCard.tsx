@@ -97,13 +97,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
         ) : (
           <div className="size-full rounded-[20px] bg-gradient-to-br from-white/10 to-black/10"></div>
         )}
-
-        {/* 分类标签 */}
-        <div className="absolute left-4 top-4">
-          <span className="inline-block rounded-full bg-black/20 px-3 py-1 !font-euclid text-xs font-medium text-white backdrop-blur-sm">
-            {category}
-          </span>
-        </div>
       </div>
 
       {/* 内容区域 */}
