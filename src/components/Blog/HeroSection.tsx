@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import type { Category, Post } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
@@ -28,15 +29,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
               : ''}
           </p>
 
-          <h1 className="!font-euclid text-[40px] font-semibold leading-[41.6px] text-black">
-            {article.title}
-          </h1>
+          <LocaleLink href={`/blog/posts/${article.slug}`}>
+            <h1 className="!font-euclid text-[40px] font-semibold leading-[41.6px] text-black">
+              {article.title}
+            </h1>
+          </LocaleLink>
 
           <p className="flex-1 !font-euclid text-lg leading-relaxed text-gray-600">
             {article.meta?.description ||
               (typeof article.content === 'object' &&
                 article.content?.root?.children?.[0]?.children?.[0]?.text) ||
-              'Discover insights and best practices in this featured article.'}
+              ''}
           </p>
 
           <LocaleLink
@@ -54,22 +57,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
         </div>
 
         {/* 右侧图片区域 */}
-        <div className="relative flex-1">
+        <LocaleLink href={`/blog/posts/${article.slug}`} className="relative flex-1">
           <div className="aspect-[4/3] max-h-[440px]  rounded-[14px]">
             {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
             {article.meta?.image &&
             typeof article.meta.image === 'object' &&
             'url' in article.meta.image ? (
-              <img
+              <Image
                 src={article.meta.image.url ?? ''}
                 alt={article.meta.image.alt || article.title}
-                className="size-full rounded-[14px] object-cover"
+                fill
+                className="rounded-[14px] object-cover"
               />
             ) : (
               <div className="size-full rounded-2xl bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>
             )}
           </div>
-        </div>
+        </LocaleLink>
       </div>
     </section>
   )
