@@ -39,7 +39,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
           </h1>
         </LocaleLink>
 
-        <p className="flex-1 !font-euclid text-lg leading-relaxed text-gray-600">
+        <p className="mt-1 flex-1 !font-euclid text-lg leading-relaxed text-gray-600">
           {article.meta?.description ||
             (typeof article.content === 'object' &&
               article.content?.root?.children?.[0]?.children?.[0]?.text) ||
