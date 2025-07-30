@@ -63,27 +63,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
     [article.categories],
   )
 
-  // 生成随机颜色（基于文章 ID）
-  const colors = [
-    '#3B82F6',
-    '#A855F7',
-    '#6366F1',
-    '#84CC16',
-    '#A16207',
-    '#DC2626',
-    '#059669',
-    '#EA580C',
-  ]
-  const colorIndex = typeof article.id === 'number' ? article.id % colors.length : 0
-  const backgroundColor = colors[colorIndex]
-
   return (
     <LocaleLink
       href={`/blog/posts/${article.slug}`}
       className={articleVariants({ variant, className })}
     >
       {/* 图片区域 */}
-      <div className={cn('relative aspect-[3/2] rounded-[20px]')} style={{ backgroundColor }}>
+      <div className={cn('relative aspect-[3/2] rounded-[20px] bg-[#F7F9FC]')}>
         {/* 如果有图片，显示图片，否则显示颜色背景 */}
         {article.meta?.image &&
         typeof article.meta.image === 'object' &&
@@ -95,7 +81,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
             className="size-full rounded-[20px] object-cover"
           />
         ) : (
-          <div className="size-full rounded-[20px] bg-gradient-to-br from-white/10 to-black/10"></div>
+          <div className="size-full rounded-[20px] bg-[#F7F9FC]"></div>
         )}
       </div>
 

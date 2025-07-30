@@ -74,7 +74,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
               className="rounded-[14px] object-cover"
             />
           ) : (
-            <div className="size-full rounded-2xl bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>
+            <div className="size-full rounded-[14px] bg-[#F7F9FC] "></div>
           )}
         </div>
       </LocaleLink>
