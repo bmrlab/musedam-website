@@ -55,7 +55,7 @@ export const PostHero: React.FC<{
               )}
             </div>
 
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-5 flex flex-col gap-4">
               {/* 标题 */}
               <h1 className=" !font-euclid text-[40px]/[41.6px] font-semibold text-[#242424] md:text-[54px]/[62.1px]">
                 {title}
@@ -71,7 +71,7 @@ export const PostHero: React.FC<{
 
             {/* 分类标签 */}
             {categories && categories.length > 0 && (
-              <div className="mt-3">
+              <div className="mt-4">
                 {categories.map((category, index) => {
                   if (typeof category === 'object' && category !== null) {
                     const { title: categoryTitle } = category

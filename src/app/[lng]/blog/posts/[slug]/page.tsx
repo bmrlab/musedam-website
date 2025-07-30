@@ -4,31 +4,30 @@ import { draftMode } from 'next/headers'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
-import type { PropsWithLng } from '@/types/page'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 
 import PageClient from './page.client'
 
-// export async function generateStaticParams() {
-//   const payload = await getPayload({ config: configPromise })
-//   const posts = await payload.find({
-//     collection: 'posts',
-//     draft: false,
-//     limit: 1000,
-//     overrideAccess: false,
-//   })
-//
-//   const params = posts.docs.map(({ slug }) => {
-//     return { slug }
-//   })
-//
-//   return params
-// }
+export async function generateStaticParams() {
+  const payload = await getPayload({ config: configPromise })
+  const posts = await payload.find({
+    collection: 'posts',
+    draft: false,
+    limit: 1000,
+    overrideAccess: false,
+  })
+
+  const params = posts.docs.map(({ slug }) => {
+    return { slug }
+  })
+
+  return params
+}
 
 type Args = {
   params: Promise<{ lng: string; slug?: string }>
