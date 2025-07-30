@@ -33,11 +33,11 @@ const contentVariants = cva('', {
   },
 })
 
-const titleVariants = cva('line-clamp-2 h-[60px] !font-euclid font-medium text-black', {
+const titleVariants = cva('line-clamp-2 !font-euclid font-medium leading-tight text-black', {
   variants: {
     variant: {
       default: 'text-[18px]',
-      featured: 'text-[18px]/[22px] md:text-[24px]/[30px]',
+      featured: 'text-[18px] md:text-[24px]',
     },
   },
   defaultVariants: {

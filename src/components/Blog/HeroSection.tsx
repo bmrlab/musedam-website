@@ -34,7 +34,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
         </p>
 
         <LocaleLink href={`/blog/posts/${article.slug}`}>
-          <h1 className="!font-euclid text-[40px] font-semibold leading-[41.6px] text-black">
+          <h1 className="!font-euclid text-[40px] font-semibold leading-tight text-black">
             {article.title}
           </h1>
         </LocaleLink>

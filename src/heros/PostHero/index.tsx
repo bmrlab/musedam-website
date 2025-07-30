@@ -67,7 +67,7 @@ export const PostHero: React.FC<{
 
             <div className="mt-5 flex flex-col gap-4">
               {/* 标题 */}
-              <h1 className=" !font-euclid text-[40px]/[41.6px] font-semibold text-[#242424] md:text-[54px]/[62.1px]">
+              <h1 className="!font-euclid text-[40px] font-semibold leading-tight text-[#242424] md:text-[54px]">
                 {title}
               </h1>
 
