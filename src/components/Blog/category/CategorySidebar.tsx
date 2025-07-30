@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { cn } from '@/utilities/cn'
 
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,7 @@ interface CategorySidebarProps {
   onCategoryChange: (categoryId: string[]) => void
   onClearAll?: () => void
   className?: string
+  isLoading?: boolean
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
@@ -20,8 +21,40 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   selectedCategory,
   onCategoryChange,
   className,
+  isLoading = false,
 }) => {
   const { t } = useBlogTranslation()
+  const [localSelectedCategory, setLocalSelectedCategory] = useState<string[]>(selectedCategory)
+
+  // 同步外部状态变化
+  useEffect(() => {
+    setLocalSelectedCategory(selectedCategory)
+  }, [selectedCategory, localSelectedCategory])
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const isCurrentlySelected = localSelectedCategory.includes(categoryId)
+    const newSelection = isCurrentlySelected
+      ? localSelectedCategory.filter((id) => id !== categoryId)
+      : [...localSelectedCategory, categoryId]
+
+    // 立即更新本地状态，提供即时反馈
+    setLocalSelectedCategory(newSelection)
+
+    // 异步更新外部状态
+    onCategoryChange(newSelection)
+  }
+
+  const handleAllCategoryToggle = (checked: boolean) => {
+    if (checked) {
+      // 选中"全部"时，清空所有分类选择
+      setLocalSelectedCategory([])
+      onCategoryChange([])
+    }
+    // 注意：当checked为false时，说明用户想要取消"全部"选择
+    // 但由于"全部"的逻辑是基于其他选项为空，所以这里不需要特殊处理
+    // 用户应该通过选择具体分类来取消"全部"状态
+  }
+
   return (
     <aside className={cn('w-full shrink-0 ', className)}>
       <div className="border-none">
@@ -35,14 +68,10 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
           >
             <Checkbox
               id="category-all"
-              checked={selectedCategory.length === 0}
-              onChange={(e) => {
-                if (e) {
-                  // 当 all 被选中的时候，移除 category 的筛选条件
-                  onCategoryChange([])
-                }
-              }}
+              checked={localSelectedCategory.length === 0}
+              onChange={(checked) => handleAllCategoryToggle(checked)}
               className="border-2 border-none border-[#00000033]"
+              disabled={isLoading}
             />
             <Label
               htmlFor="category-all"
@@ -57,23 +86,22 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
               key={category.id}
               className={cn(
                 'flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors',
+                isLoading && 'pointer-events-none opacity-50',
               )}
             >
               <Checkbox
                 id={category.id}
-                checked={selectedCategory.includes(category.id)}
-                onChange={(e) => {
-                  if (e) {
-                    onCategoryChange([...selectedCategory, category.id])
-                  } else {
-                    onCategoryChange(selectedCategory.filter((id) => id !== category.id))
-                  }
-                }}
+                checked={localSelectedCategory.includes(category.id)}
+                onChange={() => handleCategoryToggle(category.id)}
                 className="border-2 border-none border-[#00000033]"
+                disabled={isLoading}
               />
               <Label
                 htmlFor={category.id}
-                className="cursor-pointer !font-euclid  text-[16px] text-[#262626]"
+                className={cn(
+                  'cursor-pointer !font-euclid text-[16px] text-[#262626]',
+                  isLoading && 'cursor-not-allowed',
+                )}
               >
                 {category.title}
               </Label>
@@ -90,6 +118,7 @@ interface CheckboxProps {
   checked?: boolean
   onChange?: (checked: boolean) => void
   className?: string
+  disabled?: boolean
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({
@@ -97,8 +126,10 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   checked = false,
   onChange,
   className = '',
+  disabled = false,
 }) => {
   const handleChange = () => {
+    if (disabled) return
     const newChecked = !checked
     onChange?.(newChecked)
   }
@@ -109,9 +140,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         id={id}
         type="button"
         onClick={handleChange}
+        disabled={disabled}
         className={cn(
           'relative flex size-[18px] items-center justify-center border-2 bg-white transition-all duration-300',
           checked ? 'border-black' : 'border-[#CCC] bg-white hover:border-gray-400',
+          disabled && 'cursor-not-allowed opacity-50 hover:border-[#CCC]',
         )}
       >
         {/* 选中状态的对勾 */}

@@ -42,3 +42,40 @@ export const getStaticBlogData = async (locale?: 'zh' | 'en') => {
 
   return { categories, heroArticles, topArticles }
 }
+
+export const getBlogArticles = async (
+  locale: 'zh' | 'en',
+  categories: string[] = [],
+  page: number = 1,
+  limit: number = 9
+) => {
+  const payload = await getPayload({ config: configPromise })
+  const filterCategory = categories.length === 0 ? [] : categories
+
+  const allPosts = await payload.find({
+    collection: 'posts',
+    depth: 1,
+    limit,
+    page,
+    overrideAccess: false,
+    where: {
+      _status: { equals: 'published' },
+      ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
+    },
+    sort: '-publishedAt',
+    locale,
+  })
+
+  return {
+    docs: allPosts.docs,
+    totalDocs: allPosts.totalDocs,
+    limit: allPosts.limit,
+    totalPages: allPosts.totalPages,
+    page: allPosts.page,
+    pagingCounter: allPosts.pagingCounter,
+    hasPrevPage: allPosts.hasPrevPage,
+    hasNextPage: allPosts.hasNextPage,
+    prevPage: allPosts.prevPage,
+    nextPage: allPosts.nextPage,
+  }
+}
