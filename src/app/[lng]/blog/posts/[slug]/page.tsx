@@ -41,7 +41,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="mx-auto w-full max-w-[1440px] bg-white">
+    <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
