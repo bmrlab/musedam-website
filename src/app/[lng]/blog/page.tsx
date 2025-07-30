@@ -2,10 +2,9 @@ import React from 'react'
 import type { Metadata } from 'next/types'
 import { getStaticBlogData } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
-import type { PropsWithLng } from '@/types/page'
 
 import { AllArticles } from '@/components/Blog/all-articles'
 import { HeroSection } from '@/components/Blog/HeroSection'
@@ -13,8 +12,8 @@ import { TopArticles } from '@/components/Blog/TopArticles'
 
 import PageClient from './page.client'
 
-// export const dynamic = 'force-static'
-// export const revalidate = 600
+export const dynamic = 'force-static'
+export const revalidate = 600
 
 type Args = {
   params: Promise<{ lng: string }>
@@ -24,7 +23,10 @@ type Args = {
   }>
 }
 
-export default async function Page({ params: paramsPromise, searchParams: searchParamsPromise }: Args) {
+export default async function Page({
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
+}: Args) {
   const { lng } = await paramsPromise
   const { category, page = 1 } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
@@ -56,7 +58,7 @@ export default async function Page({ params: paramsPromise, searchParams: search
 
       {/* Hero Section - 特色文章 */}
       {heroArticles.docs.length > 0 && (
-        <div className="flex flex-col items-center gap-[60px] px-6 py-[60px] md:p-[80px]">
+        <div className="flex flex-col items-center gap-20 px-6 py-[60px] md:p-[80px] [&>section:nth-child(even)]:md:flex-row-reverse">
           {heroArticles.docs.map((article) => (
             <HeroSection key={article.id} article={article} />
           ))}
