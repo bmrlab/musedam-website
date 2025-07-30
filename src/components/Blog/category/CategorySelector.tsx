@@ -69,7 +69,9 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label="Open category selector"
       >
-        <span className="text-[20px] font-medium text-black">{t('category.title')}</span>
+        <span className="!font-euclid text-[20px] font-medium text-black">
+          {t('category.title')}
+        </span>
         <div className="flex size-6 items-center justify-center">
           <Icons.caretDown className="size-4 text-black/80" />
         </div>
