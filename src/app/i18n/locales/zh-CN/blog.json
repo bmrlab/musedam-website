@@ -7,5 +7,6 @@
   "category": {
     "title": "分类",
     "all": "全部"
-  }
+  },
+  "readTime": "{{ val }}分钟阅读"
 }

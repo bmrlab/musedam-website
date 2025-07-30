@@ -1,12 +1,19 @@
-import React, { useMemo } from 'react'
+'use client'
+
+import React, { useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import type { Media, Post } from '@/payload-types'
-import { formatDateTime } from 'src/utilities/formatDateTime'
+import { formatDateTime, formatZhDateTime } from 'src/utilities/formatDateTime'
+
+import useIsZhLng from '@/hooks/useIsZhLng'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
   const { categories, publishedAt, title, meta } = post
+  const { t } = useBlogTranslation()
+  const { isZhLng } = useIsZhLng()
 
   const metaImage = useMemo(() => {
     if (!meta?.image) return undefined
@@ -22,15 +29,18 @@ export const PostHero: React.FC<{
   }, [meta?.image])
 
   // 计算阅读时间（简单估算：每分钟200字）
-  const getReadingTime = (content: any): string => {
-    if (!content || typeof content !== 'object') return '5 min read'
+  const getReadingTime = useCallback(
+    (content: any): string => {
+      if (!content || typeof content !== 'object') return t('readTime', { val: 5 })
 
-    // 简单的字数统计逻辑
-    const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
-    const wordCount = textContent.split(/\s+/).length
-    const readingTime = Math.ceil(wordCount / 200)
-    return `${readingTime} min read`
-  }
+      // 简单的字数统计逻辑
+      const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
+      const wordCount = textContent.split(/\s+/).length
+      const readingTime = Math.ceil(wordCount / 200)
+      return t('readTime', { val: readingTime })
+    },
+    [t],
+  )
 
   return (
     <div className="bg-white pb-[40px] pt-[60px] md:pb-[60px] md:pt-20">
@@ -50,7 +60,7 @@ export const PostHero: React.FC<{
                   dateTime={publishedAt}
                   className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]"
                 >
-                  {formatDateTime(publishedAt)}
+                  {isZhLng ? formatZhDateTime(publishedAt) : formatDateTime(publishedAt)}
                 </time>
               )}
             </div>

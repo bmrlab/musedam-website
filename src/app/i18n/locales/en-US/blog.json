@@ -7,5 +7,6 @@
   "category": {
     "title": "Category",
     "all": "All"
-  }
+  },
+  "readTime": "{{ val }} min read"
 }
