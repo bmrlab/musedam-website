@@ -39,8 +39,7 @@ export default async function Page({
           <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
         }
       >
-        {/*<BlogPageContent lng={lng} category={category} page={page} />*/}
-        <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
+        <BlogPageContent lng={lng} category={category} page={page} />
       </Suspense>
     </>
   )

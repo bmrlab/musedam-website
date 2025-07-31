@@ -7,21 +7,38 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   previousDoc,
   req: { payload },
 }) => {
+  // 支持的语言列表
+  const languages = ['zh-CN', 'en-US']
+
   if (doc._status === 'published') {
-    const path = `/posts/${doc.slug}`
+    // 为每种语言重新验证路径
+    languages.forEach((lng) => {
+      const path = `/${lng}/blog/posts/${doc.slug}`
+      payload.logger.info(`Revalidating post at path: ${path}`)
+      revalidatePath(path)
+    })
 
-    payload.logger.info(`Revalidating post at path: ${path}`)
-
-    revalidatePath(path)
+    // 同时重新验证博客列表页
+    languages.forEach((lng) => {
+      const blogPath = `/${lng}/blog`
+      payload.logger.info(`Revalidating blog list at path: ${blogPath}`)
+      revalidatePath(blogPath)
+    })
   }
 
-  // If the post was previously published, we need to revalidate the old path
-  if (previousDoc._status === 'published' && doc._status !== 'published') {
-    const oldPath = `/posts/${previousDoc.slug}`
+  // 如果文章之前已发布，现在取消发布，需要重新验证旧路径
+  if (previousDoc?._status === 'published' && doc._status !== 'published') {
+    languages.forEach((lng) => {
+      const oldPath = `/${lng}/blog/posts/${previousDoc.slug}`
+      payload.logger.info(`Revalidating old post at path: ${oldPath}`)
+      revalidatePath(oldPath)
+    })
 
-    payload.logger.info(`Revalidating old post at path: ${oldPath}`)
-
-    revalidatePath(oldPath)
+    // 同时重新验证博客列表页
+    languages.forEach((lng) => {
+      const blogPath = `/${lng}/blog`
+      revalidatePath(blogPath)
+    })
   }
 
   return doc
