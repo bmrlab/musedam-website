@@ -11,7 +11,7 @@ export const PostPageSkeleton: React.FC<PostPageSkeletonProps> = ({ className })
   return (
     <article
       className={cn(
-        'mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]',
+        'mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] overflow-hidden bg-white md:min-h-[calc(100vh-70px)]',
         className,
       )}
     >
