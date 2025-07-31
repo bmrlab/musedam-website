@@ -5,7 +5,7 @@ import { LocaleLink } from '@/components/LocalLink'
 
 export default function NotFound() {
   return (
-    <div className="container py-28">
+    <div className="container min-h-[calc(100vh-68px-56px)] py-28 md:min-h-0">
       <div className="prose max-w-none">
         <h1 style={{ marginBottom: 0 }}>404</h1>
         <p className="mb-4">This page could not be found.</p>
