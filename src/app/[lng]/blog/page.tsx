@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import type { Metadata } from 'next/types'
 import { getStaticBlogData } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 
 import { AllArticles } from '@/components/Blog/all-articles'
 import { HeroSection } from '@/components/Blog/HeroSection'
+import { BlogPageSkeleton } from '@/components/Blog/skeleton/BlogPageSkeleton'
 import { TopArticles } from '@/components/Blog/TopArticles'
 
 import PageClient from './page.client'
@@ -29,6 +30,32 @@ export default async function Page({
 }: Args) {
   const { lng } = await paramsPromise
   const { category, page = 1 } = await searchParamsPromise
+
+  return (
+    <>
+      <PageClient />
+      <Suspense
+        fallback={
+          <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
+        }
+      >
+        {/*<BlogPageContent lng={lng} category={category} page={page} />*/}
+        <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
+      </Suspense>
+    </>
+  )
+}
+
+// 异步数据获取组件
+async function BlogPageContent({
+  lng,
+  category,
+  page,
+}: {
+  lng: string
+  category?: string
+  page: number
+}) {
   const payload = await getPayload({ config: configPromise })
 
   // 将 Next.js 语言代码转换为 Payload locale 格式
@@ -36,21 +63,23 @@ export default async function Page({
 
   const filterCategory = category === '' ? [] : category?.split(',') || []
 
-  const { categories, heroArticles, topArticles } = await getStaticBlogData(payloadLocale)
-
-  const allPosts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 9,
-    page,
-    overrideAccess: false,
-    where: {
-      _status: { equals: 'published' },
-      ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
-    },
-    sort: '-publishedAt',
-    locale: payloadLocale,
-  })
+  // 并行获取所有数据以优化性能
+  const [{ categories, heroArticles, topArticles }, allPosts] = await Promise.all([
+    getStaticBlogData(payloadLocale),
+    payload.find({
+      collection: 'posts',
+      depth: 1,
+      limit: 9,
+      page,
+      overrideAccess: false,
+      where: {
+        _status: { equals: 'published' },
+        ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
+      },
+      sort: '-publishedAt',
+      locale: payloadLocale,
+    }),
+  ])
 
   return (
     <div className="min-h-screen w-full max-w-[1440px] bg-white">
