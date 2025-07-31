@@ -11,9 +11,9 @@ export const ArticleCardSkeleton: React.FC<ArticleCardSkeletonProps> = ({
   variant = 'default',
 }) => {
   return (
-    <div className={cn('block overflow-hidden rounded-[20px]', className)}>
+    <div className={cn('block overflow-hidden rounded-[14px] md:rounded-[12px]', className)}>
       {/* 图片骨架 */}
-      <div className="relative aspect-[3/2] animate-pulse rounded-[20px] bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+      <div className="relative aspect-[3/2] animate-pulse rounded-[14px] bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:rounded-[12px]">
         <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       </div>
 
@@ -35,7 +35,7 @@ export const ArticleCardSkeleton: React.FC<ArticleCardSkeletonProps> = ({
           <div className="h-4 w-full animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
             <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </div>
-          <div className="h-4 w-[200px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+          <div className="h-4 w-3/4 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:w-1/2">
             <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </div>
         </div>

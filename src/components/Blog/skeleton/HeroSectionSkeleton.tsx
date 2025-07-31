@@ -21,43 +21,25 @@ export const HeroSectionSkeleton: React.FC<HeroSectionSkeletonProps> = ({ classN
         </div>
 
         {/* 标题骨架 */}
-        <div className="space-y-3">
-          <div className="h-10 w-full animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:h-12">
-            <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          </div>
-          <div className="h-10 w-4/5 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:h-12">
-            <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          </div>
-        </div>
-
-        {/* 描述文本骨架 */}
-        <div className="mt-1 flex-1 space-y-2">
+        <div className="flex-1 space-y-3">
           <div className="h-6 w-full animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
             <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </div>
-          <div className="h-6 w-full animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-            <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          </div>
-          <div className="h-6 w-3/4 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+          <div className="h-6 w-1/2 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
             <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </div>
         </div>
 
         {/* 阅读更多按钮骨架 */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="h-7 w-[130px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-            <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          </div>
-          <div className="size-6 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-            <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          </div>
+        <div className="mt-4 h-7 w-[130px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+          <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
         </div>
       </div>
 
       {/* 右侧图片区域骨架 */}
       <div className="relative flex-1">
-        <div className="aspect-[4/3] max-h-[440px] animate-pulse rounded-[14px] bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-          <div className="size-full animate-shimmer rounded-[14px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <div className="aspect-[4/3]  animate-pulse rounded-[14px] bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:max-h-[440px] md:rounded-[20px]">
+          <div className="size-full animate-shimmer rounded-[14px] bg-gradient-to-r from-transparent via-white/20 to-transparent md:rounded-[20px]"></div>
         </div>
       </div>
     </section>

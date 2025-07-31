@@ -97,19 +97,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
               <div className="mx-6 flex items-center justify-between border-b border-black/10 pb-2">
                 <span className="text-[20px] font-medium text-black">Category</span>
                 <button onClick={handleClose} className="flex size-6 items-center justify-center">
-                  <svg
-                    width="12"
-                    height="8"
-                    viewBox="0 0 12 8"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M11.1315 0.879883H0.868974C0.561161 0.879883 0.389286 1.20488 0.579911 1.42676L5.71116 7.37676C5.85804 7.54707 6.14085 7.54707 6.28929 7.37676L11.4205 1.42676C11.6112 1.20488 11.4393 0.879883 11.1315 0.879883Z"
-                      fill="black"
-                      fillOpacity="0.8"
-                    />
-                  </svg>
+                  <Icons.downArrow />
                 </button>
               </div>
 

@@ -1,5 +1,10 @@
+'use client'
+
 import React from 'react'
 import { cn } from '@/utilities/cn'
+
+import Icons from '@/components/icon'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 import { ArticleGridSkeleton } from './ArticleGridSkeleton'
 import { HeroSectionSkeletonContainer } from './HeroSectionSkeleton'
@@ -18,10 +23,11 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
   showTopArticles = true,
   showAllArticles = true,
 }) => {
+  const { t } = useBlogTranslation()
   return (
-    <div className={cn('min-h-screen w-full max-w-[1440px] bg-white', className)}>
+    <div className={cn('min-h-screen w-full max-w-[1440px] overflow-hidden bg-white', className)}>
       {/* Hero Section 骨架 */}
-      {showHero && <HeroSectionSkeletonContainer count={2} />}
+      {showHero && <HeroSectionSkeletonContainer count={1} />}
 
       {/* Top Articles 骨架 */}
       {showTopArticles && (
@@ -33,9 +39,13 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
         <section className="px-6 pb-[60px] pt-0 md:p-20">
           {/* 标题骨架 */}
           <div className="mb-[60px]">
-            <div className="h-[54px] w-[200px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+            <div className="hidden h-[54px] w-[200px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:block">
               <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
             </div>
+
+            <h2 className="text-center !font-feature text-[54px]/[54px] font-medium text-black md:hidden">
+              {t('article.all')}
+            </h2>
           </div>
 
           {/* 移动端分类选择器骨架 */}
@@ -44,8 +54,8 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
               <div className="h-[20px] w-[80px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
                 <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
               </div>
-              <div className="size-6 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-                <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              <div className="size-6">
+                <Icons.downArrow />
               </div>
             </div>
           </div>
@@ -63,10 +73,10 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
                 <div className="mb-6 mt-[10px] h-px w-full bg-[#E5E5E5]"></div>
 
                 {/* 分类选项骨架 */}
-                <nav className="max-h-[1087px] space-y-2 overflow-y-auto">
+                <nav className="max-h-[1087px] space-y-2">
                   {/* "全部"选项骨架 */}
                   <div className="flex w-full items-center gap-2 rounded-md px-3 py-2">
-                    <div className="size-[18px] animate-pulse rounded border-2 bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+                    <div className="size-[18px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
                       <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                     </div>
                     <div className="h-4 w-[60px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
@@ -80,7 +90,7 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
                       key={index}
                       className="flex w-full items-center gap-2 rounded-md px-3 py-2"
                     >
-                      <div className="size-[18px] animate-pulse rounded border-2 bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
+                      <div className="size-[18px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
                         <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                       </div>
                       <div className="h-4 w-[80px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
@@ -93,21 +103,8 @@ export const BlogPageSkeleton: React.FC<BlogPageSkeletonProps> = ({
             </aside>
 
             {/* 右侧文章网格骨架 */}
-            <div className="md:height-[1047px] flex flex-1 flex-col items-center justify-between">
-              <ArticleGridSkeleton count={9} />
-
-              {/* 分页骨架 */}
-              <div className="mt-8 hidden items-center gap-2 md:flex">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="size-10 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]"
-                  >
-                    <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ArticleGridSkeleton count={9} className="hidden md:block" />
+            <ArticleGridSkeleton count={4} className="md:hidden" />
           </div>
         </section>
       )}
