@@ -115,44 +115,6 @@ export const PostPageSkeleton: React.FC<PostPageSkeletonProps> = ({ className })
               </div>
             </div>
           </div>
-
-          {/* 相关文章骨架 */}
-          <div className="mt-16 border-t border-gray-200 pt-16">
-            {/* 相关文章标题骨架 */}
-            <div className="mb-8 h-8 w-[200px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-              <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-            </div>
-
-            {/* 相关文章列表骨架 */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="block overflow-hidden rounded-[14px] md:rounded-[12px]">
-                  {/* 图片骨架 */}
-                  <div className="relative aspect-[3/2] animate-pulse rounded-[14px] bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB] md:rounded-[12px]">
-                    <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                  </div>
-
-                  {/* 内容骨架 */}
-                  <div className="space-y-2 px-[10px] pb-[20px] pt-[25px]">
-                    {/* 分类标签骨架 */}
-                    <div className="h-4 w-[120px] animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-                      <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                    </div>
-
-                    {/* 标题骨架 */}
-                    <div className="space-y-2">
-                      <div className="h-4 w-full animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-                        <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                      </div>
-                      <div className="h-4 w-3/4 animate-pulse rounded bg-gradient-to-r from-[#F9FAFB] to-[#E5E7EB]">
-                        <div className="h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </article>

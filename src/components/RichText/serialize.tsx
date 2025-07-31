@@ -248,6 +248,11 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
               return (
                 <div
                   className="no-scrollbar my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]"
+                  style={{
+                    WebkitOverflowScrolling: 'auto',
+                    overscrollBehavior: 'none',
+                    overscrollBehaviorX: 'none'
+                  }}
                   key={index}
                 >
                   <table className="w-max">
