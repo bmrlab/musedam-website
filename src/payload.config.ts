@@ -78,7 +78,9 @@ export default buildConfig({
     ...plugins,
     s3Storage({
       collections: {
-        media: true,
+        media: {
+          prefix: process.env.S3_PATH_PREFIX!,
+        },
       },
       bucket: process.env.S3_BUCKET!,
       config: {
