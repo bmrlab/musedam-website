@@ -1,9 +1,10 @@
 // storage-adapter-import-placeholder
+import * as process from 'node:process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { zh } from '@payloadcms/translations/languages/zh'
 import { buildConfig } from 'payload'
 import sharp from 'sharp' // sharp-import
@@ -75,12 +76,19 @@ export default buildConfig({
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,
-    vercelBlobStorage({
-      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
+    s3Storage({
       collections: {
         media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN ?? '',
+      bucket: process.env.S3_BUCKET!,
+      config: {
+        endpoint: process.env.S3_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        },
+        region: process.env.S3_REGION,
+      },
     }),
   ],
   secret: process.env.PAYLOAD_SECRET,
