@@ -88,6 +88,7 @@ export default buildConfig({
           secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
         },
         region: process.env.S3_REGION,
+        forcePathStyle: true, // 对于 MinIO 等 S3 兼容服务必需
       },
     }),
   ],
