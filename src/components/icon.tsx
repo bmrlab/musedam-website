@@ -565,11 +565,146 @@ const headerIcons = {
       />
     </svg>
   ),
+  arrowRightLong: (props: IconProps) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M5 12H19"
+        stroke="#141414"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 16L19 12"
+        stroke="#141414"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 8L19 12"
+        stroke="#141414"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  check: (props: IconProps) => (
+    <svg
+      width="11"
+      height="8"
+      viewBox="0 0 11 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M4.41747 7.60407L4.39985 7.62169L0 3.22185L1.43268 1.78917L4.41752 4.77402L9.19154 0L10.6242 1.43268L4.43514 7.62175L4.41747 7.60407Z"
+        fill="black"
+      />
+    </svg>
+  ),
+}
+
+const blogIcons = {
+  left: (props: IconProps) => (
+    <svg
+      width="8"
+      height="12"
+      viewBox="0 0 8 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <g clipPath="url(#clip0_6158_61139)">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M2.00358 6L7.43384 0.824198C7.52205 0.740129 7.52205 0.603815 7.43384 0.519741L6.9547 0.0630525C6.86649 -0.0210175 6.72348 -0.0210175 6.63528 0.0630525L0.566156 5.84777C0.522052 5.8898 0.5 5.9449 0.5 6C0.5 6.0551 0.52205 6.11019 0.56616 6.15223L6.63528 11.9369C6.72349 12.021 6.8665 12.021 6.95471 11.9369L7.43385 11.4803C7.52206 11.3962 7.52206 11.2599 7.43385 11.1758L2.00358 6Z"
+          fill="currentColor"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_6158_61139">
+          <rect width="7" height="12" fill="white" transform="translate(0.5)" />
+        </clipPath>
+      </defs>
+    </svg>
+  ),
+  right: (props: IconProps) => (
+    <svg
+      width="8"
+      height="12"
+      viewBox="0 0 8 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M5.99643 6L0.566161 11.1758C0.477951 11.2599 0.477951 11.3962 0.566161 11.4803L1.0453 11.9369C1.13351 12.021 1.27652 12.021 1.36473 11.9369L7.43385 6.15223C7.47795 6.11019 7.50001 6.05509 7.50001 6C7.50001 5.9449 7.47796 5.8898 7.43385 5.84777L1.36473 0.0630525C1.27652 -0.0210175 1.13351 -0.0210175 1.0453 0.0630525L0.566158 0.51974C0.477948 0.60381 0.477948 0.740125 0.566158 0.824199L5.99643 6Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+  doubleLeft: (props: IconProps) => (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M6.85355 3.85355C7.04882 3.65829 7.04882 3.34171 6.85355 3.14645C6.65829 2.95118 6.34171 2.95118 6.14645 3.14645L2.14645 7.14645C1.95118 7.34171 1.95118 7.65829 2.14645 7.85355L6.14645 11.8536C6.34171 12.0488 6.65829 12.0488 6.85355 11.8536C7.04882 11.6583 7.04882 11.3417 6.85355 11.1464L3.20711 7.5L6.85355 3.85355ZM12.8536 3.85355C13.0488 3.65829 13.0488 3.34171 12.8536 3.14645C12.6583 2.95118 12.3417 2.95118 12.1464 3.14645L8.14645 7.14645C7.95118 7.34171 7.95118 7.65829 8.14645 7.85355L12.1464 11.8536C12.3417 12.0488 12.6583 12.0488 12.8536 11.8536C13.0488 11.6583 13.0488 11.3417 12.8536 11.1464L9.20711 7.5L12.8536 3.85355Z"
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      ></path>
+    </svg>
+  ),
+  doubleRight: (props: IconProps) => (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M2.14645 11.1464C1.95118 11.3417 1.95118 11.6583 2.14645 11.8536C2.34171 12.0488 2.65829 12.0488 2.85355 11.8536L6.85355 7.85355C7.04882 7.65829 7.04882 7.34171 6.85355 7.14645L2.85355 3.14645C2.65829 2.95118 2.34171 2.95118 2.14645 3.14645C1.95118 3.34171 1.95118 3.65829 2.14645 3.85355L5.79289 7.5L2.14645 11.1464ZM8.14645 11.1464C7.95118 11.3417 7.95118 11.6583 8.14645 11.8536C8.34171 12.0488 8.65829 12.0488 8.85355 11.8536L12.8536 7.85355C13.0488 7.65829 13.0488 7.34171 12.8536 7.14645L8.85355 3.14645C8.65829 2.95118 8.34171 2.95118 8.14645 3.14645C7.95118 3.34171 7.95118 3.65829 8.14645 3.85355L11.7929 7.5L8.14645 11.1464Z"
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      ></path>
+    </svg>
+  ),
+  downArrow: (props: IconProps) => (
+    <svg
+      width="12"
+      height="8"
+      viewBox="0 0 12 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M11.1315 0.879883H0.868974C0.561161 0.879883 0.389286 1.20488 0.579911 1.42676L5.71116 7.37676C5.85804 7.54707 6.14085 7.54707 6.28929 7.37676L11.4205 1.42676C11.6112 1.20488 11.4393 0.879883 11.1315 0.879883Z"
+        fill="black"
+        fillOpacity="0.8"
+      />
+    </svg>
+  ),
 }
 
 const combinedIcons = {
   ...Icons,
   ...headerIcons,
+  ...blogIcons,
 }
 
 export default combinedIcons

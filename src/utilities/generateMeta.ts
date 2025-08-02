@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
+import type { Page, Post } from '@/payload-types'
 
-import type { Page, Post } from '../payload-types'
 import getServerSideURL from './getServerSideURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
 
@@ -13,9 +13,7 @@ export const generateMeta = async (args: { doc: Page | Post }): Promise<Metadata
     'url' in doc.meta.image &&
     `${getServerSideURL()}`
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+  const title = doc?.meta?.title ? doc?.meta?.title + ' | MuseDAM Website' : 'MuseDAM Website'
 
   return {
     description: doc?.meta?.description,

@@ -1,0 +1,12 @@
+{
+  "readMore": "阅读更多",
+  "article": {
+    "all": "全部文章",
+    "top": "精选文章"
+  },
+  "category": {
+    "title": "分类",
+    "all": "全部"
+  },
+  "readTime": "{{ val }}分钟阅读"
+}

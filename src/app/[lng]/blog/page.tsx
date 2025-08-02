@@ -1,0 +1,152 @@
+import React, { Suspense } from 'react'
+import type { Metadata } from 'next/types'
+import { getStaticBlogData } from '@/data/blog'
+import type { Category, Post } from '@/payload-types'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+
+import { AllArticles } from '@/components/Blog/all-articles'
+import { HeroSection } from '@/components/Blog/HeroSection'
+import { BlogPageSkeleton } from '@/components/Blog/skeleton/BlogPageSkeleton'
+import { TopArticles } from '@/components/Blog/TopArticles'
+
+import PageClient from './page.client'
+
+export const dynamic = 'force-static'
+export const revalidate = 600
+
+type Args = {
+  params: Promise<{ lng: string }>
+  searchParams: Promise<{
+    category?: string
+    page?: number
+  }>
+}
+
+export default async function Page({
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
+}: Args) {
+  const { lng } = await paramsPromise
+  const { category, page = 1 } = await searchParamsPromise
+
+  return (
+    <>
+      <PageClient />
+      <Suspense
+        fallback={
+          <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
+        }
+      >
+        <BlogPageContent lng={lng} category={category} page={page} />
+      </Suspense>
+    </>
+  )
+}
+
+// 异步数据获取组件
+async function BlogPageContent({
+  lng,
+  category,
+  page,
+}: {
+  lng: string
+  category?: string
+  page: number
+}) {
+  const payload = await getPayload({ config: configPromise })
+
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
+
+  const filterCategory = category === '' ? [] : category?.split(',') || []
+
+  // 并行获取所有数据以优化性能
+  const [{ categories, heroArticles, topArticles }, allPosts] = await Promise.all([
+    getStaticBlogData(payloadLocale),
+    payload.find({
+      collection: 'posts',
+      depth: 1,
+      limit: 9,
+      page,
+      overrideAccess: false,
+      where: {
+        _status: { equals: 'published' },
+        ...(filterCategory.length > 0 ? { categories: { in: filterCategory } } : {}),
+      },
+      sort: '-publishedAt',
+      locale: payloadLocale,
+    }),
+  ])
+
+  return (
+    <div className="min-h-screen w-full max-w-[1440px] bg-white">
+      <PageClient />
+
+      {/* Hero Section - 特色文章 */}
+      {heroArticles.docs.length > 0 && (
+        <div className="flex flex-col items-center gap-20 px-6 py-[60px] md:p-[80px] [&>section:nth-child(even)]:md:flex-row-reverse">
+          {heroArticles.docs.map((article) => (
+            <HeroSection key={article.id} article={article} />
+          ))}
+        </div>
+      )}
+
+      {/* Top Articles - 精选文章 */}
+      {topArticles.docs.length > 0 && (
+        <TopArticles
+          articles={topArticles.docs as Post[]}
+          className="mt-0 pb-[100px] md:mt-[60px]"
+        />
+      )}
+
+      {/* All Articles - 所有文章（包含分类筛选） */}
+      <AllArticles
+        articles={allPosts.docs as Post[]}
+        categories={categories.docs as Category[]}
+        // page 类型是 string
+        currentPage={parseInt(allPosts.page?.toString() ?? '1')}
+        totalPages={allPosts.totalPages || 1}
+        selectedCategory={filterCategory}
+        className="px-6 pb-[60px] pt-0 md:p-20"
+      />
+    </div>
+  )
+}
+
+export async function generateMetadata({
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
+}: Args): Promise<Metadata> {
+  const { lng } = await paramsPromise
+  const { category } = await searchParamsPromise
+
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
+
+  let title = 'MuseDAM 博客'
+
+  if (category) {
+    const payload = await getPayload({ config: configPromise })
+    try {
+      const categoryDoc = await payload.findByID({
+        collection: 'categories',
+        id: category,
+        overrideAccess: false,
+        locale: payloadLocale,
+      })
+      if (categoryDoc) {
+        title = `${categoryDoc.title} | MuseDAM 博客`
+      }
+    } catch (error) {
+      // 如果分类不存在，使用默认标题
+    }
+  }
+
+  return {
+    title,
+    description:
+      'Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.',
+  }
+}

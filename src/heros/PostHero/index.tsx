@@ -1,86 +1,116 @@
-import React from 'react'
-import type { Post } from '@/payload-types'
-import { formatDateTime } from 'src/utilities/formatDateTime'
+'use client'
 
-import { Media } from '@/components/Media'
+import React, { useCallback, useMemo } from 'react'
+import Image from 'next/image'
+import type { Media, Post } from '@/payload-types'
+import { formatDateTime, formatZhDateTime } from 'src/utilities/formatDateTime'
+
+import useIsZhLng from '@/hooks/useIsZhLng'
+import { useBlogTranslation } from '@/app/i18n/client'
 
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
-  const { categories, meta: { image: metaImage } = {}, populatedAuthors, publishedAt, title } = post
+  const { categories, publishedAt, title, meta } = post
+  const { t } = useBlogTranslation()
+  const { isZhLng } = useIsZhLng()
+
+  const metaImage = useMemo(() => {
+    if (!meta?.image) return undefined
+    if (typeof meta?.image === 'object') {
+      const image = meta.image as Media
+      return {
+        src: image.url,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+      }
+    }
+  }, [meta?.image])
+
+  // 计算阅读时间（简单估算：每分钟200字）
+  const getReadingTime = useCallback(
+    (content: any): string => {
+      if (!content || typeof content !== 'object') return t('readTime', { val: 5 })
+
+      // 简单的字数统计逻辑
+      const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
+      const wordCount = textContent.split(/\s+/).length
+      const readingTime = Math.ceil(wordCount / 200)
+      return t('readTime', { val: readingTime })
+    },
+    [t],
+  )
 
   return (
-    <div className="relative mt-[-10.4rem] flex items-end">
-      <div className="container relative z-10 pb-8 text-white lg:grid lg:grid-cols-[1fr_48rem_1fr]">
-        <div className="col-span-1 col-start-1 md:col-span-2 md:col-start-2">
-          <div className="mb-6 text-sm uppercase">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object' && category !== null) {
-                const { title: categoryTitle } = category
-
-                const titleToUse = categoryTitle || 'Untitled category'
-
-                const isLast = index === categories.length - 1
-
-                return (
-                  <React.Fragment key={index}>
-                    {titleToUse}
-                    {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
-                  </React.Fragment>
-                )
-              }
-              return null
-            })}
-          </div>
-
-          <div className="">
-            <h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">{title}</h1>
-          </div>
-
-          <div className="flex flex-col gap-4 md:flex-row md:gap-16">
-            <div className="flex flex-col gap-4">
-              {populatedAuthors && (
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm">Author</p>
-                  {populatedAuthors.map((author, index) => {
-                    const { name } = author
-
-                    const isLast = index === populatedAuthors.length - 1
-                    const secondToLast = index === populatedAuthors.length - 2
-
-                    return (
-                      <React.Fragment key={index}>
-                        {name}
-                        {secondToLast && populatedAuthors.length > 2 && (
-                          <React.Fragment>, </React.Fragment>
-                        )}
-                        {secondToLast && populatedAuthors.length === 2 && (
-                          <React.Fragment> </React.Fragment>
-                        )}
-                        {!isLast && populatedAuthors.length > 1 && (
-                          <React.Fragment>and </React.Fragment>
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
-                </div>
+    <div className="bg-white pb-[40px] pt-[60px] md:pb-[60px] md:pt-20">
+      <div className="px-6 md:px-20">
+        <div className="mx-auto max-w-[1000px]">
+          <div className="flex flex-col">
+            {/* 阅读时间和发布信息 */}
+            <div className="flex items-center gap-3">
+              <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]">
+                {getReadingTime(post.content)}
+              </span>
+              <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)] opacity-60">
+                ·
+              </span>
+              {publishedAt && (
+                <time
+                  dateTime={publishedAt}
+                  className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]"
+                >
+                  {isZhLng ? formatZhDateTime(publishedAt) : formatDateTime(publishedAt)}
+                </time>
               )}
             </div>
-            {publishedAt && (
-              <div className="flex flex-col gap-1">
-                <p className="text-sm">Date Published</p>
 
-                <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
+            <div className="mt-5 flex flex-col gap-4">
+              {/* 标题 */}
+              <h1 className="!font-euclid text-[40px] font-semibold leading-tight text-[#242424] md:text-[54px]">
+                {title}
+              </h1>
+
+              {/* 描述 */}
+              {meta?.description && (
+                <p className="!font-euclid text-[18px]/[27px] font-normal text-[rgba(36,36,36,0.7)] md:text-[22px]/[31.9px]">
+                  {meta.description}
+                </p>
+              )}
+            </div>
+
+            {/* 分类标签 */}
+            {categories && categories.length > 0 && (
+              <div className="mt-4">
+                {categories.map((category, index) => {
+                  if (typeof category === 'object' && category !== null) {
+                    const { title: categoryTitle } = category
+                    return (
+                      <span
+                        key={index}
+                        className="inline-flex h-8 items-center justify-center rounded-full bg-[#F2F2F2] px-[10px] font-euclid text-[15px]/[16px] font-normal uppercase text-[rgba(36,36,36,0.8)]"
+                      >
+                        {categoryTitle || ''}
+                      </span>
+                    )
+                  }
+                  return null
+                })}
+              </div>
+            )}
+
+            {metaImage && (
+              <div className="relative mt-10 aspect-[2/1] w-full rounded-[16px] md:mt-[60px]">
+                <Image
+                  src={metaImage.src ?? ''}
+                  fill
+                  alt={metaImage.alt ?? ''}
+                  className="rounded-[16px] object-cover"
+                />
               </div>
             )}
           </div>
         </div>
-      </div>
-      <div className="min-h-[80vh] select-none">
-        {metaImage && typeof metaImage !== 'string' && (
-          <Media fill imgClassName="-z-10 object-cover" resource={metaImage} />
-        )}
-        <div className="pointer-events-none absolute bottom-0 left-0 h-1/2 w-full bg-gradient-to-t from-black to-transparent" />
       </div>
     </div>
   )

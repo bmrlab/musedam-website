@@ -1,4 +1,10 @@
+import { authenticated } from '@/access/authenticated'
+import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { Banner } from '@/blocks/Banner/config'
+import { Code } from '@/blocks/Code/config'
+import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import getServerSideURL from '@/utilities/getServerSideURL'
 import {
   MetaDescriptionField,
@@ -17,12 +23,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { CollectionConfig } from 'payload'
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Banner } from '../../blocks/Banner/config'
-import { Code } from '../../blocks/Code/config'
-import { MediaBlock } from '../../blocks/MediaBlock/config'
-import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidatePost } from './hooks/revalidatePost'
 
@@ -60,6 +60,7 @@ export const Posts: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
+      localized: true,
       required: true,
     },
     {
@@ -74,7 +75,7 @@ export const Posts: CollectionConfig = {
                 features: ({ rootFeatures }) => {
                   return [
                     ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5'] }),
                     BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
@@ -83,6 +84,7 @@ export const Posts: CollectionConfig = {
                 },
               }),
               label: false,
+              localized: true,
               required: true,
             },
           ],
@@ -114,6 +116,26 @@ export const Posts: CollectionConfig = {
               },
               hasMany: true,
               relationTo: 'categories',
+            },
+            {
+              name: 'isHeroArticle',
+              label: 'Is it Hero Article?',
+              type: 'checkbox',
+              defaultValue: false,
+              index: true,
+              admin: {
+                position: 'sidebar',
+              },
+            },
+            {
+              name: 'isTopArticle',
+              label: 'Is it Top Article?',
+              type: 'checkbox',
+              defaultValue: false,
+              index: true,
+              admin: {
+                position: 'sidebar',
+              },
             },
           ],
           label: 'Meta',

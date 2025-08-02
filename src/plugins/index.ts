@@ -14,7 +14,7 @@ import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | MuseDAM Website` : 'MuseDAM Website'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {

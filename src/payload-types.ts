@@ -44,7 +44,7 @@ export interface Config {
   };
   globals: {};
   globalsSelect: {};
-  locale: null;
+  locale: 'en' | 'zh';
   user: User & {
     collection: 'users';
   };
@@ -148,6 +148,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -380,6 +381,8 @@ export interface Post {
   };
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
+  isHeroArticle?: boolean | null;
+  isTopArticle?: boolean | null;
   meta?: {
     title?: string | null;
     image?: (number | null) | Media;
@@ -892,6 +895,8 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   relatedPosts?: T;
   categories?: T;
+  isHeroArticle?: T;
+  isTopArticle?: T;
   meta?:
     | T
     | {
@@ -922,6 +927,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

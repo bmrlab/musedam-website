@@ -1,9 +1,10 @@
-import React, { cache } from 'react'
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
+import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -12,37 +13,38 @@ import RichText from '@/components/RichText'
 
 import PageClient from './page.client'
 
-// export async function generateStaticParams() {
-//   const payload = await getPayload({ config: configPromise })
-//   const posts = await payload.find({
-//     collection: 'posts',
-//     draft: false,
-//     limit: 1000,
-//     overrideAccess: false,
-//   })
-//
-//   const params = posts.docs.map(({ slug }) => {
-//     return { slug }
-//   })
-//
-//   return params
-// }
+export const dynamic = 'force-static'
+export const revalidate = 600
+
+export async function generateStaticParams() {
+  const payload = await getPayload({ config: configPromise })
+  const posts = await payload.find({
+    collection: 'posts',
+    draft: false,
+    limit: 1000,
+    overrideAccess: false,
+  })
+
+  const params = posts.docs.map(({ slug }) => {
+    return { slug }
+  })
+
+  return params
+}
 
 type Args = {
-  params: Promise<{
-    slug?: string
-  }>
+  params: Promise<{ lng: string; slug?: string }>
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
-  const { slug = '' } = await paramsPromise
-  const url = '/posts/' + slug
-  const post = await queryPostBySlug({ slug })
+  const { lng, slug = '' } = await paramsPromise
+  const url = '/blog/posts/' + slug
+  const post = await queryPostBySlug({ slug, lng })
 
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="py-16">
+    <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -50,20 +52,23 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container grid-rows-[1fr] lg:mx-0 lg:grid lg:grid-cols-[1fr_48rem_1fr]">
+      <div className="px-6 pb-[60px] md:px-20 md:pb-[120px]">
+        <div className="mx-auto max-w-[720px]">
           <RichText
-            className="col-span-3 col-start-1 grid-rows-[1fr] lg:grid lg:grid-cols-subgrid"
+            className="max-w-none"
             content={post.content}
             enableGutter={false}
+            enableProse={false}
           />
         </div>
 
         {post.relatedPosts && post.relatedPosts.length > 0 && (
-          <RelatedPosts
-            className="mt-12"
-            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-          />
+          <div className="mt-16 border-t border-gray-200 pt-16">
+            <RelatedPosts
+              className=""
+              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+            />
+          </div>
         )}
       </div>
     </article>
@@ -71,16 +76,19 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
-  const post = await queryPostBySlug({ slug })
+  const { lng, slug = '' } = await paramsPromise
+  const post = await queryPostBySlug({ slug, lng })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPostBySlug = cache(async ({ slug, lng }: { slug: string; lng: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
+
+  // 将 Next.js 语言代码转换为 Payload locale 格式
+  const payloadLocale = convertLngToPayloadLocale(lng)
 
   const result = await payload.find({
     collection: 'posts',
@@ -92,6 +100,7 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
         equals: slug,
       },
     },
+    locale: payloadLocale,
   })
 
   return result.docs?.[0] || null

@@ -1,8 +1,11 @@
 // storage-adapter-import-placeholder
+import * as process from 'node:process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { s3Storage } from '@payloadcms/storage-s3'
+import { zh } from '@payloadcms/translations/languages/zh'
 import { buildConfig } from 'payload'
 import sharp from 'sharp' // sharp-import
 
@@ -18,6 +21,13 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  localization: {
+    locales: ['en', 'zh'],
+    defaultLocale: 'zh',
+  },
+  i18n: {
+    supportedLanguages: { zh },
+  },
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
@@ -64,7 +74,26 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  plugins: [...plugins],
+  plugins: [
+    ...plugins,
+    s3Storage({
+      collections: {
+        media: {
+          prefix: process.env.S3_PATH_PREFIX!,
+        },
+      },
+      bucket: process.env.S3_BUCKET!,
+      config: {
+        endpoint: process.env.S3_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        },
+        region: process.env.S3_REGION,
+        forcePathStyle: true, // 对于 MinIO 等 S3 兼容服务必需
+      },
+    }),
+  ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {
