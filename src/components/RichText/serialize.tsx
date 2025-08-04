@@ -9,6 +9,7 @@ import type {
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/cn'
+import { createUniqueHeadingId } from '@/utilities/generateHeadingId'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -38,9 +39,21 @@ export type NodeTypes =
 
 type Props = {
   nodes: NodeTypes[]
+  usedHeadingIds?: string[]
 }
 
-export function serializeLexical({ nodes }: Props): JSX.Element {
+// 从节点中提取文本内容
+function extractTextFromNode(node: NodeTypes): string {
+  if (node.type === 'text') {
+    return node.text || ''
+  }
+  if ('children' in node && node.children) {
+    return node.children.map(extractTextFromNode).join('')
+  }
+  return ''
+}
+
+export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Element {
   return (
     <Fragment>
       {nodes?.map((node, index): JSX.Element | null => {
@@ -110,7 +123,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 }
               }
             }
-            return serializeLexical({ nodes: node.children as NodeTypes[] })
+            return serializeLexical({ nodes: node.children as NodeTypes[], usedHeadingIds })
           }
         }
 
@@ -171,8 +184,15 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 h4: '!font-euclid text-[20px] font-semibold leading-[1.25] text-[#242424]',
                 h5: '!font-euclid text-[18px] font-semibold leading-[1.25] text-[#242424]',
               }
+
+              // 生成标题 ID
+              const headingText = extractTextFromNode(node)
+              const headingId = createUniqueHeadingId(headingText, usedHeadingIds)
+              usedHeadingIds.push(headingId)
+
               return (
                 <Tag
+                  id={headingId}
                   className={
                     headingClasses[Tag as keyof typeof headingClasses] || headingClasses.h2
                   }
@@ -231,6 +251,21 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'link': {
               const fields = node.fields
 
+              // 处理锚点链接 - 检查 URL 是否以 # 开头
+              if (fields.url && fields.url.startsWith('#')) {
+                return (
+                  <a
+                    key={index}
+                    href={fields.url}
+                    className="anchor-link text-[#3366FF] hover:underline"
+                    data-anchor={fields.url}
+                  >
+                    {serializedChildren}
+                  </a>
+                )
+              }
+
+              // 处理普通链接
               return (
                 <CMSLink
                   key={index}
@@ -251,7 +286,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                   style={{
                     WebkitOverflowScrolling: 'auto',
                     overscrollBehavior: 'none',
-                    overscrollBehaviorX: 'none'
+                    overscrollBehaviorX: 'none',
                   }}
                   key={index}
                 >

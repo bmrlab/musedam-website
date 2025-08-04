@@ -20,6 +20,7 @@ import {
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
+  LinkFeature,
 } from '@payloadcms/richtext-lexical'
 import type { CollectionConfig } from 'payload'
 
@@ -76,6 +77,28 @@ export const Posts: CollectionConfig = {
                   return [
                     ...rootFeatures,
                     HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5'] }),
+                    LinkFeature({
+                      enabledCollections: ['pages', 'posts'],
+                      fields: ({ defaultFields }) => {
+                        const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
+                          return !('name' in field && field.name === 'url')
+                        })
+                        return [
+                          ...defaultFieldsWithoutUrl,
+                          {
+                            name: 'url',
+                            type: 'text',
+                            admin: {
+                              condition: ({ linkType }) => linkType !== 'internal',
+                              description: '输入链接地址。对于锚点链接，请使用 #heading-id 格式',
+                              placeholder: 'https://example.com 或 #heading-id',
+                            },
+                            label: '链接地址',
+                            required: true,
+                          },
+                        ]
+                      },
+                    }),
                     BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
