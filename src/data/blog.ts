@@ -12,6 +12,7 @@ export const getStaticBlogData = async (locale?: 'zh' | 'en') => {
       collection: 'categories',
       limit: 100,
       overrideAccess: false,
+      sort: 'publishedAt',
       ...(locale && { locale }),
     }),
     payload.find({
@@ -47,7 +48,7 @@ export const getBlogArticles = async (
   locale: 'zh' | 'en',
   categories: string[] = [],
   page: number = 1,
-  limit: number = 9
+  limit: number = 9,
 ) => {
   const payload = await getPayload({ config: configPromise })
   const filterCategory = categories.length === 0 ? [] : categories
