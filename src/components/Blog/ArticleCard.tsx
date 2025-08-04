@@ -64,10 +64,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant, clas
   )
 
   return (
-    <LocaleLink
-      href={`/blog/posts/${article.slug}`}
-      className={articleVariants({ variant, className })}
-    >
+    <LocaleLink href={`/blog/${article.slug}`} className={articleVariants({ variant, className })}>
       {/* 图片区域 */}
       <div className={cn('relative aspect-[3/2] rounded-[20px] bg-[#F7F9FC]')}>
         {/* 如果有图片，显示图片，否则显示颜色背景 */}
