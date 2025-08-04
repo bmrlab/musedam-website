@@ -352,6 +352,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                                         className={cn(
                                           'max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-5 text-[#262626] last:border-r-0',
                                           '[&>p]:mb-0 [&>p]:text-[14px]/[20px] [&>p]:font-normal [&>p]:text-[#262626]',
+                                          rowIndex === 0 && 'bg-[#F2F2F2]',
                                         )}
                                       >
                                         {cellNode.children
