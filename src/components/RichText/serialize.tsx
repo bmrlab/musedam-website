@@ -19,8 +19,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { CMSLink } from '@/components/Link'
-import { AdaptiveTable } from './AdaptiveTable'
 
+import { AdaptiveTable } from './AdaptiveTable'
 import {
   IS_BOLD,
   IS_CODE,
@@ -291,12 +291,10 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                           // 检查是否是第一行且第一个单元格有内容（作为标题行）
                           const firstCell = rowNode.children?.[0] as SerializedTableCellNode
                           // 检查其他单元格是否为空
-                          const otherCellsEmpty = rowNode.children
-                            ?.slice(1)
-                            .every((cell: any) => {
-                              // console.log('c', cell.children)
-                              return cell.children?.[0]?.children?.length === 0
-                            })
+                          const otherCellsEmpty = rowNode.children?.slice(1).every((cell: any) => {
+                            // console.log('c', cell.children)
+                            return cell.children?.[0]?.children?.length === 0
+                          })
                           if (otherCellsEmpty) {
                             const titleContent = firstCell.children
                               ? serializeLexical({ nodes: firstCell.children as NodeTypes[] })
@@ -318,10 +316,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                         }
 
                         return (
-                          <tr
-                            key={rowIndex}
-                            className="border-b border-[#E3E3E3] last:border-b-0"
-                          >
+                          <tr key={rowIndex} className="border-b border-[#E3E3E3] last:border-b-0">
                             {rowNode.children?.map(
                               (cellNode: SerializedTableCellNode, cellIndex) => {
                                 if (cellNode.type === 'tablecell') {
