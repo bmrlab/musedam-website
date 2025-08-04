@@ -17,7 +17,7 @@ export interface ICustomerInfo {
     company: string,
     contact: string,
     email: string,
-    contactEmail: string
+    yourEmail: string
 }
 
 export interface IAdvancedInfo {
@@ -72,8 +72,6 @@ interface QuotationContextType {
     setBasicConfig: (config: IBasicConfig) => void,
     showFeatureList: boolean,
     setShowFeatureList: (val: boolean) => void,
-    isPreview: boolean,
-    setPreview: (val: boolean) => void,
     subscriptionYears: number,
     setSubscriptionYears: (years: number) => void
 }
@@ -83,19 +81,23 @@ const initialContext: QuotationContextType = {
         company: '',
         contact: '',
         email: '',
-        contactEmail: ''
+        yourEmail: ''
     },
     showFeatureList: false,
     setShowFeatureList: () => void 0,
-    isPreview: false,
-    setPreview: () => void 0,
     setCustomerInfo: () => void 0,
     activeTab: TabEnum.BASIC,
     setActiveTab: () => void 0,
+    basicConfig: {
+        memberSeats: 2,
+        storageSpace: 1,
+        aiPoints: 0
+    },
+    setBasicConfig: () => void 0,
     advancedConfig: {
-        memberSeats: 30,
-        storageSpace: 5,
-        aiPoints: 4000
+        memberSeats: 15,
+        storageSpace: 3,
+        aiPoints: 2
     },
     setAdvancedConfig: () => void 0,
     advancedModules: {
@@ -131,19 +133,15 @@ const initialContext: QuotationContextType = {
         maintenanceYears: 2,
     },
     setPrivateModules: () => void 0,
-    basicConfig: {
-        memberSeats: 1,
-        storageSpace: 1,
-        aiPoints: 0
-    },
-    setBasicConfig: () => void 0,
     subscriptionYears: 1,
     setSubscriptionYears: () => void 0
 }
 
 const QuotationContext = createContext(initialContext)
 
-export default function EnterpriseQuotation() {
+export default function EnterpriseQuotation({ id }: { id?: string }) {
+    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+
     // 當前選中的選項卡
     const [activeTab, setActiveTab] = useState<TabEnum>(initialContext.activeTab)
     // 表單狀態
@@ -153,7 +151,7 @@ export default function EnterpriseQuotation() {
     const [basicConfig, setBasicConfig] = useState(initialContext.basicConfig)
 
     // Advanced 配置狀態
-    const [advancedConfig, setAdvancedConfig] = useState(initialContext.advancedConfig)
+    const [advancedConfig, setAdvancedConfig] = useState(isGlobal ? initialContext.advancedConfig : { memberSeats: 15, storageSpace: 3, aiPoints: 0 })
 
     // Advanced 模組狀態
     const [advancedModules, setAdvancedModules] = useState(initialContext.advancedModules)
@@ -166,7 +164,6 @@ export default function EnterpriseQuotation() {
 
     const [showFeatureList, setShowFeatureList] = useState(false)
     const [subscriptionYears, setSubscriptionYears] = useState(1)
-    const [isPreview, setPreview] = useState(false)
 
     return (
         <QuotationContext.Provider value={{
@@ -188,15 +185,13 @@ export default function EnterpriseQuotation() {
             setShowFeatureList,
             subscriptionYears,
             setSubscriptionYears,
-            isPreview,
-            setPreview
         }}>
-            {isPreview ? <QuotationPreviewContent /> :
+            {!!id ? <QuotationPreviewContent /> :
                 <div className="flex size-full">
-                    <div className=' flex-1'>
+                    <div className='h-screen flex-1'>
                         <LeftContent />
                     </div>
-                    <div className=' flex-1'>
+                    <div className='h-screen flex-1'>
                         <RightContent />
                     </div>
                 </div>}

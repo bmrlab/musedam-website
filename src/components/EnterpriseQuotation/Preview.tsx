@@ -2,134 +2,71 @@
 import { useQuotationContext } from '@/components/EnterpriseQuotation'
 import { twx } from '@/utilities/cn'
 import Image from 'next/image'
+import { useQuoteDetailData } from './QuoteDetailData'
+import { useTranslation } from 'react-i18next'
 
 const Table = twx.table`w-full text-xl mb-8 text-[#262626] font-normal`
 const Th = twx.th`bg-[#F9FAFB] font-bold text-left px-6 py-3 border-b border-[#E1E1DC]`
 const Td = twx.td`px-6 py-3 border-b border-[#E1E1DC] align-top`
 const Tr = twx.tr``
-const SectionTr = twx.tr`bg-[#F9FAFB] font-bold text-xl`
-
-const moduleNames = {
-    advancedFeatures: 'Advanced Features',
-    customSystemHomepage: 'Custom System Homepage',
-    approvalWorkflow: 'Approval Workflow',
-    complianceCheck: 'Compliance Check',
-    customMetadataFields: 'Custom Metadata Fields',
-    watermark: 'Watermark',
-    enterpriseSSO: 'Enterprise Single Sign-On (SSO)',
-    customerService: 'Customer Service',
-    professionalServices: 'Professional Services & Support',
-}
 
 const PreviewDetailTable = () => {
-    const {
-        activeTab,
-        advancedConfig,
-        advancedModules,
-        privateConfig,
-        privateModules,
-        basicConfig,
-        subscriptionYears,
-    } = useQuotationContext()
-    // 定价
-    const pricing = require('./config').pricing
-    // 类型声明
-    type RowType = {
-        name: React.ReactNode,
-        quantity: string,
-        unit: string,
-        subtotal: string,
-        bold?: boolean,
-    }
-    // 计算明细
-    let rows: RowType[] = []
-    let modulesRows: RowType[] = []
-    let subtotal = 0
-    if (activeTab === 'advanced') {
-        // 主套餐
-        rows.push({
-            name: 'MuseDAM Enterprise Plan',
-            quantity: `${subscriptionYears} year`,
-            unit: '-',
-            subtotal: '-',
-            bold: true,
-        })
-        // Seats
-        rows.push({
-            name: <><div>Member Seats</div><div className="text-xs font-light text-[#888]">Admin, Contributor, and Member roles configurable</div></>,
-            quantity: `${advancedConfig.memberSeats} seat`,
-            unit: `$240/seat/year`,
-            subtotal: `$${advancedConfig.memberSeats * 240}`,
-        })
-        subtotal += advancedConfig.memberSeats * 240
-        // Storage
-        rows.push({
-            name: <><div>Storage Space</div><div className="text-xs font-light text-[#888]">Monthly download traffic follows storage size</div></>,
-            quantity: `${advancedConfig.storageSpace} TB`,
-            unit: `$1200/TB/year`,
-            subtotal: `$${advancedConfig.storageSpace * 1200}`,
-        })
-        subtotal += advancedConfig.storageSpace * 1200
-        // Advanced Modules
-        modulesRows = Object.keys(advancedModules).filter(key => advancedModules[key]).map(key => {
-            let price = pricing.advanced.modules[key]
-            subtotal += price
-            return {
-                name: moduleNames[key],
-                quantity: '1 year',
-                unit: `$${price.toLocaleString()}/year`,
-                subtotal: `$${price.toLocaleString()}`,
-            }
-        })
-    }
-    // TODO: 其他tab（如private）可按需补充
+    const { rows, subtotal, total } = useQuoteDetailData()
+    const { t } = useTranslation('quotation')
+
+    // 分离主套餐行和模块行
+    const mainRows = rows.filter(row => !row.isModule)
+    const moduleRows = rows.filter(row => row.isModule)
+
     return (<div>
         <Table className='mb-[50px]'>
             <thead>
                 <Tr>
-                    <Th>Product Name</Th>
-                    <Th>Quantity</Th>
-                    <Th>Unit Price</Th>
-                    <Th className='text-right'>Subtotal</Th>
+                    <Th>{t("quite.product.name")}</Th>
+                    <Th>{t("quite.product.quantity")}</Th>
+                    <Th>{t("quite.product.unit.price")}</Th>
+                    <Th className='text-right'>{t("subtotal")}</Th>
                 </Tr>
             </thead>
             <tbody>
                 {/* 主套餐 */}
-                <SectionTr>
-                    <Td colSpan={4} className="!bg-white !font-bold !text-[16px] py-2">MuseDAM Enterprise Plan</Td>
-                </SectionTr>
-                {rows.slice(1, 3).map((row, i) => (
-                    <Tr key={i}>
-                        <Td>{row.name}</Td>
+                {mainRows.map((row, i) => (
+                    <Tr key={i} >
+                        <Td className={row.bold ? "font-bold" : ""}>{row.name}</Td>
                         <Td>{row.quantity}</Td>
-                        <Td>{row.unit}</Td>
-                        <Td className='text-right'>{row.subtotal}</Td>
+                        <Td>{row.unit ?? '-'}</Td>
+                        <Td className='text-right'>{row.subtotal ?? '-'}</Td>
                     </Tr>
                 ))}
-                {/* Advanced Modules */}
-                <SectionTr>
-                    <Td colSpan={4} className="!bg-white !font-bold !text-[16px] py-2">Advanced Modules</Td>
-                </SectionTr>
-                {modulesRows.map((row, i) => (
-                    <Tr key={i}>
-                        <Td>{row.name}</Td>
-                        <Td>{row.quantity}</Td>
-                        <Td>{row.unit}</Td>
-                        <Td className='text-right'>{row.subtotal}</Td>
-                    </Tr>
-                ))}
+
+                {/* 模块行 */}
+                {moduleRows.length > 0 && (
+                    <>
+                        <Tr>
+                            <Td colSpan={4} className="!text-[20px] !font-bold">{t("advanced.modules")}</Td>
+                        </Tr>
+                        {moduleRows.map((row, i) => (
+                            <Tr key={i}>
+                                <Td>{row.name}</Td>
+                                <Td>{row.quantity}</Td>
+                                <Td>{row.unit ?? '-'}</Td>
+                                <Td className='text-right'>{row.subtotal ?? '-'}</Td>
+                            </Tr>
+                        ))}
+                    </>
+                )}
             </tbody>
         </Table>
 
-        <div className='w-full flex flex-col items-end'>
+        <div className='flex w-full flex-col items-end'>
             {/* 小计/合计 */}
-            <Td className='w-[540px] flex justify-between font-semibold text-[22px] leading-[34px]'>
-                <div >Subtotal</div>
-                <div>${subtotal.toLocaleString()}</div>
+            <Td className='flex w-[540px] justify-between text-[22px] font-semibold leading-[34px]'>
+                <div>{t("subtotal")}</div>
+                <div>{subtotal}</div>
             </Td>
-            <Td className='w-[540px] flex justify-between font-bold text-2xl !border-none'>
-                <div >Total</div>
-                <div>${subtotal.toLocaleString()}</div>
+            <Td className='flex w-[540px] justify-between !border-none text-2xl font-bold'>
+                <div>{t("total")}</div>
+                <div>{total}</div>
             </Td>
         </div>
     </div>
@@ -138,15 +75,10 @@ const PreviewDetailTable = () => {
 
 const LightText = twx.div`text-[16px] leading-[16px] font-light text-[#141414] opacity-70`
 export const QuotationPreviewContent = () => {
+    const { t } = useTranslation('quotation')
     const {
         customerInfo,
         activeTab,
-        advancedConfig,
-        advancedModules,
-        privateConfig,
-        privateModules,
-        basicConfig,
-        subscriptionYears,
     } = useQuotationContext()
 
     // 生成报价单号和日期
@@ -154,51 +86,51 @@ export const QuotationPreviewContent = () => {
     const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' })
 
     return (
-        <div className="bg-white text-black min-h-screen flex flex-col items-center py-[120px] px-[100px]">
-            <div className="w-full max-w-[1240px] bg-white rounded-xl">
+        <div className="flex min-h-screen flex-col items-center bg-white px-[100px] py-[120px] text-black">
+            <div className="w-full max-w-[1240px] rounded-xl bg-white">
                 {/* 顶部Logo和标题 */}
-                <div className="relative w-12 h-12">
+                <div className="relative size-12">
                     <Image src="/assets/logo.svg" alt="Muse Logo" fill />
                 </div>
-                <div className="flex items-center justify-between mb-8 mt-2">
+                <div className="mb-8 mt-2 flex items-center justify-between">
                     <div className="flex flex-col gap-2">
-                        <div className="text-[48px] leading-[48px] font-bold">MuseDAM Quote</div>
-                        <LightText >Quote No.: {quoteNo}</LightText>
+                        <div className="text-[48px] font-bold leading-[48px]">{t("quote.title")}</div>
+                        <LightText >{t("quote.NO")}: {quoteNo}</LightText>
                     </div>
-                    <div className="text-right text-lg space-y-1">
-                        <div className="font-bold leading-[22px]">Quote Date</div>
+                    <div className="space-y-1 text-right text-lg">
+                        <div className="font-bold leading-[22px]">{t("quote.date")}</div>
                         <div className='leading-[22px]'>{today}</div>
-                        <LightText>Valid for 30 days</LightText>
+                        <LightText>{t("quote.valid.days")}</LightText>
                     </div>
                 </div>
                 {/* 客户信息和服务商信息 */}
-                <div className="grid grid-cols-2 gap-4 bg-[#F9FAFB] p-6 mb-[50px] text-lg">
+                <div className="mb-[50px] grid grid-cols-2 gap-4 bg-[#F9FAFB] p-6 text-lg">
                     <div>
-                        <div className="font-bold mb-3 text-5 leading-[22px]">Customer Information</div>
+                        <div className="text-5 mb-3 font-bold leading-[22px]">{t("customer.information")}</div>
                         <div className="font-semibold">{customerInfo.company}</div>
                         <div className='text-[#141414] opacity-80'>{customerInfo.contact}</div>
                         {customerInfo.email && <div className='text-[#141414] opacity-80'>Email: {customerInfo.email}</div>}
                     </div>
                     <div>
-                        <div className="font-bold mb-3 text-5 leading-[22px]">Service Provider</div>
-                        <div className="font-semibold">Tezign (Shanghai) Information & Technology Co., Ltd.</div>
-                        <div className='text-[#141414] opacity-80'>Contact: Account Manager</div>
-                        <div className='text-[#141414] opacity-80'>Email: sales@musedam.cc</div>
+                        <div className="text-5 mb-3 font-bold leading-[22px]">{t("service.provider")}</div>
+                        <div className="font-semibold">{t("service.provider.name")}</div>
+                        <div className='text-[#141414] opacity-80'>{t("service.provider.yourName")}</div>
+                        <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
                     </div>
                 </div>
-                <div className="text-[24px] font-bold mb-[30px]">Product and Service Details</div>
+                <div className="mb-[30px] text-2xl font-bold">{t("product.service.details")}</div>
 
                 {/* TODO 产品与服务明细表格 */}
                 <PreviewDetailTable />
                 {/* 服务条款 */}
                 <div className="mt-[120px]">
-                    <h3 className="mb-3 font-bold text-[#141414] text-2xl">Service Terms</h3>
-                    <ul className="space-y-1 text-xl text-[#262626]">
-                        <li>1. This quote is valid for 30 days.</li>
-                        <li>2. Service begins upon contract signing and payment confirmation, valid for one year.</li>
-                        <li>3. User seats, storage space, AI points and download traffic can be expanded based on actual business needs, with additional charges calculated according to the current service pricing.</li>
+                    <h3 className="mb-3 text-2xl font-bold text-[#141414]">{t("service.terms")}</h3>
+                    <ul className="space-y-1 text-xl leading-[1.5em] text-[#262626]">
+                        <li>{t('service.terms.1')}</li>
+                        <li>{t('service.terms.2')}</li>
+                        <li>{t('service.terms.3')}</li>
                         {activeTab === 'private' && (
-                            <li>4. Storage space can be expanded as needed, with additional fees calculated according to current service pricing.</li>
+                            <li>{t('service.terms.4')}</li>
                         )}
                     </ul>
                 </div>

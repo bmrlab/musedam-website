@@ -1,11 +1,10 @@
 'use client'
-import { PropsWithLng } from '@/types/page'
 import { LocaleSwitch } from '../Header/LocalSwitch'
 import { LocaleLink } from '../LocalLink'
 import Image from 'next/image'
 import { FC, useEffect, useState } from 'react'
 import { TabEnum, useQuotationContext, ICustomerInfo, IAdvancedModules, IPrivateModules } from './index'
-import { pricing, BasicConfigs, AdvancedConfigs } from './config'
+import { usePricing, useBasicConfigs, useAdvancedConfigs } from './config'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -15,6 +14,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import { cn, twx } from '@/utilities/cn'
 import * as Switch from '@radix-ui/react-switch';
+import { useTranslation } from '@/app/i18n/client'
+import { formatWithToLocaleString } from '@/utilities/formatPrice'
+import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
 
 interface NumControlProps {
     value: number,
@@ -25,7 +28,6 @@ interface NumControlProps {
 }
 const NumControl = ({ value, step, max, min, onChange }: NumControlProps) => {
     const [num, serNum] = useState(value)
-
     useEffect(() => {
         onChange(num)
     }, [num])
@@ -75,14 +77,26 @@ const TitleDiv = twx.h3`text-lg font-medium text-[rgba(255,255,255,0.72)] font-f
 const BlockBox = twx.div`rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] px-5 py-6 space-y-6`
 
 const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
+    const { t } = useTranslation('quotation')
+    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+    const prefix = isGlobal ? '$' : '¥'
     return <div className="border-t border-gray-700 pt-4">
         <div className="flex items-center justify-between text-white ">
-            <Label className="text-lg font-normal">{costTitle ?? 'Base Cost'}</Label>
-            <span className="flex items-center text-xl font-medium">${cost}<span className='text-sm'>/year</span></span>
+            <Label className="text-lg font-normal">{costTitle ?? t("base.cost")}</Label>
+            <span className="flex items-center text-xl font-medium">{prefix}{formatWithToLocaleString(cost)}<span className='text-sm'>/year</span></span>
         </div>
     </div>
 }
 export const LeftContent: FC = () => {
+    const { t } = useTranslation('quotation')
+    const basicConfigs = useBasicConfigs()
+    const advancedConfigs = useAdvancedConfigs()
+    const { pricing, moduleNames } = usePricing()
+    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+    const prefix = isGlobal ? '$' : '¥'
+    const { toast } = useToast()
+    const router = useRouter()
+
 
     const {
         customerInfo,
@@ -103,7 +117,6 @@ export const LeftContent: FC = () => {
         setShowFeatureList,
         subscriptionYears,
         setSubscriptionYears,
-        setPreview
     } = useQuotationContext()
 
     // 功能顯示選項
@@ -154,16 +167,16 @@ export const LeftContent: FC = () => {
     const tabs = [
         {
             key: TabEnum.BASIC,
-            label: 'Basic'
+            label: t('tab.basic')
         },
         {
             key: TabEnum.ADVANCED,
-            label: 'Advanced'
+            label: t('tab.advanced')
         },
-        {
-            key: TabEnum.PRIVATE,
-            label: 'Private Deployment'
-        }
+        // {
+        //     key: TabEnum.PRIVATE,
+        //     label:t('tab.private')
+        // }
     ]
 
 
@@ -221,19 +234,23 @@ export const LeftContent: FC = () => {
     const formInfo = [
         {
             id: 'company',
-            label: 'Customer Company',
+            label: t("customer.company"),
             required: true
         }, {
             id: 'contact',
-            label: 'Customer Contact'
+            label: t("customer.contact")
         }, {
             id: 'email',
-            label: 'Customer Email'
+            label: t("customer.email")
         }, {
-            id: 'contactEmail',
-            label: 'Your Contact Email'
+            id: 'yourEmail',
+            label: t("your.email"),
+            required: true
         }
     ]
+    const allModules = Object.keys(moduleNames).map((key) => {
+        return { key: key, label: moduleNames[key], price: pricing.advanced.modules[key] }
+    })
 
     return (
         <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 text-white">
@@ -249,19 +266,22 @@ export const LeftContent: FC = () => {
             </div>
 
             <div className='quote-form px-[60px]'>
-                <h1 className='md:text-[64px]'>Quote Generator</h1>
-                <div className='mt-2 text-[18px] font-light text-[rgba(255,255,255,0.72)]'>Create a customized MuseDAM solution for your needs</div>
+                <h1 className='md:text-[64px]'>{t('title')}</h1>
+                <div className='mt-2 text-[18px] font-light text-[rgba(255,255,255,0.72)]'>{t('subtitle')}</div>
             </div>
 
             <div className="mt-10 space-y-10 px-[60px] text-[rgba(255,255,255,0.72)]">
                 {/* 客戶資訊 */}
                 <div className="grid grid-cols-2 gap-4">
-                    {formInfo.map(({ id, label }) => {
+                    {formInfo.map(({ id, label, required }) => {
                         return <div className="col-span-1 space-y-3" key={id}>
-                            <Label htmlFor="company" className="text-sm font-medium">{label}</Label>
+                            <Label htmlFor="company" className={cn("text-sm font-medium", required && '')}>
+                                {required && <span className="mr-1 ">*</span>}
+                                {label}
+                            </Label>
                             <Input
                                 id={id}
-                                placeholder="Please enter"
+                                placeholder={t('placeholder.company')}
                                 value={customerInfo[id as keyof ICustomerInfo]}
                                 onChange={(e) => handleInputChange(id as keyof ICustomerInfo, e.target.value)}
                                 className=" h-[44px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
@@ -293,12 +313,12 @@ export const LeftContent: FC = () => {
                         <BlockBox>
                             <div className="flex w-full items-center justify-between space-x-2">
                                 <div>
-                                    <Label className="text-white">MuseDAM Basic Plan</Label>
-                                    <p className="text-sm text-gray-500">by year</p>
+                                    <Label className="text-white">{t('basic.plan')}</Label>
+                                    <p className="text-sm text-gray-500">{t('by.year')}</p>
                                 </div>
-                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} />
+                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
                             </div>
-                            {BasicConfigs.map(({ title, hint, des, key }) => {
+                            {basicConfigs.map(({ title, hint, des, key, min }) => {
                                 return <div className="flex w-full items-center justify-between space-x-2" key={key}>
                                     <div>
                                         <Label className="mb-[6px] text-[16px] text-white">{title}</Label>
@@ -307,7 +327,7 @@ export const LeftContent: FC = () => {
                                     </div>
                                     <NumControl value={basicConfig[key]} onChange={(val) => {
                                         updateQuantity(TabEnum.BASIC, key, val)
-                                    }} />
+                                    }} min={min} />
                                 </div>
                             })}
 
@@ -321,42 +341,37 @@ export const LeftContent: FC = () => {
                         <BlockBox>
                             <div className="flex w-full items-center justify-between space-x-2">
                                 <div>
-                                    <Label className="text-white">MuseDAM Enterprise Plan</Label>
-                                    <p className="text-sm text-gray-500">by year</p>
+                                    <Label className="text-white">{t('advanced.plan')}</Label>
+                                    <p className="text-sm text-gray-500">{t('by.year')}</p>
                                 </div>
-                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} />
+                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
                             </div>
-                            {AdvancedConfigs.map(({ title, hint, des, key }) => {
+                            {advancedConfigs.map(({ title, hint, des, key, min }) => {
                                 return <div className="flex w-full items-center justify-between space-x-2" key={key}>
                                     <div>
                                         <Label className="mb-[6px] text-[16px] text-white">{title}</Label>
                                         {hint.map((item, i) => <p className=" text-xs text-gray-500" key={`hint${i}`}>{item}</p>)}
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{des}</p>
+                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">
+                                            {des}
+                                        </p>
                                     </div>
-                                    <NumControl value={basicConfig[key]} onChange={(val) => {
+                                    <NumControl value={advancedConfig[key]} onChange={(val) => {
                                         updateQuantity(TabEnum.ADVANCED, key, val)
-                                    }} />
+                                    }} min={min} />
                                 </div>
                             })}
 
                             {/* Base Cost */}
-                            <Cost cost={Math.round(pricing.advanced.baseCost + advancedConfig.memberSeats * pricing.advanced.memberSeatPrice + advancedConfig.storageSpace * pricing.advanced.storageSpacePrice + advancedConfig.aiPoints * pricing.advanced.aiPointsPrice)} />
+                            <Cost
+                                cost={Math.round(pricing.advanced.baseCost + advancedConfig.memberSeats * pricing.advanced.memberSeatPrice + advancedConfig.storageSpace * pricing.advanced.storageSpacePrice + advancedConfig.aiPoints * pricing.advanced.aiPointsPrice)}
+                            />
                         </BlockBox>
-                        {/* Advanced Modules */}
+
+                        {/* 高级模块 */}
                         <div className="space-y-4">
-                            <TitleDiv>Advanced Modules</TitleDiv>
+                            <TitleDiv>{t('advanced.modules')}</TitleDiv>
                             <BlockBox >
-                                {[
-                                    { key: 'advancedFeatures', label: 'Advanced Features', price: 5000 },
-                                    { key: 'customSystemHomepage', label: 'Custom System Homepage', price: 5000 },
-                                    { key: 'approvalWorkflow', label: 'Approval Workflow', price: 15000 },
-                                    { key: 'complianceCheck', label: 'Compliance Check', price: 15000 },
-                                    { key: 'customMetadataFields', label: 'Custom Metadata Fields', price: 15000 },
-                                    { key: 'watermark', label: 'Watermark', price: 2000 },
-                                    { key: 'enterpriseSSO', label: 'Enterprise Single Sign-On (SSO)', price: 2000 },
-                                    { key: 'customerService', label: 'Customer Service', price: 0 },
-                                    { key: 'professionalServices', label: 'Professional Services & Support', price: 15000 }
-                                ].map((module) => (
+                                {allModules.map((module) => (
                                     <div key={module.key} className="flex items-center justify-between">
                                         <div className="flex items-start space-x-2">
                                             <Checkbox
@@ -367,7 +382,7 @@ export const LeftContent: FC = () => {
                                             />
                                             <div>
                                                 <div className="mb-[6px] text-[16px] text-white" >{module.label}</div>
-                                                <p className="text-xs text-gray-500">${module.price}/year</p>
+                                                <p className="text-xs text-gray-500">{prefix}{formatWithToLocaleString(module.price)}{t("per.year")}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -378,7 +393,7 @@ export const LeftContent: FC = () => {
                                 <Cost cost={Object.keys(advancedModules).reduce((total, key) => {
                                     return total + (advancedModules[key] ? pricing.advanced.modules[key] : 0)
                                 }, 0)}
-                                    costTitle='Advanced Cost' />
+                                    costTitle={t('advanced.cost')} />
                             </BlockBox>
                         </div>
                     </TabsContent>
@@ -387,7 +402,7 @@ export const LeftContent: FC = () => {
                     <TabsContent value="private" className="mt-6 space-y-4">
                         {/* License Type Selection */}
                         <div className="space-y-4">
-                            <TitleDiv>MuseDAM Software</TitleDiv>
+                            <TitleDiv>{t('museDAMSoftware')}</TitleDiv>
                             <RadioGroup.Root value={privateConfig.licenseType} onValueChange={value => setPrivateConfig({ ...privateConfig, licenseType: value as 'saas' | 'perpetual' })} className='space-y-3'>
                                 {['saas', 'perpetual'].map((licenseType) => {
                                     return (
@@ -407,7 +422,7 @@ export const LeftContent: FC = () => {
                                                 <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                             </RadioGroup.Item>
                                             <Label htmlFor={licenseType} className="font-normal text-white">
-                                                {licenseType === 'saas' ? 'SaaS Standard Enterprise Edition (Annual)' : 'Perpetual License Current Standard Enterprise Edition (One-time)'}
+                                                {licenseType === 'saas' ? t('saasStandardEnterpriseEdition') : t('perpetualLicenseCurrentStandardEnterpriseEdition')}
                                             </Label>
                                         </BlockBox>
                                     )
@@ -418,9 +433,9 @@ export const LeftContent: FC = () => {
                             <BlockBox >
                                 <div className="flex w-full items-center justify-between space-x-2 space-y-0">
                                     <div>
-                                        <Label className="mb-[6px] text-[16px] text-white">Member Seats</Label>
-                                        <p className=" text-xs text-gray-500" >Admin, Contributor, and Member roles configurable</p>
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">$300/seat/year ($25/seat/month)</p>
+                                        <Label className="mb-[6px] text-[16px] text-white">{t('member.seat')}</Label>
+                                        <p className=" text-xs text-gray-500" >{t('adminContributorAndMemberRolesConfigurable')}</p>
+                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{t('memberSeatPrice')}</p>
                                     </div>
                                     <NumControl value={privateConfig.memberSeats} onChange={(val) => {
                                         updateQuantity(TabEnum.PRIVATE, 'memberSeats', val)
@@ -432,19 +447,9 @@ export const LeftContent: FC = () => {
                         </div>
                         {/* Advanced Modules */}
                         <div className="space-y-4">
-                            <TitleDiv>Advanced Modules</TitleDiv>
+                            <TitleDiv>{t('advanced.modules')}</TitleDiv>
                             <BlockBox>
-                                {[
-                                    { key: 'advancedFeatures', label: 'Advanced Features', price: 5000 },
-                                    { key: 'customSystemHomepage', label: 'Custom System Homepage', price: 5000 },
-                                    { key: 'approvalWorkflow', label: 'Approval Workflow', price: 15000 },
-                                    { key: 'complianceCheck', label: 'Compliance Check', price: 15000 },
-                                    { key: 'customMetadataFields', label: 'Custom Metadata Fields', price: 15000 },
-                                    { key: 'watermark', label: 'Watermark', price: 2000 },
-                                    { key: 'enterpriseSSO', label: 'Enterprise Single Sign-On (SSO)', price: 1000 },
-                                    { key: 'customerService', label: 'Customer Service', price: 0 },
-                                    { key: 'professionalServices', label: 'Professional Services & Support', price: 15000 }
-                                ].map((module) => (
+                                {allModules.map((module) => (
                                     <div key={module.key} className="flex items-center justify-between">
                                         <div className="flex items-start space-x-2">
                                             <Checkbox
@@ -455,7 +460,7 @@ export const LeftContent: FC = () => {
                                             />
                                             <div>
                                                 <div className="mb-[6px] text-[16px] text-white" >{module.label}</div>
-                                                <p className="text-xs text-gray-500">${module.price}/year</p>
+                                                <p className="text-xs text-gray-500">{prefix}{formatWithToLocaleString(module.price)}{t("per.year")}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -466,12 +471,12 @@ export const LeftContent: FC = () => {
                                     cost={Object.keys(privateModules).filter(key => key !== 'privateImplementation' && key !== 'operationMaintenance' && key !== 'maintenanceYears').reduce((total, key) => {
                                         return total + (privateModules[key] ? pricing.private.modules[key] : 0)
                                     }, 0)}
-                                    costTitle='Advanced Cost' />
+                                    costTitle={t('advancedCost')} />
                             </BlockBox>
                         </div>
                         {/* Implementation */}
                         <div className="space-y-4">
-                            <TitleDiv>Implementation</TitleDiv>
+                            <TitleDiv>{t('implementation')}</TitleDiv>
                             <BlockBox>
                                 <div className="flex items-start space-x-2">
                                     <Checkbox
@@ -481,20 +486,20 @@ export const LeftContent: FC = () => {
                                         className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                     />
                                     <div>
-                                        <div className="mb-[6px] text-[16px] text-white" >Private Deployment Implementation (One-time)</div>
-                                        <p className="text-xs text-gray-500">Includes cloud service procurement, environment setup, and deployment</p>
-                                        <p className="text-xs text-gray-500">${pricing.private.modules.privateImplementation}/implementation</p>
+                                        <div className="mb-[6px] text-[16px] text-white" >{t('privateDeploymentImplementation')}</div>
+                                        <p className="text-xs text-gray-500">{t('privateDeploymentImplementationDescription')}</p>
+                                        <p className="text-xs text-gray-500">{prefix}{pricing.private.modules.privateImplementation}/{t('implementation')}</p>
                                     </div>
                                 </div>
 
                                 {/* Implementation Cost */}
-                                <Cost costTitle='Implementation Cost' cost={privateModules.privateImplementation ? pricing.private.modules.privateImplementation : 0} />
+                                <Cost costTitle={t('implementationCost')} cost={privateModules.privateImplementation ? pricing.private.modules.privateImplementation : 0} />
                             </BlockBox>
                         </div>
 
                         {/* Operation and Maintenance */}
                         <div className="space-y-4">
-                            <TitleDiv>Operation and Maintenance</TitleDiv>
+                            <TitleDiv>{t('operation.maintenance')}</TitleDiv>
                             <BlockBox>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-start space-x-2">
@@ -505,17 +510,17 @@ export const LeftContent: FC = () => {
                                             className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                         />
                                         <div>
-                                            <div className="mb-[6px] text-[16px] text-white" >Product Operation and Maintenance Services (Annual)</div>
-                                            <p className="text-xs text-gray-500">Ensures the normal operation of the software (daily feedback issues, ticket response within 2 working days; critical issues that severely affect system usage will be responded to and fixed within 1 working day).</p>
+                                            <div className="mb-[6px] text-[16px] text-white" >{t('productOperationAndMaintenanceServices')}</div>
+                                            <p className="text-xs text-gray-500">{t('productOperationAndMaintenanceServicesDescription')}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {privateModules.operationMaintenance && (
                                     <div className="ml-6 space-y-2">
-                                        <Label className="text-base text-white">Private Edition Major Iterations</Label>
-                                        <p className="text-xs text-gray-500">Synchronized with the latest online SaaS Enterprise Standard Edition</p>
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">$5,000/time</p>
+                                        <Label className="text-base text-white">{t('privateEditionMajorIterations')}</Label>
+                                        <p className="text-xs text-gray-500">{t('privateEditionMajorIterationsDescription')}</p>
+                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{t('privateEditionMajorIterationsPrice')}</p>
                                         <RadioGroup.Root
                                             value={privateModules.maintenanceYears.toString()}
                                             onValueChange={(value) => setPrivateModules({ ...privateModules, maintenanceYears: parseInt(value) })}
@@ -541,7 +546,7 @@ export const LeftContent: FC = () => {
                                                             <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                                         </RadioGroup.Item>
                                                         <Label htmlFor={timeNum} className="text-white">
-                                                            {timeNum + ' times/year'}
+                                                            {timeNum + ' ' + t('timesPerYear')}
                                                         </Label>
                                                     </div>
                                                 )
@@ -550,7 +555,7 @@ export const LeftContent: FC = () => {
                                     </div>
                                 )}
                                 {/* Service Cost */}
-                                <Cost cost={privateModules.operationMaintenance ? pricing.private.modules.operationMaintenance * privateModules.maintenanceYears : 0} costTitle='Service Cost' />
+                                <Cost cost={privateModules.operationMaintenance ? pricing.private.modules.operationMaintenance * privateModules.maintenanceYears : 0} costTitle={t('serviceCost')} />
                             </BlockBox>
                         </div>
                     </TabsContent>
@@ -559,7 +564,7 @@ export const LeftContent: FC = () => {
                 {/* Show Feature List */}
                 <div className="space-y-5">
                     <div className='flex items-center justify-between'>
-                        <TitleDiv>Show Feature List</TitleDiv>
+                        <TitleDiv>{t('feature.list')}</TitleDiv>
                         <Switch.Root checked={showFeatureList} onCheckedChange={setShowFeatureList}
                             className={cn("bg-blackA9 relative h-[22px] w-[44px] cursor-pointer rounded-full outline-none  disabled:cursor-not-allowed ",
                                 !showFeatureList ? ' bg-[rgb(91,86,80)]' : 'data-[state=checked]:bg-[#3366FF]'
@@ -592,7 +597,7 @@ export const LeftContent: FC = () => {
                                         <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                     </RadioGroup.Item>
                                     <Label htmlFor={listType} className="text-white">
-                                        {listType === 'overview' ? 'Feature Overview' : 'Feature Details'}
+                                        {listType === 'overview' ? t('feature.overview') : t('feature.details')}
                                     </Label>
                                 </BlockBox>
                             )
@@ -602,12 +607,20 @@ export const LeftContent: FC = () => {
             </div>
 
             {/* Generate Button */}
-            <Button className="ml-[60px] mt-10 h-[48px] w-[165px] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[ragb(255,255,255,0.6)]"
+            <Button
+                className="ml-[60px] mt-10 h-[48px] w-[165px] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[ragb(255,255,255,0.6)]"
                 onClick={() => {
-                    setPreview(true)
+                    if (!customerInfo['company']?.length || !customerInfo['yourEmail']?.length) {
+                        toast({
+                            duration: 800,
+                            description: t("form.required"),
+                        })
+                        return;
+                    }
+                    router.push(`${window.location.pathname}/${'1111'}`)
                 }}
             >
-                Generate Now
+                {t('generate.now')}
             </Button>
         </div >
     )

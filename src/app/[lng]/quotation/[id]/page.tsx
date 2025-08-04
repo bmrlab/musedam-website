@@ -10,10 +10,11 @@ export default async function MuseAIPricingPage({
     params,
 }: {
     searchParams: Promise<{ plan?: string }>
+    params: Promise<{ id?: string }>
 } & PropsWithLng) {
-
+    const { id } = await params
     return (
-        <EnterpriseQuotation />
+        <EnterpriseQuotation id={id} />
     )
 }
 
