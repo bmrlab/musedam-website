@@ -5,14 +5,18 @@
  */
 export function generateHeadingId(text: string): string {
   if (!text) return ''
-  
+
   return text
     .toLowerCase()
     .trim()
     // 移除 HTML 标签
     .replace(/<[^>]*>/g, '')
+    // 移除 emoji 和其他 Unicode 符号
+    // 这个正则表达式匹配大部分 emoji 和符号
+    .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
     // 替换空格和特殊字符为连字符
-    .replace(/[^\w\u4e00-\u9fff]+/g, '-')
+    // 保留字母、数字、中文字符（包括扩展中文字符集），其他字符替换为连字符
+    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf]+/g, '-')
     // 移除开头和结尾的连字符
     .replace(/^-+|-+$/g, '')
     // 确保不为空
@@ -28,12 +32,12 @@ export function generateHeadingId(text: string): string {
 export function ensureUniqueId(baseId: string, existingIds: string[]): string {
   let uniqueId = baseId
   let counter = 1
-  
+
   while (existingIds.includes(uniqueId)) {
     uniqueId = `${baseId}-${counter}`
     counter++
   }
-  
+
   return uniqueId
 }
 
