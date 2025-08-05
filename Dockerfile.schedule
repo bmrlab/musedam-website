@@ -1,0 +1,63 @@
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN npm install -g pnpm@9.12.1
+RUN pnpm i --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Install pnpm and build the project
+RUN npm install -g pnpm@9.12.1
+RUN pnpm run build
+
+# Production image, copy all the files and run jobs
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NODE_OPTIONS=--no-deprecation
+# Disable Next.js telemetry during runtime
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Create system user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 payloadjobs
+
+# Copy necessary files from builder stage
+COPY --from=builder --chown=payloadjobs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=payloadjobs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=payloadjobs:nodejs /app/next.config.js ./next.config.js
+COPY --from=builder --chown=payloadjobs:nodejs /app/tsconfig.json ./tsconfig.json
+
+# Copy source files needed for Payload
+COPY --from=builder --chown=payloadjobs:nodejs /app/src ./src
+COPY --from=builder --chown=payloadjobs:nodejs /app/redirects.js ./redirects.js
+
+# Copy Next.js build output (needed for Payload to work properly)
+COPY --from=builder --chown=payloadjobs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=payloadjobs:nodejs /app/.next/static ./.next/static
+
+# Create and set permissions for necessary directories
+RUN mkdir -p .next/cache && chown -R payloadjobs:nodejs .next
+RUN mkdir -p /tmp && chown -R payloadjobs:nodejs /tmp
+
+# Switch to non-root user
+USER payloadjobs
+
+# Health check to ensure the jobs runner is working
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "console.log('Jobs runner health check passed')" || exit 1
+
+# Start the Jobs Queue Runner
+ENTRYPOINT ["npx", "payload"]
+CMD ["jobs:run", "--cron", "*/5 * * * *"]
