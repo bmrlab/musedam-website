@@ -248,7 +248,8 @@ export const Posts: CollectionConfig = {
     ...slugField(),
   ],
   hooks: {
-    afterChange: [revalidatePost],
+    // afterChange: [revalidatePost],
+    afterChange: [],
     afterRead: [populateAuthors],
   },
   versions: {
