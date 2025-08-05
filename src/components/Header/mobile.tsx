@@ -153,13 +153,13 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
 
-        <AccordionItemWrapper value="blog">
+        {!isGlobal && <AccordionItemWrapper value="blog">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/blog" onClick={onClose}>
               {t('nav-bar.blog')}
             </LocaleLink>
           </AccordionTriggerWrapper>
-        </AccordionItemWrapper>
+        </AccordionItemWrapper>}
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
         <Link href={user ? '/home' : '/auth'} prefetch={false}>
