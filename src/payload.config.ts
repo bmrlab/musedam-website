@@ -121,5 +121,15 @@ export default buildConfig({
       defaultJobsCollection.admin.hidden = false
       return defaultJobsCollection
     },
+    autoRun: [
+      {
+        cron: '* * * * *', // 每分钟运行一次
+        limit: 3, // 每次运行的任务数量限制
+        queue: 'default', // 指定队列名称
+      },
+    ],
+    shouldAutoRun: async () => {
+      return !process.env.VERCEL
+    },
   },
 })
