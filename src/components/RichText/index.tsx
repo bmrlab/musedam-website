@@ -1,5 +1,6 @@
 import { cn } from "@/utilities/cn";
 import React from "react";
+import { AnchorLinkHandler } from "@/components/AnchorLinkHandler";
 
 import { serializeLexical } from "./serialize";
 
@@ -35,6 +36,7 @@ const RichText: React.FC<Props> = ({
 				className,
 			)}
 		>
+			<AnchorLinkHandler />
 			{content &&
 				!Array.isArray(content) &&
 				typeof content === "object" &&

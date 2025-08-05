@@ -33,7 +33,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
             : ''}
         </p>
 
-        <LocaleLink href={`/blog/posts/${article.slug}`}>
+        <LocaleLink href={`/blog/${article.slug}`}>
           <h1 className="!font-euclid text-[40px] font-semibold leading-tight text-black">
             {article.title}
           </h1>
@@ -47,7 +47,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
         </p>
 
         <LocaleLink
-          href={`/blog/posts/${article.slug}`}
+          href={`/blog/${article.slug}`}
           className="group inline-flex items-center gap-3 font-medium text-gray-900 transition-colors hover:text-gray-700"
         >
           <span className="!font-euclid text-[18px] font-medium leading-[30px] underline underline-offset-[6px]">
@@ -61,7 +61,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
       </div>
 
       {/* 右侧图片区域 */}
-      <LocaleLink href={`/blog/posts/${article.slug}`} className="relative flex-1">
+      <LocaleLink href={`/blog/${article.slug}`} className="relative flex-1">
         <div className="aspect-[4/3] max-h-[440px]  rounded-[14px]">
           {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
           {article.meta?.image &&

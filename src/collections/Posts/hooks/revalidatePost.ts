@@ -13,7 +13,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   if (doc._status === 'published') {
     // 为每种语言重新验证路径
     languages.forEach((lng) => {
-      const path = `/${lng}/blog/posts/${doc.slug}`
+      const path = `/${lng}/blog/${doc.slug}`
       payload.logger.info(`Revalidating post at path: ${path}`)
       revalidatePath(path)
     })
@@ -29,7 +29,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   // 如果文章之前已发布，现在取消发布，需要重新验证旧路径
   if (previousDoc?._status === 'published' && doc._status !== 'published') {
     languages.forEach((lng) => {
-      const oldPath = `/${lng}/blog/posts/${previousDoc.slug}`
+      const oldPath = `/${lng}/blog/${previousDoc.slug}`
       payload.logger.info(`Revalidating old post at path: ${oldPath}`)
       revalidatePath(oldPath)
     })

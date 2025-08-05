@@ -9,6 +9,7 @@ import type {
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/cn'
+import { createUniqueHeadingId } from '@/utilities/generateHeadingId'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -19,6 +20,7 @@ import {
 
 import { CMSLink } from '@/components/Link'
 
+import { AdaptiveTable } from './AdaptiveTable'
 import {
   IS_BOLD,
   IS_CODE,
@@ -38,9 +40,21 @@ export type NodeTypes =
 
 type Props = {
   nodes: NodeTypes[]
+  usedHeadingIds?: string[]
 }
 
-export function serializeLexical({ nodes }: Props): JSX.Element {
+// 从节点中提取文本内容
+function extractTextFromNode(node: NodeTypes): string {
+  if (node.type === 'text') {
+    return node.text || ''
+  }
+  if ('children' in node && node.children) {
+    return node.children.map(extractTextFromNode).join('')
+  }
+  return ''
+}
+
+export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Element {
   return (
     <Fragment>
       {nodes?.map((node, index): JSX.Element | null => {
@@ -110,7 +124,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 }
               }
             }
-            return serializeLexical({ nodes: node.children as NodeTypes[] })
+            return serializeLexical({ nodes: node.children as NodeTypes[], usedHeadingIds })
           }
         }
 
@@ -171,8 +185,15 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
                 h4: '!font-euclid text-[20px] font-semibold leading-[1.25] text-[#242424]',
                 h5: '!font-euclid text-[18px] font-semibold leading-[1.25] text-[#242424]',
               }
+
+              // 生成标题 ID
+              const headingText = extractTextFromNode(node)
+              const headingId = createUniqueHeadingId(headingText, usedHeadingIds)
+              usedHeadingIds.push(headingId)
+
               return (
                 <Tag
+                  id={headingId}
                   className={
                     headingClasses[Tag as keyof typeof headingClasses] || headingClasses.h2
                   }
@@ -231,6 +252,21 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'link': {
               const fields = node.fields
 
+              // 处理锚点链接 - 检查 URL 是否以 # 开头
+              if (fields.url && fields.url.startsWith('#')) {
+                return (
+                  <a
+                    key={index}
+                    href={fields.url}
+                    className="anchor-link text-[#3366FF] hover:underline"
+                    data-anchor={fields.url}
+                  >
+                    {serializedChildren}
+                  </a>
+                )
+              }
+
+              // 处理普通链接
               return (
                 <CMSLink
                   key={index}
@@ -246,98 +282,84 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             }
             case 'table': {
               return (
-                <div
-                  className="no-scrollbar my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]"
-                  style={{
-                    WebkitOverflowScrolling: 'auto',
-                    overscrollBehavior: 'none',
-                    overscrollBehaviorX: 'none'
-                  }}
-                  key={index}
-                >
-                  <table className="w-max">
-                    <tbody>
-                      {node.children?.map((rowNode: SerializedTableRowNode, rowIndex) => {
-                        if (rowNode.type === 'tablerow') {
-                          // 如果第一个单元格有内容且其他单元格为空，则作为标题行
-                          if (rowIndex === 0) {
-                            // 检查是否是第一行且第一个单元格有内容（作为标题行）
-                            const firstCell = rowNode.children?.[0] as SerializedTableCellNode
-                            // 检查其他单元格是否为空
-                            const otherCellsEmpty = rowNode.children
-                              ?.slice(1)
-                              .every((cell: any) => {
-                                // console.log('c', cell.children)
-                                return cell.children?.[0]?.children?.length === 0
-                              })
-                            if (otherCellsEmpty) {
-                              const titleContent = firstCell.children
-                                ? serializeLexical({ nodes: firstCell.children as NodeTypes[] })
-                                : ''
-                              return (
-                                <tr key={rowIndex} className="border-b border-[#E3E3E3]">
-                                  <td
-                                    colSpan={rowNode.children?.length || 1}
-                                    className={cn(
-                                      'bg-[#F2F2F2] p-4 text-left !font-euclid',
-                                      '[&>p]:mb-0 [&>p]:text-[24px]/[36px] [&>p]:font-medium [&>p]:text-[#141414]',
-                                    )}
-                                  >
-                                    {titleContent}
-                                  </td>
-                                </tr>
-                              )
-                            }
+                <AdaptiveTable key={index}>
+                  <tbody>
+                    {node.children?.map((rowNode: SerializedTableRowNode, rowIndex) => {
+                      if (rowNode.type === 'tablerow') {
+                        // 如果第一个单元格有内容且其他单元格为空，则作为标题行
+                        if (rowIndex === 0) {
+                          // 检查是否是第一行且第一个单元格有内容（作为标题行）
+                          const firstCell = rowNode.children?.[0] as SerializedTableCellNode
+                          // 检查其他单元格是否为空
+                          const otherCellsEmpty = rowNode.children?.slice(1).every((cell: any) => {
+                            // console.log('c', cell.children)
+                            return cell.children?.[0]?.children?.length === 0
+                          })
+                          if (otherCellsEmpty) {
+                            const titleContent = firstCell.children
+                              ? serializeLexical({ nodes: firstCell.children as NodeTypes[] })
+                              : ''
+                            return (
+                              <tr key={rowIndex} className="border-b border-[#E3E3E3]">
+                                <td
+                                  colSpan={rowNode.children?.length || 1}
+                                  className={cn(
+                                    'bg-[#F2F2F2] p-4 text-left !font-euclid',
+                                    '[&>p]:mb-0 [&>p]:text-[24px]/[36px] [&>p]:font-medium [&>p]:text-[#141414]',
+                                  )}
+                                >
+                                  {titleContent}
+                                </td>
+                              </tr>
+                            )
                           }
-
-                          return (
-                            <tr
-                              key={rowIndex}
-                              className="border-b border-[#E3E3E3] last:border-b-0"
-                            >
-                              {rowNode.children?.map(
-                                (cellNode: SerializedTableCellNode, cellIndex) => {
-                                  if (cellNode.type === 'tablecell') {
-                                    // export const TableCellHeaderStates = {
-                                    //   NO_STATUS: 0,    // 普通单元格，不是表头
-                                    //   ROW: 1,          // 行表头
-                                    //   COLUMN: 2,       // 列表头
-                                    //   BOTH: 3,         // 既是行表头又是列表头
-                                    // };
-
-                                    const Tag =
-                                      cellNode.headerState === 2 ||
-                                      cellNode.headerState === 1 ||
-                                      cellNode.headerState === 3
-                                        ? 'th'
-                                        : 'td'
-                                    return (
-                                      <Tag
-                                        key={cellIndex}
-                                        className={cn(
-                                          'max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-5 text-[#262626] last:border-r-0',
-                                          '[&>p]:mb-0 [&>p]:text-[14px]/[20px] [&>p]:font-normal [&>p]:text-[#262626]',
-                                        )}
-                                      >
-                                        {cellNode.children
-                                          ? serializeLexical({
-                                              nodes: cellNode.children as NodeTypes[],
-                                            })
-                                          : ''}
-                                      </Tag>
-                                    )
-                                  }
-                                  return null
-                                },
-                              )}
-                            </tr>
-                          )
                         }
-                        return null
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+
+                        return (
+                          <tr key={rowIndex} className="border-b border-[#E3E3E3] last:border-b-0">
+                            {rowNode.children?.map(
+                              (cellNode: SerializedTableCellNode, cellIndex) => {
+                                if (cellNode.type === 'tablecell') {
+                                  // export const TableCellHeaderStates = {
+                                  //   NO_STATUS: 0,    // 普通单元格，不是表头
+                                  //   ROW: 1,          // 行表头
+                                  //   COLUMN: 2,       // 列表头
+                                  //   BOTH: 3,         // 既是行表头又是列表头
+                                  // };
+
+                                  const Tag =
+                                    cellNode.headerState === 2 ||
+                                    cellNode.headerState === 1 ||
+                                    cellNode.headerState === 3
+                                      ? 'th'
+                                      : 'td'
+                                  return (
+                                    <Tag
+                                      key={cellIndex}
+                                      className={cn(
+                                        'max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-5 text-[#262626] last:border-r-0',
+                                        '[&>p]:mb-0 [&>p]:text-[14px]/[20px] [&>p]:font-normal [&>p]:text-[#262626]',
+                                        rowIndex === 0 && 'bg-[#F2F2F2]',
+                                      )}
+                                    >
+                                      {cellNode.children
+                                        ? serializeLexical({
+                                            nodes: cellNode.children as NodeTypes[],
+                                          })
+                                        : ''}
+                                    </Tag>
+                                  )
+                                }
+                                return null
+                              },
+                            )}
+                          </tr>
+                        )
+                      }
+                      return null
+                    })}
+                  </tbody>
+                </AdaptiveTable>
               )
             }
             default:
