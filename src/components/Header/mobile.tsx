@@ -123,13 +123,13 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
           ))}
         </AccordionItemWrapper>
 
-        {!isGlobal && <AccordionItemWrapper value="pricing">
+        <AccordionItemWrapper value="pricing">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/pricing" onClick={onClose}>
               {t('nav-bar.pricing')}
             </LocaleLink>
           </AccordionTriggerWrapper>
-        </AccordionItemWrapper>}
+        </AccordionItemWrapper>
 
         <AccordionItemWrapper value="inspiration-collection">
           <AccordionTriggerWrapper disabled>
@@ -149,6 +149,14 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/careers" onClick={onClose}>
               {t('nav-bar.careers')}
+            </LocaleLink>
+          </AccordionTriggerWrapper>
+        </AccordionItemWrapper>
+
+        <AccordionItemWrapper value="blog">
+          <AccordionTriggerWrapper disabled>
+            <LocaleLink href="/blog" onClick={onClose}>
+              {t('nav-bar.blog')}
             </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>

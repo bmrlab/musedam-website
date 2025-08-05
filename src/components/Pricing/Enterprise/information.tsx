@@ -142,8 +142,7 @@ export const Information = ({ inNewPage }: { inNewPage?: boolean }) => {
         "company",
         "position"
     ] as const
-    // 海外版暂时隐藏
-    if (!isInChina) return <></>
+
     return (<>
         <div className="flex w-full justify-center bg-white font-euclid text-[#141414] ">
             <div className={cn(

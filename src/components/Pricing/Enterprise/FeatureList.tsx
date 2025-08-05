@@ -64,7 +64,7 @@ const FeatureList = () => {
 
                     return <div key={categoryKey} className='rounded-2xl '>
                         {/* 分组标题行 */}
-                        <div className="sticky md:top-[70px] top-[56px] w-full bg-[#F0F0EA]">
+                        <div className="sticky md:top-[70px] top-[56px] w-full bg-[#F0F0EA] z-[1]">
                             <div
                                 className='flex cursor-pointer items-center rounded-t-2xl border border-[#D1D1CC] bg-[#E1E1DC] py-3'
                                 onClick={() => toggleCategory(categoryKey)}
@@ -87,7 +87,7 @@ const FeatureList = () => {
                                     <div className={cn(
                                         "p-4 text-[#141414] font-medium items-center border-b border-[#D1D1CC] cursor-pointer",
                                         "transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
-                                        !isExpend && isLast && 'rounded-b-2xl'
+                                        !isExpend && !isGroupExpanded && isLast && 'rounded-b-2xl'
                                     )}
                                         onClick={() => toggleGroup(categoryKey, groupKey)}
                                     >
@@ -101,7 +101,7 @@ const FeatureList = () => {
                                             <div key={index} className={
                                                 cn(
                                                     "grid cursor-pointer grid-cols-12 text-sm text-[#262626] transition-all duration-300 ease-in-out hover:bg-[#E1E1DC] border-b border-[#D1D1CC]",
-                                                    isExpend && isLast && index + 1 === groupItems.length && 'rounded-b-2xl'
+                                                    isLast && (isExpend || isGroupExpanded) && index + 1 === groupItems.length && 'rounded-b-2xl'
                                                 )
                                             }>
                                                 <div className="md:col-span-3 col-span-4 border-r border-[#D1D1CC] md:p-4 p-2 relative flex items-center">

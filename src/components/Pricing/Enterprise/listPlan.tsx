@@ -1,10 +1,11 @@
 
+import { useCountry } from '@/providers/Country';
 import { useTranslation } from 'react-i18next';
 
 export const useEnterprisePlan = () => {
     const { t } = useTranslation('pricing');
     const { t: tFeatures } = useTranslation('pricing-enterprise-features');
-
+    const { isInChina } = useCountry()
     // Basic
     const basicList = {
         [tFeatures('aiCapabilities.title')]: [
@@ -37,14 +38,14 @@ export const useEnterprisePlan = () => {
         [tFeatures('extensions.title')]: [
             { name: tFeatures('extensions.0.name'), detail: tFeatures('extensions.0.detail') },
             { name: tFeatures('extensions.1.name'), detail: tFeatures('extensions.1.detail') },
-            { name: tFeatures('extensions.2.name'), detail: tFeatures('extensions.2.detail') }
+            ...(!isInChina ? [] : [{ name: tFeatures('extensions.2.name'), detail: tFeatures('extensions.2.detail') }])
         ]
     };
 
     // Advanced
     const advancedList = {
         [tFeatures('advancedFeatures.title')]: [
-            { name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true },
+            ...(!isInChina ? [] : [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }]),
             { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
             { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
             { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },
@@ -61,16 +62,18 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('customSystemHomepage.4.name'), detail: tFeatures('customSystemHomepage.4.detail') },
             { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
         ],
-        [tFeatures('approvalWorkflow.title')]: [
-            { name: tFeatures('approvalWorkflow.0.name'), detail: tFeatures('approvalWorkflow.0.detail') },
-            { name: tFeatures('approvalWorkflow.1.name'), detail: tFeatures('approvalWorkflow.1.detail') },
-            { name: tFeatures('approvalWorkflow.2.name'), detail: tFeatures('approvalWorkflow.2.detail') },
-        ],
-        [tFeatures('complianceCheck.title')]: [
-            { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
-            { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
-            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-        ],
+        ...(!isInChina ? {} : {
+            [tFeatures('approvalWorkflow.title')]: [
+                { name: tFeatures('approvalWorkflow.0.name'), detail: tFeatures('approvalWorkflow.0.detail') },
+                { name: tFeatures('approvalWorkflow.1.name'), detail: tFeatures('approvalWorkflow.1.detail') },
+                { name: tFeatures('approvalWorkflow.2.name'), detail: tFeatures('approvalWorkflow.2.detail') },
+            ],
+            [tFeatures('complianceCheck.title')]: [
+                { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
+                { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
+                { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+            ],
+        }),
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
             { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
@@ -81,11 +84,13 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('watermark.1.name'), detail: tFeatures('watermark.1.detail') },
             { name: tFeatures('watermark.2.name'), detail: tFeatures('watermark.2.detail') }
         ],
-        [tFeatures('enterpriseSingleSignOn.title')]: [
-            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
-        ],
+        ...(!isInChina ? {} : {
+            [tFeatures('enterpriseSingleSignOn.title')]: [
+                { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
+                { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
+                { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+            ]
+        }),
         [tFeatures('customerService.title')]: [
             { name: tFeatures('customerService.0.name'), detail: tFeatures('customerService.0.detail') }
         ],

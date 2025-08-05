@@ -183,11 +183,9 @@ export default function HeaderDesktop({
           </div>
         </NavigationMenuContent>
       </NavigationMenuItem>
-      {/* 海外版-隐藏Pricing */}
-      {!isGlobal && <NavigationMenuItem>
+      <NavigationMenuItem>
         <LocaleLink
-          href={`/pricing${user?.isOrg ? '?plan=team' : '?plan=personal'}`}
-          // href={`/enterprise/pricing`}
+          href='/pricing'
           legacyBehavior
           passHref
         >
@@ -195,7 +193,7 @@ export default function HeaderDesktop({
             {t('nav-bar.pricing')}
           </NavigationMenuLink>
         </LocaleLink>
-      </NavigationMenuItem>}
+      </NavigationMenuItem>
       <NavigationMenuItem>
         <LocaleLink href="/features/inspiration-collection" legacyBehavior passHref>
           <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
@@ -214,6 +212,14 @@ export default function HeaderDesktop({
         <LocaleLink href="/careers" legacyBehavior passHref>
           <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
             {t('nav-bar.careers')}
+          </NavigationMenuLink>
+        </LocaleLink>
+      </NavigationMenuItem>
+
+      <NavigationMenuItem>
+        <LocaleLink href="/blog" legacyBehavior passHref>
+          <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
+            {t('nav-bar.blog')}
           </NavigationMenuLink>
         </LocaleLink>
       </NavigationMenuItem>
