@@ -27,8 +27,9 @@ export function AdaptiveTable({ children, className }: AdaptiveTableProps) {
       )}
       style={{
         WebkitOverflowScrolling: 'auto',
-        overscrollBehavior: 'none',
+        // 只限制水平方向的滚动链，保留垂直滚动传递给页面
         overscrollBehaviorX: 'none',
+        overscrollBehaviorY: 'auto',
       }}
     >
       <table
