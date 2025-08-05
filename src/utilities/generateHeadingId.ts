@@ -1,26 +1,41 @@
 /**
  * 将文本转换为适合作为 HTML ID 的格式
+ * 使用 encodeURIComponent 并进一步处理确保生成的 ID 完全兼容 CSS 选择器
  * @param text 原始文本
  * @returns 格式化的 ID 字符串
  */
 export function generateHeadingId(text: string): string {
   if (!text) return ''
 
-  return text
-    .toLowerCase()
+  const cleanText = text
     .trim()
     // 移除 HTML 标签
     .replace(/<[^>]*>/g, '')
-    // 移除 emoji 和其他 Unicode 符号
-    // 这个正则表达式匹配大部分 emoji 和符号
-    .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-    // 替换空格和特殊字符为连字符
-    // 保留字母、数字、中文字符（包括扩展中文字符集），其他字符替换为连字符
-    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf]+/g, '-')
+
+  if (!cleanText) return 'heading'
+
+  // 使用 encodeURIComponent 编码文本
+  let encodedText = encodeURIComponent(cleanText)
+    // 将 % 替换为 - 使其更易读
+    .replace(/%/g, '-')
+
+  // 进一步编码 encodeURIComponent 不处理的特殊字符
+  // 这些字符在 CSS 选择器中可能有问题
+  encodedText = encodedText
+    .replace(/[()]/g, (match) => `-${match.charCodeAt(0).toString(16)}-`)
+    .replace(/[*+.?^${}|[\]\\]/g, (match) => `-${match.charCodeAt(0).toString(16)}-`)
+    .replace(/['"]/g, (match) => `-${match.charCodeAt(0).toString(16)}-`)
+    // 清理多个连续的连字符
+    .replace(/-+/g, '-')
     // 移除开头和结尾的连字符
     .replace(/^-+|-+$/g, '')
-    // 确保不为空
-    || 'heading'
+
+  // 确保 ID 以字母开头（CSS 选择器要求）
+  if (/^\d/.test(encodedText)) {
+    encodedText = `id-${encodedText}`
+  }
+
+  return encodedText || 'heading'
 }
 
 /**
