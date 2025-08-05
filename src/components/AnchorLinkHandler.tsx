@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { generateHeadingId } from '@/utilities/generateHeadingId'
 
 // 配置常量
 const MOBILE_BREAKPOINT = 768 // 移动端断点 (px)
@@ -21,7 +22,38 @@ export function AnchorLinkHandler() {
         const anchor = target.getAttribute('data-anchor')
         if (anchor) {
           e.preventDefault()
-          const targetElement = document.querySelector(anchor)
+
+          let targetElement: Element | null = null
+
+          // 如果锚点以 # 开头，需要处理锚点文本转换
+          if (anchor.startsWith('#')) {
+            // 提取 # 后的文本
+            const anchorText = anchor.substring(1)
+
+            if (anchorText) {
+              try {
+                // 解码 URL 编码的锚点文本（对未编码文本无影响）
+                const decodedAnchorText = decodeURIComponent(anchorText)
+
+                // 使用解码后的文本生成标准的 HTML ID
+                const convertedId = generateHeadingId(decodedAnchorText)
+
+                if (convertedId) {
+                  targetElement = document.querySelector(`#${convertedId}`)
+                }
+              } catch (error) {
+                // 如果解码失败，使用原始文本生成 ID
+                const convertedId = generateHeadingId(anchorText)
+                if (convertedId) {
+                  targetElement = document.querySelector(`#${convertedId}`)
+                }
+              }
+            }
+          } else {
+            // 非 # 开头的锚点，直接查找
+            targetElement = document.querySelector(anchor)
+          }
+
           if (targetElement) {
             // 检测是否为移动端并设置相应的偏移量
             const isMobile = window.innerWidth < MOBILE_BREAKPOINT
@@ -36,6 +68,9 @@ export function AnchorLinkHandler() {
               top: offsetPosition,
               behavior: 'smooth'
             })
+          } else {
+            // 如果找不到目标元素，在控制台输出调试信息
+            console.warn(`锚点链接目标元素未找到: ${anchor}`)
           }
         }
       }
