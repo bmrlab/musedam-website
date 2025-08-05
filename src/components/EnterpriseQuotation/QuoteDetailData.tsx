@@ -17,6 +17,8 @@ export interface QuoteDetailData {
     rows: QuoteDetailRow[]
     subtotal: string
     total: string
+    years: number
+    subtotalNum: number
 }
 
 export const useQuoteDetailData = (): QuoteDetailData => {
@@ -116,7 +118,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
         // 高级模块
         const moduleRows = Object.keys(advancedModules).filter(key => advancedModules[key]).map(key => {
-            const price = pricing.advanced.modules[key]
+            const price = pricing.advanced.modules[key] ?? 0
             subtotal += price
             return {
                 name: moduleNames[key],
@@ -212,5 +214,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         rows,
         subtotal: prefix + subtotal.toLocaleString(),
         total: prefix + (subtotal * subscriptionYears).toLocaleString(),
+        years: subscriptionYears,
+        subtotalNum: subtotal,
     }
 } 

@@ -3,4 +3,7 @@ export type SessionUser = {
   isOrg: boolean
   hasOrg: boolean
   isPro: boolean
+  isSale: boolean
+  orgId?: string
+  token?: string
 }

@@ -1,11 +1,9 @@
 'use client'
-import { twx } from '@/utilities/cn'
-
-import { PropsWithLng } from '@/types/page'
 import { LeftContent } from './LeftContent'
 import { RightContent } from './RightContent'
 import { createContext, useContext, useState } from 'react'
 import { QuotationPreviewContent } from './Preview'
+import { SessionUser } from '@/types/user'
 
 export enum TabEnum {
     BASIC = 'basic',
@@ -54,7 +52,10 @@ export interface IBasicConfig {
     storageSpace: number,
     aiPoints: number
 }
-
+export enum EFeatureView {
+    'OVERVIEW' = 'overview',
+    'DETAIL' = 'detail'
+}
 interface QuotationContextType {
     customerInfo: ICustomerInfo,
     setCustomerInfo: (info: ICustomerInfo) => void,
@@ -73,7 +74,9 @@ interface QuotationContextType {
     showFeatureList: boolean,
     setShowFeatureList: (val: boolean) => void,
     subscriptionYears: number,
-    setSubscriptionYears: (years: number) => void
+    setSubscriptionYears: (years: number) => void,
+    featureView: EFeatureView,
+    setFeatureView: (view: EFeatureView) => void
 }
 
 const initialContext: QuotationContextType = {
@@ -134,12 +137,14 @@ const initialContext: QuotationContextType = {
     },
     setPrivateModules: () => void 0,
     subscriptionYears: 1,
-    setSubscriptionYears: () => void 0
+    setSubscriptionYears: () => void 0,
+    featureView: EFeatureView.OVERVIEW,
+    setFeatureView: () => void 0,
 }
 
 const QuotationContext = createContext(initialContext)
 
-export default function EnterpriseQuotation({ id }: { id?: string }) {
+export default function EnterpriseQuotation({ id, user }: { id?: string, user?: SessionUser | null }) {
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
 
     // 當前選中的選項卡
@@ -165,6 +170,9 @@ export default function EnterpriseQuotation({ id }: { id?: string }) {
     const [showFeatureList, setShowFeatureList] = useState(false)
     const [subscriptionYears, setSubscriptionYears] = useState(1)
 
+    // 功能顯示選項
+    const [featureView, setFeatureView] = useState(initialContext.featureView)
+
     return (
         <QuotationContext.Provider value={{
             customerInfo,
@@ -185,16 +193,24 @@ export default function EnterpriseQuotation({ id }: { id?: string }) {
             setShowFeatureList,
             subscriptionYears,
             setSubscriptionYears,
+            featureView,
+            setFeatureView
         }}>
-            {!!id ? <QuotationPreviewContent /> :
-                <div className="flex size-full">
-                    <div className='h-screen flex-1'>
-                        <LeftContent />
+            {!!id
+                ? <QuotationPreviewContent id={id} userId={user?.userId} orgId={user?.orgId} />
+                : (user ?
+                    <div className="flex size-full">
+                        <div className='h-screen flex-1'>
+                            <LeftContent user={user} />
+                        </div>
+                        <div className='h-screen flex-1'>
+                            <RightContent />
+                        </div>
                     </div>
-                    <div className='h-screen flex-1'>
-                        <RightContent />
-                    </div>
-                </div>}
+                    : <></>
+                )
+
+            }
         </QuotationContext.Provider>
     )
 }

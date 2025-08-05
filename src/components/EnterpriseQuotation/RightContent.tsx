@@ -46,12 +46,7 @@ export const RightContent: FC = () => {
     const {
         customerInfo,
         activeTab,
-        advancedConfig,
-        advancedModules,
-        privateConfig,
-        privateModules,
-        basicConfig,
-        subscriptionYears,
+        showFeatureList
     } = useQuotationContext()
     const { t } = useTranslation('quotation')
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
@@ -130,7 +125,7 @@ export const RightContent: FC = () => {
                         </ul>
                     </div>
 
-                    {/* Capacity Expansion */}
+                    {/* 扩容价格 */}
                     <div className='border'>
                         <div className="px-5 py-[10px] text-sm font-bold">{t('capacity.expansion')}</div>
                         <div className="space-y-2 text-sm">
@@ -149,6 +144,9 @@ export const RightContent: FC = () => {
                             })}
                         </div>
                     </div>
+
+                    {/** 功能列表 */}
+                    {/* {showFeatureList && <FeatureList />} */}
                 </div>
             </div>
         </div >

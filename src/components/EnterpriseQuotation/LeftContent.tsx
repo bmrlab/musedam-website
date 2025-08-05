@@ -2,8 +2,8 @@
 import { LocaleSwitch } from '../Header/LocalSwitch'
 import { LocaleLink } from '../LocalLink'
 import Image from 'next/image'
-import { FC, useEffect, useState } from 'react'
-import { TabEnum, useQuotationContext, ICustomerInfo, IAdvancedModules, IPrivateModules } from './index'
+import { FC, useCallback, useEffect, useState } from 'react'
+import { TabEnum, useQuotationContext, ICustomerInfo, IAdvancedModules, IPrivateModules, EFeatureView } from './index'
 import { usePricing, useBasicConfigs, useAdvancedConfigs } from './config'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
@@ -18,6 +18,10 @@ import { useTranslation } from '@/app/i18n/client'
 import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
+import { SessionUser } from '@/types/user'
+import { saveQuotation } from '@/endpoints/quotation'
+import { useQuoteDetailData } from './QuoteDetailData'
+import { useLanguage } from '@/providers/Language'
 
 interface NumControlProps {
     value: number,
@@ -87,7 +91,7 @@ const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
         </div>
     </div>
 }
-export const LeftContent: FC = () => {
+export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
     const { t } = useTranslation('quotation')
     const basicConfigs = useBasicConfigs()
     const advancedConfigs = useAdvancedConfigs()
@@ -96,7 +100,8 @@ export const LeftContent: FC = () => {
     const prefix = isGlobal ? '$' : '¥'
     const { toast } = useToast()
     const router = useRouter()
-
+    const { language } = useLanguage()
+    const { rows, subtotalNum, years } = useQuoteDetailData()
 
     const {
         customerInfo,
@@ -117,10 +122,9 @@ export const LeftContent: FC = () => {
         setShowFeatureList,
         subscriptionYears,
         setSubscriptionYears,
+        featureView,
+        setFeatureView
     } = useQuotationContext()
-
-    // 功能顯示選項
-    const [featureView, setFeatureView] = useState('overview')
 
     // 計算總價
     const calculateTotal = () => {
@@ -223,14 +227,6 @@ export const LeftContent: FC = () => {
         }
     }
 
-    // 獲取當前配置
-    const getCurrentConfig = () => {
-        if (activeTab === TabEnum.BASIC) return basicConfig
-        if (activeTab === TabEnum.ADVANCED) return advancedConfig
-        if (activeTab === TabEnum.PRIVATE) return privateConfig
-        return {}
-    }
-
     const formInfo = [
         {
             id: 'company',
@@ -251,6 +247,45 @@ export const LeftContent: FC = () => {
     const allModules = Object.keys(moduleNames).map((key) => {
         return { key: key, label: moduleNames[key], price: pricing.advanced.modules[key] }
     })
+
+    const handleGenerate = useCallback(async () => {
+        if (!user.orgId || !user.token) {
+            toast({
+                duration: 2000,
+                description: '您当前所在的团队无生成报价单权限',
+            })
+            return
+        }
+        let content = {
+            rows: rows,
+            showFeatureList: showFeatureList,
+            lang: language
+        }
+        if (showFeatureList) {
+            content['featureView'] = featureView
+        }
+        try {
+            const id = await saveQuotation(isGlobal ? 'global' : 'mainland', {
+                userId: user.userId,
+                orgId: user.orgId,
+                token: user.token,
+            }, {
+                customerContact: customerInfo.contact,
+                contactEmail: customerInfo.yourEmail,
+                customerEmail: customerInfo.email,
+                customerCompany: customerInfo.company,
+                annualPrice: Math.round(subtotalNum * 100),
+                content: JSON.stringify(content),
+                subscriptionYears: years,
+            })
+            router.push(`${window.location.pathname}/${id}`)
+        } catch (err) {
+            toast({
+                description: err.message ?? '报价单保存失败',
+                duration: 2000
+            })
+        }
+    }, [customerInfo, subtotalNum, showFeatureList, rows, years, featureView, user, language])
 
     return (
         <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 text-white">
@@ -403,26 +438,29 @@ export const LeftContent: FC = () => {
                         {/* License Type Selection */}
                         <div className="space-y-4">
                             <TitleDiv>{t('museDAMSoftware')}</TitleDiv>
-                            <RadioGroup.Root value={privateConfig.licenseType} onValueChange={value => setPrivateConfig({ ...privateConfig, licenseType: value as 'saas' | 'perpetual' })} className='space-y-3'>
-                                {['saas', 'perpetual'].map((licenseType) => {
+                            <RadioGroup.Root
+                                value={privateConfig.licenseType}
+                                className='space-y-3'
+                            >
+                                {['saas', 'perpetual'].map((type) => {
                                     return (
-                                        <BlockBox className="flex w-full items-center space-x-2 space-y-0" key={licenseType}>
+                                        <BlockBox className="flex w-full items-center space-x-2 space-y-0" key={type}>
                                             <RadioGroup.Item
                                                 className={cn(
                                                     'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 ',
                                                     'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
-                                                    licenseType === privateConfig.licenseType && 'border-[#3366FF]',
+                                                    type === privateConfig.licenseType && 'border-[#3366FF]',
                                                 )}
-                                                value={licenseType}
-                                                id={licenseType}
+                                                value={type}
+                                                id={type}
                                                 onClick={() => {
-                                                    setFeatureView(licenseType)
+                                                    setPrivateConfig({ ...privateConfig, licenseType: type as 'saas' | 'perpetual' })
                                                 }}
                                             >
                                                 <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                             </RadioGroup.Item>
-                                            <Label htmlFor={licenseType} className="font-normal text-white">
-                                                {licenseType === 'saas' ? t('saasStandardEnterpriseEdition') : t('perpetualLicenseCurrentStandardEnterpriseEdition')}
+                                            <Label htmlFor={type} className="font-normal text-white">
+                                                {type === 'saas' ? t('saasStandardEnterpriseEdition') : t('perpetualLicenseCurrentStandardEnterpriseEdition')}
                                             </Label>
                                         </BlockBox>
                                     )
@@ -579,7 +617,7 @@ export const LeftContent: FC = () => {
                         className="flex h-[68px] gap-6"
                         defaultValue={featureView}
                     >
-                        {['overview', 'details'].map((listType) => {
+                        {[EFeatureView.OVERVIEW, EFeatureView.DETAIL].map((listType) => {
                             return (
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={listType}>
                                     <RadioGroup.Item
@@ -617,7 +655,7 @@ export const LeftContent: FC = () => {
                         })
                         return;
                     }
-                    router.push(`${window.location.pathname}/${'1111'}`)
+                    handleGenerate()
                 }}
             >
                 {t('generate.now')}

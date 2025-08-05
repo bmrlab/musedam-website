@@ -1,12 +1,8 @@
 import { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { getPricingList, ProductItem } from '@/endpoints/pricing'
 import { getServerSession } from '@/utilities/auth'
 import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
-import DetailTableOfMuseDam from '@/components/Pricing/Compare/MuseDam'
-import { EMuseProductType } from '@/components/Pricing/types/products'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 import FeatureList from '@/components/Pricing/Enterprise/FeatureList'
@@ -26,7 +22,7 @@ export default async function MuseDAMPricingPage({
       <FlexColContainer className="w-full items-center ">
         <Buy user={user} />
         <div className='h-[20px] w-full'></div>
-        <FeatureList />
+        <FeatureList user={user} />
       </FlexColContainer>
       <FAQ />
     </FlexColContainer>

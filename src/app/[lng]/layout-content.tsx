@@ -1,13 +1,12 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import React, { useEffect, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useLanguage } from '@/providers/Language'
 import { SessionUser } from '@/types/user'
-import { useTheme } from '@/providers/Theme'
 
 interface LayoutContentProps {
     children: React.ReactNode
@@ -17,22 +16,11 @@ interface LayoutContentProps {
 
 export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) {
     const pathname = usePathname()
-    const router = useRouter()
     const isQuotationPage = pathname?.includes('/quotation')
-    const { language, setLanguage } = useLanguage()
-    const searchParams = useSearchParams()
+    const { changeLocale } = useLanguage()
 
     const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
-    const changeLocale = useCallback((lang: string) => {
-        if (language == lang) return
-        if (!searchParams) return
-        const currentParams = new URLSearchParams(searchParams)
-        const queryString = currentParams.toString()
-        const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + lang) || ''
-        const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
-        router.replace(newUrl)
-        setLanguage(lang)
-    }, [language, pathname, router, setLanguage, searchParams])
+
 
     useEffect(() => {
         if (isGlobal) {

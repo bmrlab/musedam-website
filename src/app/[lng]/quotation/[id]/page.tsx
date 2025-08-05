@@ -4,17 +4,31 @@ import { getPageMetadata } from '@/utilities/getMetadata'
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import { seoTranslation } from '@/app/i18n'
 import EnterpriseQuotation from '@/components/EnterpriseQuotation'
+import { getServerSession } from '@/utilities/auth'
 
-export default async function MuseAIPricingPage({
+export default async function MuseQuotationDetailPage({
     searchParams,
     params,
 }: {
-    searchParams: Promise<{ plan?: string }>
+    searchParams: Promise<{ uId?: string, oId?: string }>
     params: Promise<{ id?: string }>
 } & PropsWithLng) {
     const { id } = await params
+    const { uId, oId } = await searchParams
+    const user = await getServerSession()
+
     return (
-        <EnterpriseQuotation id={id} />
+        <EnterpriseQuotation
+            id={id}
+            user={{
+                userId: uId ?? user?.userId ?? '',
+                orgId: oId ?? user?.orgId,
+                isOrg: true,
+                hasOrg: true,
+                isSale: true,
+                isPro: false
+            }}
+        />
     )
 }
 
