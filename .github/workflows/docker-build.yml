@@ -1,6 +1,8 @@
 name: Docker Build and Push
 
 on:
+  # 添加手动触发，防止构建卡住反复删除 tag
+  workflow_dispatch:
   push:
     tags:
       - v*
