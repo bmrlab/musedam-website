@@ -44,7 +44,7 @@ const companyPages = ['/about-us', '/careers', '/privacy', '/terms']
 
 // Blog pages (you may want to generate these dynamically from your CMS)
 const blogPages = [
-  '/blog/posts',
+  '/blog',
   // Add other blog paths as needed
 ]
 

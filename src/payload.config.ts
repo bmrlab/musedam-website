@@ -29,13 +29,27 @@ export default buildConfig({
     supportedLanguages: { zh },
   },
   admin: {
+    meta: {
+      titleSuffix: ' - MuseDAM',
+      icons: [
+        {
+          rel: 'icon',
+          type: 'image/svg',
+          url: '/assets/favicon.svg',
+        },
+      ],
+    },
     components: {
+      graphics: {
+        Logo: '@/components/Logo/Logo',
+        Icon: '@/components/Logo/Logo',
+      },
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
       beforeLogin: ['@/components/BeforeLogin'],
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      // beforeDashboard: ['@/components/BeforeDashboard'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
