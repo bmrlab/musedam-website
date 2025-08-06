@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next'
 import getServerSideURL from '@/utilities/getServerSideURL'
 
-import { languages } from './i18n/settings'
+import { languages, enLng } from './i18n/settings'
+import { getBlogArticles } from '@/data/blog'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,6 +77,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   pricingPages.forEach((path) => {
     sitemap.push(...generateLangUrls(path))
   })
+
+  // 动态添加所有博客文章的 URL
+  for (const lng of languages) {
+    // 只支持 'en' | 'zh'，做映射
+    const payloadLocale = lng === enLng ? 'en' : 'zh'
+    const { docs: posts, totalPages } = await getBlogArticles(payloadLocale, [], 1, 1000)
+    if (Array.isArray(posts)) {
+      posts.forEach((post: any) => {
+        if (post.slug && post.publishedAt) {
+          sitemap.push({
+            url: `${getServerSideURL()}/${lng}/blog/${post.slug}`,
+            lastModified: new Date(post.publishedAt),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+          })
+        }
+      })
+    }
+  }
 
   return sitemap
 }

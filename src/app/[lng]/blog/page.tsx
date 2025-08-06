@@ -12,6 +12,7 @@ import { BlogPageSkeleton } from '@/components/Blog/skeleton/BlogPageSkeleton'
 import { TopArticles } from '@/components/Blog/TopArticles'
 
 import PageClient from './page.client'
+import { Information } from '@/components/Pricing/Enterprise/information'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,36 +81,40 @@ async function BlogPageContent({
   ])
 
   return (
-    <div className="min-h-screen w-full max-w-[1440px] bg-white">
+    <div className="min-h-screen w-full flex items-center flex-col ">
       <PageClient />
+      <div className='max-w-[1440px] w-full bg-white'>
+        {/* Hero Section - 特色文章 */}
+        {heroArticles.docs.length > 0 && (
+          <div className="flex flex-col items-center gap-20 px-6 py-[60px] md:p-[80px] [&>section:nth-child(even)]:md:flex-row-reverse">
+            {heroArticles.docs.map((article) => (
+              <HeroSection key={article.id} article={article} />
+            ))}
+          </div>
+        )}
 
-      {/* Hero Section - 特色文章 */}
-      {heroArticles.docs.length > 0 && (
-        <div className="flex flex-col items-center gap-20 px-6 py-[60px] md:p-[80px] [&>section:nth-child(even)]:md:flex-row-reverse">
-          {heroArticles.docs.map((article) => (
-            <HeroSection key={article.id} article={article} />
-          ))}
-        </div>
-      )}
-
-      {/* Top Articles - 精选文章 */}
-      {topArticles.docs.length > 0 && (
-        <TopArticles
-          articles={topArticles.docs as Post[]}
-          className="mt-0 pb-[100px] md:mt-[60px]"
-        />
-      )}
-
+        {/* Top Articles - 精选文章 */}
+        {topArticles.docs.length > 0 && (
+          <TopArticles
+            articles={topArticles.docs as Post[]}
+            className="mt-0 pb-[100px] md:mt-[60px]"
+          />
+        )}
+      </div>
+      <Information dark={true} />
       {/* All Articles - 所有文章（包含分类筛选） */}
-      <AllArticles
-        articles={allPosts.docs as Post[]}
-        categories={categories.docs as Category[]}
-        // page 类型是 string
-        currentPage={parseInt(allPosts.page?.toString() ?? '1')}
-        totalPages={allPosts.totalPages || 1}
-        selectedCategory={filterCategory}
-        className="px-6 pb-[60px] pt-0 md:p-20"
-      />
+
+      <div className='max-w-[1440px] w-full bg-white'>
+        <AllArticles
+          articles={allPosts.docs as Post[]}
+          categories={categories.docs as Category[]}
+          // page 类型是 string
+          currentPage={parseInt(allPosts.page?.toString() ?? '1')}
+          totalPages={allPosts.totalPages || 1}
+          selectedCategory={filterCategory}
+          className="px-6 pb-[60px] pt-0 md:p-20"
+        />
+      </div>
     </div>
   )
 }
