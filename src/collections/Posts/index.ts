@@ -25,7 +25,7 @@ import {
 import type { CollectionConfig } from 'payload'
 
 import { populateAuthors } from './hooks/populateAuthors'
-import { revalidatePost } from './hooks/revalidatePost'
+import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -248,9 +248,9 @@ export const Posts: CollectionConfig = {
     ...slugField(),
   ],
   hooks: {
-    // afterChange: [revalidatePost],
-    afterChange: [],
+    afterChange: [revalidatePost],
     afterRead: [populateAuthors],
+    afterDelete: [revalidateDelete],
   },
   versions: {
     drafts: {
