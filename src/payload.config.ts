@@ -30,6 +30,7 @@ export default buildConfig({
   },
   admin: {
     meta: {
+      titleSuffix: ' - MuseDAM',
       icons: [
         {
           rel: 'icon',
