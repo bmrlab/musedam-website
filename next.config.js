@@ -24,6 +24,9 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    after: true,
+  },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   // Should not use this in production
   ...(process.env.NODE_ENV === 'production'
