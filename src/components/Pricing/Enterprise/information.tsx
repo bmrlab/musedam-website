@@ -15,7 +15,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
 
 const FormLabel = twx.label`mb-2 block text-[12px]`
-const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0  focus:ring-0 ease-in-out duration-300 transition-all`
+const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 focus:ring-0 ease-in-out duration-300 transition-all`
 
 export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: boolean }) => {
     const { isInChina } = useCountry()
@@ -145,29 +145,29 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
 
     return (<>
         <div className={cn("flex w-full justify-center font-euclid ",
-            dark ? 'bg-[#000] text-white' : 'text-[#141414] bg-white'
+            dark ? 'bg-black text-white' : 'bg-white text-[#141414]'
         )}>
             <div className={cn(
-                "flex w-full flex-col items-start justify-between px-6 md:max-w-[1440px] md:px-[80px] md:flex-row ",
+                "flex w-full flex-col items-start justify-between px-6 md:max-w-[1440px] md:flex-row md:px-[80px] ",
                 isMobile && 'h-fit'
             )}>
                 {/* 左侧介绍 */}
-                <div className={cn("md:h-full flex-col flex flex-1 md:pb-[100px] md:pr-[80px] pt-[60px] pb-0",
+                <div className={cn("flex flex-1 flex-col pb-0 pt-[60px] md:h-full md:pb-[100px] md:pr-[80px]",
                     inNewPage ? 'md:py-[70px]' : 'md:py-[90px]'
                 )}>
                     <div className="flex-1">
-                        <h1 className={cn("mb-4 font-feature md:text-[54px] font-medium md:text-start text-center",
+                        <h1 className={cn("mb-4 text-center font-feature font-medium md:text-start md:text-[54px]",
                             isEn ? " text-[40px]" : " text-[32px]"
                         )}>
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                         </h1>
-                        <p className={cn("md:text-start text-center mb-[30px] md:mb-[60px] font-euclidlight text-base md:text-[22px] font-light  md:leading-[1.45em]",
+                        <p className={cn("mb-[30px] text-center font-euclidlight text-base font-light md:mb-[60px] md:text-start md:text-[22px]  md:leading-[1.45em]",
                             dark ? 'text-[rgba(255,255,255,0.72)]' : 'text-[rgba(20,20,20,0.72)]'
                         )}>
                             <Trans i18nKey="desc" t={t} components={{ 1: isMobile ? <></> : <br /> }} />
                         </p>
-                        <ul className={cn("md:mb-[60px] mb-[30px]",
-                            isEn ? "text-lg space-y-5 " : "text-base space-y-3"
+                        <ul className={cn("mb-[30px] md:mb-[60px]",
+                            isEn ? "space-y-5 text-lg " : "space-y-3 text-base"
                         )}>
                             {(t('list', { returnObjects: true }) as string[]).map((item, idx) => (
                                 <li className="flex items-start gap-[10px] font-euclid" key={idx}>
@@ -177,9 +177,9 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                             ))}
                         </ul>
                     </div>
-                    <div className="md:mb-0 mb-[50px]">
-                        <div className="mb-4 font-euclidlight text-base font-light md:text-start text-center">{t('security')}</div>
-                        <div className={cn("md:w-[408px] flex-row md:gap-6 gap-[18px] rounded-full px-6 py-3 max-w-full grid grid-cols-4", dark ? 'bg-[#141414]' : 'bg-[#F8F8F8]')}>
+                    <div className="mb-[50px] md:mb-0">
+                        <div className="mb-4 text-center font-euclidlight text-base font-light md:text-start">{t('security')}</div>
+                        <div className={cn("grid max-w-full grid-cols-4 flex-row gap-[18px] rounded-full px-6 py-3 md:w-[408px] md:gap-6", dark ? 'bg-[#141414]' : 'bg-[#F8F8F8]')}>
                             {/* 认证徽章占位符，可替换为图片 */}
                             {[getUrl('ISO001.png'), getUrl('ISO017.png'), getUrl('ISO9001.png'), getUrl('MLPS3.png')].map((v) => {
                                 return <Image src={v} width={200} height={200} alt={v} className="col-span-1" key={v} />
@@ -189,18 +189,18 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                 </div>
                 {/* 右侧表单 */}
                 <div className={cn(
-                    "font-euclid shadow-none md:flex-1 w-full md:pb-[90px] pb-[60px] md:h-full flex flex-col",
+                    "flex w-full flex-col pb-[60px] font-euclid shadow-none md:h-full md:flex-1 md:pb-[90px]",
                     inNewPage ? 'md:pt-[80px]' : 'md:pt-[100px]'
                 )}>
-                    <h2 className="md:mb-10 mb-6 text-[28px] md:text-2xl font-medium text-center md:text-start">{t('form.title')}</h2>
+                    <h2 className="mb-6 text-center text-[28px] font-medium md:mb-10 md:text-start md:text-2xl">{t('form.title')}</h2>
                     <form className="grid flex-1 grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[12px]" onSubmit={handleSubmit} >
                         {
                             formInputLabelKeys.map((key, index) => {
-                                return <div className="col-span-2 md:col-span-1">
+                                return <div className="col-span-2 md:col-span-1" key={`${key}-${index}}`}>
                                     <FormLabel >{index + 1}{'. '}{t(`form.${key}.label`)}</FormLabel>
                                     <FormInput
                                         className={dark ?
-                                            'bg-black text-white border-[rgba(255,255,255,0.2)]  focus:border-white hover:border-white'
+                                            'border-[rgba(255,255,255,0.2)] bg-black text-white  placeholder:text-[rgba(255,255,255,0.4)] hover:border-white focus:border-white'
                                             : 'border-[#C5CEE0] hover:border-[#141414] focus:border-[#141414]'
                                         }
                                         type="text"
@@ -215,7 +215,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                         <div className="col-span-2">
                             <FormLabel >{formInputLabelKeys.length + 1}{'. '}{t('form.size.label')}</FormLabel>
                             <RadioGroup.Root
-                                className="grid md:grid-cols-3 grid-cols-2 gap-2"
+                                className="grid grid-cols-2 gap-2 md:grid-cols-3"
                                 defaultValue={formData.teamSize?.toString()}>
                                 {teamSizes.map((item) => {
                                     const isActive = formData.teamSize === item.value;
@@ -248,7 +248,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                         <div className="col-span-2">
                             <FormLabel >{formInputLabelKeys.length + 2}{'. '}{t('form.expect.label')}</FormLabel>
                             <RadioGroup.Root
-                                className="grid md:grid-cols-3 grid-cols-2 gap-2"
+                                className="grid grid-cols-2 gap-2 md:grid-cols-3"
                                 defaultValue={formData.expectTime?.toString()}
                             >
                                 {expectTimes.map((item, index) => {
@@ -302,7 +302,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                                 disabled={submitting}
                                 type="submit"
                                 className={cn(
-                                    "h-[50px] w-full rounded-lg text-base font-medium  transition-all ease-in-out duration-300",
+                                    "h-[50px] w-full rounded-lg text-base font-medium  transition-all duration-300 ease-in-out",
                                     dark ? 'bg-white text-black hover:bg-[rgba(255,255,255,0.8)]' : 'bg-black text-white hover:bg-gray-900',
                                     isEn && "md:text-[18px]"
                                 )}

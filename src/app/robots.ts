@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/', '/musedam-apigw/'],
+      disallow: ['/admin/', '/api/', '/musedam-apigw/', '/*/pricing/dam', '/*/pricing/ai'],
     },
     sitemap: `${getServerSideURL()}/sitemap.xml`,
   }
