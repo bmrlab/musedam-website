@@ -1,9 +1,10 @@
 'use client'
 import { LeftContent } from './LeftContent'
 import { RightContent } from './RightContent'
-import { createContext, useContext, useState } from 'react'
-import { QuotationPreviewContent } from './Preview'
+import { createContext, Dispatch, SetStateAction, useContext, useState } from 'react'
+import { QuotationPreviewContent } from './Preview/index'
 import { SessionUser } from '@/types/user'
+import { EAdvancedModules, EPrivateModules } from './config'
 
 export enum TabEnum {
     BASIC = 'basic',
@@ -21,7 +22,7 @@ export interface ICustomerInfo {
 export interface IAdvancedInfo {
     memberSeats: number,
     storageSpace: number,
-    aiPoints: number
+    aiPoints: number,
 }
 
 export interface IPrivateConfig {
@@ -29,23 +30,11 @@ export interface IPrivateConfig {
     memberSeats: number
 }
 
-export interface IAdvancedModules {
-    advancedFeatures: boolean,
-    customSystemHomepage: boolean,
-    approvalWorkflow: boolean,
-    complianceCheck: boolean,
-    customMetadataFields: boolean,
-    watermark: boolean,
-    enterpriseSSO: boolean,
-    customerService: boolean,
-    professionalServices: boolean
-}
+export type IAdvancedModules = Record<EAdvancedModules, boolean | number>
 
-export type IPrivateModules = {
-    privateImplementation: boolean,
-    operationMaintenance: boolean,
+export type IPrivateModules = Record<EAdvancedModules | EPrivateModules, boolean> & {
     maintenanceYears: number
-} & IAdvancedModules
+}
 
 export interface IBasicConfig {
     memberSeats: number,
@@ -56,6 +45,39 @@ export enum EFeatureView {
     'OVERVIEW' = 'overview',
     'DETAIL' = 'detail'
 }
+
+// 辅助函数：生成 advancedModules 的初始值
+const getInitialAdvancedModules = (): IAdvancedModules => {
+    const enumValues = Object.values(EAdvancedModules || {}) as EAdvancedModules[]
+    return enumValues.reduce((acc, key) => {
+        if (key === EAdvancedModules.AI_AUTO_TAG_POINTS) {
+            acc[key] = 0
+        } else if (key === EAdvancedModules.GA) {
+            acc[key] = 0
+        } else {
+            acc[key as EAdvancedModules] = key === EAdvancedModules.ADVANCED_FEATURES ? true : false;
+        }
+        return acc;
+    }, {} as IAdvancedModules);
+}
+
+// 辅助函数：生成 privateModules 的初始值
+const getInitialPrivateModules = (): IPrivateModules => {
+    const allKeys = [
+        ...Object.values(EAdvancedModules || {}),
+        ...Object.values(EPrivateModules || {}),
+    ];
+    const modules = allKeys.reduce((acc, key) => {
+        acc[key as EAdvancedModules | EPrivateModules] = false;
+        return acc;
+    }, {} as Record<EAdvancedModules | EPrivateModules, boolean>);
+
+    return {
+        ...modules,
+        maintenanceYears: 2,
+    };
+}
+
 interface QuotationContextType {
     customerInfo: ICustomerInfo,
     setCustomerInfo: (info: ICustomerInfo) => void,
@@ -64,19 +86,21 @@ interface QuotationContextType {
     advancedConfig: IAdvancedInfo
     setAdvancedConfig: (config: IAdvancedInfo) => void
     advancedModules: IAdvancedModules
-    setAdvancedModules: (modules: IAdvancedModules) => void
+    setAdvancedModules: Dispatch<SetStateAction<IAdvancedModules>>
     privateConfig: IPrivateConfig,
     setPrivateConfig: (config: IPrivateConfig) => void,
     privateModules: IPrivateModules,
-    setPrivateModules: (modules: IPrivateModules) => void,
+    setPrivateModules: Dispatch<SetStateAction<IPrivateModules>>
     basicConfig: IBasicConfig,
     setBasicConfig: (config: IBasicConfig) => void,
-    showFeatureList: boolean,
-    setShowFeatureList: (val: boolean) => void,
     subscriptionYears: number,
     setSubscriptionYears: (years: number) => void,
     featureView: EFeatureView,
+    discount: number | undefined,
+    setDiscount: Dispatch<SetStateAction<number | undefined>>
     setFeatureView: (view: EFeatureView) => void
+    showNoBuyFeature: boolean,
+    setShowNoBuyFeature: Dispatch<SetStateAction<boolean>>
 }
 
 const initialContext: QuotationContextType = {
@@ -86,10 +110,12 @@ const initialContext: QuotationContextType = {
         email: '',
         yourEmail: ''
     },
-    showFeatureList: false,
-    setShowFeatureList: () => void 0,
+    showNoBuyFeature: false,
+    setShowNoBuyFeature: () => void 0,
+    discount: undefined,
+    setDiscount: () => void 0,
     setCustomerInfo: () => void 0,
-    activeTab: TabEnum.BASIC,
+    activeTab: TabEnum.ADVANCED,
     setActiveTab: () => void 0,
     basicConfig: {
         memberSeats: 2,
@@ -103,38 +129,14 @@ const initialContext: QuotationContextType = {
         aiPoints: 2
     },
     setAdvancedConfig: () => void 0,
-    advancedModules: {
-        advancedFeatures: false,
-        customSystemHomepage: false,
-        approvalWorkflow: false,
-        complianceCheck: false,
-        customMetadataFields: false,
-        watermark: false,
-        enterpriseSSO: false,
-        customerService: false,
-        professionalServices: false
-    },
+    advancedModules: getInitialAdvancedModules(),
     setAdvancedModules: () => void 0,
     privateConfig: {
         licenseType: 'saas', // 'saas' or 'perpetual'
         memberSeats: 30
     },
     setPrivateConfig: () => void 0,
-
-    privateModules: {
-        advancedFeatures: false,
-        customSystemHomepage: false,
-        approvalWorkflow: false,
-        complianceCheck: false,
-        customMetadataFields: false,
-        watermark: false,
-        enterpriseSSO: false,
-        customerService: false,
-        professionalServices: false,
-        privateImplementation: false,
-        operationMaintenance: false,
-        maintenanceYears: 2,
-    },
+    privateModules: getInitialPrivateModules(),
     setPrivateModules: () => void 0,
     subscriptionYears: 1,
     setSubscriptionYears: () => void 0,
@@ -167,11 +169,12 @@ export default function EnterpriseQuotation({ id, user }: { id?: string, user?: 
     // Private Deployment 模組狀態
     const [privateModules, setPrivateModules] = useState(initialContext.privateModules)
 
-    const [showFeatureList, setShowFeatureList] = useState(false)
     const [subscriptionYears, setSubscriptionYears] = useState(1)
+    const [discount, setDiscount] = useState<number | undefined>(8)
 
     // 功能顯示選項
     const [featureView, setFeatureView] = useState(initialContext.featureView)
+    const [showNoBuyFeature, setShowNoBuyFeature] = useState(initialContext.showNoBuyFeature)
 
     return (
         <QuotationContext.Provider value={{
@@ -189,17 +192,18 @@ export default function EnterpriseQuotation({ id, user }: { id?: string, user?: 
             setPrivateModules,
             basicConfig,
             setBasicConfig,
-            showFeatureList,
-            setShowFeatureList,
             subscriptionYears,
             setSubscriptionYears,
             featureView,
-            setFeatureView
+            setFeatureView,
+            discount, setDiscount,
+            showNoBuyFeature, setShowNoBuyFeature
         }}>
             {!!id
                 ? <QuotationPreviewContent id={id} userId={user?.userId} orgId={user?.orgId} />
                 : (user ?
                     <div className="flex size-full">
+
                         <div className='h-screen flex-1'>
                             <LeftContent user={user} />
                         </div>
@@ -207,7 +211,7 @@ export default function EnterpriseQuotation({ id, user }: { id?: string, user?: 
                             <RightContent />
                         </div>
                     </div>
-                    : <></>
+                    : <>无效的用户信息</>
                 )
 
             }

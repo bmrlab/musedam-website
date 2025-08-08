@@ -96,7 +96,7 @@ export default function WhyMuse() {
     return <div className='px-6 py-[60px] md:px-[80px] md:py-[120px]'>
         <FadeInUpContainer className='flex w-full flex-col items-center overflow-x-scroll md:max-w-[1440px]'>
             <h1 className={cn(
-                "w-[800px] max-w-full text-center font-feature font-normal leading-[41.6px] text-[rgba(255,255,255,0.72)] md:text-start  md:text-[64px] md:leading-[1.45em]",
+                "w-[800px] max-w-full text-center md:text-start font-feature font-normal leading-[41.6px] text-white-72  md:text-[64px] md:leading-[1.45em]",
                 isEn ? 'text-[30px] ' : 'text-[35px]'
             )}>
                 {t('section.title')}
@@ -131,7 +131,7 @@ export default function WhyMuse() {
                     <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                         {t('why.title')}
                     </span>
-                    <span className='text-4 max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight font-light text-[rgba(255,255,255,0.72)]'>
+                    <span className='text-4 max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight font-light text-white-72'>
                         {t('why.subtitle')}
                     </span>
                 </div>
@@ -155,7 +155,7 @@ export default function WhyMuse() {
                             <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                                 {title}
                             </span>
-                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[15px] font-light text-[rgba(255,255,255,0.72)] md:text-[16px]'>
+                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[15px] md:text-[16px] font-light text-white-72'>
                                 {description}
                             </span>
                         </div>

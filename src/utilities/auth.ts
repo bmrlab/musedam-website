@@ -20,6 +20,7 @@ const getFetchUserUrl = (path: string) => {
 export const getServerSession: () => Promise<SessionUser | null> = cache(async () => {
   const cookieStore = await cookies()
   const sessionToken = cookieStore.get('session_token')?.value
+
   if (!sessionToken) return null
 
   // 用 session 请求 auth 服务，得到 token 和 user-id
@@ -35,8 +36,8 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
   )
 
   if (!response.ok) return null
-
   const data: { userId: string; token: string, orgId?: string } = await response.json()
+  console.log("data-----", data)
 
   const requestHeader = {
     'Content-Type': 'application/json',

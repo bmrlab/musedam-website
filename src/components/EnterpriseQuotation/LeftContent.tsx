@@ -4,8 +4,7 @@ import { LocaleLink } from '../LocalLink'
 import Image from 'next/image'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { TabEnum, useQuotationContext, ICustomerInfo, IAdvancedModules, IPrivateModules, EFeatureView } from './index'
-import { usePricing, useBasicConfigs, useAdvancedConfigs } from './config'
-import { Label } from '../ui/label'
+import { usePricing, useBasicConfigs, useAdvancedConfigs, EAdvancedModules, EPrivateModules } from './config'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Minus, Plus } from 'lucide-react'
@@ -29,46 +28,42 @@ interface NumControlProps {
     max?: number,
     min?: number,
     onChange: (val: number) => void
+    disabled?: boolean
 }
-const NumControl = ({ value, step, max, min, onChange }: NumControlProps) => {
-    const [num, serNum] = useState(value)
-    useEffect(() => {
-        onChange(num)
-    }, [num])
+
+
+const NumControl = ({ value, step, max, min, onChange, disabled }: NumControlProps) => {
+
+    const minDisabled = Boolean(disabled || value === min)
+    const maxDisabled = Boolean(disabled || value === max)
 
     return <div className="flex items-center space-x-2">
         <Button
             size="sm"
             variant="outline"
+            disabled={minDisabled}
             onClick={() => {
-                serNum(v => {
-                    const newValue = v - (step ?? 1)
-                    if (min !== undefined && newValue < min) {
-                        return min
-                    } else {
-                        return newValue
-                    }
-                })
+                if (minDisabled) return
+                onChange(value - (step ?? 1))
             }}
-            className="size-6 rounded-full bg-white text-[#262626]"
+            className={cn("size-6 rounded-full bg-white text-[#262626] disabled:cursor-not-allowed",
+                minDisabled && 'border border-[rgba(197,206,224,0.2)] bg-[#414141]'
+            )}
         >
             <Minus className="size-4" />
         </Button>
-        <span className="min-w-[50px] text-center text-white">{num}</span>
+        <span className="min-w-[50px] text-center text-white">{value}</span>
         <Button
             size="sm"
             variant="outline"
+            disabled={maxDisabled}
             onClick={() => {
-                serNum(v => {
-                    const newValue = v + (step ?? 1)
-                    if (max !== undefined && newValue > max) {
-                        return max
-                    } else {
-                        return newValue
-                    }
-                })
+                if (maxDisabled) return
+                onChange(value + (step ?? 1))
             }}
-            className="size-6 rounded-full bg-white text-[#262626]"
+            className={cn("size-6 rounded-full bg-white text-[#262626] disabled:cursor-not-allowed",
+                maxDisabled && 'border border-[rgba(197,206,224,0.2)] bg-[#414141]'
+            )}
         >
             <Plus className="size-4" />
         </Button>
@@ -76,9 +71,16 @@ const NumControl = ({ value, step, max, min, onChange }: NumControlProps) => {
 }
 
 
-const TitleDiv = twx.h3`text-lg font-medium text-[rgba(255,255,255,0.72)] font-feature`
+const TitleDiv = twx.h3`text-lg font-medium text-white-72 font-feature`
 
 const BlockBox = twx.div`rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] px-5 py-6 space-y-6`
+
+const Label = twx.div`text-base leading-none text-white`
+
+const HintParagraph = twx.p`text-xs text-white-50 font-light`
+
+const DesParagraph = twx.p`text-sm text-white-72 font-light`
+
 
 const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
     const { t } = useTranslation('quotation')
@@ -86,22 +88,25 @@ const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
     const prefix = isGlobal ? '$' : '¥'
     return <div className="border-t border-gray-700 pt-4">
         <div className="flex items-center justify-between text-white ">
-            <Label className="text-lg font-normal">{costTitle ?? t("base.cost")}</Label>
+            <Label className=" text-lg font-normal">{costTitle ?? t("base.cost")}</Label>
             <span className="flex items-center text-xl font-medium">{prefix}{formatWithToLocaleString(cost)}<span className='text-sm'>/year</span></span>
         </div>
     </div>
 }
-export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
+export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const { t } = useTranslation('quotation')
     const basicConfigs = useBasicConfigs()
     const advancedConfigs = useAdvancedConfigs()
-    const { pricing, moduleNames } = usePricing()
+    const { pricing } = usePricing()
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
     const prefix = isGlobal ? '$' : '¥'
     const { toast } = useToast()
     const router = useRouter()
     const { language } = useLanguage()
-    const { rows, subtotalNum, years } = useQuoteDetailData()
+
+    const { rows, totalNumPerYear, years, basicCostPerYear, subtotal, total, discountTotal } = useQuoteDetailData()
+    const advancedPricing = pricing.advanced.modules
+    const [openDiscount, setOpenDiscount] = useState(false)
 
     const {
         customerInfo,
@@ -118,55 +123,15 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
         setPrivateModules,
         basicConfig,
         setBasicConfig,
-        showFeatureList,
-        setShowFeatureList,
         subscriptionYears,
         setSubscriptionYears,
         featureView,
-        setFeatureView
+        setFeatureView,
+        discount,
+        setDiscount,
+        showNoBuyFeature,
+        setShowNoBuyFeature
     } = useQuotationContext()
-
-    // 計算總價
-    const calculateTotal = () => {
-        if (activeTab === TabEnum.BASIC) {
-            const memberCost = basicConfig.memberSeats * pricing.basic.memberSeatPrice
-            const storageCost = basicConfig.storageSpace * pricing.basic.storageSpacePrice
-            const aiCost = basicConfig.aiPoints * pricing.basic.aiPointsPrice
-            return pricing.basic.baseCost + memberCost + storageCost + aiCost
-        } else if (activeTab === TabEnum.ADVANCED) {
-            const memberCost = advancedConfig.memberSeats * pricing.advanced.memberSeatPrice
-            const storageCost = advancedConfig.storageSpace * pricing.advanced.storageSpacePrice
-            const aiCost = advancedConfig.aiPoints * pricing.advanced.aiPointsPrice
-
-            let modulesCost = 0
-            Object.keys(advancedModules).forEach(key => {
-                if (advancedModules[key] && pricing.advanced.modules[key]) {
-                    modulesCost += pricing.advanced.modules[key]
-                }
-            })
-
-            return pricing.advanced.baseCost + memberCost + storageCost + aiCost + modulesCost
-        } else if (activeTab === TabEnum.PRIVATE) {
-            const baseCost = privateConfig.licenseType === 'saas'
-                ? pricing.private.saasBaseCost
-                : pricing.private.perpetualBaseCost
-            const memberCost = privateConfig.memberSeats * pricing.private.memberSeatPrice
-
-            let modulesCost = 0
-            Object.keys(privateModules).forEach(key => {
-                if (privateModules[key] && pricing.private.modules[key]) {
-                    if (key === 'operationMaintenance') {
-                        modulesCost += pricing.private.modules[key] * privateModules.maintenanceYears
-                    } else {
-                        modulesCost += pricing.private.modules[key]
-                    }
-                }
-            })
-
-            return baseCost + memberCost + modulesCost
-        }
-        return 0
-    }
 
     const tabs = [
         {
@@ -213,17 +178,17 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
     }
 
     // 處理模組勾選
-    const handleModuleChange = (tab: TabEnum, module: keyof IAdvancedModules | keyof IPrivateModules, checked: boolean) => {
+    const handleModuleChange = (tab: TabEnum, module: keyof IAdvancedModules | keyof IPrivateModules, checked: boolean | number) => {
         if (tab === TabEnum.ADVANCED) {
-            setAdvancedModules({
-                ...advancedModules,
+            setAdvancedModules((st) => ({
+                ...st,
                 [module]: checked
-            })
+            }))
         } else if (tab === TabEnum.PRIVATE) {
-            setPrivateModules({
-                ...privateModules,
+            setPrivateModules((st) => ({
+                ...st,
                 [module]: checked
-            })
+            }))
         }
     }
 
@@ -244,12 +209,9 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
             required: true
         }
     ]
-    const allModules = Object.keys(moduleNames).map((key) => {
-        return { key: key, label: moduleNames[key], price: pricing.advanced.modules[key] }
-    })
 
     const handleGenerate = useCallback(async () => {
-        if (!user.orgId || !user.token) {
+        if (!user?.orgId || !user.token) {
             toast({
                 duration: 2000,
                 description: '您当前所在的团队无生成报价单权限',
@@ -257,12 +219,11 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
             return
         }
         let content = {
-            rows: rows,
-            showFeatureList: showFeatureList,
-            lang: language
-        }
-        if (showFeatureList) {
-            content['featureView'] = featureView
+            rows,
+            prefix,
+            featureView,
+            showNoBuyFeature,
+            lang: language,
         }
         try {
             const id = await saveQuotation(isGlobal ? 'global' : 'mainland', {
@@ -274,8 +235,9 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                 contactEmail: customerInfo.yourEmail,
                 customerEmail: customerInfo.email,
                 customerCompany: customerInfo.company,
-                annualPrice: Math.round(subtotalNum * 100),
+                annualPrice: Math.round(totalNumPerYear * 100),
                 content: JSON.stringify(content),
+                discount: discount,
                 subscriptionYears: years,
             })
             router.push(`${window.location.pathname}/${id}`)
@@ -285,7 +247,95 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                 duration: 2000
             })
         }
-    }, [customerInfo, subtotalNum, showFeatureList, rows, years, featureView, user, language])
+    }, [user, rows, prefix, featureView, showNoBuyFeature, language, toast, isGlobal, customerInfo, totalNumPerYear, discount, years, router])
+
+
+    const renderBasics = () => {
+        const planName = {
+            [TabEnum.BASIC]: t('basic.plan'),
+            [TabEnum.ADVANCED]: t('advanced.plan'),
+            [TabEnum.PRIVATE]: t('private.plan')
+        }
+        return <BlockBox>
+            <div className="flex w-full items-center justify-between space-x-2">
+                <div className='space-y-[6px]'>
+                    <Label className="text-white">{planName[activeTab]}</Label>
+                    <p className="text-sm text-gray-500">{t('by.year')}</p>
+                </div>
+                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
+            </div>
+            {basicConfigs.map(({ title, hint, des, key, min, tag }) => {
+                return <div className="flex w-full items-center justify-between space-x-2" key={key}>
+                    <div className='space-y-[6px]'>
+                        <Label className="flex items-center gap-3 text-[16px] text-white">
+                            {title}
+                            {tag &&
+                                <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] text-[14px] font-light'>
+                                    {tag}
+                                </div>
+                            }
+                        </Label>
+                        <div className='space-y-0'>{hint.map((item, i) => <HintParagraph key={`hint${i}`}>{item}</HintParagraph>)}</div>
+                        <DesParagraph>{des}</DesParagraph>
+                    </div>
+                    <NumControl
+                        value={activeTab === TabEnum.BASIC ? basicConfig[key] : advancedConfig[key]}
+                        onChange={(val) => {
+                            updateQuantity(activeTab, key, val)
+                        }}
+                        min={min}
+                    />
+                </div>
+            })}
+
+            {/* Base Cost */}
+            <Cost cost={basicCostPerYear} />
+        </BlockBox>
+    }
+
+
+    const renderModuleItem = (module: typeof advancedConfigs[number]) => {
+        const { key, min, unit } = module
+        return <div key={key} className="flex items-center justify-between">
+            <div className="flex items-start space-x-2">
+                <Checkbox
+                    disabled={module.disabled}
+                    id={key}
+                    checked={!!advancedModules[key]}
+                    onCheckedChange={(checked: boolean) => {
+                        handleModuleChange(TabEnum.ADVANCED, module.key, min !== undefined ? (checked ? min : 0) : checked)
+                        if (module.subModules?.length) {
+                            module.subModules.map((v) => {
+                                if (v.disabled) {
+                                    handleModuleChange(TabEnum.ADVANCED,
+                                        v.key,
+                                        v.min !== undefined ? (checked ? v.min : 0) : checked
+                                    )
+                                }
+                            })
+                        }
+                    }}
+                    className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                />
+                <div className='space-y-[6px]'>
+                    <Label >{module.label}</Label>
+                    {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
+                    {!module.noPrice && <DesParagraph >{prefix}{' '}{formatWithToLocaleString(module.price ?? 0)}{unit ?? t("per.year")}</DesParagraph>}
+                </div>
+            </div>
+
+            {typeof advancedModules[key] === 'number' &&
+                <NumControl
+                    key={advancedModules[key]}
+                    value={advancedModules[key] as number}
+                    onChange={(val) => {
+                        handleModuleChange(TabEnum.ADVANCED, key, val)
+                    }}
+                    disabled={!advancedModules[key]}
+                    min={min}
+                />}
+        </div>
+    }
 
     return (
         <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 text-white">
@@ -302,15 +352,15 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
 
             <div className='quote-form px-[60px]'>
                 <h1 className='md:text-[64px]'>{t('title')}</h1>
-                <div className='mt-2 text-[18px] font-light text-[rgba(255,255,255,0.72)]'>{t('subtitle')}</div>
+                <div className='mt-2 text-[18px] font-light text-white-72'>{t('subtitle')}</div>
             </div>
 
-            <div className="mt-10 space-y-10 px-[60px] text-[rgba(255,255,255,0.72)]">
+            <div className="mt-10 space-y-10 px-[60px] text-white-72">
                 {/* 客戶資訊 */}
                 <div className="grid grid-cols-2 gap-4">
                     {formInfo.map(({ id, label, required }) => {
                         return <div className="col-span-1 space-y-3" key={id}>
-                            <Label htmlFor="company" className={cn("text-sm font-medium", required && '')}>
+                            <Label className={cn("text-sm font-medium", required && '')}>
                                 {required && <span className="mr-1 ">*</span>}
                                 {label}
                             </Label>
@@ -325,7 +375,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                     })}
                 </div>
 
-                {/* 部署類型選擇 */}
+                {/* 套餐类型选择 */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="h-[46px] w-fit rounded-[26px] border border-[rgba(255,255,255,0.2)] bg-[#141414] p-1">
                         {tabs.map(({ key, label }) => {
@@ -345,95 +395,51 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
 
                     {/* Basic Tab */}
                     <TabsContent value="basic" className="mt-6 space-y-4">
-                        <BlockBox>
-                            <div className="flex w-full items-center justify-between space-x-2">
-                                <div>
-                                    <Label className="text-white">{t('basic.plan')}</Label>
-                                    <p className="text-sm text-gray-500">{t('by.year')}</p>
-                                </div>
-                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
-                            </div>
-                            {basicConfigs.map(({ title, hint, des, key, min }) => {
-                                return <div className="flex w-full items-center justify-between space-x-2" key={key}>
-                                    <div>
-                                        <Label className="mb-[6px] text-[16px] text-white">{title}</Label>
-                                        {hint.map((item, i) => <p className=" text-xs text-gray-500" key={`hint${i}`}>{item}</p>)}
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{des}</p>
-                                    </div>
-                                    <NumControl value={basicConfig[key]} onChange={(val) => {
-                                        updateQuantity(TabEnum.BASIC, key, val)
-                                    }} min={min} />
-                                </div>
-                            })}
-
-                            {/* Base Cost */}
-                            <Cost cost={calculateTotal()} />
-                        </BlockBox>
+                        {renderBasics()}
                     </TabsContent>
 
-                    {/* Advanced Tab */}
+                    {/* 高级版 */}
                     <TabsContent value="advanced" className="mt-6 space-y-4">
-                        <BlockBox>
-                            <div className="flex w-full items-center justify-between space-x-2">
-                                <div>
-                                    <Label className="text-white">{t('advanced.plan')}</Label>
-                                    <p className="text-sm text-gray-500">{t('by.year')}</p>
-                                </div>
-                                <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
-                            </div>
-                            {advancedConfigs.map(({ title, hint, des, key, min }) => {
-                                return <div className="flex w-full items-center justify-between space-x-2" key={key}>
-                                    <div>
-                                        <Label className="mb-[6px] text-[16px] text-white">{title}</Label>
-                                        {hint.map((item, i) => <p className=" text-xs text-gray-500" key={`hint${i}`}>{item}</p>)}
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">
-                                            {des}
-                                        </p>
-                                    </div>
-                                    <NumControl value={advancedConfig[key]} onChange={(val) => {
-                                        updateQuantity(TabEnum.ADVANCED, key, val)
-                                    }} min={min} />
-                                </div>
-                            })}
+                        {/* 基础模块 */}
+                        {renderBasics()}
 
-                            {/* Base Cost */}
-                            <Cost
-                                cost={Math.round(pricing.advanced.baseCost + advancedConfig.memberSeats * pricing.advanced.memberSeatPrice + advancedConfig.storageSpace * pricing.advanced.storageSpacePrice + advancedConfig.aiPoints * pricing.advanced.aiPointsPrice)}
-                            />
-                        </BlockBox>
-
-                        {/* 高级模块 */}
+                        {/* 高级版 - 高级模块  */}
                         <div className="space-y-4">
                             <TitleDiv>{t('advanced.modules')}</TitleDiv>
                             <BlockBox >
-                                {allModules.map((module) => (
-                                    <div key={module.key} className="flex items-center justify-between">
-                                        <div className="flex items-start space-x-2">
-                                            <Checkbox
-                                                id={module.key}
-                                                checked={!!advancedModules[module.key]}
-                                                onCheckedChange={(checked) => handleModuleChange(TabEnum.ADVANCED, module.key as keyof IAdvancedModules, checked as boolean)}
-                                                className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
-                                            />
-                                            <div>
-                                                <div className="mb-[6px] text-[16px] text-white" >{module.label}</div>
-                                                <p className="text-xs text-gray-500">{prefix}{formatWithToLocaleString(module.price)}{t("per.year")}</p>
-                                            </div>
-                                        </div>
+                                {advancedConfigs.map((module) => (
+                                    <div key={module.key} className="">
+                                        {renderModuleItem(module)}
+                                        {!!module.subModules?.length && <div className={cn(
+                                            'ml-[26px]',
+                                            module.subFlex === 'row' ? 'mt-3 flex items-center gap-[40px]' : 'mt-[6px] space-y-[6px]'
+                                        )}>
+                                            {
+                                                module.subModules?.map((v) => {
+                                                    return renderModuleItem(v)
+                                                })
+                                            }
+                                        </div>}
                                     </div>
                                 ))}
 
-
                                 {/* Advanced Cost */}
-                                <Cost cost={Object.keys(advancedModules).reduce((total, key) => {
-                                    return total + (advancedModules[key] ? pricing.advanced.modules[key] : 0)
-                                }, 0)}
-                                    costTitle={t('advanced.cost')} />
+                                <Cost
+                                    cost={
+                                        Object.keys(advancedModules).filter((v) => !!advancedModules[v]).reduce((total, key) => {
+                                            const value = advancedModules[key];
+                                            const price = advancedPricing[key]
+                                            if (!price) return total
+                                            return total + price * (typeof value === 'number' ? value : 1)
+                                        }, 0)
+                                    }
+                                    costTitle={t('advanced.cost')}
+                                />
                             </BlockBox>
                         </div>
                     </TabsContent>
 
-                    {/* Private Deployment Tab */}
+                    {/* 私有化版-暂时没有 */}
                     <TabsContent value="private" className="mt-6 space-y-4">
                         {/* License Type Selection */}
                         <div className="space-y-4">
@@ -459,7 +465,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                             >
                                                 <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                             </RadioGroup.Item>
-                                            <Label htmlFor={type} className="font-normal text-white">
+                                            <Label className="font-normal text-white">
                                                 {type === 'saas' ? t('saasStandardEnterpriseEdition') : t('perpetualLicenseCurrentStandardEnterpriseEdition')}
                                             </Label>
                                         </BlockBox>
@@ -471,9 +477,9 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                             <BlockBox >
                                 <div className="flex w-full items-center justify-between space-x-2 space-y-0">
                                     <div>
-                                        <Label className="mb-[6px] text-[16px] text-white">{t('member.seat')}</Label>
-                                        <p className=" text-xs text-gray-500" >{t('adminContributorAndMemberRolesConfigurable')}</p>
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{t('memberSeatPrice')}</p>
+                                        <Label>{t('member.seat')}</Label>
+                                        <HintParagraph >{t('adminContributorAndMemberRolesConfigurable')}</HintParagraph>
+                                        <DesParagraph>{t('memberSeatPrice')}</DesParagraph>
                                     </div>
                                     <NumControl value={privateConfig.memberSeats} onChange={(val) => {
                                         updateQuantity(TabEnum.PRIVATE, 'memberSeats', val)
@@ -487,7 +493,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                         <div className="space-y-4">
                             <TitleDiv>{t('advanced.modules')}</TitleDiv>
                             <BlockBox>
-                                {allModules.map((module) => (
+                                {advancedConfigs.map((module) => (
                                     <div key={module.key} className="flex items-center justify-between">
                                         <div className="flex items-start space-x-2">
                                             <Checkbox
@@ -496,9 +502,9 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                                 onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, module.key as keyof IPrivateModules, checked as boolean)}
                                                 className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                             />
-                                            <div>
-                                                <div className="mb-[6px] text-[16px] text-white" >{module.label}</div>
-                                                <p className="text-xs text-gray-500">{prefix}{formatWithToLocaleString(module.price)}{t("per.year")}</p>
+                                            <div className='space-y-[6px]'>
+                                                <div >{module.label}</div>
+                                                <HintParagraph>{prefix}{formatWithToLocaleString(module.price)}{t("per.year")}</HintParagraph>
                                             </div>
                                         </div>
                                     </div>
@@ -506,7 +512,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
 
                                 {/* Advanced Cost */}
                                 <Cost
-                                    cost={Object.keys(privateModules).filter(key => key !== 'privateImplementation' && key !== 'operationMaintenance' && key !== 'maintenanceYears').reduce((total, key) => {
+                                    cost={Object.keys(privateModules).filter(key => key !== EPrivateModules.PRIVATE_IMPLEMENTATION && key !== EPrivateModules.OPERATION_MAINTENANCE && key !== 'maintenanceYears').reduce((total, key) => {
                                         return total + (privateModules[key] ? pricing.private.modules[key] : 0)
                                     }, 0)}
                                     costTitle={t('advancedCost')} />
@@ -520,13 +526,16 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                     <Checkbox
                                         id="privateImplementation"
                                         checked={!!privateModules.privateImplementation}
-                                        onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, 'privateImplementation', checked as boolean)}
+                                        onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, EPrivateModules.PRIVATE_IMPLEMENTATION, checked as boolean)}
                                         className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                     />
-                                    <div>
-                                        <div className="mb-[6px] text-[16px] text-white" >{t('privateDeploymentImplementation')}</div>
-                                        <p className="text-xs text-gray-500">{t('privateDeploymentImplementationDescription')}</p>
-                                        <p className="text-xs text-gray-500">{prefix}{pricing.private.modules.privateImplementation}/{t('implementation')}</p>
+                                    <div className='space-y-[6px]'>
+                                        <Label>{t('privateDeploymentImplementation')}</Label>
+                                        <HintParagraph>
+                                            {t('privateDeploymentImplementationDescription')}
+                                            <br />
+                                            {prefix}{pricing.private.modules.privateImplementation}/{t('implementation')}
+                                        </HintParagraph>
                                     </div>
                                 </div>
 
@@ -544,12 +553,12 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                         <Checkbox
                                             id="operationMaintenance"
                                             checked={!!privateModules.operationMaintenance}
-                                            onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, 'operationMaintenance', checked as boolean)}
+                                            onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, EPrivateModules.OPERATION_MAINTENANCE, checked as boolean)}
                                             className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                         />
-                                        <div>
-                                            <div className="mb-[6px] text-[16px] text-white" >{t('productOperationAndMaintenanceServices')}</div>
-                                            <p className="text-xs text-gray-500">{t('productOperationAndMaintenanceServicesDescription')}</p>
+                                        <div className='space-y-[6px]'>
+                                            <Label>{t('productOperationAndMaintenanceServices')}</Label>
+                                            <HintParagraph>{t('productOperationAndMaintenanceServicesDescription')}</HintParagraph>
                                         </div>
                                     </div>
                                 </div>
@@ -557,8 +566,8 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                 {privateModules.operationMaintenance && (
                                     <div className="ml-6 space-y-2">
                                         <Label className="text-base text-white">{t('privateEditionMajorIterations')}</Label>
-                                        <p className="text-xs text-gray-500">{t('privateEditionMajorIterationsDescription')}</p>
-                                        <p className="text-sm text-[rgba(255,255,255,0.72)]">{t('privateEditionMajorIterationsPrice')}</p>
+                                        <HintParagraph>{t('privateEditionMajorIterationsDescription')}</HintParagraph>
+                                        <DesParagraph>{t('privateEditionMajorIterationsPrice')}</DesParagraph>
                                         <RadioGroup.Root
                                             value={privateModules.maintenanceYears.toString()}
                                             onValueChange={(value) => setPrivateModules({ ...privateModules, maintenanceYears: parseInt(value) })}
@@ -583,7 +592,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                                         >
                                                             <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                                         </RadioGroup.Item>
-                                                        <Label htmlFor={timeNum} className="text-white">
+                                                        <Label className="text-white">
                                                             {timeNum + ' ' + t('timesPerYear')}
                                                         </Label>
                                                     </div>
@@ -599,20 +608,56 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                     </TabsContent>
                 </Tabs>
 
-                {/* Show Feature List */}
+
+
+                {/* 优惠设置 */}
                 <div className="space-y-5">
                     <div className='flex items-center justify-between'>
-                        <TitleDiv>{t('feature.list')}</TitleDiv>
-                        <Switch.Root checked={showFeatureList} onCheckedChange={setShowFeatureList}
+                        <TitleDiv>优惠设置</TitleDiv>
+                        <Switch.Root
+                            checked={openDiscount}
+                            onCheckedChange={(open) => {
+                                if (open) {
+                                    setDiscount(9.5)
+                                } else {
+                                    setDiscount(undefined)
+                                }
+                                setOpenDiscount(open)
+                            }
+                            }
                             className={cn("bg-blackA9 relative h-[22px] w-[44px] cursor-pointer rounded-full outline-none  disabled:cursor-not-allowed ",
-                                !showFeatureList ? ' bg-[rgb(91,86,80)]' : 'data-[state=checked]:bg-[#3366FF]'
+                                !openDiscount ? ' bg-[rgb(91,86,80)]' : 'data-[state=checked]:bg-[#3366FF]'
                             )}
                         >
                             <Switch.Thumb className="block size-[18px] translate-x-0.5 rounded-full bg-white transition-transform duration-100 will-change-transform data-[state=checked]:translate-x-[24px] data-[state=checked]:bg-white" />
                         </Switch.Root>
-
                     </div>
 
+                    {openDiscount && <BlockBox className='flex items-center justify-between space-y-0'>
+                        <div className='space-y-[6px]'>
+                            <Label>
+                                请输入折扣数值
+                            </Label>
+                            <DesParagraph>最低折扣不得低于 8 折</DesParagraph>
+                        </div>
+                        <div className='flex items-center gap-[10px]'>
+                            <Input
+                                value={discount}
+                                type='number'
+                                onChange={(e) => {
+                                    const val = Math.floor(Number(e.target.value))
+                                    setDiscount(val >= 8 ? val : 8)
+                                }}
+                                className="h-[44px] w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
+                            />
+                            <span className='text-base'>折</span>
+                        </div>
+                    </BlockBox>}
+                </div>
+
+                {/* 功能明细展示 */}
+                <div className="space-y-5">
+                    <TitleDiv>{t('feature.list')}</TitleDiv>
                     <RadioGroup.Root
                         className="flex h-[68px] gap-6"
                         defaultValue={featureView}
@@ -634,19 +679,52 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                                     >
                                         <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                     </RadioGroup.Item>
-                                    <Label htmlFor={listType} className="text-white">
-                                        {listType === 'overview' ? t('feature.overview') : t('feature.details')}
+                                    <Label className="text-white">
+                                        {listType === EFeatureView.OVERVIEW ? t('feature.overview') : t('feature.details')}
                                     </Label>
                                 </BlockBox>
                             )
                         })}
                     </RadioGroup.Root>
                 </div>
-            </div>
+
+                {/* 未选模块报价 */}
+                <div className="space-y-5">
+                    <TitleDiv>未选模块报价</TitleDiv>
+                    <RadioGroup.Root
+                        className="flex h-[68px] gap-6"
+                        defaultValue={showNoBuyFeature.toString()}
+                    >
+                        {[false, true].map((radio) => {
+                            return (
+                                <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={radio + 'feature--all'}>
+                                    <RadioGroup.Item
+                                        className={cn(
+                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 ',
+                                            'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
+                                            showNoBuyFeature === radio && 'border-[#3366FF]',
+                                        )}
+                                        value={radio.toString()}
+                                        id={radio.toString()}
+                                        onClick={() => {
+                                            setShowNoBuyFeature(radio)
+                                        }}
+                                    >
+                                        <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
+                                    </RadioGroup.Item>
+                                    <Label className="text-white">
+                                        {radio ? '展示未选模块报价' : '不展示未选模块报价'}
+                                    </Label>
+                                </BlockBox>
+                            )
+                        })}
+                    </RadioGroup.Root>
+                </div>
+            </div >
 
             {/* Generate Button */}
             <Button
-                className="ml-[60px] mt-10 h-[48px] w-[165px] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[ragb(255,255,255,0.6)]"
+                className="ml-[60px] mt-10 h-[48px] w-[160px] rounded-2xl bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[ragb(255,255,255,0.6)]"
                 onClick={() => {
                     if (!customerInfo['company']?.length || !customerInfo['yourEmail']?.length) {
                         toast({
@@ -659,7 +737,7 @@ export const LeftContent: FC<{ user: SessionUser }> = ({ user }) => {
                 }}
             >
                 {t('generate.now')}
-            </Button>
+            </Button >
         </div >
     )
 }

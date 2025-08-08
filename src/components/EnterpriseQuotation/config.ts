@@ -1,14 +1,30 @@
-// 價格配置
-export const pricing = {}
 
+import { EAdvancedModules, EBasicConfigKey, EPrivateModules } from './enums'
+export { EAdvancedModules, EBasicConfigKey, EPrivateModules } from './enums'
 
+// 基础模块
+// (moved enums to enums.ts for reuse and to avoid circular deps)
 
+interface IModules {
+    key: EAdvancedModules,
+    label: string,
+    price: number,
+    min?: number,
+    disabled?: boolean
+    subFlex?: "row" | "column"
+    hint?: string
+    tag?: string
+    noPrice?: boolean
+    unit?: string
+    subModules?: IModules[]
+}
 export const usePricing = () => {
     const { t } = useTranslation('quotation')
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
     const prefix = isGlobal ? '$' : '¥'
 
-    const pricing = {
+    // 价格
+    const pricing = useMemo(() => ({
         basic: isGlobal ? {
             baseCost: 0,
             memberSeatPrice: 300,// 席位年费
@@ -26,17 +42,20 @@ export const usePricing = () => {
             storageSpacePrice: 1000,
             aiPointsPrice: 1000,
             modules: {
-                advancedFeatures: 5000,
-                customSystemHomepage: 5000,
-                approvalWorkflow: 15000,
-                complianceCheck: 15000,
-                customMetadataFields: 15000,
-                watermark: 2000,
-                enterpriseSSO: 1000,
-                customerService: 0,
-                professionalServices: 15000,
-                privateImplementation: 18000,
-                operationMaintenance: 5000
+                [EAdvancedModules.ADVANCED_FEATURES]: 5000,
+                [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
+                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+                [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
+                [EAdvancedModules.WATERMARK]: 2000,
+                [EAdvancedModules.ENTERPRISE_SSO]: 1000,
+                [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+                [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
+                // TODO : ai 自动打标引擎 
+                [EAdvancedModules.AI_AUTO_TAG_MODULE]: 10000,
+                [EAdvancedModules.AI_AUTO_TAG_POINTS]: 20000,
+                // 全球加速- 海外版没有
+                [EAdvancedModules.GA]: 0
             }
         } : {
             baseCost: 0,
@@ -44,15 +63,22 @@ export const usePricing = () => {
             storageSpacePrice: 5000,
             aiPointsPrice: 3600,
             modules: {
-                advancedFeatures: 20000,
-                customSystemHomepage: 10000,
-                approvalWorkflow: 30000,
-                complianceCheck: 30000,
-                customMetadataFields: 30000,
-                watermark: 30000,
-                enterpriseSSO: 2000,
-                customerService: 0,
-                professionalServices: 50000
+                [EAdvancedModules.ADVANCED_FEATURES]: 20000,
+                [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,
+                [EAdvancedModules.APPROVAL_WORKFLOW]: 30000,
+                [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
+                [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
+                [EAdvancedModules.WATERMARK]: 30000,
+                [EAdvancedModules.SSO_FEISHU]: 2000,
+                [EAdvancedModules.SSO_WECOM]: 2000,
+                [EAdvancedModules.SSO_DINGTALK]: 2000,
+                [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+                [EAdvancedModules.PROFESSIONAL_SERVICES]: 50000,
+                // ai 自动打标引擎
+                [EAdvancedModules.AI_AUTO_TAG_MODULE]: 10000,
+                [EAdvancedModules.AI_AUTO_TAG_POINTS]: 20000,
+                // 全球加速
+                [EAdvancedModules.GA]: 30000
             }
         },
         private: isGlobal ? {
@@ -60,62 +86,78 @@ export const usePricing = () => {
             perpetualBaseCost: 9000,
             memberSeatPrice: 300,
             modules: {
-                advancedFeatures: 5000,
-                customSystemHomepage: 5000,
-                approvalWorkflow: 15000,
-                complianceCheck: 15000,
-                customMetadataFields: 15000,
-                watermark: 2000,
-                enterpriseSSO: 1000,
-                customerService: 0,
-                professionalServices: 15000,
-                privateImplementation: 18000,
-                operationMaintenance: 5000
+                [EAdvancedModules.ADVANCED_FEATURES]: 5000,
+                [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
+                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+                [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
+                [EAdvancedModules.WATERMARK]: 2000,
+                [EAdvancedModules.ENTERPRISE_SSO]: 1000,
+                [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+                [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
+                [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
+                [EPrivateModules.OPERATION_MAINTENANCE]: 5000
             }
         } : {
             saasBaseCost: 9000,
             perpetualBaseCost: 9000,
             memberSeatPrice: 300,
             modules: {
-                advancedFeatures: 5000,
-                customSystemHomepage: 5000,
-                approvalWorkflow: 15000,
-                complianceCheck: 15000,
-                customMetadataFields: 15000,
-                watermark: 2000,
-                enterpriseSSO: 1000,
-                customerService: 0,
-                professionalServices: 15000,
-                privateImplementation: 18000,
-                operationMaintenance: 5000
+                [EAdvancedModules.ADVANCED_FEATURES]: 5000,
+                [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
+                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+                [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
+                [EAdvancedModules.WATERMARK]: 2000,
+                [EAdvancedModules.ENTERPRISE_SSO]: 1000,
+                [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+                [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
+                [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
+                [EPrivateModules.OPERATION_MAINTENANCE]: 5000
             }
         }
-    }
+    }), [isGlobal])
 
     const moduleNames = {
-        advancedFeatures: t('module.advancedFeatures'),
-        customSystemHomepage: t('module.customSystemHomepage'),
-        approvalWorkflow: t('module.approvalWorkflow'),
-        complianceCheck: t('module.complianceCheck'),
-        customMetadataFields: t('module.customMetadataFields'),
-        watermark: t('module.watermark'),
-        enterpriseSSO: t('module.enterpriseSSO'),
-        customerService: t('module.customerService'),
-        professionalServices: t('module.professionalServices'),
-        privateImplementation: t('private.implementation'),
-        operationMaintenance: t('operation.maintenance')
+        [EAdvancedModules.ADVANCED_FEATURES]: t('module.advancedFeatures'),
+        [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: t('module.customSystemHomepage'),
+        [EAdvancedModules.APPROVAL_WORKFLOW]: t('module.approvalWorkflow'),
+        [EAdvancedModules.COMPLIANCE_CHECK]: t('module.complianceCheck'),
+        [EAdvancedModules.CUSTOM_METADATA_FIELDS]: t('module.customMetadataFields'),
+        [EAdvancedModules.WATERMARK]: t('module.watermark'),
+        [EAdvancedModules.ENTERPRISE_SSO]: t('module.enterpriseSSO'),
+        [EAdvancedModules.CUSTOMER_SERVICE]: t('module.customerService'),
+        [EAdvancedModules.PROFESSIONAL_SERVICES]: t('module.professionalServices'),
+        [EPrivateModules.PRIVATE_IMPLEMENTATION]: t('private.implementation'),
+        [EPrivateModules.OPERATION_MAINTENANCE]: t('operation.maintenance'),
+        [EAdvancedModules.AI_AUTO_TAG]: "AI 自动打标引擎",
+        [EAdvancedModules.AI_AUTO_TAG_MODULE]: "模块开通费",
+        [EAdvancedModules.AI_AUTO_TAG_POINTS]: "AI 点数包",
+        [EAdvancedModules.GA]: "海外加速"
     }
-    return { pricing, moduleNames, prefix }
+
+    const ssoTypeNames = {
+        [EAdvancedModules.SSO_FEISHU]: '飞书',
+        [EAdvancedModules.SSO_WECOM]: '企业微信',
+        [EAdvancedModules.SSO_DINGTALK]: '钉钉'
+    }
+    return { pricing, moduleNames, prefix, ssoTypeNames }
 }
 
 import { useTranslation } from '@/app/i18n/client'
 import { formatWithToLocaleString } from '@/utilities/formatPrice'
+import { TabEnum, useQuotationContext } from '.'
+import { useMemo } from 'react'
 
 export const useBasicConfigs = () => {
     const { t } = useTranslation('quotation')
+    const { activeTab } = useQuotationContext()
     const { pricing, prefix } = usePricing()
     const basicPricing = pricing['basic']
-    return [
+    const advancedPricing = pricing['advanced']
+
+
+    return activeTab === TabEnum.BASIC ? [
         {
             key: 'memberSeats',
             title: t('member.seat'),
@@ -138,16 +180,9 @@ export const useBasicConfigs = () => {
             hint: [t('basic.aiPoints.hint1'), t('basic.aiPoints.hint2')],
             des: t('basic.aiPoints.des')
         },
-    ]
-}
-
-export const useAdvancedConfigs = () => {
-    const { t } = useTranslation('quotation')
-    const { pricing, prefix } = usePricing()
-    const advancedPricing = pricing['advanced']
-    return [
+    ] : [
         {
-            key: 'memberSeats',
+            key: EBasicConfigKey.MEMBER_SEATS,
             title: t('member.seat'),
             hint: [t('advanced.memberSeats.hint')],
             des: t('advanced.memberSeats.des'),
@@ -155,14 +190,15 @@ export const useAdvancedConfigs = () => {
             price: pricing['advanced'].memberSeatPrice
         },
         {
-            key: 'storageSpace',
+            key: EBasicConfigKey.STORAGE_SPACE,
             min: 1,
             title: t('storage.space'),
             hint: [t('advanced.storageSpace.hint')],
+            tag: '1TB',
             des: `${prefix} ${formatWithToLocaleString(advancedPricing.storageSpacePrice)}/TB${t("per.year")}` + ` ( ${prefix} ${Math.ceil(advancedPricing.storageSpacePrice / 12)}/TB${t("per.year")})`
         },
         {
-            key: 'aiPoints',
+            key: EBasicConfigKey.AI_POINTS,
             title: t('ai.points'),
             min: 0,
             hint: [t('advanced.aiPoints.hint1'), t('advanced.aiPoints.hint2')],
@@ -171,3 +207,148 @@ export const useAdvancedConfigs = () => {
         },
     ]
 }
+
+
+
+export const useAdvancedConfigs = () => {
+    const { t } = useTranslation('quotation')
+    const { pricing } = usePricing()
+    const { moduleNames } = usePricing()
+
+    const advancedPricing = pricing.advanced;
+
+    const modules: IModules[] = [
+        {
+            key: EAdvancedModules.ADVANCED_FEATURES,
+            label: moduleNames[EAdvancedModules.ADVANCED_FEATURES],
+            price: advancedPricing.modules[EAdvancedModules.ADVANCED_FEATURES],
+            disabled: true,
+        },
+        {
+            key: EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE,
+            label: moduleNames[EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE],
+            price: advancedPricing.modules[EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE],
+
+        },
+        {
+            key: EAdvancedModules.APPROVAL_WORKFLOW,
+            label: moduleNames[EAdvancedModules.APPROVAL_WORKFLOW],
+            price: advancedPricing.modules[EAdvancedModules.APPROVAL_WORKFLOW],
+
+        },
+
+        {
+            key: EAdvancedModules.AI_AUTO_TAG,
+            label: moduleNames[EAdvancedModules.AI_AUTO_TAG],
+            price: 0,
+            hint: "采用基础年度模块费+ 按量计费的算力点数包模式",
+            noPrice: true,
+            subFlex: 'column',
+            subModules: [
+                {
+                    key: EAdvancedModules.AI_AUTO_TAG_MODULE,
+                    label: moduleNames[EAdvancedModules.AI_AUTO_TAG_MODULE],
+                    price: advancedPricing.modules[EAdvancedModules.AI_AUTO_TAG_MODULE],
+                    disabled: true
+                },
+                {
+                    key: EAdvancedModules.AI_AUTO_TAG_POINTS,
+                    label: moduleNames[EAdvancedModules.AI_AUTO_TAG_POINTS],
+                    price: advancedPricing.modules[EAdvancedModules.AI_AUTO_TAG_POINTS],
+                    disabled: true,
+                    hint: "一次性永久点数，有效期内消耗完毕可灵活增购",
+                    tag: "28.8万点 (≈2亿 Tokens)",
+                    min: 1
+                },
+
+            ]
+        },
+        {
+            key: EAdvancedModules.COMPLIANCE_CHECK,
+            label: moduleNames[EAdvancedModules.COMPLIANCE_CHECK],
+            price: advancedPricing.modules[EAdvancedModules.COMPLIANCE_CHECK],
+
+        },
+        {
+            key: EAdvancedModules.CUSTOM_METADATA_FIELDS,
+            label: moduleNames[EAdvancedModules.CUSTOM_METADATA_FIELDS],
+            price: advancedPricing.modules[EAdvancedModules.CUSTOM_METADATA_FIELDS],
+
+        },
+        {
+            key: EAdvancedModules.WATERMARK,
+            label: moduleNames[EAdvancedModules.WATERMARK],
+            price: advancedPricing.modules[EAdvancedModules.WATERMARK],
+
+        },
+        {
+            key: EAdvancedModules.ENTERPRISE_SSO,
+            label: moduleNames[EAdvancedModules.ENTERPRISE_SSO],
+            price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
+            subFlex: 'row',
+            unit: `/渠道/年`,
+            subModules: [
+                {
+                    key: EAdvancedModules.SSO_FEISHU,
+                    label: '飞书',
+                    noPrice: true,
+                    price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
+                },
+                {
+                    key: EAdvancedModules.SSO_WECOM,
+                    label: '企业微信',
+                    noPrice: true,
+                    price: advancedPricing.modules[EAdvancedModules.SSO_WECOM] ?? 0,
+                },
+                {
+                    key: EAdvancedModules.SSO_DINGTALK,
+                    label: '钉钉',
+                    noPrice: true,
+                    price: advancedPricing.modules[EAdvancedModules.SSO_DINGTALK] ?? 0,
+                },
+            ]
+        },
+        {
+            key: EAdvancedModules.GA,
+            label: moduleNames[EAdvancedModules.GA],
+            price: advancedPricing.modules[EAdvancedModules.GA],
+            hint: "海外加速流量包，有效期内消耗完毕可灵活增购",
+            unit: '/10T/年',
+            min: 1
+        },
+        {
+            key: EAdvancedModules.CUSTOMER_SERVICE,
+            label: moduleNames[EAdvancedModules.CUSTOMER_SERVICE],
+            price: advancedPricing.modules[EAdvancedModules.CUSTOMER_SERVICE],
+
+        },
+        {
+            key: EAdvancedModules.PROFESSIONAL_SERVICES,
+            label: moduleNames[EAdvancedModules.PROFESSIONAL_SERVICES],
+            price: advancedPricing.modules[EAdvancedModules.PROFESSIONAL_SERVICES],
+
+        }
+    ]
+
+
+    // 私有化权益
+    // [
+    //     // 私有化部署
+    //     {
+    //         key: EPrivateModules.PRIVATE_IMPLEMENTATION,
+    //         label: moduleNames[EPrivateModules.PRIVATE_IMPLEMENTATION],
+    //         price: pricing.private.modules[EPrivateModules.PRIVATE_IMPLEMENTATION],
+
+    //     },
+    //     // 运维服务
+    //     {
+    //         key: EPrivateModules.OPERATION_MAINTENANCE,
+    //         label: moduleNames[EPrivateModules.OPERATION_MAINTENANCE],
+    //         price: pricing.private.modules[EPrivateModules.OPERATION_MAINTENANCE],
+
+    //     },
+    // ]
+    return modules
+}
+
+

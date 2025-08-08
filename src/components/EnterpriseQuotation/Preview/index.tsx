@@ -1,32 +1,27 @@
 "use client"
 import { useQuotationContext } from '@/components/EnterpriseQuotation'
-import { twx } from '@/utilities/cn'
+import { cn, twx } from '@/utilities/cn'
 import Image from 'next/image'
-import { QuoteDetailData } from './QuoteDetailData'
+import { QuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
-import { FeatureList } from './FeaturList'
+import { FeatureList } from '../FeaturList'
 import { FC, useEffect, useMemo, useRef, useState } from 'react'
 import { getQuotation } from '@/endpoints/quotation'
-import Loading from '../LandingPage/loading'
+import Loading from '../../LandingPage/loading'
 import { useToast } from '@/hooks/use-toast'
 import html2pdf from 'html2pdf.js';
-import { Button } from '../ui/button'
+import { Button } from '../../ui/button'
 import { useLanguage } from '@/providers/Language'
+import { PreviewDetailTable } from './PreviewDetailTable'
+import { NotBuyDetailTable } from './NotBuyDetailTable'
+import { useCountry } from '@/providers/Country'
 
 
-const Table = twx.table`w-full text-xl mb-8 text-[#262626] font-normal`
-const Th = twx.th`bg-[#F9FAFB] font-bold text-left px-6 py-3 border-b border-[#E1E1DC]`
-const Td = twx.td`px-6 py-3 border-b border-[#E1E1DC] align-top`
-const Tr = twx.tr``
-
-
-type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total'>
-
+type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'>
 
 export const QuotationPreviewContent: FC<{ id: string, orgId?: string, userId?: string }> = (props) => {
     const { t } = useTranslation('quotation')
-    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
-
+    const isInChina = useCountry()
     // const { rows, subtotal, total } = useQuoteDetailData()
     const [info, setQuoteInfo] = useState<QuoteDetailDataById | undefined>()
     const [quoteNo, setQuoteNo] = useState('')
@@ -38,11 +33,11 @@ export const QuotationPreviewContent: FC<{ id: string, orgId?: string, userId?: 
     const {
         customerInfo,
         setCustomerInfo,
-        activeTab,
-        showFeatureList,
-        setShowFeatureList,
         subscriptionYears,
-        setFeatureView
+        setFeatureView,
+        setDiscount,
+        showNoBuyFeature,
+        setShowNoBuyFeature
     } = useQuotationContext()
 
     // 导出pdf
@@ -66,7 +61,7 @@ export const QuotationPreviewContent: FC<{ id: string, orgId?: string, userId?: 
             })
             return
         }
-        getQuotation(isGlobal ? 'global' : 'mainland',
+        getQuotation(isInChina ? 'mainland' : 'global',
             { quotationId: props.id, orgId: props.orgId, userId: props.userId })
             .then((res) => {
                 const content = JSON.parse(res.content)
@@ -80,14 +75,25 @@ export const QuotationPreviewContent: FC<{ id: string, orgId?: string, userId?: 
                     contact: res.customerContact ?? '',
 
                 })
+                // 折扣
+                setDiscount(res.discount ?? undefined)
+                // 订单号
                 setQuoteNo(res.quotationNo ?? '')
+                // 生成日期
                 setGeneratedDay(res.createTime)
+                // 功能清单
                 setFeatureView(content.featureView)
-                setShowFeatureList(content.showFeatureList)
+                // 显示为购买功能报价
+                setShowNoBuyFeature(content.showNoBuyFeature)
+
+                const totalCost = (res.annualPrice / 100) * res.subscriptionYears
+                const discountTotalNum = ((res.discount || 10) / 10) * totalCost
+
                 setQuoteInfo({
                     rows: content.rows,
-                    subtotal: content.prefix + (content.subtotal / 100).toLocaleString(),
-                    total: content.prefix + ((content.subtotal / 100) * subscriptionYears).toLocaleString(),
+                    subtotal: content.prefix + totalCost.toLocaleString(),
+                    discountTotal: res.discount ? content.prefix + discountTotalNum.toLocaleString() : undefined,
+                    total: content.prefix + (discountTotalNum * (isInChina ? 1.06 : 1)).toLocaleString(),
                 })
             }).catch((err) => {
                 toast({
@@ -137,88 +143,28 @@ export const QuotationPreviewContent: FC<{ id: string, orgId?: string, userId?: 
                         <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
                     </div>
                 </div>
-                <div className="mb-[30px] text-2xl font-bold">{t("product.service.details")}</div>
 
-                {/* TODO 产品与服务明细表格 */}
+                {/* 产品与服务明细表格 */}
                 <PreviewDetailTable info={info} />
+
+
                 {/* 服务条款 */}
                 <div className="mt-[120px]">
-                    <h3 className="mb-3 text-2xl font-bold text-[#141414]">{t("service.terms")}</h3>
-                    <ul className="space-y-1 text-xl leading-[1.5em] text-[#262626]">
+                    <h3 className="mb-5 text-xl font-semibold text-[#141414]">{t("service.terms")}</h3>
+                    <ul className="space-y-1 text-base  text-[#262626]">
                         <li>{t('service.terms.1')}</li>
                         <li>{t('service.terms.2')}</li>
                         <li>{t('service.terms.3')}</li>
-                        {activeTab === 'private' && (
-                            <li>{t('service.terms.4')}</li>
-                        )}
+                        <li>{t('service.terms.4')}</li>
                     </ul>
                 </div>
-                {showFeatureList && <FeatureList />}
+                {/* 第二页 */}
+                <FeatureList rows={info.rows} />
+
+                {/* 第三页 */}
+                {showNoBuyFeature && <NotBuyDetailTable rows={info.rows} />}
             </div>
         </div>
-    )
-}
-
-const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) => {
-    const { rows, subtotal, total } = info
-    const { t } = useTranslation('quotation')
-
-    // 分离主套餐行和模块行
-    const mainRows = rows.filter(row => !row.isModule)
-    const moduleRows = rows.filter(row => row.isModule)
-
-    return (<div>
-        <Table className='mb-[50px]'>
-            <thead>
-                <Tr>
-                    <Th>{t("quite.product.name")}</Th>
-                    <Th>{t("quite.product.quantity")}</Th>
-                    <Th>{t("quite.product.unit.price")}</Th>
-                    <Th className='text-right'>{t("subtotal")}</Th>
-                </Tr>
-            </thead>
-            <tbody>
-                {/* 主套餐 */}
-                {mainRows.map((row, i) => (
-                    <Tr key={i} >
-                        <Td className={row.bold ? "font-bold" : ""}>{row.name}</Td>
-                        <Td>{row.quantity}</Td>
-                        <Td>{row.unit ?? '-'}</Td>
-                        <Td className='text-right'>{row.subtotal ?? '-'}</Td>
-                    </Tr>
-                ))}
-
-                {/* 模块行 */}
-                {moduleRows.length > 0 && (
-                    <>
-                        <Tr>
-                            <Td colSpan={4} className="!text-[20px] !font-bold">{t("advanced.modules")}</Td>
-                        </Tr>
-                        {moduleRows.map((row, i) => (
-                            <Tr key={i}>
-                                <Td>{row.name}</Td>
-                                <Td>{row.quantity}</Td>
-                                <Td>{row.unit ?? '-'}</Td>
-                                <Td className='text-right'>{row.subtotal ?? '-'}</Td>
-                            </Tr>
-                        ))}
-                    </>
-                )}
-            </tbody>
-        </Table>
-
-        <div className='flex w-full flex-col items-end'>
-            {/* 小计/合计 */}
-            <Td className='flex w-[540px] justify-between text-[22px] font-semibold leading-[34px]'>
-                <div>{t("subtotal")}</div>
-                <div>{subtotal}</div>
-            </Td>
-            <Td className='flex w-[540px] justify-between !border-none text-2xl font-bold'>
-                <div>{t("total")}</div>
-                <div>{total}</div>
-            </Td>
-        </div>
-    </div>
     )
 }
 

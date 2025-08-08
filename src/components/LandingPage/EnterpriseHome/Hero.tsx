@@ -75,8 +75,8 @@ export default function Hero() {
                 {t('hero.enterprise.title')}
             </h1>
             <span className={cn(
-                'w-[800px] max-w-full px-6 text-center font-light text-[rgba(255,255,255,0.72)] md:text-[40px]',
-                isEn ? 'font-feature text-[20px] md:font-normal' : 'text-[16px] font-extralight'
+                'w-[800px] max-w-full px-6 text-center md:text-[40px] text-white-72 font-light',
+                isEn ? 'font-feature text-[20px] md:font-normal' : 'font-extralight text-[16px]'
             )}>{t('hero.enterprise.subtitle')}</span>
 
             {/* 按钮 */}
@@ -108,7 +108,7 @@ export default function Hero() {
                     )}>
                         {t('hero.enterprise.why.title')}
                     </h1>
-                    <p className="text-center font-euclidlight text-base font-light leading-[1.45em] text-[rgba(255,255,255,0.72)] md:text-left md:font-euclid md:text-[22px]">
+                    <p className="text-center md:font-euclid font-euclidlight text-base font-light text-white-72 md:text-left md:text-[22px] leading-[1.45em]">
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
@@ -142,13 +142,13 @@ export default function Hero() {
                                             <ul className="list-disc space-y-3 pl-5 leading-[22.5px]">
                                                 {item.lines.map(({ name, info }, i) => {
                                                     return <li key={`item${index}-lines${i}`}>
-                                                        <span className='font-medium text-[rgba(255,255,255,0.72)]'>{name}</span>
+                                                        <span className='font-medium text-white-72'>{name}</span>
                                                         <span className={isEn ? '' : 'font-light'}>{info}</span></li>
                                                 })}
                                             </ul>
                                             <div className='my-5 h-px w-full bg-[rgba(255,255,255,0.05)]' />
                                             <div className="pt-4 text-[15px]">
-                                                <span className='font-medium text-[rgba(255,255,255,0.72)]'>{t('hero.enterprise.accordion.result')}</span>
+                                                <span className='font-medium text-white-72'>{t('hero.enterprise.accordion.result')}</span>
                                                 <span className={isEn ? '' : 'font-light'}>{item.result}</span>
                                             </div>
                                         </CardContent>

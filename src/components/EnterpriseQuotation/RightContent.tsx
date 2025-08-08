@@ -1,15 +1,22 @@
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 import { useQuotationContext } from './index'
 import { twx } from '@/utilities/cn'
 import { useTranslation } from '@/app/i18n/client'
 import { useQuoteDetailData } from './QuoteDetailData'
+import { usePricing } from './config'
+import { useCountry } from '@/providers/Country'
 
 
 const TableLine = twx.div`min-h-[44px] justify-between px-5 py-2 border-b-[#BFBFBB] border-b text-[14px] flex items-center`
 
+const InfoLine = twx.p`font-normal text-[rgba(20,20,20,0.8)]`
+
+
 const QuoteDetailTable: FC = () => {
     const { t } = useTranslation('quotation')
-    const { rows, subtotal, total } = useQuoteDetailData()
+    const { rows, subtotal, total, discountTotal } = useQuoteDetailData()
+    const { discount } = useQuotationContext()
+    const isInChina = useCountry()
 
     return (
         <div className={'w-full border border-[#BFBFBB]'}>
@@ -17,24 +24,33 @@ const QuoteDetailTable: FC = () => {
             <div className="text-sm">
                 {rows.map((row, index) => (
                     <TableLine key={index}>
-                        <span className={row.bold ? 'font-bold' : 'font-normal'}>{row.name}</span>
-                        {!row.unit && !row.subtotal ? <span>{row.quantity}</span> : <>
-
-                            <span>{row.quantity}</span>
-                            <span>{row.unit}</span>
-                            <span>{row.subtotal}</span></>}
+                        <div className='flex flex-col gap-[2px]'>
+                            <span className={row.bold ? 'font-bold' : 'font-normal'}>
+                                {row.name}
+                            </span>
+                            {row.des && <span className='whitespace-pre-line text-xs font-light text-[#141414]'>{row.des}</span>}
+                        </div>
+                        {!row.unit && !row.quantity ?
+                            <span>{row.quantity}</span> :
+                            <span>{row.unit}</span>}
                     </TableLine>
                 ))}
-                <TableLine className=" bg-[#E1E1DC] text-lg font-bold">
+                <TableLine className=" bg-[#E1E1DC] text-sm font-bold">
                     <span>{t('subtotal')}</span>
-                    <span></span>
-                    <span></span>
                     <span>{subtotal}</span>
                 </TableLine>
-                <TableLine className="border-none bg-[#E1E1DC] text-lg font-bold">
+                {discountTotal &&
+                    <TableLine className=" bg-[#E1E1DC]  text-sm font-bold">
+                        <span>优惠小计（{discount}折）</span>
+                        <span>{discountTotal}</span>
+                    </TableLine>
+                }
+                {isInChina && <TableLine className=" bg-[#E1E1DC]  text-sm font-bold">
+                    <span>增值税率</span>
+                    <span>6%</span>
+                </TableLine>}
+                <TableLine className="border-none bg-[#E1E1DC] text-base font-bold">
                     <span>{t('total')}</span>
-                    <span></span>
-                    <span></span>
                     <span>{total}</span>
                 </TableLine>
             </div>
@@ -46,12 +62,12 @@ export const RightContent: FC = () => {
     const {
         customerInfo,
         activeTab,
-        showFeatureList
+        discount
     } = useQuotationContext()
     const { t } = useTranslation('quotation')
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
 
-    const expansions = [
+    const expansions = useMemo(() => [
         {
             name: t('expansion.memberSeats'),
             description: t('expansion.memberSeats.desc'),
@@ -79,74 +95,72 @@ export const RightContent: FC = () => {
             description: t('expansion.downloadData.desc'),
             value: '¥150/TB',
             globalValue: '$30/TB',
-        }
-    ]
+        },
+        ...(isGlobal ? [] : [{
+            name: t('expansion.GA'),
+            description: t('expansion.GA.desc'),
+            value: `30,000${t("per.year")}\n /10TB`,
+        }])
+    ], [t, isGlobal])
 
     return (
         <div className="no-scrollbar size-full h-full overflow-scroll bg-[#F0F0EA] p-[60px] text-black">
-            <div className="space-y-6">
-                <div className="text-[40px] font-semibold">{t('quote.overview')}</div>
-                <div className="space-y-6">
-                    {/* Customer Information */}
-                    <div className="grid grid-cols-2 gap-4 font-semibold">
-                        <div>
-                            <div className="mb-3 text-base">{t('customer.information')}</div>
-                            <div className="space-y-2 text-sm" >
-                                <p>{customerInfo.company}</p>
-                                <p className='font-normal'>{customerInfo.contact}</p>
-                                {!!customerInfo.email.length && <p className='font-normal'>Email: {customerInfo.email}</p>}
-                            </div>
-                        </div>
-                        <div>
-                            <div className="mb-3 text-base">{t('service.provider')}</div>
-                            <div className="space-y-2 text-sm">
-                                <p>{t('service.provider.name')}</p>
-                                <p className='font-normal'>{t('service.provider.yourName')}</p>
-                                {!!customerInfo.yourEmail.length && <p className='font-normal'>Email: {customerInfo.yourEmail}</p>}
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    {/* Product and Service Details */}
-                    <QuoteDetailTable />
-
-                    {/* Service Terms */}
+            <div className="text-[40px] font-semibold">{t('quote.overview')}</div>
+            <div className=''>
+                {/* Customer Information */}
+                <div className="my-10 grid grid-cols-2 gap-[30px] font-semibold">
                     <div>
-                        <h3 className="mb-3 text-base font-bold text-[#141414]">{t('service.terms')}</h3>
-                        <ul className="space-y-1 text-sm text-[#262626]">
-                            <li>{t('service.terms.1')}</li>
-                            <li>{t('service.terms.2')}</li>
-                            <li>{t('service.terms.3')}</li>
-                            {activeTab === 'private' && (
-                                <li>{t('service.terms.4')}</li>
-                            )}
-                        </ul>
+                        <div className="mb-3 text-base">{t('customer.information')}</div>
+                        <div className="space-y-2 text-sm" >
+                            <p>{customerInfo.company}</p>
+                            <InfoLine>{customerInfo.contact}</InfoLine>
+                            {!!customerInfo.email.length && <InfoLine>Email: {customerInfo.email}</InfoLine>}
+                        </div>
                     </div>
-
-                    {/* 扩容价格 */}
-                    <div className='border'>
-                        <div className="px-5 py-[10px] text-sm font-bold">{t('capacity.expansion')}</div>
+                    <div>
+                        <div className="mb-3 text-base">{t('service.provider')}</div>
                         <div className="space-y-2 text-sm">
-                            {expansions.map(({ name, description, value, globalValue }) => {
-                                return <div className="flex justify-between border-t px-5 py-2" key={name}>
-                                    <div className='flex flex-col gap-[2px]'>
-                                        <span className=' font-euclid text-sm'>{name}</span>
-                                        <span className='mr-6 whitespace-pre-line font-euclidlight text-xs text-[rgba(20,20,20,0.72)]'>
-                                            {description}
-                                        </span>
-                                    </div>
-                                    <div className="whitespace-pre-line text-end">
-                                        {isGlobal ? globalValue : value}
-                                    </div>
-                                </div>
-                            })}
+                            <p>{t('service.provider.name')}</p>
+                            <InfoLine>{t('service.provider.yourName')}</InfoLine>
+                            {!!customerInfo.yourEmail.length && <InfoLine>Email: {customerInfo.yourEmail}</InfoLine>}
                         </div>
                     </div>
 
-                    {/** 功能列表 */}
-                    {/* {showFeatureList && <FeatureList />} */}
+
+                </div>
+
+                {/* Product and Service Details */}
+                <QuoteDetailTable />
+
+                {/* Service Terms */}
+                <div className='mb-3 mt-10'>
+                    <h3 className="mb-3 text-base font-bold text-[#141414]">{t('service.terms')}</h3>
+                    <ul className="text-sm text-[#262626]">
+                        <li>{t('service.terms.1')}</li>
+                        <li>{t('service.terms.2')}</li>
+                        <li>{t('service.terms.3')}</li>
+                        <li>{t('service.terms.4')}</li>
+                    </ul>
+                </div>
+
+                {/* 扩容价格 */}
+                <div className='border'>
+                    <div className="px-5 py-[10px] text-sm font-bold">{t('capacity.expansion')}</div>
+                    <div className="space-y-2 text-sm">
+                        {expansions.map(({ name, description, value, globalValue }) => {
+                            return <div className="flex justify-between border-t px-5 py-2" key={name}>
+                                <div className='flex max-w-[389px] flex-col gap-[2px]'>
+                                    <span className='font-euclid text-sm'>{name}</span>
+                                    <span className='mr-6 whitespace-pre-line font-euclidlight text-xs text-[rgba(20,20,20,0.72)]'>
+                                        {description}
+                                    </span>
+                                </div>
+                                <div className="whitespace-pre-line text-end">
+                                    {isGlobal ? globalValue : value}
+                                </div>
+                            </div>
+                        })}
+                    </div>
                 </div>
             </div>
         </div >

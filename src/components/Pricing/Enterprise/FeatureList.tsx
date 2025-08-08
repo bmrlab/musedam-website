@@ -43,7 +43,7 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                 <h2 className="font-feature text-[40px] text-[#070707] md:text-[64px]">{t('title')}</h2>
                 {/* 生成报价单 */}
                 {!user?.isSale && <LocaleLink href='/quotation'><button
-                    className="mt-10 rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none "
+                    className="mt-10 rounded-xl bg-black px-6 py-3 text-white-72 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none "
                 >
                     {t('button')}
                 </button></LocaleLink>}

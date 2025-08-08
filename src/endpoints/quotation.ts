@@ -42,7 +42,7 @@ export const saveQuotation = async (country: string, userInfo: IHeaderInfo, para
       `${country === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL}/mini-dam-user/org/quotation/save`,
       {
         body: JSON.stringify(params),
-        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json' },
+        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json', 'x-asm-prefer-tag': 'version-env-06' },
         method: 'POST',
       },
     )

@@ -1,6 +1,7 @@
 
 import { useCountry } from '@/providers/Country';
 import { useTranslation } from 'react-i18next';
+import { EAdvancedModules, EBasicConfigKey } from '../../EnterpriseQuotation/config'
 
 export const useEnterprisePlan = () => {
     const { t } = useTranslation('pricing');
@@ -126,5 +127,48 @@ export const useEnterprisePlan = () => {
         }
     };
 
-    return { allFeature };
+    // Stable group structures (code-keyed) for mapping with enums
+    const basicGroupsByCode = {
+        aiCapabilities: { title: tFeatures('aiCapabilities.title'), items: basicList[tFeatures('aiCapabilities.title')] },
+        storageManagement: { title: tFeatures('storageManagement.title'), items: basicList[tFeatures('storageManagement.title')] },
+        assetOrganization: { title: tFeatures('assetOrganization.title'), items: basicList[tFeatures('assetOrganization.title')] },
+        sharingCollaboration: { title: tFeatures('sharingCollaboration.title'), items: basicList[tFeatures('sharingCollaboration.title')] },
+        analyticsMonitoring: { title: tFeatures('analyticsMonitoring.title'), items: basicList[tFeatures('analyticsMonitoring.title')] },
+        extensions: { title: tFeatures('extensions.title'), items: basicList[tFeatures('extensions.title')] },
+    } as const;
+
+    const advancedGroupsByCode = {
+        advancedFeatures: { title: tFeatures('advancedFeatures.title'), items: advancedList[tFeatures('advancedFeatures.title')] },
+        customSystemHomepage: { title: tFeatures('customSystemHomepage.title'), items: advancedList[tFeatures('customSystemHomepage.title')] },
+        approvalWorkflow: { title: tFeatures('approvalWorkflow.title'), items: advancedList[tFeatures('approvalWorkflow.title')] },
+        aiAutoTaggingEngine: { title: tFeatures('aiAutoTaggingEngine.title'), items: advancedList[tFeatures('aiAutoTaggingEngine.title')] },
+        complianceCheck: { title: tFeatures('complianceCheck.title'), items: advancedList[tFeatures('complianceCheck.title')] },
+        customMetadataFields: { title: tFeatures('customMetadataFields.title'), items: advancedList[tFeatures('customMetadataFields.title')] },
+        watermark: { title: tFeatures('watermark.title'), items: advancedList[tFeatures('watermark.title')] },
+        enterpriseSingleSignOn: { title: tFeatures('enterpriseSingleSignOn.title'), items: advancedList[tFeatures('enterpriseSingleSignOn.title')] },
+        globalAcceleration: { title: tFeatures('globalAcceleration.title'), items: advancedList[tFeatures('globalAcceleration.title')] },
+        customerService: { title: tFeatures('customerService.title'), items: advancedList[tFeatures('customerService.title')] },
+    } as const;
+
+    // Enum key to group-code mapping for Quotation usage
+    const basicKeyToGroups: Record<EBasicConfigKey, (keyof typeof basicGroupsByCode)[]> = {
+        [EBasicConfigKey.MEMBER_SEATS]: ['assetOrganization', 'sharingCollaboration'],
+        [EBasicConfigKey.STORAGE_SPACE]: ['storageManagement'],
+        [EBasicConfigKey.AI_POINTS]: ['aiCapabilities', 'extensions', 'analyticsMonitoring'],
+    };
+
+    const advancedKeyToGroup: Partial<Record<EAdvancedModules, keyof typeof advancedGroupsByCode>> = {
+        [EAdvancedModules.ADVANCED_FEATURES]: 'advancedFeatures',
+        [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 'customSystemHomepage',
+        [EAdvancedModules.APPROVAL_WORKFLOW]: 'approvalWorkflow',
+        [EAdvancedModules.AI_AUTO_TAG]: 'aiAutoTaggingEngine',
+        [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
+        [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 'customMetadataFields',
+        [EAdvancedModules.WATERMARK]: 'watermark',
+        [EAdvancedModules.ENTERPRISE_SSO]: 'enterpriseSingleSignOn',
+        [EAdvancedModules.GA]: 'globalAcceleration',
+        [EAdvancedModules.CUSTOMER_SERVICE]: 'customerService',
+    };
+
+    return { allFeature, basicGroupsByCode, advancedGroupsByCode, basicKeyToGroups, advancedKeyToGroup };
 };    

@@ -54,7 +54,7 @@ export default function Footer() {
         {Array.from(map.entries()).map(([group, item], i) => {
           return (
             <div key={i} className="flex select-none flex-col gap-4">
-              <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50 dark:text-[rgba(255,255,255,0.5)]">
+              <h3 className="font-mono text-[16px] font-normal uppercase leading-[22px] text-black opacity-50 dark:text-white-50">
                 {group}
               </h3>
               <div className="flex flex-col gap-3">
