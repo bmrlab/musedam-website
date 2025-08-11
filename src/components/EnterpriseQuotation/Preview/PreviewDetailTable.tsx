@@ -5,6 +5,7 @@ import { QuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
 import { useCountry } from '@/providers/Country'
+import { useLanguage } from '@/providers/Language'
 
 
 const Table = twx.table`w-full mb-8 text-[#262626] font-normal`
@@ -21,6 +22,7 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) 
     const { t } = useTranslation('quotation')
     const { discount } = useQuotationContext()
     const { isInChina } = useCountry()
+    const { language } = useLanguage()
 
     // 分离主套餐行和模块行
     const mainRows = rows.filter(row => !row.isModule)
@@ -82,14 +84,14 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) 
                 <div>{subtotal}</div>
             </TotalLine>
 
-            {discountTotal &&
+            {discountTotal && discount &&
                 <TotalLine >
-                    <span>优惠小计（{discount}折）</span>
+                    <span>{t('discount.subtotal', { discount: language === 'en-US' ? `${(10 - discount) * 10}%` : discount })}</span>
                     <span>{discountTotal}</span>
                 </TotalLine>
             }
             {isInChina && <TotalLine >
-                <span>增值税率</span>
+                <span>{t("vat")}</span>
                 <span>6%</span>
             </TotalLine>}
             <TotalLine className='border-t border-[#E1E1DC] text-[22px]'>

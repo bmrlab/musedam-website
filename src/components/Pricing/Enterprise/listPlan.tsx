@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { EAdvancedModules, EBasicConfigKey } from '../../EnterpriseQuotation/config'
 
 export const useEnterprisePlan = () => {
-    const { t } = useTranslation('pricing');
     const { t: tFeatures } = useTranslation('pricing-enterprise-features');
     const { isInChina } = useCountry()
     // Basic

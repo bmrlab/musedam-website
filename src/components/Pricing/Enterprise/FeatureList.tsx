@@ -83,7 +83,7 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                 </button>
                             </div>
                         </div>
-                        <div className="rounded-b-2xl border border-b-0 border-t-0 border-[#D1D1CC]">
+                        <div className="rounded-b-2xl border border-y-0 border-[#D1D1CC]">
                             {categoriesMap.map(([groupKey, groupItems], index) => {
                                 const isLast = index + 1 === categoriesMap.length
                                 const isGroupExpanded = groupStates[groupKey];
@@ -96,7 +96,7 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                     )}
                                         onClick={() => toggleGroup(categoryKey, groupKey)}
                                     >
-                                        <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
+                                        <span className='mr-[10px] inline-block'>{index < 9 ? '0' : ''}{index + 1}</span>{groupKey}
                                     </div>
                                     {/* 展开时显示所有小组下的功能项 ，两列 */}
                                     <div
@@ -105,8 +105,8 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                         {groupItems.map((item, index) => (
                                             <div key={index} className={
                                                 cn(
-                                                    "grid cursor-pointer grid-cols-12 text-sm text-[#262626] transition-all duration-300 ease-in-out hover:bg-[#E1E1DC] border-b border-[#D1D1CC]",
-                                                    isLast && (isExpend || isGroupExpanded) && index + 1 === groupItems.length && 'rounded-b-2xl'
+                                                    "grid cursor-pointer grid-cols-12 border-b border-[#D1D1CC] text-sm text-[#262626] transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
+                                                    (isExpend || isGroupExpanded) && isLast && index + 1 === groupItems.length && 'rounded-b-2xl'
                                                 )
                                             }>
                                                 <div className="relative col-span-4 flex items-center border-r border-[#D1D1CC] p-2 md:col-span-3 md:p-4">

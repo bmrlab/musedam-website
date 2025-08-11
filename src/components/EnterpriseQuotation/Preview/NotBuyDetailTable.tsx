@@ -1,10 +1,8 @@
 "use client"
-import { useQuotationContext } from '@/components/EnterpriseQuotation'
 import { cn, twx } from '@/utilities/cn'
 import { QuoteDetailData, useQuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
-import { useCountry } from '@/providers/Country'
 
 
 const Table = twx.table`w-full mb-8 text-[#262626] font-normal`
@@ -19,7 +17,6 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'] }> = ({ rows 
     const { allModules } = useQuoteDetailData()
     const notBuyRows = allModules.filter((v) => !rows.find(item => item.key === v.key))
 
-    console.log("allModules", allModules, rows)
     const { t } = useTranslation('quotation')
     return (<div className='mt-[50px]'>
         <div className="mb-[30px] text-2xl font-bold">

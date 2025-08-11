@@ -104,6 +104,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const router = useRouter()
     const { language } = useLanguage()
 
+
     const { rows, totalNumPerYear, years, basicCostPerYear, subtotal, total, discountTotal } = useQuoteDetailData()
     const advancedPricing = pricing.advanced.modules
     const [openDiscount, setOpenDiscount] = useState(false)
@@ -148,6 +149,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         // }
     ]
 
+    useEffect(() => {
+        if (activeTab === TabEnum.BASIC) {
+            setDiscount(undefined)
+        }
+    }, [activeTab])
 
     // 更新數量
     const updateQuantity = (tab: TabEnum, field: string, value: number) => {
@@ -347,7 +353,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         </div>
                     </LocaleLink>
                 </div>
-                <LocaleSwitch />
+                {!isGlobal && <LocaleSwitch />}
             </div>
 
             <div className='quote-form px-[60px]'>
@@ -443,7 +449,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <TabsContent value="private" className="mt-6 space-y-4">
                         {/* License Type Selection */}
                         <div className="space-y-4">
-                            <TitleDiv>{t('museDAMSoftware')}</TitleDiv>
+                            <TitleDiv>{t('museDAM.software')}</TitleDiv>
                             <RadioGroup.Root
                                 value={privateConfig.licenseType}
                                 className='space-y-3'
@@ -466,7 +472,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                                 <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                             </RadioGroup.Item>
                                             <Label className="font-normal text-white">
-                                                {type === 'saas' ? t('saasStandardEnterpriseEdition') : t('perpetualLicenseCurrentStandardEnterpriseEdition')}
+                                                {type === 'saas' ? t('saas.standard.enterprise') : t('perpetual.license.standard')}
                                             </Label>
                                         </BlockBox>
                                     )
@@ -478,8 +484,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <div className="flex w-full items-center justify-between space-x-2 space-y-0">
                                     <div>
                                         <Label>{t('member.seat')}</Label>
-                                        <HintParagraph >{t('adminContributorAndMemberRolesConfigurable')}</HintParagraph>
-                                        <DesParagraph>{t('memberSeatPrice')}</DesParagraph>
+                                        <HintParagraph >{t('admin.contributor.member')}</HintParagraph>
+                                        <DesParagraph>{t('member.seat.price')}</DesParagraph>
                                     </div>
                                     <NumControl value={privateConfig.memberSeats} onChange={(val) => {
                                         updateQuantity(TabEnum.PRIVATE, 'memberSeats', val)
@@ -515,7 +521,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                     cost={Object.keys(privateModules).filter(key => key !== EPrivateModules.PRIVATE_IMPLEMENTATION && key !== EPrivateModules.OPERATION_MAINTENANCE && key !== 'maintenanceYears').reduce((total, key) => {
                                         return total + (privateModules[key] ? pricing.private.modules[key] : 0)
                                     }, 0)}
-                                    costTitle={t('advancedCost')} />
+                                    costTitle={t('advanced.cost')} />
                             </BlockBox>
                         </div>
                         {/* Implementation */}
@@ -611,9 +617,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
 
                 {/* 优惠设置 */}
-                <div className="space-y-5">
+                {!isGlobal && activeTab !== TabEnum.BASIC && <div className="space-y-5">
                     <div className='flex items-center justify-between'>
-                        <TitleDiv>优惠设置</TitleDiv>
+                        <TitleDiv>{t('discount.settings')}</TitleDiv>
                         <Switch.Root
                             checked={openDiscount}
                             onCheckedChange={(open) => {
@@ -636,28 +642,75 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     {openDiscount && <BlockBox className='flex items-center justify-between space-y-0'>
                         <div className='space-y-[6px]'>
                             <Label>
-                                请输入折扣数值
+                                {t('discount.input.label')}
                             </Label>
-                            <DesParagraph>最低折扣不得低于 8 折</DesParagraph>
+                            <DesParagraph>{t('discount.input.hint')}</DesParagraph>
                         </div>
                         <div className='flex items-center gap-[10px]'>
                             <Input
-                                value={discount}
+                                // 确保值始终为数字或空字符串，避免受控组件警告
+                                value={discount !== undefined ? (
+                                    language === 'zh-CN' ? discount : Math.round((10 - discount) * 10)
+                                ) : ''}
                                 type='number'
+                                min={language === 'zh-CN' ? 8 : 0}
+                                max={language === 'zh-CN' ? 10 : 20}
+                                // 增加onChange实时处理输入，提升响应性
                                 onChange={(e) => {
-                                    const val = Math.floor(Number(e.target.value))
-                                    setDiscount(val >= 8 ? val : 8)
+                                    const val = Number(e.target.value);
+                                    // 实时显示用户输入，不做严格校验，留到blur时处理
+                                    if (!isNaN(val)) {
+                                        if (language === 'zh-CN') {
+                                            // 临时存储用户输入，不强制范围，提升体验
+                                            setDiscount(val);
+                                        } else {
+                                            const realVal = (100 - val) / 10;
+                                            setDiscount(realVal);
+                                        }
+                                    }
+                                }}
+                                onBlur={(e) => {
+                                    if (!e.target.value) {
+                                        setDiscount(8);
+                                        return;
+                                    }
+
+                                    const val = Number(e.target.value);
+                                    if (isNaN(val)) {
+                                        setDiscount(8);
+                                        return;
+                                    }
+
+                                    if (language === 'zh-CN') {
+                                        // 中文环境：严格限制在8-10之间
+                                        const validVal = Math.max(8, Math.min(10, Math.floor(val)));
+                                        setDiscount(validVal);
+                                    } else {
+                                        // 其他语言环境：输入值限制在0-20
+                                        const validInputVal = Math.max(0, Math.min(20, Math.floor(val)));
+                                        const realVal = (100 - validInputVal) / 10;
+                                        // 确保折扣不低于8
+                                        setDiscount(Math.max(8, realVal));
+                                    }
                                 }}
                                 className="h-[44px] w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
+                                onKeyPress={(e) => {
+                                    // 只允许数字和退格键
+                                    if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab') {
+                                        e.preventDefault();
+                                    }
+                                }}
+                                // 允许为空，提升用户体验
+                                placeholder={language === 'zh-CN' ? '8-10' : '0-20'}
                             />
-                            <span className='text-base'>折</span>
+                            <span className='text-base'>{t('discount.unit')}</span>
                         </div>
                     </BlockBox>}
-                </div>
+                </div>}
 
                 {/* 功能明细展示 */}
                 <div className="space-y-5">
-                    <TitleDiv>{t('feature.list')}</TitleDiv>
+                    <TitleDiv>{t('feature.display.options')}</TitleDiv>
                     <RadioGroup.Root
                         className="flex h-[68px] gap-6"
                         defaultValue={featureView}
@@ -690,7 +743,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
                 {/* 未选模块报价 */}
                 <div className="space-y-5">
-                    <TitleDiv>未选模块报价</TitleDiv>
+                    <TitleDiv>{t('unselected.modules.pricing')}</TitleDiv>
                     <RadioGroup.Root
                         className="flex h-[68px] gap-6"
                         defaultValue={showNoBuyFeature.toString()}
@@ -713,7 +766,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                     </RadioGroup.Item>
                                     <Label className="text-white">
-                                        {radio ? '展示未选模块报价' : '不展示未选模块报价'}
+                                        {radio ? t('show.unselected.modules') : t('hide.unselected.modules')}
                                     </Label>
                                 </BlockBox>
                             )

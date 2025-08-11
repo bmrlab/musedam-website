@@ -170,7 +170,7 @@ export default function EnterpriseQuotation({ id, user }: { id?: string, user?: 
     const [privateModules, setPrivateModules] = useState(initialContext.privateModules)
 
     const [subscriptionYears, setSubscriptionYears] = useState(1)
-    const [discount, setDiscount] = useState<number | undefined>(8)
+    const [discount, setDiscount] = useState<number | undefined>(initialContext.discount)
 
     // 功能顯示選項
     const [featureView, setFeatureView] = useState(initialContext.featureView)
@@ -211,7 +211,7 @@ export default function EnterpriseQuotation({ id, user }: { id?: string, user?: 
                             <RightContent />
                         </div>
                     </div>
-                    : <>无效的用户信息</>
+                    : <></>
                 )
 
             }

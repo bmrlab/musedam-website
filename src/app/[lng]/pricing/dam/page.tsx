@@ -1,3 +1,11 @@
+/*
+ * @Author: fuxuewei fuxuewei@tezign.com
+ * @Date: 2025-07-22 16:03:48
+ * @LastEditors: fuxuewei fuxuewei@tezign.com
+ * @LastEditTime: 2025-08-11 15:34:18
+ * @FilePath: /musedam-website/src/app/[lng]/pricing/dam/page.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getPricingList, ProductItem } from '@/endpoints/pricing'
@@ -25,9 +33,9 @@ export default async function MuseDAMPricingPage({
   // 没指定版本且用户已登录，要切换对对应的版本
   if (user && typeof plan === 'undefined') {
     if (user.isOrg) {
-      redirect(`/${lng}/pricing?plan=team`)
+      redirect(`/${lng}/pricing/dam?plan=team`)
     } else {
-      redirect(`/${lng}/pricing?plan=personal`)
+      redirect(`/${lng}/pricing/dam?plan=personal`)
     }
   }
 

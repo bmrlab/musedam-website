@@ -130,16 +130,16 @@ export const usePricing = () => {
         [EAdvancedModules.PROFESSIONAL_SERVICES]: t('module.professionalServices'),
         [EPrivateModules.PRIVATE_IMPLEMENTATION]: t('private.implementation'),
         [EPrivateModules.OPERATION_MAINTENANCE]: t('operation.maintenance'),
-        [EAdvancedModules.AI_AUTO_TAG]: "AI 自动打标引擎",
-        [EAdvancedModules.AI_AUTO_TAG_MODULE]: "模块开通费",
-        [EAdvancedModules.AI_AUTO_TAG_POINTS]: "AI 点数包",
-        [EAdvancedModules.GA]: "海外加速"
+        [EAdvancedModules.AI_AUTO_TAG]: t('module.aiAutoTag'),
+        [EAdvancedModules.AI_AUTO_TAG_MODULE]: t('module.aiAutoTagModule'),
+        [EAdvancedModules.AI_AUTO_TAG_POINTS]: t('module.aiAutoTagPoints'),
+        [EAdvancedModules.GA]: t('module.ga')
     }
 
     const ssoTypeNames = {
-        [EAdvancedModules.SSO_FEISHU]: '飞书',
-        [EAdvancedModules.SSO_WECOM]: '企业微信',
-        [EAdvancedModules.SSO_DINGTALK]: '钉钉'
+        [EAdvancedModules.SSO_FEISHU]: t('sso.feishu'),
+        [EAdvancedModules.SSO_WECOM]: t('sso.wecom'),
+        [EAdvancedModules.SSO_DINGTALK]: t('sso.dingtalk')
     }
     return { pricing, moduleNames, prefix, ssoTypeNames }
 }
@@ -148,6 +148,7 @@ import { useTranslation } from '@/app/i18n/client'
 import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { TabEnum, useQuotationContext } from '.'
 import { useMemo } from 'react'
+import { useCountry } from '@/providers/Country'
 
 export const useBasicConfigs = () => {
     const { t } = useTranslation('quotation')
@@ -155,7 +156,6 @@ export const useBasicConfigs = () => {
     const { pricing, prefix } = usePricing()
     const basicPricing = pricing['basic']
     const advancedPricing = pricing['advanced']
-
 
     return activeTab === TabEnum.BASIC ? [
         {
@@ -178,7 +178,7 @@ export const useBasicConfigs = () => {
             title: t('ai.points'),
             min: 0,
             hint: [t('basic.aiPoints.hint1'), t('basic.aiPoints.hint2')],
-            des: t('basic.aiPoints.des')
+            des: `${prefix} ${formatWithToLocaleString(basicPricing.aiPointsPrice)}${t("per.year")}` + ` ( ${prefix} ${(basicPricing.aiPointsPrice / 4000 / 12).toFixed(3)}${t("aiPoints.unit")})`,
         },
     ] : [
         {
@@ -187,7 +187,7 @@ export const useBasicConfigs = () => {
             hint: [t('advanced.memberSeats.hint')],
             des: t('advanced.memberSeats.des'),
             min: 1,
-            price: pricing['advanced'].memberSeatPrice
+            price: advancedPricing.memberSeatPrice
         },
         {
             key: EBasicConfigKey.STORAGE_SPACE,
@@ -202,8 +202,8 @@ export const useBasicConfigs = () => {
             title: t('ai.points'),
             min: 0,
             hint: [t('advanced.aiPoints.hint1'), t('advanced.aiPoints.hint2')],
-            des: t('advanced.aiPoints.des'),
-            price: pricing['advanced'].aiPointsPrice
+            des: `${prefix} ${formatWithToLocaleString(advancedPricing.aiPointsPrice)}${t("per.year")}` + ` ( ${prefix} ${(advancedPricing.aiPointsPrice / 4000 / 12).toFixed(3)}${t("aiPoints.unit")})`,
+            price: advancedPricing.aiPointsPrice
         },
     ]
 }
@@ -216,6 +216,7 @@ export const useAdvancedConfigs = () => {
     const { moduleNames } = usePricing()
 
     const advancedPricing = pricing.advanced;
+    const { isInChina } = useCountry()
 
     const modules: IModules[] = [
         {
@@ -241,7 +242,7 @@ export const useAdvancedConfigs = () => {
             key: EAdvancedModules.AI_AUTO_TAG,
             label: moduleNames[EAdvancedModules.AI_AUTO_TAG],
             price: 0,
-            hint: "采用基础年度模块费+ 按量计费的算力点数包模式",
+            hint: t('ai.autoTag.hint'),
             noPrice: true,
             subFlex: 'column',
             subModules: [
@@ -256,8 +257,8 @@ export const useAdvancedConfigs = () => {
                     label: moduleNames[EAdvancedModules.AI_AUTO_TAG_POINTS],
                     price: advancedPricing.modules[EAdvancedModules.AI_AUTO_TAG_POINTS],
                     disabled: true,
-                    hint: "一次性永久点数，有效期内消耗完毕可灵活增购",
-                    tag: "28.8万点 (≈2亿 Tokens)",
+                    hint: t('ai.autoTag.points.hint'),
+                    tag: t('ai.autoTag.points.tag'),
                     min: 1
                 },
 
@@ -286,36 +287,36 @@ export const useAdvancedConfigs = () => {
             label: moduleNames[EAdvancedModules.ENTERPRISE_SSO],
             price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
             subFlex: 'row',
-            unit: `/渠道/年`,
+            unit: t('sso.unit'),
             subModules: [
                 {
                     key: EAdvancedModules.SSO_FEISHU,
-                    label: '飞书',
+                    label: t('sso.feishu'),
                     noPrice: true,
                     price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
                 },
                 {
                     key: EAdvancedModules.SSO_WECOM,
-                    label: '企业微信',
+                    label: t('sso.wecom'),
                     noPrice: true,
                     price: advancedPricing.modules[EAdvancedModules.SSO_WECOM] ?? 0,
                 },
                 {
                     key: EAdvancedModules.SSO_DINGTALK,
-                    label: '钉钉',
+                    label: t('sso.dingtalk'),
                     noPrice: true,
                     price: advancedPricing.modules[EAdvancedModules.SSO_DINGTALK] ?? 0,
                 },
             ]
         },
-        {
+        ...(isInChina ? [{
             key: EAdvancedModules.GA,
             label: moduleNames[EAdvancedModules.GA],
             price: advancedPricing.modules[EAdvancedModules.GA],
-            hint: "海外加速流量包，有效期内消耗完毕可灵活增购",
-            unit: '/10T/年',
+            hint: t("ga.hint"),
+            unit: t("ga.unit"),
             min: 1
-        },
+        }] : []),
         {
             key: EAdvancedModules.CUSTOMER_SERVICE,
             label: moduleNames[EAdvancedModules.CUSTOMER_SERVICE],

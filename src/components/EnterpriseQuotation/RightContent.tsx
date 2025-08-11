@@ -3,8 +3,8 @@ import { useQuotationContext } from './index'
 import { twx } from '@/utilities/cn'
 import { useTranslation } from '@/app/i18n/client'
 import { useQuoteDetailData } from './QuoteDetailData'
-import { usePricing } from './config'
 import { useCountry } from '@/providers/Country'
+import { useLanguage } from '@/providers/Language'
 
 
 const TableLine = twx.div`min-h-[44px] justify-between px-5 py-2 border-b-[#BFBFBB] border-b text-[14px] flex items-center`
@@ -16,7 +16,8 @@ const QuoteDetailTable: FC = () => {
     const { t } = useTranslation('quotation')
     const { rows, subtotal, total, discountTotal } = useQuoteDetailData()
     const { discount } = useQuotationContext()
-    const isInChina = useCountry()
+    const { isInChina } = useCountry()
+    const { language } = useLanguage()
 
     return (
         <div className={'w-full border border-[#BFBFBB]'}>
@@ -39,14 +40,14 @@ const QuoteDetailTable: FC = () => {
                     <span>{t('subtotal')}</span>
                     <span>{subtotal}</span>
                 </TableLine>
-                {discountTotal &&
+                {discountTotal && discount &&
                     <TableLine className=" bg-[#E1E1DC]  text-sm font-bold">
-                        <span>优惠小计（{discount}折）</span>
+                        <span>{t('discount.subtotal', { discount: language === 'en-US' ? `${Math.round((10 - discount) * 10 * 100) / 100}%` : discount })}</span>
                         <span>{discountTotal}</span>
                     </TableLine>
                 }
                 {isInChina && <TableLine className=" bg-[#E1E1DC]  text-sm font-bold">
-                    <span>增值税率</span>
+                    <span>{t("vat")}</span>
                     <span>6%</span>
                 </TableLine>}
                 <TableLine className="border-none bg-[#E1E1DC] text-base font-bold">
@@ -65,7 +66,7 @@ export const RightContent: FC = () => {
         discount
     } = useQuotationContext()
     const { t } = useTranslation('quotation')
-    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+    const { isInChina } = useCountry()
 
     const expansions = useMemo(() => [
         {
@@ -96,12 +97,12 @@ export const RightContent: FC = () => {
             value: '¥150/TB',
             globalValue: '$30/TB',
         },
-        ...(isGlobal ? [] : [{
+        ...(!isInChina ? [] : [{
             name: t('expansion.GA'),
             description: t('expansion.GA.desc'),
-            value: `30,000${t("per.year")}\n /10TB`,
+            value: `¥30,000${t("per.year")}\n /10TB`,
         }])
-    ], [t, isGlobal])
+    ], [t, isInChina])
 
     return (
         <div className="no-scrollbar size-full h-full overflow-scroll bg-[#F0F0EA] p-[60px] text-black">
@@ -156,7 +157,7 @@ export const RightContent: FC = () => {
                                     </span>
                                 </div>
                                 <div className="whitespace-pre-line text-end">
-                                    {isGlobal ? globalValue : value}
+                                    {isInChina ? value : globalValue}
                                 </div>
                             </div>
                         })}
