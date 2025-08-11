@@ -115,6 +115,9 @@
     "ga.hint": "Overseas acceleration data package, flexible top-up when consumed within validity period",
     "ga.unit": "/10T/year",
     "sso.unit": "/channel/year",
+    "ai.AutoTagEngine.quantity": "{{value}} AI points package(s)",
+    "ai.AutoTagEngine.des": "Base annual fee ({{prefix}}{{moduleCost}}/year) + Permanent AI points package x {{pointsNum}}\n({{prefix}}{{pointsCost}}); 288,000 points per package (≈200M tokens)",
+    "ai.AutoTagEngine.previewDes": "Base annual fee + Permanent AI points package；\n  288,000 points per package (≈200M tokens)",
     "discount.settings": "Discount Settings",
     "discount.input.label": "Please enter discount value",
     "discount.input.hint": "Minimum discount cannot be less than 20% OFF",
@@ -137,5 +140,6 @@
     "private.edition.major.iterations.price": "Pricing based on maintenance years",
     "times.per.year": "times per year",
     "service.cost": "Service Cost",
-    "museDAM.software": "MuseDAM Software"
+    "museDAM.software": "MuseDAM Software",
+    "package": " data package"
 }

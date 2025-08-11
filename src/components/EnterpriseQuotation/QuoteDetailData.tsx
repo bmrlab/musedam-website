@@ -117,12 +117,12 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 return {
                     key,
                     name: label,
-                    quantity: `1${t('year.s')} + ${pointsNum}份AI点数包`,
+                    quantity: `1${t('year.s')} + ${t("ai.AutoTagEngine.quantity", { value: pointsNum })}`,
                     unit: `${prefix}${cost.toLocaleString()}/${t('year.s')}`,
                     subtotal: `${prefix}${cost.toLocaleString()}`,
                     isModule: true,
-                    des: `基础年度模块费 (￥${moduleCost}/年) + 永久点数包 x ${pointsNum} (${prefix + ' ' + pointsCost})；\n AI 算力点数包每份为 28.8万点 (≈2亿 Tokens)`,
-                    previewDes: `基础年度模块费 + 永久点数包；\n AI 算力点数包每份为 28.8万点 (≈2亿 Tokens)`
+                    des: t('ai.AutoTagEngine.des', { moduleCost: moduleCost, pointsNum: pointsNum, prefix: prefix, pointsCost: pointsCost }),
+                    previewDes: t('ai.AutoTagEngine.previewDes'),
                 }
             }
 
@@ -134,7 +134,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     key,
                     name: `${label}(${hasSSOType.map((v) => ssoTypeNames[v]).join(', ')})`,
                     quantity: `1 ${t('year.s')}`,
-                    unit: `${prefix}${price.toLocaleString()}/渠道/年`,
+                    unit: `${prefix}${price.toLocaleString()}${t('sso.unit')}`,
                     subtotal: `${prefix}${cost.toLocaleString()}`,
                     isModule: true,
                 }
@@ -145,9 +145,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const cost = price * GaNum
                 return {
                     key,
-                    name: `${label}(${10 * GaNum}TB流量包)`,
+                    name: `${label}(${10 * GaNum}TB${t("package")})`,
                     quantity: `1 ${t('year.s')}`,
-                    unit: `${prefix}${cost.toLocaleString()}/10TB/年`,
+                    unit: `${prefix}${cost.toLocaleString()}/10TB${t('per.year')}`,
                     subtotal: `${prefix}${cost.toLocaleString()}`,
                     isModule: true,
                 }

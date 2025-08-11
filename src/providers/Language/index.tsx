@@ -25,15 +25,19 @@ export const LanguageProvider = ({ lng, children }: { lng: string; children: Rea
 
   const changeLocale = useCallback((lang?: 'en-US' | 'zh-CN') => {
     if (lang && language == lang) return
-    if (!searchParams) return
-    const otherLocale = lang ?? language === 'zh-CN' ? 'en-US' : 'zh-CN'
-    const currentParams = new URLSearchParams(searchParams)
-    const queryString = currentParams.toString()
+
+    let otherLocale = language === 'zh-CN' ? 'en-US' : 'zh-CN'
+    if (lang) {
+      otherLocale = lang
+    }
+
+    const currentParams = searchParams ? new URLSearchParams(searchParams) : undefined
+    const queryString = currentParams?.toString()
     const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + otherLocale) || ''
     const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
     router.replace(newUrl)
     setLanguage(otherLocale)
-  }, [pathname, router, setLanguage, searchParams])
+  }, [language, searchParams, pathname, router])
 
 
   return (
