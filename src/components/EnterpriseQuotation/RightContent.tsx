@@ -86,8 +86,8 @@ export const RightContent: FC = () => {
         {
             name: t('expansion.aiPoints'),
             description: t('expansion.aiPoints.desc'),
-            value: `¥20,000${t('per.year')}\n /288,000` + t('expansion.points'),
-            globalValue: `$5,760${t('per.year')}\n /288,000` + t('expansion.points')
+            value: `¥20,000${t('per.year')}\n /268,000` + t('expansion.points'),
+            globalValue: `$5,760${t('per.year')}\n /268,000` + t('expansion.points')
         },
 
         {

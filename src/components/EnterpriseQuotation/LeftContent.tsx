@@ -266,7 +266,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             <div className="flex w-full items-center justify-between space-x-2">
                 <div className='space-y-[6px]'>
                     <Label className="text-white">{planName[activeTab]}</Label>
-                    <p className="text-sm text-gray-500">{t('by.year')}</p>
+                    <DesParagraph>{t('by.year')}</DesParagraph>
                 </div>
                 <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
             </div>
@@ -324,7 +324,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                 />
                 <div className='space-y-[6px]'>
-                    <Label >{module.label}</Label>
+                    <Label className="flex items-center gap-3">
+                        {module.label}
+                        {module.tag &&
+                            <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] text-[14px] font-light'>
+                                {module.tag}
+                            </div>
+                        }
+                    </Label>
                     {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
                     {!module.noPrice && <DesParagraph >{prefix}{' '}{formatWithToLocaleString(module.price ?? 0)}{unit ?? t("per.year")}</DesParagraph>}
                 </div>

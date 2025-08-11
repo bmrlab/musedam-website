@@ -186,12 +186,12 @@ export const useBasicConfigs = () => {
             title: t('member.seat'),
             hint: [t('advanced.memberSeats.hint')],
             des: t('advanced.memberSeats.des'),
-            min: 1,
+            min: 15,
             price: advancedPricing.memberSeatPrice
         },
         {
             key: EBasicConfigKey.STORAGE_SPACE,
-            min: 1,
+            min: 3,
             title: t('storage.space'),
             hint: [t('advanced.storageSpace.hint')],
             tag: '1TB',
@@ -315,6 +315,7 @@ export const useAdvancedConfigs = () => {
             price: advancedPricing.modules[EAdvancedModules.GA],
             hint: t("ga.hint"),
             unit: t("ga.unit"),
+            tag: '10TB',
             min: 1
         }] : []),
         {
