@@ -102,7 +102,8 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('capacityExpansion.0.name'), detail: tFeatures('capacityExpansion.0.detail') },
             { name: tFeatures('capacityExpansion.1.name'), detail: tFeatures('capacityExpansion.1.detail') },
             { name: tFeatures('capacityExpansion.2.name'), detail: tFeatures('capacityExpansion.2.detail') },
-            { name: tFeatures('capacityExpansion.3.name'), detail: tFeatures('capacityExpansion.3.detail') }
+            { name: tFeatures('capacityExpansion.3.name'), detail: tFeatures('capacityExpansion.3.detail') },
+            ...(isInChina ? [{ name: tFeatures('capacityExpansion.4.name'), detail: tFeatures('capacityExpansion.4.detail') }] : []),
         ],
         [tFeatures('professionalServicesSupport.title')]: [
             { name: tFeatures('professionalServicesSupport.0.name'), detail: tFeatures('professionalServicesSupport.0.detail') },

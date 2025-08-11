@@ -175,6 +175,8 @@
     "capacityExpansion.2.detail": "额外 20,000 个一次性永久 AI 点数（消耗完为止）；点数可用于自定义 AI 标签、智能解析和 AI 内容创作",
     "capacityExpansion.3.name": "下载流量扩充",
     "capacityExpansion.3.detail": "每个增量包含额外 1TB 下载流量包（消耗完为止）",
+    "capacityExpansion.4.name": "海外加速流量扩充",
+    "capacityExpansion.4.detail": "每个增量包含额外 10TB  CDN/OSS 加速流量包（消耗完为止）",
     "professionalServicesSupport.title": "专业服务与支持",
     "professionalServicesSupport.0.name": "路线图功能开发",
     "professionalServicesSupport.0.detail": "基于开发路线图和客户反馈的产品功能迭代",

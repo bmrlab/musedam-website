@@ -372,10 +372,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             </Label>
                             <Input
                                 id={id}
-                                placeholder={t('placeholder.company')}
+                                placeholder={t('input.placeholder')}
                                 value={customerInfo[id as keyof ICustomerInfo]}
                                 onChange={(e) => handleInputChange(id as keyof ICustomerInfo, e.target.value)}
-                                className=" h-[44px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
+                                className=" h-[44px] rounded-none  border-2 border-[rgba(255,255,255,0.2)] text-white focus:border-white"
                             />
                         </div>
                     })}

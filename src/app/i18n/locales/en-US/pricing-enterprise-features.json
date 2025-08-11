@@ -173,6 +173,8 @@
     "capacityExpansion.2.detail": "Additional 20,000 one-time permanent AI points (valid until consumed); credits can be used for custom AI tagging, intelligent parsing, and AI content creation",
     "capacityExpansion.3.name": "Download Data Expansion",
     "capacityExpansion.3.detail": "Additional 1TB download traffic package per increment (valid until consumed)",
+    "capacityExpansion.4.name": "Global Acceleration Traffic Expansion",
+    "capacityExpansion.4.detail": "Each increment includes additional 10TB CDN/OSS acceleration traffic package (valid until consumed)",
     "professionalServicesSupport.title": "Professional Services & Support",
     "professionalServicesSupport.0.name": "Roadmap Feature Development",
     "professionalServicesSupport.0.detail": "Product feature iterations based on development roadmap and customer feedback",
