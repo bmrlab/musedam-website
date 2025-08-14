@@ -62,6 +62,32 @@ export const saveQuotation = async (country: string, userInfo: IHeaderInfo, para
   }
 }
 
+
+export const addQuotationDownloadRecord = async (country: string, userInfo: IHeaderInfo, params: { quotationId: string }) => {
+  try {
+    const response = await fetch(
+      `${country === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL}/mini-dam-user/org/quotation/add-quotation-download-record?quotationId=${params.quotationId}`,
+      {
+        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json', 'x-asm-prefer-tag': 'version-env-06' },
+        method: 'POST',
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch pricing data')
+    }
+    const data = await response.json()
+    if (data.code !== '0') {
+      throw new Error(data.message)
+    }
+    return data.result
+
+  } catch (error) {
+    console.error('Error save quotation:', error)
+    throw error
+  }
+}
+
 export const getQuotation: (
   country: string,
   params: { quotationId: string, orgId: string, userId: string }

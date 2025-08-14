@@ -1,3 +1,11 @@
+/*
+ * @Author: fuxuewei fuxuewei@tezign.com
+ * @Date: 2025-08-08 18:52:24
+ * @LastEditors: fuxuewei fuxuewei@tezign.com
+ * @LastEditTime: 2025-08-12 18:49:52
+ * @FilePath: /musedam-website/src/utilities/auth.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { cache } from 'react'
 import { cookies } from 'next/headers'
 import {
@@ -104,8 +112,9 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
   }
 
   if (orgMemberResponse) {
-    const orgMemberInfo: { code: string; message: string; result: { isSale: 0 | 1 } } = await orgMemberResponse.json()
+    const orgMemberInfo: { code: string; message: string; result: { isSale: 0 | 1, email: string; } } = await orgMemberResponse.json()
     result.isSale = Boolean(orgMemberInfo.result.isSale)
+    result.orgEmail = orgMemberInfo.result.email
   }
   return result
 })

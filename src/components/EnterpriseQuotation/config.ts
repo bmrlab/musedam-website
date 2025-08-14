@@ -146,13 +146,14 @@ export const usePricing = () => {
 
 import { useTranslation } from '@/app/i18n/client'
 import { formatWithToLocaleString } from '@/utilities/formatPrice'
-import { TabEnum, useQuotationContext } from '.'
+import { TabEnum } from './types'
+import { useQuotationStore } from '@/providers/QuotationStore'
 import { useMemo } from 'react'
 import { useCountry } from '@/providers/Country'
 
 export const useBasicConfigs = () => {
     const { t } = useTranslation('quotation')
-    const { activeTab } = useQuotationContext()
+    const { activeTab } = useQuotationStore()
     const { pricing, prefix } = usePricing()
     const basicPricing = pricing['basic']
     const advancedPricing = pricing['advanced']

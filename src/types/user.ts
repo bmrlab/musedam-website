@@ -6,4 +6,5 @@ export type SessionUser = {
   isSale: boolean
   orgId?: string
   token?: string
+  orgEmail?: string
 }

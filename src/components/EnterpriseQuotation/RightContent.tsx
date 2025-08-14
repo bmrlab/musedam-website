@@ -1,8 +1,8 @@
 import { FC, useMemo } from 'react'
-import { useQuotationContext } from './index'
+import { useQuotationStore } from '@/providers/QuotationStore'
 import { twx } from '@/utilities/cn'
 import { useTranslation } from '@/app/i18n/client'
-import { useQuoteDetailData } from './QuoteDetailData'
+import { useExpandServices, useQuoteDetailData } from './QuoteDetailData'
 import { useCountry } from '@/providers/Country'
 import { useLanguage } from '@/providers/Language'
 
@@ -15,7 +15,7 @@ const InfoLine = twx.p`font-normal text-[rgba(20,20,20,0.8)]`
 const QuoteDetailTable: FC = () => {
     const { t } = useTranslation('quotation')
     const { rows, subtotal, total, discountTotal } = useQuoteDetailData()
-    const { discount } = useQuotationContext()
+    const { discount } = useQuotationStore()
     const { isInChina } = useCountry()
     const { language } = useLanguage()
 
@@ -31,9 +31,10 @@ const QuoteDetailTable: FC = () => {
                             </span>
                             {row.des && <span className='whitespace-pre-line text-xs font-light text-[#141414]'>{row.des}</span>}
                         </div>
-                        {!row.unit && !row.quantity ?
+                        {!row.unit && row.quantity ?
                             <span>{row.quantity}</span> :
-                            <span>{row.unit}</span>}
+                            <span>{row.unit}</span>
+                        }
                     </TableLine>
                 ))}
                 <TableLine className=" bg-[#E1E1DC] text-sm font-bold">
@@ -61,47 +62,11 @@ const QuoteDetailTable: FC = () => {
 
 export const RightContent: FC = () => {
     const {
-        customerInfo,
-        activeTab,
-        discount
-    } = useQuotationContext()
+        customerInfo
+    } = useQuotationStore()
     const { t } = useTranslation('quotation')
-    const { isInChina } = useCountry()
 
-    const expansions = useMemo(() => [
-        {
-            name: t('expansion.memberSeats'),
-            description: t('expansion.memberSeats.desc'),
-            value: t('advanced.memberSeats.des'),
-            globalValue: t('advanced.memberSeats.des.global'),
-        },
-
-        {
-            name: t('expansion.storageSpace'),
-            description: t('expansion.storageSpace.desc'),
-            value: '¥5,000/TB' + t("per.year"),
-            globalValue: '$1,000/TB' + t("per.year"),
-        },
-
-        {
-            name: t('expansion.aiPoints'),
-            description: t('expansion.aiPoints.desc'),
-            value: `¥20,000${t('per.year')}\n /268,000` + t('expansion.points'),
-            globalValue: `$5,760${t('per.year')}\n /268,000` + t('expansion.points')
-        },
-
-        {
-            name: t('expansion.downloadData'),
-            description: t('expansion.downloadData.desc'),
-            value: '¥150/TB',
-            globalValue: '$30/TB',
-        },
-        ...(!isInChina ? [] : [{
-            name: t('expansion.GA'),
-            description: t('expansion.GA.desc'),
-            value: `¥30,000${t("per.year")}\n /10TB`,
-        }])
-    ], [t, isInChina])
+    const expansions = useExpandServices()
 
     return (
         <div className="no-scrollbar size-full h-full overflow-scroll bg-[#F0F0EA] p-[60px] text-black">
@@ -147,16 +112,16 @@ export const RightContent: FC = () => {
                 <div className='border'>
                     <div className="px-5 py-[10px] text-sm font-bold">{t('capacity.expansion')}</div>
                     <div className="space-y-2 text-sm">
-                        {expansions.map(({ name, description, value, globalValue }) => {
+                        {expansions.map(({ name, description, value }) => {
                             return <div className="flex justify-between border-t px-5 py-2" key={name}>
                                 <div className='flex max-w-[389px] flex-col gap-[2px]'>
-                                    <span className='font-euclid text-sm'>{name}</span>
+                                    <span className='font-euclid text-sm'>{name}{t('expansion')}</span>
                                     <span className='mr-6 whitespace-pre-line font-euclidlight text-xs text-[rgba(20,20,20,0.72)]'>
                                         {description}
                                     </span>
                                 </div>
-                                <div className="whitespace-pre-line text-end">
-                                    {isInChina ? value : globalValue}
+                                <div className="flex items-center whitespace-pre-line text-end">
+                                    {value}
                                 </div>
                             </div>
                         })}

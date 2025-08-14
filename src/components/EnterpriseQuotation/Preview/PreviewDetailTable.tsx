@@ -1,5 +1,5 @@
 "use client"
-import { useQuotationContext } from '@/components/EnterpriseQuotation'
+import { useQuotationStore } from '@/providers/QuotationStore'
 import { cn, twx } from '@/utilities/cn'
 import { QuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
@@ -8,9 +8,10 @@ import { useCountry } from '@/providers/Country'
 import { useLanguage } from '@/providers/Language'
 
 
-const Table = twx.table`w-full mb-8 text-[#262626] font-normal`
-const Th = twx.th`bg-[#F9FAFB] font-bold text-left px-6 py-[13px] border-b border-[#E1E1DC] text-lg`
-const Td = twx.td`px-6 py-[13px] border-b border-[#E1E1DC] text-base`
+const Table = twx.table`w-full mb-4 text-[#262626] font-normal`
+const Th = twx.th`bg-[#F9FAFB] font-bold text-left px-6 py-[13px] border-b border-[#E1E1DC] text-lg vertical-align-middle min-h-[52p`
+const Td = twx.td`px-6 py-[13px] border-b border-[#E1E1DC] text-base vertical-align-middle min-h-[52px]`
+const ExportLine = twx.div`flex-content`
 const Tr = twx.tr``
 
 const TotalLine = twx.div`flex w-[540px] justify-between text-xl px-6 py-[13px] font-semibold leading-[34px]`
@@ -20,7 +21,7 @@ type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' |
 export const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) => {
     const { rows, subtotal, total, discountTotal } = info
     const { t } = useTranslation('quotation')
-    const { discount } = useQuotationContext()
+    const { discount } = useQuotationStore()
     const { isInChina } = useCountry()
     const { language } = useLanguage()
 
@@ -31,28 +32,30 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) 
     return (<div>
         <div className="mb-[30px] text-2xl font-bold">{t("product.service.details")}</div>
 
-        <Table className='mb-4 text-[#262626]'>
+        <Table>
             <thead>
                 <Tr>
-                    <Th>{t("quite.product.name")}</Th>
-                    <Th>{t("quite.product.quantity")}</Th>
-                    <Th>{t("quite.product.unit.price")}</Th>
-                    <Th className='text-right'>{t("subtotal")}</Th>
+                    <Th><ExportLine>{t("quite.product.name")}</ExportLine></Th>
+                    <Th><ExportLine>{t("quite.product.quantity")}</ExportLine></Th>
+                    <Th><ExportLine>{t("quite.product.unit.price")}</ExportLine></Th>
+                    <Th className='text-right'><ExportLine>{t("subtotal")}</ExportLine></Th>
                 </Tr>
             </thead>
             <tbody>
                 {/* 主套餐 */}
                 {mainRows.map((row, i) => (
                     <Tr key={i} >
-                        <Td className={cn("flex flex-col gap-[2px]", row.bold ? "font-bold" : "")}>
-                            <span>{row.name}</span>
-                            {row.des && <span className='text-xs font-light'>
-                                {row.des}
-                            </span>}
+                        <Td>
+                            <div className={cn("flex-content flex flex-col gap-[2px]")}>
+                                <span className={cn(row.bold ? "font-bold" : "")}>{row.name}</span>
+                                {row.des && <span className='whitespace-pre-line text-xs font-light '>
+                                    {row.des}
+                                </span>}
+                            </div>
                         </Td>
-                        <Td>{row.quantity}</Td>
-                        <Td>{row.unit ?? '-'}</Td>
-                        <Td className='text-right'>{row.subtotal ?? '-'}</Td>
+                        <Td><ExportLine>{row.quantity}</ExportLine></Td>
+                        <Td><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
+                        <Td className='text-right'><ExportLine>{row.subtotal ?? '-'}</ExportLine></Td>
                     </Tr>
                 ))}
 
@@ -61,15 +64,17 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById }> = ({ info }) 
                     <>
                         {moduleRows.map((row, i) => (
                             <Tr key={i}>
-                                <Td className={cn("flex flex-col gap-[2px]", row.bold ? "font-bold" : "")}>
-                                    <span>{row.name}</span>
-                                    {(row.previewDes || row.des) && <span className='whitespace-pre-line text-xs font-light'>
-                                        {row.previewDes || row.des}
-                                    </span>}
+                                <Td>
+                                    <div className="flex-content flex flex-col gap-[2px] ">
+                                        <span className={cn(row.bold ? "font-bold" : "")}>{row.name}</span>
+                                        {row.des && <span className='whitespace-pre-line text-xs font-light '>
+                                            {row.des}
+                                        </span>}
+                                    </div>
                                 </Td>
-                                <Td>{row.quantity}</Td>
-                                <Td>{row.unit ?? '-'}</Td>
-                                <Td className='text-right'>{row.subtotal ?? '-'}</Td>
+                                <Td><ExportLine>{row.quantity}</ExportLine></Td>
+                                <Td><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
+                                <Td className='text-right'><ExportLine>{row.subtotal ?? '-'}</ExportLine></Td>
                             </Tr>
                         ))}
                     </>

@@ -23,6 +23,7 @@ export default async function MuseQuotationDetailPage({
             user={{
                 userId: uId ?? user?.userId ?? '',
                 orgId: oId ?? user?.orgId,
+                token: user?.token,
                 isOrg: true,
                 hasOrg: true,
                 isSale: true,

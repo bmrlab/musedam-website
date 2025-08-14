@@ -3,11 +3,12 @@ import { LocaleSwitch } from '../Header/LocalSwitch'
 import { LocaleLink } from '../LocalLink'
 import Image from 'next/image'
 import { FC, useCallback, useEffect, useState } from 'react'
-import { TabEnum, useQuotationContext, ICustomerInfo, IAdvancedModules, IPrivateModules, EFeatureView } from './index'
+import { TabEnum, ICustomerInfo, IAdvancedModules, IPrivateModules, EFeatureView } from './types'
+import { useQuotationStore } from '@/providers/QuotationStore'
 import { usePricing, useBasicConfigs, useAdvancedConfigs, EAdvancedModules, EPrivateModules } from './config'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { Minus, Plus } from 'lucide-react'
+import { Loader2, Minus, Plus } from 'lucide-react'
 import { Checkbox } from '../ui/checkbox'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 import * as RadioGroup from '@radix-ui/react-radio-group'
@@ -21,6 +22,7 @@ import { SessionUser } from '@/types/user'
 import { saveQuotation } from '@/endpoints/quotation'
 import { useQuoteDetailData } from './QuoteDetailData'
 import { useLanguage } from '@/providers/Language'
+import { encodeNumber } from '@/utilities/numberCodec'
 
 interface NumControlProps {
     value: number,
@@ -71,25 +73,25 @@ const NumControl = ({ value, step, max, min, onChange, disabled }: NumControlPro
 }
 
 
-const TitleDiv = twx.h3`text-lg font-medium text-white-72 font-feature`
+const TitleDiv = twx.h3`text-lg font-medium text-white-72`
 
 const BlockBox = twx.div`rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] px-5 py-6 space-y-6`
 
 const Label = twx.div`text-base leading-none text-white`
 
-const HintParagraph = twx.p`text-xs text-white-50 font-light`
+const HintParagraph = twx.p`text-xs text-white-50 font-light font-euclidlight`
 
-const DesParagraph = twx.p`text-sm text-white-72 font-light`
+const DesParagraph = twx.p`text-sm text-white-72 font-light font-euclidlight`
 
 
 const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
     const { t } = useTranslation('quotation')
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
     const prefix = isGlobal ? '$' : '¥'
-    return <div className="border-t border-gray-700 pt-4">
+    return <div className="border-t border-[rgba(255,255,255,0.1)] pt-4 ">
         <div className="flex items-center justify-between text-white ">
             <Label className=" text-lg font-normal">{costTitle ?? t("base.cost")}</Label>
-            <span className="flex items-center text-xl font-medium">{prefix}{formatWithToLocaleString(cost)}<span className='text-sm'>/year</span></span>
+            <span className="flex items-center text-xl font-medium">{prefix}{formatWithToLocaleString(cost)}<span className='text-sm'>{t("per.year")}</span></span>
         </div>
     </div>
 }
@@ -105,9 +107,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const { language } = useLanguage()
 
 
-    const { rows, totalNumPerYear, years, basicCostPerYear, subtotal, total, discountTotal } = useQuoteDetailData()
+    const { rows, totalNumPerYear, years, basicCostPerYear } = useQuoteDetailData()
     const advancedPricing = pricing.advanced.modules
     const [openDiscount, setOpenDiscount] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const {
         customerInfo,
@@ -132,13 +135,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         setDiscount,
         showNoBuyFeature,
         setShowNoBuyFeature
-    } = useQuotationContext()
+    } = useQuotationStore()
 
     const tabs = [
-        {
-            key: TabEnum.BASIC,
-            label: t('tab.basic')
-        },
+        // {
+        //     key: TabEnum.BASIC,
+        //     label: t('tab.basic')
+        // },
         {
             key: TabEnum.ADVANCED,
             label: t('tab.advanced')
@@ -216,6 +219,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         }
     ]
 
+    useEffect(() => {
+        setLoading(false)
+    }, [])
+
     const handleGenerate = useCallback(async () => {
         if (!user?.orgId || !user.token) {
             toast({
@@ -224,6 +231,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             })
             return
         }
+        setLoading(true)
         let content = {
             rows,
             prefix,
@@ -246,7 +254,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 discount: discount,
                 subscriptionYears: years,
             })
-            router.push(`${window.location.pathname}/${id}`)
+            router.push(`${window.location.pathname}/${encodeNumber(id)}`)
+
         } catch (err) {
             toast({
                 description: err.message ?? '报价单保存失败',
@@ -276,7 +285,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <Label className="flex items-center gap-3 text-[16px] text-white">
                             {title}
                             {tag &&
-                                <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] text-[14px] font-light'>
+                                <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight text-[14px] font-light'>
                                     {tag}
                                 </div>
                             }
@@ -321,13 +330,15 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             })
                         }
                     }}
-                    className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                    className={cn("size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 ",
+                        module.tag && 'mt-[4px]'
+                    )}
                 />
                 <div className='space-y-[6px]'>
                     <Label className="flex items-center gap-3">
                         {module.label}
                         {module.tag &&
-                            <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] text-[14px] font-light'>
+                            <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight text-[14px] font-light'>
                                 {module.tag}
                             </div>
                         }
@@ -351,7 +362,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     }
 
     return (
-        <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 text-white">
+        <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 font-euclid text-white">
             <div className='sticky top-0 flex items-center justify-between p-5 pr-[60px]'>
                 <div className="shrink-0 px-4">
                     <LocaleLink href="/">
@@ -364,8 +375,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </div>
 
             <div className='quote-form px-[60px]'>
-                <h1 className='md:text-[64px]'>{t('title')}</h1>
-                <div className='mt-2 text-[18px] font-light text-white-72'>{t('subtitle')}</div>
+                <h1 className='font-feature md:text-[64px]'>{t('title')}</h1>
+                <div className='mt-2 font-euclidlight text-[18px] font-light text-white-72'>{t('subtitle')}</div>
             </div>
 
             <div className="mt-10 space-y-10 px-[60px] text-white-72">
@@ -513,7 +524,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                                 id={`private-${module.key}`}
                                                 checked={!!privateModules[module.key]}
                                                 onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, module.key as keyof IPrivateModules, checked as boolean)}
-                                                className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                                                className="size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                             />
                                             <div className='space-y-[6px]'>
                                                 <div >{module.label}</div>
@@ -540,7 +551,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         id="privateImplementation"
                                         checked={!!privateModules.privateImplementation}
                                         onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, EPrivateModules.PRIVATE_IMPLEMENTATION, checked as boolean)}
-                                        className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                                        className="size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                     />
                                     <div className='space-y-[6px]'>
                                         <Label>{t('privateDeploymentImplementation')}</Label>
@@ -567,7 +578,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                             id="operationMaintenance"
                                             checked={!!privateModules.operationMaintenance}
                                             onCheckedChange={(checked) => handleModuleChange(TabEnum.PRIVATE, EPrivateModules.OPERATION_MAINTENANCE, checked as boolean)}
-                                            className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                                            className="size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                                         />
                                         <div className='space-y-[6px]'>
                                             <Label>{t('productOperationAndMaintenanceServices')}</Label>
@@ -638,11 +649,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 setOpenDiscount(open)
                             }
                             }
-                            className={cn("bg-blackA9 relative h-[22px] w-[44px] cursor-pointer rounded-full outline-none  disabled:cursor-not-allowed ",
-                                !openDiscount ? ' bg-[rgb(91,86,80)]' : 'data-[state=checked]:bg-[#3366FF]'
+                            className={cn(
+                                "relative h-[22px] w-[44px] cursor-pointer rounded-full border  outline-none disabled:cursor-not-allowed",
+                                "group transition-all duration-300 ease-in-out",
+                                !openDiscount ? ' border-[rgba(255,255,255,0.2)] hover:border-white/40' : 'data-[state=checked]:border-transparent data-[state=checked]:bg-[#3366FF]'
                             )}
                         >
-                            <Switch.Thumb className="block size-[18px] translate-x-0.5 rounded-full bg-white transition-transform duration-100 will-change-transform data-[state=checked]:translate-x-[24px] data-[state=checked]:bg-white" />
+                            <Switch.Thumb className="block size-[18px] translate-x-0.5 rounded-full bg-white-72 transition-all duration-300 ease-in-out group-hover:bg-white data-[state=checked]:translate-x-[24px] data-[state=checked]:bg-white" />
                         </Switch.Root>
                     </div>
 
@@ -727,9 +740,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={listType}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 ',
-                                            'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
-                                            listType === featureView && 'border-[#3366FF]',
+                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
+                                            'transition-all duration-300 ease-in-out ',
+                                            listType === featureView ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}
                                         value={listType}
                                         id={listType}
@@ -739,7 +752,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                     >
                                         <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                     </RadioGroup.Item>
-                                    <Label className="text-white">
+                                    <Label className="text-[14px] leading-[1.3em] text-white">
                                         {listType === EFeatureView.OVERVIEW ? t('feature.overview') : t('feature.details')}
                                     </Label>
                                 </BlockBox>
@@ -760,9 +773,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={radio + 'feature--all'}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 ',
-                                            'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
-                                            showNoBuyFeature === radio && 'border-[#3366FF]',
+                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
+                                            'transition-all duration-300 ease-in-out ',
+                                            showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}
                                         value={radio.toString()}
                                         id={radio.toString()}
@@ -772,7 +785,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                     >
                                         <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                                     </RadioGroup.Item>
-                                    <Label className="text-white">
+                                    <Label className="text-[14px] leading-[1.3em] text-white">
                                         {radio ? t('show.unselected.modules') : t('hide.unselected.modules')}
                                     </Label>
                                 </BlockBox>
@@ -784,8 +797,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
             {/* Generate Button */}
             <Button
-                className="ml-[60px] mt-10 h-[48px] w-[160px] rounded-2xl bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[ragb(255,255,255,0.6)]"
+                disabled={loading}
+                className="ml-[60px] mt-10 h-[48px] w-[160px] rounded-2xl bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[rgba(255,255,255,0.6)]"
                 onClick={() => {
+                    if (loading) return
                     if (!customerInfo['company']?.length || !customerInfo['yourEmail']?.length) {
                         toast({
                             duration: 800,
@@ -796,7 +811,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     handleGenerate()
                 }}
             >
-                {t('generate.now')}
+                {loading && <Loader2 className="animate-spin" />}
+                {loading ? t('generating') : t('generate.now')}
             </Button >
         </div >
     )
