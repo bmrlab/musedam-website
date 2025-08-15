@@ -12029,7 +12029,7 @@ snapshots:
 
   react-error-boundary@3.1.4(react@19.0.0-rc-65a56d0e-20241020):
     dependencies:
-      '@babel/runtime': 7.28.2
+      '@babel/runtime': 7.28.3
       react: 19.0.0-rc-65a56d0e-20241020
 
   react-error-boundary@4.1.2(react@19.0.0-rc-65a56d0e-20241020):
