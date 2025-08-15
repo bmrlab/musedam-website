@@ -67,46 +67,36 @@ export default function Hero() {
     }
     ]
     return (
-        <div className="flex flex-col items-center justify-center pb-[60px] md:pb-[120px] md:w-full md:px-[80px]">
+        <div className="flex flex-col items-center justify-center pb-[60px] md:w-full md:px-[80px] md:pb-[120px]">
             <h1 className={cn(
-                "mt-[59px] px-6 text-center text-[40px] font-normal md:px-0 md:text-[72px] md:leading-[90px] mb-[10px]",
+                "mb-[10px] mt-[59px] px-6 text-center text-[40px] font-normal md:px-0 md:text-[72px] md:leading-[90px]",
                 isEn && 'font-feature'
             )}>
                 {t('hero.enterprise.title')}
             </h1>
             <span className={cn(
-                'w-[800px] max-w-full px-6 text-center md:text-[40px] text-[rgba(255,255,255,0.72)] font-light',
-                isEn ? 'font-feature text-[20px] md:font-normal' : 'font-extralight text-[16px]'
+                'w-[800px] max-w-full px-6 text-center font-light text-[rgba(255,255,255,0.72)] md:text-[40px]',
+                isEn ? 'font-feature text-[20px] md:font-normal' : 'text-[16px] font-extralight'
             )}>{t('hero.enterprise.subtitle')}</span>
 
             {/* 按钮 */}
-            <div className='flex flex-col md:flex-row gap-5 items-center mb-12 md:mb-[60px] mt-10 font-euclid'>
-
-                {
-                    isInChina ? <><LocaleLink href={'/pricing'} prefetch={false}>
-                        <DarkButton className={
-                            cn("h-[48px] w-[240px] md:w-[180px] rounded-lg  text-base font-medium",
-                                isEn && 'md:text-[18px]'
-                            )}>
-                            {t("hero.enterprise.seePricing")}
-                        </DarkButton>
-                    </LocaleLink>
-                        <LocaleLink href={'/bookDemo'} prefetch={false}>
-                            <Button className={cn("h-[48px] w-[240px] md:w-[180px] rounded-lg bg-white text-base font-medium text-[#0e0e0e]",
-                                "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
-                                isEn && 'md:text-[18px]'
-                            )}>
-                                {t('hero.enterprise.contactUs')}
-                            </Button>
-                        </LocaleLink></> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
-                        <Button className={cn("h-[48px] w-[240px] md:w-[180px] rounded-lg bg-white  text-base font-medium text-[#0e0e0e]",
-                            "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+            <div className='mb-12 mt-10 flex flex-col items-center gap-5 font-euclid md:mb-[60px] md:flex-row'>
+                <LocaleLink href={'/pricing'} prefetch={false}>
+                    <DarkButton className={
+                        cn("h-[48px] w-[240px] rounded-lg text-base  font-medium md:w-[180px]",
                             isEn && 'md:text-[18px]'
                         )}>
-                            {t('hero.button.start')}
-                        </Button>
-                    </Link>
-                }
+                        {t("hero.enterprise.seePricing")}
+                    </DarkButton>
+                </LocaleLink>
+                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                    <Button className={cn("h-[48px] w-[240px] rounded-lg bg-white text-base font-medium text-[#0e0e0e] md:w-[180px]",
+                        "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
+                        isEn && 'md:text-[18px]'
+                    )}>
+                        {t('hero.enterprise.contactUs')}
+                    </Button>
+                </LocaleLink>
 
             </div>
             <Banner isDark />
@@ -118,44 +108,36 @@ export default function Hero() {
                     )}>
                         {t('hero.enterprise.why.title')}
                     </h1>
-                    <p className="text-center md:font-euclid font-euclidlight text-base font-light text-[rgba(255,255,255,0.72)] md:text-left md:text-[22px] leading-[1.45em]">
+                    <p className="text-center font-euclidlight text-base font-light leading-[1.45em] text-[rgba(255,255,255,0.72)] md:text-left md:font-euclid md:text-[22px]">
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
-                {isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
+                <LocaleLink href={'/bookDemo'} prefetch={false}>
                     <DarkButton className={cn(
-                        "md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid text-base",
+                        "h-[48px] w-[240px] rounded-lg font-euclid text-base font-medium md:h-[56px] md:w-[167px]",
                         isEn && "md:text-[18px]"
                     )}>
                         {t('hero.enterprise.button')}
                     </DarkButton>
-                </LocaleLink> :
-                    <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
-                        <DarkButton className={cn(
-                            "md:h-[56px] h-[48px] font-medium w-[240px] md:w-[167px] rounded-lg font-euclid text-base",
-                            isEn && "md:text-[18px]"
-                        )}>
-                            {t('hero.button.start')}
-                        </DarkButton>
-                    </Link>}
+                </LocaleLink>
 
             </FadeInUpContainer>
             <div className="mt-12 flex h-auto w-full flex-col gap-4 rounded-[6px] px-5 md:mt-[80px] md:flex-row  md:px-0">
                 <div className='left-content flex w-[540px] max-w-full items-center justify-center'>
                     <Accordion type="single" defaultValue="growth" collapsible={false} className="flex w-full flex-col gap-6">
                         {businessMap.map((item, index) => {
-                            return <AccordionItem value={item.key} className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-0 font-euclid hover:bg-[#1E1E1E] transition-all ease-in-out duration-300" key={item.key} onClick={() => {
+                            return <AccordionItem value={item.key} className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-0 font-euclid transition-all duration-300 ease-in-out hover:bg-[#1E1E1E]" key={item.key} onClick={() => {
                                 setActiveIndex(index)
                             }}>
                                 <AccordionTrigger className="p-0 hover:no-underline" icon-hidden>
-                                    <div className="flex items-center gap-4 md:p-6 p-5 pb-4">
+                                    <div className="flex items-center gap-4 p-5 pb-4 md:p-6">
                                         <Image src={`/assets/Enterprise/AiNatives/${item.Icon}`} alt={item.Icon} className='size-[56px]' width={56} height={56} />
-                                        <span className="text-left font-euclid text-[18px] md:text-[22px] font-medium text-white">{item.title}</span>
+                                        <span className="text-left font-euclid text-[18px] font-medium text-white md:text-[22px]">{item.title}</span>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
                                     <Card className="ml-5 border-none bg-transparent shadow-none md:ml-[96px]">
-                                        <CardContent className="space-y-4 md:space-y-3 p-0 md:pb-6 pr-6 font-euclid text-[16px] md:text-[15px] text-[rgba(255,255,255,0.48)]">
+                                        <CardContent className="space-y-4 p-0 pr-6 font-euclid text-[16px] text-[rgba(255,255,255,0.48)] md:space-y-3 md:pb-6 md:text-[15px]">
                                             <span className={isEn ? '' : 'font-light'}>{item.description}</span>
                                             <ul className="list-disc space-y-3 pl-5 leading-[22.5px]">
                                                 {item.lines.map(({ name, info }, i) => {
@@ -176,8 +158,8 @@ export default function Hero() {
                         })}
                     </Accordion>
                 </div>
-                <div className='flex flex-1 shrink-0 items-center justify-center rounded-[20px] md:rounded-[28px] border border-[rgba(255,255,255,0.1)] bg-[#141414] md:p-[30px] p-4'>
-                    <div className='flex size-full items-center rounded-xl md:rounded-2xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12]'>
+                <div className='flex flex-1 shrink-0 items-center justify-center rounded-[20px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-4 md:rounded-[28px] md:p-[30px]'>
+                    <div className='flex size-full items-center rounded-xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12] md:rounded-2xl'>
                         <Image
                             src={getUrl(businessMap[activeIndex].Cover)}
                             width={1328}

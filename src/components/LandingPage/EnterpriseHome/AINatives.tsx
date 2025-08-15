@@ -76,32 +76,26 @@ export default function AINatives() {
             <FadeInUpContainer className="mt-10 flex w-full flex-col items-center gap-12 md:mt-[80px] md:flex-row md:justify-between md:gap-0">
                 <div className="flex max-w-[770px] flex-col items-center gap-3 px-6 md:items-start">
                     <h1 className={cn(
-                        "text-center text-[40px] font-feature font-normal md:text-left md:text-[64px] md:leading-[73.6px]",
+                        "text-center font-feature text-[40px] font-normal md:text-left md:text-[64px] md:leading-[73.6px]",
                         isEn && 'font-feature'
                     )}>
                         {t('section.title')}
                     </h1>
-                    <p className="text-center font-euclidlight text-base text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px] font-light">
+                    <p className="text-center font-euclidlight text-base font-light text-[rgba(20,20,20,0.72)] md:text-left md:text-[22px]">
                         {t('section.desc')}
                     </p>
                 </div>
-                {isInChina ? <LocaleLink href={'/bookDemo'} prefetch={false}>
-                    <DarkButton className={cn("w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:h-[56px]",
+                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                    <DarkButton className={cn("h-[48px] w-[240px] rounded-lg font-euclid text-base font-medium md:h-[56px] md:w-[167px]",
                         isEn && 'md:text-[18px]'
                     )}>
                         {t('button.book-demo')}
                     </DarkButton>
-                </LocaleLink> : <Link href={MUSEDAM_LOGIN_URL} prefetch={false}>
-                    <DarkButton className={cn("w-[240px] font-medium h-[48px] md:w-[167px] rounded-lg font-euclid text-base md:h-[56px]",
-                        isEn && 'md:text-[18px]'
-                    )}>
-                        {t('button.start')}
-                    </DarkButton>
-                </Link>}
+                </LocaleLink>
 
             </FadeInUpContainer>
 
-            <div className='md:-mr-3 my-[60px] md:mb-0 grid grid-cols-1 gap-6 md:gap-10 px-5 font-euclid md:mt-[100px] md:grid-cols-3 md:px-0'>
+            <div className='my-[60px] grid grid-cols-1 gap-6 px-5 font-euclid md:-mr-3 md:mb-0 md:mt-[100px] md:grid-cols-3 md:gap-10 md:px-0'>
                 {data.map(({ key, title, description, image, color }) =>
                     <div key={key} className='group overflow-hidden rounded-[30px] bg-[#F1F5F9] transition-transform duration-300 ease-in-out md:hover:-translate-y-2'>
                         <div className='aspect-[4/3] w-full rounded-[30px] object-cover' style={{
@@ -109,10 +103,10 @@ export default function AINatives() {
                         }}>
                             <Image src={image} alt={key} className='aspect-[4/3] w-full rounded-[30px] object-cover' width={800} height={600} />
                         </div>
-                        <div className={cn('md:mx-5 mx-4 mb-[10px] mt-6 md:mt-[30px] md:text-[22px]',
+                        <div className={cn('mx-4 mb-[10px] mt-6 md:mx-5 md:mt-[30px] md:text-[22px]',
                             isEn ? 'text-[18px]' : 'text-[20px]'
                         )}>{title}</div>
-                        <div className='md:mx-5 mx-4 mb-6 md:mb-[30px] font-euclidlight text-[15px] md:text-[18px] font-light text-[rgba(20,20,20,0.72)]'>{description}</div>
+                        <div className='mx-4 mb-6 font-euclidlight text-[15px] font-light text-[rgba(20,20,20,0.72)] md:mx-5 md:mb-[30px] md:text-[18px]'>{description}</div>
                     </div>
                 )}
             </div>
