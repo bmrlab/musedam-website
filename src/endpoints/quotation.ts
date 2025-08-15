@@ -53,7 +53,7 @@ export const saveQuotation = async (country: string, userInfo: IHeaderInfo, para
       `${country === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL}/mini-dam-user/org/quotation/save`,
       {
         body: JSON.stringify(params),
-        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json', 'x-asm-prefer-tag': 'version-env-06' },
+        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json' },
         method: 'POST',
       },
     )
@@ -79,7 +79,7 @@ export const addQuotationDownloadRecord = async (country: string, userInfo: IHea
     const response = await fetch(
       `${country === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL}/mini-dam-user/org/quotation/add-quotation-download-record?quotationId=${params.quotationId}`,
       {
-        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json', 'x-asm-prefer-tag': 'version-env-06' },
+        headers: { ...getHeader(country, userInfo), 'Content-Type': 'application/json' },
         method: 'POST',
       },
     )
