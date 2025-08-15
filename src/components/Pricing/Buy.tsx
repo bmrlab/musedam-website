@@ -138,14 +138,14 @@ export default function Buy({
         </FlexRowContainer>
         {/* Plan Type Toggle */}
         <FlexRowContainer className={cn("relative rounded-full p-[4px]",
-          isDark ? 'bg-[#E1E1DC] h-[56px] ' : 'bg-[#F4F5F6] h-[42px] '
+          isDark ? 'h-[56px] bg-[#E1E1DC] ' : 'h-[42px] bg-[#F4F5F6] '
         )}>
           {/* 滑动的白色背景 */}
           <div
             className={
               cn(
                 "absolute rounded-full bg-white transition-all duration-300 ease-in-out",
-                isDark ? 'bg-black h-[48px] ' : 'bg-white h-[34px] '
+                isDark ? 'h-[48px] bg-black ' : 'h-[34px] bg-white '
               )
             }
             style={{

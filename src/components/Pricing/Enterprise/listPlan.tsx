@@ -1,11 +1,12 @@
 
-import { useCountry } from '@/providers/Country';
 import { useTranslation } from 'react-i18next';
+import { EAdvancedModules, EBasicConfigKey } from '../../EnterpriseQuotation/config'
+import { useCountry } from '@/providers/Country';
 
 export const useEnterprisePlan = () => {
-    const { t } = useTranslation('pricing');
     const { t: tFeatures } = useTranslation('pricing-enterprise-features');
     const { isInChina } = useCountry()
+
     // Basic
     const basicList = {
         [tFeatures('aiCapabilities.title')]: [
@@ -45,7 +46,7 @@ export const useEnterprisePlan = () => {
     // Advanced
     const advancedList = {
         [tFeatures('advancedFeatures.title')]: [
-            ...(!isInChina ? [] : [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }]),
+            ...(isInChina ? [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }] : []),
             { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
             { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
             { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },
@@ -72,8 +73,16 @@ export const useEnterprisePlan = () => {
                 { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
                 { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
                 { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-            ],
+            ]
         }),
+        [tFeatures('aiAutoTaggingEngine.title')]: [
+            { name: tFeatures('aiAutoTaggingEngine.0.name'), detail: tFeatures('aiAutoTaggingEngine.0.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.1.name'), detail: tFeatures('aiAutoTaggingEngine.1.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.2.name'), detail: tFeatures('aiAutoTaggingEngine.2.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.3.name'), detail: tFeatures('aiAutoTaggingEngine.3.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.4.name'), detail: tFeatures('aiAutoTaggingEngine.4.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.5.name'), detail: tFeatures('aiAutoTaggingEngine.5.detail') }
+        ],
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
             { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
@@ -84,11 +93,15 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('watermark.1.name'), detail: tFeatures('watermark.1.detail') },
             { name: tFeatures('watermark.2.name'), detail: tFeatures('watermark.2.detail') }
         ],
+        [tFeatures('enterpriseSingleSignOn.title')]: [
+            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
+            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
+            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+        ],
         ...(!isInChina ? {} : {
-            [tFeatures('enterpriseSingleSignOn.title')]: [
-                { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
-                { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
-                { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+            [tFeatures('globalAcceleration.title')]: [
+                { name: tFeatures('globalAcceleration.0.name'), detail: tFeatures('globalAcceleration.0.detail') },
+                { name: tFeatures('globalAcceleration.1.name'), detail: tFeatures('globalAcceleration.1.detail') },
             ]
         }),
         [tFeatures('customerService.title')]: [
@@ -102,7 +115,8 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('capacityExpansion.0.name'), detail: tFeatures('capacityExpansion.0.detail') },
             { name: tFeatures('capacityExpansion.1.name'), detail: tFeatures('capacityExpansion.1.detail') },
             { name: tFeatures('capacityExpansion.2.name'), detail: tFeatures('capacityExpansion.2.detail') },
-            { name: tFeatures('capacityExpansion.3.name'), detail: tFeatures('capacityExpansion.3.detail') }
+            { name: tFeatures('capacityExpansion.3.name'), detail: tFeatures('capacityExpansion.3.detail') },
+            ...(isInChina ? [{ name: tFeatures('capacityExpansion.4.name'), detail: tFeatures('capacityExpansion.4.detail') }] : []),
         ],
         [tFeatures('professionalServicesSupport.title')]: [
             { name: tFeatures('professionalServicesSupport.0.name'), detail: tFeatures('professionalServicesSupport.0.detail') },
@@ -126,5 +140,48 @@ export const useEnterprisePlan = () => {
         }
     };
 
-    return { allFeature };
+    // Stable group structures (code-keyed) for mapping with enums
+    const basicGroupsByCode = {
+        aiCapabilities: { title: tFeatures('aiCapabilities.title'), items: basicList[tFeatures('aiCapabilities.title')] },
+        storageManagement: { title: tFeatures('storageManagement.title'), items: basicList[tFeatures('storageManagement.title')] },
+        assetOrganization: { title: tFeatures('assetOrganization.title'), items: basicList[tFeatures('assetOrganization.title')] },
+        sharingCollaboration: { title: tFeatures('sharingCollaboration.title'), items: basicList[tFeatures('sharingCollaboration.title')] },
+        analyticsMonitoring: { title: tFeatures('analyticsMonitoring.title'), items: basicList[tFeatures('analyticsMonitoring.title')] },
+        extensions: { title: tFeatures('extensions.title'), items: basicList[tFeatures('extensions.title')] },
+    } as const;
+
+    const advancedGroupsByCode = {
+        advancedFeatures: { title: tFeatures('advancedFeatures.title'), items: advancedList[tFeatures('advancedFeatures.title')] },
+        customSystemHomepage: { title: tFeatures('customSystemHomepage.title'), items: advancedList[tFeatures('customSystemHomepage.title')] },
+        approvalWorkflow: { title: tFeatures('approvalWorkflow.title'), items: advancedList[tFeatures('approvalWorkflow.title')] },
+        aiAutoTaggingEngine: { title: tFeatures('aiAutoTaggingEngine.title'), items: advancedList[tFeatures('aiAutoTaggingEngine.title')] },
+        complianceCheck: { title: tFeatures('complianceCheck.title'), items: advancedList[tFeatures('complianceCheck.title')] },
+        customMetadataFields: { title: tFeatures('customMetadataFields.title'), items: advancedList[tFeatures('customMetadataFields.title')] },
+        watermark: { title: tFeatures('watermark.title'), items: advancedList[tFeatures('watermark.title')] },
+        enterpriseSingleSignOn: { title: tFeatures('enterpriseSingleSignOn.title'), items: advancedList[tFeatures('enterpriseSingleSignOn.title')] },
+        globalAcceleration: { title: tFeatures('globalAcceleration.title'), items: advancedList[tFeatures('globalAcceleration.title')] },
+        customerService: { title: tFeatures('customerService.title'), items: advancedList[tFeatures('customerService.title')] },
+    } as const;
+
+    // Enum key to group-code mapping for Quotation usage
+    const basicKeyToGroups: Record<EBasicConfigKey, (keyof typeof basicGroupsByCode)[]> = {
+        [EBasicConfigKey.MEMBER_SEATS]: ['assetOrganization', 'sharingCollaboration'],
+        [EBasicConfigKey.STORAGE_SPACE]: ['storageManagement'],
+        [EBasicConfigKey.AI_POINTS]: ['aiCapabilities', 'extensions', 'analyticsMonitoring'],
+    };
+
+    const advancedKeyToGroup: Partial<Record<EAdvancedModules, keyof typeof advancedGroupsByCode>> = {
+        [EAdvancedModules.ADVANCED_FEATURES]: 'advancedFeatures',
+        [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 'customSystemHomepage',
+        [EAdvancedModules.APPROVAL_WORKFLOW]: 'approvalWorkflow',
+        [EAdvancedModules.AI_AUTO_TAG]: 'aiAutoTaggingEngine',
+        [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
+        [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 'customMetadataFields',
+        [EAdvancedModules.WATERMARK]: 'watermark',
+        [EAdvancedModules.ENTERPRISE_SSO]: 'enterpriseSingleSignOn',
+        [EAdvancedModules.GA]: 'globalAcceleration',
+        [EAdvancedModules.CUSTOMER_SERVICE]: 'customerService',
+    };
+
+    return { allFeature, basicGroupsByCode, advancedGroupsByCode, basicKeyToGroups, advancedKeyToGroup };
 };    

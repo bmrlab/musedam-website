@@ -49,5 +49,7 @@
   "more-features.file-formats.title": "70+ Formats",
   "more-features.encrypted-sharing.title": "Sharing",
   "more-features.team-management.title": "Team",
-  "more-features.dynamic-feedback.title": "Feedback"
+  "more-features.dynamic-feedback.title": "Feedback",
+  "not.sale.user": "You are not a sales user",
+  "not.sale.user.button": "See Pricing"
 }

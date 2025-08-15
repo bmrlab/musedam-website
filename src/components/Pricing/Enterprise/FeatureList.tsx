@@ -1,10 +1,13 @@
 'use client'
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useEnterprisePlan } from './listPlan';
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utilities/cn';
-const FeatureList = () => {
+import { SessionUser } from '@/types/user';
+import { LocaleLink } from '@/components/LocalLink';
+
+const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
     const { allFeature } = useEnterprisePlan();
     const { t } = useTranslation('pricing-featureList');
     const [expandedCategories, setExpandedCategories] = useState({});
@@ -37,18 +40,22 @@ const FeatureList = () => {
     return (
         <div className="w-full bg-[#F0F0EA] px-4 py-[60px] md:px-[80px] md:py-[104px]">
             <div className="mb-[60px] flex flex-col items-center">
-                <h2 className="font-feature text-[40px] md:text-[64px] text-[#070707]">{t('title')}</h2>
+                <h2 className="font-feature text-[40px] text-[#070707] md:text-[64px]">{t('title')}</h2>
                 {/* 生成报价单 */}
-                {/* <button className="mt-10 rounded-xl bg-black px-6 py-3 text-[rgba(255,255,255,0.72)] shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    {t('button')}
-                </button> */}
+                {user?.isSale && <LocaleLink href='/quotation'>
+                    <button
+                        className="mt-10 rounded-xl bg-black px-6 py-3 text-white-72 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none "
+                    >
+                        {t('button')}
+                    </button>
+                </LocaleLink>}
             </div>
 
             <div className="flex flex-col gap-6 font-euclid">
                 {/* 表头部分 */}
                 <div className="grid grid-cols-12 rounded-2xl border border-[#D1D1CC] bg-[#E1E1DC] text-[rgba(0,0,0,0.72)]">
-                    <div className="md:col-span-3 col-span-4 p-4 font-semibold">{t('category')}</div>
-                    <div className="md:col-span-9 col-span-8 border-l border-[#D1D1CC] p-4 font-semibold">{t('details')}</div>
+                    <div className="col-span-4 p-4 font-semibold md:col-span-3">{t('category')}</div>
+                    <div className="col-span-8 border-l border-[#D1D1CC] p-4 font-semibold md:col-span-9">{t('details')}</div>
                 </div>
 
                 {/* 分类内容 */}
@@ -78,20 +85,20 @@ const FeatureList = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="rounded-b-2xl border border-t-0 border-b-0 border-[#D1D1CC]">
+                        <div className="rounded-b-2xl border border-y-0 border-[#D1D1CC]">
                             {categoriesMap.map(([groupKey, groupItems], index) => {
                                 const isLast = index + 1 === categoriesMap.length
                                 const isGroupExpanded = groupStates[groupKey];
                                 return <React.Fragment key={groupKey}>
                                     {/* 小组标题 */}
                                     <div className={cn(
-                                        "p-4 text-[#141414] font-medium items-center border-b border-[#D1D1CC] cursor-pointer",
+                                        "cursor-pointer items-center border-b border-[#D1D1CC] p-4 font-medium text-[#141414]",
                                         "transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
                                         !isExpend && !isGroupExpanded && isLast && 'rounded-b-2xl'
                                     )}
                                         onClick={() => toggleGroup(categoryKey, groupKey)}
                                     >
-                                        <span className='mr-[10px] inline-block'>0{index + 1}</span>{groupKey}
+                                        <span className='mr-[10px] inline-block'>{index < 9 ? '0' : ''}{index + 1}</span>{groupKey}
                                     </div>
                                     {/* 展开时显示所有小组下的功能项 ，两列 */}
                                     <div
@@ -100,15 +107,15 @@ const FeatureList = () => {
                                         {groupItems.map((item, index) => (
                                             <div key={index} className={
                                                 cn(
-                                                    "grid cursor-pointer grid-cols-12 text-sm text-[#262626] transition-all duration-300 ease-in-out hover:bg-[#E1E1DC] border-b border-[#D1D1CC]",
-                                                    isLast && (isExpend || isGroupExpanded) && index + 1 === groupItems.length && 'rounded-b-2xl'
+                                                    "grid cursor-pointer grid-cols-12 border-b border-[#D1D1CC] text-sm text-[#262626] transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
+                                                    (isExpend || isGroupExpanded) && isLast && index + 1 === groupItems.length && 'rounded-b-2xl'
                                                 )
                                             }>
-                                                <div className="md:col-span-3 col-span-4 border-r border-[#D1D1CC] md:p-4 p-2 relative flex items-center">
+                                                <div className="relative col-span-4 flex items-center border-r border-[#D1D1CC] p-2 md:col-span-3 md:p-4">
                                                     {item.name}
-                                                    {item.showBeta && <span className='text-[10px] top-[10px] left-[78px] absolute'>BETA</span>}
+                                                    {item.showBeta && <span className='absolute left-[78px] top-[10px] text-[10px]'>BETA</span>}
                                                 </div>
-                                                <div className="md:col-span-9 col-span-8 md:p-4 p-2 whitespace-pre-line">{item.detail}</div>
+                                                <div className="col-span-8 whitespace-pre-line p-2 md:col-span-9 md:p-4">{item.detail}</div>
                                             </div>
                                         ))}
                                     </div>

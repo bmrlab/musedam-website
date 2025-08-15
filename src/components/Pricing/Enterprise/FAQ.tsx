@@ -55,7 +55,7 @@ const FAQ = () => {
                                 )}
                             </span>
                         </button>
-                        <div className={cn("mt-5 md:mt-0 md:pl-1 md:pr-8 text-left font-euclidlight text-[15px] md:text-[18px] font-light leading-[30px] text-[rgba(255,255,255,0.72)]",
+                        <div className={cn("mt-5 md:mt-0 md:pl-1 md:pr-8 text-left font-euclidlight text-[15px] md:text-[18px] font-light leading-[30px] text-white-72",
                             "transition-all duration-400 ease-in-out overflow-hidden",
                             expandedIndex === idx ? 'max-h-[500px]' : 'max-h-0'
                         )}>

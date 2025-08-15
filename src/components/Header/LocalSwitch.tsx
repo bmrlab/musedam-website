@@ -1,30 +1,13 @@
 import { useLanguage } from "@/providers/Language"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback } from "react"
 
 export const LocaleSwitch: React.FC = () => {
-    const router = useRouter()
-    const pathname = usePathname()
-    const { language, setLanguage } = useLanguage()
-    const searchParams = useSearchParams()
-    const otherLocale = language === 'zh-CN' ? 'en-US' : 'zh-CN'
-
-    const changeLocale = useCallback(() => {
-        if (!searchParams) return
-        const currentParams = new URLSearchParams(searchParams)
-        const queryString = currentParams.toString()
-        const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + otherLocale) || ''
-        const newUrl = `${newPathname}${queryString ? `?${queryString}` : ''}`
-        router.replace(newUrl)
-        setLanguage(otherLocale)
-    }, [otherLocale, pathname, router, setLanguage, searchParams])
-
+    const { changeLocale } = useLanguage()
     return (
         <>
             <button
                 className="locale-switch group relative inline-block h-[22px] w-[30px]"
                 type="button"
-                onClick={changeLocale}
+                onClick={() => changeLocale()}
             >
                 <div className={`locale-switch__en absolute left-0 top-0 group-hover:z-0`}>
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -2,9 +2,10 @@ import { Metadata } from 'next'
 import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
-import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { seoTranslation } from '@/app/i18n'
 import EnterpriseQuotation from '@/components/EnterpriseQuotation'
+import { getServerSession } from '@/utilities/auth'
+import NotFound from '../not-found'
 
 export default async function MuseAIPricingPage({
     searchParams,
@@ -12,9 +13,9 @@ export default async function MuseAIPricingPage({
 }: {
     searchParams: Promise<{ plan?: string }>
 } & PropsWithLng) {
-
+    const user = await getServerSession()
     return (
-        <EnterpriseQuotation />
+        <EnterpriseQuotation user={user} />
     )
 }
 

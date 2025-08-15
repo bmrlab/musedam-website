@@ -91,6 +91,8 @@ export default {
         success: 'hsl(var(--success))',
         error: 'hsl(var(--error))',
         warning: 'hsl(var(--warning))',
+        'white-72': 'rgba(255,255,255,0.72)',
+        'white-50': 'rgba(255,255,255,0.5)'
       },
       fontFamily: {
         mono: ['var(--font-plex_mono)'],
