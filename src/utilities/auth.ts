@@ -1,11 +1,3 @@
-/*
- * @Author: fuxuewei fuxuewei@tezign.com
- * @Date: 2025-08-08 18:52:24
- * @LastEditors: fuxuewei fuxuewei@tezign.com
- * @LastEditTime: 2025-08-12 18:49:52
- * @FilePath: /musedam-website/src/utilities/auth.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { cache } from 'react'
 import { cookies } from 'next/headers'
 import {
@@ -27,7 +19,8 @@ const getFetchUserUrl = (path: string) => {
  */
 export const getServerSession: () => Promise<SessionUser | null> = cache(async () => {
   const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('session_token')?.value ?? 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..uSXk-5Bs0D2BVwNE.7-5-_XxnpLVb1_mLYetqRNqmv9fT0ThPBU4o3NQuXxJW4tc2KclgBTx60jjWMK0NEidLtJxNwIn2cbJU4dwbNDK7ztmiEeEt4poDpSsXxRB-DLPz02GtZOP1_E1CZvFFcTfSz1spgVD1Q7zp8mkKUHzb1ncp9IsDWPwdEkCuW5prKv7HY_6D4A0-ZXO5vhF5vZ60t7ih51XNqYQPSyyWpMWWh2ZT5-a1NDLD_sca6QjBtJVPL4vXRZzLh6Jr8pblbRo0R9J7Z4Y0_apq0HGwUR1lox8MQKCNwBmhG9wBwuAvEwY.4XOJEGtr8ZX1Cbx9cZXxzw'
+  const sessionToken = cookieStore.get('session_token')?.value
+  // const sessionToken = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..uSXk-5Bs0D2BVwNE.7-5-_XxnpLVb1_mLYetqRNqmv9fT0ThPBU4o3NQuXxJW4tc2KclgBTx60jjWMK0NEidLtJxNwIn2cbJU4dwbNDK7ztmiEeEt4poDpSsXxRB-DLPz02GtZOP1_E1CZvFFcTfSz1spgVD1Q7zp8mkKUHzb1ncp9IsDWPwdEkCuW5prKv7HY_6D4A0-ZXO5vhF5vZ60t7ih51XNqYQPSyyWpMWWh2ZT5-a1NDLD_sca6QjBtJVPL4vXRZzLh6Jr8pblbRo0R9J7Z4Y0_apq0HGwUR1lox8MQKCNwBmhG9wBwuAvEwY.4XOJEGtr8ZX1Cbx9cZXxzw'
 
   if (!sessionToken) return null
 

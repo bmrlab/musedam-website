@@ -19,7 +19,7 @@ import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { SessionUser } from '@/types/user'
-import { saveQuotation } from '@/endpoints/quotation'
+import { editQuotation, saveQuotation } from '@/endpoints/quotation'
 import { useQuoteDetailData } from './QuoteDetailData'
 import { useLanguage } from '@/providers/Language'
 import { encodeNumber } from '@/utilities/numberCodec'
@@ -106,8 +106,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const router = useRouter()
     const { language } = useLanguage()
 
-
-    const { rows, totalNumPerYear, years, basicCostPerYear } = useQuoteDetailData()
+    const { totalNumPerYear, years, basicCostPerYear } = useQuoteDetailData()
     const advancedPricing = pricing.advanced.modules
     const [openDiscount, setOpenDiscount] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -134,8 +133,16 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         discount,
         setDiscount,
         showNoBuyFeature,
-        setShowNoBuyFeature
+        setShowNoBuyFeature,
+        editInfo
     } = useQuotationStore()
+    const editId = editInfo?.id
+
+    useEffect(() => {
+        if (editInfo) {
+            setOpenDiscount(editInfo.discount !== undefined)
+        }
+    }, [editInfo])
 
     const tabs = [
         // {
@@ -219,6 +226,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         }
     ]
 
+
     useEffect(() => {
         setLoading(false)
     }, [])
@@ -233,36 +241,43 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         }
         setLoading(true)
         let content = {
-            rows,
+            advancedModules,
+            advancedConfig,
             prefix,
             featureView,
             showNoBuyFeature,
             lang: language,
         }
         try {
-            const id = await saveQuotation(isGlobal ? 'global' : 'mainland', {
+            const userInfo = {
                 userId: user.userId,
                 orgId: user.orgId,
                 token: user.token,
-            }, {
+            }
+            const params = {
                 customerContact: customerInfo.contact,
                 contactEmail: customerInfo.yourEmail,
                 customerEmail: customerInfo.email,
                 customerCompany: customerInfo.company,
                 annualPrice: Math.round(totalNumPerYear * 100),
                 content: JSON.stringify(content),
-                discount: discount,
+                discount: discount ? discount * 100 : undefined,
                 subscriptionYears: years,
-            })
-            router.push(`${window.location.pathname}/${encodeNumber(id)}`)
-
+            }
+            if (editId) {
+                const id = await editQuotation(isGlobal ? 'global' : 'mainland', userInfo, { ...params, quotationId: editId })
+                router.push(`${window.location.pathname}/${encodeNumber(id)}`)
+            } else {
+                const id = await saveQuotation(isGlobal ? 'global' : 'mainland', userInfo, params)
+                router.push(`${window.location.pathname}/${encodeNumber(id)}`)
+            }
         } catch (err) {
             toast({
                 description: err.message ?? '报价单保存失败',
                 duration: 2000
             })
         }
-    }, [user, rows, prefix, featureView, showNoBuyFeature, language, toast, isGlobal, customerInfo, totalNumPerYear, discount, years, router])
+    }, [user, advancedModules, advancedConfig, prefix, featureView, showNoBuyFeature, language, toast, customerInfo, totalNumPerYear, discount, years, editId, isGlobal, router])
 
 
     const renderBasics = () => {
@@ -311,7 +326,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
     const renderModuleItem = (module: typeof advancedConfigs[number]) => {
         const { key, min, unit } = module
-        return <div key={key} className="flex items-center justify-between">
+        return <div key={key} className="flex flex-col justify-between md:flex-row md:items-center">
             <div className="flex items-start space-x-2">
                 <Checkbox
                     disabled={module.disabled}
@@ -335,7 +350,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     )}
                 />
                 <div className='space-y-[6px]'>
-                    <Label className="flex items-center gap-3">
+                    <Label className="flex items-center gap-1 md:gap-3">
                         {module.label}
                         {module.tag &&
                             <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight text-[14px] font-light'>
@@ -344,27 +359,32 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         }
                     </Label>
                     {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
-                    {!module.noPrice && <DesParagraph >{prefix}{' '}{formatWithToLocaleString(module.price ?? 0)}{unit ?? t("per.year")}</DesParagraph>}
+                    {!module.noPrice && <DesParagraph >
+                        {module.price === 0 ? t('free') : `${prefix} ${formatWithToLocaleString(module.price ?? 0)} ${unit ?? t("per.year")}`}
+                    </DesParagraph>}
                 </div>
             </div>
 
             {typeof advancedModules[key] === 'number' &&
-                <NumControl
-                    key={advancedModules[key]}
-                    value={advancedModules[key] as number}
-                    onChange={(val) => {
-                        handleModuleChange(TabEnum.ADVANCED, key, val)
-                    }}
-                    disabled={!advancedModules[key]}
-                    min={min}
-                />}
+                <div className='ml-5 flex w-full justify-end md:w-auto'>
+                    <NumControl
+                        key={advancedModules[key]}
+                        value={advancedModules[key] as number}
+                        onChange={(val) => {
+                            handleModuleChange(TabEnum.ADVANCED, key, val)
+                        }}
+                        disabled={!advancedModules[key]}
+                        min={min}
+                    />
+                </div>
+            }
         </div>
     }
 
     return (
         <div className="no-scrollbar h-full overflow-scroll bg-black pb-20 font-euclid text-white">
-            <div className='sticky top-0 flex items-center justify-between p-5 pr-[60px]'>
-                <div className="shrink-0 px-4">
+            <div className='sticky top-0 flex items-center justify-between p-5 md:pr-[60px]'>
+                <div className="shrink-0 md:px-4">
                     <LocaleLink href="/">
                         <div className="relative size-9">
                             <Image src="/assets/logo-dark.svg" fill alt="muse logo" />
@@ -374,14 +394,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 {!isGlobal && <LocaleSwitch />}
             </div>
 
-            <div className='quote-form px-[60px]'>
-                <h1 className='font-feature md:text-[64px]'>{t('title')}</h1>
+            <div className='quote-form px-5 md:px-[60px]'>
+                <h1 className='font-feature text-[40px] md:text-[64px]'>{t('title')}</h1>
                 <div className='mt-2 font-euclidlight text-[18px] font-light text-white-72'>{t('subtitle')}</div>
             </div>
 
-            <div className="mt-10 space-y-10 px-[60px] text-white-72">
+            <div className="mt-10 space-y-10 px-5 text-white-72 md:px-[60px]">
                 {/* 客戶資訊 */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {formInfo.map(({ id, label, required }) => {
                         return <div className="col-span-1 space-y-3" key={id}>
                             <Label className={cn("text-sm font-medium", required && '')}>
@@ -641,6 +661,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <Switch.Root
                             checked={openDiscount}
                             onCheckedChange={(open) => {
+                                console.log("open", open)
                                 if (open) {
                                     setDiscount(9.5)
                                 } else {
@@ -672,38 +693,19 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 value={discount !== undefined ? (
                                     language === 'zh-CN' ? discount : Math.round((10 - discount) * 10)
                                 ) : ''}
-                                type='number'
-                                min={language === 'zh-CN' ? 8 : 0}
-                                max={language === 'zh-CN' ? 10 : 20}
                                 // 增加onChange实时处理输入，提升响应性
                                 onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    // 实时显示用户输入，不做严格校验，留到blur时处理
-                                    if (!isNaN(val)) {
-                                        if (language === 'zh-CN') {
-                                            // 临时存储用户输入，不强制范围，提升体验
-                                            setDiscount(val);
-                                        } else {
-                                            const realVal = (100 - val) / 10;
-                                            setDiscount(realVal);
-                                        }
+                                    if (e.target.value === '') {
+                                        setDiscount(undefined)
+                                        return
                                     }
+                                    setDiscount(e.target.value as unknown as number)
                                 }}
                                 onBlur={(e) => {
-                                    if (!e.target.value) {
-                                        setDiscount(8);
-                                        return;
-                                    }
-
-                                    const val = Number(e.target.value);
-                                    if (isNaN(val)) {
-                                        setDiscount(8);
-                                        return;
-                                    }
-
+                                    let val = e.target.value ? Number(e.target.value) : 9.5
                                     if (language === 'zh-CN') {
                                         // 中文环境：严格限制在8-10之间
-                                        const validVal = Math.max(8, Math.min(10, Math.floor(val)));
+                                        const validVal = Math.max(8, Math.min(10, Math.round(val * 100) / 100));
                                         setDiscount(validVal);
                                     } else {
                                         // 其他语言环境：输入值限制在0-20
@@ -713,13 +715,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         setDiscount(Math.max(8, realVal));
                                     }
                                 }}
-                                className="h-[44px] w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
-                                onKeyPress={(e) => {
-                                    // 只允许数字和退格键
-                                    if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab') {
-                                        e.preventDefault();
-                                    }
-                                }}
+                                className="h-[44px] max-w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
                                 // 允许为空，提升用户体验
                                 placeholder={language === 'zh-CN' ? '8-10' : '0-20'}
                             />
@@ -732,7 +728,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 <div className="space-y-5">
                     <TitleDiv>{t('feature.display.options')}</TitleDiv>
                     <RadioGroup.Root
-                        className="flex h-[68px] gap-6"
+                        className="flex flex-col gap-3 md:flex-row md:gap-6"
                         defaultValue={featureView}
                     >
                         {[EFeatureView.OVERVIEW, EFeatureView.DETAIL].map((listType) => {
@@ -765,7 +761,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 <div className="space-y-5">
                     <TitleDiv>{t('unselected.modules.pricing')}</TitleDiv>
                     <RadioGroup.Root
-                        className="flex h-[68px] gap-6"
+                        className="flex flex-col gap-3 md:flex-row md:gap-6"
                         defaultValue={showNoBuyFeature.toString()}
                     >
                         {[false, true].map((radio) => {
@@ -798,7 +794,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             {/* Generate Button */}
             <Button
                 disabled={loading}
-                className="ml-[60px] mt-10 h-[48px] w-[160px] rounded-2xl bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[rgba(255,255,255,0.6)]"
+                className="ml-5 mt-10 h-[48px] w-[calc(100%-40px)] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[rgba(255,255,255,0.6)] md:ml-[60px] md:w-[160px] md:rounded-2xl"
                 onClick={() => {
                     if (loading) return
                     if (!customerInfo['company']?.length || !customerInfo['yourEmail']?.length) {
@@ -812,7 +808,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 }}
             >
                 {loading && <Loader2 className="animate-spin" />}
-                {loading ? t('generating') : t('generate.now')}
+                {loading ? (editId ? t('saving') : t('generating')) : editId ? t('save.and.preview') : t('generate.now')}
             </Button >
         </div >
     )

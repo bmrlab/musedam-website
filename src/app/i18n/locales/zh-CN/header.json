@@ -49,5 +49,7 @@
   "more-features.file-formats.title": "70+ 文件格式",
   "more-features.encrypted-sharing.title": "加密分享",
   "more-features.team-management.title": "团队管理",
-  "more-features.dynamic-feedback.title": "动态反馈"
+  "more-features.dynamic-feedback.title": "动态反馈",
+  "not.sale.user": "您不是销售用户",
+  "not.sale.user.button": "查看价格"
 }

@@ -187,12 +187,12 @@ export const useBasicConfigs = () => {
             title: t('member.seat'),
             hint: [t('advanced.memberSeats.hint')],
             des: t('advanced.memberSeats.des'),
-            min: 15,
+            min: 10,
             price: advancedPricing.memberSeatPrice
         },
         {
             key: EBasicConfigKey.STORAGE_SPACE,
-            min: 3,
+            min: 4,
             title: t('storage.space'),
             hint: [t('advanced.storageSpace.hint')],
             tag: '1TB',

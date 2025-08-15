@@ -62,7 +62,8 @@ const QuoteDetailTable: FC = () => {
 
 export const RightContent: FC = () => {
     const {
-        customerInfo
+        customerInfo,
+        editInfo
     } = useQuotationStore()
     const { t } = useTranslation('quotation')
 
@@ -71,6 +72,7 @@ export const RightContent: FC = () => {
     return (
         <div className="no-scrollbar size-full h-full overflow-scroll bg-[#F0F0EA] p-[60px] text-black">
             <div className="text-[40px] font-semibold">{t('quote.overview')}</div>
+            {editInfo && <div className='text-sm text-[#141414]'>{t("quote.NO")}: {editInfo.quotationNo}</div>}
             <div className=''>
                 {/* Customer Information */}
                 <div className="my-10 grid grid-cols-2 gap-[30px] font-semibold">

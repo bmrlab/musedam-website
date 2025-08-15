@@ -3,8 +3,8 @@ import { getPageMetadata } from '@/utilities/getMetadata'
 
 import { MetadataProps, PropsWithLng } from '@/types/page'
 import { seoTranslation } from '@/app/i18n'
+import { QuotationSharePreview } from '@/components/EnterpriseQuotation/Preview/Share'
 import { getServerSession } from '@/utilities/auth'
-import { QuotationPreview } from '@/components/EnterpriseQuotation/Preview'
 
 export default async function MuseQuotationDetailPage({
     searchParams,
@@ -14,27 +14,13 @@ export default async function MuseQuotationDetailPage({
     params: Promise<{ id?: string }>
 } & PropsWithLng) {
     const { id } = await params
-    const { uId, oId } = await searchParams
     const user = await getServerSession()
 
-    if (!id) {
-        return null
-    }
-    const userId = uId ?? user?.userId
-    const orgId = oId ?? user?.orgId
+    if (!id) return null
     return (
-        <QuotationPreview
-            id={id}
-            user={{
-                userId: userId ?? '',
-                orgId: orgId,
-                token: user?.token,
-                isOrg: true,
-                hasOrg: true,
-                isSale: true,
-                isPro: false
-            }}
-            isAdmin={!!uId && !!oId}
+        <QuotationSharePreview
+            uuid={id}
+            user={user}
         />
     )
 }

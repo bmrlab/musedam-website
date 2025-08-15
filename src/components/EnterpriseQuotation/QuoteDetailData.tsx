@@ -11,6 +11,19 @@ export interface QuoteDetailRow {
     name: React.ReactNode
     quantity: string
     unit?: string
+    subtotal?: number | string
+    bold?: boolean
+    isSection?: boolean
+    isModule?: boolean
+    des?: string
+    previewDes?: string
+    key?: string
+}
+
+export interface QuoteDetailRowFormatted {
+    name: React.ReactNode
+    quantity: string
+    unit?: string
     subtotal?: string
     bold?: boolean
     isSection?: boolean
@@ -21,7 +34,7 @@ export interface QuoteDetailRow {
 }
 
 export interface QuoteDetailData {
-    rows: QuoteDetailRow[]
+    rows: QuoteDetailRowFormatted[]
     allModules: QuoteDetailRow[]
     subtotal: string
     total: string
@@ -111,7 +124,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     quantity: quantity,
                     des: hint.at(-1),
                     unit: renderCost(cost / (key === 'memberSeats' ? packageBasic.memberSeats : key === 'storageSpace' ? packageBasic.storageSpace : packageBasic.aiPoints)),
-                    subtotal: `${prefix}${formatWithToLocaleString(cost)}`,
+                    subtotal: cost,
                 })
             }
         })
@@ -129,9 +142,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 return {
                     key,
                     name: label,
-                    quantity: `${pointsNum} ${t("ai.AutoTagEngine.unit")}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
+                    quantity: `${pointsNum} ${t("year")}${t(subscriptionYears > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
-                    subtotal: `${prefix}${cost.toLocaleString()}`,
+                    subtotal: cost,
                     isModule: true,
                     des: t('ai.AutoTagEngine.des', { moduleCost: moduleCost.toLocaleString(), pointsNum: pointsNum, prefix: prefix, pointsCost: pointsCost.toLocaleString() }),
                     previewDes: t('ai.AutoTagEngine.previewDes'),
@@ -147,7 +160,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     name: `${label}(${(hasSSOType.length > 0 ? hasSSOType : allSSOType).map((v) => ssoTypeNames[v]).join(', ')})`,
                     quantity: getYear(hasSSOType.length ? subscriptionYears : 1),
                     unit: `${prefix}${price.toLocaleString()}${t('sso.unit')}`,
-                    subtotal: `${prefix}${cost.toLocaleString()}`,
+                    subtotal: cost,
                     isModule: true,
                     notBuy: !hasSSOType.length
                 }
@@ -161,7 +174,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     name: `${label}(${10 * GaNum}TB${t("package")})`,
                     quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
                     unit: `${prefix}${cost.toLocaleString()}/10TB${t('per.year')}`,
-                    subtotal: `${prefix}${cost.toLocaleString()}`,
+                    subtotal: cost,
                     isModule: true,
                 }
             }
@@ -170,8 +183,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 key,
                 name: label,
                 quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                unit: `${prefix}${price.toLocaleString()}${t('per.year')}`,
-                subtotal: `${prefix}${price.toLocaleString()}`,
+                unit: price === 0 ? t('free') : `${prefix}${price.toLocaleString()}${t('per.year')}`,
+                subtotal: price === 0 ? t('free') : price,
                 isModule: true,
             }
         })
@@ -209,7 +222,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             name: t('member.seat'),
             quantity: `${privateConfig.memberSeats} ${t('seats')}`,
             unit: `${prefix}${privateConfig.memberSeats * pricing.private.memberSeatPrice}${t('per.year')}`,
-            subtotal: `${prefix}${memberCost}`,
+            subtotal: memberCost,
         })
 
         // 高级模块
@@ -222,7 +235,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     name: moduleNames[key],
                     quantity: `1 ${t('year.s')}`,
                     unit: `${prefix}${price}${t('per.year')}`,
-                    subtotal: `${prefix}${price}`,
+                    subtotal: price === 0 ? t('free') : price,
                     isModule: true,
                 })
             }
@@ -247,7 +260,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 name: t('private.implementation'),
                 quantity: '1',
                 unit: `${prefix}${price}`,
-                subtotal: `${prefix}${price}`,
+                subtotal: price,
             })
         }
 
@@ -259,7 +272,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 name: t('operation.maintenance.times', { times: privateModules.maintenanceYears }),
                 quantity: `${privateModules.maintenanceYears} ${t('year.s')}`,
                 unit: `${prefix}${pricing.private.modules.operationMaintenance}${t('per.year')}`,
-                subtotal: `${prefix}${price}`,
+                subtotal: price,
             })
         }
     }
@@ -276,13 +289,17 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */
     const noTaxTotal = totalPerYear * subscriptionYears
+
     /** 未税- 折扣价 */
     const discountTotal = noTaxTotal * ((discount || 10) / 10)
 
 
 
     return {
-        rows,
+        rows: rows.map((v) => ({
+            ...v,
+            subtotal: typeof v.subtotal === 'string' ? v.subtotal : v.subtotal ? prefix + (v.subtotal * subscriptionYears).toLocaleString() : undefined
+        })),
         allModules, // 全部高级模块
         subtotal: prefix + noTaxTotal.toLocaleString(),
         /** 税后- 折扣价 */

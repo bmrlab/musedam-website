@@ -13,6 +13,7 @@ import {
     IBasicConfig,
     EFeatureView
 } from '@/components/EnterpriseQuotation/types'
+import { IQuotationInfo } from '@/endpoints/quotation'
 
 // 辅助函数：生成 advancedModules 的初始值
 const getInitialAdvancedModules = (): IAdvancedModules => {
@@ -92,6 +93,10 @@ interface QuotationStoreType {
 
     // 重置所有状态到初始值
     resetToInitial: () => void
+
+    // 编辑ID
+    editInfo: IQuotationInfo | undefined
+    setEditInfo: React.Dispatch<React.SetStateAction<IQuotationInfo | undefined>>
 }
 
 const initialCustomerInfo: ICustomerInfo = {
@@ -108,9 +113,9 @@ const initialBasicConfig: IBasicConfig = {
 }
 
 const initialAdvancedConfig: IAdvancedInfo = {
-    memberSeats: 15,
-    storageSpace: 3,
-    aiPoints: 2
+    memberSeats: 10,
+    storageSpace: 4,
+    aiPoints: 0
 }
 
 const initialPrivateConfig: IPrivateConfig = {
@@ -154,6 +159,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     // 显示未购买功能
     const [showNoBuyFeature, setShowNoBuyFeature] = useState(false)
 
+    const [editInfo, setEditInfo] = useState<IQuotationInfo | undefined>()
+
     // 初始化用户邮箱
     const initializeUserEmail = useCallback((user: SessionUser | null) => {
         if (user?.orgEmail && customerInfo.yourEmail.length === 0) {
@@ -177,6 +184,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setDiscount(undefined)
         setFeatureView(EFeatureView.OVERVIEW)
         setShowNoBuyFeature(false)
+        setEditInfo(undefined)
     }, [])
 
     const value: QuotationStoreType = {
@@ -203,7 +211,9 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         showNoBuyFeature,
         setShowNoBuyFeature,
         initializeUserEmail,
-        resetToInitial
+        resetToInitial,
+        editInfo,
+        setEditInfo
     }
 
     return (
