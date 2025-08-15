@@ -74,9 +74,11 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
 
   if (userData.code !== '0' || !userData.result) return null
 
+  const orgId = cookieStore.get('ajs_group_id')?.value ?? data.orgId
+
   const result: SessionUser = {
     userId: data.userId,
-    orgId: data.orgId,
+    orgId: orgId,
     token: data.token,
     isSale: false,
     isOrg: userData.result.config?.lastSpaceId !== undefined && userData.result.config.lastSpaceId > 0,
@@ -92,10 +94,10 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
     {
       headers: requestHeader,
     },
-  ), data.orgId && fetch(
+  ), orgId && fetch(
     getFetchUserUrl(`/org/members/${data.userId}`),
     {
-      headers: { ...requestHeader, 'x-org-id': data.orgId },
+      headers: { ...requestHeader, 'x-org-id': orgId },
     },
   )])
 

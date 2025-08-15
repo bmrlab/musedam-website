@@ -27,13 +27,13 @@ export default function EnterpriseQuotation({ editId, user }: { editId?: string,
             <FlexCenterContainer className="flex size-full flex-col">
                 <Image src="/assets/logo-dark.svg" width={100} height={100} alt="muse logo" />
                 <div className="absolute bottom-[80px] flex w-[194px] flex-col items-center gap-4">
-                    <span className='text-center text-lg font-medium text-white'>{t('not.sale.user')}</span>
+                    <span className='text-lg text-center font-medium text-white'>{t('not.sale.user')}</span>
 
                     <Link
                         href={!user ? '/auth' : '/pricing'}
                         prefetch={false}
                     >
-                        <DarkButton className={'mr-5 h-[48px]'}>
+                        <DarkButton className='h-[48px]'>
                             <p className="hidden md:block">{user ? t('not.sale.user.button') : t('button.login')}</p>
                         </DarkButton>
                     </Link>

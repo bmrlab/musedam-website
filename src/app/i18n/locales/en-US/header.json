@@ -50,6 +50,6 @@
   "more-features.encrypted-sharing.title": "Sharing",
   "more-features.team-management.title": "Team",
   "more-features.dynamic-feedback.title": "Feedback",
-  "not.sale.user": "You are not a sales user",
+  "not.sale.user": "No Permission",
   "not.sale.user.button": "See Pricing"
 }
