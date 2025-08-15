@@ -261,7 +261,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 customerCompany: customerInfo.company,
                 annualPrice: Math.round(totalNumPerYear * 100),
                 content: JSON.stringify(content),
-                discount: discount ? discount * 100 : undefined,
+                discount: discount ? Math.round(discount * 100) : undefined,
                 subscriptionYears: years,
             }
             if (editId) {

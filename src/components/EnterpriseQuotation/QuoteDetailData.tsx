@@ -142,7 +142,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 return {
                     key,
                     name: label,
-                    quantity: `${pointsNum} ${t("year")}${t(subscriptionYears > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
+                    quantity: `${subscriptionYears} ${t("year")}${t(subscriptionYears > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
