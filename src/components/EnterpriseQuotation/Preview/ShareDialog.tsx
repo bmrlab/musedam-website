@@ -328,7 +328,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({ open, onOpenChange, info, us
                                 type="text"
                                 value={shareLink}
                                 readOnly
-                                className="w-full bg-transparent text-sm  outline-none "
+                                className="w-full bg-transparent text-base md:text-sm  outline-none "
                             />
                         </div>
                     </div>

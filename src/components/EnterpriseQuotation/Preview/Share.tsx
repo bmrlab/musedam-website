@@ -114,7 +114,7 @@ export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null,
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder={t('share.password.placeholder')}
-                                    className="h-11 w-[360px] max-w-full rounded-[8px] border border-white/20  bg-transparent px-4 text-sm text-white placeholder:text-white/40 focus:outline-none"
+                                    className="h-11 w-[360px] max-w-full rounded-[8px] border border-white/20  bg-transparent px-4 text-base md:text-sm text-white placeholder:text-white/40 focus:outline-none"
                                     onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
                                 />
                             </div>

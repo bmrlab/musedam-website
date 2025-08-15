@@ -151,7 +151,7 @@ export const useEnterprisePlan = () => {
     } as const;
 
     const advancedGroupsByCode = {
-        advancedFeatures: { title: tFeatures('advancedFeatures.title'), items: advancedList[tFeatures('advancedFeatures.title')] },
+        advancedFeatures: { title: tFeatures('advancedFeatures.title'), items: advancedList[tFeatures('advancedFeatures.title')].slice(1) },
         customSystemHomepage: { title: tFeatures('customSystemHomepage.title'), items: advancedList[tFeatures('customSystemHomepage.title')] },
         approvalWorkflow: { title: tFeatures('approvalWorkflow.title'), items: advancedList[tFeatures('approvalWorkflow.title')] },
         aiAutoTaggingEngine: { title: tFeatures('aiAutoTaggingEngine.title'), items: advancedList[tFeatures('aiAutoTaggingEngine.title')] },
