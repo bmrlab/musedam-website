@@ -139,6 +139,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({ open, onOpenChange, info, us
                 token: user.token,
             }, {
                 ...info,
+                isShare: 1,
                 quotationId: info.id,
                 password: newValue ? newPassword : '',
                 shareAuth: newValue ? shareAuth : undefined,
@@ -197,6 +198,8 @@ export const ShareDialog: FC<ShareDialogProps> = ({ open, onOpenChange, info, us
                 token: user.token,
             }, {
                 ...info,
+                isShare: 1,
+                shareAuth: shareAuth,
                 quotationId: info.id,
                 password: newPassword,
             })
@@ -234,8 +237,10 @@ export const ShareDialog: FC<ShareDialogProps> = ({ open, onOpenChange, info, us
                 token: user.token,
             }, {
                 ...info,
+                isShare: 1,
                 quotationId: info.id,
                 shareAuth: newAuth,
+                password: accessPassword
             })
 
             setShareAuth(newAuth)
@@ -264,13 +269,13 @@ export const ShareDialog: FC<ShareDialogProps> = ({ open, onOpenChange, info, us
 
             await navigator.clipboard.writeText(textToCopy)
             toast({
-                description: t('share.dialog.update.success'),
+                description: t('share.dialog.copy.success'),
                 duration: 2000,
             })
 
         } catch (err) {
             toast({
-                description: t('share.dialog.update.failed'),
+                description: t('share.dialog.copy.failed'),
                 duration: 2000,
             })
         }

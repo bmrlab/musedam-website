@@ -139,10 +139,12 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const perPointCost = advancedPricing[EAdvancedModules.AI_AUTO_TAG_POINTS]
                 const pointsCost = pointsNum * perPointCost
                 const cost = moduleCost + pointsCost
+
+                const realYear = advancedModules[key] ? subscriptionYears : 1
                 return {
                     key,
                     name: label,
-                    quantity: `${subscriptionYears} ${t("year")}${t(subscriptionYears > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
+                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,

@@ -170,6 +170,8 @@
     "share.dialog.copy.link.password": "Copy Link & Password",
     "share.dialog.user.invalid": "Invalid user information",
     "share.dialog.update.success": "Settings updated",
+    "share.dialog.copy.success": "Copy successfully, share it now",
+    "share.dialog.copy.failed": "Copy failed, please copy manually",
     "share.dialog.update.failed": "Update failed, please try again",
     "share.dialog.insufficient.permissions": "Insufficient permissions",
     "share.dialog.password.length.error": "Password length must be between 4-18 characters",

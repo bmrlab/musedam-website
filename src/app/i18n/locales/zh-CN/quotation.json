@@ -169,6 +169,8 @@
     "share.dialog.copy.link.password": "复制链接及密码",
     "share.dialog.user.invalid": "用户信息无效",
     "share.dialog.update.success": "设置已更新",
+    "share.dialog.copy.success": "复制成功，快去分享吧",
+    "share.dialog.copy.failed": "复制失败，请手动复制",
     "share.dialog.update.failed": "更新失败，请重试",
     "share.dialog.insufficient.permissions": "权限不足",
     "share.dialog.password.length.error": "密码长度必须在4-18个字符之间",
