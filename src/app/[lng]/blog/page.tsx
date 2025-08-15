@@ -112,7 +112,7 @@ async function BlogPageContent({
           currentPage={parseInt(allPosts.page?.toString() ?? '1')}
           totalPages={allPosts.totalPages || 1}
           selectedCategory={filterCategory}
-          className="px-6 py-[60px] pt-0 md:p-20"
+          className="px-6 py-[60px] pt-[60px] md:p-20"
         />
       </div>
     </div>

@@ -69,7 +69,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         if (featureView === EFeatureView.OVERVIEW) {
             return groups.map(group => ({
                 title: group.title,
-                detail: group.items.map(i => i.name).join(', ')
+                detail: group.items?.map(i => i.name).join(', ')
             }))
         }
         // DETAIL
@@ -82,7 +82,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         if (featureView === EFeatureView.OVERVIEW) {
             return groups.map(group => ({
                 title: group.title,
-                detail: group.items.map(i => i.name).join(', ')
+                detail: group.items?.map(i => i.name).join(', ')
             }))
         }
         // DETAIL

@@ -1,11 +1,12 @@
 
-import { useCountry } from '@/providers/Country';
 import { useTranslation } from 'react-i18next';
 import { EAdvancedModules, EBasicConfigKey } from '../../EnterpriseQuotation/config'
+import { useCountry } from '@/providers/Country';
 
 export const useEnterprisePlan = () => {
     const { t: tFeatures } = useTranslation('pricing-enterprise-features');
     const { isInChina } = useCountry()
+
     // Basic
     const basicList = {
         [tFeatures('aiCapabilities.title')]: [
@@ -45,7 +46,7 @@ export const useEnterprisePlan = () => {
     // Advanced
     const advancedList = {
         [tFeatures('advancedFeatures.title')]: [
-            ...(!isInChina ? [] : [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }]),
+            ...(isInChina ? [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }] : []),
             { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
             { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
             { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },
@@ -72,8 +73,16 @@ export const useEnterprisePlan = () => {
                 { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
                 { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
                 { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-            ],
+            ]
         }),
+        [tFeatures('aiAutoTaggingEngine.title')]: [
+            { name: tFeatures('aiAutoTaggingEngine.0.name'), detail: tFeatures('aiAutoTaggingEngine.0.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.1.name'), detail: tFeatures('aiAutoTaggingEngine.1.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.2.name'), detail: tFeatures('aiAutoTaggingEngine.2.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.3.name'), detail: tFeatures('aiAutoTaggingEngine.3.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.4.name'), detail: tFeatures('aiAutoTaggingEngine.4.detail') },
+            { name: tFeatures('aiAutoTaggingEngine.5.name'), detail: tFeatures('aiAutoTaggingEngine.5.detail') }
+        ],
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
             { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
@@ -84,11 +93,15 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('watermark.1.name'), detail: tFeatures('watermark.1.detail') },
             { name: tFeatures('watermark.2.name'), detail: tFeatures('watermark.2.detail') }
         ],
+        [tFeatures('enterpriseSingleSignOn.title')]: [
+            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
+            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
+            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+        ],
         ...(!isInChina ? {} : {
-            [tFeatures('enterpriseSingleSignOn.title')]: [
-                { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
-                { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
-                { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+            [tFeatures('globalAcceleration.title')]: [
+                { name: tFeatures('globalAcceleration.0.name'), detail: tFeatures('globalAcceleration.0.detail') },
+                { name: tFeatures('globalAcceleration.1.name'), detail: tFeatures('globalAcceleration.1.detail') },
             ]
         }),
         [tFeatures('customerService.title')]: [
