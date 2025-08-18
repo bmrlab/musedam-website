@@ -349,7 +349,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 />
                 <div className='space-y-[6px]'>
                     <Label className="flex gap-1 md:gap-3 items-center">
-                        <span className='flex-1'>{module.label}</span>
+                        <span className='flex-1 md:flex-none'>{module.label}</span>
                         {module.tag &&
                             <div className='min-w-[40px] text-[14px] leading-[16px] font-euclidlight  font-light'>
                                 <div className='flex items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px]'> {module.tag}</div>
@@ -364,7 +364,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </div>
 
             {typeof advancedModules[key] === 'number' &&
-                <div className='ml-5 flex w-full justify-end md:w-auto'>
+                <div className='md:ml-5 flex w-full justify-end md:w-auto'>
                     <NumControl
                         key={advancedModules[key]}
                         value={advancedModules[key] as number}
