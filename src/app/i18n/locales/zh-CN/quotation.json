@@ -181,5 +181,10 @@
     "preview.invalid.login.info": "无效的登录信息",
     "preview.get.quotation.failed": "获取报价单失败",
     "preview.quotation.parse.failed": "报价单内容解析失败",
-    "free": "赠送"
+    "free": "赠送",
+    "preview.error.message": "无效的报价单ID，请检查链接",
+    "share.get.quotation.failed": "获取报价单失败",
+    "share.get.status.failed": "获取报价单状态失败",
+    "share.logo.alt": "Muse Logo",
+    "share.add.view.record.failed": "添加查看记录失败"
 }

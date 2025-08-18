@@ -1,3 +1,5 @@
+"use client"
+
 import { useTranslation } from '@/app/i18n/client'
 import { usePricing, useBasicConfigs, useAdvancedConfigs, EAdvancedModules, EPrivateModules } from './config'
 import { TabEnum } from './types'

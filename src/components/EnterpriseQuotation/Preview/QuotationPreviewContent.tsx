@@ -8,7 +8,6 @@ import { FeatureList } from '../FeaturList'
 import { FC, useEffect, useMemo, useRef, useState } from 'react'
 import { IQuotationInfo } from '@/endpoints/quotation'
 import { useToast } from '@/hooks/use-toast'
-import html2pdf from 'html2pdf.js';
 import { Button } from '../../ui/button'
 import { useLanguage } from '@/providers/Language'
 import { PreviewDetailTable } from './PreviewDetailTable'
@@ -102,7 +101,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
         }
     }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
 
-    const exportToPDF = () => {
+    const exportToPDF = async () => {
         const element = contentRef.current;
         if (!element) return;
 
@@ -192,6 +191,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
             }
         }
 
+        const html2pdf = (await import('html2pdf.js')).default;
+
         html2pdf().set(opt).from(element).save().then(() => {
             document.head.removeChild(style);
             // 恢复分页符显示
@@ -234,7 +235,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     return (
         <div className="flex min-h-screen flex-col items-center bg-white text-black">
             {/* 操作按钮 */}
-            <div className='absolute right-[24px] top-[30px] z-[1] flex max-w-[1440px] justify-end md:gap-2 gap-[6px] md:right-[100px] md:top-[76px]'>
+            <div className='absolute right-[24px] top-[30px] z-[1] flex max-w-[1440px] justify-end gap-[6px] md:right-[100px] md:top-[76px] md:gap-2'>
                 {showEdit && (
                     <Button className='size-[40px] rounded-[8px] md:size-[44px] md:rounded-2xl [&_svg]:size-5 md:[&_svg]:size-6' onClick={handleEdit}>
                         <EditIcon />

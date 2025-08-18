@@ -182,5 +182,10 @@
     "preview.invalid.login.info": "Invalid login information",
     "preview.get.quotation.failed": "Failed to get quotation",
     "preview.quotation.parse.failed": "Failed to parse quotation content",
-    "free": "Free"
+    "free": "Free",
+    "preview.error.message": "Invalid quotation ID, please check the link",
+    "share.get.quotation.failed": "Failed to get quotation",
+    "share.get.status.failed": "Failed to get quotation status",
+    "share.logo.alt": "Muse Logo",
+    "share.add.view.record.failed": "Failed to add view record"
 }

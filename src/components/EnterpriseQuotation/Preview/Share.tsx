@@ -8,7 +8,6 @@ import { Button } from '../../ui/button'
 import { useCountry } from '@/providers/Country'
 import { SessionUser } from '@/types/user'
 import { QuotationPreviewContent } from './QuotationPreviewContent'
-import { getBrowserDeviceInfo } from '@/utilities/getBrowserDeviceInfo'
 import { useTranslation } from '@/app/i18n/client'
 
 export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null, inShare?: boolean }> = (props) => {
@@ -20,8 +19,10 @@ export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null,
     const [info, setInfo] = useState<IQuotationInfo>()
     const { toast } = useToast()
     const [needPassword, setNeedPassword] = useState<boolean | undefined>(undefined)
+    const [isClient, setIsClient] = useState(false)
 
     const isSelf = useMemo(() => Boolean(info && props.user && props.user?.userId === info.member?.userId), [info, props.user])
+
     const getInfoByUUid = () => {
         getQuotationByUUid(isInChina ? 'mainland' : 'global',
             { uuid: props.uuid, password, userId: props.user?.userId })
@@ -47,12 +48,28 @@ export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null,
         getInfoByUUid()
     }
 
+    // 确保只在客户端执行
     useEffect(() => {
-        const { identifier, ...others } = getBrowserDeviceInfo();
-
-        addQuotationViewRecord(isInChina ? 'mainland' : 'global',
-            { deviceHash: identifier, uuid: props.uuid, device: JSON.stringify(others) })
+        setIsClient(true)
     }, [])
+
+    useEffect(() => {
+        if (!isClient) return
+
+        const addViewRecord = async () => {
+            try {
+                const { getBrowserDeviceInfo } = await import('@/utilities/getBrowserDeviceInfo')
+                const { identifier, ...others } = getBrowserDeviceInfo()
+
+                await addQuotationViewRecord(isInChina ? 'mainland' : 'global',
+                    { deviceHash: identifier, uuid: props.uuid, device: JSON.stringify(others) })
+            } catch (error) {
+                console.warn('Failed to add view record:', error)
+            }
+        }
+
+        addViewRecord()
+    }, [isClient, props.uuid, isInChina])
 
     useEffect(() => {
         getQuotationStatus(isInChina ? 'mainland' : 'global',
@@ -72,9 +89,8 @@ export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null,
             })
     }, [props.uuid])
 
-
-
-    if (needPassword === undefined) {
+    // 在客户端加载完成之前显示加载状态
+    if (!isClient || needPassword === undefined) {
         return <Loading />
     }
 
@@ -114,7 +130,7 @@ export const QuotationSharePreview: FC<{ uuid: string, user: SessionUser | null,
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder={t('share.password.placeholder')}
-                                    className="h-11 w-[360px] max-w-full rounded-[8px] border border-white/20  bg-transparent px-4 text-base md:text-sm text-white placeholder:text-white/40 focus:outline-none"
+                                    className="h-11 w-[360px] max-w-full rounded-[8px] border border-white/20  bg-transparent px-4 text-base text-white placeholder:text-white/40 focus:outline-none md:text-sm"
                                     onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
                                 />
                             </div>

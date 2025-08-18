@@ -5,11 +5,11 @@ import { MetadataProps, PropsWithLng } from '@/types/page'
 import { seoTranslation } from '@/app/i18n'
 import { getServerSession } from '@/utilities/auth'
 import { QuotationPreview } from '@/components/EnterpriseQuotation/Preview'
+import { notFound } from 'next/navigation'
 
 type Args = {
     params: Promise<{ lng: string; id?: string }>
 }
-
 
 export default async function MuseQuotationDetailPage({
     searchParams,
@@ -18,30 +18,37 @@ export default async function MuseQuotationDetailPage({
     searchParams: Promise<{ uId?: string, oId?: string }>
     params: Promise<{ id?: string }>
 } & PropsWithLng) {
-    const { id } = await params
-    const { uId, oId } = await searchParams
-    const user = await getServerSession()
+    try {
+        const { id } = await params
+        const { uId, oId } = await searchParams
+        const user = await getServerSession()
 
-    if (!id) {
-        return <div></div>
+        if (!id) {
+            notFound()
+        }
+
+        const userId = uId ?? user?.userId
+        const orgId = oId ?? user?.orgId
+
+        return (
+            <QuotationPreview
+                id={id}
+                user={{
+                    userId: userId ?? '',
+                    orgId: orgId,
+                    token: user?.token,
+                    isOrg: true,
+                    hasOrg: true,
+                    isSale: true,
+                    isPro: false
+                }}
+                isAdmin={!!uId && !!oId}
+            />
+        )
+    } catch (error) {
+        console.error('Error in quotation detail page:', error)
+        notFound()
     }
-    const userId = uId ?? user?.userId
-    const orgId = oId ?? user?.orgId
-    return (
-        <QuotationPreview
-            id={id}
-            user={{
-                userId: userId ?? '',
-                orgId: orgId,
-                token: user?.token,
-                isOrg: true,
-                hasOrg: true,
-                isSale: true,
-                isPro: false
-            }}
-            isAdmin={!!uId && !!oId}
-        />
-    )
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {

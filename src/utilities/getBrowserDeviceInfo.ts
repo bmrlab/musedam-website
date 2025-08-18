@@ -1,34 +1,102 @@
+
 // 提取浏览器和设备信息
 export function getBrowserDeviceInfo() {
-  // 浏览器信息
-  const browserInfo = {
-    name: getBrowserName(),
-    version: navigator.appVersion,
-    language: navigator.language,
-    userAgent: navigator.userAgent
-  };
+  // 检查是否在客户端环境
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    // 服务器端环境，返回默认值
+    return {
+      browser: {
+        name: 'Unknown',
+        version: 'Unknown',
+        language: 'Unknown',
+        userAgent: 'Unknown'
+      },
+      device: {
+        platform: 'Unknown',
+        screen: 'Unknown',
+        pixelRatio: 1,
+        isMobile: false
+      },
+      identifier: 'server-side'
+    };
+  }
 
-  // 设备信息
-  const deviceInfo = {
-    platform: navigator.platform,
-    screen: `${screen.width}x${screen.height}`,
-    pixelRatio: window.devicePixelRatio,
-    isMobile: /Mobi|Android|iPhone/i.test(navigator.userAgent)
-  };
+  // 检测是否在企业微信环境中
+  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+  const isWeCom = /wxwork/i.test(navigator.userAgent);
 
-  // 组合信息并生成简单标识
-  const combined = JSON.stringify({ ...browserInfo, ...deviceInfo });
-  const identifier = simpleHash(combined);
+  try {
+    // 浏览器信息
+    const browserInfo = {
+      name: getBrowserName(),
+      version: navigator.appVersion || 'Unknown',
+      language: navigator.language || 'Unknown',
+      userAgent: navigator.userAgent
+    };
 
-  return {
-    browser: browserInfo,
-    device: deviceInfo,
-    identifier: identifier
-  };
+    // 设备信息 - 添加企业微信兼容性处理
+    const deviceInfo = {
+      platform: (navigator.platform || 'Unknown'),
+      screen: (() => {
+        try {
+          if (typeof screen !== 'undefined' && screen && screen.width && screen.height) {
+            return `${screen.width}x${screen.height}`;
+          }
+          return 'Unknown';
+        } catch (e) {
+          return 'Unknown';
+        }
+      })(),
+      pixelRatio: (() => {
+        try {
+          if (typeof window !== 'undefined' && window.devicePixelRatio) {
+            return window.devicePixelRatio;
+          }
+          return 1;
+        } catch (e) {
+          return 1;
+        }
+      })(),
+      isMobile: /Mobi|Android|iPhone/i.test(navigator.userAgent)
+    };
+
+    // 组合信息并生成简单标识
+    const combined = JSON.stringify({ ...browserInfo, ...deviceInfo });
+    const identifier = simpleHash(combined);
+
+    return {
+      browser: browserInfo,
+      device: deviceInfo,
+      identifier: identifier
+    };
+  } catch (error) {
+    // 如果出现任何错误，返回安全的默认值
+    console.warn('Failed to get browser device info, using fallback:', error);
+    return {
+      browser: {
+        name: isWeChat || isWeCom ? 'WeChat' : 'Unknown',
+        version: 'Unknown',
+        language: navigator.language || 'Unknown',
+        userAgent: navigator.userAgent || 'Unknown'
+      },
+      device: {
+        platform: 'Unknown',
+        screen: 'Unknown',
+        pixelRatio: 1,
+        isMobile: /Mobi|Android|iPhone/i.test(navigator.userAgent || '')
+      },
+      identifier: 'fallback-' + Date.now()
+    };
+  }
 }
 
 // 辅助函数：判断浏览器名称
 function getBrowserName() {
+  // 检查是否在客户端环境
+  if (typeof navigator === 'undefined' || typeof navigator.userAgent === 'undefined') {
+    return 'Unknown';
+  }
+
   const userAgent = navigator.userAgent;
 
   if (userAgent.includes('Chrome')) return 'Chrome';
@@ -41,7 +109,7 @@ function getBrowserName() {
 }
 
 // 辅助函数：简单哈希算法生成标识
-function simpleHash(str) {
+function simpleHash(str: string) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);

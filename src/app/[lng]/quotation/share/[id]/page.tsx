@@ -1,10 +1,11 @@
 import { Metadata } from 'next'
 import { getPageMetadata } from '@/utilities/getMetadata'
 
-import { MetadataProps, PropsWithLng } from '@/types/page'
+import { PropsWithLng } from '@/types/page'
 import { seoTranslation } from '@/app/i18n'
 import { QuotationSharePreview } from '@/components/EnterpriseQuotation/Preview/Share'
 import { getServerSession } from '@/utilities/auth'
+import { notFound } from 'next/navigation'
 
 type Args = {
     params: Promise<{ lng: string; id?: string }>
@@ -17,16 +18,24 @@ export default async function MuseQuotationDetailPage({
     searchParams: Promise<{ uId?: string, oId?: string }>
     params: Promise<{ id?: string }>
 } & PropsWithLng) {
-    const { id } = await params
-    const user = await getServerSession()
+    try {
+        const { id } = await params
+        const user = await getServerSession()
 
-    if (!id) return <div></div>
-    return (
-        <QuotationSharePreview
-            uuid={id}
-            user={user}
-        />
-    )
+        if (!id) {
+            notFound()
+        }
+
+        return (
+            <QuotationSharePreview
+                uuid={id}
+                user={user}
+            />
+        )
+    } catch (error) {
+        console.error('Error in quotation share page:', error)
+        notFound()
+    }
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
