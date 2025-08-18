@@ -161,7 +161,9 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                         )}>
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                         </h1>
-                        <p className="mb-[30px] text-center font-euclidlight text-base font-light text-[rgba(20,20,20,0.72)] md:mb-[60px] md:text-start md:text-[22px] md:leading-[1.45em]">
+                        <p className={cn("mb-[30px] text-center font-euclidlight text-base font-light md:mb-[60px] md:text-start md:text-[22px]  md:leading-[1.45em]",
+                            dark ? 'text-[rgba(255,255,255,0.72)]' : 'text-[rgba(20,20,20,0.72)]'
+                        )}>
                             <Trans i18nKey="desc" t={t} components={{ 1: isMobile ? <></> : <br /> }} />
                         </p>
                         <ul className={cn("mb-[30px] md:mb-[60px]",
@@ -175,9 +177,9 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                             ))}
                         </ul>
                     </div>
-                    <div className="hidden md:block">
-                        <div className="mb-4 font-euclidlight text-base font-light">{t('security')}</div>
-                        <div className="flex w-fit flex-row gap-6 rounded-full bg-[#F8F8F8] px-6 py-3">
+                    <div className="mb-[50px] md:mb-0">
+                        <div className="mb-4 text-center font-euclidlight text-base font-light md:text-start">{t('security')}</div>
+                        <div className={cn("grid max-w-full grid-cols-4 flex-row gap-[18px] rounded-full px-6 py-3 md:w-[408px] md:gap-6", dark ? 'bg-[#141414]' : 'bg-[#F8F8F8]')}>
                             {/* 认证徽章占位符，可替换为图片 */}
                             {[getUrl('ISO001.png'), getUrl('ISO017.png'), getUrl('ISO9001.png'), getUrl('MLPS3.png')].map((v) => {
                                 return <Image src={v} width={200} height={200} alt={v} className="col-span-1" key={v} />
@@ -187,14 +189,14 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                 </div>
                 {/* 右侧表单 */}
                 <div className={cn(
-                    "w-full pb-[60px] font-euclid shadow-none md:flex-1 md:pb-[90px]",
+                    "flex w-full flex-col pb-[60px] font-euclid shadow-none md:h-full md:flex-1 md:pb-[90px]",
                     inNewPage ? 'md:pt-[80px]' : 'md:pt-[100px]'
                 )}>
                     <h2 className="mb-6 text-center text-[28px] font-medium md:mb-10 md:text-start md:text-2xl">{t('form.title')}</h2>
-                    <form className="grid h-full grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[12px]" onSubmit={handleSubmit} >
+                    <form className="grid flex-1 grid-cols-2 justify-between gap-x-3 gap-y-4 md:gap-y-[12px]" onSubmit={handleSubmit} >
                         {
                             formInputLabelKeys.map((key, index) => {
-                                return <div className="col-span-2 md:col-span-1" key={`${key}-${index}`}>
+                                return <div className="col-span-2 md:col-span-1" key={`${key}-${index}}`}>
                                     <FormLabel >{index + 1}{'. '}{t(`form.${key}.label`)}</FormLabel>
                                     <FormInput
                                         className={dark ?

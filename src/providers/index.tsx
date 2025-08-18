@@ -12,14 +12,16 @@ export const Providers: React.FC<{
   children: React.ReactNode
 }> = ({ lng, children, country }) => {
   return (
-    <QuotationStoreProvider>
-      <LanguageProvider lng={lng}>
-        <CountryProvider initialCountry={country}>
-          <ThemeProvider>
-            <HeaderThemeProvider>{children}</HeaderThemeProvider>
-          </ThemeProvider>
-        </CountryProvider>
-      </LanguageProvider>
-    </QuotationStoreProvider>
+    <LanguageProvider lng={lng}>
+      <CountryProvider initialCountry={country}>
+        <ThemeProvider>
+          <HeaderThemeProvider>
+            <QuotationStoreProvider>
+              {children}
+            </QuotationStoreProvider>
+          </HeaderThemeProvider>
+        </ThemeProvider>
+      </CountryProvider>
+    </LanguageProvider>
   )
 }

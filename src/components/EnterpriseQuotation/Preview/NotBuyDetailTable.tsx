@@ -18,18 +18,18 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: b
 
     const { t } = useTranslation('quotation')
     return notBuyRows.length > 0 ? (
-        <div className='mt-[120px]'>
-            <div className="mb-[30px] text-2xl font-bold">
+        <div className={isExport ? 'mt-[120px]' : 'md:mt-[120px] mt-[50px]'}>
+            <div className={cn("mb-[30px] text-2xl font-bold", !isExport && 'px-6 md:px-[100px]')}>
                 {t('not.buy.modules')}
             </div>
 
-            <div className={isExport ? '' : 'no-scrollbar overflow-scroll'}>
+            <div className={isExport ? '' : 'no-scrollbar overflow-scroll px-6 md:px-[100px]'}>
                 <Table>
                     <thead>
                         <Tr>
                             <Th ><ExportLine>{t("quite.product.name")}</ExportLine></Th>
                             <Th ><ExportLine>{t("quite.product.quantity")}</ExportLine></Th>
-                            <Th className='text-right'><ExportLine>{t("quite.product.unit.price")}</ExportLine></Th>
+                            <Th className={cn('min-w-[150px]', isExport ? 'text-right' : ' md:text-right text-left')}> <ExportLine>{t("quite.product.unit.price")}</ExportLine></Th>
                         </Tr>
                     </thead>
                     <tbody>
@@ -43,8 +43,8 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: b
                                         </span>}
                                     </div>
                                 </Td>
-                                <Td className='min-w-[120px]'><ExportLine>{row.quantity}</ExportLine></Td>
-                                <Td className='min-w-[150px] text-right'><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
+                                <Td className={cn(isExport ? 'min-w-[120px]' : 'md:min-w-[120px] min-w-[100px]')}><ExportLine>{row.quantity}</ExportLine></Td>
+                                <Td className={cn('min-w-[150px]', isExport ? 'text-right' : ' md:text-right text-left')}><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
                             </Tr>
                         ))}
                     </tbody>
@@ -59,18 +59,18 @@ export const ExpandService: FC<{ isExport?: boolean }> = ({ isExport }) => {
     const { t } = useTranslation('quotation')
     const expansions = useExpandServices()
 
-    return <div className='mt-[120px]'>
-        <div className="mb-[30px] text-2xl font-bold">
+    return <div className={isExport ? 'mt-[120px]' : 'md:mt-[120px] mt-[50px]'}>
+        <div className={cn("mb-[30px] text-2xl font-bold", !isExport && 'px-6 md:px-[100px]')}>
             {t("capacity.expansion")}
         </div>
 
-        <div className={isExport ? '' : 'no-scrollbar overflow-scroll'}>
+        <div className={isExport ? '' : 'no-scrollbar overflow-scroll px-6 md:px-[100px]'}>
             <Table >
                 <thead>
                     <Tr>
                         <Th className='min-w-[230px]'><ExportLine>{t("quite.product.name")}</ExportLine></Th>
-                        <Th className='min-w-[120px]'><ExportLine>{t("quite.product.quantity")}</ExportLine></Th>
-                        <Th className='min-w-[150px] text-right'><ExportLine>{t("quite.product.unit.price")}</ExportLine></Th>
+                        <Th className={cn(isExport ? 'min-w-[120px]' : 'md:min-w-[120px] min-w-[100px]')}><ExportLine>{t("quite.product.quantity")}</ExportLine></Th>
+                        <Th className={cn('min-w-[150px]', isExport ? 'text-right' : 'md:text-right text-left')}><ExportLine>{t("quite.product.unit.price")}</ExportLine></Th>
                     </Tr>
                 </thead>
                 <tbody>
@@ -85,7 +85,7 @@ export const ExpandService: FC<{ isExport?: boolean }> = ({ isExport }) => {
                                 </div>
                             </Td>
                             <Td><ExportLine>{row.quantity}</ExportLine></Td>
-                            <Td className='text-right'><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
+                            <Td className={cn(isExport ? 'text-right' : 'md:text-right text-left')}><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
                         </Tr>
                     ))}
                 </tbody>

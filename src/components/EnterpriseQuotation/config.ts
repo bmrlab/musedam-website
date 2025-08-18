@@ -20,7 +20,8 @@ interface IModules {
 }
 export const usePricing = () => {
     const { t } = useTranslation('quotation')
-    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+    const { isInChina } = useCountry()
+    const isGlobal = !isInChina
     const prefix = isGlobal ? '$' : '¥'
 
     // 价格
@@ -154,6 +155,7 @@ import { useCountry } from '@/providers/Country'
 export const useBasicConfigs = () => {
     const { t } = useTranslation('quotation')
     const { activeTab } = useQuotationStore()
+    const { isInChina } = useCountry()
     const { pricing, prefix } = usePricing()
     const basicPricing = pricing['basic']
     const advancedPricing = pricing['advanced']
@@ -164,14 +166,14 @@ export const useBasicConfigs = () => {
             title: t('member.seat'),
             min: 1,
             hint: [t('basic.memberSeats.hint')],
-            des: `${prefix}${basicPricing.memberSeatPrice}${t("memberSeats.perYear")}` + ` (${prefix}${Math.ceil(basicPricing.memberSeatPrice / 12)}${t("memberSeats.perMonth")})`
+            des: `${prefix} ${basicPricing.memberSeatPrice}${t("memberSeats.perYear")}` + ` (${prefix} ${Math.ceil(basicPricing.memberSeatPrice / 12)}${t("memberSeats.perMonth")})`
         },
         {
             key: 'storageSpace',
             title: t('storage.space'),
             min: 1,
             hint: [t('basic.storageSpace.hint')],
-            des: `${prefix} ${basicPricing.storageSpacePrice}/GB${t("per.year")}` + ` (${prefix}${Math.ceil(basicPricing.storageSpacePrice / 12)}/GB${t("per.year")})`
+            des: `${prefix} ${basicPricing.storageSpacePrice}/GB${t("per.year")}` + ` (${prefix} ${Math.ceil(basicPricing.storageSpacePrice / 12)}/GB${t("per.year")})`
 
         },
         {
@@ -186,13 +188,14 @@ export const useBasicConfigs = () => {
             key: EBasicConfigKey.MEMBER_SEATS,
             title: t('member.seat'),
             hint: [t('advanced.memberSeats.hint')],
-            des: t('advanced.memberSeats.des'),
             min: 10,
-            price: advancedPricing.memberSeatPrice
+            price: advancedPricing.memberSeatPrice,
+            des: `${prefix} ${advancedPricing.memberSeatPrice}${t("memberSeats.perYear")}` + ` (${prefix} ${Math.ceil(advancedPricing.memberSeatPrice / 12)}${t("memberSeats.perMonth")})`
+
         },
         {
             key: EBasicConfigKey.STORAGE_SPACE,
-            min: 4,
+            min: isInChina ? 4 : 3,
             title: t('storage.space'),
             hint: [t('advanced.storageSpace.hint')],
             tag: '1TB',

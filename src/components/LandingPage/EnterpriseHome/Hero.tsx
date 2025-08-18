@@ -8,66 +8,75 @@ import { FadeInUpContainer } from '@/components/StyleWrapper/Container/Animation
 import { ssTranslation } from '@/app/i18n'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/utilities/cn'
 import { LocaleLink } from '@/components/LocalLink'
 import { useLanguage } from '@/providers/Language'
 import usePublicUrl from '@/hooks/usePublicUrl'
 import { useState } from 'react'
-import { MUSEDAM_LOGIN_URL } from '@/constant/url'
-import { useCountry } from '@/providers/Country'
-import Link from 'next/link'
 
 export default function Hero() {
     const { t } = useTranslation('landing-page')
     const { language } = useLanguage()
-    const { isInChina } = useCountry()
     const isEn = language === 'en-US'
     const { getUrl } = usePublicUrl('/assets/Enterprise/WhyMuse/Cover')
     const [activeIndex, setActiveIndex] = useState(0)
 
-    const businessMap = [{
-        key: "growth",
-        title: t('hero.enterprise.accordion.growth.title'),
-        description: t('hero.enterprise.accordion.growth.desc'),
-        lines: [
-            { name: t('hero.enterprise.accordion.growth.line1.title'), info: t('hero.enterprise.accordion.growth.line1.desc') },
-            { name: t('hero.enterprise.accordion.growth.line2.title'), info: t('hero.enterprise.accordion.growth.line2.desc') },
-            { name: t('hero.enterprise.accordion.growth.line3.title'), info: t('hero.enterprise.accordion.growth.line3.desc') },
-        ],
-        result: <>{isEn && <span className="font-medium">300%</span>} {t('hero.enterprise.accordion.growth.result1')}, {isEn && <span className="font-medium">60%</span>} {t('hero.enterprise.accordion.growth.result2')}</>,
-        Icon: 'Icon1.svg',
-        Cover: 'img1.png'
-    }, {
-        key: "lifecycle",
-        title: t('hero.enterprise.accordion.lifecycle.title'),
-        description: t('hero.enterprise.accordion.lifecycle.desc'),
-        lines: [
-            { name: t('hero.enterprise.accordion.lifecycle.line1.title'), info: t('hero.enterprise.accordion.lifecycle.line1.desc') },
-            { name: t('hero.enterprise.accordion.lifecycle.line2.title'), info: t('hero.enterprise.accordion.lifecycle.line2.desc') },
-            { name: t('hero.enterprise.accordion.lifecycle.line3.title'), info: t('hero.enterprise.accordion.lifecycle.line3.desc') },
-            { name: t('hero.enterprise.accordion.lifecycle.line4.title'), info: t('hero.enterprise.accordion.lifecycle.line4.desc') },
-        ],
-        result: <>{isEn && <span className="font-medium">90%</span>} {t('hero.enterprise.accordion.lifecycle.result1')}, {isEn && <span className="font-medium">80%</span>} {t('hero.enterprise.accordion.lifecycle.result2')}, <span className="font-medium">35%</span> {t('hero.enterprise.accordion.lifecycle.result3')}</>,
-        Icon: 'Icon2.svg',
-        Cover: 'img2.png'
-    }, {
-        key: "assets",
-        title: t('hero.enterprise.accordion.assets.title'),
-        description: t('hero.enterprise.accordion.assets.desc'),
-        lines: [
-            { name: t('hero.enterprise.accordion.assets.line1.title'), info: t('hero.enterprise.accordion.assets.line1.desc') },
-            { name: t('hero.enterprise.accordion.assets.line2.title'), info: t('hero.enterprise.accordion.assets.line2.desc') },
-            { name: t('hero.enterprise.accordion.assets.line3.title'), info: t('hero.enterprise.accordion.assets.line3.desc') },
-            { name: t('hero.enterprise.accordion.assets.line4.title'), info: t('hero.enterprise.accordion.assets.line4.desc') },
-        ],
-        result: <>{isEn && <span className="font-medium">85%</span>} {t('hero.enterprise.accordion.assets.result1')}, {isEn && <span className="font-medium">100%</span>} {t('hero.enterprise.accordion.assets.result2')}</>,
-        Icon: 'Icon3.svg',
-        Cover: 'img3.png'
-    }
+    const businessMap = [
+        {
+            key: "growth",
+            title: t('hero.enterprise.accordion.growth.title'),
+            description: t('hero.enterprise.accordion.growth.desc'),
+            lines: [
+                { name: t('hero.enterprise.accordion.growth.line1.title'), info: t('hero.enterprise.accordion.growth.line1.desc') },
+                { name: t('hero.enterprise.accordion.growth.line2.title'), info: t('hero.enterprise.accordion.growth.line2.desc') },
+                { name: t('hero.enterprise.accordion.growth.line3.title'), info: t('hero.enterprise.accordion.growth.line3.desc') },
+            ],
+            result: <>{isEn && <span className="font-medium">300%</span>} {t('hero.enterprise.accordion.growth.result1')}, {isEn && <span className="font-medium">60%</span>} {t('hero.enterprise.accordion.growth.result2')}</>,
+            Icon: 'Icon1.svg',
+            Cover: 'img1.png'
+        }, {
+            key: "lifecycle",
+            title: t('hero.enterprise.accordion.lifecycle.title'),
+            description: t('hero.enterprise.accordion.lifecycle.desc'),
+            lines: [
+                { name: t('hero.enterprise.accordion.lifecycle.line1.title'), info: t('hero.enterprise.accordion.lifecycle.line1.desc') },
+                { name: t('hero.enterprise.accordion.lifecycle.line2.title'), info: t('hero.enterprise.accordion.lifecycle.line2.desc') },
+                { name: t('hero.enterprise.accordion.lifecycle.line3.title'), info: t('hero.enterprise.accordion.lifecycle.line3.desc') },
+                { name: t('hero.enterprise.accordion.lifecycle.line4.title'), info: t('hero.enterprise.accordion.lifecycle.line4.desc') },
+            ],
+            result: <>{isEn && <span className="font-medium">90%</span>} {t('hero.enterprise.accordion.lifecycle.result1')}, {isEn && <span className="font-medium">80%</span>} {t('hero.enterprise.accordion.lifecycle.result2')}, <span className="font-medium">35%</span> {t('hero.enterprise.accordion.lifecycle.result3')}</>,
+            Icon: 'Icon2.svg',
+            Cover: 'img2.png'
+        }, {
+            key: "assets",
+            title: t('hero.enterprise.accordion.assets.title'),
+            description: t('hero.enterprise.accordion.assets.desc'),
+            lines: [
+                { name: t('hero.enterprise.accordion.assets.line1.title'), info: t('hero.enterprise.accordion.assets.line1.desc') },
+                { name: t('hero.enterprise.accordion.assets.line2.title'), info: t('hero.enterprise.accordion.assets.line2.desc') },
+                { name: t('hero.enterprise.accordion.assets.line3.title'), info: t('hero.enterprise.accordion.assets.line3.desc') },
+                { name: t('hero.enterprise.accordion.assets.line4.title'), info: t('hero.enterprise.accordion.assets.line4.desc') },
+            ],
+            result: <>{isEn && <span className="font-medium">85%</span>} {t('hero.enterprise.accordion.assets.result1')}, {isEn && <span className="font-medium">100%</span>} {t('hero.enterprise.accordion.assets.result2')}</>,
+            Icon: 'Icon3.svg',
+            Cover: 'img3.png'
+        }
     ]
+
+    const imageUrls = businessMap.map(item => getUrl(item.Cover));
     return (
         <div className="flex flex-col items-center justify-center pb-[60px] md:w-full md:px-[80px] md:pb-[120px]">
+            {imageUrls.map((url, index) => (
+                <link
+                    key={index}
+                    rel="preload"
+                    as="image"
+                    href={url}
+                    // 低优先级预加载其他图片，避免影响首屏LCP
+                    fetchPriority={index === 0 ? "high" : "low"}
+                />
+            ))}
             <h1 className={cn(
                 "mb-[10px] mt-[59px] px-6 text-center text-[40px] font-normal md:px-0 md:text-[72px] md:leading-[90px]",
                 isEn && 'font-feature'
@@ -161,10 +170,10 @@ export default function Hero() {
                 <div className='flex flex-1 shrink-0 items-center justify-center rounded-[20px] border border-[rgba(255,255,255,0.1)] bg-[#141414] p-4 md:rounded-[28px] md:p-[30px]'>
                     <div className='flex size-full items-center rounded-xl bg-[#070707] shadow-[0px_2px_12px_0px_#FFFFFF12] md:rounded-2xl'>
                         <Image
-                            src={getUrl(businessMap[activeIndex].Cover)}
-                            width={1328}
+                            src={imageUrls[activeIndex]}
+                            width={1200}
                             height={1000}
-                            priority
+                            priority={activeIndex === 0}
                             alt={businessMap[activeIndex].Cover}
                             className='size-full object-contain'
                         />

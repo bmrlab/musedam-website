@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react'
 import { SessionUser } from '@/types/user'
 import { EAdvancedModules, EPrivateModules } from '@/components/EnterpriseQuotation/config'
 import {
@@ -14,6 +14,7 @@ import {
     EFeatureView
 } from '@/components/EnterpriseQuotation/types'
 import { IQuotationInfo } from '@/endpoints/quotation'
+import { useCountry } from '../Country'
 
 // 辅助函数：生成 advancedModules 的初始值
 const getInitialAdvancedModules = (): IAdvancedModules => {
@@ -112,12 +113,6 @@ const initialBasicConfig: IBasicConfig = {
     aiPoints: 0
 }
 
-const initialAdvancedConfig: IAdvancedInfo = {
-    memberSeats: 10,
-    storageSpace: 4,
-    aiPoints: 0
-}
-
 const initialPrivateConfig: IPrivateConfig = {
     licenseType: 'saas',
     memberSeats: 30
@@ -126,6 +121,14 @@ const initialPrivateConfig: IPrivateConfig = {
 const QuotationStoreContext = createContext<QuotationStoreType | undefined>(undefined)
 
 export const QuotationStoreProvider = ({ children }: { children: ReactNode }) => {
+    const { isInChina } = useCountry()
+
+    const initialAdvancedConfig: IAdvancedInfo = useMemo(() => ({
+        memberSeats: 10,
+        storageSpace: isInChina ? 4 : 3,
+        aiPoints: 0
+    }), [isInChina])
+
     // 客户信息
     const [customerInfo, setCustomerInfo] = useState<ICustomerInfo>(initialCustomerInfo)
 

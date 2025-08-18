@@ -30,9 +30,9 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById, isExport?: bool
     const moduleRows = rows.filter(row => row.isModule)
 
     return (<div>
-        <div className="mb-[30px] text-2xl font-bold">{t("product.service.details")}</div>
+        <div className={cn("mb-[30px] text-2xl font-bold", !isExport && ' px-6 md:px-[100px]')}>{t("product.service.details")}</div>
 
-        <div className={isExport ? '' : 'no-scrollbar overflow-scroll'}>
+        <div className={isExport ? '' : 'no-scrollbar overflow-scroll px-6 md:px-[100px]'}>
             <Table>
                 <thead>
                     <Tr>
@@ -83,7 +83,7 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById, isExport?: bool
                 </tbody>
             </Table>
         </div>
-        <div className='flex w-full flex-col items-end'>
+        <div className={cn('flex w-full flex-col items-end', !isExport && 'px-6 md:px-[100px]')}>
             {/* 小计/合计 */}
             <TotalLine >
                 <div>{t("subtotal")}</div>

@@ -86,8 +86,7 @@ const DesParagraph = twx.p`text-sm text-white-72 font-light font-euclidlight`
 
 const Cost = ({ cost, costTitle }: { cost: number, costTitle?: string }) => {
     const { t } = useTranslation('quotation')
-    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
-    const prefix = isGlobal ? '$' : '¥'
+    const { prefix } = usePricing()
     return <div className="border-t border-[rgba(255,255,255,0.1)] pt-4 ">
         <div className="flex items-center justify-between text-white ">
             <Label className=" text-lg font-normal">{costTitle ?? t("base.cost")}</Label>
@@ -99,9 +98,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const { t } = useTranslation('quotation')
     const basicConfigs = useBasicConfigs()
     const advancedConfigs = useAdvancedConfigs()
-    const { pricing } = usePricing()
+    const { pricing, prefix } = usePricing()
     const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
-    const prefix = isGlobal ? '$' : '¥'
     const { toast } = useToast()
     const router = useRouter()
     const { language } = useLanguage()
@@ -300,7 +298,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <Label className="flex items-center gap-3 text-[16px] text-white">
                             {title}
                             {tag &&
-                                <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight text-[14px] font-light'>
+                                <div className='flex py-[2px] text-sm items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight font-light'>
                                     {tag}
                                 </div>
                             }
@@ -350,11 +348,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     )}
                 />
                 <div className='space-y-[6px]'>
-                    <Label className="flex items-center gap-1 md:gap-3">
-                        {module.label}
+                    <Label className="flex gap-1 md:gap-3 items-center">
+                        <span className='flex-1'>{module.label}</span>
                         {module.tag &&
-                            <div className='flex h-6 items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight text-[14px] font-light'>
-                                {module.tag}
+                            <div className='min-w-[40px] text-[14px] leading-[16px] font-euclidlight  font-light'>
+                                <div className='flex items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px]'> {module.tag}</div>
                             </div>
                         }
                     </Label>
@@ -456,7 +454,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         {renderModuleItem(module)}
                                         {!!module.subModules?.length && <div className={cn(
                                             'ml-[26px]',
-                                            module.subFlex === 'row' ? 'mt-3 flex items-center gap-[40px]' : 'mt-[6px] space-y-[6px]'
+                                            module.subFlex === 'row' ? 'mt-3 flex items-center md:gap-[40px] gap-2' : 'mt-[6px] space-y-[6px]'
                                         )}>
                                             {
                                                 module.subModules?.map((v) => {
@@ -497,7 +495,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         <BlockBox className="flex w-full items-center space-x-2 space-y-0" key={type}>
                                             <RadioGroup.Item
                                                 className={cn(
-                                                    'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 ',
+                                                    'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 flex-shrink-0',
                                                     'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
                                                     type === privateConfig.licenseType && 'border-[#3366FF]',
                                                 )}
@@ -624,7 +622,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                                     <div className="flex h-[20px] flex-1 items-center gap-3 " key={timeNum}>
                                                         <RadioGroup.Item
                                                             className={cn(
-                                                                'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300',
+                                                                'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 flex-shrink-0',
                                                                 'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
                                                                 isActive && 'border-[#3366FF]',
                                                             )}
@@ -736,7 +734,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={listType}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
+                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)] flex-shrink-0',
                                             'transition-all duration-300 ease-in-out ',
                                             listType === featureView ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}
@@ -769,7 +767,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={radio + 'feature--all'}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
+                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)] flex-shrink-0',
                                             'transition-all duration-300 ease-in-out ',
                                             showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}

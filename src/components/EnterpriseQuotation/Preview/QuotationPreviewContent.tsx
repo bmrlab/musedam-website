@@ -251,46 +251,49 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
             </div>
 
             <div className={cn(
-                "w-full max-w-[1440px] bg-white px-6 py-[30px] md:px-[100px] md:py-[120px]",
+                "w-full max-w-[1440px] bg-white py-[30px] md:py-[120px]",
             )} >
                 {/* 第一页容器增加相对定位 */}
                 <div className="first-page relative" >
-                    {/* 顶部Logo和标题 */}
-                    <Image src="/assets/logo.svg" alt="Muse Logo" width={100} height={100} className='mb-2 h-12 w-auto' />
-                    <div className="mb-6 mt-[8px] flex flex-col gap-4 md:mb-8 md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <div className="mb-2 text-[36px] font-bold md:text-[48px]">{t("quote.title")}</div>
-                            <LightText>{t("quote.NO")}: {info.quotationNo || 'N/A'}</LightText>
+                    <div className='px-6  md:px-[100px]'>
+                        {/* 顶部Logo和标题 */}
+                        <Image src="/assets/logo.svg" alt="Muse Logo" width={100} height={100} className='mb-2 h-12 w-auto' />
+                        <div className="mb-6 mt-[8px] flex flex-col gap-4 md:mb-8 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <div className="mb-2 text-[36px] font-bold md:text-[48px]">{t("quote.title")}</div>
+                                <LightText>{t("quote.NO")}: {info.quotationNo || 'N/A'}</LightText>
+                            </div>
+                            <div className="text-sm md:text-right md:text-lg">
+                                <div className="mb-1 font-bold leading-[22px]">{t("quote.date")}</div>
+                                <div className='mb-2 leading-[22px]'>{today}</div>
+                                <LightText>{t("quote.valid.days")}</LightText>
+                            </div>
                         </div>
-                        <div className="text-sm md:text-right md:text-lg">
-                            <div className="mb-1 font-bold leading-[22px]">{t("quote.date")}</div>
-                            <div className='mb-2 leading-[22px]'>{today}</div>
-                            <LightText>{t("quote.valid.days")}</LightText>
+
+                        {/* 客户信息和服务商信息 */}
+                        <div className="mb-[50px] grid grid-cols-1 gap-4 bg-[#F9FAFB] p-6 text-base md:grid-cols-2">
+                            <div>
+                                <div className="text-5 mb-3 text-lg font-bold leading-[22px]">{t("customer.information")}</div>
+                                <div className="font-semibold">{customerInfo.company}</div>
+                                <div className='text-[#141414] opacity-80'>{customerInfo.contact}</div>
+                                {customerInfo.email && <div className='text-[#141414] opacity-80'>Email: {customerInfo.email}</div>}
+                            </div>
+                            <div>
+                                <div className="text-5 mb-3 text-lg font-bold leading-[22px]">{t("service.provider")}</div>
+                                <div className="font-semibold">{t("service.provider.name")}</div>
+                                <div className='text-[#141414] opacity-80'>{t("service.provider.yourName")}</div>
+                                <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* 客户信息和服务商信息 */}
-                    <div className="mb-[50px] grid grid-cols-1 gap-4 bg-[#F9FAFB] p-6 text-base md:grid-cols-2">
-                        <div>
-                            <div className="text-5 mb-3 text-lg font-bold leading-[22px]">{t("customer.information")}</div>
-                            <div className="font-semibold">{customerInfo.company}</div>
-                            <div className='text-[#141414] opacity-80'>{customerInfo.contact}</div>
-                            {customerInfo.email && <div className='text-[#141414] opacity-80'>Email: {customerInfo.email}</div>}
-                        </div>
-                        <div>
-                            <div className="text-5 mb-3 text-lg font-bold leading-[22px]">{t("service.provider")}</div>
-                            <div className="font-semibold">{t("service.provider.name")}</div>
-                            <div className='text-[#141414] opacity-80'>{t("service.provider.yourName")}</div>
-                            <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
-                        </div>
-                    </div>
 
                     {/* 产品与服务明细表格 */}
                     <PreviewDetailTable info={{ ...quoteInfo, rows }} />
 
                     {/* 服务条款 - 添加ref并调整样式 */}
                     <div
-                        className="mt-[50px]"
+                        className="mt-[50px] px-6 md:px-[100px]"
                     >
                         <h3 className="mb-5 text-xl font-semibold text-[#141414]">{t("service.terms")}</h3>
                         <ul className="space-y-1 text-[13px] text-[#262626] md:text-base">
@@ -306,8 +309,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 <div className="page-break-after"></div>
 
                 {/* 第二页 */}
-                <div className="second-page" >
-                    <FeatureList rows={rows} />
+                <div className="second-page " >
+                    <div className='px-6 md:px-[100px]'><FeatureList rows={rows} /></div>
                     {showNoBuyFeature && <NotBuyDetailTable rows={rows} />}
                     <ExpandService />
                 </div>
