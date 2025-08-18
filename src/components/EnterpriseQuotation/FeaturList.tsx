@@ -93,7 +93,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
     return (
         <div className={isInExport ? 'mt-[120px]' : 'md:mt-[120px] mt-[50px]'}>
             <h3 className="mb-[30px] text-2xl font-bold text-[#141414]">{t('features.title')}</h3>
-            <div className='overflow-hidden'>
+            <div className='overflow-hidden border-b'>
                 {/* 已购买的-基础功能 */}
                 <div className={cn(
                     "flex bg-[#F9FAFB]  font-bold",
@@ -105,7 +105,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
             </div>
 
             {/* 已购买的-高级功能*/}
-            <div className='mt-[30px] overflow-hidden '>
+            <div className='mt-[30px] overflow-hidden border-b'>
                 <div className={cn(
                     "flex bg-[#F9FAFB]  font-bold",
                     isInExport ? 'h-[60px] min-h-[60px] px-6 text-xl leading-[60px]' : 'h-[44px] px-3 leading-[44px] md:h-[60px] md:px-6 md:text-xl md:leading-[60px]'

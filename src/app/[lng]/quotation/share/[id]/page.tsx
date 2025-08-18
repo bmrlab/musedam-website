@@ -6,6 +6,10 @@ import { seoTranslation } from '@/app/i18n'
 import { QuotationSharePreview } from '@/components/EnterpriseQuotation/Preview/Share'
 import { getServerSession } from '@/utilities/auth'
 
+type Args = {
+    params: Promise<{ lng: string; id?: string }>
+}
+
 export default async function MuseQuotationDetailPage({
     searchParams,
     params,
@@ -16,7 +20,7 @@ export default async function MuseQuotationDetailPage({
     const { id } = await params
     const user = await getServerSession()
 
-    if (!id) return null
+    if (!id) return <div></div>
     return (
         <QuotationSharePreview
             uuid={id}
@@ -25,12 +29,12 @@ export default async function MuseQuotationDetailPage({
     )
 }
 
-export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
     const { t } = await seoTranslation(params)
-    const { lng } = await params
+    const { lng, id } = await params
     return getPageMetadata({
         title: t('pricing.title'),
         description: t('pricing.description'),
-        url: `${lng}/quotation`,
+        url: `${lng}/quotation/share/${id}`,
     })
 }
