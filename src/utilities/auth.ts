@@ -89,25 +89,26 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
   }
 
   // 获取用户团队列表
-  const [orgResponse, orgMemberResponse] = await Promise.all([fetch(
-    getFetchUserUrl('/org'),
-    {
-      headers: requestHeader,
-    },
-  ), orgId && fetch(
-    getFetchUserUrl(`/org/members/${data.userId}`),
-    {
-      headers: { ...requestHeader, 'x-org-id': orgId },
-    },
-  )])
+  const [orgResponse, userSaleInfo] = await Promise.all([
+    fetch(
+      getFetchUserUrl('/org'),
+      {
+        headers: requestHeader,
+      },
+    ), fetch(
+      getFetchUserUrl(`/org/members/queryUserIsSaleMember`),
+      {
+        headers: requestHeader,
+      },
+    )])
 
   if (orgResponse.ok) {
     const orgData: { code: string; message: string; result: { id: number }[] } = await orgResponse.json()
     result.hasOrg = orgData.code === '0' && orgData.result.length > 0
   }
 
-  if (orgMemberResponse) {
-    const orgMemberInfo: { code: string; message: string; result: { isSale: 0 | 1, email: string; } } = await orgMemberResponse.json()
+  if (userSaleInfo) {
+    const orgMemberInfo: { code: string; message: string; result: { isSale: 0 | 1, email: string; } } = await userSaleInfo.json()
     result.isSale = Boolean(orgMemberInfo.result.isSale)
     result.orgEmail = orgMemberInfo.result.email
   }

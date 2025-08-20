@@ -115,7 +115,7 @@ export default function Buy({
       <FlexColContainer className="mt-[30px] w-full items-center px-5 font-euclid md:px-[74px]">
         <FlexRowContainer className="mb-6 w-full justify-between">
           <h1 className="text-[20px] leading-6">{t('pricing.title')}</h1>
-          {user && !isInChina &&
+          {user && isInChina &&
             ((user.isOrg && currentPlan === PlanType.team) ||
               (user.isPro && currentPlan === PlanType.personal)) && (
               <div
