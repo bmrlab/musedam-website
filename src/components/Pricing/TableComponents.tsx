@@ -9,6 +9,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/utilities/cn'
 import * as Accordion from '@radix-ui/react-accordion';
 import { PlanDetailInfo } from './types/plan'
+import { useState } from 'react'
 
 
 export const TableCell: FC<{ content: ReactNode }> = ({ content }) => {
@@ -32,6 +33,8 @@ const tooltipStyles = {
 // 提示信息
 export const InfoTooltip = ({ hintText, hintLink, hintLinkCustom }: Pick<PlanDetailInfo['items'][number], 'hintLink' | 'hintText' | 'hintLinkCustom'>) => {
     const { t } = useTranslation('pricing')
+    const [isOpen, setIsOpen] = useState(false)
+
     const renderHintLink = () => {
         if (!hintLink && !hintLinkCustom) return <></>
         if (hintLinkCustom) {
@@ -65,9 +68,14 @@ export const InfoTooltip = ({ hintText, hintLink, hintLinkCustom }: Pick<PlanDet
                 </a></>
         }
     }
+
     return (
         <Tooltip.Provider>
-            <Tooltip.Root delayDuration={0}>
+            <Tooltip.Root
+                delayDuration={0}
+                open={isOpen}
+                onOpenChange={setIsOpen}
+            >
                 <Tooltip.Trigger asChild>
                     <div
                         className={cn(
@@ -76,6 +84,20 @@ export const InfoTooltip = ({ hintText, hintLink, hintLinkCustom }: Pick<PlanDet
                         )}
                         onClick={(e) => {
                             e.stopPropagation();
+                            // 在移动端点击时切换 tooltip 状态
+                            setIsOpen(!isOpen);
+                        }}
+                        onMouseEnter={() => {
+                            // 在桌面端 hover 时显示
+                            if (window.innerWidth > 768) {
+                                setIsOpen(true);
+                            }
+                        }}
+                        onMouseLeave={() => {
+                            // 在桌面端 hover 离开时隐藏
+                            if (window.innerWidth > 768) {
+                                setIsOpen(false);
+                            }
                         }}
                     >
                         <InfoCircledIcon className="size-[16px]" />

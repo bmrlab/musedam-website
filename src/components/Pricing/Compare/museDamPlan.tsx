@@ -187,22 +187,22 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
           },
         },
-        ...(isInChina ? [] : [{
-          key: 'points',
-          label: t('pricing.planMuseDAM.points'),
-          hintText: t('pricing.planMuseDAM.points.hint1'),
-          hintLinkCustom: {
-            type: "common",
-            text: t('pricing.planMuseDAM.points.hint2'),
-            link: "https://tezign.feishu.cn/wiki/AuxBwTKztiQgsDkCdkkcvMqmnDc"
-          },
-          plans: {
-            [ESpaceType.PERSON_FREE]: t('pricing.points.one.time', { val: 100 }),
-            [ESpaceType.PERSON_PRO]: t("pricing.points.perMonth", { val: 200 }),
-            [ESpaceType.TEAM]: t("pricing.points.perMonth", { val: '4,000' }),
-            [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
-          },
-        }] as const),
+        // ...(isInChina ? [] : [{
+        //   key: 'points',
+        //   label: t('pricing.planMuseDAM.points'),
+        //   hintText: t('pricing.planMuseDAM.points.hint1'),
+        //   hintLinkCustom: {
+        //     type: "common",
+        //     text: t('pricing.planMuseDAM.points.hint2'),
+        //     link: "https://tezign.feishu.cn/wiki/AuxBwTKztiQgsDkCdkkcvMqmnDc"
+        //   },
+        //   plans: {
+        //     [ESpaceType.PERSON_FREE]: t('pricing.points.one.time', { val: 100 }),
+        //     [ESpaceType.PERSON_PRO]: t("pricing.points.perMonth", { val: 200 }),
+        //     [ESpaceType.TEAM]: t("pricing.points.perMonth", { val: '4,000' }),
+        //     [ESpaceType.ENTERPRISE]: t('pricing.configure.on.demand'),
+        //   },
+        // }] as const),
       ],
     },
     {
@@ -336,9 +336,9 @@ export const usePlanMuseDAM = () => {
           hintText: t('pricing.ai_smart_rename.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: false,
-            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-            [ESpaceType.TEAM]: t('pricing.coming.soon'),
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.PERSON_PRO]: true,
+            [ESpaceType.TEAM]: true,
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -361,7 +361,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -384,7 +384,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -480,10 +480,10 @@ export const usePlanMuseDAM = () => {
           label: t('pricing.local_app.label'),
           hintText: t('pricing.local_app.hint'),
           plans: {
-            [ESpaceType.PERSON_FREE]: t('pricing.coming.soon'),
-            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-            [ESpaceType.TEAM]: t('pricing.coming.soon'),
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.PERSON_FREE]: false,
+            [ESpaceType.PERSON_PRO]: true,
+            [ESpaceType.TEAM]: true,
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -583,7 +583,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -595,7 +595,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -670,9 +670,9 @@ export const usePlanMuseDAM = () => {
           hintText: t('pricing.whitelist_sharing.hint'),
           plans: {
             [ESpaceType.PERSON_FREE]: false,
-            [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-            [ESpaceType.TEAM]: t('pricing.coming.soon'),
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.PERSON_PRO]: true,
+            [ESpaceType.TEAM]: true,
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -932,9 +932,9 @@ export const usePlanMuseDAM = () => {
         //   ),
         //   plans: {
         //     [ESpaceType.PERSON_FREE]: false,
-        //     [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-        //     [ESpaceType.TEAM]: t('pricing.coming.soon'),
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.PERSON_PRO]:true,
+        //     [ESpaceType.TEAM]:true,
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
         // {
@@ -947,9 +947,9 @@ export const usePlanMuseDAM = () => {
         //   ),
         //   plans: {
         //     [ESpaceType.PERSON_FREE]: false,
-        //     [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-        //     [ESpaceType.TEAM]: t('pricing.coming.soon'),
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.PERSON_PRO]:true,
+        //     [ESpaceType.TEAM]:true,
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
       ],
@@ -1037,9 +1037,9 @@ export const usePlanMuseDAM = () => {
         //   ),
         //   plans: {
         //     [ESpaceType.PERSON_FREE]: false,
-        //     [ESpaceType.PERSON_PRO]: t('pricing.coming.soon'),
-        //     [ESpaceType.TEAM]: t('pricing.coming.soon'),
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.PERSON_PRO]:true,
+        //     [ESpaceType.TEAM]:true,
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
 
@@ -1084,7 +1084,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -1096,7 +1096,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -1147,7 +1147,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
         {
@@ -1158,7 +1158,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
         // {
@@ -1173,7 +1173,7 @@ export const usePlanMuseDAM = () => {
         //     [ESpaceType.PERSON_FREE]: false,
         //     [ESpaceType.PERSON_PRO]: false,
         //     [ESpaceType.TEAM]: false,
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
         {
@@ -1195,7 +1195,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
         {
@@ -1206,7 +1206,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
 
@@ -1267,7 +1267,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
           showSparkles: true
         },
@@ -1304,7 +1304,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
 
@@ -1318,7 +1318,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
 
@@ -1345,7 +1345,7 @@ export const usePlanMuseDAM = () => {
         //     [ESpaceType.PERSON_FREE]: false,
         //     [ESpaceType.PERSON_PRO]: false,
         //     [ESpaceType.TEAM]: false,
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
 
@@ -1372,7 +1372,7 @@ export const usePlanMuseDAM = () => {
         //     [ESpaceType.PERSON_FREE]: false,
         //     [ESpaceType.PERSON_PRO]: false,
         //     [ESpaceType.TEAM]: false,
-        //     [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+        //     [ESpaceType.ENTERPRISE]:true,
         //   },
         // },
         {
@@ -1394,7 +1394,7 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_FREE]: false,
             [ESpaceType.PERSON_PRO]: false,
             [ESpaceType.TEAM]: false,
-            [ESpaceType.ENTERPRISE]: t('pricing.coming.soon'),
+            [ESpaceType.ENTERPRISE]: true,
           },
         },
       ],
