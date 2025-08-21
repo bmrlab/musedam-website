@@ -48,7 +48,6 @@ export default async function RootLayout({
     >
       <head>
         <InitTheme />
-        <meta name="baidu-site-verification" content="codeva-0pKoR0N2fQ" />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
       </head>
@@ -74,6 +73,9 @@ export async function generateMetadata() {
     twitter: {
       card: 'summary_large_image',
       creator: '@musedam',
+    },
+    other: {
+      'baidu-site-verification': 'codeva-0pKoR0N2fQ',
     },
   }
   return metadata
