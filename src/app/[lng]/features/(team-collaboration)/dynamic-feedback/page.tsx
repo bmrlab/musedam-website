@@ -33,8 +33,9 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const { t } = await seoTranslation(params)
   const { lng } = await params
   return getPageMetadata({
+    lng,
     title: t('features.dynamic-feedback.title'),
     description: t('features.dynamic-feedback.description'),
-    url: `${lng}/features/dynamic-feedback`,
+    url: 'features/dynamic-feedback'
   })
 }

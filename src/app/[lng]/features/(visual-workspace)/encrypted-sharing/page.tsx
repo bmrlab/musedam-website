@@ -33,8 +33,9 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const { t } = await seoTranslation(params)
   const { lng } = await params
   return getPageMetadata({
+    lng,
     title: t('features.encrypted-sharing.title'),
     description: t('features.encrypted-sharing.description'),
-    url: `${lng}/features/encrypted-sharing`,
+    url: 'features/encrypted-sharing'
   })
 }

@@ -10,6 +10,8 @@ import { getPayload } from 'payload'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
+import { PageSEO } from '@/components/SEO/PageSEO'
+import { seoTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
@@ -37,40 +39,61 @@ type Args = {
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { lng, slug = '' } = await paramsPromise
+  const { t } = await seoTranslation(paramsPromise)
   const url = '/blog/' + slug
   const post = await queryPostBySlug({ slug, lng })
 
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]">
-      <PageClient />
+    <>
+      <PageSEO
+        type="blog"
+        title={post.meta?.title || t('blog.title')}
+        description={post.meta?.description || t('blog.description')}
+        url={`/blog/${slug}`}
+        image={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
+        articleData={{
+          headline: post.title,
+          datePublished: post.publishedAt || new Date().toISOString(),
+          dateModified: post.updatedAt || post.publishedAt || new Date().toISOString()
+        }}
+        breadcrumbs={[
+          { name: t('home.shortTitle'), url: `/` },
+          { name: t('blog.shortTitle'), url: `/blog` },
+          { name: post.title, url: `/blog/${slug}` }
+        ]}
+        lng={lng}
+      />
+      <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]">
+        <PageClient />
 
-      {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
+        {/* Allows redirects for valid pages too */}
+        <PayloadRedirects disableNotFound url={url} />
 
-      <PostHero post={post} />
+        <PostHero post={post} />
 
-      <div className="px-6 pb-[60px] md:px-20 md:pb-[120px]">
-        <div className="mx-auto max-w-[720px]">
-          <RichText
-            className="max-w-none"
-            content={post.content}
-            enableGutter={false}
-            enableProse={false}
-          />
-        </div>
-
-        {post.relatedPosts && post.relatedPosts.length > 0 && (
-          <div className="mt-16 border-t border-gray-200 pt-16">
-            <RelatedPosts
-              className=""
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+        <div className="px-6 pb-[60px] md:px-20 md:pb-[120px]">
+          <div className="mx-auto max-w-[720px]">
+            <RichText
+              className="max-w-none"
+              content={post.content}
+              enableGutter={false}
+              enableProse={false}
             />
           </div>
-        )}
-      </div>
-    </article>
+
+          {post.relatedPosts && post.relatedPosts.length > 0 && (
+            <div className="mt-16 border-t border-gray-200 pt-16">
+              <RelatedPosts
+                className=""
+                docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+              />
+            </div>
+          )}
+        </div>
+      </article>
+    </>
   )
 }
 

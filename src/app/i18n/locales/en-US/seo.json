@@ -1,27 +1,33 @@
 {
     "home": {
         "title": "MuseDAM | AI-Powered Digital Asset Management - Collect, Organize, Collaborate",
-        "description": "Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features."
+        "description": "Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.",
+        "shortTitle": "Home"
     },
     "about-us": {
         "title": "MuseDAM | Our Story: Empowering Digital Asset Management",
-        "description": "Discover the MuseDAM journey and meet our investors. We're revolutionizing digital asset management with intuitive tools and a global vision, connecting creators and businesses worldwide."
+        "description": "Discover the MuseDAM journey and meet our investors. We're revolutionizing digital asset management with intuitive tools and a global vision, connecting creators and businesses worldwide.",
+        "shortTitle": "About Us"
     },
     "careers": {
         "title": "Muse | Join Our Team as a Full-Stack Engineer",
-        "description": "Elevate your career with Muse. We're seeking a Full-Stack Engineer to innovate and enhance our digital asset management platform. Be part of a dynamic, global team shaping the future of content management."
+        "description": "Elevate your career with Muse. We're seeking a Full-Stack Engineer to innovate and enhance our digital asset management platform. Be part of a dynamic, global team shaping the future of content management.",
+        "shortTitle": "Careers"
     },
     "privacy": {
         "title": "MuseDAM Privacy Policy | Secure Digital Asset Management",
-        "description": "Understand how MuseDAM safeguards your privacy with our comprehensive policy. Learn about data protection, user rights, and our commitment to confidentiality in managing your digital assets."
+        "description": "Understand how MuseDAM safeguards your privacy with our comprehensive policy. Learn about data protection, user rights, and our commitment to confidentiality in managing your digital assets.",
+        "shortTitle": "Privacy Policy"
     },
     "terms": {
         "title": "MuseDAM Service Agreement | Your Digital Asset Guide",
-        "description": "Explore the comprehensive terms that govern the use of MuseDAM's digital asset management platform. Our service agreement outlines the rights and responsibilities for a secure and efficient content management experience."
+        "description": "Explore the comprehensive terms that govern the use of MuseDAM's digital asset management platform. Our service agreement outlines the rights and responsibilities for a secure and efficient content management experience.",
+        "shortTitle": "Terms of Service"
     },
     "features": {
         "title": "MuseDAM | Features - AI-Driven Asset Management & Teamwork",
         "description": "Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.",
+        "shortTitle": "Features",
         "encrypted-sharing": {
             "title": "MuseDAM | Sharing - Custom Expiry, Password Protection",
             "description": "MuseDAM's sharing feature allows you to set expiration times and access passwords for materials, ensuring the security and privacy of shared content while providing a smooth collaboration experience."
@@ -88,9 +94,20 @@
     "pricing": {
         "title": "MuseDAM | Pricing",
         "description": "",
+        "shortTitle": "Pricing",
         "ai": {
             "title": "MuseAI | Pricing",
             "description": ""
         }
+    },
+    "blog": {
+        "title": "MuseDAM | Blog",
+        "description": "Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.",
+        "shortTitle": "Blog"
+    },
+    "bookDemo": {
+        "title": "MuseDAM | Get Solution",
+        "description": "Get a solution with MuseDAM to experience our AI-powered digital asset management platform firsthand. We'll help you understand how MuseDAM can transform your creative workflow and boost productivity.",
+        "shortTitle": "Get Solution"
     }
 }

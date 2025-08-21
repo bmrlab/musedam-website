@@ -1,20 +1,33 @@
 'use client'
 
 import { cn } from '@/utilities/cn'
-
+import { PageSEO } from '@/components/SEO/PageSEO'
 import useIsZhLng from '@/hooks/useIsZhLng'
 import { Button } from '@/components/ui/button'
 import HighlightText from '@/components/HighlightText'
 import { FlexColContainer } from '@/components/StyleWrapper/Container'
 import { useFeaturesTranslation } from '@/app/i18n/client'
-
 import FeaturesBlock from './_components/MoreFeatures/block'
 
 export default function AllFeaturesPage() {
-  const { t } = useFeaturesTranslation()
   const { isZhLng } = useIsZhLng()
+  const { t } = useFeaturesTranslation()
+  const lng = isZhLng ? 'zh-CN' : 'en-US'
+
   return (
     <FlexColContainer>
+      <PageSEO
+        type="feature"
+        title={t('features.title')}
+        description={t('features.description')}
+        url="/features"
+        image="/assets/logo.svg"
+        lng={lng}
+        breadcrumbs={[
+          { name: t('home.shortTitle'), url: '/' },
+          { name: t('features.shortTitle'), url: '/features' }
+        ]}
+      />
       <FlexColContainer className="select-none justify-center px-6 pb-[60px] pt-10 md:min-h-[calc(100vh-70px)] md:px-20 md:pb-[100px] md:pt-[80px]">
         <h2
           className={cn(
