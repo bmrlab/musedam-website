@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import type { Metadata } from 'next/types'
-import { getStaticBlogData } from '@/data/blog'
+import { getStaticBlogData, getBlogArticles } from '@/data/blog'
 import type { Category, Post } from '@/payload-types'
 import { convertLngToPayloadLocale } from '@/utilities/localeMapping'
 import configPromise from '@payload-config'
@@ -10,6 +10,9 @@ import { AllArticles } from '@/components/Blog/all-articles'
 import { HeroSection } from '@/components/Blog/HeroSection'
 import { BlogPageSkeleton } from '@/components/Blog/skeleton/BlogPageSkeleton'
 import { TopArticles } from '@/components/Blog/TopArticles'
+import { PageSEO } from '@/components/SEO/PageSEO'
+import { seoTranslation } from '@/app/i18n'
+import { getPageMetadata } from '@/utilities/getMetadata'
 
 import PageClient from './page.client'
 import { Information } from '@/components/Pricing/Enterprise/information'
@@ -18,28 +21,39 @@ export const dynamic = 'force-dynamic'
 
 type Args = {
   params: Promise<{ lng: string }>
-  searchParams: Promise<{
-    category?: string
-    page?: number
-  }>
+  searchParams: Promise<{ page?: string; category?: string }>
 }
 
-export default async function Page({
-  params: paramsPromise,
-  searchParams: searchParamsPromise,
-}: Args) {
-  const { lng } = await paramsPromise
-  const { category, page = 1 } = await searchParamsPromise
+export default async function BlogPage({ params, searchParams }: Args) {
+  const { lng } = await params
+  const { category, page = 1 } = await searchParams
+  const { t } = await seoTranslation(params)
 
   return (
     <>
+      <PageSEO
+        type="blog"
+        title={t('blog.title')}
+        description={t('blog.description')}
+        url="/blog"
+        image="/assets/logo.svg"
+        lng={lng}
+        breadcrumbs={[
+          { name: t('home.shortTitle'), url: '/' },
+          { name: t('blog.shortTitle'), url: '/blog' }
+        ]}
+      />
       <PageClient />
       <Suspense
         fallback={
-          <BlogPageSkeleton showHero={true} showTopArticles={true} showAllArticles={true} />
+          <BlogPageSkeleton
+            showHero={true}
+            showTopArticles={true}
+            showAllArticles={true}
+          />
         }
       >
-        <BlogPageContent lng={lng} category={category} page={page} />
+        <BlogPageContent lng={lng} category={category} page={Number(page)} />
       </Suspense>
     </>
   )
@@ -82,7 +96,6 @@ async function BlogPageContent({
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center ">
-      <PageClient />
       <div className='w-full max-w-[1440px] bg-white'>
         {/* Hero Section - 特色文章 */}
         {heroArticles.docs.length > 0 && (
@@ -119,38 +132,15 @@ async function BlogPageContent({
   )
 }
 
-export async function generateMetadata({
-  params: paramsPromise,
-  searchParams: searchParamsPromise,
-}: Args): Promise<Metadata> {
-  const { lng } = await paramsPromise
-  const { category } = await searchParamsPromise
 
-  // 将 Next.js 语言代码转换为 Payload locale 格式
-  const payloadLocale = convertLngToPayloadLocale(lng)
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
+  const { t } = await seoTranslation(params)
+  const { lng } = await params
 
-  let title = 'MuseDAM 博客'
-
-  if (category) {
-    const payload = await getPayload({ config: configPromise })
-    try {
-      const categoryDoc = await payload.findByID({
-        collection: 'categories',
-        id: category,
-        overrideAccess: false,
-        locale: payloadLocale,
-      })
-      if (categoryDoc) {
-        title = `${categoryDoc.title} | MuseDAM 博客`
-      }
-    } catch (error) {
-      // 如果分类不存在，使用默认标题
-    }
-  }
-
-  return {
-    title,
-    description:
-      'Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.',
-  }
+  return getPageMetadata({
+    title: t('blog.title'),
+    description: t('blog.description'),
+    url: 'blog',
+    lng,
+  })
 }

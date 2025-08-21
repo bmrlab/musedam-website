@@ -55,8 +55,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     const { t } = await seoTranslation(params)
     const { lng, id } = await params
     return getPageMetadata({
+        lng,
         title: t('pricing.title'),
         description: t('pricing.description'),
-        url: `${lng}/quotation/${id}`,
+        url: `quotation/${id}`,
     })
 }

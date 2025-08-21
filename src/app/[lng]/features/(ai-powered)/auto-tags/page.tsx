@@ -30,8 +30,9 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const { t } = await seoTranslation(params)
   const { lng } = await params
   return getPageMetadata({
+    lng,
     title: t('features.ai.tags.title'),
     description: t('features.ai.tags.description'),
-    url: `${lng}/features/auto-tags`,
+    url: 'features/auto-tags'
   })
 }

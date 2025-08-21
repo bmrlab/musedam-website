@@ -33,8 +33,9 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const { t } = await seoTranslation(params)
   const { lng } = await params
   return getPageMetadata({
+    lng,
     title: t('features.smart-folders.title'),
     description: t('features.smart-folders.description'),
-    url: `${lng}/features/smart-folders`,
+    url: 'features/smart-folders'
   })
 }

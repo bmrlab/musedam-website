@@ -1,27 +1,33 @@
 {
     "home": {
         "title": "MuseDAM - 智能数字资产管理平台 | 采集、整理、协作、AI生成",
-        "description": "MuseDAM 是一款智能数字资产管理软件,提供资源采集、文件整理、团队协作和 AI 生成等功能,助力企业高效管理数字资产。"
+        "description": "MuseDAM 是一款智能数字资产管理软件,提供资源采集、文件整理、团队协作和 AI 生成等功能,助力企业高效管理数字资产。",
+        "shortTitle": "首页"
     },
     "about-us": {
         "title": "MuseDAM | 我们的故事：赋能数字资产管理",
-        "description": "了解MuseDAM的发展历程和我们的投资者。我们正在通过直观的工具和全球视野革新数字资产管理，连接全球创作者和企业。"
+        "description": "了解MuseDAM的发展历程和我们的投资者。我们正在通过直观的工具和全球视野革新数字资产管理，连接全球创作者和企业。",
+        "shortTitle": "关于我们"
     },
     "careers": {
         "title": "MuseDAM | 工作机会 - 加入我们",
-        "description": "在 MuseDAM 开启您的职业生涯新篇章。诚邀全栈工程师加入，成为我们全球化团队的一员，共同创新和优化我们的数字资产管理平台。"
+        "description": "在 MuseDAM 开启您的职业生涯新篇章。诚邀全栈工程师加入，成为我们全球化团队的一员，共同创新和优化我们的数字资产管理平台。",
+        "shortTitle": "工作机会"
     },
     "privacy": {
         "title": "MuseDAM隐私政策 | 安全数字资产管理",
-        "description": "了解 MuseDAM 如何通过全面的隐私政策保护您的隐私。探索数据保护、用户权利以及我们在管理您的数字资产时对保密性的承诺。"
+        "description": "了解 MuseDAM 如何通过全面的隐私政策保护您的隐私。探索数据保护、用户权利以及我们在管理您的数字资产时对保密性的承诺。",
+        "shortTitle": "隐私政策"
     },
     "terms": {
         "title": "MuseDAM 服务协议 | 您的数字资产管理指南",
-        "description": "深入了解 MuseDAM 数字资产管理平台的全面使用条款。我们的服务协议明确了在安全高效的内容管理体验中的权利与责任。"
+        "description": "深入了解 MuseDAM 数字资产管理平台的全面使用条款。我们的服务协议明确了在安全高效的内容管理体验中的权利与责任。",
+        "shortTitle": "服务协议"
     },
     "features": {
         "title": "MuseDAM 核心功能 - AI驱动的团队协作与素管理",
         "description": "MuseDAM 以 AI 技术为核心，提供全面的素材管理与预览功能，搭配高效的团队协作工具，助力创意团队提升工作效率，释放创造潜能。",
+        "shortTitle": "功能特性",
         "encrypted-sharing": {
             "title": "MuseDAM 分享 - 自定义过期时间，密码保护",
             "description": "MuseDAM 的分享功能支持设置素材的过期时间和访问密码，确保共享内容的安全性和隐私性，同时提供流畅的协作体验。"
@@ -88,9 +94,20 @@
     "pricing": {
         "title": "MuseDAM | 价格套餐",
         "description": "",
+        "shortTitle": "价格套餐",
         "ai": {
             "title": "MuseAI | 价格套餐",
             "description": ""
         }
+    },
+    "blog": {
+        "title": "MuseDAM | 博客",
+        "description": "探索 MuseDAM 的博客，了解最新的数字资产管理趋势和最佳实践。",
+        "shortTitle": "博客"
+    },
+    "bookDemo": {
+        "title": "MuseDAM | 获取解决方案",
+        "description": "获取 MuseDAM 的解决方案，体验我们的 AI 数字资产管理平台。我们帮助您了解如何通过 MuseDAM 提升创意工作流程和生产力。",
+        "shortTitle": "获取解决方案"
     }
 }

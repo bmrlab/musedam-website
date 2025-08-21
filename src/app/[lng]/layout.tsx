@@ -48,6 +48,7 @@ export default async function RootLayout({
     >
       <head>
         <InitTheme />
+        <meta name="baidu-site-verification" content="codeva-0pKoR0N2fQ" />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
       </head>
