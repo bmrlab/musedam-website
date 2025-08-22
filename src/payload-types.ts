@@ -72,6 +72,9 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'help-topics': HelpTopic;
+    'help-categories': HelpCategory;
+    'help-documents': HelpDocument;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -88,6 +91,9 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'help-topics': HelpTopicsSelect<false> | HelpTopicsSelect<true>;
+    'help-categories': HelpCategoriesSelect<false> | HelpCategoriesSelect<true>;
+    'help-documents': HelpDocumentsSelect<false> | HelpDocumentsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -218,6 +224,10 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * 用于S3存储路径或文件组织
+   */
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -699,6 +709,133 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * 管理帮助中心的专题模块
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-topics".
+ */
+export interface HelpTopic {
+  id: number;
+  title: string;
+  /**
+   * 用于URL的唯一标识符，如: getting-started
+   */
+  slug: string;
+  /**
+   * 专题的封面图片，建议尺寸: 400x300px，支持PNG、JPG、SVG格式
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * 显示在卡片上的要点描述
+   */
+  bullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * 显示在专题详情页的描述
+   */
+  description?: string | null;
+  /**
+   * 数字越小排序越靠前
+   */
+  index?: number | null;
+  _status?: ('published' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 管理帮助中心的分类
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-categories".
+ */
+export interface HelpCategory {
+  id: number;
+  title: string;
+  /**
+   * 用于URL的唯一标识符
+   */
+  slug: string;
+  /**
+   * 分类的简要描述
+   */
+  description?: string | null;
+  /**
+   * 选择该分类属于哪个专题
+   */
+  topic: number | HelpTopic;
+  /**
+   * 数字越小排序越靠前
+   */
+  index?: number | null;
+  _status?: ('published' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 管理帮助中心的文档文章
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-documents".
+ */
+export interface HelpDocument {
+  id: number;
+  title: string;
+  /**
+   * 用于URL的唯一标识符
+   */
+  slug: string;
+  /**
+   * 文章的简要描述，用于预览
+   */
+  excerpt?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * 选择文章作者
+   */
+  author?: (number | null) | User;
+  /**
+   * 选择该文档属于哪个分类
+   */
+  category: number | HelpCategory;
+  /**
+   * 数字越小排序越靠前
+   */
+  index?: number | null;
+  /**
+   * 选择与该文章相关的其他文章（多选）
+   */
+  relatedArticles?: (number | HelpDocument)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  _status?: ('published' | 'draft') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -889,6 +1026,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'help-topics';
+        value: number | HelpTopic;
+      } | null)
+    | ({
+        relationTo: 'help-categories';
+        value: number | HelpCategory;
+      } | null)
+    | ({
+        relationTo: 'help-documents';
+        value: number | HelpDocument;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1127,6 +1276,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1236,6 +1386,64 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-topics_select".
+ */
+export interface HelpTopicsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  coverImage?: T;
+  bullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  description?: T;
+  index?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-categories_select".
+ */
+export interface HelpCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  topic?: T;
+  index?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "help-documents_select".
+ */
+export interface HelpDocumentsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  content?: T;
+  author?: T;
+  category?: T;
+  index?: T;
+  relatedArticles?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

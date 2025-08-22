@@ -109,5 +109,10 @@
         "title": "MuseDAM | 获取解决方案",
         "description": "获取 MuseDAM 的解决方案，体验我们的 AI 数字资产管理平台。我们帮助您了解如何通过 MuseDAM 提升创意工作流程和生产力。",
         "shortTitle": "获取解决方案"
+    },
+    "help": {
+        "title": "MuseDAM | 帮助中心 - 查找答案，学习使用",
+        "description": "MuseDAM 帮助中心提供全面的使用指南和常见问题解答，帮助您快速掌握数字资产管理平台的各项功能，提升工作效率。",
+        "shortTitle": "帮助中心"
     }
 }

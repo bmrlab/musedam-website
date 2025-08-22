@@ -13,7 +13,7 @@ import { useFooterTranslation } from '@/app/i18n/client'
 
 import { LocaleLink } from '../LocalLink'
 
-export default function Footer() {
+export default function Footer({ isMini }: { isMini?: boolean }) {
   const { t } = useFooterTranslation()
   const isMobile = useIsMobile()
   const { isInChina } = useCountry()
@@ -40,7 +40,13 @@ export default function Footer() {
 
   return isMobile ? (
     <FooterMobile isInChina={isInChina} />
-  ) : (
+  ) : isMini ? <footer className='flex justify-center'>
+    <div className='flex w-[800px] max-w-full flex-col items-center justify-center bg-white pb-[60px]'>
+      <Image src="/assets/logo.svg" width={48} height={48} alt="muse logo" />
+      <div className='mb-10 mt-4 font-euclid text-sm text-[#95989F]'>{t('common.vote')} 👍</div>
+      <SocialWidget className='flex items-center justify-around dark:text-[#141414]' />
+    </div>
+  </footer> : (
     <>
       <footer className="grid grid-cols-1 justify-items-start bg-white px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 dark:bg-[#070707]">
         <div className="flex h-full w-[101px] flex-col gap-6">
@@ -72,7 +78,7 @@ export default function Footer() {
       </footer>
       {/* https://applink.feishu.cn/client/message/link/open?token=AmOrmXGzAAADZ1FER5UfAAQ%3D */}
       {isInChina && (
-        <div className=" flex w-full items-center justify-center space-x-4 border-t dark:border-t-[rgba(255,255,255,0.1)] px-[10px] py-[24px] text-[12px] font-light text-[#141414] dark:bg-[#070707] dark:text-white/60">
+        <div className=" flex w-full items-center justify-center space-x-4 border-t px-[10px] py-[24px] text-[12px] font-light text-[#141414] dark:border-t-[rgba(255,255,255,0.1)] dark:bg-[#070707] dark:text-white/60">
           <span>© 特赞（上海）信息科技有限公司</span>
           <a
             href="http://beian.miit.gov.cn"

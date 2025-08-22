@@ -5,6 +5,7 @@ import { useCountry } from '@/providers/Country'
 import Icons from '@/components/icon'
 
 import { LocaleLink } from '../LocalLink'
+import { cn } from '@/utilities/cn'
 
 const socialItemAbroad = [
   {
@@ -42,12 +43,12 @@ const socialItemInChina = [
   },
 ]
 
-export default function SocialWidget() {
+export default function SocialWidget({ className }: { className?: string }) {
   const { isInChina } = useCountry()
   const socialItem = isInChina ? socialItemInChina : socialItemAbroad
 
   return (
-    <div className="grid gap-4">
+    <div className={cn("grid gap-4  text-[#141414] dark:text-white", className)}>
       {socialItem.map((item, index) => (
         <SocialItemView key={index} {...item} />
       ))}
@@ -87,7 +88,7 @@ const SocialItemView = ({
         </div>
       )}
       <Wrapper>
-        <p className="flex cursor-pointer items-center gap-1.5  text-[#141414] dark:text-white">
+        <p className="flex cursor-pointer items-center gap-1.5 ">
           {icon}
           <span className="underline-animation font-mono text-[14px] font-normal leading-[18.2px]">
             {label}

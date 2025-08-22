@@ -1,0 +1,78 @@
+{
+    "hero": {
+        "title": "How can we help?",
+        "subtitle": "Optimal assistance is just a detailed question away"
+    },
+    "search": {
+        "placeholder": "Search for articles...",
+        "searching": "Searching...",
+        "noResults": "No related articles found",
+        "noResultsSuggestion": "Try using other keywords",
+        "viewAllResults": "View all search results",
+        "clearSearch": "Clear search"
+    },
+    "topics": {
+        "showAll": "Show All",
+        "articles": " Articles"
+    },
+    "categories": {
+        "allCollections": "All Collections"
+    },
+    "breadcrumb": {
+        "allCollections": "All Collections"
+    },
+    "feedback": {
+        "question": "Did this answer your question?",
+        "thanks": "Thanks for your feedback ❤️",
+        "labels": {
+            "negative": "Dissatisfied",
+            "neutral": "Neutral",
+            "positive": "Satisfied"
+        }
+    },
+    "searchResults": {
+        "noResults": {
+            "title": "No results found",
+            "description": "No articles found related to \"{query}\"",
+            "suggestions": "Suggestions:",
+            "suggestionsList": [
+                "Check if the spelling is correct",
+                "Try using simpler keywords",
+                "Use synonyms or related terms"
+            ]
+        },
+        "header": {
+            "title": "Search Results",
+            "keyword": "Keyword: \"{query}\"",
+            "foundCount": "Found {count} articles"
+        },
+        "pagination": {
+            "showing": "Showing first {showing} results out of {total} total results",
+            "tip": "Using more specific keywords can provide more accurate search results"
+        },
+        "lastUpdated": "Last updated: {date}"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "retry": "Retry",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "close": "Close",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "view": "View",
+        "relatedArticles": "Related Articles"
+    },
+    "tableOfContents": {
+        "noSections": "No sections available"
+    },
+    "help": {
+        "shortTitle": "Help Center",
+        "description": "MuseDAM Help Center provides comprehensive usage guides and frequently asked questions to help you quickly master the various features of the digital asset management platform and improve work efficiency."
+    }
+}

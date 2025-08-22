@@ -4,18 +4,14 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { GoogleAnalytics } from '@next/third-parties/google'
-import { usePathname } from 'next/navigation'
 
 import './globals.css'
 
 import { dir } from 'i18next'
-import NextTopLoader from 'nextjs-toploader'
 
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
 import { CookieConsent } from '@/components/CookieConsent'
-import Footer from '@/components/Footer'
-import { Header } from '@/components/Header'
 import { languages } from '@/app/i18n/settings'
 import { LayoutContent } from './layout-content'
 
