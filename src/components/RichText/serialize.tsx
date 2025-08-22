@@ -169,7 +169,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
             case 'paragraph': {
               return (
                 <p
-                  className="mb-3 !font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]"
+                  className="mb-3 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]"
                   key={index}
                 >
                   {serializedChildren}
@@ -329,8 +329,8 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
 
                                   const Tag =
                                     cellNode.headerState === 2 ||
-                                    cellNode.headerState === 1 ||
-                                    cellNode.headerState === 3
+                                      cellNode.headerState === 1 ||
+                                      cellNode.headerState === 3
                                       ? 'th'
                                       : 'td'
                                   return (
@@ -344,8 +344,8 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                                     >
                                       {cellNode.children
                                         ? serializeLexical({
-                                            nodes: cellNode.children as NodeTypes[],
-                                          })
+                                          nodes: cellNode.children as NodeTypes[],
+                                        })
                                         : ''}
                                     </Tag>
                                   )

@@ -109,5 +109,10 @@
         "title": "MuseDAM | Get Solution",
         "description": "Get a solution with MuseDAM to experience our AI-powered digital asset management platform firsthand. We'll help you understand how MuseDAM can transform your creative workflow and boost productivity.",
         "shortTitle": "Get Solution"
+    },
+    "help": {
+        "title": "MuseDAM | Help Center - Find Answers, Learn to Use",
+        "description": "MuseDAM Help Center provides comprehensive usage guides and frequently asked questions to help you quickly master the various features of the digital asset management platform and improve work efficiency.",
+        "shortTitle": "Help Center"
     }
 }

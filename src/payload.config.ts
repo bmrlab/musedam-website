@@ -14,6 +14,9 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { HelpTopics } from './collections/HelpTopics'
+import { HelpCategories } from './collections/HelpCategories'
+import { HelpDocuments } from './collections/HelpDocuments'
 import { plugins } from './plugins'
 import getServerSideURL from './utilities/getServerSideURL'
 
@@ -86,7 +89,7 @@ export default buildConfig({
     },
     push: false, // 禁用自动 push，都要用 migrate 命令，seeds 脚本会默认 push 一下导致后续 migration 无法执行
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, Users, HelpTopics, HelpCategories, HelpDocuments],
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,

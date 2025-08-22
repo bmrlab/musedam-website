@@ -3,7 +3,7 @@ import { SchemaOrg } from './SchemaOrg'
 import getServerSideURL from '@/utilities/getServerSideURL'
 
 interface PageSEOProps {
-    type: 'home' | 'blog' | 'feature' | 'about' | 'pricing' | 'careers' | 'privacy' | 'terms' | 'bookDemo'
+    type: 'home' | 'blog' | 'feature' | 'about' | 'pricing' | 'careers' | 'privacy' | 'terms' | 'bookDemo' | 'help'
     title: string
     description: string
     url: string

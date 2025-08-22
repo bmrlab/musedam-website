@@ -24,6 +24,14 @@ export const Media: CollectionConfig = {
   },
   fields: [
     {
+      name: 'prefix',
+      type: 'text',
+      label: '文件路径前缀',
+      admin: {
+        description: '用于S3存储路径或文件组织',
+      },
+    },
+    {
       name: 'alt',
       type: 'text',
       //required: true,

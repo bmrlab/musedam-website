@@ -41,6 +41,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   const { lng, slug = '' } = await paramsPromise
   const { t } = await seoTranslation(paramsPromise)
   const url = '/blog/' + slug
+
   const post = await queryPostBySlug({ slug, lng })
 
   if (!post) return <PayloadRedirects url={url} />

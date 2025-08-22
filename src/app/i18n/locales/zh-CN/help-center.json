@@ -1,0 +1,78 @@
+{
+    "hero": {
+        "title": "我们能为您提供什么帮助？",
+        "subtitle": "最佳帮助就在详细问题之间"
+    },
+    "search": {
+        "placeholder": "搜索文章...",
+        "searching": "搜索中...",
+        "noResults": "未找到相关文章",
+        "noResultsSuggestion": "尝试使用其他关键词",
+        "viewAllResults": "查看所有搜索结果",
+        "clearSearch": "清空搜索"
+    },
+    "topics": {
+        "showAll": "显示全部",
+        "articles": "篇文章"
+    },
+    "categories": {
+        "allCollections": "所有集合"
+    },
+    "breadcrumb": {
+        "allCollections": "所有集合"
+    },
+    "feedback": {
+        "question": "这个回答解决了您的问题吗？",
+        "thanks": "感谢您的反馈 ❤️",
+        "labels": {
+            "negative": "不满意",
+            "neutral": "一般",
+            "positive": "满意"
+        }
+    },
+    "searchResults": {
+        "noResults": {
+            "title": "未找到相关结果",
+            "description": "没有找到与 \"{query}\" 相关的文章",
+            "suggestions": "建议：",
+            "suggestionsList": [
+                "检查拼写是否正确",
+                "尝试使用更简单的关键词",
+                "使用同义词或相关词汇"
+            ]
+        },
+        "header": {
+            "title": "搜索结果",
+            "keyword": "关键词: \"{query}\"",
+            "foundCount": "找到 {count} 篇文章"
+        },
+        "pagination": {
+            "showing": "显示前 {showing} 个结果，共 {total} 个结果",
+            "tip": "使用更具体的关键词可以获得更精确的搜索结果"
+        },
+        "lastUpdated": "最后更新: {date}"
+    },
+    "common": {
+        "loading": "加载中...",
+        "error": "出错了",
+        "retry": "重试",
+        "back": "返回",
+        "next": "下一步",
+        "previous": "上一步",
+        "close": "关闭",
+        "save": "保存",
+        "cancel": "取消",
+        "confirm": "确认",
+        "delete": "删除",
+        "edit": "编辑",
+        "view": "查看",
+        "relatedArticles": "相关文章"
+    },
+    "tableOfContents": {
+        "noSections": "暂无可用章节"
+    },
+    "help": {
+        "shortTitle": "帮助中心",
+        "description": "MuseDAM 帮助中心提供全面的使用指南和常见问题解答，帮助您快速掌握数字资产管理平台的各项功能，提升工作效率。"
+    }
+}

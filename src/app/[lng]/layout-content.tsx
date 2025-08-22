@@ -20,6 +20,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     const { changeLocale } = useLanguage()
 
     const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+    const miniFooterPage = useMemo(() => !!pathname && pathname.replace('/en-US', '').replace('/zh-CN', '').startsWith('/help'), [pathname])
 
 
     useEffect(() => {
@@ -33,7 +34,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     ) : (
         <>
             <Header isGlobal={isGlobal} user={user} />
-            <div className="flex flex-col items-center justify-center w-full pt-[56px] md:pt-[70px]">
+            <div className="flex w-full flex-col items-center justify-center pt-[56px] md:pt-[70px]">
                 <NextTopLoader
                     color={darkHeadPage ? "#fff" : "#000"}
                     height={1}
@@ -41,7 +42,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
                 />
                 {children}
             </div>
-            <Footer />
+            <Footer isMini={miniFooterPage} />
         </>
     )
 } 
