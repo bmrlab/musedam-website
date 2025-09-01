@@ -101,9 +101,19 @@
         }
     },
     "blog": {
-        "title": "MuseDAM | Blog",
-        "description": "Discover insights, best practices, and industry trends in digital asset management, workflow automation, and creative operations.",
-        "shortTitle": "Blog"
+        "title": "MuseDAM | Digital Asset Management Blog - AI Technology, Team Collaboration, Creative Workflow",
+        "description": "MuseDAM official blog sharing latest trends in digital asset management, AI technology applications, team collaboration best practices, and creative workflow optimization tips to help enterprises improve digital asset management efficiency.",
+        "shortTitle": "Blog",
+        "relatedArticles": "Related Articles",
+        "viewMoreArticles": "View More Articles",
+        "readingTime": "min read",
+        "publishedOn": "Published on",
+        "category": "Category",
+        "tags": "Tags",
+        "cacheControl": "Cache Control - Current cache time: Blog list 5 minutes, Article details 10 minutes",
+        "refreshing": "Refreshing...",
+        "refreshCache": "Refresh Cache",
+        "lastRefresh": "Last Refresh"
     },
     "bookDemo": {
         "title": "MuseDAM | Get Solution",

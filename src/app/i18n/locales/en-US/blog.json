@@ -8,5 +8,22 @@
     "title": "Category",
     "all": "All"
   },
-  "readTime": "{{ val }} min read"
+  "readTime": "{{ val }} min read",
+  "title": "Blog",
+  "description": "Explore the latest insights and best practices in digital asset management",
+  "shortTitle": "Blog",
+  "preGeneration": {
+    "success": "Pre-generated {{ count }} popular articles",
+    "error": "Failed to pre-generate articles: {{ error }}"
+  },
+  "seo": {
+    "keywords": [
+      "Digital Asset Management",
+      "AI Technology",
+      "Team Collaboration",
+      "Creative Workflow"
+    ],
+    "articleSection": "Digital Asset Management",
+    "category": "Digital Asset Management"
+  }
 }

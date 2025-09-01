@@ -8,5 +8,22 @@
     "title": "分类",
     "all": "全部"
   },
-  "readTime": "{{ val }}分钟阅读"
+  "readTime": "{{ val }}分钟阅读",
+  "title": "博客",
+  "description": "探索数字资产管理的最新见解和最佳实践",
+  "shortTitle": "博客",
+  "preGeneration": {
+    "success": "预生成 {{ count }} 篇热门文章",
+    "error": "预生成文章失败: {{ error }}"
+  },
+  "seo": {
+    "keywords": [
+      "数字资产管理",
+      "AI技术",
+      "团队协作",
+      "创意工作流"
+    ],
+    "articleSection": "数字资产管理",
+    "category": "数字资产管理"
+  }
 }

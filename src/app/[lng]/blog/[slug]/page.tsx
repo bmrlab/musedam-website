@@ -10,27 +10,42 @@ import { getPayload } from 'payload'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
-import { PageSEO } from '@/components/SEO/PageSEO'
-import { seoTranslation } from '@/app/i18n'
+import { BlogSEO } from '@/components/SEO/BlogSEO'
+import { seoTranslation, ssTranslation } from '@/app/i18n'
 
 import PageClient from './page.client'
 
+// Disable caching to ensure content real-time updates
 export const dynamic = 'force-dynamic'
 
+// Pre-generate static pages for popular articles to improve SEO and performance
 // export async function generateStaticParams() {
-//   const payload = await getPayload({ config: configPromise })
-//   const posts = await payload.find({
-//     collection: 'posts',
-//     draft: false,
-//     limit: 1000,
-//     overrideAccess: false,
-//   })
-//
-//   const params = posts.docs.map(({ slug }) => {
-//     return { slug }
-//   })
-//
-//   return params
+//   try {
+//     const payload = await getPayload({ config: configPromise })
+
+//     // Get top 20 popular articles for pre-generation
+//     const posts = await payload.find({
+//       collection: 'posts',
+//       draft: false,
+//       limit: 20,
+//       overrideAccess: false,
+//       sort: '-publishedAt', // Sort by publish date, prioritize latest articles
+//     })
+
+//     const params = posts.docs
+//       .filter((post) => post.slug) // Filter out articles without slug
+//       .map(({ slug }) => ({
+//         slug: slug!,
+//         lng: process.env.DEPLOY_REGION === 'mainland' ? 'zh-CN' : 'en-US'
+//       }))
+
+//     // Keep log messages in English to avoid language dependency issues during build
+//     console.log(`Pre-generated ${params.length} popular articles`)
+//     return params
+//   } catch (error) {
+//     console.error('Failed to pre-generate articles:', error)
+//     return [] // Return empty array on failure, doesn't affect page rendering
+//   }
 // }
 
 type Args = {
@@ -39,32 +54,49 @@ type Args = {
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { lng, slug = '' } = await paramsPromise
-  const { t } = await seoTranslation(paramsPromise)
+  const { t: seoT } = await seoTranslation(paramsPromise)
+  const { t: blogT } = await ssTranslation(lng, 'blog')
   const url = '/blog/' + slug
 
   const post = await queryPostBySlug({ slug, lng })
 
   if (!post) return <PayloadRedirects url={url} />
 
+  // Helper function to get keywords based on language
+  const getKeywords = () => {
+    if (lng === 'zh-CN') {
+      return ['数字资产管理', 'AI技术', '团队协作', '创意工作流']
+    }
+    return ['Digital Asset Management', 'AI Technology', 'Team Collaboration', 'Creative Workflow']
+  }
+
+  const keywords = getKeywords()
+
   return (
     <>
-      <PageSEO
-        type="blog"
-        title={post.meta?.title || t('blog.title')}
-        description={post.meta?.description || t('blog.description')}
+      <BlogSEO
+        title={post.meta?.title || blogT('title')}
+        description={post.meta?.description || blogT('description')}
         url={`/blog/${slug}`}
         image={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
+        lng={lng}
         articleData={{
           headline: post.title,
           datePublished: post.publishedAt || new Date().toISOString(),
-          dateModified: post.updatedAt || post.publishedAt || new Date().toISOString()
+          dateModified: post.updatedAt || post.publishedAt || new Date().toISOString(),
+          articleBody: post.content ? JSON.stringify(post.content) : '',
+          keywords: keywords,
+          articleSection: blogT('seo.articleSection'),
+          wordCount: post.content ? JSON.stringify(post.content).length : 0
         }}
         breadcrumbs={[
-          { name: t('home.shortTitle'), url: `/` },
-          { name: t('blog.shortTitle'), url: `/blog` },
+          { name: seoT('home.shortTitle'), url: `/` },
+          { name: blogT('shortTitle'), url: `/blog` },
           { name: post.title, url: `/blog/${slug}` }
         ]}
-        lng={lng}
+        category={blogT('seo.category')}
+        tags={keywords}
+        lastModified={post.updatedAt || post.publishedAt || new Date().toISOString()}
       />
       <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]">
         <PageClient />

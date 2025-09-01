@@ -17,10 +17,39 @@ import { getPageMetadata } from '@/utilities/getMetadata'
 import PageClient from './page.client'
 import { Information } from '@/components/Pricing/Enterprise/information'
 
+
+// 禁用缓存，确保内容实时性
 export const dynamic = 'force-dynamic'
 
+// 添加ISR策略：预生成热门分类页面
+// export async function generateStaticParams() {
+//   try {
+//     const payload = await getPayload({ config: configPromise })
+
+//     // 获取所有分类，为每个分类预生成页面
+//     const categories = await payload.find({
+//       collection: 'categories',
+//       limit: 50,
+//       overrideAccess: false,
+//     })
+
+//     const params = categories.docs
+//       .filter((category) => category.title)
+//       .map((category) => ({
+//         category: category.title,
+//         lng: 'zh-CN'
+//       }))
+
+//     console.log(`预生成 ${params.length} 个分类页面`)
+//     return params
+//   } catch (error) {
+//     console.error('预生成分类页面失败:', error)
+//     return []
+//   }
+// }
+
 type Args = {
-  params: Promise<{ lng: string }>
+  params: Promise<{ lng: string; category?: string }>
   searchParams: Promise<{ page?: string; category?: string }>
 }
 
@@ -42,7 +71,11 @@ export default async function BlogPage({ params, searchParams }: Args) {
           { name: t('home.shortTitle'), url: '/' },
           { name: t('blog.shortTitle'), url: '/blog' }
         ]}
+
       />
+
+
+
       <PageClient />
       <Suspense
         fallback={
@@ -125,7 +158,7 @@ async function BlogPageContent({
           currentPage={parseInt(allPosts.page?.toString() ?? '1')}
           totalPages={allPosts.totalPages || 1}
           selectedCategory={filterCategory}
-          className="px-6 py-[60px] pt-[60px] md:p-20"
+          className="px-6 py-[60px] md:p-20"
         />
       </div>
     </div>

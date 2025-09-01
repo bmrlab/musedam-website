@@ -101,9 +101,19 @@
         }
     },
     "blog": {
-        "title": "MuseDAM | 博客",
-        "description": "探索 MuseDAM 的博客，了解最新的数字资产管理趋势和最佳实践。",
-        "shortTitle": "博客"
+        "title": "MuseDAM | 数字资产管理博客 - AI技术、团队协作、创意工作流",
+        "description": "MuseDAM 官方博客，分享数字资产管理最新趋势、AI技术应用、团队协作最佳实践、创意工作流优化技巧，助力企业提升数字资产管理效率。",
+        "shortTitle": "博客",
+        "relatedArticles": "相关文章推荐",
+        "viewMoreArticles": "查看更多文章",
+        "readingTime": "分钟阅读",
+        "publishedOn": "发布于",
+        "category": "分类",
+        "tags": "标签",
+        "cacheControl": "缓存控制 - 当前缓存时间：博客列表5分钟，文章详情10分钟",
+        "refreshing": "刷新中...",
+        "refreshCache": "刷新缓存",
+        "lastRefresh": "上次刷新"
     },
     "bookDemo": {
         "title": "MuseDAM | 获取解决方案",

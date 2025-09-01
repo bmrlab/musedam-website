@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface SchemaOrgProps {
-    type: 'organization' | 'website' | 'webpage' | 'article' | 'breadcrumb'
+    type: 'organization' | 'website' | 'webpage' | 'article' | 'blogPosting' | 'breadcrumb'
     data: any
 }
 
@@ -90,6 +90,39 @@ export const SchemaOrg: React.FC<SchemaOrgProps> = ({ type, data }) => {
                         '@type': 'WebPage',
                         '@id': data.url
                     }
+                }
+
+            case 'blogPosting':
+                return {
+                    '@context': 'https://schema.org',
+                    '@type': 'BlogPosting',
+                    headline: data.headline,
+                    description: data.description,
+                    image: data.image,
+                    author: {
+                        '@type': 'Organization',
+                        name: 'MuseDAM'
+                    },
+                    publisher: {
+                        '@type': 'Organization',
+                        name: 'MuseDAM',
+                        logo: {
+                            '@type': 'ImageObject',
+                            url: `${baseUrl}/assets/logo.svg`
+                        }
+                    },
+                    datePublished: data.datePublished,
+                    dateModified: data.dateModified || data.datePublished,
+                    mainEntityOfPage: {
+                        '@type': 'WebPage',
+                        '@id': data.url
+                    },
+                    // 添加更多BlogPosting字段
+                    articleBody: data.articleBody,
+                    keywords: data.keywords,
+                    articleSection: data.articleSection,
+                    wordCount: data.wordCount,
+                    inLanguage: data.inLanguage || 'zh-CN'
                 }
 
             case 'breadcrumb':

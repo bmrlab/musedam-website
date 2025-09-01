@@ -13,6 +13,10 @@ interface PageSEOProps {
         datePublished: string
         dateModified?: string
         author?: string
+        articleBody?: string
+        keywords?: string[]
+        articleSection?: string
+        wordCount?: number
     }
     breadcrumbs?: Array<{
         name: string
@@ -70,10 +74,10 @@ export const PageSEO: React.FC<PageSEOProps> = ({
                 }}
             />
 
-            {/* 文章页面特殊处理 */}
+            {/* 文章页面特殊处理 - 使用BlogPosting schema */}
             {type === 'blog' && articleData && (
                 <SchemaOrg
-                    type="article"
+                    type="blogPosting"
                     data={{
                         headline: articleData.headline,
                         description: description,
@@ -81,22 +85,23 @@ export const PageSEO: React.FC<PageSEOProps> = ({
                         url: localizedUrl,
                         datePublished: articleData.datePublished,
                         dateModified: articleData.dateModified || articleData.datePublished,
-                        author: {
-                            '@type': 'Organization',
-                            name: 'MuseDAM'
-                        },
-                        publisher: {
-                            '@type': 'Organization',
-                            name: 'MuseDAM',
-                            logo: {
-                                '@type': 'ImageObject',
-                                url: `${baseUrl}/assets/logo.svg`
-                            }
-                        },
-                        mainEntityOfPage: {
-                            '@type': 'WebPage',
-                            '@id': localizedUrl
-                        }
+                        articleBody: articleData.articleBody || '',
+                        keywords: articleData.keywords || ['数字资产管理', 'AI技术', '团队协作', '创意工作流'],
+                        articleSection: articleData.articleSection || '数字资产管理',
+                        wordCount: articleData.wordCount || 0,
+                        inLanguage: lng === 'zh-CN' ? 'zh-CN' : 'en-US'
+                    }}
+                />
+            )}
+
+            {/* 博客页面特殊处理 - 添加Blog schema */}
+            {type === 'blog' && !articleData && (
+                <SchemaOrg
+                    type="website"
+                    data={{
+                        name: title,
+                        description: description,
+                        url: localizedUrl
                     }}
                 />
             )}
