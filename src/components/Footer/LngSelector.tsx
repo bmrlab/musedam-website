@@ -40,10 +40,10 @@ export default function LngSelector() {
 
   return (
     <Select defaultValue={language} value={language} onValueChange={onLngChange}>
-      <SelectTrigger className="w-full border-none p-0 shadow-none focus:ring-0  dark:text-white">
+      <SelectTrigger className="w-full border-none p-0 text-white shadow-none focus:ring-0">
         <div className="flex items-center gap-1.5">
-          <Icons.locales width={18} height={18} className='dark:text-white' />
-          <p className="font-mono text-[14px] font-normal leading-[18.2px] text-[#141414] dark:text-white">
+          <Icons.locales width={18} height={18} />
+          <p className="font-mono text-[14px] font-normal leading-[18.2px]">
             <SelectValue placeholder="Language" />
           </p>
         </div>

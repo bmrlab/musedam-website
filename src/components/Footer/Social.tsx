@@ -48,7 +48,7 @@ export default function SocialWidget({ className }: { className?: string }) {
   const socialItem = isInChina ? socialItemInChina : socialItemAbroad
 
   return (
-    <div className={cn("grid gap-4  text-[#141414] dark:text-white", className)}>
+    <div className={cn("grid gap-4  text-white", className)}>
       {socialItem.map((item, index) => (
         <SocialItemView key={index} {...item} />
       ))}
