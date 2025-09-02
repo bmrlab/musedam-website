@@ -124,8 +124,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     const { isInChina } = useCountry()
 
     const initialAdvancedConfig: IAdvancedInfo = useMemo(() => ({
-        memberSeats: 10,
-        storageSpace: isInChina ? 4 : 3,
+        memberSeats: isInChina ? 15 : 10,
+        storageSpace: 3,
         aiPoints: 0
     }), [isInChina])
 

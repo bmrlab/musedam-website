@@ -56,7 +56,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         featureView,
     } = useQuotationStore()
     // 所有权益/映射
-    const { basicGroupsByCode, advancedGroupsByCode, basicKeyToGroups, advancedKeyToGroup } = useEnterprisePlan()
+    const { basicGroupsByCode, advancedGroupsByCode, advancedKeyToGroup } = useEnterprisePlan()
 
     const { t } = useTranslation('quotation-feature')
 
@@ -91,7 +91,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
 
 
     return (
-        <div className={isInExport ? 'mt-[120px]' : 'md:mt-[120px] mt-[50px]'}>
+        <div className={isInExport ? 'mt-[120px]' : 'mt-[50px] md:mt-[120px]'}>
             <h3 className="mb-[30px] text-2xl font-bold text-[#141414]">{t('features.title')}</h3>
             <div className='overflow-hidden border-b'>
                 {/* 已购买的-基础功能 */}

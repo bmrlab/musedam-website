@@ -7,7 +7,8 @@ export enum EBasicConfigKey {
 export enum EAdvancedModules {
     ADVANCED_FEATURES = 'advancedFeatures',
     CUSTOM_SYSTEM_HOMEPAGE = 'customSystemHomepage',
-    APPROVAL_WORKFLOW = 'approvalWorkflow',
+    STANDARD_PROJECT_HUB = 'standardProjectHub',
+    ADVANCED_PROJECT_HUB = 'advancedProjectHub',
     COMPLIANCE_CHECK = 'complianceCheck',
     CUSTOM_METADATA_FIELDS = 'customMetadataFields',
     WATERMARK = 'watermark',
@@ -20,6 +21,7 @@ export enum EAdvancedModules {
     SSO_FEISHU = 'ssoFeishu',
     SSO_WECOM = 'ssoWecom',
     SSO_DINGTALK = 'ssoDingTalk',
+    SSO_Teams = 'ssoTeams',
     GA = 'GA',
 }
 

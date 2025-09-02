@@ -58,7 +58,7 @@ export default async function RootLayout({
         <TailwindIndicator />
         <Toaster />
         {/* Google Ads Conversion Tracking */}
-        <Script
+        {/* <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17521133807"
           strategy="afterInteractive"
         />
@@ -69,7 +69,7 @@ export default async function RootLayout({
             gtag('js', new Date());
             gtag('config', 'AW-17521133807');
           `}
-        </Script>
+        </Script> */}
       </body>
 
       {/* Google Analytics (if you have GA_TRACKING_ID) */}

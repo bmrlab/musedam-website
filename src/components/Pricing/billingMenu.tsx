@@ -55,7 +55,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     [EPlanProductType.TEAM_FLAGSHIP]: [
       t('pricing.summary.ai'),
       t('pricing.summary.storage', { val: '3T(3072G)' }),
-      t('pricing.summary.seats', { val: 30 }),
+      t('pricing.summary.seats', { val: isInChina ? 15 : 30 }),
       // isInChina ? undefined : t('pricing.summary.points', { val: '24,000' }),
       t('pricing.summary.folderAuth'),
     ],
@@ -211,7 +211,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
           t('plan.summary.usage_rights'),
           t('plan.summary.points.perMonth', { val: '24,000' }),
           t('plan.summary.storage', { val: '3T' }),
-          t('plan.summary.seats.team', { val: 30 }),
+          t('plan.summary.seats.team', { val: 15 }),
           t('plan.summary.team.gallery'),
         ],
 

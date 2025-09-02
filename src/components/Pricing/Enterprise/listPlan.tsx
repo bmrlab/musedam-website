@@ -64,15 +64,21 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
         ],
         ...(!isInChina ? {} : {
-            [tFeatures('approvalWorkflow.title')]: [
-                { name: tFeatures('approvalWorkflow.0.name'), detail: tFeatures('approvalWorkflow.0.detail') },
-                { name: tFeatures('approvalWorkflow.1.name'), detail: tFeatures('approvalWorkflow.1.detail') },
-                { name: tFeatures('approvalWorkflow.2.name'), detail: tFeatures('approvalWorkflow.2.detail') },
+            [tFeatures('standardProjectHub.title')]: [
+                { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
+                { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
+                { name: tFeatures('standardProjectHub.2.name'), detail: tFeatures('standardProjectHub.2.detail') },
+                { name: tFeatures('standardProjectHub.3.name'), detail: tFeatures('standardProjectHub.3.detail') },
+                { name: tFeatures('standardProjectHub.4.name'), detail: tFeatures('standardProjectHub.4.detail') },
             ],
-            [tFeatures('complianceCheck.title')]: [
-                { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
-                { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
-                { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+            [tFeatures('advancedProjectHub.title')]: [
+                { name: tFeatures('advancedProjectHub.0.name'), detail: tFeatures('advancedProjectHub.0.detail') },
+                { name: tFeatures('advancedProjectHub.1.name'), detail: tFeatures('advancedProjectHub.1.detail') },
+                { name: tFeatures('advancedProjectHub.2.name'), detail: tFeatures('advancedProjectHub.2.detail') },
+                { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
+                { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
+                { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
+                { name: tFeatures('advancedProjectHub.6.name'), detail: tFeatures('advancedProjectHub.6.detail') },
             ]
         }),
         [tFeatures('aiAutoTaggingEngine.title')]: [
@@ -83,6 +89,15 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('aiAutoTaggingEngine.4.name'), detail: tFeatures('aiAutoTaggingEngine.4.detail') },
             { name: tFeatures('aiAutoTaggingEngine.5.name'), detail: tFeatures('aiAutoTaggingEngine.5.detail') }
         ],
+        ...(isInChina ? {} :
+            {
+                [tFeatures('complianceCheck.title')]: [
+                    { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
+                    { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
+                    { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+                ]
+            }
+        ),
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
             { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
@@ -96,7 +111,8 @@ export const useEnterprisePlan = () => {
         [tFeatures('enterpriseSingleSignOn.title')]: [
             { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
             { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') }
+            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') },
+            { name: tFeatures('enterpriseSingleSignOn.3.name'), detail: tFeatures('enterpriseSingleSignOn.3.detail') }
         ],
         ...(!isInChina ? {} : {
             [tFeatures('globalAcceleration.title')]: [
@@ -153,7 +169,8 @@ export const useEnterprisePlan = () => {
     const advancedGroupsByCode = {
         advancedFeatures: { title: tFeatures('advancedFeatures.title'), items: advancedList[tFeatures('advancedFeatures.title')].slice(1) },
         customSystemHomepage: { title: tFeatures('customSystemHomepage.title'), items: advancedList[tFeatures('customSystemHomepage.title')] },
-        approvalWorkflow: { title: tFeatures('approvalWorkflow.title'), items: advancedList[tFeatures('approvalWorkflow.title')] },
+        standardProjectHub: { title: tFeatures('standardProjectHub.title'), items: advancedList[tFeatures('standardProjectHub.title')] },
+        advancedProjectHub: { title: tFeatures('advancedProjectHub.title'), items: advancedList[tFeatures('advancedProjectHub.title')] },
         aiAutoTaggingEngine: { title: tFeatures('aiAutoTaggingEngine.title'), items: advancedList[tFeatures('aiAutoTaggingEngine.title')] },
         complianceCheck: { title: tFeatures('complianceCheck.title'), items: advancedList[tFeatures('complianceCheck.title')] },
         customMetadataFields: { title: tFeatures('customMetadataFields.title'), items: advancedList[tFeatures('customMetadataFields.title')] },
@@ -173,7 +190,8 @@ export const useEnterprisePlan = () => {
     const advancedKeyToGroup: Partial<Record<EAdvancedModules, keyof typeof advancedGroupsByCode>> = {
         [EAdvancedModules.ADVANCED_FEATURES]: 'advancedFeatures',
         [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 'customSystemHomepage',
-        [EAdvancedModules.APPROVAL_WORKFLOW]: 'approvalWorkflow',
+        [EAdvancedModules.STANDARD_PROJECT_HUB]: 'standardProjectHub',
+        [EAdvancedModules.ADVANCED_PROJECT_HUB]: 'advancedProjectHub',
         [EAdvancedModules.AI_AUTO_TAG]: 'aiAutoTaggingEngine',
         [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
         [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 'customMetadataFields',

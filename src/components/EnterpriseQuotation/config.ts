@@ -16,6 +16,7 @@ interface IModules {
     tag?: string
     noPrice?: boolean
     unit?: string
+    noCheckBox?: boolean
     subModules?: IModules[]
 }
 export const usePricing = () => {
@@ -45,7 +46,8 @@ export const usePricing = () => {
             modules: {
                 [EAdvancedModules.ADVANCED_FEATURES]: 5000,
                 [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
-                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
+                [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
                 [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
                 [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
                 [EAdvancedModules.WATERMARK]: 2000,
@@ -66,13 +68,15 @@ export const usePricing = () => {
             modules: {
                 [EAdvancedModules.ADVANCED_FEATURES]: 20000,
                 [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,
-                [EAdvancedModules.APPROVAL_WORKFLOW]: 30000,
+                [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
+                [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
                 [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
                 [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
                 [EAdvancedModules.WATERMARK]: 30000,
                 [EAdvancedModules.SSO_FEISHU]: 2000,
                 [EAdvancedModules.SSO_WECOM]: 2000,
                 [EAdvancedModules.SSO_DINGTALK]: 2000,
+                [EAdvancedModules.SSO_Teams]: 2000,
                 [EAdvancedModules.CUSTOMER_SERVICE]: 0,
                 [EAdvancedModules.PROFESSIONAL_SERVICES]: 50000,
                 // ai 自动打标引擎
@@ -89,7 +93,8 @@ export const usePricing = () => {
             modules: {
                 [EAdvancedModules.ADVANCED_FEATURES]: 5000,
                 [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
-                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
+                [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
                 [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
                 [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
                 [EAdvancedModules.WATERMARK]: 2000,
@@ -106,7 +111,8 @@ export const usePricing = () => {
             modules: {
                 [EAdvancedModules.ADVANCED_FEATURES]: 5000,
                 [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
-                [EAdvancedModules.APPROVAL_WORKFLOW]: 15000,
+                [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
+                [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
                 [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
                 [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
                 [EAdvancedModules.WATERMARK]: 2000,
@@ -122,7 +128,8 @@ export const usePricing = () => {
     const moduleNames = {
         [EAdvancedModules.ADVANCED_FEATURES]: t('module.advancedFeatures'),
         [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: t('module.customSystemHomepage'),
-        [EAdvancedModules.APPROVAL_WORKFLOW]: t('module.approvalWorkflow'),
+        [EAdvancedModules.STANDARD_PROJECT_HUB]: t('module.standardProjectHub'),
+        [EAdvancedModules.ADVANCED_PROJECT_HUB]: t('module.advancedProjectHub'),
         [EAdvancedModules.COMPLIANCE_CHECK]: t('module.complianceCheck'),
         [EAdvancedModules.CUSTOM_METADATA_FIELDS]: t('module.customMetadataFields'),
         [EAdvancedModules.WATERMARK]: t('module.watermark'),
@@ -140,7 +147,8 @@ export const usePricing = () => {
     const ssoTypeNames = {
         [EAdvancedModules.SSO_FEISHU]: t('sso.feishu'),
         [EAdvancedModules.SSO_WECOM]: t('sso.wecom'),
-        [EAdvancedModules.SSO_DINGTALK]: t('sso.dingtalk')
+        [EAdvancedModules.SSO_DINGTALK]: t('sso.dingtalk'),
+        [EAdvancedModules.SSO_Teams]: 'Microsoft Teams'
     }
     return { pricing, moduleNames, prefix, ssoTypeNames }
 }
@@ -188,14 +196,14 @@ export const useBasicConfigs = () => {
             key: EBasicConfigKey.MEMBER_SEATS,
             title: t('member.seat'),
             hint: [t('advanced.memberSeats.hint')],
-            min: 10,
+            min: isInChina ? 15 : 10,
             price: advancedPricing.memberSeatPrice,
             des: `${prefix} ${advancedPricing.memberSeatPrice}${t("memberSeats.perYear")}` + ` (${prefix} ${Math.ceil(advancedPricing.memberSeatPrice / 12)}${t("memberSeats.perMonth")})`
 
         },
         {
             key: EBasicConfigKey.STORAGE_SPACE,
-            min: isInChina ? 4 : 3,
+            min: 3,
             title: t('storage.space'),
             hint: [t('advanced.storageSpace.hint')],
             tag: '1TB',
@@ -236,9 +244,15 @@ export const useAdvancedConfigs = () => {
 
         },
         {
-            key: EAdvancedModules.APPROVAL_WORKFLOW,
-            label: moduleNames[EAdvancedModules.APPROVAL_WORKFLOW],
-            price: advancedPricing.modules[EAdvancedModules.APPROVAL_WORKFLOW],
+            key: EAdvancedModules.STANDARD_PROJECT_HUB,
+            label: moduleNames[EAdvancedModules.STANDARD_PROJECT_HUB],
+            price: advancedPricing.modules[EAdvancedModules.STANDARD_PROJECT_HUB],
+
+        },
+        {
+            key: EAdvancedModules.ADVANCED_PROJECT_HUB,
+            label: moduleNames[EAdvancedModules.ADVANCED_PROJECT_HUB],
+            price: advancedPricing.modules[EAdvancedModules.ADVANCED_PROJECT_HUB],
 
         },
 
@@ -292,6 +306,7 @@ export const useAdvancedConfigs = () => {
             price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
             subFlex: 'row',
             unit: t('sso.unit'),
+            noCheckBox: true,
             subModules: [
                 {
                     key: EAdvancedModules.SSO_FEISHU,
@@ -310,6 +325,12 @@ export const useAdvancedConfigs = () => {
                     label: t('sso.dingtalk'),
                     noPrice: true,
                     price: advancedPricing.modules[EAdvancedModules.SSO_DINGTALK] ?? 0,
+                },
+                {
+                    key: EAdvancedModules.SSO_Teams,
+                    label: 'Microsoft Teams',
+                    noPrice: true,
+                    price: advancedPricing.modules[EAdvancedModules.SSO_Teams] ?? 0,
                 },
             ]
         },

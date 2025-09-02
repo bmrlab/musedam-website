@@ -194,10 +194,30 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     // 處理模組勾選
     const handleModuleChange = (tab: TabEnum, module: keyof IAdvancedModules | keyof IPrivateModules, checked: boolean | number) => {
         if (tab === TabEnum.ADVANCED) {
-            setAdvancedModules((st) => ({
-                ...st,
-                [module]: checked
-            }))
+            setAdvancedModules((st) => {
+                const newState = {
+                    ...st,
+                    [module]: checked
+                }
+
+                // 检查是否有父级项目需要更新
+                const parentModule = advancedConfigs.find(config =>
+                    config.noCheckBox &&
+                    config.subModules?.some(sub => sub.key === module)
+                )
+
+                if (parentModule) {
+                    const parentKey = parentModule.key
+                    const hasCheckedChild = parentModule.subModules?.some(sub =>
+                        newState[sub.key] && newState[sub.key] !== 0
+                    ) ?? false
+
+                    // 如果有子项目被勾选，则勾选父级项目；否则取消勾选父级项目
+                    newState[parentKey] = hasCheckedChild
+                }
+
+                return newState
+            })
         } else if (tab === TabEnum.PRIVATE) {
             setPrivateModules((st) => ({
                 ...st,
@@ -298,7 +318,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <Label className="flex items-center gap-3 text-[16px] text-white">
                             {title}
                             {tag &&
-                                <div className='flex py-[2px] text-sm items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] font-euclidlight font-light'>
+                                <div className='flex items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px] font-euclidlight text-sm font-light'>
                                     {tag}
                                 </div>
                             }
@@ -323,10 +343,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
 
     const renderModuleItem = (module: typeof advancedConfigs[number]) => {
-        const { key, min, unit } = module
+        const { key, min, unit, noCheckBox } = module
         return <div key={key} className="flex flex-col justify-between md:flex-row md:items-center">
             <div className="flex items-start space-x-2">
-                <Checkbox
+                {noCheckBox ? <div className='size-4' /> : <Checkbox
                     disabled={module.disabled}
                     id={key}
                     checked={!!advancedModules[key]}
@@ -346,12 +366,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     className={cn("size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 ",
                         module.tag && 'mt-[4px]'
                     )}
-                />
+                />}
                 <div className='space-y-[6px]'>
-                    <Label className="flex gap-1 md:gap-3 items-center">
+                    <Label className="flex items-center gap-1 md:gap-3">
                         <span >{module.label}</span>
                         {module.tag &&
-                            <div className='min-w-[40px] text-[14px] leading-[16px] font-euclidlight  font-light'>
+                            <div className='min-w-[40px] font-euclidlight text-[14px] font-light  leading-[16px]'>
                                 <div className='flex items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px]'>
                                     {module.tag}
                                 </div>
@@ -366,7 +386,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </div>
 
             {typeof advancedModules[key] === 'number' &&
-                <div className='md:ml-5 flex w-full justify-end md:w-auto'>
+                <div className='flex w-full justify-end md:ml-5 md:w-auto'>
                     <NumControl
                         key={advancedModules[key]}
                         value={advancedModules[key] as number}
@@ -456,7 +476,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         {renderModuleItem(module)}
                                         {!!module.subModules?.length && <div className={cn(
                                             'ml-[26px]',
-                                            module.subFlex === 'row' ? 'mt-3 flex items-center md:gap-[40px] gap-2' : 'mt-[6px] space-y-[6px]'
+                                            module.subFlex === 'row' ? 'mt-3 flex flex-wrap items-center gap-2 md:gap-[40px]' : 'mt-[6px] space-y-[6px]'
                                         )}>
                                             {
                                                 module.subModules?.map((v) => {
@@ -497,7 +517,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         <BlockBox className="flex w-full items-center space-x-2 space-y-0" key={type}>
                                             <RadioGroup.Item
                                                 className={cn(
-                                                    'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 flex-shrink-0',
+                                                    'mr-2 flex size-4 shrink-0 items-center justify-center rounded-full border border-gray-300',
                                                     'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
                                                     type === privateConfig.licenseType && 'border-[#3366FF]',
                                                 )}
@@ -624,7 +644,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                                     <div className="flex h-[20px] flex-1 items-center gap-3 " key={timeNum}>
                                                         <RadioGroup.Item
                                                             className={cn(
-                                                                'mr-2 flex size-4 items-center justify-center rounded-full border border-gray-300 flex-shrink-0',
+                                                                'mr-2 flex size-4 shrink-0 items-center justify-center rounded-full border border-gray-300',
                                                                 'transition-all duration-300 ease-in-out hover:border-[#3366FF]',
                                                                 isActive && 'border-[#3366FF]',
                                                             )}
@@ -736,7 +756,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={listType}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)] flex-shrink-0',
+                                            'mr-2 flex size-4 shrink-0 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
                                             'transition-all duration-300 ease-in-out ',
                                             listType === featureView ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}
@@ -769,7 +789,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={radio + 'feature--all'}>
                                     <RadioGroup.Item
                                         className={cn(
-                                            'mr-2 flex size-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)] flex-shrink-0',
+                                            'mr-2 flex size-4 shrink-0 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
                                             'transition-all duration-300 ease-in-out ',
                                             showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
                                         )}

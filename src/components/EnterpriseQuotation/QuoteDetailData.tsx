@@ -156,7 +156,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
 
             if (key === EAdvancedModules.ENTERPRISE_SSO) {
-                const allSSOType = [EAdvancedModules.SSO_FEISHU, EAdvancedModules.SSO_WECOM, EAdvancedModules.SSO_DINGTALK]
+                const allSSOType = [EAdvancedModules.SSO_FEISHU, EAdvancedModules.SSO_WECOM, EAdvancedModules.SSO_DINGTALK, EAdvancedModules.SSO_Teams]
                 let hasSSOType = allSSOType.filter((v) => !!advancedModules[v])
                 const cost = hasSSOType.length * price
                 return {
