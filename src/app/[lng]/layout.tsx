@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -56,7 +57,22 @@ export default async function RootLayout({
         </Providers>
         <TailwindIndicator />
         <Toaster />
+        {/* Google Ads Conversion Tracking */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17521133807"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17521133807');
+          `}
+        </Script>
       </body>
+
+      {/* Google Analytics (if you have GA_TRACKING_ID) */}
       {process.env.GA_TRACKING_ID ? <GoogleAnalytics gaId={process.env.GA_TRACKING_ID} /> : null}
     </html>
   )

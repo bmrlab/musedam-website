@@ -76,7 +76,7 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
                 <title>{title}</title>
                 <meta name="description" content={description} />
                 <meta name="keywords" content={keywords} />
-                <meta name="author" content={isZhCN ? 'MuseDAM团队' : 'MuseDAM Team'} />
+                <meta name="author" content='MuseDAM' />
                 <meta name="robots" content={`${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}`} />
 
                 {/* 语言和地区 */}

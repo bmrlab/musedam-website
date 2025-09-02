@@ -1,12 +1,26 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import Image from 'next/image'
 import type { Media, Post } from '@/payload-types'
 import { formatDateTime, formatZhDateTime } from 'src/utilities/formatDateTime'
 
 import useIsZhLng from '@/hooks/useIsZhLng'
 import { useBlogTranslation } from '@/app/i18n/client'
+
+
+
+// 计算阅读时间（简单估算：每分钟200字）
+const getReadingTime = (content: any): number => {
+  if (!content || typeof content !== 'object') return 5
+
+  // 简单的字数统计逻辑
+  const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
+  const wordCount = textContent.split(/\s+/).length
+  const readingTime = Math.ceil(wordCount / 200)
+  return readingTime
+}
+
 
 export const PostHero: React.FC<{
   post: Post
@@ -28,19 +42,6 @@ export const PostHero: React.FC<{
     }
   }, [meta?.image])
 
-  // 计算阅读时间（简单估算：每分钟200字）
-  const getReadingTime = useCallback(
-    (content: any): string => {
-      if (!content || typeof content !== 'object') return t('readTime', { val: 5 })
-
-      // 简单的字数统计逻辑
-      const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
-      const wordCount = textContent.split(/\s+/).length
-      const readingTime = Math.ceil(wordCount / 200)
-      return t('readTime', { val: readingTime })
-    },
-    [t],
-  )
 
   return (
     <div className="bg-white pb-[40px] pt-[60px] md:pb-[60px] md:pt-20">
@@ -50,7 +51,7 @@ export const PostHero: React.FC<{
             {/* 阅读时间和发布信息 */}
             <div className="flex items-center gap-3">
               <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)]">
-                {getReadingTime(post.content)}
+                {t('readTime', { val: getReadingTime(post.content) })}
               </span>
               <span className="!font-euclid text-[14px] font-normal leading-[1.268] text-[rgba(36,36,36,0.7)] opacity-60">
                 ·
