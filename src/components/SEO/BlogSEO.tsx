@@ -1,7 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
 import { SchemaOrg } from './SchemaOrg'
-import { useTranslation } from '@/app/i18n/client'
 
 interface BlogSEOProps {
     title: string
@@ -53,7 +52,6 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
     socialImage,
     twitterCard = 'summary_large_image'
 }) => {
-    const { t } = useTranslation('seo')
     const baseUrl = process.env.SITE_SERVER_URL || 'https://www.musedam.cc'
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
     const canonical = canonicalUrl || fullUrl
@@ -130,7 +128,7 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
                             image: ogImage,
                             author: {
                                 '@type': 'Organization',
-                                name: 'MuseDAM团队',
+                                name: 'MuseDAM',
                                 url: baseUrl
                             },
                             publisher: {
