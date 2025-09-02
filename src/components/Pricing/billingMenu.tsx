@@ -77,8 +77,8 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       t('pricing.enterpriseSummary.basicFolderPermissions'),
     ],
     [EPlanProductType.TEAM_FLAGSHIP]: [
-      t('pricing.summary.seats', { val: 10 }),
-      t('pricing.summary.storage', { val: isInChina ? '4T(4096G)' : '3T(3072G)' }),
+      t('pricing.summary.seats', { val: isInChina ? 15 : 10 }),
+      t('pricing.summary.storage', { val: '3T(3072G)' }),
       t('pricing.enterpriseSummary.includesAllBasic'),
       t('pricing.enterpriseSummary.advancedPermissions'),
       t('pricing.enterpriseSummary.advancedExtensions'),
