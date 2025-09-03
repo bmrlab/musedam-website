@@ -1,8 +1,10 @@
 "use client"
 import { cn, twx } from '@/utilities/cn'
-import { QuoteDetailData, useExpandServices, useQuoteDetailData } from '../QuoteDetailData'
+import { allSSOType, QuoteDetailData, useExpandServices, useQuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
+import { EAdvancedModules } from '../enums'
+import { useAdvancedConfigs, usePricing } from '../config'
 
 
 const Table = twx.table`w-full mb-4 text-[#262626] font-normal`
@@ -13,8 +15,17 @@ const Tr = twx.tr``
 
 
 export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: boolean }> = ({ rows, isExport }) => {
-    const { allModules } = useQuoteDetailData()
-    const notBuyRows = allModules.filter((v) => !rows.find(item => item.key === v.key))
+    const { allModules, hasSSOType } = useQuoteDetailData()
+    const { ssoTypeNames } = usePricing()
+    const advancedConfigs = useAdvancedConfigs()
+
+    const notBuyRows = allModules.filter((v) => {
+        if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
+            return hasSSOType.length < allSSOType.length
+        }
+        return !rows.find(item => item.key === v.key)
+    })
+
 
     const { t } = useTranslation('quotation')
     return notBuyRows.length > 0 ? (
@@ -33,11 +44,16 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: b
                         </Tr>
                     </thead>
                     <tbody>
-                        {notBuyRows.map((row, i) => (
-                            <Tr key={i}>
+                        {notBuyRows.map((row, i) => {
+                            let name = row.name
+                            if (row.key === EAdvancedModules.ENTERPRISE_SSO) {
+                                const label = advancedConfigs.find(item => item.key === row.key)?.label
+                                name = `${label}(${allSSOType.filter((v) => !hasSSOType.includes(v)).map((v) => ssoTypeNames[v]).join(', ')})`
+                            }
+                            return <Tr key={i}>
                                 <Td className='min-w-[230px]'>
                                     <div className={cn("flex-content flex flex-col gap-[2px]")}>
-                                        <span>{row.name}</span>
+                                        <span>{name}</span>
                                         {(row.previewDes || row.des) && <span className='whitespace-pre-line text-xs font-light'>
                                             {row.previewDes || row.des}
                                         </span>}
@@ -46,7 +62,7 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: b
                                 <Td className={cn(isExport ? 'min-w-[120px]' : 'min-w-[100px] md:min-w-[120px]')}><ExportLine>{row.quantity}</ExportLine></Td>
                                 <Td className={cn('min-w-[150px]', isExport ? 'text-right' : ' text-left md:text-right')}><ExportLine>{row.unit ?? '-'}</ExportLine></Td>
                             </Tr>
-                        ))}
+                        })}
                     </tbody>
                 </Table>
             </div>

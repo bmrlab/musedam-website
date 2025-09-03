@@ -2,9 +2,10 @@ import React, { FC } from 'react'
 import { EFeatureView } from './types'
 import { useQuotationStore } from '@/providers/QuotationStore'
 import { useTranslation } from '@/app/i18n/client'
-import { QuoteDetailRow } from './QuoteDetailData'
+import { QuoteDetailRow, useQuoteDetailData } from './QuoteDetailData'
 import { useEnterprisePlan } from '../Pricing/Enterprise/listPlan'
 import { cn } from '@/utilities/cn'
+import { EAdvancedModules } from './enums'
 
 interface IDetailItem {
     name: string, detail: string
@@ -55,6 +56,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
     const {
         featureView,
     } = useQuotationStore()
+    const { hasSSOType } = useQuoteDetailData()
     // 所有权益/映射
     const { basicGroupsByCode, advancedGroupsByCode, advancedKeyToGroup } = useEnterprisePlan()
 
@@ -78,7 +80,14 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
 
 
     const advancedList: DisplayRow[] = (() => {
-        const groups = featureListKeys.map(code => advancedGroupsByCode[advancedKeyToGroup[code]]).filter((v) => !!v)
+        const groups = featureListKeys.map(code => {
+            let info = advancedGroupsByCode[advancedKeyToGroup[code]]
+            if (code === EAdvancedModules.ENTERPRISE_SSO && info.items) {
+                info.items = info.items?.filter((v) => hasSSOType.includes(v.key))
+            }
+            return info
+        }).filter((v) => !!v)
+
         if (featureView === EFeatureView.OVERVIEW) {
             return groups.map(group => ({
                 title: group.title,

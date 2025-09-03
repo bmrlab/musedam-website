@@ -46,8 +46,11 @@ export interface QuoteDetailData {
     basicCostPerYear: number
     /** 折后总价 */
     discountTotal?: string
+    /** 购买的sso内容 */
+    hasSSOType: EAdvancedModules[]
 }
 
+export const allSSOType = [EAdvancedModules.SSO_FEISHU, EAdvancedModules.SSO_WECOM, EAdvancedModules.SSO_DINGTALK, EAdvancedModules.SSO_Teams]
 
 export const useQuoteDetailData = (): QuoteDetailData => {
     const {
@@ -84,6 +87,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     let basicCostPerYear = 0
     let privatePerYear = 0
+    let hasSSOType: EAdvancedModules[] = []
 
     if (activeTab === TabEnum.BASIC || activeTab === TabEnum.ADVANCED) {
         const isBasic = activeTab === TabEnum.BASIC;
@@ -156,8 +160,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
 
             if (key === EAdvancedModules.ENTERPRISE_SSO) {
-                const allSSOType = [EAdvancedModules.SSO_FEISHU, EAdvancedModules.SSO_WECOM, EAdvancedModules.SSO_DINGTALK, EAdvancedModules.SSO_Teams]
-                let hasSSOType = allSSOType.filter((v) => !!advancedModules[v])
+                hasSSOType = allSSOType.filter((v) => !!advancedModules[v])
                 const cost = hasSSOType.length * price
                 return {
                     key,
@@ -311,7 +314,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         discountTotal: discount ? prefix + discountTotal.toLocaleString() : undefined,
         years: subscriptionYears,
         basicCostPerYear: basicCostPerYear,
-        totalNumPerYear: totalPerYear
+        totalNumPerYear: totalPerYear,
+        hasSSOType: hasSSOType
     }
 }
 

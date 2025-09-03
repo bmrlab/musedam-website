@@ -78,7 +78,6 @@ export const useEnterprisePlan = () => {
                 { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
                 { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
                 { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
-                { name: tFeatures('advancedProjectHub.6.name'), detail: tFeatures('advancedProjectHub.6.detail') },
             ]
         }),
         [tFeatures('aiAutoTaggingEngine.title')]: [
@@ -109,10 +108,10 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('watermark.2.name'), detail: tFeatures('watermark.2.detail') }
         ],
         [tFeatures('enterpriseSingleSignOn.title')]: [
-            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail') },
-            { name: tFeatures('enterpriseSingleSignOn.3.name'), detail: tFeatures('enterpriseSingleSignOn.3.detail') }
+            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail'), key: EAdvancedModules.SSO_FEISHU },
+            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail'), key: EAdvancedModules.SSO_WECOM },
+            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail'), key: EAdvancedModules.SSO_DINGTALK },
+            { name: tFeatures('enterpriseSingleSignOn.3.name'), detail: tFeatures('enterpriseSingleSignOn.3.detail'), key: EAdvancedModules.SSO_Teams }
         ],
         ...(!isInChina ? {} : {
             [tFeatures('globalAcceleration.title')]: [
