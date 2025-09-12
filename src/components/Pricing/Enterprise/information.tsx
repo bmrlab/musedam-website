@@ -111,6 +111,20 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                 throw new Error(data.data?.msg || data.error)
             }
             toast({ duration: 2000, description: t('form.submitSuccess') });
+
+            // 发送 Google Analytics 事件
+            if (typeof window !== 'undefined' && window.gtag) {
+                window.gtag("event", "book_demo", {
+                    event_category: "form_submission",
+                    event_label: "book_demo_request",
+                    company_name: formData.company,
+                    team_size: formData.teamSize,
+                    expect_time: formData.expectTime,
+                    position: formData.position,
+                    country: isInChina ? "china" : "global"
+                });
+            }
+
             setOpen(true);
             setFormData({
                 name: "",
@@ -162,7 +176,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                             <Trans i18nKey="title" t={t} components={{ 1: <br /> }} />
                         </h1>
                         <p className={cn("mb-[30px] text-center font-euclidlight text-base font-light md:mb-[60px] md:text-start md:text-[22px]  md:leading-[1.45em]",
-                            dark ? 'text-[rgba(255,255,255,0.72)]' : 'text-[rgba(20,20,20,0.72)]'
+                            dark ? 'text-white-72' : 'text-[rgba(20,20,20,0.72)]'
                         )}>
                             <Trans i18nKey="desc" t={t} components={{ 1: isMobile ? <></> : <br /> }} />
                         </p>
