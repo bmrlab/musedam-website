@@ -98,7 +98,7 @@ export default function Hero() {
                         {t("hero.enterprise.seePricing")}
                     </DarkButton>
                 </LocaleLink>
-                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                <LocaleLink href='/book-demo' prefetch={false}>
                     <Button className={cn("h-[48px] w-[240px] rounded-lg bg-white text-base font-medium text-[#0e0e0e] md:w-[180px]",
                         "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
                         isEn && 'md:text-[18px]'
@@ -121,7 +121,7 @@ export default function Hero() {
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
-                <LocaleLink href={'/bookDemo'} prefetch={false}>
+                <LocaleLink href='/book-demo' prefetch={false}>
                     <DarkButton className={cn(
                         "h-[48px] w-[240px] rounded-lg font-euclid text-base font-medium md:h-[56px] md:w-[167px]",
                         isEn && "md:text-[18px]"

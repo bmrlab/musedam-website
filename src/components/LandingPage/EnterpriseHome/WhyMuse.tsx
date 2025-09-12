@@ -111,7 +111,7 @@ export default function WhyMuse() {
                     {!isEn && <br />}
                     <span className='text-white/80'>{t('banner.text.2')}</span>
                 </div>
-                <LocaleLink href={'/bookDemo'} prefetch={false} className='w-full md:w-fit'>
+                <LocaleLink href='/book-demo' prefetch={false} className='w-full md:w-fit'>
                     <Button className={cn(
                         'h-[48px] w-full gap-[6px] rounded-lg bg-white px-0 font-euclid text-base text-black hover:bg-white/80 md:h-[56px] md:w-[226px]',
                         isEn && "md:text-[18px]"

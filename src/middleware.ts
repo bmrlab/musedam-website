@@ -161,6 +161,12 @@ export async function middleware(req: NextRequest) {
     return handlePingRequest(req)
   }
 
+  // Handle bookDemo redirect to book-demo
+  if (req.nextUrl.pathname.includes('/bookDemo')) {
+    const newPath = req.nextUrl.pathname.replace('/bookDemo', '/book-demo')
+    return NextResponse.redirect(new URL(newPath + req.nextUrl.search, req.url))
+  }
+
   const response = NextResponse.next()
 
   if (

@@ -15,12 +15,12 @@ export default async function BookDemoPage({ params }: { params: Promise<{ lng: 
                 type="bookDemo"
                 title={t('bookDemo.title')}
                 description={t('bookDemo.description')}
-                url="/bookDemo"
+                url="/book-demo"
                 image="/assets/logo.svg"
                 lng={lng}
                 breadcrumbs={[
                     { name: t('home.shortTitle'), url: '/' },
-                    { name: t('bookDemo.shortTitle'), url: '/bookDemo' }
+                    { name: t('bookDemo.shortTitle'), url: '/book-demo' }
                 ]}
             />
             <Information inNewPage={true} />
