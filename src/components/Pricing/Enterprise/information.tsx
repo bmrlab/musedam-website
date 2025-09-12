@@ -114,7 +114,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
 
             // 发送 Google Analytics 事件
             if (typeof window !== 'undefined' && window.gtag) {
-                window.gtag("event", "book_demo", {
+                window.gtag("event", "request_for_demo", {
                     event_category: "form_submission",
                     event_label: "book_demo_request",
                     company_name: formData.company,
