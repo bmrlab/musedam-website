@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import acceptLanguage from 'accept-language'
 
-import { countryCookieName, fallbackLng, languageCookieName, languages } from '@/app/i18n/settings'
+import {
+  // countryCookieName, fallbackLng,
+  languageCookieName,
+  languages,
+} from '@/app/i18n/settings'
 
 import { getCookieDomain } from './utilities/cookieDomain'
 
@@ -14,7 +18,8 @@ acceptLanguage.languages(languages)
 //   ],
 // }
 
-const NON_I18N_PATH = /\.(.*)$|^favicon\.ico$|^\/(_next|assets)\/|^\/admin|^\/api|^\/musedam-apigw\// // 不需要国际化的路径，如 API 网关、有扩展名结尾的静态资源
+const NON_I18N_PATH =
+  /\.(.*)$|^favicon\.ico$|^\/(_next|assets)\/|^\/admin|^\/api|^\/musedam-apigw\// // 不需要国际化的路径，如 API 网关、有扩展名结尾的静态资源
 
 function handlePingRequest(req: NextRequest) {
   const path = req.nextUrl.pathname
@@ -26,29 +31,29 @@ function handlePingRequest(req: NextRequest) {
   })
 }
 
-function getRequestCountry(req: NextRequest, response: NextResponse) {
-  // 获取IP地址所属国家 - vercel
-  const country = (
-    req.headers.get('x-vercel-ip-country') || req.headers.get('ali-ip-country')
-  )?.toUpperCase()
+// function getRequestCountry(req: NextRequest, response: NextResponse) {
+//   // 获取IP地址所属国家 - vercel
+//   const country = (
+//     req.headers.get('x-vercel-ip-country') || req.headers.get('ali-ip-country')
+//   )?.toUpperCase()
 
-  // vercel 没拿到的话，用 GeoJS 再获取一下。现在不需要了
-  // if (!country) {
-  //   try {
-  //     const geoResponse = await fetch('https://get.geojs.io/v1/ip/geo.json')
-  //     const geoData = await geoResponse.json()
-  //     country = geoData.country === 'China' ? 'CN' : geoData.country
-  //   } catch (error) {
-  //     console.error('Failed to fetch country information:', error)
-  //   }
-  // }
+//   // vercel 没拿到的话，用 GeoJS 再获取一下。现在不需要了
+//   // if (!country) {
+//   //   try {
+//   //     const geoResponse = await fetch('https://get.geojs.io/v1/ip/geo.json')
+//   //     const geoData = await geoResponse.json()
+//   //     country = geoData.country === 'China' ? 'CN' : geoData.country
+//   //   } catch (error) {
+//   //     console.error('Failed to fetch country information:', error)
+//   //   }
+//   // }
 
-  if (country) {
-    response.cookies.set(countryCookieName, country)
-  }
+//   if (country) {
+//     response.cookies.set(countryCookieName, country)
+//   }
 
-  return country
-}
+//   return country
+// }
 
 // 确定语言并重定向
 function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse) {
@@ -67,10 +72,10 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
 
   // 2. 全局区域（海外）强制跳转英文，并清除可能存在的语言 Cookie
   if (isGlobal) {
-    response.cookies.delete(languageCookieName); // 清除旧 Cookie
+    response.cookies.delete(languageCookieName) // 清除旧 Cookie
     return NextResponse.redirect(
-      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url)
-    );
+      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
+    )
   }
 
   // Otherwise, use following logic to get a default lng
@@ -102,14 +107,22 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
 
   // 3. use compatible cookie, accept-language header, etc.
   let lng: string | undefined | null = undefined
+  const isValidLng = (lng: string | undefined | null): boolean => {
+    return ['zh-CN', 'en-US'].includes(lng || '')
+  }
 
   if (req.cookies.has(languageCookieName) && !isGlobal) {
     lng = acceptLanguage.get(req.cookies.get(languageCookieName)?.value)
   }
-  if (!lng && req.headers.has('Accept-Language') && !isGlobal) {
+  // aws cn 和 us 集群的 ingress 有 geo 插件, 自带 x-country-code 头部
+  // 用户所在地区优先于浏览器语言
+  if (!isValidLng(lng) && req.headers.has('X-Country-Code') && !isGlobal) {
+    lng = req.headers.get('X-Country-Code') === 'CN' ? 'zh-CN' : 'en-US'
+  }
+  if (!isValidLng(lng) && req.headers.has('Accept-Language') && !isGlobal) {
     lng = acceptLanguage.get(req.headers.get('Accept-Language'))
   }
-  if (!lng) {
+  if (!isValidLng(lng)) {
     lng = process.env.DEPLOY_REGION === 'mainland' ? 'zh-CN' : 'en-US'
   }
 
@@ -177,7 +190,7 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  getRequestCountry(req, response)
+  // getRequestCountry(req, response)
 
   storeFirstVisitReferrer(req, response)
 
