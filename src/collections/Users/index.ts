@@ -14,7 +14,10 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email'],
     useAsTitle: 'name',
   },
-  auth: true,
+  // https://github.com/payloadcms/payload/releases/tag/v3.44.0
+  auth: {
+    useSessions: false,
+  },
   fields: [
     {
       name: 'name',
