@@ -5,6 +5,7 @@ import * as migration_20250801_072637_image_prefix from './20250801_072637_image
 import * as migration_20250805_074112_schedule from './20250805_074112_schedule';
 import * as migration_20250820_111040_help_center from './20250820_111040_help_center';
 import * as migration_20250928_091320_update_to_3_57_0 from './20250928_091320_update_to_3_57_0';
+import * as migration_20250929_070055_fix_search_id_conflict from './20250929_070055_fix_search_id_conflict';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20250928_091320_update_to_3_57_0.up,
     down: migration_20250928_091320_update_to_3_57_0.down,
-    name: '20250928_091320_update_to_3_57_0'
+    name: '20250928_091320_update_to_3_57_0',
+  },
+  {
+    up: migration_20250929_070055_fix_search_id_conflict.up,
+    down: migration_20250929_070055_fix_search_id_conflict.down,
+    name: '20250929_070055_fix_search_id_conflict'
   },
 ];

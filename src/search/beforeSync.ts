@@ -51,7 +51,8 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
 
     modifiedDoc.categories = populatedCategories.map((each) => ({
       relationTo: 'categories',
-      categoryID: String(each.id),
+      // https://github.com/payloadcms/payload/issues/9449
+      categoryId: String(each.id),
       title: each.title,
     }))
   }
