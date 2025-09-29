@@ -8,16 +8,21 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 
 import './globals.css'
 
+import { getServerSession } from '@/utilities/auth'
 import { dir } from 'i18next'
 
 import { TailwindIndicator } from '@/components/ui/tailwind-indicator'
 import { Toaster } from '@/components/ui/toaster'
 import { CookieConsent } from '@/components/CookieConsent'
 import { languages } from '@/app/i18n/settings'
-import { LayoutContent } from './layout-content'
 
-import { euclidCircularA, euclidCircularALight, featureDisplayRegularTrial, plexMono } from './fonts'
-import { getServerSession } from '@/utilities/auth'
+import {
+  euclidCircularA,
+  euclidCircularALight,
+  featureDisplayRegularTrial,
+  plexMono,
+} from './fonts'
+import { LayoutContent } from './layout-content'
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))
@@ -74,6 +79,19 @@ export default async function RootLayout({
 
       {/* Google Analytics (if you have GA_TRACKING_ID) */}
       {process.env.GA_TRACKING_ID ? <GoogleAnalytics gaId={process.env.GA_TRACKING_ID} /> : null}
+      {process.env.GADS_TRACKING_ID ? (
+        <Script
+          id="google-ads-script"
+          dangerouslySetInnerHTML={{
+            __html: `
+  (function () {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('config', '${process.env.GADS_TRACKING_ID}');
+    }
+  })()`,
+          }}
+        />
+      ) : null}
     </html>
   )
 }
