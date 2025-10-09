@@ -150,7 +150,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 return {
                     key,
                     name: label,
-                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 26.8 : (pointsNum * 268000).toLocaleString() })}`,
+                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 20 : (pointsNum * 20).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
@@ -347,7 +347,7 @@ export const useExpandServices = () => {
             description: t('expansion.aiPoints.desc'),
             value: `${isInChina ? '¥20,000' : '$5,760'}${t('per.year')}\n /268,000` + t('expansion.points'),
             unit: (isInChina ? '¥20,000' : '$5,760') + '/' + t("ai.AutoTagEngine.unit"),
-            quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 26.8 : (268000).toLocaleString() })}`
+            quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 20 : (200000).toLocaleString() })}`
         },
 
         {
