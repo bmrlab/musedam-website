@@ -345,7 +345,7 @@ export const useExpandServices = () => {
         {
             name: t('expansion.aiPoints'),
             description: t('expansion.aiPoints.desc'),
-            value: `${isInChina ? '¥20,000' : '$5,760'}${t('per.year')}\n /268,000` + t('expansion.points'),
+            value: `${isInChina ? '¥20,000' : '$5,760'}${t('per.year')}\n /200,000` + t('expansion.points'),
             unit: (isInChina ? '¥20,000' : '$5,760') + '/' + t("ai.AutoTagEngine.unit"),
             quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 20 : (200000).toLocaleString() })}`
         },
