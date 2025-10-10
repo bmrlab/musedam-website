@@ -62,8 +62,11 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
-              [EAdvancedModules.WATERMARK]: 2000,
-              [EAdvancedModules.ENTERPRISE_SSO]: 1000,
+              [EAdvancedModules.WATERMARK]: 15000,
+              [EAdvancedModules.SSO_FEISHU]: 5000,
+              [EAdvancedModules.SSO_WECOM]: 5000,
+              [EAdvancedModules.SSO_DINGTALK]: 5000,
+              [EAdvancedModules.SSO_Teams]: 5000,
               [EAdvancedModules.CUSTOMER_SERVICE]: 0,
               [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
               // TODO : ai 自动打标引擎
@@ -111,7 +114,7 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
-              [EAdvancedModules.WATERMARK]: 2000,
+              [EAdvancedModules.WATERMARK]: 15000,
               [EAdvancedModules.ENTERPRISE_SSO]: 1000,
               [EAdvancedModules.CUSTOMER_SERVICE]: 0,
               [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
@@ -130,7 +133,7 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
-              [EAdvancedModules.WATERMARK]: 2000,
+              [EAdvancedModules.WATERMARK]: 15000,
               [EAdvancedModules.ENTERPRISE_SSO]: 1000,
               [EAdvancedModules.CUSTOMER_SERVICE]: 0,
               [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
@@ -205,7 +208,7 @@ export const useBasicConfigs = () => {
           hint: [t('basic.aiPoints.hint1'), t('basic.aiPoints.hint2')],
           des:
             `${prefix} ${formatWithToLocaleString(basicPricing.aiPointsPrice)}${t('per.year')}` +
-            ` ( ${prefix} ${(basicPricing.aiPointsPrice / 4000 / 12).toFixed(3)}${t('aiPoints.unit')})`,
+            ` ( ${prefix} ${parseFloat((basicPricing.aiPointsPrice / 4000 / 12).toFixed(3))}${t('aiPoints.unit')})`,
         },
       ]
     : [
@@ -236,7 +239,7 @@ export const useBasicConfigs = () => {
           hint: [t('advanced.aiPoints.hint1'), t('advanced.aiPoints.hint2')],
           des:
             `${prefix} ${formatWithToLocaleString(advancedPricing.aiPointsPrice)}${t('per.year')}` +
-            ` ( ${prefix} ${(advancedPricing.aiPointsPrice / 4000 / 12).toFixed(3)}${t('aiPoints.unit')})`,
+            ` ( ${prefix} ${parseFloat((advancedPricing.aiPointsPrice / 4000 / 12).toFixed(3))}${t('aiPoints.unit')})`,
           price: advancedPricing.aiPointsPrice,
         },
       ]
