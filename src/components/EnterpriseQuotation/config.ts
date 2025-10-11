@@ -170,7 +170,17 @@ export const usePricing = () => {
     [EAdvancedModules.SSO_DINGTALK]: t('sso.dingtalk'),
     [EAdvancedModules.SSO_Teams]: 'Microsoft Teams',
   }
-  return { pricing, moduleNames, prefix, ssoTypeNames }
+
+  const allSSOType = isInChina
+    ? [
+        EAdvancedModules.SSO_FEISHU,
+        EAdvancedModules.SSO_WECOM,
+        EAdvancedModules.SSO_DINGTALK,
+        EAdvancedModules.SSO_Teams,
+      ]
+    : [EAdvancedModules.SSO_Teams]
+
+  return { pricing, moduleNames, prefix, ssoTypeNames, allSSOType }
 }
 
 export const useBasicConfigs = () => {
@@ -324,24 +334,28 @@ export const useAdvancedConfigs = () => {
       unit: t('sso.unit'),
       noCheckBox: true,
       subModules: [
-        {
-          key: EAdvancedModules.SSO_FEISHU,
-          label: t('sso.feishu'),
-          noPrice: true,
-          price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
-        },
-        {
-          key: EAdvancedModules.SSO_WECOM,
-          label: t('sso.wecom'),
-          noPrice: true,
-          price: advancedPricing.modules[EAdvancedModules.SSO_WECOM] ?? 0,
-        },
-        {
-          key: EAdvancedModules.SSO_DINGTALK,
-          label: t('sso.dingtalk'),
-          noPrice: true,
-          price: advancedPricing.modules[EAdvancedModules.SSO_DINGTALK] ?? 0,
-        },
+        ...(isInChina
+          ? [
+              {
+                key: EAdvancedModules.SSO_FEISHU,
+                label: t('sso.feishu'),
+                noPrice: true,
+                price: advancedPricing.modules[EAdvancedModules.SSO_FEISHU] ?? 0,
+              },
+              {
+                key: EAdvancedModules.SSO_WECOM,
+                label: t('sso.wecom'),
+                noPrice: true,
+                price: advancedPricing.modules[EAdvancedModules.SSO_WECOM] ?? 0,
+              },
+              {
+                key: EAdvancedModules.SSO_DINGTALK,
+                label: t('sso.dingtalk'),
+                noPrice: true,
+                price: advancedPricing.modules[EAdvancedModules.SSO_DINGTALK] ?? 0,
+              },
+            ]
+          : []),
         {
           key: EAdvancedModules.SSO_Teams,
           label: 'Microsoft Teams',

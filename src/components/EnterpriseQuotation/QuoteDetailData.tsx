@@ -8,6 +8,7 @@ import { useCountry } from '@/providers/Country'
 import { useMemo } from 'react'
 import { useLanguage } from '@/providers/Language'
 import { useQuotationStore } from '@/providers/QuotationStore'
+import { isInChina } from '@/utilities/isInChina'
 
 export interface QuoteDetailRow {
     name: React.ReactNode
@@ -50,7 +51,6 @@ export interface QuoteDetailData {
     hasSSOType: EAdvancedModules[]
 }
 
-export const allSSOType = [EAdvancedModules.SSO_FEISHU, EAdvancedModules.SSO_WECOM, EAdvancedModules.SSO_DINGTALK, EAdvancedModules.SSO_Teams]
 
 export const useQuoteDetailData = (): QuoteDetailData => {
     const {
@@ -67,7 +67,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     const { t } = useTranslation('quotation')
     const basicConfigs = useBasicConfigs()
     const advancedConfigs = useAdvancedConfigs()
-    const { pricing, moduleNames, prefix, ssoTypeNames } = usePricing()
+    const { pricing, moduleNames, prefix, ssoTypeNames, allSSOType } = usePricing()
     const advancedPricing = pricing.advanced.modules
     const { language } = useLanguage()
 

@@ -1,6 +1,6 @@
 "use client"
 import { cn, twx } from '@/utilities/cn'
-import { allSSOType, QuoteDetailData, useExpandServices, useQuoteDetailData } from '../QuoteDetailData'
+import { QuoteDetailData, useExpandServices, useQuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
 import { EAdvancedModules } from '../enums'
@@ -16,7 +16,7 @@ const Tr = twx.tr``
 
 export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: boolean }> = ({ rows, isExport }) => {
     const { allModules, hasSSOType } = useQuoteDetailData()
-    const { ssoTypeNames } = usePricing()
+    const { ssoTypeNames, allSSOType } = usePricing()
     const advancedConfigs = useAdvancedConfigs()
 
     const notBuyRows = allModules.filter((v) => {

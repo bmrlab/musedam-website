@@ -108,9 +108,11 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('watermark.2.name'), detail: tFeatures('watermark.2.detail') }
         ],
         [tFeatures('enterpriseSingleSignOn.title')]: [
-            { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail'), key: EAdvancedModules.SSO_FEISHU },
-            { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail'), key: EAdvancedModules.SSO_WECOM },
-            { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail'), key: EAdvancedModules.SSO_DINGTALK },
+            ...(isInChina ? [
+                { name: tFeatures('enterpriseSingleSignOn.0.name'), detail: tFeatures('enterpriseSingleSignOn.0.detail'), key: EAdvancedModules.SSO_FEISHU },
+                { name: tFeatures('enterpriseSingleSignOn.1.name'), detail: tFeatures('enterpriseSingleSignOn.1.detail'), key: EAdvancedModules.SSO_WECOM },
+                { name: tFeatures('enterpriseSingleSignOn.2.name'), detail: tFeatures('enterpriseSingleSignOn.2.detail'), key: EAdvancedModules.SSO_DINGTALK },
+            ] : []),
             { name: tFeatures('enterpriseSingleSignOn.3.name'), detail: tFeatures('enterpriseSingleSignOn.3.detail'), key: EAdvancedModules.SSO_Teams }
         ],
         ...(!isInChina ? {} : {

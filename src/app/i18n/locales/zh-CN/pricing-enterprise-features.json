@@ -26,7 +26,7 @@
     "assetOrganization.0.name": "70+ 格式在线预览",
     "assetOrganization.0.detail": "全面的格式支持，提供即时预览功能，包括：\n- 图片：jpg, jpeg, png, bmp, gif, tiff, webp, heic\n- 设计源文件：eps, svg, psd, psb, ai, cdr, hdr, exr\n- 3D模型：obj, ply, 3ds, gltf, glb, fbx, stl\n- 字体：ttf, otf, ttc\n- 音频：mp3, m4a, wav\n- 视频：mov, flv, mp4, webm, m4v, avi, mkv, mgb, rmv, brm, mpg, ts\n- 表格：et, xls, xlt, xlsx, xlsm, xltx, xltm, csv\n- 文档：txt, doc, docx, dot, dotx, docm, dotm, wps, wpt, rtf, html\n- 演示文档：pdf, ppt, pptx, pptm, key, wps",
     "assetOrganization.1.name": "四种内容视图",
-    "assetOrganization.1.detail": "通过四种视图模式：自适应、瀑布流、列表和看板，提升项目效率，满足工作流需求",
+    "assetOrganization.1.detail": "通过五种视图模式：网格、自适应、瀑布流、列表和看板，提升项目效率，满足工作流需求",
     "assetOrganization.2.name": "高级筛选",
     "assetOrganization.2.detail": "支持按照颜色、视图、格式、标签、大小、尺寸、时长、评分、链接、备注、所有者、创建时间、排序等维度进行高级筛选",
     "assetOrganization.3.name": "素材评分系统",
