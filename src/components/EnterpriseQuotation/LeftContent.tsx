@@ -32,6 +32,7 @@ import {
 } from './config'
 import { useQuoteDetailData } from './QuoteDetailData'
 import { EFeatureView, IAdvancedModules, ICustomerInfo, IPrivateModules, TabEnum } from './types'
+import { useCountry } from '@/providers/Country'
 
 interface NumControlProps {
   value: number
@@ -114,7 +115,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const basicConfigs = useBasicConfigs()
   const advancedConfigs = useAdvancedConfigs()
   const { pricing, prefix } = usePricing()
-  const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+  const { isInChina } = useCountry()
+  const isGlobal = !isInChina
   const { toast } = useToast()
   const router = useRouter()
   const { language } = useLanguage()
@@ -799,7 +801,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   cost={
                     privateModules.operationMaintenance
                       ? pricing.private.modules.operationMaintenance *
-                        privateModules.maintenanceYears
+                      privateModules.maintenanceYears
                       : 0
                   }
                   costTitle={t('serviceCost')}
