@@ -1,6 +1,6 @@
 {
-    "Basic": "Team",
-    "Advanced": "Enterprise",
+    "Basic": "Essentials",
+    "Advanced": "Advanced",
     "ValueAddedServices": "Value-Added Services",
     "aiCapabilities.title": "AI Capabilities",
     "aiCapabilities.0.name": "AI Auto Parsing",
@@ -24,7 +24,7 @@
     "storageManagement.2.detail": "Download bandwidth quota follows the current workspace storage quota and resets monthly",
     "assetOrganization.title": "Asset Organization",
     "assetOrganization.0.name": "70+ Format Online Preview",
-    "assetOrganization.0.detail": "Comprehensive format support with instant preview capabilities including:\n- Images: jpg, jpeg, png, bmp, gif, tiff, webp, heic\n- Design files: eps, svg, psd, psb, ai, cdr, hdr, exr\n- 3D models: obj, ply, 3ds, gltf, glb, fbx, stl\n- Fonts: ttf, otf, ttc\n- Audio: mp3, m4a, wav\n- Video: mov, flv, mp4, webm, m4v, avi, mkv, mgb, rmv, brm, mpg, ts\n- Spreadsheets: et, xls, xlt, xlsx, xlsm, xltx, xltm, csv\n- Documents: txt, doc, docx, dot, dotx, docm, dotm, wps, wpt, rtf, html\n- Presentations: pdf, ppt, pptx, pptm, key, wps",
+    "assetOrganization.0.detail": "Comprehensive format support with instant preview capabilities including:\n- Images: jpg, jpeg, png, bmp, gif, tiff, webp, heic, avif, pic, insp\n- Design files: eps, svg, psd, psb, ai, cdr, hdr, exr\n- 3D models: obj, gltf, glb, fbx, stl, c4d\n- Fonts: ttf, otf, ttc\n- E-book: epub\n- Audio: mp3, m4a, wav\n- Video: mov, flv, mp4, webm, m4v, avi, mkv, mgb, rmv, brm, mpg, ts, insv\n- Spreadsheets: et, xls, xlt, xlsx, xlsm, xltx, xltm, xlsb, csv, ods\n- Documents: txt, doc, docx, dot, dotx, docm, dotm, wps, wpt, rtf, pdf, md, odt, latex, mmd\n- Presentations: pdf, ppt, pptx, pptm, key, wps\n- Webpage: html, url",
     "assetOrganization.1.name": "Five Content Views",
     "assetOrganization.1.detail": "Enhance project efficiency with four view modes: Grid, Adaptive, Waterfall, List, and Kanban, tailored to workflow needs.",
     "assetOrganization.2.name": "Advanced Filtering",

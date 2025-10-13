@@ -71,12 +71,12 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
   }
 
   // 2. 全局区域（海外）强制跳转英文，并清除可能存在的语言 Cookie
-  if (isGlobal) {
-    response.cookies.delete(languageCookieName) // 清除旧 Cookie
-    return NextResponse.redirect(
-      new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
-    )
-  }
+  // if (isGlobal) {
+  //   response.cookies.delete(languageCookieName) // 清除旧 Cookie
+  //   return NextResponse.redirect(
+  //     new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
+  //   )
+  // }
 
   // Otherwise, use following logic to get a default lng
   // 1. use the valid language in referer header

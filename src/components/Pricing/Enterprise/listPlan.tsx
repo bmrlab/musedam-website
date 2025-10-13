@@ -46,7 +46,7 @@ export const useEnterprisePlan = () => {
     // Advanced
     const advancedList = {
         [tFeatures('advancedFeatures.title')]: [
-            ...(isInChina ? [{ name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true }] : []),
+            { name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true },
             { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
             { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
             { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },
@@ -63,23 +63,21 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('customSystemHomepage.4.name'), detail: tFeatures('customSystemHomepage.4.detail') },
             { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
         ],
-        ...(!isInChina ? {} : {
-            [tFeatures('standardProjectHub.title')]: [
-                { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
-                { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
-                { name: tFeatures('standardProjectHub.2.name'), detail: tFeatures('standardProjectHub.2.detail') },
-                { name: tFeatures('standardProjectHub.3.name'), detail: tFeatures('standardProjectHub.3.detail') },
-                { name: tFeatures('standardProjectHub.4.name'), detail: tFeatures('standardProjectHub.4.detail') },
-            ],
-            [tFeatures('advancedProjectHub.title')]: [
-                { name: tFeatures('advancedProjectHub.0.name'), detail: tFeatures('advancedProjectHub.0.detail') },
-                { name: tFeatures('advancedProjectHub.1.name'), detail: tFeatures('advancedProjectHub.1.detail') },
-                { name: tFeatures('advancedProjectHub.2.name'), detail: tFeatures('advancedProjectHub.2.detail') },
-                { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
-                { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
-                { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
-            ]
-        }),
+        [tFeatures('standardProjectHub.title')]: [
+            { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
+            { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
+            { name: tFeatures('standardProjectHub.2.name'), detail: tFeatures('standardProjectHub.2.detail') },
+            { name: tFeatures('standardProjectHub.3.name'), detail: tFeatures('standardProjectHub.3.detail') },
+            { name: tFeatures('standardProjectHub.4.name'), detail: tFeatures('standardProjectHub.4.detail') },
+        ],
+        [tFeatures('advancedProjectHub.title')]: [
+            { name: tFeatures('advancedProjectHub.0.name'), detail: tFeatures('advancedProjectHub.0.detail') },
+            { name: tFeatures('advancedProjectHub.1.name'), detail: tFeatures('advancedProjectHub.1.detail') },
+            { name: tFeatures('advancedProjectHub.2.name'), detail: tFeatures('advancedProjectHub.2.detail') },
+            { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
+            { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
+            { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
+        ],
         [tFeatures('aiAutoTaggingEngine.title')]: [
             { name: tFeatures('aiAutoTaggingEngine.0.name'), detail: tFeatures('aiAutoTaggingEngine.0.detail') },
             { name: tFeatures('aiAutoTaggingEngine.1.name'), detail: tFeatures('aiAutoTaggingEngine.1.detail') },
@@ -88,15 +86,11 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('aiAutoTaggingEngine.4.name'), detail: tFeatures('aiAutoTaggingEngine.4.detail') },
             { name: tFeatures('aiAutoTaggingEngine.5.name'), detail: tFeatures('aiAutoTaggingEngine.5.detail') }
         ],
-        ...(isInChina ? {} :
-            {
-                [tFeatures('complianceCheck.title')]: [
-                    { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
-                    { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
-                    { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-                ]
-            }
-        ),
+        [tFeatures('complianceCheck.title')]: [
+            { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
+            { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
+            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+        ],
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
             { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },

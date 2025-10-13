@@ -17,17 +17,17 @@ interface LayoutContentProps {
 export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) {
     const pathname = usePathname()
     const isQuotationPage = pathname?.includes('/quotation')
-    const { changeLocale } = useLanguage()
+    // const { changeLocale } = useLanguage()
 
     const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
     const miniFooterPage = useMemo(() => !!pathname && pathname.replace('/en-US', '').replace('/zh-CN', '').startsWith('/help'), [pathname])
 
 
-    useEffect(() => {
-        if (isGlobal) {
-            changeLocale('en-US')
-        }
-    }, [isGlobal])
+    // useEffect(() => {
+    //     if (isGlobal) {
+    //         changeLocale('en-US')
+    //     }
+    // }, [isGlobal])
 
     return isQuotationPage ? (
         children

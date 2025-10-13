@@ -410,7 +410,7 @@
   "pricing.team.basic.des": "Great for small projects",
   "pricing.team.department.management": "Department management",
   "pricing.team.department.management.hint": "Can manage team departments and members in the departments",
-  "pricing.team.enterprise": "Enterprise",
+  "pricing.team.enterprise": "Business",
   "pricing.team.enterprise.des": "For organizations",
   "pricing.team.table.enterprise.des": "Advanced features",
   "pricing.team.enterprise.des.museAI": "Advanced features",
@@ -554,8 +554,8 @@
   "pricing.enterpriseSummary.sla": "SLA service level agreements",
   "pricing.enterpriseBilling.basic.title": "Team",
   "pricing.enterpriseBilling.basic.description": "Ideal for individuals or small teams",
-  "pricing.enterpriseBilling.advanced.title": "Enterprise",
+  "pricing.enterpriseBilling.advanced.title": "Business",
   "pricing.enterpriseBilling.advanced.description": "Suitable for medium to large teams and enterprises",
-  "pricing.enterpriseBilling.custom.title": "Custom",
+  "pricing.enterpriseBilling.custom.title": "Enterprise",
   "pricing.enterpriseBilling.custom.description": "Designed for large organizations with special requirements"
 }
