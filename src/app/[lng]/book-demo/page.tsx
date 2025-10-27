@@ -5,8 +5,9 @@ import { getPageMetadata } from '@/utilities/getMetadata'
 import { Information } from '@/components/Pricing/Enterprise/information'
 import { PageSEO } from '@/components/SEO/PageSEO'
 
-export default async function BookDemoPage({ params }: { params: Promise<{ lng: string }> }) {
+export default async function BookDemoPage({ params, searchParams }: { params: Promise<{ lng: string }>, searchParams: Promise<{ from: string }> }) {
     const { lng } = await params
+    const { from } = await searchParams
     const { t } = await seoTranslation(params)
 
     return (
@@ -23,7 +24,7 @@ export default async function BookDemoPage({ params }: { params: Promise<{ lng: 
                     { name: t('bookDemo.shortTitle'), url: '/book-demo' }
                 ]}
             />
-            <Information inNewPage={true} />
+            <Information inNewPage={true} from={from || ''} />
         </>
     )
 }

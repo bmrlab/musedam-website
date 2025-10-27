@@ -84,8 +84,8 @@ export default function Hero() {
                 {t('hero.enterprise.title')}
             </h1>
             <span className={cn(
-                'w-[800px] max-w-full px-6 text-center md:text-[40px] text-white-72 font-light',
-                isEn ? 'font-feature text-[20px] md:font-normal' : 'font-extralight text-[16px]'
+                'w-[800px] max-w-full px-6 text-center font-light text-white-72 md:text-[40px]',
+                isEn ? 'font-feature text-[20px] md:font-normal' : 'text-[16px] font-extralight'
             )}>{t('hero.enterprise.subtitle')}</span>
 
             {/* 按钮 */}
@@ -98,7 +98,7 @@ export default function Hero() {
                         {t("hero.enterprise.seePricing")}
                     </DarkButton>
                 </LocaleLink>
-                <LocaleLink href='/book-demo' prefetch={false}>
+                <LocaleLink href={`/book-demo?from=home-banner-btn`} prefetch={false}>
                     <Button className={cn("h-[48px] w-[240px] rounded-lg bg-white text-base font-medium text-[#0e0e0e] md:w-[180px]",
                         "transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#0E0E0E]",
                         isEn && 'md:text-[18px]'
@@ -117,11 +117,11 @@ export default function Hero() {
                     )}>
                         {t('hero.enterprise.why.title')}
                     </h1>
-                    <p className="text-center md:font-euclid font-euclidlight text-base font-light text-white-72 md:text-left md:text-[22px] leading-[1.45em]">
+                    <p className="text-center font-euclidlight text-base font-light leading-[1.45em] text-white-72 md:text-left md:font-euclid md:text-[22px]">
                         {t('hero.enterprise.why.desc')}
                     </p>
                 </div>
-                <LocaleLink href='/book-demo' prefetch={false}>
+                <LocaleLink href={`/book-demo?from=home-why-btn`} prefetch={false}>
                     <DarkButton className={cn(
                         "h-[48px] w-[240px] rounded-lg font-euclid text-base font-medium md:h-[56px] md:w-[167px]",
                         isEn && "md:text-[18px]"

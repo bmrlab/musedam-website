@@ -96,7 +96,7 @@ export default function WhyMuse() {
     return <div className='px-6 py-[60px] md:px-[80px] md:py-[120px]'>
         <FadeInUpContainer className='flex w-full flex-col items-center overflow-x-scroll md:max-w-[1440px]'>
             <h1 className={cn(
-                "w-[800px] max-w-full text-center md:text-start font-feature font-normal leading-[41.6px] text-white-72  md:text-[64px] md:leading-[1.45em]",
+                "w-[800px] max-w-full text-center font-feature font-normal leading-[41.6px] text-white-72 md:text-start  md:text-[64px] md:leading-[1.45em]",
                 isEn ? 'text-[30px] ' : 'text-[35px]'
             )}>
                 {t('section.title')}
@@ -111,7 +111,7 @@ export default function WhyMuse() {
                     {!isEn && <br />}
                     <span className='text-white/80'>{t('banner.text.2')}</span>
                 </div>
-                <LocaleLink href='/book-demo' prefetch={false} className='w-full md:w-fit'>
+                <LocaleLink href={`/book-demo?from=home-explore-btn`} prefetch={false} className='w-full md:w-fit'>
                     <Button className={cn(
                         'h-[48px] w-full gap-[6px] rounded-lg bg-white px-0 font-euclid text-base text-black hover:bg-white/80 md:h-[56px] md:w-[226px]',
                         isEn && "md:text-[18px]"
@@ -155,7 +155,7 @@ export default function WhyMuse() {
                             <span className='max-w-full overflow-hidden text-ellipsis text-nowrap text-[24px] font-medium'>
                                 {title}
                             </span>
-                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[15px] md:text-[16px] font-light text-white-72'>
+                            <span className='max-w-full overflow-hidden text-ellipsis text-nowrap font-euclidlight text-[15px] font-light text-white-72 md:text-[16px]'>
                                 {description}
                             </span>
                         </div>

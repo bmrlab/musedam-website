@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Trans } from 'react-i18next';
 import { useInformationTranslation } from '@/app/i18n/client';
 import { cn, twx } from "@/utilities/cn";
@@ -13,11 +13,12 @@ import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
+import { trackEvent } from '@intercom/messenger-js-sdk';
 
 const FormLabel = twx.label`mb-2 block text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 focus:ring-0 ease-in-out duration-300 transition-all`
 
-export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: boolean }) => {
+export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, dark?: boolean, from: string }) => {
     const { isInChina } = useCountry()
     const { t } = useInformationTranslation();
     const { language } = useLanguage()
@@ -27,6 +28,43 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
     const [open, setOpen] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const isMobile = useIsMobile()
+    const componentRef = useRef<HTMLDivElement>(null)
+    const hasTracked = useRef<boolean>(false)
+
+    // Intersection Observer 用于检测组件是否在视口中露出
+    useEffect(() => {
+        // 只有当 inNewPage 为 true 时才进行监听
+        if (!inNewPage) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !hasTracked.current) {
+                        // 当组件露出时触发 gTag 埋点
+                        if (typeof window !== 'undefined' && window.gtag) {
+                            window.gtag("event", "show_demo_form", { from });
+                        }
+                        hasTracked.current = true
+                    }
+                });
+            },
+            {
+                threshold: 0.1, // 当组件10%露出时触发
+                rootMargin: '0px 0px -50px 0px' // 底部留50px边距
+            }
+        );
+
+        const currentRef = componentRef.current;
+        if (currentRef) {
+            observer.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef);
+            }
+        };
+    }, [from, inNewPage]);
 
     // 合并所有表单项为一个对象
     const [formData, setFormData] = useState({
@@ -38,7 +76,8 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
         teamSize: undefined as EOrgSize | undefined,
         expectTime: undefined as EExpectTime | undefined,
         wechat: "",
-        companyEmail: ""
+        companyEmail: "",
+        entrance: ""
     });
 
     const handleChange = (key: keyof typeof formData, value: any) => {
@@ -93,7 +132,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
         setSubmitting(true)
         try {
             const { name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat } = formData;
-            const submitData = { name, company, position, teamSize, expectTime };
+            const submitData = { name, company, position, teamSize, expectTime, entrance: from };
             if (isInChina) {
                 submitData['phone'] = phone
                 submitData['companyEmail'] = companyEmail
@@ -112,17 +151,31 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
             }
             toast({ duration: 2000, description: t('form.submitSuccess') });
 
+            const trackData = {
+                event_category: "form_submission",
+                event_label: "book_demo_request",
+                company_name: formData.company,
+                team_size: formData.teamSize,
+                expect_time: formData.expectTime,
+                position: formData.position,
+                country: isInChina ? "china" : "global",
+                entrance: from
+            }
             // 发送 Google Analytics 事件
             if (typeof window !== 'undefined' && window.gtag) {
-                window.gtag("event", "request_for_demo", {
-                    event_category: "form_submission",
-                    event_label: "book_demo_request",
-                    company_name: formData.company,
-                    team_size: formData.teamSize,
-                    expect_time: formData.expectTime,
-                    position: formData.position,
-                    country: isInChina ? "china" : "global"
-                });
+                window.gtag("event", "request_for_demo", trackData);
+            }
+
+            // 发送 Intercom 事件
+            try {
+                trackEvent('request_for_demo',
+                    {
+                        ...trackData,
+                        email: isInChina ? companyEmail : email,
+                        phone: isInChina ? phone : undefined,
+                    });
+            } catch (error) {
+                console.warn('Intercom event tracking failed:', error);
             }
 
             setOpen(true);
@@ -135,7 +188,8 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
                 teamSize: undefined,
                 expectTime: undefined,
                 companyEmail: "",
-                wechat: ""
+                wechat: "",
+                entrance: ""
             });
         } catch (err) {
             toast({ duration: 2000, description: err.message ?? t('form.submitError') });
@@ -158,7 +212,7 @@ export const Information = ({ inNewPage, dark }: { inNewPage?: boolean, dark?: b
     ] as const
 
     return (<>
-        <div className={cn("flex w-full justify-center font-euclid ",
+        <div ref={componentRef} className={cn("flex w-full justify-center font-euclid ",
             dark ? 'bg-black text-white' : 'bg-white text-[#141414]'
         )}>
             <div className={cn(

@@ -1,14 +1,13 @@
-
-import axios from 'axios'
 import { env } from 'process'
+import axios from 'axios'
 import { match } from 'ts-pattern'
 import { z } from 'zod'
 
 export enum EOrgSize {
-  TEN = 1,//"2~10人"
-  FIFTY,  //"11-50人"
+  TEN = 1, //"2~10人"
+  FIFTY, //"11-50人"
   TWO_HUNDRED, //"51-200人"
-  FIVE_HUNDRED,  //"201-500人"
+  FIVE_HUNDRED, //"201-500人"
   ONE_THOUSAND, //"501-1000人"
   MORE_THOUSAND, // "大于1000人"
 }
@@ -18,7 +17,7 @@ export enum EExpectTime {
   THREE_MONTH,
   SIX_MONTH,
   ONE_YEAR,
-  NOT_SURE
+  NOT_SURE,
 }
 
 export const emailSchema = z.string().email()
@@ -37,27 +36,24 @@ export const bookDemoFormSchema = z.object({
   companyEmail: z.string().max(200).optional().nullable(),
   teamSize: z.nativeEnum(EOrgSize).transform((value) => Number(value)),
   expectTime: z.nativeEnum(EExpectTime).transform((value) => Number(value)),
+  entrance: z.string().optional().nullable(),
 })
 
 type FormData = z.infer<typeof bookDemoFormSchema>
 
-
 const _getFeishuAuth = () => {
-  return axios
-    .post<{
-      code: number
-      expire: number
-      msg: string
-      tenant_access_token: string
-    }>('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
-      app_id: env.MUSE_FEISHU_APP_ID,
-      app_secret: env.MUSE_FEISHU_APP_SECRET,
-    })
+  return axios.post<{
+    code: number
+    expire: number
+    msg: string
+    tenant_access_token: string
+  }>('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+    app_id: env.MUSE_FEISHU_APP_ID,
+    app_secret: env.MUSE_FEISHU_APP_SECRET,
+  })
 }
 
-function _teamFormToFields(
-  data: z.infer<typeof bookDemoFormSchema>,
-): Record<string, any> {
+function _teamFormToFields(data: z.infer<typeof bookDemoFormSchema>): Record<string, any> {
   const result: Record<string, any> = {}
   result['来源'] = process.env.DEPLOY_REGION === 'global' ? '国外版' : '国内版'
   result['姓名'] = data.name
@@ -67,6 +63,7 @@ function _teamFormToFields(
   result['职位'] = data.position
   result['微信号'] = data.wechat
   result['企业邮箱'] = data.companyEmail
+  result['留资入口'] = data.entrance
 
   result['团队规模'] = match(data.teamSize)
     .with(EOrgSize.TEN, () => '2-10')
@@ -93,16 +90,15 @@ export const saveFormToFeishu = async (formData: FormData) => {
   if (!token) {
     throw new Error(res.data.msg)
   }
-  return axios
-    .post(
-      `https://open.feishu.cn/open-apis/bitable/v1/apps/${env.FEISHU_BOOK_DEMO_TABLE_APP_TOKEN}/tables/${env.FEISHU_ONBOARDING_FORM_TABLE_ID}/records`,
-      {
-        fields,
+  return axios.post(
+    `https://open.feishu.cn/open-apis/bitable/v1/apps/${env.FEISHU_BOOK_DEMO_TABLE_APP_TOKEN}/tables/${env.FEISHU_ONBOARDING_FORM_TABLE_ID}/records`,
+    {
+      fields,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
+    },
+  )
 }

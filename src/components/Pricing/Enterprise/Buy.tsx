@@ -101,7 +101,7 @@ export default function Buy({
                                 <div className='h-[48px] w-full' />
 
                                 {buttonType === 'bookDemo' &&
-                                    <LocaleLink href='/book-demo' prefetch={false}>
+                                    <LocaleLink href={`/book-demo?from=pricing-btn`} prefetch={false}>
                                         <Button
                                             className={cn(
                                                 'border border-white/10',
@@ -118,7 +118,7 @@ export default function Buy({
                                 }
 
                                 {buttonType === 'bookDemo' || buttonType === 'contact' ?
-                                    <LocaleLink href='/book-demo' prefetch={false}>
+                                    <LocaleLink href={`/book-demo?from=pricing-btn`} prefetch={false}>
                                         <Button className={
                                             cn(
                                                 "h-[48px] w-full rounded-xl border border-white/10 bg-[#141414] text-lg text-white-72",

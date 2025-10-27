@@ -9,9 +9,8 @@ import FAQ from '@/components/Pricing/Enterprise/FAQ'
 import { Information } from '@/components/Pricing/Enterprise/information'
 
 export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
-    const { lng } = await params
     return (
-        <div className="w-screen flex flex-col items-center bg-[#070707] text-white">
+        <div className="flex w-screen flex-col items-center bg-[#070707] text-white">
             <ContainerWithMaxWidth>
                 <Hero />
             </ContainerWithMaxWidth>
@@ -21,7 +20,7 @@ export default async function EnterpriseLandingPage({ params }: PropsWithLng) {
             </ContainerWithMaxWidth>
             <Brands />
             <FAQ />
-            <Information />
+            <Information from='home' />
         </div>
     )
 }

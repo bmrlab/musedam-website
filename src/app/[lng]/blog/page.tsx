@@ -147,7 +147,7 @@ async function BlogPageContent({
           />
         )}
       </div>
-      <Information dark={true} />
+      <Information dark={true} from='blog' />
       {/* All Articles - 所有文章（包含分类筛选） */}
 
       <div className='w-full max-w-[1440px] bg-white'>

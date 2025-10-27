@@ -85,7 +85,7 @@ export default function AINatives() {
                         {t('section.desc')}
                     </p>
                 </div>
-                <LocaleLink href='/book-demo' prefetch={false}>
+                <LocaleLink href={`/book-demo?from=home-ai-natives-btn`} prefetch={false}>
                     <DarkButton className={cn("h-[48px] w-[240px] rounded-lg font-euclid text-base font-medium md:h-[56px] md:w-[167px]",
                         isEn && 'md:text-[18px]'
                     )}>
