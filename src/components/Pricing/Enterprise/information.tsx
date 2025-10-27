@@ -13,7 +13,7 @@ import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
-import { trackEvent } from '@intercom/messenger-js-sdk';
+// import { trackEvent } from '@intercom/messenger-js-sdk';
 
 const FormLabel = twx.label`mb-2 block text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 focus:ring-0 ease-in-out duration-300 transition-all`
@@ -167,16 +167,16 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
             }
 
             // 发送 Intercom 事件
-            try {
-                trackEvent('request_for_demo',
-                    {
-                        ...trackData,
-                        email: isInChina ? companyEmail : email,
-                        phone: isInChina ? phone : undefined,
-                    });
-            } catch (error) {
-                console.warn('Intercom event tracking failed:', error);
-            }
+            // try {
+            //     trackEvent('request_for_demo',
+            //         {
+            //             ...trackData,
+            //             email: isInChina ? companyEmail : email,
+            //             phone: isInChina ? phone : undefined,
+            //         });
+            // } catch (error) {
+            //     console.warn('Intercom event tracking failed:', error);
+            // }
 
             setOpen(true);
             setFormData({
