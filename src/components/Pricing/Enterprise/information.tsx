@@ -33,8 +33,8 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
 
     // Intersection Observer 用于检测组件是否在视口中露出
     useEffect(() => {
-        // 只有当 inNewPage 为 true 时才进行监听
-        if (!inNewPage) return;
+        // 只有当 inNewPage 为 false 时才进行监听
+        if (inNewPage) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -42,9 +42,14 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                     if (entry.isIntersecting && !hasTracked.current) {
                         // 当组件露出时触发 gTag 埋点
                         if (typeof window !== 'undefined' && window.gtag) {
-                            window.gtag("event", "show_demo_form", { from });
+                            window.gtag("event", "scroll_to_demo_form", {
+                                event_category: "scroll",
+                                event_label: "scroll_to_demo_form",
+                                country: isInChina ? "china" : "global",
+                                entrance: from
+                            });
+                            hasTracked.current = true
                         }
-                        hasTracked.current = true
                     }
                 });
             },
@@ -64,7 +69,7 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 observer.unobserve(currentRef);
             }
         };
-    }, [from, inNewPage]);
+    }, [from, inNewPage, isInChina]);
 
     // 合并所有表单项为一个对象
     const [formData, setFormData] = useState({
