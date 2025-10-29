@@ -142,6 +142,7 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 email: isInChina ? companyEmail : email,
                 name: name,
                 company: company,
+                book_demo: true,
             }
             // 更新 Intercom 用户信息, 只有
             try {
@@ -149,6 +150,10 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 // 如果当前用户不是 User，则更新用户信息
                 if (!currentUser || currentUser.type !== 'user') {
                     update(updateUserInfo);
+                } else {
+                    update({
+                        book_demo: true,
+                    });
                 }
             } catch (error) {
                 // 如果检查失败，为了安全起见也进行更新（可能还未初始化完成）
