@@ -138,26 +138,22 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         try {
             const { name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat } = formData;
             const submitData = { name, company, position, teamSize, expectTime, entrance: from };
-
-            // 更新 Intercom 用户信息, 更新后就会变成 User
-            // try {
-            //     const currentUser = whoami?.();
-            //     // 如果没有 user_id 或 user_id 为空，说明初始化时没有用户信息，需要更新
-            //     if (!currentUser || !currentUser.user_id) {
-            //         update({
-            //             email: isInChina ? companyEmail : email,
-            //             name: name,
-            //             company: company,
-            //         });
-            //     }
-            // } catch (error) {
-            //     // 如果检查失败，为了安全起见也进行更新（可能还未初始化完成）
-            //     update({
-            //         email: isInChina ? companyEmail : email,
-            //         name: name,
-            //         company: company,
-            //     });
-            // }
+            const updateUserInfo = {
+                email: isInChina ? companyEmail : email,
+                name: name,
+                company: company,
+            }
+            // 更新 Intercom 用户信息, 只有
+            try {
+                const currentUser = whoami?.();
+                // 如果当前用户不是 User，则更新用户信息
+                if (!currentUser || currentUser.type !== 'user') {
+                    update(updateUserInfo);
+                }
+            } catch (error) {
+                // 如果检查失败，为了安全起见也进行更新（可能还未初始化完成）
+                update(updateUserInfo);
+            }
             if (isInChina) {
                 submitData['phone'] = phone
                 submitData['companyEmail'] = companyEmail
