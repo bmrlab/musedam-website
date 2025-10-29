@@ -7,4 +7,6 @@ export type SessionUser = {
   orgId?: string
   token?: string
   orgEmail?: string
+  email?: string
+  name?: string
 }

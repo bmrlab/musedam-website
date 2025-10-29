@@ -13,7 +13,7 @@ import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
-// import { trackEvent } from '@intercom/messenger-js-sdk';
+import { trackEvent, whoami, update } from '@intercom/messenger-js-sdk';
 
 const FormLabel = twx.label`mb-2 block text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 focus:ring-0 ease-in-out duration-300 transition-all`
@@ -138,6 +138,26 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         try {
             const { name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat } = formData;
             const submitData = { name, company, position, teamSize, expectTime, entrance: from };
+
+            // 更新 Intercom 用户信息, 更新后就会变成 User
+            // try {
+            //     const currentUser = whoami?.();
+            //     // 如果没有 user_id 或 user_id 为空，说明初始化时没有用户信息，需要更新
+            //     if (!currentUser || !currentUser.user_id) {
+            //         update({
+            //             email: isInChina ? companyEmail : email,
+            //             name: name,
+            //             company: company,
+            //         });
+            //     }
+            // } catch (error) {
+            //     // 如果检查失败，为了安全起见也进行更新（可能还未初始化完成）
+            //     update({
+            //         email: isInChina ? companyEmail : email,
+            //         name: name,
+            //         company: company,
+            //     });
+            // }
             if (isInChina) {
                 submitData['phone'] = phone
                 submitData['companyEmail'] = companyEmail
@@ -171,17 +191,17 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 window.gtag("event", "request_for_demo", trackData);
             }
 
-            // 发送 Intercom 事件
-            // try {
-            //     trackEvent('request_for_demo',
-            //         {
-            //             ...trackData,
-            //             email: isInChina ? companyEmail : email,
-            //             phone: isInChina ? phone : undefined,
-            //         });
-            // } catch (error) {
-            //     console.warn('Intercom event tracking failed:', error);
-            // }
+            // 发送 Intercom 留资事件
+            try {
+                trackEvent('request_for_demo',
+                    {
+                        ...trackData,
+                        email: isInChina ? companyEmail : email,
+                        phone: isInChina ? phone : undefined,
+                    });
+            } catch (error) {
+                console.warn('Intercom event tracking failed:', error);
+            }
 
             setOpen(true);
             setFormData({

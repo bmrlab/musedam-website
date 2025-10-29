@@ -6,11 +6,12 @@ import {
   MUSE_MAINLAND_AUTH_URL,
   MUSE_MAINLAND_SERVER_URL,
 } from '@/constant/url'
+
 import type { SessionUser } from '@/types/user'
 
-
 const getFetchUserUrl = (path: string) => {
-  const host = process.env.DEPLOY_REGION === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL
+  const host =
+    process.env.DEPLOY_REGION === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL
   return `${host}/mini-dam-user${path}`
 }
 
@@ -37,7 +38,7 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
   )
 
   if (!response.ok) return null
-  const data: { userId: string; token: string, orgId?: string } = await response.json()
+  const data: { userId: string; token: string; orgId?: string } = await response.json()
   // console.log("data-----", data)
 
   const requestHeader = {
@@ -48,12 +49,9 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
 
   // 用 token 和 user-id 获取用户信息
   // 构造符合需求的对象并返回
-  const userResponse = await fetch(
-    getFetchUserUrl('/user'),
-    {
-      headers: requestHeader,
-    },
-  )
+  const userResponse = await fetch(getFetchUserUrl('/user'), {
+    headers: requestHeader,
+  })
   if (!userResponse.ok) return null
 
   const userData: {
@@ -62,13 +60,16 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
     // NOTE 代码里没写很多不必要的参数，但是返回数据里是完整的，具体参考 mini-dam-user 的接口文档
     result: {
       config:
-      | {
-        lastSpaceId?: number
-        language?: string
-      }
-      | null
-      | undefined
+        | {
+            lastSpaceId?: number
+            language?: string
+          }
+        | null
+        | undefined
       proInvalidDate?: string
+      realName?: string
+      nickName?: string
+      email?: string
     }
   } = await userResponse.json()
 
@@ -78,10 +79,13 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
 
   const result: SessionUser = {
     userId: data.userId,
+    name: userData.result.realName || userData.result.nickName,
+    email: userData.result.email,
     orgId: orgId,
     token: data.token,
     isSale: false,
-    isOrg: userData.result.config?.lastSpaceId !== undefined && userData.result.config.lastSpaceId > 0,
+    isOrg:
+      userData.result.config?.lastSpaceId !== undefined && userData.result.config.lastSpaceId > 0,
     hasOrg: false,
     isPro: userData.result.proInvalidDate
       ? new Date(userData.result.proInvalidDate) > new Date()
@@ -90,25 +94,26 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
 
   // 获取用户团队列表
   const [orgResponse, userSaleInfo] = await Promise.all([
-    fetch(
-      getFetchUserUrl('/org'),
-      {
-        headers: requestHeader,
-      },
-    ), fetch(
-      getFetchUserUrl(`/org/members/queryUserIsSaleMember`),
-      {
-        headers: requestHeader,
-      },
-    )])
+    fetch(getFetchUserUrl('/org'), {
+      headers: requestHeader,
+    }),
+    fetch(getFetchUserUrl(`/org/members/queryUserIsSaleMember`), {
+      headers: requestHeader,
+    }),
+  ])
 
   if (orgResponse.ok) {
-    const orgData: { code: string; message: string; result: { id: number }[] } = await orgResponse.json()
+    const orgData: { code: string; message: string; result: { id: number }[] } =
+      await orgResponse.json()
     result.hasOrg = orgData.code === '0' && orgData.result.length > 0
   }
 
   if (userSaleInfo) {
-    const orgMemberInfo: { code: string; message: string; result: { isSale: 0 | 1, email: string; } } = await userSaleInfo.json()
+    const orgMemberInfo: {
+      code: string
+      message: string
+      result: { isSale: 0 | 1; email: string }
+    } = await userSaleInfo.json()
     result.isSale = Boolean(orgMemberInfo.result.isSale)
     result.orgEmail = orgMemberInfo.result.email
   }
