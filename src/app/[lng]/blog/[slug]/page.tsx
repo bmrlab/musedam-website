@@ -92,6 +92,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         description={post.meta?.description || blogT('description')}
         url={`/blog/${slug}`}
         image={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
+        socialImage={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
         lng={lng}
         articleData={{
           headline: post.title,

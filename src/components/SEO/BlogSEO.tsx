@@ -55,7 +55,13 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
     const baseUrl = process.env.SITE_SERVER_URL || 'https://www.musedam.cc'
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
     const canonical = canonicalUrl || fullUrl
-    const ogImage = socialImage || image || `${baseUrl}/assets/logo.svg`
+
+    // 统一社交分享图为绝对地址（优先使用文章 banner 图）
+    const normalizeUrl = (u?: string) => {
+        if (!u) return undefined
+        return u.startsWith('http') ? u : `${baseUrl}${u.startsWith('/') ? '' : '/'}${u}`
+    }
+    const ogImage = (socialImage || image) ? normalizeUrl(socialImage || image)! : `${baseUrl}/assets/logo.svg`
     const isZhCN = lng === 'zh-CN'
 
     // 生成关键词

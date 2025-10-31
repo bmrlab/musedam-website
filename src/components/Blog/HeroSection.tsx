@@ -65,8 +65,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ article, className }) 
         <div className="aspect-[4/3] max-h-[440px]  rounded-[14px]">
           {/* 如果有 meta.image，显示实际图片，否则显示默认背景 */}
           {article.meta?.image &&
-          typeof article.meta.image === 'object' &&
-          'url' in article.meta.image ? (
+            typeof article.meta.image === 'object' &&
+            'url' in article.meta.image ? (
             <Image
               src={article.meta.image.url ?? ''}
               alt={article.meta.image.alt || article.title}
