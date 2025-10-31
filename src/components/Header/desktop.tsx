@@ -216,14 +216,13 @@ export default function HeaderDesktop({
         </LocaleLink>
       </NavigationMenuItem>
 
-      {/* 海外版-隐藏 blog */}
-      {!isGlobal && <NavigationMenuItem>
+      <NavigationMenuItem>
         <LocaleLink href="/blog" legacyBehavior passHref>
           <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
             {t('nav-bar.blog')}
           </NavigationMenuLink>
         </LocaleLink>
-      </NavigationMenuItem>}
+      </NavigationMenuItem>
     </NavigationMenuList>
   }
 
