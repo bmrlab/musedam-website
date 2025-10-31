@@ -59,8 +59,9 @@ export const AllArticles: React.FC<AllArticlesProps> = ({
     (pageNumber: number) => {
       routeWithQuery([{ name: 'page', value: String(pageNumber) }])
       setHookCurrentPage(pageNumber)
+      updateArticles(selectedCategory, pageNumber)
     },
-    [routeWithQuery, setHookCurrentPage],
+    [routeWithQuery, selectedCategory, setHookCurrentPage, updateArticles],
   )
 
   const categoryOptions = useMemo(
