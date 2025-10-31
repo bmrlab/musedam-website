@@ -93,20 +93,20 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
                 <link rel="canonical" href={canonical} />
 
                 {/* Open Graph */}
-                <meta property="og:title" content={title} />
-                <meta property="og:description" content={description} />
-                <meta property="og:url" content={fullUrl} />
-                <meta property="og:image" content={ogImage} />
+                <meta property="og:title" content={title} key="og:title" />
+                <meta property="og:description" content={description} key="og:description" />
+                <meta property="og:url" content={fullUrl} key="og:url" />
+                <meta property="og:image" content={ogImage} key="og:image" />
                 <meta property="og:type" content={articleData ? 'article' : 'website'} />
                 <meta property="og:site_name" content="MuseDAM" />
                 <meta property="og:locale" content={isZhCN ? 'zh_CN' : 'en_US'} />
 
                 {/* Twitter Card */}
-                <meta name="twitter:card" content={twitterCard} />
-                <meta name="twitter:title" content={title} />
-                <meta name="twitter:description" content={description} />
-                <meta name="twitter:image" content={ogImage} />
-                <meta name="twitter:site" content="@musedam" />
+                <meta name="twitter:card" content={twitterCard} key="twitter:card" />
+                <meta name="twitter:title" content={title} key="twitter:title" />
+                <meta name="twitter:description" content={description} key="twitter:description" />
+                <meta name="twitter:image" content={ogImage} key="twitter:image" />
+                <meta name="twitter:site" content="@musedam" key="twitter:site" />
 
                 {/* 文章特定元数据 */}
                 {articleData && (
