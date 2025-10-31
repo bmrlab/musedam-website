@@ -7,8 +7,15 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/', '/musedam-apigw/', '/*/pricing/dam', '/*/pricing/ai', '/quotation/'],
+      allow: ['/', '/api/media/'], // 允许访问图片所在的API子路径
+      disallow: [
+        '/admin/',
+        '/api/',
+        '/musedam-apigw/',
+        '/*/pricing/dam',
+        '/*/pricing/ai',
+        '/quotation/',
+      ],
     },
     sitemap: `${getServerSideURL()}/sitemap.xml`,
   }
