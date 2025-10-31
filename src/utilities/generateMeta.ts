@@ -21,7 +21,7 @@ export const generateMeta = async (args: { doc: Page | Post }): Promise<Metadata
   const title = doc?.meta?.title ? doc?.meta?.title + ' | MuseDAM Website' : 'MuseDAM Website'
 
   return {
-    description: doc?.meta?.description,
+    description: doc?.meta?.description || '',
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',
       images: ogImage
@@ -37,7 +37,7 @@ export const generateMeta = async (args: { doc: Page | Post }): Promise<Metadata
     twitter: {
       images: ogImage ? [ogImage] : undefined,
       title,
-      description: doc?.meta?.description,
+      description: doc?.meta?.description || '',
       card: 'summary_large_image',
     },
     title,
