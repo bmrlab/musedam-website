@@ -7,10 +7,10 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: ['/', '/api/media/'], // 允许访问图片所在的API子路径
+      allow: ['/'], // 允许访问图片所在的API子路径
       disallow: [
         '/admin/',
-        '/api/',
+        // '/api/',
         '/musedam-apigw/',
         '/*/pricing/dam',
         '/*/pricing/ai',
