@@ -15,6 +15,32 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
 import { trackEvent, whoami, update } from '@intercom/messenger-js-sdk';
 
+const invalidEmailDomains = new Set([
+    '@qq.com',
+    '@vip.qq.com',
+    '@foxmail.com',
+    '@163.com',
+    '@126.com',
+    '@yeah.net',
+    '@vip.163.com',
+    '@vip.126.com',
+    '@sina.com',
+    '@sina.cn',
+    '@vip.sina.com',
+    '@sohu.com',
+    '@vip.sohu.com',
+    '@139.com',
+    '@189.cn',
+    '@21cn.com',
+    '@gmail.com',
+    '@outlook.com',
+    '@hotmail.com',
+    '@live.com',
+    '@yahoo.com',
+    '@yahoo.cn',
+    '@yahoo.com.cn',
+]);
+
 const FormLabel = twx.label`mb-2 block text-[12px]`
 const FormInput = twx.input`text-[14px] w-full border rounded-lg px-4 h-[46px] focus:outline-none hover:ring-0 focus:ring-0 ease-in-out duration-300 transition-all`
 
@@ -129,9 +155,21 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
             return
         }
 
+        // TODO 校验企业邮箱后缀
         if (isInChina && !isValidEmail(formData.companyEmail)) {
             toast({ duration: 2000, description: t('form.email.invalid') });
             return
+        }
+        if (isInChina) {
+            const trimmedEmail = formData.companyEmail.trim().toLowerCase();
+            const atIndex = trimmedEmail.lastIndexOf('@');
+            if (atIndex !== -1) {
+                const domain = trimmedEmail.slice(atIndex);
+                if (invalidEmailDomains.has(domain.toLocaleLowerCase())) {
+                    toast({ duration: 2000, description: t('form.companyEmail.businessRequired') });
+                    return;
+                }
+            }
         }
 
         setSubmitting(true)

@@ -22,6 +22,7 @@
         "company.placeholder": "请输入您的公司全称",
         "companyEmail.label": "您的企业邮箱",
         "companyEmail.placeholder": "请输入您的企业邮箱",
+        "companyEmail.businessRequired": "请填写企业邮箱~",
         "wechat.label": "您的微信号",
         "wechat.placeholder": "请输入您的微信号",
         "size": {

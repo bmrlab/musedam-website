@@ -12,7 +12,7 @@
         "title": "Let's get to know you",
         "name.label": "Your Name",
         "name.placeholder": "Enter your name",
-        "email.label": "Company Email",
+        "email.label": "Business Email",
         "email.placeholder": "Enter your company email",
         "phone.label": "Phone Number",
         "phone.placeholder": "Enter your phone number",
@@ -33,8 +33,9 @@
             "label": "Your Position",
             "placeholder": "Enter your position"
         },
-        "companyEmail.label": "Your Company Email",
+        "companyEmail.label": "Your Business Email",
         "companyEmail.placeholder": "Enter your company email",
+        "companyEmail.businessRequired": "Please provide your business email address~",
         "wechat.label": "Your Wechat",
         "wechat.placeholder": "Enter your wechat",
         "expect": {
