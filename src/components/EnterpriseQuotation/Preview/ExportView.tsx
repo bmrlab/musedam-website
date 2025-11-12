@@ -8,6 +8,7 @@ import { FC, useMemo } from 'react'
 import { PreviewDetailTable } from './PreviewDetailTable'
 import { ExpandService, NotBuyDetailTable } from './NotBuyDetailTable'
 import { useLanguage } from '@/providers/Language'
+import { useCountry } from '@/providers/Country'
 
 type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'>
 
@@ -35,7 +36,8 @@ export const ExportView: FC<ExportViewProps> = ({
 }) => {
     const { t } = useTranslation('quotation')
     const { language } = useLanguage()
-
+    const { isInChina } = useCountry()
+    const isGlobal = !isInChina
     const today = useMemo(() => generatedDay ? new Date(generatedDay).toLocaleDateString(language, { year: 'numeric', month: 'short', day: '2-digit' }) : '', [language, generatedDay])
 
     return (
@@ -65,7 +67,7 @@ export const ExportView: FC<ExportViewProps> = ({
                     </div>
                     <div>
                         <div className="text-5 mb-3 text-lg font-bold  leading-[22px]">{t("service.provider")}</div>
-                        <div className="font-semibold">{t("service.provider.name")}</div>
+                        <div className="font-semibold">{t(isGlobal ? "service.provider.name.global" : "service.provider.name")}</div>
                         <div className='text-[#141414] opacity-80'>{t("service.provider.yourName")}</div>
                         <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
                     </div>

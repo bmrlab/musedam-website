@@ -19,7 +19,7 @@ const DetailItem = ({ item, isInExport }: { item: IDetailItem, isInExport?: bool
         )}
         key={item.name}
     >
-        <div className='flex-content col-span-2 flex items-center'>
+        <div className={cn('flex-content col-span-2 flex items-center', !item.detail && 'font-medium')}>
             {item.name}
         </div>
         <div className="flex-content col-span-3 whitespace-pre-line text-start">
@@ -40,7 +40,7 @@ const List = ({ list, isInExport }: { list: DisplayRow[], isInExport?: boolean }
                     <div className='flex-content col-span-2 flex items-center font-medium'>
                         {title}
                     </div>
-                    <div className="flex-content col-span-3 flex items-center whitespace-pre-line text-start">
+                    <div className="flex-content  col-span-3 flex items-center whitespace-pre-line text-start">
                         {detail}
                     </div>
                 </div>

@@ -281,7 +281,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                             </div>
                             <div>
                                 <div className="text-5 mb-3 text-lg font-bold leading-[22px]">{t("service.provider")}</div>
-                                <div className="font-semibold">{t("service.provider.name")}</div>
+                                <div className="font-semibold">{t(!isInChina ? "service.provider.name.global" : "service.provider.name")}</div>
                                 <div className='text-[#141414] opacity-80'>{t("service.provider.yourName")}</div>
                                 <div className='text-[#141414] opacity-80'>{t("contact.email")}：{customerInfo.yourEmail}</div>
                             </div>

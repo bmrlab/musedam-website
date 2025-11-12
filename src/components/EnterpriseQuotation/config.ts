@@ -47,7 +47,7 @@ export const usePricing = () => {
             baseCost: 0,
             memberSeatPrice: 1000, // 席位年费
             storageSpacePrice: 600,
-            aiPointsPrice: 4800,
+            aiPointsPrice: 20000,
           },
       advanced: isGlobal
         ? {
@@ -82,7 +82,7 @@ export const usePricing = () => {
             baseCost: 0,
             memberSeatPrice: 1000,
             storageSpacePrice: 5000,
-            aiPointsPrice: 4800,
+            aiPointsPrice: 20000,
             modules: {
               [EAdvancedModules.ADVANCED_FEATURES]: 20000,
               [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,

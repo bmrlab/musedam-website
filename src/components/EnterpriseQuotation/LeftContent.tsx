@@ -965,7 +965,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       {/* Generate Button */}
       <Button
         disabled={loading}
-        className="ml-5 mt-10 h-[48px] w-[calc(100%-40px)] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[rgba(255,255,255,0.6)] md:ml-[60px] md:w-[160px] md:rounded-2xl"
+        className="ml-5 mt-10 h-[48px] min-w-[calc(100%-40px)] rounded-lg bg-white text-lg font-medium text-[#0e0e0e] transition-all duration-300 ease-in-out hover:bg-[rgba(255,255,255,0.6)] md:ml-[60px] md:w-fit md:min-w-[160px] md:rounded-2xl"
         onClick={() => {
           if (loading) return
           if (!customerInfo['company']?.length || !customerInfo['yourEmail']?.length) {

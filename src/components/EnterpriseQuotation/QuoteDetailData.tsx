@@ -118,7 +118,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 quantity = `${packageBasic.storageSpace}` + (isBasic ? 'GB' : 'TB')
                 cost = packageBasic.storageSpace * pricingBasic.storageSpacePrice
             } else if (key === 'aiPoints') {
-                quantity = `${formatWithToLocaleString(4000 * packageBasic.aiPoints)} ${prefix}${t('points.month')}`
+                quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t("ai.AutoTagEngine.unit.s") : ''} \n(${formatWithToLocaleString(100000 * packageBasic.aiPoints)}${t('expansion.points')})`
                 cost = Math.round(packageBasic.aiPoints * pricingBasic.aiPointsPrice)
             }
 
@@ -364,7 +364,7 @@ export const useExpandServices = () => {
             description: t('expansion.aiPoints.desc'),
             value: `${isInChina ? '¥20,000' : '$4,000'}${t('per.year')}\n /100,000` + t('expansion.points'),
             unit: (isInChina ? '¥20,000' : '$4,000') + '/' + t("ai.AutoTagEngine.unit"),
-            quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`
+            quantity: `1 ${t('year')}\n${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`
         },
 
         {
