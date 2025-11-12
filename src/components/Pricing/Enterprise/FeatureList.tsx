@@ -65,13 +65,13 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                     const groupStates = categoryState.groups || {};
                     const categoriesMap: [string, {
                         name: string;
-                        detail: string;
+                        detail?: string;
                         showBeta?: boolean
                     }[]][] = Object.entries(categoryData.list)
 
                     return <div key={categoryKey} className='rounded-2xl '>
                         {/* 分组标题行 */}
-                        <div className="sticky md:top-[70px] top-[56px] w-full bg-[#F0F0EA] z-[1]">
+                        <div className="sticky top-[56px] z-[1] w-full bg-[#F0F0EA] md:top-[70px]">
                             <div
                                 className='flex cursor-pointer items-center rounded-t-2xl border border-[#D1D1CC] bg-[#E1E1DC] py-3'
                                 onClick={() => toggleCategory(categoryKey)}
@@ -111,11 +111,15 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                                     (isExpend || isGroupExpanded) && isLast && index + 1 === groupItems.length && 'rounded-b-2xl'
                                                 )
                                             }>
-                                                <div className="relative col-span-4 flex items-center border-r border-[#D1D1CC] p-2 md:col-span-3 md:p-4">
-                                                    {item.name}
+                                                <div className="relative col-span-4 flex items-center p-2 md:col-span-3 md:p-4">
+                                                    <span className={!item.detail ? 'font-semibold' : ''}>{item.name}</span>
                                                     {item.showBeta && <span className='absolute left-[78px] top-[10px] text-[10px]'>BETA</span>}
                                                 </div>
-                                                <div className="col-span-8 whitespace-pre-line p-2 md:col-span-9 md:p-4">{item.detail}</div>
+                                                {!!item.detail &&
+                                                    <div className="col-span-8 whitespace-pre-line border-l border-[#D1D1CC] p-2 md:col-span-9 md:p-4">
+                                                        {item.detail}
+                                                    </div>
+                                                }
                                             </div>
                                         ))}
                                     </div>

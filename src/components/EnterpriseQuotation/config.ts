@@ -54,9 +54,9 @@ export const usePricing = () => {
             baseCost: 0,
             memberSeatPrice: 300,
             storageSpacePrice: 1000,
-            aiPointsPrice: 1000,
+            aiPointsPrice: 4000,
             modules: {
-              [EAdvancedModules.ADVANCED_FEATURES]: 5000,
+              [EAdvancedModules.ADVANCED_FEATURES]: 9000,
               [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
@@ -69,9 +69,11 @@ export const usePricing = () => {
               [EAdvancedModules.SSO_Teams]: 5000,
               [EAdvancedModules.CUSTOMER_SERVICE]: 0,
               [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
-              // TODO : ai 自动打标引擎
-              [EAdvancedModules.AI_AUTO_TAG_MODULE]: 10000,
-              [EAdvancedModules.AI_AUTO_TAG_POINTS]: 20000,
+              // ai 自动打标引擎
+              [EAdvancedModules.AI_AUTO_TAG_MODULE]: 6000,
+              [EAdvancedModules.AI_AUTO_TAG_POINTS]: 4000,
+              // museAI
+              [EAdvancedModules.MUSE_AI]: 20000,
               // 全球加速- 海外版没有
               [EAdvancedModules.GA]: 0,
             },
@@ -98,6 +100,8 @@ export const usePricing = () => {
               // ai 自动打标引擎
               [EAdvancedModules.AI_AUTO_TAG_MODULE]: 10000,
               [EAdvancedModules.AI_AUTO_TAG_POINTS]: 20000,
+              // museAI
+              [EAdvancedModules.MUSE_AI]: 100000,
               // 全球加速
               [EAdvancedModules.GA]: 30000,
             },
@@ -161,6 +165,7 @@ export const usePricing = () => {
     [EAdvancedModules.AI_AUTO_TAG]: t('module.aiAutoTag'),
     [EAdvancedModules.AI_AUTO_TAG_MODULE]: t('module.aiAutoTagModule'),
     [EAdvancedModules.AI_AUTO_TAG_POINTS]: t('module.aiAutoTagPoints'),
+    [EAdvancedModules.MUSE_AI]: 'MuseAI',
     [EAdvancedModules.GA]: t('module.ga'),
   }
 
@@ -215,10 +220,10 @@ export const useBasicConfigs = () => {
           key: 'aiPoints',
           title: t('ai.points'),
           min: 0,
-          hint: [t('basic.aiPoints.hint1'), t('basic.aiPoints.hint2')],
+          hint: [t('aiPoints.hint')],
           des:
             `${prefix} ${formatWithToLocaleString(basicPricing.aiPointsPrice)}${t('per.year')}` +
-            ` ( ${prefix} ${parseFloat((basicPricing.aiPointsPrice / 4000 / 12).toFixed(3))}${t('aiPoints.unit')})`,
+            ` ( ${prefix} ${parseFloat((basicPricing.aiPointsPrice / 100000).toFixed(3))}${t('aiPoints.unit')})`,
         },
       ]
     : [
@@ -246,10 +251,10 @@ export const useBasicConfigs = () => {
           key: EBasicConfigKey.AI_POINTS,
           title: t('ai.points'),
           min: 0,
-          hint: [t('advanced.aiPoints.hint1'), t('advanced.aiPoints.hint2')],
+          hint: [t('aiPoints.hint')],
           des:
             `${prefix} ${formatWithToLocaleString(advancedPricing.aiPointsPrice)}${t('per.year')}` +
-            ` ( ${prefix} ${parseFloat((advancedPricing.aiPointsPrice / 4000 / 12).toFixed(3))}${t('aiPoints.unit')})`,
+            ` ( ${prefix} ${parseFloat((advancedPricing.aiPointsPrice / 100000).toFixed(3))}${t('aiPoints.unit')})`,
           price: advancedPricing.aiPointsPrice,
         },
       ]
@@ -315,6 +320,14 @@ export const useAdvancedConfigs = () => {
       key: EAdvancedModules.COMPLIANCE_CHECK,
       label: moduleNames[EAdvancedModules.COMPLIANCE_CHECK],
       price: advancedPricing.modules[EAdvancedModules.COMPLIANCE_CHECK],
+    },
+    {
+      key: EAdvancedModules.MUSE_AI,
+      label: moduleNames[EAdvancedModules.MUSE_AI],
+      price: advancedPricing.modules[EAdvancedModules.MUSE_AI],
+      hint: t('ai.museAI.points.hint'),
+      tag: t('ai.museAI.points.tag'),
+      min: 1,
     },
     {
       key: EAdvancedModules.CUSTOM_METADATA_FIELDS,

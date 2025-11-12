@@ -150,12 +150,29 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 return {
                     key,
                     name: label,
-                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 20 : (pointsNum * 20).toLocaleString() })}`,
+                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 10 : (pointsNum * 10 * 10000).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
                     des: t('ai.AutoTagEngine.des', { moduleCost: moduleCost.toLocaleString(), pointsNum: pointsNum, prefix: prefix, pointsCost: pointsCost.toLocaleString() }),
                     previewDes: t('ai.AutoTagEngine.previewDes'),
+                }
+            }
+            if (key === EAdvancedModules.MUSE_AI) {
+                const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_AI]), 1)
+                const perPointCost = advancedPricing[EAdvancedModules.MUSE_AI]
+                const cost = pointsNum * perPointCost
+                const realYear = advancedModules[key] ? subscriptionYears : 1
+                return {
+                    key,
+                    name: label,
+                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity",
+                        { value: language === 'zh-CN' ? pointsNum * 50 : (pointsNum * 50 * 10000).toLocaleString() })}`,
+                    unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
+                    subtotal: cost,
+                    isModule: true,
+                    des: t('ai.museAI.des', { pointsNum: pointsNum, prefix: prefix, pointsCost: cost.toLocaleString() }),
+                    previewDes: t('ai.museAI.previewDes'),
                 }
             }
 
@@ -345,9 +362,9 @@ export const useExpandServices = () => {
         {
             name: t('expansion.aiPoints'),
             description: t('expansion.aiPoints.desc'),
-            value: `${isInChina ? '¥20,000' : '$5,760'}${t('per.year')}\n /200,000` + t('expansion.points'),
-            unit: (isInChina ? '¥20,000' : '$5,760') + '/' + t("ai.AutoTagEngine.unit"),
-            quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 20 : (200000).toLocaleString() })}`
+            value: `${isInChina ? '¥20,000' : '$4,000'}${t('per.year')}\n /100,000` + t('expansion.points'),
+            unit: (isInChina ? '¥20,000' : '$4,000') + '/' + t("ai.AutoTagEngine.unit"),
+            quantity: `1 ${t('year')}${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`
         },
 
         {
