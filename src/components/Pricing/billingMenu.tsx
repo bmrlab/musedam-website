@@ -31,7 +31,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       t('pricing.encrypted_sharing.label'),
     ],
     [EPlanProductType.PERSON_PRO_MASTER]: [
-      t('pricing.summary.storage.personal', { val: '3T (3072G) ' }),
+      t('pricing.summary.storage.personal', { val: isInChina ? '1T (1024G) ' : '3T (3072G) ' }),
       t('pricing.1.person.no.expansion.allowed'),
       // isInChina ? undefined : t('pricing.summary.points', { val: '2,000' }),
       t('pricing.summary.ai'),
