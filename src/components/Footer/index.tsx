@@ -79,14 +79,14 @@ export default function Footer({ isMini }: { isMini?: boolean }) {
       {/* https://applink.feishu.cn/client/message/link/open?token=AmOrmXGzAAADZ1FER5UfAAQ%3D */}
       {isInChina && (
         <div className=" flex w-full items-center justify-center space-x-4 border-t border-t-[rgba(255,255,255,0.1)] bg-[#070707] px-[10px] py-[24px] text-[12px] font-light text-white/60">
-          <span>© 特赞（上海）信息科技有限公司</span>
+          <span>{t('tezignShanghaiInfo')}</span>
           <a
             href="http://beian.miit.gov.cn"
             style={{
               marginRight: '4px',
             }}
           >
-            沪ICP备15021426号-22
+            {t('shanghaiIcpNo1502142')}
           </a>
           <span>
             <a
@@ -95,11 +95,12 @@ export default function Footer({ isMini }: { isMini?: boolean }) {
               href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010164"
             >
               <Image className="mr-[4px]" src="/police.png" alt="police" width={16} height={16} />
-              <span>沪公网安备 31010402010164 号</span>
+              <span>{t('shanghaiPublicNetwork')}</span>
             </a>
           </span>
-          <span>网信算备 310115402810501240017 号</span>
-          <span>网信算备 310115402810501240033 号</span>
+          <span>{t('networkInformationAc')}</span>
+          <span>{t('networkInformationAc2')}</span>
+          <span>{t('networkInformationAc3')}</span>
         </div>
       )}
     </>
