@@ -39,7 +39,7 @@ const socialItemInChina = [
   {
     label: 'Bilibili',
     icon: <Icons.bilibili />,
-    href: 'https://space.bilibili.com/690784968',
+    href: 'https://space.bilibili.com/3690981903829093',
   },
 ]
 
