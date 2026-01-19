@@ -98,6 +98,14 @@ interface QuotationStoreType {
     // 编辑ID
     editInfo: IQuotationInfo | undefined
     setEditInfo: React.Dispatch<React.SetStateAction<IQuotationInfo | undefined>>
+
+    // MuseAI tag 选择值
+    museAITagOption: string
+    setMuseAITagOption: (value: string) => void
+    
+    // MuseCut tag 选择值
+    museCutTagOption: string
+    setMuseCutTagOption: (value: string) => void
 }
 
 const initialCustomerInfo: ICustomerInfo = {
@@ -164,6 +172,12 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
 
     const [editInfo, setEditInfo] = useState<IQuotationInfo | undefined>()
 
+    // MuseAI tag 选择值，默认为 50万点
+    const [museAITagOption, setMuseAITagOption] = useState<string>('500000')
+    
+    // MuseCut tag 选择值，默认为 50万点
+    const [museCutTagOption, setMuseCutTagOption] = useState<string>('500000')
+
     // 初始化用户邮箱
     const initializeUserEmail = useCallback((user: SessionUser | null) => {
         if (user?.orgEmail && customerInfo.yourEmail.length === 0) {
@@ -188,6 +202,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setFeatureView(EFeatureView.OVERVIEW)
         setShowNoBuyFeature(false)
         setEditInfo(undefined)
+        setMuseAITagOption('500000')
+        setMuseCutTagOption('500000')
     }, [])
 
     const value: QuotationStoreType = {
@@ -216,7 +232,11 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         initializeUserEmail,
         resetToInitial,
         editInfo,
-        setEditInfo
+        setEditInfo,
+        museAITagOption,
+        setMuseAITagOption,
+        museCutTagOption,
+        setMuseCutTagOption
     }
 
     return (

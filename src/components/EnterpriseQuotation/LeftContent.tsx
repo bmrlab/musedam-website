@@ -24,6 +24,13 @@ import { Checkbox } from '../ui/checkbox'
 import { Input } from '../ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import {
   EAdvancedModules,
   EPrivateModules,
   useAdvancedConfigs,
@@ -150,6 +157,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     showNoBuyFeature,
     setShowNoBuyFeature,
     editInfo,
+    museAITagOption,
+    setMuseAITagOption,
+    museCutTagOption,
+    setMuseCutTagOption,
   } = useQuotationStore()
   const editId = editInfo?.id
 
@@ -391,6 +402,16 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
   const renderModuleItem = (module: (typeof advancedConfigs)[number]) => {
     const { key, min, unit, noCheckBox } = module
+    const isMuseAI = key === EAdvancedModules.MUSE_AI
+    const isMuseCut = key === EAdvancedModules.MUSE_CUT
+    const currentTagOption = isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : null
+    const selectedTagOption = (isMuseAI || isMuseCut) && module.tagOptions 
+      ? module.tagOptions.find(opt => opt.value === currentTagOption) || module.tagOptions[0]
+      : null
+    const displayPrice = (isMuseAI || isMuseCut) && selectedTagOption && selectedTagOption.priceMultiplier
+      ? module.price * selectedTagOption.priceMultiplier
+      : module.price
+
     return (
       <div key={key} className="flex flex-col justify-between md:flex-row md:items-center">
         <div className="flex items-start space-x-2">
@@ -421,7 +442,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               }}
               className={cn(
                 'size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 ',
-                module.tag && 'mt-[4px]',
+                (module.tag || module.tagOptions) && 'mt-[4px]',
               )}
             />
           )}
@@ -435,13 +456,42 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   </div>
                 </div>
               )}
+              {module.tagOptions && (
+                <div className="min-w-[80px] font-euclidlight text-[14px] font-light leading-[16px]">
+                  <Select
+                    value={isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : ''}
+                    onValueChange={(value) => {
+                      if (isMuseAI) {
+                        setMuseAITagOption(value)
+                      } else if (isMuseCut) {
+                        setMuseCutTagOption(value)
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="h-auto rounded-sm border border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-white hover:bg-[rgba(255,255,255,0.1)] focus:ring-0 focus:ring-offset-0">
+                      <SelectValue className="text-white" />
+                    </SelectTrigger>
+                    <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                      {module.tagOptions.map((option) => (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                          className="text-white focus:bg-[rgba(255,255,255,0.1)] focus:text-white cursor-pointer"
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </Label>
             {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
             {!module.noPrice && (
               <DesParagraph>
-                {module.price === 0
+                {displayPrice === 0
                   ? t('free')
-                  : `${prefix} ${formatWithToLocaleString(module.price ?? 0)} ${unit ?? t('per.year')}`}
+                  : `${prefix} ${formatWithToLocaleString(displayPrice ?? 0)} ${unit ?? t('per.year')}`}
               </DesParagraph>
             )}
           </div>
@@ -566,8 +616,19 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     .filter((v) => !!advancedModules[v])
                     .reduce((total, key) => {
                       const value = advancedModules[key]
-                      const price = advancedPricing[key]
+                      let price = advancedPricing[key]
                       if (!price) return total
+                      // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
+                      if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
+                        const module = advancedConfigs.find(m => m.key === key)
+                        if (module?.tagOptions) {
+                          const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
+                          const selectedOption = module.tagOptions.find(opt => opt.value === currentTagOption)
+                          if (selectedOption?.priceMultiplier) {
+                            price = price * selectedOption.priceMultiplier
+                          }
+                        }
+                      }
                       return total + price * (typeof value === 'number' ? value : 1)
                     }, 0)}
                   costTitle={t('advanced.cost')}

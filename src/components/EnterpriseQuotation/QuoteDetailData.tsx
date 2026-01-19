@@ -61,7 +61,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         privateModules,
         basicConfig,
         subscriptionYears,
-        discount
+        discount,
+        museAITagOption,
+        museCutTagOption
     } = useQuotationStore()
     const { isInChina } = useCountry()
     const { t } = useTranslation('quotation')
@@ -160,19 +162,59 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
             if (key === EAdvancedModules.MUSE_AI) {
                 const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_AI]), 1)
-                const perPointCost = advancedPricing[EAdvancedModules.MUSE_AI]
+                let perPointCost = advancedPricing[EAdvancedModules.MUSE_AI]
+                // 根据选择的 tagOption 调整价格
+                const module = advancedConfigs.find(m => m.key === key)
+                if (module?.tagOptions) {
+                    const selectedOption = module.tagOptions.find(opt => opt.value === museAITagOption)
+                    if (selectedOption?.priceMultiplier) {
+                        perPointCost = perPointCost * selectedOption.priceMultiplier
+                    }
+                }
                 const cost = pointsNum * perPointCost
                 const realYear = advancedModules[key] ? subscriptionYears : 1
+                // 根据选择的 tagOption 显示对应的点数
+                const selectedOption = module?.tagOptions?.find(opt => opt.value === museAITagOption)
+                const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
                 return {
                     key,
                     name: label,
                     quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity",
-                        { value: language === 'zh-CN' ? pointsNum * 50 : (pointsNum * 50 * 10000).toLocaleString() })}`,
+                        { value: language === 'zh-CN' ? pointsDisplay : (pointsDisplay * 10000).toLocaleString() })}`,
                     unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
                     des: t('ai.museAI.des', { pointsNum: pointsNum, prefix: prefix, pointsCost: cost.toLocaleString() }),
                     previewDes: t('ai.museAI.previewDes'),
+                }
+            }
+
+            if (key === EAdvancedModules.MUSE_CUT) {
+                const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_CUT]), 1)
+                let perPointCost = advancedPricing[EAdvancedModules.MUSE_CUT]
+                // 根据选择的 tagOption 调整价格
+                const module = advancedConfigs.find(m => m.key === key)
+                if (module?.tagOptions) {
+                    const selectedOption = module.tagOptions.find(opt => opt.value === museCutTagOption)
+                    if (selectedOption?.priceMultiplier) {
+                        perPointCost = perPointCost * selectedOption.priceMultiplier
+                    }
+                }
+                const cost = pointsNum * perPointCost
+                const realYear = advancedModules[key] ? subscriptionYears : 1
+                // 根据选择的 tagOption 显示对应的点数
+                const selectedOption = module?.tagOptions?.find(opt => opt.value === museCutTagOption)
+                const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
+                return {
+                    key,
+                    name: label,
+                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity",
+                        { value: language === 'zh-CN' ? pointsDisplay : (pointsDisplay * 10000).toLocaleString() })}`,
+                    unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
+                    subtotal: cost,
+                    isModule: true,
+                    des: t('ai.museCut.des', { pointsNum: pointsNum, prefix: prefix, pointsCost: cost.toLocaleString() }),
+                    previewDes: t('ai.museCut.previewDes'),
                 }
             }
 
@@ -305,10 +347,21 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     const advancedCostPerYear = useMemo(() => Object.keys(advancedModules).filter((v) => !!advancedModules[v]).reduce((total, key) => {
         const value = advancedModules[key];
-        const price = advancedPricing[key]
+        let price = advancedPricing[key]
         if (!price) return total
+        // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
+        if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
+            const module = advancedConfigs.find(m => m.key === key)
+            if (module?.tagOptions) {
+                const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
+                const selectedOption = module.tagOptions.find(opt => opt.value === currentTagOption)
+                if (selectedOption?.priceMultiplier) {
+                    price = price * selectedOption.priceMultiplier
+                }
+            }
+        }
         return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing])
+    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption])
 
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */

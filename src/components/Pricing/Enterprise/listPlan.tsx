@@ -104,10 +104,42 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('museAI.12.name'), detail: tFeatures('museAI.12.detail') },
             { name: tFeatures('museAI.13.name'), detail: tFeatures('museAI.13.detail') }
         ],
+        [tFeatures('batchTemplating.title')]: [
+            { name: tFeatures('batchTemplating.0.name'), detail: tFeatures('batchTemplating.0.detail') },
+            { name: tFeatures('batchTemplating.1.name'), detail: tFeatures('batchTemplating.1.detail') },
+            { name: tFeatures('batchTemplating.2.name'), detail: tFeatures('batchTemplating.2.detail') },
+            { name: tFeatures('batchTemplating.3.name'), detail: tFeatures('batchTemplating.3.detail') },
+            { name: tFeatures('batchTemplating.4.name'), detail: tFeatures('batchTemplating.4.detail') }
+        ],
+        [tFeatures('museCut.title')]: [
+            { name: tFeatures('museCut.0.name'), detail: tFeatures('museCut.0.detail') },
+            { name: tFeatures('museCut.1.name'), detail: tFeatures('museCut.1.detail') },
+            { name: tFeatures('museCut.2.name'), detail: tFeatures('museCut.2.detail') }
+        ],
         [tFeatures('complianceCheck.title')]: [
             { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
             { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
             { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+        ],
+        [tFeatures('deliveryApprovalCenter.title')]: [
+            { name: tFeatures('deliveryApprovalCenter.0.name'), detail: tFeatures('deliveryApprovalCenter.0.detail') },
+            { name: tFeatures('deliveryApprovalCenter.1.name'), detail: tFeatures('deliveryApprovalCenter.1.detail') },
+            { name: tFeatures('deliveryApprovalCenter.2.name'), detail: tFeatures('deliveryApprovalCenter.2.detail') },
+            { name: tFeatures('deliveryApprovalCenter.3.name'), detail: tFeatures('deliveryApprovalCenter.3.detail') },
+            { name: tFeatures('deliveryApprovalCenter.4.name'), detail: tFeatures('deliveryApprovalCenter.4.detail') },
+            { name: tFeatures('deliveryApprovalCenter.5.name'), detail: tFeatures('deliveryApprovalCenter.5.detail') }
+        ],
+        [tFeatures('publicAssetsAndDerivatives.title')]: [
+            { name: tFeatures('publicAssetsAndDerivatives.0.name'), detail: tFeatures('publicAssetsAndDerivatives.0.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.1.name'), detail: tFeatures('publicAssetsAndDerivatives.1.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.2.name'), detail: tFeatures('publicAssetsAndDerivatives.2.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') }
+        ],
+        [tFeatures('copyrightManagement.title')]: [
+            { name: tFeatures('copyrightManagement.0.name'), detail: tFeatures('copyrightManagement.0.detail') },
+            { name: tFeatures('copyrightManagement.1.name'), detail: tFeatures('copyrightManagement.1.detail') },
+            { name: tFeatures('copyrightManagement.2.name'), detail: tFeatures('copyrightManagement.2.detail') },
+            { name: tFeatures('copyrightManagement.3.name'), detail: tFeatures('copyrightManagement.3.detail') }
         ],
         [tFeatures('customMetadataFields.title')]: [
             { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
@@ -186,7 +218,12 @@ export const useEnterprisePlan = () => {
         advancedProjectHub: { title: tFeatures('advancedProjectHub.title'), items: advancedList[tFeatures('advancedProjectHub.title')] },
         aiAutoTaggingEngine: { title: tFeatures('aiAutoTaggingEngine.title'), items: advancedList[tFeatures('aiAutoTaggingEngine.title')] },
         museAI: { title: tFeatures('museAI.title'), items: advancedList[tFeatures('museAI.title')] },
+        batchTemplating: { title: tFeatures('batchTemplating.title'), items: advancedList[tFeatures('batchTemplating.title')] },
+        museCut: { title: tFeatures('museCut.title'), items: advancedList[tFeatures('museCut.title')] },
         complianceCheck: { title: tFeatures('complianceCheck.title'), items: advancedList[tFeatures('complianceCheck.title')] },
+        deliveryApprovalCenter: { title: tFeatures('deliveryApprovalCenter.title'), items: advancedList[tFeatures('deliveryApprovalCenter.title')] },
+        publicAssetsAndDerivatives: { title: tFeatures('publicAssetsAndDerivatives.title'), items: advancedList[tFeatures('publicAssetsAndDerivatives.title')] },
+        copyrightManagement: { title: tFeatures('copyrightManagement.title'), items: advancedList[tFeatures('copyrightManagement.title')] },
         customMetadataFields: { title: tFeatures('customMetadataFields.title'), items: advancedList[tFeatures('customMetadataFields.title')] },
         watermark: { title: tFeatures('watermark.title'), items: advancedList[tFeatures('watermark.title')] },
         enterpriseSingleSignOn: { title: tFeatures('enterpriseSingleSignOn.title'), items: advancedList[tFeatures('enterpriseSingleSignOn.title')] },
@@ -208,7 +245,11 @@ export const useEnterprisePlan = () => {
         [EAdvancedModules.ADVANCED_PROJECT_HUB]: 'advancedProjectHub',
         [EAdvancedModules.AI_AUTO_TAG]: 'aiAutoTaggingEngine',
         [EAdvancedModules.MUSE_AI]: 'museAI',
+        [EAdvancedModules.MUSE_CUT]: 'museCut',
         [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
+        [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 'deliveryApprovalCenter',
+        [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 'publicAssetsAndDerivatives',
+        [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 'copyrightManagement',
         [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 'customMetadataFields',
         [EAdvancedModules.WATERMARK]: 'watermark',
         [EAdvancedModules.ENTERPRISE_SSO]: 'enterpriseSingleSignOn',

@@ -22,6 +22,7 @@ interface IModules {
   subFlex?: 'row' | 'column'
   hint?: string
   tag?: string
+  tagOptions?: { label: string; value: string; priceMultiplier?: number }[]
   noPrice?: boolean
   unit?: string
   noCheckBox?: boolean
@@ -61,6 +62,9 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
+              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
+              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
               [EAdvancedModules.WATERMARK]: 15000,
               [EAdvancedModules.SSO_FEISHU]: 5000,
@@ -74,6 +78,10 @@ export const usePricing = () => {
               [EAdvancedModules.AI_AUTO_TAG_POINTS]: 4000,
               // museAI
               [EAdvancedModules.MUSE_AI]: 20000,
+              // batchTemplating (海外：1.5w刀)
+              [EAdvancedModules.BATCH_TEMPLATING]: 15000,
+              // museCUT (海外：50w点 3w刀，25w点 1.5w刀)
+              [EAdvancedModules.MUSE_CUT]: 30000,
               // 全球加速- 海外版没有
               [EAdvancedModules.GA]: 0,
             },
@@ -89,6 +97,9 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
+              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
+              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 30000,
+              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 30000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
               [EAdvancedModules.WATERMARK]: 30000,
               [EAdvancedModules.SSO_FEISHU]: 5000,
@@ -102,6 +113,10 @@ export const usePricing = () => {
               [EAdvancedModules.AI_AUTO_TAG_POINTS]: 20000,
               // museAI
               [EAdvancedModules.MUSE_AI]: 100000,
+              // batchTemplating (中国：10w)
+              [EAdvancedModules.BATCH_TEMPLATING]: 100000,
+              // museCUT (中国：50w点 10w，25w点 5w)
+              [EAdvancedModules.MUSE_CUT]: 100000,
               // 全球加速
               [EAdvancedModules.GA]: 30000,
             },
@@ -117,6 +132,9 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
+              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
+              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
               [EAdvancedModules.WATERMARK]: 15000,
               [EAdvancedModules.ENTERPRISE_SSO]: 1000,
@@ -136,6 +154,9 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
+              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
+              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
               [EAdvancedModules.WATERMARK]: 15000,
               [EAdvancedModules.ENTERPRISE_SSO]: 1000,
@@ -155,6 +176,9 @@ export const usePricing = () => {
     [EAdvancedModules.STANDARD_PROJECT_HUB]: t('module.standardProjectHub'),
     [EAdvancedModules.ADVANCED_PROJECT_HUB]: t('module.advancedProjectHub'),
     [EAdvancedModules.COMPLIANCE_CHECK]: t('module.complianceCheck'),
+    [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: t('module.deliveryApprovalCenter'),
+    [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: t('module.publicAssetsAndDerivatives'),
+    [EAdvancedModules.COPYRIGHT_MANAGEMENT]: t('module.copyrightManagement'),
     [EAdvancedModules.CUSTOM_METADATA_FIELDS]: t('module.customMetadataFields'),
     [EAdvancedModules.WATERMARK]: t('module.watermark'),
     [EAdvancedModules.ENTERPRISE_SSO]: t('module.enterpriseSSO'),
@@ -166,6 +190,8 @@ export const usePricing = () => {
     [EAdvancedModules.AI_AUTO_TAG_MODULE]: t('module.aiAutoTagModule'),
     [EAdvancedModules.AI_AUTO_TAG_POINTS]: t('module.aiAutoTagPoints'),
     [EAdvancedModules.MUSE_AI]: 'MuseAI',
+    [EAdvancedModules.BATCH_TEMPLATING]: t('module.batchTemplating'),
+    [EAdvancedModules.MUSE_CUT]: 'MuseCut',
     [EAdvancedModules.GA]: t('module.ga'),
   }
 
@@ -322,11 +348,45 @@ export const useAdvancedConfigs = () => {
       price: advancedPricing.modules[EAdvancedModules.COMPLIANCE_CHECK],
     },
     {
+      key: EAdvancedModules.DELIVERY_APPROVAL_CENTER,
+      label: moduleNames[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
+      price: advancedPricing.modules[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
+    },
+    {
+      key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
+      label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+      price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+    },
+    {
+      key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
+      label: moduleNames[EAdvancedModules.COPYRIGHT_MANAGEMENT],
+      price: advancedPricing.modules[EAdvancedModules.COPYRIGHT_MANAGEMENT],
+    },
+    {
       key: EAdvancedModules.MUSE_AI,
       label: moduleNames[EAdvancedModules.MUSE_AI],
       price: advancedPricing.modules[EAdvancedModules.MUSE_AI],
       hint: t('ai.museAI.points.hint'),
-      tag: t('ai.museAI.points.tag'),
+      tagOptions: [
+        { label: '50万点', value: '500000', priceMultiplier: 1 },
+        { label: '25万点', value: '250000', priceMultiplier: 0.5 },
+      ],
+      min: 1,
+    },
+    {
+      key: EAdvancedModules.BATCH_TEMPLATING,
+      label: moduleNames[EAdvancedModules.BATCH_TEMPLATING],
+      price: advancedPricing.modules[EAdvancedModules.BATCH_TEMPLATING] ?? 0,
+    },
+    {
+      key: EAdvancedModules.MUSE_CUT,
+      label: moduleNames[EAdvancedModules.MUSE_CUT],
+      price: advancedPricing.modules[EAdvancedModules.MUSE_CUT],
+      hint: t('ai.museCut.points.hint'),
+      tagOptions: [
+        { label: '50万点', value: '500000', priceMultiplier: 1 },
+        { label: '25万点', value: '250000', priceMultiplier: 0.5 },
+      ],
       min: 1,
     },
     {
