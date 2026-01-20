@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
 import { EAdvancedModules } from '../enums'
 import { useAdvancedConfigs, usePricing } from '../config'
+import { useQuotationStore } from '@/providers/QuotationStore'
 
 
 const Table = twx.table`w-full mb-4 text-[#262626] font-normal`
@@ -18,11 +19,31 @@ export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: b
     const { allModules, hasSSOType } = useQuoteDetailData()
     const { ssoTypeNames, allSSOType } = usePricing()
     const advancedConfigs = useAdvancedConfigs()
+    const { mergedToBasicModules, advancedModules } = useQuotationStore()
 
     const notBuyRows = allModules.filter((v) => {
+        if (!v.key) return false
+
+        // 排除合并到基础报价的模块（它们已购买，只是合并了）
+        if (mergedToBasicModules.has(v.key as EAdvancedModules)) {
+            return false
+        }
+
+        // 使用和 filterModules 相同的逻辑判断是否已购买
+        const notBuy = (v as any).notBuy
+        const isPurchased = !notBuy && advancedModules[v.key]
+
+        // 如果已购买，排除（不管是否在 rows 中）
+        if (isPurchased) {
+            return false
+        }
+
+        // 特殊处理 ENTERPRISE_SSO
         if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
             return hasSSOType.length < allSSOType.length
         }
+
+        // 其他模块：不在 rows 中且未购买
         return !rows.find(item => item.key === v.key)
     })
 

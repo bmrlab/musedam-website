@@ -55,14 +55,33 @@ const List = ({ list, isInExport }: { list: DisplayRow[], isInExport?: boolean }
 export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> = ({ rows, isInExport }) => {
     const {
         featureView,
+        mergedToBasicModules,
+        advancedModules,
     } = useQuotationStore()
-    const { hasSSOType } = useQuoteDetailData()
+    const { hasSSOType, allModules } = useQuoteDetailData()
     // 所有权益/映射
     const { basicGroupsByCode, advancedGroupsByCode, advancedKeyToGroup } = useEnterprisePlan()
 
     const { t } = useTranslation('quotation-feature')
 
-    const featureListKeys = rows.map((v) => v.key).filter((v) => !!v) as string[]
+    // 从 rows 中获取已购买的模块 key（这些是未合并的模块）
+    const rowsKeys = rows.map((v) => v.key).filter((v) => !!v) as string[]
+    // 从 allModules 中获取合并到基础报价的模块 key（只包含已购买的）
+    // 使用和 QuoteDetailData 中 filterModules 相同的逻辑：!notBuy && advancedModules[key]
+    // 合并的模块也应该显示在"企业功能"下，所以需要包含它们
+    const mergedKeys = allModules
+        .filter((module) => {
+            if (!module.key) return false
+            // 使用和 filterModules 相同的过滤逻辑
+            const notBuy = (module as any).notBuy
+            const isPurchased = !notBuy && advancedModules[module.key]
+            // 必须是已购买的且合并的模块
+            return isPurchased && mergedToBasicModules.has(module.key as EAdvancedModules)
+        })
+        .map((module) => module.key)
+        .filter((v) => !!v) as string[]
+    // 合并所有已购买的模块 key（包括合并到基础报价的），都显示在"企业功能"下
+    const featureListKeys = Array.from(new Set([...rowsKeys, ...mergedKeys]))
 
 
     const basicList: DisplayRow[] = (() => {
