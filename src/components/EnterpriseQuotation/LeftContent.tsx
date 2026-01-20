@@ -11,7 +11,8 @@ import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { encodeNumber } from '@/utilities/numberCodec'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import * as Switch from '@radix-ui/react-switch'
-import { Loader2, Minus, Plus } from 'lucide-react'
+import * as Tooltip from '@radix-ui/react-tooltip'
+import { Loader2, Minus, Plus, ArrowDown, MergeIcon, Layers, ArrowDownToLine } from 'lucide-react'
 
 import { SessionUser } from '@/types/user'
 import { useToast } from '@/hooks/use-toast'
@@ -101,6 +102,55 @@ const HintParagraph = twx.p`text-xs text-white-50 font-light font-euclidlight`
 
 const DesParagraph = twx.p`text-sm text-white-72 font-light font-euclidlight`
 
+const MergeToBasicIcon: FC<{ moduleKey: EAdvancedModules; isMerged: boolean; onToggle: () => void }> = ({ moduleKey, isMerged, onToggle }) => {
+  const { t } = useTranslation('quotation')
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <Tooltip.Provider>
+      <Tooltip.Root delayDuration={0}>
+        <Tooltip.Trigger asChild>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggle()
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={cn(
+              'flex items-center justify-center transition-colors',
+              'size-[22px] rounded',
+              isMerged
+                ? 'bg-[#3366FF]'
+                : isHovered
+                  ? 'bg-[#3A3A3A]'
+                  : ''
+            )}
+          >
+            <Image
+              src="/assets/quotation-merge.svg"
+              alt="merge"
+              width={14}
+              height={14}
+              className="size-[14px]"
+            />
+          </button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="z-50 rounded bg-[#333] px-3 py-2 text-xs text-white shadow-lg"
+            sideOffset={4}
+          >
+            {isMerged ? t('merge.cancel.to.basic') : t('merge.to.basic')}
+            <Tooltip.Arrow className="fill-[#333]" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+  )
+}
+
 const Cost = ({ cost, costTitle }: { cost: number; costTitle?: string }) => {
   const { t } = useTranslation('quotation')
   const { prefix } = usePricing()
@@ -161,6 +211,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setMuseAITagOption,
     museCutTagOption,
     setMuseCutTagOption,
+    mergedToBasicModules,
+    toggleMergeToBasic,
   } = useQuotationStore()
   const editId = editInfo?.id
 
@@ -189,7 +241,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     if (activeTab === TabEnum.BASIC) {
       setDiscount(undefined)
     }
-  }, [activeTab])
+  }, [activeTab, setDiscount])
 
   // 更新數量
   const updateQuantity = (tab: TabEnum, field: string, value: number) => {
@@ -298,6 +350,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       featureView,
       showNoBuyFeature,
       lang: language,
+      mergedToBasicModules: Array.from(mergedToBasicModules),
     }
     try {
       const userInfo = {
@@ -347,6 +400,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     editId,
     isGlobal,
     router,
+    mergedToBasicModules,
   ])
 
   const renderBasics = () => {
@@ -400,57 +454,60 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     )
   }
 
-  const renderModuleItem = (module: (typeof advancedConfigs)[number]) => {
+  const renderModuleItem = (module: (typeof advancedConfigs)[number], isSubModule = false) => {
     const { key, min, unit, noCheckBox } = module
     const isMuseAI = key === EAdvancedModules.MUSE_AI
     const isMuseCut = key === EAdvancedModules.MUSE_CUT
     const currentTagOption = isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : null
-    const selectedTagOption = (isMuseAI || isMuseCut) && module.tagOptions 
+    const selectedTagOption = (isMuseAI || isMuseCut) && module.tagOptions
       ? module.tagOptions.find(opt => opt.value === currentTagOption) || module.tagOptions[0]
       : null
     const displayPrice = (isMuseAI || isMuseCut) && selectedTagOption && selectedTagOption.priceMultiplier
       ? module.price * selectedTagOption.priceMultiplier
       : module.price
+    const isMergedToBasic = mergedToBasicModules.has(key)
 
     return (
       <div key={key} className="flex flex-col justify-between md:flex-row md:items-center">
         <div className="flex items-start space-x-2">
-          {noCheckBox ? (
-            <div className="size-4" />
-          ) : (
-            <Checkbox
-              disabled={module.disabled}
-              id={key}
-              checked={!!advancedModules[key]}
-              onCheckedChange={(checked: boolean) => {
-                handleModuleChange(
-                  TabEnum.ADVANCED,
-                  module.key,
-                  min !== undefined ? (checked ? min : 0) : checked,
-                )
-                if (module.subModules?.length) {
-                  module.subModules.map((v) => {
-                    if (v.disabled) {
-                      handleModuleChange(
-                        TabEnum.ADVANCED,
-                        v.key,
-                        v.min !== undefined ? (checked ? v.min : 0) : checked,
-                      )
-                    }
-                  })
-                }
-              }}
-              className={cn(
-                'size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 ',
-                (module.tag || module.tagOptions) && 'mt-[4px]',
-              )}
-            />
-          )}
+          <div className='flex h-[22px] items-center'>
+            {noCheckBox ? (
+              <div className="size-4" />
+            ) : (
+              <Checkbox
+                disabled={module.disabled}
+                id={key}
+                checked={!!advancedModules[key]}
+                onCheckedChange={(checked: boolean) => {
+                  handleModuleChange(
+                    TabEnum.ADVANCED,
+                    module.key,
+                    min !== undefined ? (checked ? min : 0) : checked,
+                  )
+                  if (module.subModules?.length) {
+                    module.subModules.map((v) => {
+                      if (v.disabled) {
+                        handleModuleChange(
+                          TabEnum.ADVANCED,
+                          v.key,
+                          v.min !== undefined ? (checked ? v.min : 0) : checked,
+                        )
+                      }
+                    })
+                  }
+                }}
+                className={cn(
+                  'size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 ',
+                  (module.tag || module.tagOptions) && 'mt-[4px]',
+                )}
+              />
+            )}
+          </div>
           <div className="space-y-[6px]">
             <Label className="flex items-center gap-1 md:gap-3">
               <span>{module.label}</span>
               {module.tag && (
-                <div className="min-w-[40px] font-euclidlight text-[14px] font-light  leading-[16px]">
+                <div className="min-w-[40px] font-euclidlight text-[14px] font-light  leading-[22px]">
                   <div className="flex items-center justify-center rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px]">
                     {module.tag}
                   </div>
@@ -473,10 +530,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     </SelectTrigger>
                     <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
                       {module.tagOptions.map((option) => (
-                        <SelectItem 
-                          key={option.value} 
+                        <SelectItem
+                          key={option.value}
                           value={option.value}
-                          className="text-white focus:bg-[rgba(255,255,255,0.1)] focus:text-white cursor-pointer"
+                          className="cursor-pointer text-white focus:bg-[rgba(255,255,255,0.1)] focus:text-white"
                         >
                           {option.label}
                         </SelectItem>
@@ -484,6 +541,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     </SelectContent>
                   </Select>
                 </div>
+              )}
+              {!isSubModule && key !== EAdvancedModules.ADVANCED_FEATURES && (
+                <MergeToBasicIcon
+                  moduleKey={key}
+                  isMerged={isMergedToBasic}
+                  onToggle={() => toggleMergeToBasic(key)}
+                />
               )}
             </Label>
             {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
@@ -603,7 +667,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         )}
                       >
                         {module.subModules?.map((v) => {
-                          return renderModuleItem(v)
+                          return renderModuleItem(v, true)
                         })}
                       </div>
                     )}
@@ -620,10 +684,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       if (!price) return total
                       // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
                       if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
-                        const module = advancedConfigs.find(m => m.key === key)
-                        if (module?.tagOptions) {
+                        const moduleConfig = advancedConfigs.find(m => m.key === key)
+                        if (moduleConfig?.tagOptions) {
                           const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
-                          const selectedOption = module.tagOptions.find(opt => opt.value === currentTagOption)
+                          const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
                           if (selectedOption?.priceMultiplier) {
                             price = price * selectedOption.priceMultiplier
                           }

@@ -63,7 +63,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         subscriptionYears,
         discount,
         museAITagOption,
-        museCutTagOption
+        museCutTagOption,
+        mergedToBasicModules
     } = useQuotationStore()
     const { isInChina } = useCountry()
     const { t } = useTranslation('quotation')
@@ -164,9 +165,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_AI]), 1)
                 let perPointCost = advancedPricing[EAdvancedModules.MUSE_AI]
                 // 根据选择的 tagOption 调整价格
-                const module = advancedConfigs.find(m => m.key === key)
-                if (module?.tagOptions) {
-                    const selectedOption = module.tagOptions.find(opt => opt.value === museAITagOption)
+                const moduleConfig = advancedConfigs.find(m => m.key === key)
+                if (moduleConfig?.tagOptions) {
+                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === museAITagOption)
                     if (selectedOption?.priceMultiplier) {
                         perPointCost = perPointCost * selectedOption.priceMultiplier
                     }
@@ -174,7 +175,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const cost = pointsNum * perPointCost
                 const realYear = advancedModules[key] ? subscriptionYears : 1
                 // 根据选择的 tagOption 显示对应的点数
-                const selectedOption = module?.tagOptions?.find(opt => opt.value === museAITagOption)
+                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === museAITagOption)
                 const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
                 return {
                     key,
@@ -193,9 +194,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_CUT]), 1)
                 let perPointCost = advancedPricing[EAdvancedModules.MUSE_CUT]
                 // 根据选择的 tagOption 调整价格
-                const module = advancedConfigs.find(m => m.key === key)
-                if (module?.tagOptions) {
-                    const selectedOption = module.tagOptions.find(opt => opt.value === museCutTagOption)
+                const moduleConfig = advancedConfigs.find(m => m.key === key)
+                if (moduleConfig?.tagOptions) {
+                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === museCutTagOption)
                     if (selectedOption?.priceMultiplier) {
                         perPointCost = perPointCost * selectedOption.priceMultiplier
                     }
@@ -203,7 +204,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 const cost = pointsNum * perPointCost
                 const realYear = advancedModules[key] ? subscriptionYears : 1
                 // 根据选择的 tagOption 显示对应的点数
-                const selectedOption = module?.tagOptions?.find(opt => opt.value === museCutTagOption)
+                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === museCutTagOption)
                 const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
                 return {
                     key,
@@ -259,7 +260,46 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         allModules = moduleRows;
         const filterModules = moduleRows.filter((v) => !v.notBuy && advancedModules[v.key])
 
-        if (filterModules.length > 0) {
+        // 分离合并到基础报价的模块和普通模块
+        const mergedModules = filterModules.filter((v) => v.key && mergedToBasicModules.has(v.key))
+        // 普通模块：只排除被合并的父级模块
+        // 注意：moduleRows 中只包含父级模块，子模块不会单独出现在这里
+        const normalModules = filterModules.filter((v) => {
+            if (!v.key) return true
+            // 只排除被合并的父级模块
+            return !mergedToBasicModules.has(v.key)
+        })
+
+        // 计算合并到基础报价的模块总价格（按年计算）
+        // 注意：父级模块的价格已经包含了子模块的价格（如 AI_AUTO_TAG 包含子模块，ENTERPRISE_SSO 的价格基于选中的子模块）
+        let mergedCostPerYear = 0
+        if (mergedModules.length > 0) {
+            mergedCostPerYear = mergedModules.reduce((total, module) => {
+                // 父级模块的价格（已经包含子模块价格）
+                const moduleCost = typeof module.subtotal === 'number' ? module.subtotal : 0
+                return total + moduleCost
+            }, 0)
+            // basicCostPerYear += mergedCostPerYear
+        }
+
+        // 将合并模块的价格加到"Enterprise Features"这一行
+        if (mergedCostPerYear > 0) {
+            const enterpriseFeaturesIndex = normalModules.findIndex(m => m.key === EAdvancedModules.ADVANCED_FEATURES)
+            if (enterpriseFeaturesIndex !== -1) {
+                const enterpriseFeatures = normalModules[enterpriseFeaturesIndex]
+                const originalCost = typeof enterpriseFeatures.subtotal === 'number' ? enterpriseFeatures.subtotal : 0
+                const newCost = originalCost + mergedCostPerYear
+                // 更新 Enterprise Features 的价格
+                normalModules[enterpriseFeaturesIndex] = {
+                    ...enterpriseFeatures,
+                    subtotal: newCost,
+                    unit: `${prefix}${newCost.toLocaleString()}${t('per.year')}`,
+                }
+            }
+        }
+
+        // 只显示普通的企业模块（不显示合并的模块）
+        if (normalModules.length > 0) {
             rows.push({
                 name: t('advanced.modules.title'),
                 quantity: '',
@@ -268,7 +308,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 isSection: true,
                 bold: true
             })
-            rows.push(...filterModules)
+            rows.push(...normalModules)
         }
     }
 
@@ -346,22 +386,26 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
 
     const advancedCostPerYear = useMemo(() => Object.keys(advancedModules).filter((v) => !!advancedModules[v]).reduce((total, key) => {
+        // 如果模块已合并到基础报价，不计入高级模块价格
+        // if (mergedToBasicModules.has(key as EAdvancedModules)) {
+        //     return total
+        // }
         const value = advancedModules[key];
         let price = advancedPricing[key]
         if (!price) return total
         // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
         if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
-            const module = advancedConfigs.find(m => m.key === key)
-            if (module?.tagOptions) {
+            const moduleConfig = advancedConfigs.find(m => m.key === key)
+            if (moduleConfig?.tagOptions) {
                 const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
-                const selectedOption = module.tagOptions.find(opt => opt.value === currentTagOption)
+                const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
                 if (selectedOption?.priceMultiplier) {
                     price = price * selectedOption.priceMultiplier
                 }
             }
         }
         return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption])
+    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, mergedToBasicModules])
 
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */

@@ -17,6 +17,8 @@
     "ai.points": "AI 点数订阅",
     "base.cost": "价格",
     "advanced.modules": "企业模块",
+    "merge.to.basic": "合并到基础报价",
+    "merge.cancel.to.basic": "取消合并报价",
     "implementation": "实施服务",
     "operation.maintenance": "运维服务",
     "feature.overview": "展示功能概览（推荐）",

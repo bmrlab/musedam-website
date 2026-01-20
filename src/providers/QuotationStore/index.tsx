@@ -106,6 +106,11 @@ interface QuotationStoreType {
     // MuseCut tag 选择值
     museCutTagOption: string
     setMuseCutTagOption: (value: string) => void
+
+    // 合并到基础报价的模块
+    mergedToBasicModules: Set<EAdvancedModules>
+    setMergedToBasicModules: React.Dispatch<React.SetStateAction<Set<EAdvancedModules>>>
+    toggleMergeToBasic: (module: EAdvancedModules) => void
 }
 
 const initialCustomerInfo: ICustomerInfo = {
@@ -178,6 +183,22 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     // MuseCut tag 选择值，默认为 50万点
     const [museCutTagOption, setMuseCutTagOption] = useState<string>('500000')
 
+    // 合并到基础报价的模块
+    const [mergedToBasicModules, setMergedToBasicModules] = useState<Set<EAdvancedModules>>(new Set())
+
+    // 切换合并到基础报价的状态
+    const toggleMergeToBasic = useCallback((module: EAdvancedModules) => {
+        setMergedToBasicModules(prev => {
+            const newSet = new Set(prev)
+            if (newSet.has(module)) {
+                newSet.delete(module)
+            } else {
+                newSet.add(module)
+            }
+            return newSet
+        })
+    }, [])
+
     // 初始化用户邮箱
     const initializeUserEmail = useCallback((user: SessionUser | null) => {
         if (user?.orgEmail && customerInfo.yourEmail.length === 0) {
@@ -204,6 +225,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setEditInfo(undefined)
         setMuseAITagOption('500000')
         setMuseCutTagOption('500000')
+        setMergedToBasicModules(new Set())
     }, [])
 
     const value: QuotationStoreType = {
@@ -236,7 +258,10 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         museAITagOption,
         setMuseAITagOption,
         museCutTagOption,
-        setMuseCutTagOption
+        setMuseCutTagOption,
+        mergedToBasicModules,
+        setMergedToBasicModules,
+        toggleMergeToBasic
     }
 
     return (

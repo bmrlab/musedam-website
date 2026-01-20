@@ -17,6 +17,8 @@
     "ai.points": "AI Points",
     "base.cost": "Pricing",
     "advanced.modules": "Enterprise Modules",
+    "merge.to.basic": "Merge to basic quote",
+    "merge.cancel.to.basic": "Cancel merge quote",
     "implementation": "Implementation",
     "operation.maintenance": "Operation and Maintenance",
     "feature.overview": "Feature Overview",
