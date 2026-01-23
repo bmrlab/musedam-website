@@ -298,8 +298,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
         }
 
-        // 只显示普通的企业模块（不显示合并的模块）
-        if (normalModules.length > 0) {
+        // 显示企业模块：按照原始顺序显示，合并模块不显示价格
+        if (filterModules.length > 0) {
             rows.push({
                 name: t('advanced.modules.title'),
                 quantity: '',
@@ -308,7 +308,29 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 isSection: true,
                 bold: true
             })
-            rows.push(...normalModules)
+
+            // 创建普通模块的 Map，方便按 key 查找（价格已更新）
+            const normalModulesMap = new Map(normalModules.map(m => [m.key, m]))
+            // 创建合并模块的 Set，方便快速判断
+            const mergedModulesSet = new Set(mergedModules.map(m => m.key))
+
+            // 按照 filterModules 的原始顺序遍历显示
+            filterModules.forEach(module => {
+                if (module.key && mergedModulesSet.has(module.key)) {
+                    // 合并模块：不显示价格
+                    rows.push({
+                        ...module,
+                        unit: undefined,
+                        subtotal: undefined,
+                    })
+                } else {
+                    // 普通模块：从 normalModulesMap 中取（价格已更新）
+                    const normalModule = normalModulesMap.get(module.key)
+                    if (normalModule) {
+                        rows.push(normalModule)
+                    }
+                }
+            })
         }
     }
 
@@ -405,7 +427,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
         }
         return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, mergedToBasicModules])
+    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption])
 
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */
@@ -470,6 +492,13 @@ export const useExpandServices = () => {
             value: isInChina ? '¥150/TB' : '$30/TB',
             unit: (isInChina ? '¥150' : '$30') + '/' + t('ai.AutoTagEngine.unit'),
             quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
+        },
+        {
+            name: t('expansion.CDN'),
+            description: t('expansion.CDN.desc'),
+            value: (isInChina ? '¥600/TB' : '$120/TB'),
+            unit: (isInChina ? '¥600' : '$120') + '/TB',
+            quantity: `1TB${t('expand.download.quantity', { value: '1TB' })}`
         },
         ...(!isInChina ? [] : [{
             name: t('expansion.GA'),

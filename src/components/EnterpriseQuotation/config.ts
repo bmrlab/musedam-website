@@ -271,7 +271,7 @@ export const useBasicConfigs = () => {
           tag: '1TB',
           des:
             `${prefix} ${formatWithToLocaleString(advancedPricing.storageSpacePrice)}/TB${t('per.year')}` +
-            ` ( ${prefix} ${Math.ceil(advancedPricing.storageSpacePrice / 12)}/TB${t('per.year')})`,
+            ` ( ${prefix} ${Math.ceil(advancedPricing.storageSpacePrice / 12)}/TB${t('per.month')})`,
         },
         {
           key: EBasicConfigKey.AI_POINTS,
@@ -356,6 +356,7 @@ export const useAdvancedConfigs = () => {
       key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
       label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
       price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+      hint: t('publicAssetsAndDerivatives.hint'),
     },
     {
       key: EAdvancedModules.COPYRIGHT_MANAGEMENT,

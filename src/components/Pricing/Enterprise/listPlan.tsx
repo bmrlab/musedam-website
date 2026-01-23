@@ -63,6 +63,20 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('customSystemHomepage.4.name'), detail: tFeatures('customSystemHomepage.4.detail') },
             { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
         ],
+        [tFeatures('deliveryApprovalCenter.title')]: [
+            { name: tFeatures('deliveryApprovalCenter.0.name'), detail: tFeatures('deliveryApprovalCenter.0.detail') },
+            { name: tFeatures('deliveryApprovalCenter.1.name'), detail: tFeatures('deliveryApprovalCenter.1.detail') },
+            { name: tFeatures('deliveryApprovalCenter.2.name'), detail: tFeatures('deliveryApprovalCenter.2.detail') },
+            { name: tFeatures('deliveryApprovalCenter.3.name'), detail: tFeatures('deliveryApprovalCenter.3.detail') },
+            { name: tFeatures('deliveryApprovalCenter.4.name'), detail: tFeatures('deliveryApprovalCenter.4.detail') },
+            { name: tFeatures('deliveryApprovalCenter.5.name'), detail: tFeatures('deliveryApprovalCenter.5.detail') }
+        ],
+        [tFeatures('publicAssetsAndDerivatives.title')]: [
+            { name: tFeatures('publicAssetsAndDerivatives.0.name'), detail: tFeatures('publicAssetsAndDerivatives.0.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.1.name'), detail: tFeatures('publicAssetsAndDerivatives.1.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.2.name'), detail: tFeatures('publicAssetsAndDerivatives.2.detail') },
+            { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') }
+        ],
         [tFeatures('standardProjectHub.title')]: [
             { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
             { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
@@ -120,20 +134,6 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
             { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
             { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-        ],
-        [tFeatures('deliveryApprovalCenter.title')]: [
-            { name: tFeatures('deliveryApprovalCenter.0.name'), detail: tFeatures('deliveryApprovalCenter.0.detail') },
-            { name: tFeatures('deliveryApprovalCenter.1.name'), detail: tFeatures('deliveryApprovalCenter.1.detail') },
-            { name: tFeatures('deliveryApprovalCenter.2.name'), detail: tFeatures('deliveryApprovalCenter.2.detail') },
-            { name: tFeatures('deliveryApprovalCenter.3.name'), detail: tFeatures('deliveryApprovalCenter.3.detail') },
-            { name: tFeatures('deliveryApprovalCenter.4.name'), detail: tFeatures('deliveryApprovalCenter.4.detail') },
-            { name: tFeatures('deliveryApprovalCenter.5.name'), detail: tFeatures('deliveryApprovalCenter.5.detail') }
-        ],
-        [tFeatures('publicAssetsAndDerivatives.title')]: [
-            { name: tFeatures('publicAssetsAndDerivatives.0.name'), detail: tFeatures('publicAssetsAndDerivatives.0.detail') },
-            { name: tFeatures('publicAssetsAndDerivatives.1.name'), detail: tFeatures('publicAssetsAndDerivatives.1.detail') },
-            { name: tFeatures('publicAssetsAndDerivatives.2.name'), detail: tFeatures('publicAssetsAndDerivatives.2.detail') },
-            { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') }
         ],
         [tFeatures('copyrightManagement.title')]: [
             { name: tFeatures('copyrightManagement.0.name'), detail: tFeatures('copyrightManagement.0.detail') },
