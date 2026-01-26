@@ -223,7 +223,7 @@
     "smartFolders.2.detail": "Workspace admins control whether smart folders are visible to workspace members, providing flexible management of folder entry display.",
     "smartFolders.3.name": "External Sharing Support",
     "smartFolders.3.detail": "Admins configure external sharing permissions for smart folders, enabling cross-organization collaboration and content distribution.",
-    "publicAssetsAndDerivatives.title": "Public Assets & Derivatives",
+    "publicAssetsAndDerivatives.title": "Public Urls & Derivatives",
     "publicAssetsAndDerivatives.0.name": "Original File Public Permission Control",
     "publicAssetsAndDerivatives.0.detail": "Folder-level permission settings enable administrators to control public access to original files at the source, ensuring sensitive content is not inadvertently exposed",
     "publicAssetsAndDerivatives.1.name": "Automated Derivative Configuration",
