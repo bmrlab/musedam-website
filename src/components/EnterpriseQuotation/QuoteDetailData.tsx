@@ -277,7 +277,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                     key,
                     name: `${label}(${tbDisplay * cdnNum}TB${t("package")})`,
                     quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
+                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay * cdnNum}TB${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
                 }
@@ -539,7 +539,7 @@ export const useExpandServices = () => {
             name: t('expansion.downloadData'),
             description: t('expansion.downloadData.desc'),
             value: isInChina ? '¥150/TB' : '$30/TB',
-            unit: (isInChina ? '¥150' : '$30') + '/' + t('ai.AutoTagEngine.unit'),
+            unit: (isInChina ? '¥150' : '$30') + '/TB',
             quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
         },
         {
