@@ -22,7 +22,7 @@ const getInitialAdvancedModules = (): IAdvancedModules => {
     return enumValues.reduce((acc, key) => {
         if (key === EAdvancedModules.AI_AUTO_TAG_POINTS) {
             acc[key] = 0
-        } else if (key === EAdvancedModules.GA) {
+        } else if (key === EAdvancedModules.GA || key === EAdvancedModules.CDN_TRAFFIC) {
             acc[key] = 0
         } else {
             acc[key as EAdvancedModules] = [EAdvancedModules.ADVANCED_FEATURES, EAdvancedModules.CUSTOMER_SERVICE].includes(key) ? true : false;
@@ -107,6 +107,14 @@ interface QuotationStoreType {
     museCutTagOption: string
     setMuseCutTagOption: (value: string) => void
 
+    // GA tag 选择值
+    gaTagOption: string
+    setGaTagOption: (value: string) => void
+
+    // CDN tag 选择值
+    cdnTagOption: string
+    setCdnTagOption: (value: string) => void
+
     // 合并到基础报价的模块
     mergedToBasicModules: Set<EAdvancedModules>
     setMergedToBasicModules: React.Dispatch<React.SetStateAction<Set<EAdvancedModules>>>
@@ -183,6 +191,12 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     // MuseCut tag 选择值，默认为 50万点
     const [museCutTagOption, setMuseCutTagOption] = useState<string>('500000')
 
+    // GA tag 选择值，默认为 10TB
+    const [gaTagOption, setGaTagOption] = useState<string>('10TB')
+
+    // CDN tag 选择值，默认为 10TB
+    const [cdnTagOption, setCdnTagOption] = useState<string>('10TB')
+
     // 合并到基础报价的模块
     const [mergedToBasicModules, setMergedToBasicModules] = useState<Set<EAdvancedModules>>(new Set())
 
@@ -225,6 +239,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setEditInfo(undefined)
         setMuseAITagOption('500000')
         setMuseCutTagOption('500000')
+        setGaTagOption('10TB')
+        setCdnTagOption('10TB')
         setMergedToBasicModules(new Set())
     }, [])
 
@@ -259,6 +275,10 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setMuseAITagOption,
         museCutTagOption,
         setMuseCutTagOption,
+        gaTagOption,
+        setGaTagOption,
+        cdnTagOption,
+        setCdnTagOption,
         mergedToBasicModules,
         setMergedToBasicModules,
         toggleMergeToBasic

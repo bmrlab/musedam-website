@@ -63,7 +63,9 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
+              [EAdvancedModules.SMART_FOLDERS]: 5000,
               [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
+              [EAdvancedModules.DAT]: 5000,
               [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
               [EAdvancedModules.WATERMARK]: 15000,
@@ -84,6 +86,8 @@ export const usePricing = () => {
               [EAdvancedModules.MUSE_CUT]: 30000,
               // 全球加速- 海外版没有
               [EAdvancedModules.GA]: 0,
+              // CDN 流量包
+              [EAdvancedModules.CDN_TRAFFIC]: 0,
             },
           }
         : {
@@ -98,7 +102,9 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
+              [EAdvancedModules.SMART_FOLDERS]: 20000,
               [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 30000,
+              [EAdvancedModules.DAT]: 20000,
               [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 30000,
               [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
               [EAdvancedModules.WATERMARK]: 30000,
@@ -117,8 +123,10 @@ export const usePricing = () => {
               [EAdvancedModules.BATCH_TEMPLATING]: 100000,
               // museCUT (中国：50w点 10w，25w点 5w)
               [EAdvancedModules.MUSE_CUT]: 100000,
-              // 全球加速
+              // 全球加速 (10TB: 30000, 5TB: 15000)
               [EAdvancedModules.GA]: 30000,
+              // CDN 流量包 (600/TB，10TB: 6000, 5TB: 3000)
+              [EAdvancedModules.CDN_TRAFFIC]: 6000,
             },
           },
       private: isGlobal
@@ -177,7 +185,9 @@ export const usePricing = () => {
     [EAdvancedModules.ADVANCED_PROJECT_HUB]: t('module.advancedProjectHub'),
     [EAdvancedModules.COMPLIANCE_CHECK]: t('module.complianceCheck'),
     [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: t('module.deliveryApprovalCenter'),
+    [EAdvancedModules.SMART_FOLDERS]: t('module.smartFolders'),
     [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: t('module.publicAssetsAndDerivatives'),
+    [EAdvancedModules.DAT]: t('module.dat'),
     [EAdvancedModules.COPYRIGHT_MANAGEMENT]: t('module.copyrightManagement'),
     [EAdvancedModules.CUSTOM_METADATA_FIELDS]: t('module.customMetadataFields'),
     [EAdvancedModules.WATERMARK]: t('module.watermark'),
@@ -193,6 +203,7 @@ export const usePricing = () => {
     [EAdvancedModules.BATCH_TEMPLATING]: t('module.batchTemplating'),
     [EAdvancedModules.MUSE_CUT]: 'MuseCut',
     [EAdvancedModules.GA]: t('module.ga'),
+    [EAdvancedModules.CDN_TRAFFIC]: t('module.cdnTraffic'),
   }
 
   const ssoTypeNames = {
@@ -353,10 +364,20 @@ export const useAdvancedConfigs = () => {
       price: advancedPricing.modules[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
     },
     {
+      key: EAdvancedModules.SMART_FOLDERS,
+      label: moduleNames[EAdvancedModules.SMART_FOLDERS],
+      price: advancedPricing.modules[EAdvancedModules.SMART_FOLDERS],
+    },
+    {
       key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
       label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
       price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
       hint: t('publicAssetsAndDerivatives.hint'),
+    },
+    {
+      key: EAdvancedModules.DAT,
+      label: moduleNames[EAdvancedModules.DAT],
+      price: advancedPricing.modules[EAdvancedModules.DAT],
     },
     {
       key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
@@ -438,15 +459,29 @@ export const useAdvancedConfigs = () => {
         },
       ],
     },
+    // TODO
     ...(isInChina
       ? [
+          {
+            key: EAdvancedModules.CDN_TRAFFIC,
+            label: moduleNames[EAdvancedModules.CDN_TRAFFIC],
+            price: advancedPricing.modules[EAdvancedModules.CDN_TRAFFIC],
+            hint: t('cdnTraffic.hint'),
+            tagOptions: [
+              { label: '10TB', value: '10TB', priceMultiplier: 1 },
+              { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
+            ],
+            min: 1,
+          },
           {
             key: EAdvancedModules.GA,
             label: moduleNames[EAdvancedModules.GA],
             price: advancedPricing.modules[EAdvancedModules.GA],
             hint: t('ga.hint'),
-            unit: t('ga.unit'),
-            tag: '10TB',
+            tagOptions: [
+              { label: '10TB', value: '10TB', priceMultiplier: 1 },
+              { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
+            ],
             min: 1,
           },
         ]

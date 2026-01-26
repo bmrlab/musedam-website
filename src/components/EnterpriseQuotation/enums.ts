@@ -29,6 +29,9 @@ export enum EAdvancedModules {
   SSO_DINGTALK = 'ssoDingTalk',
   SSO_Teams = 'ssoTeams',
   GA = 'GA',
+  CDN_TRAFFIC = 'cdnTraffic',
+  SMART_FOLDERS = 'smartFolders',
+  DAT = 'dat',
 }
 
 export enum EPrivateModules {

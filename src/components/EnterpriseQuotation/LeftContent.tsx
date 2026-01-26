@@ -212,6 +212,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setMuseAITagOption,
     museCutTagOption,
     setMuseCutTagOption,
+    gaTagOption,
+    setGaTagOption,
+    cdnTagOption,
+    setCdnTagOption,
     mergedToBasicModules,
     toggleMergeToBasic,
   } = useQuotationStore()
@@ -459,11 +463,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const { key, min, unit, noCheckBox } = module
     const isMuseAI = key === EAdvancedModules.MUSE_AI
     const isMuseCut = key === EAdvancedModules.MUSE_CUT
-    const currentTagOption = isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : null
-    const selectedTagOption = (isMuseAI || isMuseCut) && module.tagOptions
+    const isGA = key === EAdvancedModules.GA
+    const isCDN = key === EAdvancedModules.CDN_TRAFFIC
+    const currentTagOption = isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : isGA ? gaTagOption : isCDN ? cdnTagOption : null
+    const selectedTagOption = (isMuseAI || isMuseCut || isGA || isCDN) && module.tagOptions
       ? module.tagOptions.find(opt => opt.value === currentTagOption) || module.tagOptions[0]
       : null
-    const displayPrice = (isMuseAI || isMuseCut) && selectedTagOption && selectedTagOption.priceMultiplier
+    const displayPrice = (isMuseAI || isMuseCut || isGA || isCDN) && selectedTagOption && selectedTagOption.priceMultiplier
       ? module.price * selectedTagOption.priceMultiplier
       : module.price
     const isMergedToBasic = mergedToBasicModules.has(key)
@@ -517,12 +523,16 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               {module.tagOptions && (
                 <div className="min-w-[80px] font-euclidlight text-[14px] font-light leading-[16px]">
                   <Select
-                    value={isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : ''}
+                    value={isMuseAI ? museAITagOption : isMuseCut ? museCutTagOption : isGA ? gaTagOption : isCDN ? cdnTagOption : ''}
                     onValueChange={(value) => {
                       if (isMuseAI) {
                         setMuseAITagOption(value)
                       } else if (isMuseCut) {
                         setMuseCutTagOption(value)
+                      } else if (isGA) {
+                        setGaTagOption(value)
+                      } else if (isCDN) {
+                        setCdnTagOption(value)
                       }
                     }}
                   >
@@ -688,6 +698,17 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         const moduleConfig = advancedConfigs.find(m => m.key === key)
                         if (moduleConfig?.tagOptions) {
                           const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
+                          const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
+                          if (selectedOption?.priceMultiplier) {
+                            price = price * selectedOption.priceMultiplier
+                          }
+                        }
+                      }
+                      // 如果是 GA 或 CDN_TRAFFIC，根据选择的 tagOption 调整价格
+                      if (key === EAdvancedModules.GA || key === EAdvancedModules.CDN_TRAFFIC) {
+                        const moduleConfig = advancedConfigs.find(m => m.key === key)
+                        if (moduleConfig?.tagOptions) {
+                          const currentTagOption = key === EAdvancedModules.GA ? gaTagOption : cdnTagOption
                           const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
                           if (selectedOption?.priceMultiplier) {
                             price = price * selectedOption.priceMultiplier

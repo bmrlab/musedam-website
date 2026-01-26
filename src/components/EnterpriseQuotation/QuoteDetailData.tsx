@@ -64,6 +64,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         discount,
         museAITagOption,
         museCutTagOption,
+        gaTagOption,
+        cdnTagOption,
         mergedToBasicModules
     } = useQuotationStore()
     const { isInChina } = useCountry()
@@ -141,7 +143,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     if (activeTab === TabEnum.ADVANCED) {
         // 高级模块
-        const moduleRows = advancedConfigs.map(({ key, label, price, }) => {
+        const moduleRows = advancedConfigs.map(({ key, label, price, hint }) => {
             if (key === EAdvancedModules.AI_AUTO_TAG) {
                 const moduleCost = Number(advancedPricing[EAdvancedModules.AI_AUTO_TAG_MODULE])
                 const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.AI_AUTO_TAG_POINTS]), 1)
@@ -235,12 +237,47 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
             if (key === EAdvancedModules.GA) {
                 const GaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
-                const cost = price * GaNum
+                let perTBCost = price
+                // 根据选择的 tagOption 调整价格
+                const moduleConfig = advancedConfigs.find(m => m.key === key)
+                if (moduleConfig?.tagOptions) {
+                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === gaTagOption)
+                    if (selectedOption?.priceMultiplier) {
+                        perTBCost = perTBCost * selectedOption.priceMultiplier
+                    }
+                }
+                const cost = perTBCost * GaNum
+                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === gaTagOption)
+                const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
                 return {
                     key,
-                    name: `${label}(${10 * GaNum}TB${t("package")})`,
+                    name: `${label}(${tbDisplay * GaNum}TB${t("package")})`,
                     quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                    unit: `${prefix}${cost.toLocaleString()}/10TB${t('per.year')}`,
+                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
+                    subtotal: cost,
+                    isModule: true,
+                }
+            }
+
+            if (key === EAdvancedModules.CDN_TRAFFIC) {
+                const cdnNum = Math.max(Number(advancedModules[EAdvancedModules.CDN_TRAFFIC]), 1)
+                let perTBCost = price
+                // 根据选择的 tagOption 调整价格
+                const moduleConfig = advancedConfigs.find(m => m.key === key)
+                if (moduleConfig?.tagOptions) {
+                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === cdnTagOption)
+                    if (selectedOption?.priceMultiplier) {
+                        perTBCost = perTBCost * selectedOption.priceMultiplier
+                    }
+                }
+                const cost = perTBCost * cdnNum
+                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === cdnTagOption)
+                const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
+                return {
+                    key,
+                    name: `${label}(${tbDisplay * cdnNum}TB${t("package")})`,
+                    quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
+                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
                     subtotal: cost,
                     isModule: true,
                 }
@@ -253,6 +290,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 unit: price === 0 ? t('free') : `${prefix}${price.toLocaleString()}${t('per.year')}`,
                 subtotal: price === 0 ? t('free') : price,
                 isModule: true,
+                des: hint
             }
         })
 
@@ -426,8 +464,19 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 }
             }
         }
+        // 如果是 GA 或 CDN_TRAFFIC，根据选择的 tagOption 调整价格
+        if (key === EAdvancedModules.GA || key === EAdvancedModules.CDN_TRAFFIC) {
+            const moduleConfig = advancedConfigs.find(m => m.key === key)
+            if (moduleConfig?.tagOptions) {
+                const currentTagOption = key === EAdvancedModules.GA ? gaTagOption : cdnTagOption
+                const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
+                if (selectedOption?.priceMultiplier) {
+                    price = price * selectedOption.priceMultiplier
+                }
+            }
+        }
         return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption])
+    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, gaTagOption, cdnTagOption])
 
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */
@@ -498,14 +547,14 @@ export const useExpandServices = () => {
             description: t('expansion.CDN.desc'),
             value: (isInChina ? '¥600/TB' : '$120/TB'),
             unit: (isInChina ? '¥600' : '$120') + '/TB',
-            quantity: `1TB${t('expand.download.quantity', { value: '1TB' })}`
+            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
         },
         ...(!isInChina ? [] : [{
             name: t('expansion.GA'),
             description: t('expansion.GA.desc'),
-            value: `¥30,000${t("per.year")}\n /10TB`,
-            unit: '¥30,000/' + t('ai.AutoTagEngine.unit'),
-            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '10TB' })}`
+            value: `¥3,000/TB`,
+            unit: '¥3,000/TB',
+            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
         }])
     ], [t, isInChina, language])
 

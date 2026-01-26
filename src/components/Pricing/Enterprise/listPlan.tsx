@@ -63,6 +63,12 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('customSystemHomepage.4.name'), detail: tFeatures('customSystemHomepage.4.detail') },
             { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
         ],
+        [tFeatures('smartFolders.title')]: [
+            { name: tFeatures('smartFolders.0.name'), detail: tFeatures('smartFolders.0.detail') },
+            { name: tFeatures('smartFolders.1.name'), detail: tFeatures('smartFolders.1.detail') },
+            { name: tFeatures('smartFolders.2.name'), detail: tFeatures('smartFolders.2.detail') },
+            { name: tFeatures('smartFolders.3.name'), detail: tFeatures('smartFolders.3.detail') }
+        ],
         [tFeatures('deliveryApprovalCenter.title')]: [
             { name: tFeatures('deliveryApprovalCenter.0.name'), detail: tFeatures('deliveryApprovalCenter.0.detail') },
             { name: tFeatures('deliveryApprovalCenter.1.name'), detail: tFeatures('deliveryApprovalCenter.1.detail') },
@@ -76,6 +82,12 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('publicAssetsAndDerivatives.1.name'), detail: tFeatures('publicAssetsAndDerivatives.1.detail') },
             { name: tFeatures('publicAssetsAndDerivatives.2.name'), detail: tFeatures('publicAssetsAndDerivatives.2.detail') },
             { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') }
+        ],
+        [tFeatures('dat.title')]: [
+            { name: tFeatures('dat.0.name'), detail: tFeatures('dat.0.detail') },
+            { name: tFeatures('dat.1.name'), detail: tFeatures('dat.1.detail') },
+            { name: tFeatures('dat.2.name'), detail: tFeatures('dat.2.detail') },
+            { name: tFeatures('dat.3.name'), detail: tFeatures('dat.3.detail') }
         ],
         [tFeatures('standardProjectHub.title')]: [
             { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
@@ -222,7 +234,9 @@ export const useEnterprisePlan = () => {
         museCut: { title: tFeatures('museCut.title'), items: advancedList[tFeatures('museCut.title')] },
         complianceCheck: { title: tFeatures('complianceCheck.title'), items: advancedList[tFeatures('complianceCheck.title')] },
         deliveryApprovalCenter: { title: tFeatures('deliveryApprovalCenter.title'), items: advancedList[tFeatures('deliveryApprovalCenter.title')] },
+        smartFolders: { title: tFeatures('smartFolders.title'), items: advancedList[tFeatures('smartFolders.title')] },
         publicAssetsAndDerivatives: { title: tFeatures('publicAssetsAndDerivatives.title'), items: advancedList[tFeatures('publicAssetsAndDerivatives.title')] },
+        dat: { title: tFeatures('dat.title'), items: advancedList[tFeatures('dat.title')] },
         copyrightManagement: { title: tFeatures('copyrightManagement.title'), items: advancedList[tFeatures('copyrightManagement.title')] },
         customMetadataFields: { title: tFeatures('customMetadataFields.title'), items: advancedList[tFeatures('customMetadataFields.title')] },
         watermark: { title: tFeatures('watermark.title'), items: advancedList[tFeatures('watermark.title')] },
@@ -248,7 +262,9 @@ export const useEnterprisePlan = () => {
         [EAdvancedModules.MUSE_CUT]: 'museCut',
         [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
         [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 'deliveryApprovalCenter',
+        [EAdvancedModules.SMART_FOLDERS]: 'smartFolders',
         [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 'publicAssetsAndDerivatives',
+        [EAdvancedModules.DAT]: 'dat',
         [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 'copyrightManagement',
         [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 'customMetadataFields',
         [EAdvancedModules.WATERMARK]: 'watermark',

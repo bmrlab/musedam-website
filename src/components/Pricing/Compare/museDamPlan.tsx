@@ -970,18 +970,6 @@ export const usePlanMuseDAM = () => {
           },
         },
         {
-          key: 'smart_folder',
-          label: t('pricing.smart_folder.label'),
-          hintText: t('pricing.smart_folder.hint'),
-          hintLink: "https://tezign.feishu.cn/wiki/JHW6wNc46iVWLpkvlWLcHucan0D",
-          plans: {
-            [ESpaceType.PERSON_FREE]: 5,
-            [ESpaceType.PERSON_PRO]: t('pricing.unlimited.quantity'),
-            [ESpaceType.TEAM]: t('pricing.unlimited.quantity'),
-            [ESpaceType.ENTERPRISE]: t('pricing.unlimited.quantity'),
-          },
-        },
-        {
           key: 'asset_score',
           label: t('pricing.asset_score.label'),
           hintText: t('pricing.asset_score.hint'),
@@ -1025,6 +1013,18 @@ export const usePlanMuseDAM = () => {
             [ESpaceType.PERSON_PRO]: true,
             [ESpaceType.TEAM]: true,
             [ESpaceType.ENTERPRISE]: true,
+          },
+        },
+        {
+          key: 'smart_folder',
+          label: t('pricing.smart_folder.label'),
+          hintText: t('pricing.smart_folder.hint'),
+          hintLink: "https://tezign.feishu.cn/wiki/JHW6wNc46iVWLpkvlWLcHucan0D",
+          plans: {
+            [ESpaceType.PERSON_FREE]: 5,
+            [ESpaceType.PERSON_PRO]: false,
+            [ESpaceType.TEAM]: false,
+            [ESpaceType.ENTERPRISE]: t('pricing.unlimited.quantity'),
           },
         },
         // {
