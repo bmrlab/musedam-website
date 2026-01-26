@@ -81,7 +81,7 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('publicAssetsAndDerivatives.0.name'), detail: tFeatures('publicAssetsAndDerivatives.0.detail') },
             { name: tFeatures('publicAssetsAndDerivatives.1.name'), detail: tFeatures('publicAssetsAndDerivatives.1.detail') },
             { name: tFeatures('publicAssetsAndDerivatives.2.name'), detail: tFeatures('publicAssetsAndDerivatives.2.detail') },
-            { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') }
+            { name: tFeatures('publicAssetsAndDerivatives.3.name'), detail: tFeatures('publicAssetsAndDerivatives.3.detail') },
             { name: tFeatures('publicAssetsAndDerivatives.4.name'), detail: tFeatures('publicAssetsAndDerivatives.4.detail') }
         ],
         [tFeatures('dat.title')]: [
