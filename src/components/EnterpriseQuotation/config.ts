@@ -98,7 +98,7 @@ export const usePricing = () => {
             modules: {
               [EAdvancedModules.ADVANCED_FEATURES]: 20000,
               [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,
-              [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
+              [EAdvancedModules.STANDARD_PROJECT_HUB]: 50000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
@@ -159,7 +159,7 @@ export const usePricing = () => {
             modules: {
               [EAdvancedModules.ADVANCED_FEATURES]: 5000,
               [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
-              [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
+              [EAdvancedModules.STANDARD_PROJECT_HUB]: 50000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
@@ -322,11 +322,11 @@ export const useAdvancedConfigs = () => {
       label: moduleNames[EAdvancedModules.STANDARD_PROJECT_HUB],
       price: advancedPricing.modules[EAdvancedModules.STANDARD_PROJECT_HUB],
     },
-    {
-      key: EAdvancedModules.ADVANCED_PROJECT_HUB,
-      label: moduleNames[EAdvancedModules.ADVANCED_PROJECT_HUB],
-      price: advancedPricing.modules[EAdvancedModules.ADVANCED_PROJECT_HUB],
-    },
+    // {
+    //   key: EAdvancedModules.ADVANCED_PROJECT_HUB,
+    //   label: moduleNames[EAdvancedModules.ADVANCED_PROJECT_HUB],
+    //   price: advancedPricing.modules[EAdvancedModules.ADVANCED_PROJECT_HUB],
+    // },
 
     {
       key: EAdvancedModules.AI_AUTO_TAG,
