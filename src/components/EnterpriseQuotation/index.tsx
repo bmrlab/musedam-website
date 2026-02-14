@@ -17,26 +17,12 @@ export default function EnterpriseQuotation({ editId, user }: { editId?: string,
     } = useQuotationStore()
     const { t } = useHeaderTranslation()
 
-    // 本地调试用的mock user
-    const mockUser: SessionUser = {
-        userId: 'mock-user-id',
-        isOrg: false,
-        hasOrg: false,
-        isPro: false,
-        isSale: true,
-        email: 'test@example.com',
-        name: 'Test User'
-    }
-
-    // 本地调试时使用mock user
-    const debugUser = process.env.NODE_ENV === 'development' ? mockUser : user
-
     // 初始化用户邮箱
     useEffect(() => {
-        initializeUserEmail(debugUser ?? null)
-    }, [debugUser, initializeUserEmail])
+        initializeUserEmail(user ?? null)
+    }, [user, initializeUserEmail])
 
-    if (!debugUser || !debugUser.isSale) {
+    if (!user || !user.isSale) {
         return <div className="fixed top-0 z-[100] h-screen w-screen bg-black">
             <FlexCenterContainer className="flex size-full flex-col">
                 <Image src="/assets/logo-dark.svg" width={100} height={100} alt="muse logo" />
@@ -44,11 +30,11 @@ export default function EnterpriseQuotation({ editId, user }: { editId?: string,
                     <span className='text-center text-lg font-medium text-white'>{t('not.sale.user')}</span>
 
                     <Link
-                        href={!debugUser ? '/auth' : '/pricing'}
+                        href={!user ? '/auth' : '/pricing'}
                         prefetch={false}
                     >
                         <DarkButton className='h-[48px]'>
-                            <p className="hidden md:block">{debugUser ? t('not.sale.user.button') : t('button.login')}</p>
+                            <p className="hidden md:block">{user ? t('not.sale.user.button') : t('button.login')}</p>
                         </DarkButton>
                     </Link>
                 </div>
@@ -57,7 +43,7 @@ export default function EnterpriseQuotation({ editId, user }: { editId?: string,
     }
     return <div className="flex size-full">
         <div className='h-screen flex-1'>
-            <LeftContent user={debugUser} />
+            <LeftContent user={user} />
         </div>
         <div className='hidden h-screen flex-1 md:block'>
             <RightContent />

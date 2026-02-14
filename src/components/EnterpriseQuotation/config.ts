@@ -463,7 +463,7 @@ export const useAdvancedConfigs = () => {
     ...(isInChina
       ? [
           {
-            key: EAdvancedModules.GA,
+            key: EAdvancedModules.GA_CONTAINER,
             label: moduleNames[EAdvancedModules.GA],
             price: advancedPricing.modules[EAdvancedModules.GA] ?? 0,
             noPrice:true,

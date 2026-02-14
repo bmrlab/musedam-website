@@ -148,9 +148,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             if (price === undefined || price === null) {
                 return null
             }
-            // 跳过有 noCheckBox 的父模块（如 ENTERPRISE_SSO、GA），它们只作为容器，不单独显示
-            // 但 SSO 和 GA 需要特殊处理，检查子模块是否被选中
-            if (noCheckBox && key !== EAdvancedModules.ENTERPRISE_SSO && key !== EAdvancedModules.GA) {
+            // 跳过有 noCheckBox 的父模块（如 ENTERPRISE_SSO、GA_CONTAINER），它们只作为容器，不单独显示
+            // 但 SSO 和 GA_CONTAINER 需要特殊处理，检查子模块是否被选中
+            if (noCheckBox && key !== EAdvancedModules.ENTERPRISE_SSO && key !== EAdvancedModules.GA_CONTAINER) {
                 return null
             }
             if (key === EAdvancedModules.AI_AUTO_TAG) {
@@ -244,7 +244,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 }
             }
 
-            if (key === EAdvancedModules.GA) {
+            if (key === EAdvancedModules.GA_CONTAINER) {
                 // 检查是否是 GA 父模块（有 subModules）
                 const moduleConfig = advancedConfigs.find(m => m.key === key)
                 if (moduleConfig?.subModules) {
@@ -361,7 +361,17 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
 
         allModules = moduleRows;
-        const filterModules = moduleRows.filter((v) => !(v as any).notBuy && v.key && advancedModules[v.key as EAdvancedModules])
+        const filterModules = moduleRows.filter((v) => {
+            if (!v || (v as any).notBuy || !v.key) {
+                return false
+            }
+            // 对于 GA_CONTAINER，检查子模块是否被选中，而不是检查 advancedModules[GA_CONTAINER]
+            if (v.key === EAdvancedModules.GA_CONTAINER) {
+                return advancedModules[EAdvancedModules.CDN_TRAFFIC] || advancedModules[EAdvancedModules.GA]
+            }
+            // 对于其他模块，检查 advancedModules 中是否有对应的 key
+            return advancedModules[v.key as EAdvancedModules]
+        })
 
         // 分离合并到基础报价的模块和普通模块
         const mergedModules = filterModules.filter((v) => v.key && mergedToBasicModules.has(v.key as EAdvancedModules))

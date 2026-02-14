@@ -290,29 +290,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         }
 
         // 检查是否有父级项目需要更新
+        // 对于 noCheckBox 的父模块，不应该在状态中设置它的值，因为它只是一个容器
         const parentModule = advancedConfigs.find(
           (config) => config.noCheckBox && config.subModules?.some((sub) => sub.key === module),
         )
 
-        if (parentModule) {
-          const parentKey = parentModule.key
-          const hasCheckedChild =
-            parentModule.subModules?.some((sub) => newState[sub.key] && newState[sub.key] !== 0) ??
-            false
-
-          // 对于 noCheckBox 的父模块，不应该在状态中设置它的值
-          // 因为它只是一个容器，不应该有独立的状态
-          // 只有当父模块的 key 和子模块的 key 不同时，才需要更新父模块状态
-          // 如果父模块的 key 和某个子模块的 key 相同（如 GA），则不应该设置父模块状态
-          const parentKeyIsAlsoSubModule = parentModule.subModules?.some(
-            (sub) => sub.key === parentKey,
-          )
-
-          if (!parentKeyIsAlsoSubModule) {
-            // 如果有子项目被勾选，则勾选父级项目；否则取消勾选父级项目
-            newState[parentKey] = hasCheckedChild
-          }
-        }
+        // 注意：noCheckBox 的父模块不应该在状态中设置值，因为它们只是容器
+        // 所以这里不需要更新父模块的状态
 
         return newState
       })
@@ -563,13 +547,17 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   </Select>
                 </div>
               )}
-              {!isSubModule && key !== EAdvancedModules.ADVANCED_FEATURES && (
-                <MergeToBasicIcon
-                  moduleKey={key}
-                  isMerged={isMergedToBasic}
-                  onToggle={() => toggleMergeToBasic(key)}
-                />
-              )}
+              {!isSubModule &&
+                key !== EAdvancedModules.ADVANCED_FEATURES &&
+                key !== EAdvancedModules.GA_CONTAINER &&
+                key !== EAdvancedModules.ENTERPRISE_SSO &&
+                !noCheckBox && (
+                  <MergeToBasicIcon
+                    moduleKey={key}
+                    isMerged={isMergedToBasic}
+                    onToggle={() => toggleMergeToBasic(key)}
+                  />
+                )}
             </Label>
             {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
             {!module.noPrice && (

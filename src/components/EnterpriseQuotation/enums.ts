@@ -28,6 +28,7 @@ export enum EAdvancedModules {
   SSO_WECOM = 'ssoWecom',
   SSO_DINGTALK = 'ssoDingTalk',
   SSO_Teams = 'ssoTeams',
+  GA_CONTAINER = 'gaContainer',
   GA = 'GA',
   CDN_TRAFFIC = 'cdnTraffic',
   SMART_FOLDERS = 'smartFolders',
