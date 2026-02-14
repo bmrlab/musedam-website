@@ -300,8 +300,18 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             parentModule.subModules?.some((sub) => newState[sub.key] && newState[sub.key] !== 0) ??
             false
 
-          // 如果有子项目被勾选，则勾选父级项目；否则取消勾选父级项目
-          newState[parentKey] = hasCheckedChild
+          // 对于 noCheckBox 的父模块，不应该在状态中设置它的值
+          // 因为它只是一个容器，不应该有独立的状态
+          // 只有当父模块的 key 和子模块的 key 不同时，才需要更新父模块状态
+          // 如果父模块的 key 和某个子模块的 key 相同（如 GA），则不应该设置父模块状态
+          const parentKeyIsAlsoSubModule = parentModule.subModules?.some(
+            (sub) => sub.key === parentKey,
+          )
+
+          if (!parentKeyIsAlsoSubModule) {
+            // 如果有子项目被勾选，则勾选父级项目；否则取消勾选父级项目
+            newState[parentKey] = hasCheckedChild
+          }
         }
 
         return newState
