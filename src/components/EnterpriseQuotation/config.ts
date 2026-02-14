@@ -123,10 +123,10 @@ export const usePricing = () => {
               [EAdvancedModules.BATCH_TEMPLATING]: 100000,
               // museCUT (中国：50w点 10w，25w点 5w)
               [EAdvancedModules.MUSE_CUT]: 100000,
-              // 全球加速 (10TB: 30000, 5TB: 15000)
-              [EAdvancedModules.GA]: 30000,
-              // CDN 流量包 (600/TB，10TB: 6000, 5TB: 3000)
-              [EAdvancedModules.CDN_TRAFFIC]: 6000,
+              // 全球加速 (10TB: 90000, 5TB: 45000)
+              [EAdvancedModules.GA]: 90000,
+              // CDN/OSS 全球公网加速 (10TB: 30000, 5TB: 15000)
+              [EAdvancedModules.CDN_TRAFFIC]: 30000,
             },
           },
       private: isGlobal
@@ -463,26 +463,37 @@ export const useAdvancedConfigs = () => {
     ...(isInChina
       ? [
           {
-            key: EAdvancedModules.CDN_TRAFFIC,
-            label: moduleNames[EAdvancedModules.CDN_TRAFFIC],
-            price: advancedPricing.modules[EAdvancedModules.CDN_TRAFFIC],
-            hint: t('cdnTraffic.hint'),
-            tagOptions: [
-              { label: '10TB', value: '10TB', priceMultiplier: 1 },
-              { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
-            ],
-            min: 1,
-          },
-          {
             key: EAdvancedModules.GA,
             label: moduleNames[EAdvancedModules.GA],
-            price: advancedPricing.modules[EAdvancedModules.GA],
+            price: advancedPricing.modules[EAdvancedModules.GA] ?? 0,
+            noPrice:true,
             hint: t('ga.hint'),
-            tagOptions: [
-              { label: '10TB', value: '10TB', priceMultiplier: 1 },
-              { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
+            subFlex: 'column' as const,
+            noCheckBox: true,
+            subModules: [
+              {
+                key: EAdvancedModules.CDN_TRAFFIC,
+                label: t('ga.cdnOss'),
+                price: advancedPricing.modules[EAdvancedModules.CDN_TRAFFIC],
+                hint: t('ga.cdnOss.hint'),
+                tagOptions: [
+                  { label: '10TB', value: '10TB', priceMultiplier: 1 },
+                  { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
+                ],
+                min: 1,
+              },
+              {
+                key: EAdvancedModules.GA,
+                label: t('ga.dedicatedLine'),
+                price: advancedPricing.modules[EAdvancedModules.GA],
+                hint: t('ga.dedicatedLine.hint'),
+                tagOptions: [
+                  { label: '10TB', value: '10TB', priceMultiplier: 1 },
+                  { label: '5TB', value: '5TB', priceMultiplier: 0.5 },
+                ],
+                min: 1,
+              },
             ],
-            min: 1,
           },
         ]
       : []),

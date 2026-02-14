@@ -90,20 +90,10 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('dat.2.name'), detail: tFeatures('dat.2.detail') },
             { name: tFeatures('dat.3.name'), detail: tFeatures('dat.3.detail') }
         ],
-        [tFeatures('standardProjectHub.title')]: [
-            { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
-            { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
-            { name: tFeatures('standardProjectHub.2.name'), detail: tFeatures('standardProjectHub.2.detail') },
-            { name: tFeatures('standardProjectHub.3.name'), detail: tFeatures('standardProjectHub.3.detail') },
-            { name: tFeatures('standardProjectHub.4.name'), detail: tFeatures('standardProjectHub.4.detail') },
-        ],
-        [tFeatures('advancedProjectHub.title')]: [
-            { name: tFeatures('advancedProjectHub.0.name'), detail: tFeatures('advancedProjectHub.0.detail') },
-            { name: tFeatures('advancedProjectHub.1.name'), detail: tFeatures('advancedProjectHub.1.detail') },
-            { name: tFeatures('advancedProjectHub.2.name'), detail: tFeatures('advancedProjectHub.2.detail') },
-            { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
-            { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
-            { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
+        [tFeatures('customMetadataFields.title')]: [
+            { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
+            { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
+            { name: tFeatures('customMetadataFields.2.name'), detail: tFeatures('customMetadataFields.2.detail') }
         ],
         [tFeatures('aiAutoTaggingEngine.title')]: [
             { name: tFeatures('aiAutoTaggingEngine.0.name'), detail: tFeatures('aiAutoTaggingEngine.0.detail') },
@@ -112,6 +102,36 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('aiAutoTaggingEngine.3.name'), detail: tFeatures('aiAutoTaggingEngine.3.detail') },
             { name: tFeatures('aiAutoTaggingEngine.4.name'), detail: tFeatures('aiAutoTaggingEngine.4.detail') },
             { name: tFeatures('aiAutoTaggingEngine.5.name'), detail: tFeatures('aiAutoTaggingEngine.5.detail') }
+        ],
+        // 合规检测
+        [tFeatures('complianceCheck.title')]: [
+            { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
+            { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
+            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+        ],
+        // 版权管理
+        [tFeatures('copyrightManagement.title')]: [
+            { name: tFeatures('copyrightManagement.0.name'), detail: tFeatures('copyrightManagement.0.detail') },
+            { name: tFeatures('copyrightManagement.1.name'), detail: tFeatures('copyrightManagement.1.detail') },
+            { name: tFeatures('copyrightManagement.2.name'), detail: tFeatures('copyrightManagement.2.detail') },
+            { name: tFeatures('copyrightManagement.3.name'), detail: tFeatures('copyrightManagement.3.detail') }
+        ],
+        // 标注项目库
+        [tFeatures('standardProjectHub.title')]: [
+            { name: tFeatures('standardProjectHub.0.name'), detail: tFeatures('standardProjectHub.0.detail') },
+            { name: tFeatures('standardProjectHub.1.name'), detail: tFeatures('standardProjectHub.1.detail') },
+            { name: tFeatures('standardProjectHub.2.name'), detail: tFeatures('standardProjectHub.2.detail') },
+            { name: tFeatures('standardProjectHub.3.name'), detail: tFeatures('standardProjectHub.3.detail') },
+            { name: tFeatures('standardProjectHub.4.name'), detail: tFeatures('standardProjectHub.4.detail') },
+        ],
+        // 高级项目库
+        [tFeatures('advancedProjectHub.title')]: [
+            { name: tFeatures('advancedProjectHub.0.name'), detail: tFeatures('advancedProjectHub.0.detail') },
+            { name: tFeatures('advancedProjectHub.1.name'), detail: tFeatures('advancedProjectHub.1.detail') },
+            { name: tFeatures('advancedProjectHub.2.name'), detail: tFeatures('advancedProjectHub.2.detail') },
+            { name: tFeatures('advancedProjectHub.3.name'), detail: tFeatures('advancedProjectHub.3.detail') },
+            { name: tFeatures('advancedProjectHub.4.name'), detail: tFeatures('advancedProjectHub.4.detail') },
+            { name: tFeatures('advancedProjectHub.5.name'), detail: tFeatures('advancedProjectHub.5.detail') },
         ],
         [tFeatures('museAI.title')]: [
             { name: tFeatures('museAI.block.0') },
@@ -143,22 +163,6 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('museCut.1.name'), detail: tFeatures('museCut.1.detail') },
             { name: tFeatures('museCut.2.name'), detail: tFeatures('museCut.2.detail') }
         ],
-        [tFeatures('complianceCheck.title')]: [
-            { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
-            { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
-            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
-        ],
-        [tFeatures('copyrightManagement.title')]: [
-            { name: tFeatures('copyrightManagement.0.name'), detail: tFeatures('copyrightManagement.0.detail') },
-            { name: tFeatures('copyrightManagement.1.name'), detail: tFeatures('copyrightManagement.1.detail') },
-            { name: tFeatures('copyrightManagement.2.name'), detail: tFeatures('copyrightManagement.2.detail') },
-            { name: tFeatures('copyrightManagement.3.name'), detail: tFeatures('copyrightManagement.3.detail') }
-        ],
-        [tFeatures('customMetadataFields.title')]: [
-            { name: tFeatures('customMetadataFields.0.name'), detail: tFeatures('customMetadataFields.0.detail') },
-            { name: tFeatures('customMetadataFields.1.name'), detail: tFeatures('customMetadataFields.1.detail') },
-            { name: tFeatures('customMetadataFields.2.name'), detail: tFeatures('customMetadataFields.2.detail') }
-        ],
         [tFeatures('watermark.title')]: [
             { name: tFeatures('watermark.0.name'), detail: tFeatures('watermark.0.detail') },
             { name: tFeatures('watermark.1.name'), detail: tFeatures('watermark.1.detail') },
@@ -174,8 +178,14 @@ export const useEnterprisePlan = () => {
         ],
         ...(!isInChina ? {} : {
             [tFeatures('globalAcceleration.title')]: [
+                { name: tFeatures('globalAcceleration.block.0') },
                 { name: tFeatures('globalAcceleration.0.name'), detail: tFeatures('globalAcceleration.0.detail') },
                 { name: tFeatures('globalAcceleration.1.name'), detail: tFeatures('globalAcceleration.1.detail') },
+                { name: tFeatures('globalAcceleration.2.name'), detail: tFeatures('globalAcceleration.2.detail') },
+                { name: tFeatures('globalAcceleration.block.1') },
+                { name: tFeatures('globalAcceleration.3.name'), detail: tFeatures('globalAcceleration.3.detail') },
+                { name: tFeatures('globalAcceleration.4.name'), detail: tFeatures('globalAcceleration.4.detail') },
+                { name: tFeatures('globalAcceleration.5.name'), detail: tFeatures('globalAcceleration.5.detail') },
             ]
         }),
         [tFeatures('customerService.title')]: [

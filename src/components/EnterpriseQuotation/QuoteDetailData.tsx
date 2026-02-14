@@ -143,7 +143,16 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     if (activeTab === TabEnum.ADVANCED) {
         // 高级模块
-        const moduleRows = advancedConfigs.map(({ key, label, price, hint }) => {
+        const moduleRows = advancedConfigs.map(({ key, label, price, hint, noCheckBox, subModules }) => {
+            // 如果 price 不存在，不显示
+            if (price === undefined || price === null) {
+                return null
+            }
+            // 跳过有 noCheckBox 的父模块（如 ENTERPRISE_SSO、GA），它们只作为容器，不单独显示
+            // 但 SSO 和 GA 需要特殊处理，检查子模块是否被选中
+            if (noCheckBox && key !== EAdvancedModules.ENTERPRISE_SSO && key !== EAdvancedModules.GA) {
+                return null
+            }
             if (key === EAdvancedModules.AI_AUTO_TAG) {
                 const moduleCost = Number(advancedPricing[EAdvancedModules.AI_AUTO_TAG_MODULE])
                 const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.AI_AUTO_TAG_POINTS]), 1)
@@ -236,26 +245,82 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
 
             if (key === EAdvancedModules.GA) {
-                const GaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
-                let perTBCost = price
-                // 根据选择的 tagOption 调整价格
+                // 检查是否是 GA 父模块（有 subModules）
                 const moduleConfig = advancedConfigs.find(m => m.key === key)
-                if (moduleConfig?.tagOptions) {
-                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === gaTagOption)
-                    if (selectedOption?.priceMultiplier) {
-                        perTBCost = perTBCost * selectedOption.priceMultiplier
+                if (moduleConfig?.subModules) {
+                    // GA 父模块：检查子模块是否被选中
+                    const selectedSubModules: string[] = []
+                    let totalCost = 0
+                    let hasSelected = false
+
+                    moduleConfig.subModules.forEach((subModule) => {
+                        if (subModule.key === EAdvancedModules.CDN_TRAFFIC && advancedModules[EAdvancedModules.CDN_TRAFFIC]) {
+                            const cdnNum = Math.max(Number(advancedModules[EAdvancedModules.CDN_TRAFFIC]), 1)
+                            let perTBCost = subModule.price
+                            const selectedOption = subModule.tagOptions?.find(opt => opt.value === cdnTagOption)
+                            if (selectedOption?.priceMultiplier) {
+                                perTBCost = perTBCost * selectedOption.priceMultiplier
+                            }
+                            const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
+                            selectedSubModules.push(`${subModule.label}(${tbDisplay * cdnNum}TB)`)
+                            totalCost += perTBCost * cdnNum
+                            hasSelected = true
+                        } else if (subModule.key === EAdvancedModules.GA && advancedModules[EAdvancedModules.GA]) {
+                            const gaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
+                            let perTBCost = subModule.price
+                            const selectedOption = subModule.tagOptions?.find(opt => opt.value === gaTagOption)
+                            if (selectedOption?.priceMultiplier) {
+                                perTBCost = perTBCost * selectedOption.priceMultiplier
+                            }
+                            const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
+                            selectedSubModules.push(`${subModule.label}(${tbDisplay * gaNum}TB)`)
+                            totalCost += perTBCost * gaNum
+                            hasSelected = true
+                        }
+                    })
+
+                    if (hasSelected) {
+                        return {
+                            key,
+                            name: `${label}(${selectedSubModules.join(', ')})`,
+                            quantity: getYear(subscriptionYears),
+                            unit: `${prefix}${totalCost.toLocaleString()}${t('per.year')}`,
+                            subtotal: totalCost,
+                            isModule: true,
+                            notBuy: false
+                        }
+                    } else {
+                        return {
+                            key,
+                            name: label,
+                            quantity: getYear(1),
+                            unit: `${prefix}${price.toLocaleString()}${t('per.year')}`,
+                            subtotal: 0,
+                            isModule: true,
+                            notBuy: true
+                        }
                     }
-                }
-                const cost = perTBCost * GaNum
-                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === gaTagOption)
-                const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
-                return {
-                    key,
-                    name: `${label}(${tbDisplay * GaNum}TB${t("package")})`,
-                    quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
-                    subtotal: cost,
-                    isModule: true,
+                } else {
+                    // GA 子模块（单独处理的情况，不应该到这里）
+                    const GaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
+                    let perTBCost = price
+                    if (moduleConfig?.tagOptions) {
+                        const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === gaTagOption)
+                        if (selectedOption?.priceMultiplier) {
+                            perTBCost = perTBCost * selectedOption.priceMultiplier
+                        }
+                    }
+                    const cost = perTBCost * GaNum
+                    const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === gaTagOption)
+                    const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
+                    return {
+                        key,
+                        name: `${label}(${tbDisplay * GaNum}TB${t("package")})`,
+                        quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
+                        unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
+                        subtotal: cost,
+                        isModule: true,
+                    }
                 }
             }
 
@@ -287,25 +352,25 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 key,
                 name: label,
                 quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                unit: price === 0 ? t('free') : `${prefix}${price.toLocaleString()}${t('per.year')}`,
-                subtotal: price === 0 ? t('free') : price,
+                unit: price === 0 ? t('free') : !price ? undefined : `${prefix}${price.toLocaleString()}${t('per.year')}`,
+                subtotal: price === 0 ? t('free') : !price ? undefined : price,
                 isModule: true,
                 des: hint
             }
-        })
+        }).filter((v) => v !== null) as QuoteDetailRow[]
 
 
         allModules = moduleRows;
-        const filterModules = moduleRows.filter((v) => !v.notBuy && advancedModules[v.key])
+        const filterModules = moduleRows.filter((v) => !(v as any).notBuy && v.key && advancedModules[v.key as EAdvancedModules])
 
         // 分离合并到基础报价的模块和普通模块
-        const mergedModules = filterModules.filter((v) => v.key && mergedToBasicModules.has(v.key))
+        const mergedModules = filterModules.filter((v) => v.key && mergedToBasicModules.has(v.key as EAdvancedModules))
         // 普通模块：只排除被合并的父级模块
         // 注意：moduleRows 中只包含父级模块，子模块不会单独出现在这里
         const normalModules = filterModules.filter((v) => {
             if (!v.key) return true
             // 只排除被合并的父级模块
-            return !mergedToBasicModules.has(v.key)
+            return !mergedToBasicModules.has(v.key as EAdvancedModules)
         })
 
         // 计算合并到基础报价的模块总价格（按年计算）
@@ -396,6 +461,10 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         Object.keys(privateModules).filter(key => key !== EPrivateModules.PRIVATE_IMPLEMENTATION && key !== EPrivateModules.OPERATION_MAINTENANCE && key !== 'maintenanceYears').forEach(key => {
             if (privateModules[key]) {
                 const price = pricing.private.modules[key]
+                // 如果 price 不存在，不显示
+                if (price === undefined || price === null) {
+                    return
+                }
                 // privatePerYear += price
                 moduleRows.push({
                     name: moduleNames[key],
@@ -421,25 +490,32 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         // 私有化实施
         if (privateModules.privateImplementation) {
             const price = pricing.private.modules.privateImplementation
-            privatePerYear += price
-            rows.push({
-                name: t('private.implementation'),
-                quantity: '1',
-                unit: `${prefix}${price}`,
-                subtotal: price,
-            })
+            // 如果 price 不存在，不显示
+            if (price !== undefined && price !== null) {
+                privatePerYear += price
+                rows.push({
+                    name: t('private.implementation'),
+                    quantity: '1',
+                    unit: `${prefix}${price}`,
+                    subtotal: price,
+                })
+            }
         }
 
         // 运维服务
         if (privateModules.operationMaintenance) {
-            const price = pricing.private.modules.operationMaintenance * privateModules.maintenanceYears
-            privatePerYear += price
-            rows.push({
-                name: t('operation.maintenance.times', { times: privateModules.maintenanceYears }),
-                quantity: `${privateModules.maintenanceYears} ${t('year.s')}`,
-                unit: `${prefix}${pricing.private.modules.operationMaintenance}${t('per.year')}`,
-                subtotal: price,
-            })
+            const operationMaintenancePrice = pricing.private.modules.operationMaintenance
+            // 如果 price 不存在，不显示
+            if (operationMaintenancePrice !== undefined && operationMaintenancePrice !== null) {
+                const price = operationMaintenancePrice * privateModules.maintenanceYears
+                privatePerYear += price
+                rows.push({
+                    name: t('operation.maintenance.times', { times: privateModules.maintenanceYears }),
+                    quantity: `${privateModules.maintenanceYears} ${t('year.s')}`,
+                    unit: `${prefix}${operationMaintenancePrice}${t('per.year')}`,
+                    subtotal: price,
+                })
+            }
         }
     }
 
@@ -549,13 +625,15 @@ export const useExpandServices = () => {
             unit: (isInChina ? '¥600' : '$120') + '/TB',
             quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
         },
-        ...(!isInChina ? [] : [{
-            name: t('expansion.GA'),
-            description: t('expansion.GA.desc'),
-            value: `¥3,000/TB`,
-            unit: '¥3,000/TB',
-            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
-        }])
+        ...(!isInChina ? [] : [
+            {
+                name: t('expansion.GA'),
+                description: `${t('expansion.GA.cdnOss.desc')}\n${t('expansion.GA.dedicatedLine.desc')}`,
+                value: '¥3,000/TB\n¥9,000/TB',
+                unit: '¥3,000/TB\n¥9,000/TB',
+                quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}\n1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
+            }
+        ])
     ], [t, isInChina, language])
 
     return expansions
