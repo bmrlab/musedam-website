@@ -12,12 +12,10 @@ import { encodeNumber } from '@/utilities/numberCodec'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import * as Switch from '@radix-ui/react-switch'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { Loader2, Minus, Plus, ArrowDown, MergeIcon, Layers, ArrowDownToLine } from 'lucide-react'
-
+import { Loader2, Minus, Plus } from 'lucide-react'
 import { SessionUser } from '@/types/user'
 import { useToast } from '@/hooks/use-toast'
 import { useTranslation } from '@/app/i18n/client'
-
 import { LocaleSwitch } from '../Header/LocalSwitch'
 import { LocaleLink } from '../LocalLink'
 import { Button } from '../ui/button'
@@ -54,6 +52,12 @@ interface NumControlProps {
 const NumControl = ({ value, step, max, min, onChange, disabled }: NumControlProps) => {
   const minDisabled = Boolean(disabled || value === min)
   const maxDisabled = Boolean(disabled || value === max)
+  const [inputValue, setInputValue] = useState<string>(String(value))
+
+  useEffect(() => {
+    // 外部 value 变化时，同步到输入框
+    setInputValue(String(value))
+  }, [value])
 
   return (
     <div className="flex items-center space-x-2">
@@ -72,7 +76,62 @@ const NumControl = ({ value, step, max, min, onChange, disabled }: NumControlPro
       >
         <Minus className="size-4" />
       </Button>
-      <span className="min-w-[50px] text-center text-white">{value}</span>
+      <Input
+        type="number"
+        value={inputValue}
+        disabled={disabled}
+        onChange={(e) => {
+          if (disabled) return
+          const raw = e.target.value
+          // 录入阶段只同步字符串，不做最小值限制，避免删除困难
+          setInputValue(raw)
+          if (raw === '') {
+            return
+          }
+          const next = Number(raw)
+          if (Number.isNaN(next)) return
+          // 保证不会录入负数，其他限制放到 onBlur 再做
+          onChange(next < 0 ? 0 : next)
+        }}
+        onBlur={() => {
+          if (disabled) return
+          if (inputValue === '') {
+            // 为空时恢复到最小值或 0
+            const fallback =
+              typeof min === 'number'
+                ? min
+                : 0
+            onChange(fallback)
+            setInputValue(String(fallback))
+            return
+          }
+          const parsed = Number(inputValue)
+          if (Number.isNaN(parsed)) {
+            const fallback =
+              typeof min === 'number'
+                ? min
+                : 0
+            onChange(fallback)
+            setInputValue(String(fallback))
+            return
+          }
+          let finalVal = parsed
+          if (typeof min === 'number') {
+            finalVal = Math.max(min, finalVal)
+          }
+          if (typeof max === 'number') {
+            finalVal = Math.min(max, finalVal)
+          }
+          onChange(finalVal)
+          setInputValue(String(finalVal))
+        }}
+        className={cn(
+          'h-7 w-[70px] rounded-full bg-transparent px-2 text-center text-sm text-white',
+          'appearance-none border-none [-moz-appearance:textfield]',
+          '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          'focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
+        )}
+      />
       <Button
         size="sm"
         variant="outline"

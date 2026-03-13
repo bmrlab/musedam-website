@@ -369,6 +369,10 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             if (v.key === EAdvancedModules.GA_CONTAINER) {
                 return advancedModules[EAdvancedModules.CDN_TRAFFIC] || advancedModules[EAdvancedModules.GA]
             }
+            // 对于 ENTERPRISE_SSO（无勾选框父模块），如果有任一子模块被选中，也需要在报价中展示
+            if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
+                return hasSSOType.length > 0
+            }
             // 对于其他模块，检查 advancedModules 中是否有对应的 key
             return advancedModules[v.key as EAdvancedModules]
         })
