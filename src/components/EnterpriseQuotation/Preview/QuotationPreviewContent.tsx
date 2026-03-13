@@ -145,7 +145,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
 
         const opt = {
             margin: 0,
-            filename: `MueDAM报价单-${info.quotationNo?.replaceAll('-', '') || 'unknown'}.pdf`,
+            filename: `MuseDAM报价单-${info.quotationNo?.replaceAll('-', '') || 'unknown'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: Math.max(3, finalScale * 2),
