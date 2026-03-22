@@ -52,7 +52,7 @@
   "pricing.team.pro.des": "适用于中型团队",
   "pricing.team.flagship": "团队旗舰版",
   "pricing.team.flagship.des": "适用于大型团队",
-  "pricing.team.enterprise": "商业版",
+  "pricing.team.enterprise": "企业版",
   "pricing.team.enterprise.des": "适用于较大型企业",
   "pricing.team.enterprise.des.domestic": "适用于较大型企业或教育行业",
   "pricing.team.table.enterprise.des": "更多高阶功能，灵活配置",
@@ -543,6 +543,7 @@
   "pricing.give.away.points.month.computing.power.points": "赠送{{point}}点/月算力点数",
   "pricing.from": "起步价",
   "pricing.perMonth.new": "/月",
+  "pricing.billed.annually": "按年收费",
   "pricing.contact.sales": "联系销售",
   "pricing.enterpriseSummary.basicFolderPermissions": "基础文件夹权限",
   "pricing.enterpriseSummary.includesAllBasic": "包含团队版所有功能",
@@ -554,8 +555,8 @@
   "pricing.enterpriseSummary.sla": "SLA 服务水平协议",
   "pricing.enterpriseBilling.basic.title": "团队版",
   "pricing.enterpriseBilling.basic.description": "适合小团队",
-  "pricing.enterpriseBilling.advanced.title": "商业版",
+  "pricing.enterpriseBilling.advanced.title": "企业版",
   "pricing.enterpriseBilling.advanced.description": "适用于中大型团队和企业",
-  "pricing.enterpriseBilling.custom.title": "企业版",
+  "pricing.enterpriseBilling.custom.title": "定制版",
   "pricing.enterpriseBilling.custom.description": "专为有特殊要求的大型机构设计"
 }

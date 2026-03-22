@@ -19,13 +19,21 @@ import { getOptions, languageCookieName, languages } from './settings'
 
 const runsOnServerSide = typeof window === 'undefined'
 
+// 语言映射：当 DEPLOY_REGION=global 时，zh-CN 加载 zh-TW 的文件
+const getLocalePath = (language: string) => {
+  if (process.env.NEXT_PUBLIC_DEPLOY_REGION === 'global' && language === 'zh-CN') {
+    return 'zh-TW'
+  }
+  return language
+}
+
 // on client side the normal singleton is ok
 i18next
   .use(initReactI18next)
   .use(LanguageDetector)
   .use(
     resourcesToBackend(
-      (language: string, namespace: string) => import(`./locales/${language}/${namespace}.json`),
+      (language: string, namespace: string) => import(`./locales/${getLocalePath(language)}/${namespace}.json`),
     ),
   )
   // .use(LocizeBackend) // locize backend could be used on client side, but prefer to keep it in sync with server side

@@ -1,0 +1,21 @@
+{
+  "hero.tag": "加密分享",
+  "hero.title": "安全且彈性的檔案分享",
+  "hero.description": "探索一個功能豐富的加密檔案分享解決方案，確保您的敏感資料擁有無與倫比的安全性和控制權，使 MuseDAM 在如 Muse 和 Google Drive 等競爭對手中脫穎而出。",
+  "showcase.title": "透過加密分享增強協作與安全性",
+  "showcase.points.0.keyword": "彈性的分享選項",
+  "showcase.points.0.description": "以可自訂的到期時間分享檔案和資料夾：30 天、7 天或永久存取。",
+  "showcase.points.1.keyword": "細緻的存取控制",
+  "showcase.points.1.description": "針對下載、傳輸或僅限檢視的存取權限進行調整，配合加密分享以增強安全性。",
+  "showcase.points.2.keyword": "輕鬆的資產管理",
+  "showcase.points.2.description": "批次轉移資產到 MuseDAM，並保留元資料，包括標題、備註、標籤等。",
+  "showcase.points.3.keyword": "密碼保護分享",
+  "showcase.points.3.description": "用密碼鎖定您的分享，確保只有授權用戶可以訪問內容。",
+  "text-display.title": "分享連結管理：集中控制與可見性",
+  "text-display.points.0.keyword": "集中記錄管理",
+  "text-display.points.0.description": "從管理儀表板的分享管理區域管理所有分享記錄，以簡化監控。",
+  "text-display.points.1.keyword": "團隊分享存取",
+  "text-display.points.1.description": "團隊成員可以訪問和檢視所有團隊分享記錄，增強協作與責任感。",
+  "text-display.points.2.keyword": "基於權限的可見性與控制",
+  "text-display.points.2.description": "根據團隊成員的權限自訂分享連結的存取和管理，確保安全且有效的協作。"
+}

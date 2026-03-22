@@ -1,0 +1,23 @@
+{
+  "hero.tag": "團隊管理",
+  "hero.title": "透過團隊管理精煉您的工作空間控制",
+  "hero.description": "掌握工作空間控制，利用 MuseDAM 的團隊管理工具，旨在提升效率並滿足團隊和部門協作情境。",
+  "showcase.title": "透過 MuseDAM 的團隊管理提升團隊生產力",
+  "showcase.points.0.keyword": "自訂您的品牌識別",
+  "showcase.points.0.description": "分享具有可自訂到期日的檔案和資料夾：30 天、7 天或永久存取。",
+  "showcase.points.1.keyword": "成員邀請控制",
+  "showcase.points.1.description": "透過成員邀請控制主動管理團隊成長，包括簡易的邀請管理和可自訂的到期日。",
+  "showcase.points.2.keyword": "管理團隊階層",
+  "showcase.points.2.description": "MuseDAM 的直觀部門管理工具為依部門設定工作空間中不同資料夾的權限奠定基礎。",
+  "showcase.points.3.keyword": "可擴展性的批次操作",
+  "showcase.points.3.description": "透過批次匯入成員和部門資訊，節省寶貴的時間和資源。",
+  "text-display.title": "MuseDAM 資產管理：控制、優化和保護您的資源",
+  "text-display.points.0.keyword": "團隊資產庫控制",
+  "text-display.points.0.description": "輕鬆管理您的團隊資產庫，確保資源井然有序且隨時可用。",
+  "text-display.points.1.keyword": "儲存空間管理",
+  "text-display.points.1.description": "透過設定和管理團隊成員的儲存空間限制，優化儲存使用和成本。",
+  "text-display.points.2.keyword": "資產所有權轉移",
+  "text-display.points.2.description": "輕鬆管理資源整合和重組，利用 MuseDAM 的批次資產所有權轉移功能。",
+  "text-display.points.3.keyword": "全站檔案分享切換",
+  "text-display.points.3.description": "透過在平台上啟用或停用檔案分享，將檔案分享與團隊的安全性和協作需求對齊。"
+}

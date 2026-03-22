@@ -1,0 +1,128 @@
+{
+  "home": {
+    "title": "MuseDAM | AI 驅動的數位資產管理 - 收集、整理、協作",
+    "description": "探索 MuseDAM，這款智慧數位資產管理軟體利用 AI 驅動的功能簡化收集、整理和團隊協作。",
+    "shortTitle": "首頁"
+  },
+  "about-us": {
+    "title": "MuseDAM | 我們的故事：賦能數位資產管理",
+    "description": "了解 MuseDAM 的旅程並認識我們的投資者。我們正在用直觀的工具和全球視野徹底改變數位資產管理，連結全球的創作者和企業。",
+    "shortTitle": "關於我們"
+  },
+  "careers": {
+    "title": "Muse | 加入我們的團隊，成為全端工程師",
+    "description": "提升你的職業生涯，加入 Muse。我們正在尋找全端工程師來創新和增強我們的數位資產管理平台。成為一個塑造內容管理未來的動態全球團隊的一員。",
+    "shortTitle": "職涯"
+  },
+  "privacy": {
+    "title": "MuseDAM 隱私政策 | 安全的數位資產管理",
+    "description": "了解 MuseDAM 如何透過我們的全面政策來保護你的隱私。了解數據保護、用戶權利以及我們在管理數位資產方面對保密性的承諾。",
+    "shortTitle": "隱私政策"
+  },
+  "terms": {
+    "title": "MuseDAM 服務協議 | 你的數位資產指南",
+    "description": "探索管理 MuseDAM 數位資產管理平台使用的全面條款。我們的服務協議概述了安全和高效的內容管理體驗的權利和責任。",
+    "shortTitle": "服務條款"
+  },
+  "features": {
+    "title": "MuseDAM | 功能 - AI 驅動的資產管理與團隊合作",
+    "description": "探索 MuseDAM，這款智慧數位資產管理軟體利用 AI 驅動的功能簡化收集、整理和團隊協作。",
+    "shortTitle": "功能",
+    "encrypted-sharing": {
+      "title": "MuseDAM | 分享 - 自訂到期時間、密碼保護",
+      "description": "MuseDAM 的分享功能讓你可以設定材料的到期時間和存取密碼，確保共享內容的安全和隱私，同時提供順暢的協作體驗。"
+    },
+    "file-formats": {
+      "title": "MuseDAM | 在線預覽 - 支援70+格式，一鍵查看",
+      "description": "MuseDAM 支援超過70種文件格式的在線預覽，包括圖像、設計源文件、3D 模型、音頻和視頻，讓用戶可以直觀且方便地查看和管理各種數位資產。"
+    },
+    "inspiration-collection": {
+      "title": "MuseDAM 靈感收集 - 一鍵材料收集，雲端管理",
+      "description": "MuseDAM 的靈感收集工具允許通過瀏覽器插件輕鬆批量收集來自任何網站的圖像、視頻和其他材料，直接儲存在雲端，提高創作工作的效率和便利性。"
+    },
+    "multiple-viewing": {
+      "title": "MuseDAM | 多種視圖 - 看板、列表、瀑布、適應性",
+      "description": "MuseDAM 提供多種視圖模式，包括看板、列表、瀑布和適應性佈局，以滿足不同用戶對材料瀏覽和管理的需求，使數位資產管理更加靈活和高效。"
+    },
+    "smart-folders": {
+      "title": "MuseDAM | 智能資料夾 - 自動分類以提高管理效率",
+      "description": "MuseDAM 的智能資料夾允許用戶根據特定標準自動對材料進行分類，實現高效管理和快速檢索材料，提高創作工作的便利性和智能性。"
+    },
+    "versions": {
+      "title": "MuseDAM | 版本控制 - 歷史記錄，隨時可追溯",
+      "description": "MuseDAM 提供強大的版本控制功能，支援多版本儲存和材料的歷史追蹤，讓團隊能夠輕鬆管理設計迭代，確保創作工作的連續性和完整性。"
+    },
+    "permissions": {
+      "title": "MuseDAM | 權限 - 角色基礎的存取控制",
+      "description": "MuseDAM 提供基於角色的資料夾權限管理，允許團隊根據角色分配細緻的存取權限，確保數位資產的安全性和合規性，同時促進團隊內部的高效協作。"
+    },
+    "data-statistics": {
+      "title": "MuseDAM | 數據統計 - 活動排名和使用記錄",
+      "description": "MuseDAM 提供全面的數據統計，包括材料和成員的活動排名，以及操作記錄，幫助團隊獲得材料使用和成員貢獻的見解，提高資源管理和團隊協作的效率。"
+    },
+    "team-management": {
+      "title": "MuseDAM | 團隊管理 - 成員和部門控制",
+      "description": "MuseDAM 提供全面的團隊管理能力，支援高效管理成員和部門。透過詳細的權限設定，確保資產安全並促進內部和外部的有效協作，提高團隊協作效率和專案管理能力。"
+    },
+    "dynamic-feedback": {
+      "title": "MuseDAM | 反饋 - 動態評論，智能註解",
+      "description": "MuseDAM 支援對材料的動態反饋，允許團隊成員留下評論和註解，增強協作和溝通，使創作流程更加順暢和高效。"
+    },
+    "ai": {
+      "muse-copilot": {
+        "title": "MuseCopilot - AI 驅動的問答和內容創建",
+        "description": "MuseCopilot 是一款 AI 助手，通過整合問答和內容創建徹底改變材料管理，顯著提高創造力和效率。"
+      },
+      "search": {
+        "title": "MuseDAM | AI 搜尋 - 智能圖像分析以快速發現資產",
+        "description": "使用 MuseDAM 的 AI 即時找到資產。智能圖像分析可進行詳細的場景和顏色搜尋。"
+      },
+      "tags": {
+        "title": "MuseDAM | AI 標籤 - 自動標記以智慧檢索",
+        "description": "MuseDAM 的 AI 標籤功能自動為材料分配準確的標籤，大大提高檢索效率，使數位資產管理更智能和高效。"
+      },
+      "parsing": {
+        "title": "MuseDAM | AI 分析 - 高效的材料分析以進行資產管理",
+        "description": "輕鬆管理數位資產，使用 MuseDAM AI 分析。智能識別和分析以簡化資源處理。"
+      },
+      "content-creation": {
+        "title": "MuseDAM | AI 內容創造 - 智能摘要和文章生成",
+        "description": "MuseDAM 的 AI 內容創造功能可智能摘要材料內容，甚至根據材料撰寫新文章，大幅提高創作工作的效率和質量。"
+      }
+    }
+  },
+  "pricing": {
+    "title": "MuseDAM | 價格",
+    "description": "",
+    "shortTitle": "價格",
+    "ai": {
+      "title": "MuseAI | 價格",
+      "description": ""
+    }
+  },
+  "blog": {
+    "title": "MuseDAM | 數位資產管理部落格 - AI 技術、團隊協作、創意工作流程",
+    "description": "MuseDAM 官方部落格分享數位資產管理的最新趨勢、AI 技術應用、團隊協作最佳實踐及創意流程優化技巧，幫助企業提升數位資產管理效率。",
+    "shortTitle": "部落格",
+    "relatedArticles": "相關文章",
+    "viewMoreArticles": "查看更多文章",
+    "readingTime": "分鐘閱讀",
+    "publishedOn": "發表於",
+    "category": "類別",
+    "tags": "標籤",
+    "cacheControl": "快取控制 - 當前快取時間：部落格列表5分鐘，文章詳情10分鐘",
+    "refreshing": "正在刷新...",
+    "refreshCache": "刷新快取",
+    "lastRefresh": "最後刷新"
+  },
+  "bookDemo": {
+    "title": "MuseDAM | 獲取解決方案",
+    "description": "透過 MuseDAM 獲取解決方案，親身體驗我們的 AI 驅動數位資產管理平台。我們將幫助你了解 MuseDAM 如何改變你的創作流程並提升生產力。",
+    "shortTitle": "獲取解決方案"
+  },
+  "help": {
+    "title": "MuseDAM | 幫助中心 - 尋找答案，學習使用",
+    "description": "MuseDAM 幫助中心提供全面的使用指南和常見問題，幫助你快速掌握數位資產管理平台的各種功能，提高工作效率。",
+    "shortTitle": "幫助中心"
+  }
+}

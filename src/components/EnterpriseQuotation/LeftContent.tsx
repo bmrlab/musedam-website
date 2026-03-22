@@ -656,7 +656,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </div>
           </LocaleLink>
         </div>
-        {!isGlobal && <LocaleSwitch />}
+        <LocaleSwitch />
       </div>
 
       <div className="quote-form px-5 md:px-[60px]">

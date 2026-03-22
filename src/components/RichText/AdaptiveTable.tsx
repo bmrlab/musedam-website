@@ -20,7 +20,7 @@ export function AdaptiveTable({ children, className }: AdaptiveTableProps) {
   return (
     <div
       className={cn(
-        'no-scrollbar my-8 overflow-x-auto rounded-[12px] border border-[#E3E3E3]',
+        'no-scrollbar overflow-x-auto rounded-[12px] border border-[#E3E3E3]',
         // 使用 flex 布局来实现自适应
         'flex',
         className,
@@ -41,6 +41,7 @@ export function AdaptiveTable({ children, className }: AdaptiveTableProps) {
           // 当内容宽度大于容器时，表格保持内容宽度（类似 w-max）
           width: 'max(100%, max-content)',
           minWidth: '100%',
+          margin: '0px !important',
         }}
       >
         {children}

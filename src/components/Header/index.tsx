@@ -30,7 +30,7 @@ export function Header({ isGlobal, user }: { isGlobal: boolean, user: SessionUse
       className={cn(
         'fixed z-50 flex h-[56px] w-full items-center font-mono md:h-[70px] transition-all duration-300 ease-in-out border-b border-solid',
         isEnterprisePage && 'text-white md:backdrop-blur-md bg-[#070707]',
-        isEnterprisePage && scrollTop > 70 && ' bg-black/60 border-white/20',
+        isEnterprisePage && scrollTop > 70 && ' border-white/20 bg-black/60',
         isEnterprisePage && scrollTop <= 70 && 'border-transparent',
         !isEnterprisePage && (scrollTop > 0 ? 'border-[#EBECEE] bg-white/80 backdrop-blur-md' : 'border-[#EBECEE] bg-white'),
         // isEnterprisePage && (scrollTop > 0 ? '' : 'border-none bg-[#070707] text-white')

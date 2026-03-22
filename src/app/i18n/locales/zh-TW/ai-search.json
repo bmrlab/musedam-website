@@ -1,0 +1,15 @@
+{
+  "hero.tag": "AI 搜尋",
+  "hero.title": "釋放您的創意，與智慧搜尋一起",
+  "hero.description": "發現一種了解您創意視野的搜尋體驗。我們的 AI 增強智慧搜尋能夠輕鬆找到您所需的精確資產，透過識別圖像和建議直觀的關鍵字。",
+  "showcase.title": "精簡搜尋，提升您的創意工作流程",
+  "showcase.description": "打破傳統的資料夾層級結構。在單一精簡的步驟中發現您的內容。",
+  "showcase.points.0.keyword": "關鍵字",
+  "showcase.points.0.description": "釋放 AI 的力量，自動為每張上傳的圖像標記上下文豐富的關鍵字，如「肖像」、「鮮豔」、「都市風景」，讓您的搜尋變得輕鬆而精確。",
+  "showcase.points.1.keyword": "標籤",
+  "showcase.points.1.description": "使用個性化標籤自訂您的資產庫，將您的工作空間變成一部可搜尋的創意百科全書。",
+  "showcase.points.2.keyword": "元資料",
+  "showcase.points.2.description": "透過日期、上傳者、解析度及其他元資料精確搜尋，快速檢索過去專案中的特定照片。",
+  "showcase.points.3.keyword": "智能過濾器",
+  "showcase.points.3.description": "使用過濾器提升搜尋效率，讓您能依顏色、檔案類型、標籤、來源連結或上傳者篩選工作空間或特定看板。透過已儲存的過濾器節省時間，創建動態集合，自動更新，確保您始終能迅速訪問最重要的內容。"
+}

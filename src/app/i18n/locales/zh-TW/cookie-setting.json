@@ -1,0 +1,35 @@
+{
+  "title": "Cookie 設定",
+  "description": "管理您的 Cookie 偏好",
+  "setting.title": "更新 Cookie 偏好",
+  "setting.intro": "Muse 使用不同類別的 Cookie 來提供、保護、改善及推廣我們的網站和服務。這些類別及其目的的資訊如下所述。如需更多資訊，請參閱我們的 ",
+  "privacyLink": "隱私權政策",
+  "intro1": "我們使用 Cookie 來提供、改善、保護和推廣我們的服務。訪問我們的 ",
+  "intro2": " 以瞭解更多。您可以使用下方的「自訂 Cookie」按鈕來管理您的個人偏好。",
+  "customizeSettings": "自訂 Cookie",
+  "acceptAll": "接受所有",
+  "saveSettings": "儲存設定",
+  "reject": "拒絕",
+  "categories": {
+    "essential": {
+      "name": "絕對必要",
+      "description": "用於運作網站和服務的 Cookie，例如登入和保持您的帳戶安全。"
+    },
+    "marketing": {
+      "name": "一般行銷與廣告",
+      "description": "由 Muse 和我們的合作夥伴使用的 Cookie，以更好地了解對我們的產品和服務感興趣的個體類型，以及我們如何根據該資訊推廣這些服務。"
+    },
+    "analytics": {
+      "name": "分析",
+      "description": "幫助我們和我們的合作夥伴了解我們的網站如何被使用的 Cookie，例如使用統計或重建查看的 UI 元素，以改善和自訂我們的服務。"
+    },
+    "functional": {
+      "name": "性能和功能",
+      "description": "幫助我們記住您的偏好和設定的 Cookie，以改善您在與我們的網站和服務互動時的體驗。"
+    },
+    "social": {
+      "name": "社交媒體廣告",
+      "description": "由 Muse 和我們的合作夥伴使用的 Cookie，以了解我們在社交媒體服務上的廣告效果。這些 Cookie 還幫助他們了解您的廣告偏好，以便更有效地向您展示與您的興趣相關的廣告。"
+    }
+  }
+}

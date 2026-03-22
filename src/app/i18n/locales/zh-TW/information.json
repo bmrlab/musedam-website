@@ -1,0 +1,55 @@
+{
+  "title": "準備好探索 <1/>MuseDAM Enterprise了嗎？",
+  "desc": "與我們聊天，看看為什麼領先品牌選擇 <1/>MuseDAM 的 AI 原生技術來轉型他們的數位資產管理。",
+  "list": [
+    "<1>免費客製化企業解決方案</1>，完全沒有任何義務",
+    "<1>專家匹配的產品解決方案</1>，提供針對您需求的個人化建議",
+    "<1>多種參與方式</1>，資訊包、定期的現場示範、專屬諮詢",
+    "<1>詳細的實施指導</1>，幫助您快速上手"
+  ],
+  "security": "為企業安全而建",
+  "form": {
+    "title": "讓我們了解您",
+    "name.label": "您的姓名",
+    "name.placeholder": "輸入您的姓名",
+    "email.label": "商業電子郵件",
+    "email.placeholder": "輸入您的公司電子郵件",
+    "phone.label": "電話號碼",
+    "phone.placeholder": "輸入您的電話號碼",
+    "phone.invalid": "請輸入正確的電話號碼",
+    "email.invalid": "請輸入正確的電子郵件地址",
+    "company.label": "公司名稱",
+    "company.placeholder": "輸入您的公司名稱",
+    "size": {
+      "label": "選擇您的公司/團隊規模",
+      "2-10": "2-10",
+      "11-50": "11-30",
+      "51-200": "31-100",
+      "201-500": "101-300",
+      "501-1,000": "301-1,000",
+      "1000+": "1,000+"
+    },
+    "position": {
+      "label": "您的職位",
+      "placeholder": "輸入您的職位"
+    },
+    "companyEmail.label": "您的商業電子郵件",
+    "companyEmail.placeholder": "輸入您的公司電子郵件",
+    "companyEmail.businessRequired": "請提供您的商業電子郵件地址~",
+    "wechat.label": "您的微信",
+    "wechat.placeholder": "輸入您的微信",
+    "expect": {
+      "1month": "1 個月內",
+      "3months": "3 個月內",
+      "6months": "6 個月內",
+      "1year": "1 年內",
+      "notSure": "還不確定，只是在探索選項",
+      "label": "您預計何時購買 MuseDAM？"
+    },
+    "submit": "獲取解決方案",
+    "submitSuccess": "提交成功",
+    "submitError": "提交失敗，請再試一次",
+    "required": "請填寫所有欄位"
+  },
+  "privacy": "查看我們如何在 <1>隱私政策</1> 中保護您的資料"
+}

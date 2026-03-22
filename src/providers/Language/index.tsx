@@ -30,7 +30,6 @@ export const LanguageProvider = ({ lng, children }: { lng: string; children: Rea
     if (lang) {
       otherLocale = lang
     }
-
     const currentParams = searchParams ? new URLSearchParams(searchParams) : undefined
     const queryString = currentParams?.toString()
     const newPathname = pathname?.replace(/^\/(en-US|zh-CN)/, '/' + otherLocale) || ''

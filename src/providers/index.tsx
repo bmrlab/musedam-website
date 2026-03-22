@@ -12,8 +12,9 @@ export const Providers: React.FC<{
   children: React.ReactNode
 }> = ({ lng, children, country }) => {
   return (
-    <LanguageProvider lng={lng}>
-      <CountryProvider initialCountry={country}>
+    <CountryProvider initialCountry={country}>
+      <LanguageProvider lng={lng}>
+
         <ThemeProvider>
           <HeaderThemeProvider>
             <QuotationStoreProvider>
@@ -21,7 +22,8 @@ export const Providers: React.FC<{
             </QuotationStoreProvider>
           </HeaderThemeProvider>
         </ThemeProvider>
-      </CountryProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+
+    </CountryProvider>
   )
 }

@@ -36,6 +36,8 @@ export type NodeTypes =
   | SerializedTableNode
   | SerializedTableCellNode
   | SerializedTableRowNode
+  | { type: 'divider' }
+  | { type: 'horizontalrule' }
   | SerializedBlockNode<CTABlockProps | MediaBlockProps | BannerBlockProps | CodeBlockProps>
 
 type Props = {
@@ -49,7 +51,7 @@ function extractTextFromNode(node: NodeTypes): string {
     return node.text || ''
   }
   if ('children' in node && node.children) {
-    return node.children.map(extractTextFromNode).join('')
+    return node.children.map((child) => extractTextFromNode(child as NodeTypes)).join('')
   }
   return ''
 }
@@ -112,7 +114,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
         // https://github.com/facebook/lexical/blob/d10c4e6e55261b2fdd7d1845aed46151d0f06a8c/packages/lexical-list/src/LexicalListItemNode.ts#L133
         // which does not return checked: false (only true - i.e. there is no prop for false)
         const serializedChildrenFn = (node: NodeTypes): JSX.Element | null => {
-          if (node.children == null) {
+          if (!('children' in node) || node.children == null) {
             return null
           } else {
             if (node?.type === 'list' && node?.listType === 'check') {
@@ -169,7 +171,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
             case 'paragraph': {
               return (
                 <p
-                  className="mb-3 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]"
+                  className="mb-3 mt-0 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]"
                   key={index}
                 >
                   {serializedChildren}
@@ -207,8 +209,8 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
               const Tag = node?.tag
               const listClasses =
                 Tag === 'ol'
-                  ? 'list-decimal list-inside mb-6 space-y-2 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]'
-                  : 'list-disc list-inside mb-6 space-y-2 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424]'
+                  ? 'list-decimal list-inside my-0'
+                  : 'list-disc list-inside my-0'
               return (
                 <Tag className={listClasses} key={index}>
                   {serializedChildren}
@@ -216,11 +218,29 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
               )
             }
             case 'listitem': {
+              const children =
+                'children' in node && Array.isArray(node.children) ? (node.children as NodeTypes[]) : []
+              const hasNestedList = children.some((child) => child?.type === 'list')
+              const normalizedChildren = hasNestedList
+                ? children.filter((child) => {
+                  if (child?.type !== 'paragraph') return true
+                  return extractTextFromNode(child).trim().length > 0
+                })
+                : children
+              const listItemContent = normalizedChildren.length
+                ? serializeLexical({ nodes: normalizedChildren, usedHeadingIds })
+                : serializedChildren
+              const hasVisibleText = normalizedChildren.some((child) => {
+                if (child?.type === 'list') return false
+                return extractTextFromNode(child).trim().length > 0
+              })
+              const hideMarkerClass = hasNestedList && !hasVisibleText ? 'list-none' : ''
+
               if (node?.checked != null) {
                 return (
                   <li
                     aria-checked={node.checked ? 'true' : 'false'}
-                    className={`flex items-center gap-2 ${node.checked ? 'text-gray-500 line-through' : ''}`}
+                    className={`flex items-center gap-2 ${hideMarkerClass} ${node.checked ? 'text-gray-500 line-through' : ''}`}
                     key={index}
                     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
                     role="checkbox"
@@ -228,13 +248,13 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                     value={node?.value}
                   >
                     <input type="checkbox" checked={node.checked} readOnly className="mr-2" />
-                    {serializedChildren}
+                    {listItemContent}
                   </li>
                 )
               } else {
                 return (
-                  <li key={index} value={node?.value} className="leading-relaxed">
-                    {serializedChildren}
+                  <li key={index} value={node?.value} className={`my-0 text-[16px] font-light leading-[1.65] text-[#242424] ${hideMarkerClass}`}>
+                    {listItemContent}
                   </li>
                 )
               }
@@ -279,6 +299,10 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                   {serializedChildren}
                 </CMSLink>
               )
+            }
+            case 'divider':
+            case 'horizontalrule': {
+              return <div className="my-8 h-px bg-[#E3E3E3]" key={index} />
             }
             case 'table': {
               return (

@@ -49,7 +49,7 @@ export default function HeaderMobile({
         </LocaleLink>
       </div>
       <div className="flex size-full flex-1 items-center justify-end gap-6">
-        {isInChina && <LocaleSwitch />}
+        <LocaleSwitch />
         <div
           className="z-50 h-full w-[56px] bg-black text-[16px] font-normal leading-[22px] text-white transition duration-300"
           onClick={() => setIsOpen(!isOpen)}

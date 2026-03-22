@@ -7,6 +7,14 @@ import { MetadataProps } from '@/types/page'
 
 import { getOptions } from './settings'
 
+// 语言映射：当 DEPLOY_REGION=global 时，zh-CN 加载 zh-TW 的文件
+const getLocalePath = (language: string) => {
+  if (process.env.DEPLOY_REGION === 'global' && language === 'zh-CN') {
+    return 'zh-TW'
+  }
+  return language
+}
+
 const initI18next = async (lng: string, ns: string | string[]) => {
   // on server side we create a new instance for each render, because during compilation everything seems to be executed in parallel
   const i18nInstance = createInstance()
@@ -14,7 +22,7 @@ const initI18next = async (lng: string, ns: string | string[]) => {
     .use(initReactI18next)
     .use(
       resourcesToBackend(
-        (language: string, namespace: string) => import(`./locales/${language}/${namespace}.json`),
+        (language: string, namespace: string) => import(`./locales/${getLocalePath(language)}/${namespace}.json`),
       ),
     )
     .init(getOptions(lng, ns))

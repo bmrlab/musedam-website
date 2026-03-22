@@ -45,10 +45,12 @@ export default function Buy({
                 ) {
                     return <>
                         {t('pricing.from')} <span className='font-medium'>¥</span><span className='font-euclid text-[40px] font-medium'>{price}</span> {t('pricing.perMonth.new')}
+                        <span className='text-white-72'>{t('pricing.billed.annually')}</span>
                     </>
                 }
                 return <>
                     {t('pricing.from')} <span className='font-medium'>$</span><span className='font-euclid text-[40px] font-medium'>{price}</span> {t('pricing.perMonth.new')}
+                    <span className='text-white-72'>{t('pricing.billed.annually')}</span>
                 </>
             } else {
                 return <span className='font-euclid text-[32px] font-medium'>{t('pricing.contact.sales')}</span>

@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { DarkButton } from '@/components/StyleWrapper/button'
 import { LocaleLink } from '@/components/LocalLink'

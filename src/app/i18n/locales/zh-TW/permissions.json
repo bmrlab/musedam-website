@@ -1,0 +1,23 @@
+{
+  "hero.tag": "權限",
+  "hero.title": "透過精確的訪問控制簡化團隊工作流程",
+  "hero.description": "利用 MuseDAM 的權限功能，通過自訂對共享和私人工作區的訪問來控制團隊的數位工作流程，旨在簡化協作並保持專注。",
+  "showcase.title": "透過 MuseDAM 的權限提升團隊表現",
+  "showcase.points.0.keyword": "工作區靈活性",
+  "showcase.points.0.description": "將團隊的數位空間劃分為共享和私人區域，以適應協作和個別工作的需要。",
+  "showcase.points.1.keyword": "私人空間管理",
+  "showcase.points.1.description": "私人空間的管理員有自主權來啟用或停用這些區域，為敏感項目提供安全的環境。",
+  "showcase.points.2.keyword": "可自訂的共享空間權限",
+  "showcase.points.2.description": "自訂團隊共享空間中的資料夾訪問，以滿足成員和部門的具體需求，並提供細緻的權限：編輯、上傳、查看和下載。",
+  "text-display.title": "MuseDAM 權限：團隊效率與安全的基礎",
+  "text-display.points.0.keyword": "數據完整性與訪問控制",
+  "text-display.points.0.description": "確保數據完整性和團隊訪問的精確權限設定。",
+  "text-display.points.1.keyword": "私人空間安全",
+  "text-display.points.1.description": "透過靈活的私人空間管理來保護敏感數據。",
+  "text-display.points.2.keyword": "透過權限促進協作",
+  "text-display.points.2.description": "透過控制的權限來培養協作，推動團隊合作。",
+  "text-display.points.3.keyword": "透過簡化訪問提升生產力",
+  "text-display.points.3.description": "通過簡化團隊成員的資源訪問來提升生產力。",
+  "text-display.points.4.keyword": "釋放團隊潛力",
+  "text-display.points.4.description": "不要讓不靈活的權限妨礙團隊的潛力。透過 MuseDAM 權限，創建一個量身訂製的訪問控制系統，以提升效率和安全性。"
+}

@@ -1,0 +1,23 @@
+{
+  "highlight.button": "免費開始使用",
+  "collect.title": "收集",
+  "collect.description.0": "MuseDAM 瀏覽器擴充功能，您在 Chrome、Edge 和 360 的新助手。輕鬆透過拖放方式收集圖片、影片和網頁。",
+  "collect.description.1": "簡化您團隊的內容策展，並透過集中資產收集來提升協作。準備好透過 Muse 改變您的工作流程吧。🚀",
+  "organize.title": "整理",
+  "organize.description.0": "探索 MuseDAM — 無縫預覽 70 多種檔案格式，批量編輯，並使用智能標籤進行整理。",
+  "organize.description.1": "我們直觀的資料夾系統讓檔案存取變得輕鬆，極大提升您團隊的生產力和協作。今天就加入 Muse 革命吧！🌟",
+  "collaborate.title": "協作",
+  "collaborate.description.0": "透過我們的協作功能提升團隊合作、安全性和生產力。👬",
+  "collaborate.list.0": "權限",
+  "collaborate.list.1": "檔案共享",
+  "collaborate.list.2": "活動日誌",
+  "collaborate.list.3": "活躍排行榜",
+  "ai-generate.title": "AI 驅動",
+  "ai-generate.description.0": "點燃創意並簡化工作流程，使用 MuseDAM 的全方位 AI 工具包。",
+  "ai-generate.point.0.title": "AI 分析 ✨",
+  "ai-generate.point.0.description": "立即解碼您的資產以獲取見解，從描述到色彩方案。",
+  "ai-generate.point.1.title": "AI 搜尋 🔍",
+  "ai-generate.point.1.description": "輕鬆透過我們的進階搜尋找到資產。",
+  "ai-generate.point.2.title": "AI 生成 🖼️ ✍️",
+  "ai-generate.point.2.description": "從提示生成圖片，或通過將檔案拖入 MuseCopilot 來即時製作摘要、對話和文章。"
+}

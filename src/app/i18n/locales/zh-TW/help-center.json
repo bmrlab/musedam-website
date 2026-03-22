@@ -1,0 +1,78 @@
+{
+  "hero": {
+    "title": "我們該如何協助您？",
+    "subtitle": "最佳的協助只需一個詳細的問題"
+  },
+  "search": {
+    "placeholder": "搜尋文章...",
+    "searching": "搜尋中...",
+    "noResults": "未找到相關文章",
+    "noResultsSuggestion": "試著使用其他關鍵字",
+    "viewAllResults": "查看所有搜尋結果",
+    "clearSearch": "清除搜尋"
+  },
+  "topics": {
+    "showAll": "顯示全部",
+    "articles": " 文章"
+  },
+  "categories": {
+    "allCollections": "所有收藏"
+  },
+  "breadcrumb": {
+    "allCollections": "所有收藏"
+  },
+  "feedback": {
+    "question": "這是否回答了您的問題？",
+    "thanks": "感謝您的反饋 ❤️",
+    "labels": {
+      "negative": "不滿意",
+      "neutral": "中立",
+      "positive": "滿意"
+    }
+  },
+  "searchResults": {
+    "noResults": {
+      "title": "未找到結果",
+      "description": "未找到與 \"{query}\" 相關的文章",
+      "suggestions": "建議：",
+      "suggestionsList": [
+        "檢查拼字是否正確",
+        "試著使用更簡單的關鍵字",
+        "使用同義詞或相關詞"
+      ]
+    },
+    "header": {
+      "title": "搜尋結果",
+      "keyword": "關鍵字：\"{query}\"",
+      "foundCount": "找到 {count} 篇文章"
+    },
+    "pagination": {
+      "showing": "顯示 {total} 筆結果中的前 {showing} 筆",
+      "tip": "使用更具體的關鍵字可以提供更準確的搜尋結果"
+    },
+    "lastUpdated": "最後更新時間：{date}"
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "發生錯誤",
+    "retry": "重試",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一頁",
+    "close": "關閉",
+    "save": "儲存",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "edit": "編輯",
+    "view": "檢視",
+    "relatedArticles": "相關文章"
+  },
+  "tableOfContents": {
+    "noSections": "沒有可用的章節"
+  },
+  "help": {
+    "shortTitle": "幫助中心",
+    "description": "MuseDAM 幫助中心提供全面的使用指南和常見問題，以幫助您快速掌握數位資產管理平台的各項功能，並提高工作效率。"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "readMore": "閱讀更多",
+  "article": {
+    "all": "所有文章",
+    "top": "熱門文章"
+  },
+  "category": {
+    "title": "類別",
+    "all": "所有"
+  },
+  "readTime": "{{ val }} 分鐘閱讀",
+  "title": "部落格",
+  "description": "探索數位資產管理的最新見解與最佳實務",
+  "shortTitle": "部落格",
+  "preGeneration": {
+    "success": "預生成 {{ count }} 篇熱門文章",
+    "error": "預生成文章失敗：{{ error }}"
+  },
+  "seo": {
+    "keywords": [
+      "數位資產管理",
+      "人工智慧技術",
+      "團隊合作",
+      "創意工作流程"
+    ],
+    "articleSection": "數位資產管理",
+    "category": "數位資產管理"
+  }
+}

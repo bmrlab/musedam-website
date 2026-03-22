@@ -1,0 +1,104 @@
+{
+  "precept.title": "受到最好的信賴",
+  "precept.description": "探索我們社群對 Muse 的喜愛之處",
+  "precept.card0.name": "伊莎貝拉·格雷",
+  "precept.card0.role": "內容創作者",
+  "precept.card0.description0": "轉換到 Muse 是無縫的，它現在是我們內容創作過程中不可或缺的一部分。",
+  "precept.card0.description1": "標記和分類資產的能力為我們節省了無數小時。",
+  "precept.card1.name": "艾娃·馬丁",
+  "precept.card1.role": "品牌經理",
+  "precept.card1.description0": "我無法對 Muse 表達更高的推薦。",
+  "precept.card1.description1": "它使我們管理數位資產變得輕而易舉，功能既創新又實用。",
+  "precept.card2.name": "馬克·戴維斯",
+  "precept.card2.role": "IT 專家",
+  "precept.card2.description0": "我之前已經讚美 Muse，並且它持續重新定義我們處理創意資產的方式。",
+  "precept.card2.description1": "就像是從過時的筆記應用升級到強大的專案管理工具—一次飛躍式的進步。",
+  "precept.card3.name": "奧斯卡·迪基森",
+  "precept.card3.role": "內容創作者",
+  "precept.card3.description0": "我愛 Muse！💖",
+  "precept.card3.description1": "能在瀏覽器中預覽超過 70 種檔案格式的能力真是救命稻草，且即時協作功能簡直卓越。",
+  "precept.card4.name": "索非亞·李",
+  "precept.card4.role": "創意總監",
+  "precept.card4.description0": "Muse 已成為我們檔案儲存的首選，完全取代了 Google Drive。",
+  "precept.card4.description1": "它不僅價格實惠; 在跨團隊組織資產方面，它是一個改變遊戲規則的工具。搜索功能無與倫比。",
+  "precept.card5.name": "莉莉·湯普森",
+  "precept.card5.role": "行銷經理",
+  "precept.card5.description0": "Muse 對我們的行銷團隊來說是一個啟示，使分享和管理數位資產變得輕鬆自如。",
+  "precept.card5.description1": "這是一個既直觀又強大的工具。",
+  "precept.card6.name": "拉拉·特納",
+  "precept.card6.role": "數位策略師",
+  "precept.card6.description0": "Muse 是數位資產管理的瑞士軍刀。它擁有的功能讓我們的工作不僅更加輕鬆，還更加愉快。",
+  "precept.card6.description1": "團隊現在無法想像回到舊有的方式。",
+  "precept.card7.name": "傑克·錢德勒",
+  "precept.card7.role": "營運經理",
+  "precept.card7.description0": "Muse 為我們的工作流程帶來的效率無與倫比！",
+  "precept.card7.description1": "憑藉其智能標記和搜索，尋找合適的資產現在變得輕而易舉。",
+  "precept.card8.name": "米婭·謝",
+  "precept.card8.role": "團隊協調員",
+  "precept.card8.description0": "Muse 完全改變了我們團隊處理資產的方式。",
+  "precept.card8.description1": "它直觀、用戶友好，並且已成為我們創意過程的支柱。",
+  "precept.card9.name": "奧利弗·安德森",
+  "precept.card9.role": "藝術總監",
+  "precept.card9.description0": "使用 Muse，我們找到了一個不僅符合而且超越我們期望的數位資產管理工具。",
+  "precept.card9.description1": "用戶介面乾淨，功能強大—完美符合我們的創意工作流程。",
+  "cn.precept.card0": {
+    "name": "TimeZen",
+    "role": "設計工作室",
+    "description0": "在我們的視覺團隊中，專案成員整合和管理設計材料、影像資產、購買的版權材料、設計源檔、字型、圖示及其他常用材料。",
+    "description1": ""
+  },
+  "cn.precept.card1": {
+    "name": "同濟 AI 實驗室",
+    "role": "AI 先驅",
+    "description0": "我們使用數位資產管理（DAM）解決方案已有多年，並相信它們提供的數據安全性。MuseDAM 滿足我們所有團隊資源管理的需求。它非常適合收集靈感、標記、分享和預覽。上傳和下載速度非常快，搜索項目也非常容易，為我們節省了大量時間！",
+    "description1": ""
+  },
+  "cn.precept.card2": {
+    "name": "Design360°",
+    "role": "創意出版",
+    "description0": "MuseDAM 對我們的行銷團隊來說是一股清新空氣，使數位資產的分享和管理變得輕而易舉。這個工具不僅直觀且易於使用，而且功能強大。",
+    "description1": ""
+  },
+  "cn.precept.card3": {
+    "name": "上海設計週",
+    "role": "設計驅動未來",
+    "description0": "上海設計週一直在尋找這樣的數位資產管理軟體：MuseDAM 提供豐富的線上預覽並支持超過 70 種格式；它提供多樣的搜索方式，讓我們能通過顏色、格式、評論、標籤、評分等多種方式找到材料；AI 應用豐富，無論是模型訓練還是 AI 輔助圖形設計，都讓我們團隊的創意產出更加高效。",
+    "description1": ""
+  },
+  "cn.precept.card4": {
+    "name": "視覺風暴雜誌",
+    "role": "視覺藝術的燈塔",
+    "description0": "我們的團隊超過 40 人，主要由視覺設計師、影片設計師和品牌設計師組成，使用 MuseDAM 協作。Muse 完全改變了我們團隊處理資產的方式。它直觀且用戶友好，已成為我們創意過程的核心。",
+    "description1": ""
+  },
+  "cn.precept.card5": {
+    "name": "JS 設計",
+    "role": "雲端 UI 設計工具",
+    "description0": "JS 設計是一個專業的在線設計工具，我們很早就與 MuseDAM 建立了友好的合作夥伴關係。上傳到 MuseDAM 的 Sketch、Figma、XD 和 JSD 檔案都可以直接在線上使用即時設計進行開啟和編輯。我們的團隊也使用 MuseDAM 來儲存、分享和協作設計靈感。現在，MuseDAM 的收集器也支持從靈感網站如 Midjourney、Pinterest、Behance 和 ZCOOL 批量收集圖片，我們非常推薦。",
+    "description1": ""
+  },
+  "cn.precept.card6": {
+    "name": "文遠集團",
+    "role": "數位閱讀巨頭",
+    "description0": "在我們看來，MuseDAM 是數位資產管理的終極工具。它結合多種功能，使我們的日常工作不僅簡單，還更加愉快。現在，我們的團隊成員無法想像沒有 MuseDAM 的一天。",
+    "description1": ""
+  },
+  "cn.precept.card7": {
+    "name": "BMRLab",
+    "role": "探索數位藝術",
+    "description0": "MuseDAM 卓越地解決了我們團隊的協作問題。我們創造 3D IP，並在過程中擁有許多 3D 源檔。與雲端儲存協作之前是相當痛苦的。現在，我們終於可以在一個地方管理一切，使協作變得非常高效。此外，產品迭代非常快，團隊也非常重視用戶反饋。💖",
+    "description1": ""
+  },
+  "cn.precept.card8": {
+    "name": "未來視野集團",
+    "role": "未來科技的領航者",
+    "description0": "MuseDAM 顯著提升了我們工作流程的效率。在市場上幾個雲端資源管理平台中，MuseDAM 在團隊協作方面擁有一定的優勢。由於有 Tezign 這樣的大公司的支持，當我們購買產品時獲得了一定程度的信任和資源背書。此外，我們可以看到許多產品功能正在不斷更新和迭代。",
+    "description1": ""
+  },
+  "cn.precept.card9": {
+    "name": "藝術領域設計",
+    "role": "空間美學專家",
+    "description0": "自從轉向 MuseDAM，我們的工作流程變得非常順暢，並且它已成為我們內容創作不可或缺的日常工具。特別是，智能標記和篩選功能為我們在管理資產方面節省了大量寶貴的時間。",
+    "description1": ""
+  }
+}
