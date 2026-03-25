@@ -6,6 +6,7 @@ import * as migration_20250805_074112_schedule from './20250805_074112_schedule'
 import * as migration_20250820_111040_help_center from './20250820_111040_help_center';
 import * as migration_20250928_091320_update_to_3_57_0 from './20250928_091320_update_to_3_57_0';
 import * as migration_20250929_070055_fix_search_id_conflict from './20250929_070055_fix_search_id_conflict';
+import * as migration_20260323_112311 from './20260323_112311';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20250929_070055_fix_search_id_conflict.up,
     down: migration_20250929_070055_fix_search_id_conflict.down,
-    name: '20250929_070055_fix_search_id_conflict'
+    name: '20250929_070055_fix_search_id_conflict',
+  },
+  {
+    up: migration_20260323_112311.up,
+    down: migration_20260323_112311.down,
+    name: '20260323_112311'
   },
 ];
