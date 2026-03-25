@@ -45,6 +45,8 @@ export default async function RootLayout({
     <html
       lang={lng}
       dir={dir(lng)}
+      // 繁体中文
+      // data-deploy-region={process.env.DEPLOY_REGION?.toLowerCase()}
       suppressHydrationWarning
       className={` ${plexMono.variable} ${euclidCircularA.variable} ${featureDisplayRegularTrial.variable} ${euclidCircularALight.variable}`}
     >

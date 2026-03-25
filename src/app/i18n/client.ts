@@ -16,16 +16,9 @@ import {
 } from 'react-i18next'
 
 import { getOptions, languageCookieName, languages } from './settings'
+import { getLocalePath } from './locale-path'
 
 const runsOnServerSide = typeof window === 'undefined'
-
-// 语言映射：当 DEPLOY_REGION=global 时，zh-CN 加载 zh-TW 的文件
-const getLocalePath = (language: string) => {
-  if (process.env.NEXT_PUBLIC_DEPLOY_REGION === 'global' && language === 'zh-CN') {
-    return 'zh-TW'
-  }
-  return language
-}
 
 // on client side the normal singleton is ok
 i18next
