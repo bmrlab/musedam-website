@@ -244,7 +244,7 @@ export default function HeaderDesktop({
       )}
 
       <div className="flex size-full flex-1 items-center justify-end gap-6">
-        <LocaleSwitch />
+        {isInChina && <LocaleSwitch />}
         {isEnterprisePage ?
           <Link
             href={user ? '/home' : '/auth'}

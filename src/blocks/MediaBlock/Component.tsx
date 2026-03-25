@@ -45,8 +45,13 @@ export const MediaBlock: React.FC<Props> = (props) => {
       )}
     >
       {isFullscreen && (
-        <div className="relative left-1/2 w-screen -translate-x-1/2">
-          <Media imgClassName={cn('h-auto w-full')} resource={media} src={staticImage} />
+        <div className="relative w-full">
+          <Media
+            imgClassName={cn('h-auto w-full')}
+            resource={media}
+            src={staticImage}
+            unoptimized
+          />
         </div>
       )}
       {position === 'default' && (
