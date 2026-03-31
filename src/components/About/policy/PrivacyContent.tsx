@@ -28,7 +28,7 @@ export default function PrivacyPageContent({ lng }: { lng: string }) {
                     {isInChina ? '隐私政策' : t('privacy.title')}
                 </h1>
                 <div className="my-[30px] font-mono text-[16px] font-medium leading-[24px] tracking-[0.8px] md:mb-10 md:mt-[60px]">
-                    {isInChina ? '版本日期：2023年9月18日' : t('privacy.update-date')}
+                    {isInChina ? '版本日期：2026年3月30日' : t('privacy.update-date')}
                 </div>
                 <div className={cn('privacy-content', className)}>
                     {isInChina ? <PrivacyInChina /> : lng === 'zh-CN' ? <PrivacyMDXZH /> : <PrivacyMDXEN />}
