@@ -36,6 +36,10 @@ export default function LngSelector() {
       key: 'zh-CN',
       label: '简体中文',
     },
+    {
+      key: 'zh-TW',
+      label: '繁體中文（台灣）',
+    },
   ]
 
   return (

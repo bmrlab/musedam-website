@@ -13,7 +13,12 @@ export function Header({ isGlobal, user }: { isGlobal: boolean, user: SessionUse
   const newHeaderPath = ['', '/', '/pricing', '/enterprise/quotation']
   const { y: scrollTop } = useWindowScroll()
 
-  const isEnterprisePage = useMemo(() => !!pathname && newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
+  const isEnterprisePage = useMemo(
+    () =>
+      !!pathname &&
+      newHeaderPath.includes(pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '')),
+    [pathname],
+  )
   const isPricingAiPage = useMemo(() => !!pathname && pathname.includes('/pricing/ai'), [pathname])
 
   useEffect(() => {
@@ -29,7 +34,7 @@ export function Header({ isGlobal, user }: { isGlobal: boolean, user: SessionUse
     <nav
       className={cn(
         'fixed z-50 flex h-[56px] w-full items-center font-mono md:h-[70px] transition-all duration-300 ease-in-out border-b border-solid',
-        isEnterprisePage && 'text-white md:backdrop-blur-md bg-[#070707]',
+        isEnterprisePage && 'bg-[#070707] text-white md:backdrop-blur-md',
         isEnterprisePage && scrollTop > 70 && ' border-white/20 bg-black/60',
         isEnterprisePage && scrollTop <= 70 && 'border-transparent',
         !isEnterprisePage && (scrollTop > 0 ? 'border-[#EBECEE] bg-white/80 backdrop-blur-md' : 'border-[#EBECEE] bg-white'),

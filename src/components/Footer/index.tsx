@@ -51,7 +51,7 @@ export default function Footer({ isMini }: { isMini?: boolean }) {
       <footer className="grid grid-cols-1 justify-items-start  bg-[#070707] px-20 py-[60px] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <div className="flex h-full w-[101px] flex-col gap-6">
           <Image src="/assets/logo.svg" width={48} height={48} alt="muse logo" />
-          {isInChina && <LngSelector />}
+          <LngSelector />
           <div className="flex flex-1 flex-col justify-end">
             <SocialWidget />
           </div>

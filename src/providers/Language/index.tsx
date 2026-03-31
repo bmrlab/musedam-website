@@ -23,10 +23,10 @@ export const LanguageProvider = ({ lng, children }: { lng: string; children: Rea
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const changeLocale = useCallback((lang?: 'en-US' | 'zh-CN') => {
+  const changeLocale = useCallback((lang?: 'en-US' | 'zh-CN' | 'zh-TW') => {
     if (lang && language == lang) return
 
-    let otherLocale = language === 'zh-CN' ? 'en-US' : 'zh-CN'
+    let otherLocale = language !== 'en-US' ? 'en-US' : 'zh-CN'
     if (lang) {
       otherLocale = lang
     }

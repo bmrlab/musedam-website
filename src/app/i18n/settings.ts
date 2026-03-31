@@ -1,7 +1,8 @@
 export const zhLng = 'zh-CN'
 export const enLng = 'en-US'
+export const zhTwLng = 'zh-TW'
 export const fallbackLng = enLng
-export const languages = [enLng, zhLng]
+export const languages = [enLng, zhLng, zhTwLng]
 export const defaultNS = 'translation'
 export const languageCookieName = 'x-lang'
 export const countryCookieName = 'country'

@@ -20,8 +20,8 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
   const isQuotationPage = pathname?.includes('/quotation')
   // const { changeLocale } = useLanguage()
 
-  const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '')), [pathname])
-  const miniFooterPage = useMemo(() => !!pathname && pathname.replace('/en-US', '').replace('/zh-CN', '').startsWith('/help'), [pathname])
+  const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '')), [pathname])
+  const miniFooterPage = useMemo(() => !!pathname && pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '').startsWith('/help'), [pathname])
 
   // 初始化 Intercom - 只在首次挂载时初始化（quotation 页面不初始化）
   useEffect(() => {
@@ -163,7 +163,6 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
       }
     }
   }, [isQuotationPage])
-
 
   return isQuotationPage ? (
     children
