@@ -10,6 +10,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
@@ -33,33 +36,52 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push Docker image for Next.js app
+      - name: Build Docker image for Next.js app
         uses: docker/build-push-action@v4
-        timeout-minutes: 10  # 10 分钟超时
+        timeout-minutes: 10
         with:
           context: .
-          push: true
-          tags: |
-            musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
-            musecr.azurecr.cn/muse/musedam-website:latest
-            ghcr.io/${{ github.repository }}:${{ env.VERSION }}
-            ghcr.io/${{ github.repository }}:latest
+          push: false
+          load: true
+          tags: musedam-website:local
 
-      - name: Build and push Docker image for Jobs
+      - name: Push Next.js app to Azure Container Registry
+        run: |
+          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
+          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:latest
+          docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
+          docker push musecr.azurecr.cn/muse/musedam-website:latest
+
+      - name: Push Next.js app to GitHub Container Registry
+        run: |
+          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
+          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest
+
+      - name: Build Docker image for Jobs
         uses: docker/build-push-action@v4
-        timeout-minutes: 10  # 10 分钟超时
+        timeout-minutes: 10
         with:
           context: .
           file: ./Dockerfile.job
-          push: true
-          tags: |
-            musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
-            musecr.azurecr.cn/muse/musedam-website:latest-job
-            ghcr.io/${{ github.repository }}:${{ env.VERSION }}-job
-            ghcr.io/${{ github.repository }}:latest-job
+          push: false
+          load: true
+          tags: musedam-website-job:local
+
+      - name: Push Jobs to Azure Container Registry
+        run: |
+          docker tag musedam-website-job:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
+          docker tag musedam-website-job:local musecr.azurecr.cn/muse/musedam-website:latest-job
+          docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
+          docker push musecr.azurecr.cn/muse/musedam-website:latest-job
+
+      - name: Push Jobs to GitHub Container Registry
+        run: |
+          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
+          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
 
       - name: Setup Kubernetes Config And Update Deployment
         run: |
