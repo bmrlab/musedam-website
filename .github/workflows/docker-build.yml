@@ -8,33 +8,22 @@ on:
       - v*
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
-      - name: Login to Azure Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: musecr.azurecr.cn
-          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Docker image for Next.js app
         uses: docker/build-push-action@v4
@@ -44,20 +33,6 @@ jobs:
           push: false
           load: true
           tags: musedam-website:local
-
-      - name: Push Next.js app to Azure Container Registry
-        run: |
-          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
-          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:latest
-          docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
-          docker push musecr.azurecr.cn/muse/musedam-website:latest
-
-      - name: Push Next.js app to GitHub Container Registry
-        run: |
-          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
-          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest
-          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
-          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest
 
       - name: Build Docker image for Jobs
         uses: docker/build-push-action@v4
@@ -69,19 +44,51 @@ jobs:
           load: true
           tags: musedam-website-job:local
 
+      - name: Save Docker images
+        run: docker save musedam-website:local musedam-website-job:local | gzip > /tmp/images.tar.gz
+
+      - name: Upload Docker images artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp/images.tar.gz
+          retention-days: 1
+
+  push-azure:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp
+
+      - name: Load Docker images
+        run: gunzip -c /tmp/images.tar.gz | docker load
+
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: musecr.azurecr.cn
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Push Next.js app to Azure Container Registry
+        run: |
+          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
+          docker tag musedam-website:local musecr.azurecr.cn/muse/musedam-website:latest
+          docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
+          docker push musecr.azurecr.cn/muse/musedam-website:latest
+
       - name: Push Jobs to Azure Container Registry
         run: |
           docker tag musedam-website-job:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
           docker tag musedam-website-job:local musecr.azurecr.cn/muse/musedam-website:latest-job
           docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
           docker push musecr.azurecr.cn/muse/musedam-website:latest-job
-
-      - name: Push Jobs to GitHub Container Registry
-        run: |
-          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
-          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
-          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
-          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
 
       - name: Setup Kubernetes Config And Update Deployment
         run: |
@@ -93,3 +100,41 @@ jobs:
           kubectl set image deployment/musedam-website musedam-website=musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }} --namespace musedam
           kubectl config use-context muse-aws-us-prod
           kubectl set image deployment/musedam-website musedam-website=musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }} --namespace musedam
+
+  push-ghcr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp
+
+      - name: Load Docker images
+        run: gunzip -c /tmp/images.tar.gz | docker load
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Next.js app to GitHub Container Registry
+        run: |
+          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
+          docker tag musedam-website:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest
+
+      - name: Push Jobs to GitHub Container Registry
+        run: |
+          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
+          docker tag musedam-website-job:local ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:${{ env.VERSION }}-job
+          docker push ghcr.io/${{ github.repository_owner }}/musedam-website:latest-job
