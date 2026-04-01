@@ -56,6 +56,11 @@ function extractTextFromNode(node: NodeTypes): string {
   return ''
 }
 
+function isTableCellEmpty(cell: SerializedTableCellNode): boolean {
+  if (!Array.isArray(cell.children) || cell.children.length === 0) return true
+  return cell.children.every((child) => extractTextFromNode(child as NodeTypes).trim().length === 0)
+}
+
 export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Element {
   return (
     <Fragment>
@@ -315,11 +320,15 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                           // 检查是否是第一行且第一个单元格有内容（作为标题行）
                           const firstCell = rowNode.children?.[0] as SerializedTableCellNode
                           // 检查其他单元格是否为空
-                          const otherCellsEmpty = rowNode.children?.slice(1).every((cell: any) => {
-                            // console.log('c', cell.children)
-                            return cell.children?.[0]?.children?.length === 0
+                          const hasMergedCells = rowNode.children?.some((cell: SerializedTableCellNode) => {
+                            const rowSpan = Number(cell.rowSpan) || 1
+                            const colSpan = Number(cell.colSpan) || 1
+                            return rowSpan > 1 || colSpan > 1
                           })
-                          if (otherCellsEmpty) {
+                          const otherCellsEmpty = rowNode.children
+                            ?.slice(1)
+                            .every((cell: SerializedTableCellNode) => isTableCellEmpty(cell))
+                          if (otherCellsEmpty && !hasMergedCells) {
                             const titleContent = firstCell.children
                               ? serializeLexical({ nodes: firstCell.children as NodeTypes[] })
                               : ''
@@ -360,6 +369,12 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                                   return (
                                     <Tag
                                       key={cellIndex}
+                                      rowSpan={
+                                        Number(cellNode.rowSpan) > 1 ? Number(cellNode.rowSpan) : undefined
+                                      }
+                                      colSpan={
+                                        Number(cellNode.colSpan) > 1 ? Number(cellNode.colSpan) : undefined
+                                      }
                                       className={cn(
                                         'max-w-[400px] break-words border-r border-[#E3E3E3] p-4 text-left !font-euclid text-[14px] font-normal leading-5 text-[#262626] last:border-r-0',
                                         '[&>p]:mb-0 [&>p]:text-[14px]/[20px] [&>p]:font-normal [&>p]:text-[#262626]',
