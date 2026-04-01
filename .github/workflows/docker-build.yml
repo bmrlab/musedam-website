@@ -57,6 +57,7 @@ jobs:
   push-azure:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       VERSION: ${{ needs.build.outputs.version }}
     steps:
@@ -104,6 +105,7 @@ jobs:
   push-ghcr:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       packages: write
     env:
