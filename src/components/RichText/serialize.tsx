@@ -253,7 +253,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
                 )
               } else {
                 return (
-                  <li key={index} value={node?.value} className={`my-0 text-[16px] font-light leading-[1.65] text-[#242424] ${hideMarkerClass}`}>
+                  <li key={index} value={node?.value} className={`my-0 font-euclid text-[18px] font-normal leading-[1.65] text-[#242424] ${hideMarkerClass}`}>
                     {listItemContent}
                   </li>
                 )
