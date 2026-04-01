@@ -68,7 +68,7 @@ export function serializeLexical({ nodes, usedHeadingIds = [] }: Props): JSX.Ele
           let text = <React.Fragment key={index}>{node.text}</React.Fragment>
           if (node.format & IS_BOLD) {
             text = (
-              <strong className="!font-euclid font-semibold text-[#242424]" key={index}>
+              <strong className="!font-euclid font-semibold" key={index}>
                 {text}
               </strong>
             )
