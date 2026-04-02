@@ -12,7 +12,7 @@ import { encodeNumber } from '@/utilities/numberCodec'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import * as Switch from '@radix-ui/react-switch'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { Loader2, Minus, Plus } from 'lucide-react'
+import { Loader2, Minus, Pencil, Plus } from 'lucide-react'
 import { SessionUser } from '@/types/user'
 import { useToast } from '@/hooks/use-toast'
 import { useTranslation } from '@/app/i18n/client'
@@ -242,6 +242,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const advancedPricing = pricing.advanced.modules
   const [openDiscount, setOpenDiscount] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [editingModulePriceKey, setEditingModulePriceKey] = useState<EAdvancedModules | null>(null)
+  const [editingModulePriceValue, setEditingModulePriceValue] = useState<string>('')
 
   const {
     customerInfo,
@@ -277,6 +279,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setCdnTagOption,
     mergedToBasicModules,
     toggleMergeToBasic,
+    advancedModulePriceOverrides,
+    setAdvancedModulePriceOverride,
   } = useQuotationStore()
   const editId = editInfo?.id
 
@@ -404,6 +408,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     let content = {
       advancedModules,
       advancedConfig,
+      advancedModulePriceOverrides,
       prefix,
       featureView,
       showNoBuyFeature,
@@ -446,6 +451,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     user,
     advancedModules,
     advancedConfig,
+    advancedModulePriceOverrides,
     prefix,
     featureView,
     showNoBuyFeature,
@@ -525,6 +531,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const displayPrice = (isMuseAI || isMuseCut || isGA || isCDN) && selectedTagOption && selectedTagOption.priceMultiplier
       ? module.price * selectedTagOption.priceMultiplier
       : module.price
+    const currentModulePrice =
+      key === EAdvancedModules.ADVANCED_FEATURES && advancedModulePriceOverrides[key]
+        ? advancedModulePriceOverrides[key]!
+        : displayPrice
     const isMergedToBasic = mergedToBasicModules.has(key)
 
     return (
@@ -617,13 +627,27 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     onToggle={() => toggleMergeToBasic(key)}
                   />
                 )}
+
+              {key === EAdvancedModules.ADVANCED_FEATURES && (
+                <button
+                  type="button"
+                  className="inline-flex size-[22px] items-center justify-center rounded hover:bg-[#3A3A3A]"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setEditingModulePriceKey(key)
+                    setEditingModulePriceValue(String(advancedModulePriceOverrides[key] ?? module.price))
+                  }}
+                >
+                  <Pencil className="size-4 text-[#BFBFBF] hover:text-white" />
+                </button>
+              )}
             </Label>
             {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
             {!module.noPrice && (
               <DesParagraph>
-                {displayPrice === 0
+                {currentModulePrice === 0
                   ? t('free')
-                  : `${prefix} ${formatWithToLocaleString(displayPrice ?? 0)} ${unit ?? t('per.year')}`}
+                  : `${prefix} ${formatWithToLocaleString(currentModulePrice ?? 0)} ${unit ?? t('per.year')}`}
               </DesParagraph>
             )}
           </div>
@@ -639,6 +663,26 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               }}
               disabled={!advancedModules[key]}
               min={min}
+            />
+          </div>
+        )}
+        {key === EAdvancedModules.ADVANCED_FEATURES && editingModulePriceKey === key && (
+          <div className="mt-2 flex w-full justify-end md:ml-5 md:mt-0 md:w-auto">
+            <Input
+              type="number"
+              min={module.price}
+              step={5000}
+              value={editingModulePriceValue}
+              onChange={(e) => {
+                setEditingModulePriceValue(e.target.value)
+              }}
+              onBlur={() => {
+                const parsed = Number(editingModulePriceValue)
+                const nextPrice = Number.isNaN(parsed) ? module.price : Math.max(module.price, parsed)
+                setAdvancedModulePriceOverride(key, nextPrice)
+                setEditingModulePriceValue(String(nextPrice))
+              }}
+              className='h-[44px] max-w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white'
             />
           </div>
         )}
@@ -748,7 +792,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     .filter((v) => !!advancedModules[v])
                     .reduce((total, key) => {
                       const value = advancedModules[key]
-                      let price = advancedPricing[key]
+                      let price =
+                        key === EAdvancedModules.ADVANCED_FEATURES && advancedModulePriceOverrides[key]
+                          ? advancedModulePriceOverrides[key]!
+                          : advancedPricing[key]
                       if (!price) return total
                       // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
                       if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {

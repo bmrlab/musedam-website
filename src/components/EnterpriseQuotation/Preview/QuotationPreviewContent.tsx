@@ -52,7 +52,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
         setAdvancedModules,
         setAdvancedConfig,
         setEditInfo,
-        setMergedToBasicModules
+        setMergedToBasicModules,
+        setAdvancedModulePriceOverrides
     } = useQuotationStore()
 
     // 初始化数据
@@ -82,6 +83,9 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 if (content.mergedToBasicModules) {
                     setMergedToBasicModules(new Set(content.mergedToBasicModules))
                 }
+                if (content.advancedModulePriceOverrides) {
+                    setAdvancedModulePriceOverrides(content.advancedModulePriceOverrides)
+                }
                 setDiscount(realDiscount)
                 setFeatureView(content.featureView)
                 setShowNoBuyFeature(content.showNoBuyFeature)
@@ -103,7 +107,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;

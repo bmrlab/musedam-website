@@ -66,7 +66,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         museCutTagOption,
         gaTagOption,
         cdnTagOption,
-        mergedToBasicModules
+        mergedToBasicModules,
+        advancedModulePriceOverrides
     } = useQuotationStore()
     const { isInChina } = useCountry()
     const { t } = useTranslation('quotation')
@@ -352,8 +353,28 @@ export const useQuoteDetailData = (): QuoteDetailData => {
                 key,
                 name: label,
                 quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                unit: price === 0 ? t('free') : !price ? undefined : `${prefix}${price.toLocaleString()}${t('per.year')}`,
-                subtotal: price === 0 ? t('free') : !price ? undefined : price,
+                unit: (key === EAdvancedModules.ADVANCED_FEATURES
+                    ? (advancedModulePriceOverrides[key] ?? price)
+                    : price) === 0
+                    ? t('free')
+                    : !(key === EAdvancedModules.ADVANCED_FEATURES
+                        ? (advancedModulePriceOverrides[key] ?? price)
+                        : price)
+                        ? undefined
+                        : `${prefix}${(key === EAdvancedModules.ADVANCED_FEATURES
+                            ? (advancedModulePriceOverrides[key] ?? price)
+                            : price).toLocaleString()}${t('per.year')}`,
+                subtotal: (key === EAdvancedModules.ADVANCED_FEATURES
+                    ? (advancedModulePriceOverrides[key] ?? price)
+                    : price) === 0
+                    ? t('free')
+                    : !(key === EAdvancedModules.ADVANCED_FEATURES
+                        ? (advancedModulePriceOverrides[key] ?? price)
+                        : price)
+                        ? undefined
+                        : (key === EAdvancedModules.ADVANCED_FEATURES
+                            ? (advancedModulePriceOverrides[key] ?? price)
+                            : price),
                 isModule: true,
                 des: hint
             }
@@ -541,7 +562,10 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         //     return total
         // }
         const value = advancedModules[key];
-        let price = advancedPricing[key]
+        let price =
+            key === EAdvancedModules.ADVANCED_FEATURES && advancedModulePriceOverrides[key]
+                ? advancedModulePriceOverrides[key]!
+                : advancedPricing[key]
         if (!price) return total
         // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
         if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
@@ -566,7 +590,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             }
         }
         return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, gaTagOption, cdnTagOption])
+    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, gaTagOption, cdnTagOption, advancedModulePriceOverrides])
 
     const totalPerYear = basicCostPerYear + advancedCostPerYear
     /** 未税- 未折扣价 */

@@ -119,6 +119,11 @@ interface QuotationStoreType {
     mergedToBasicModules: Set<EAdvancedModules>
     setMergedToBasicModules: React.Dispatch<React.SetStateAction<Set<EAdvancedModules>>>
     toggleMergeToBasic: (module: EAdvancedModules) => void
+
+    // 高级模块价格覆写（用于手动调价）
+    advancedModulePriceOverrides: Partial<Record<EAdvancedModules, number>>
+    setAdvancedModulePriceOverride: (module: EAdvancedModules, price?: number) => void
+    setAdvancedModulePriceOverrides: React.Dispatch<React.SetStateAction<Partial<Record<EAdvancedModules, number>>>>
 }
 
 const initialCustomerInfo: ICustomerInfo = {
@@ -199,6 +204,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
 
     // 合并到基础报价的模块
     const [mergedToBasicModules, setMergedToBasicModules] = useState<Set<EAdvancedModules>>(new Set())
+    // 高级模块价格覆写（单价）
+    const [advancedModulePriceOverrides, setAdvancedModulePriceOverrides] = useState<Partial<Record<EAdvancedModules, number>>>({})
 
     // 切换合并到基础报价的状态
     const toggleMergeToBasic = useCallback((module: EAdvancedModules) => {
@@ -210,6 +217,18 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
                 newSet.add(module)
             }
             return newSet
+        })
+    }, [])
+
+    const setAdvancedModulePriceOverride = useCallback((module: EAdvancedModules, price?: number) => {
+        setAdvancedModulePriceOverrides((prev) => {
+            const next = { ...prev }
+            if (typeof price === 'number') {
+                next[module] = price
+            } else {
+                delete next[module]
+            }
+            return next
         })
     }, [])
 
@@ -242,6 +261,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setGaTagOption('10TB')
         setCdnTagOption('10TB')
         setMergedToBasicModules(new Set())
+        setAdvancedModulePriceOverrides({})
     }, [])
 
     const value: QuotationStoreType = {
@@ -281,7 +301,10 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
         setCdnTagOption,
         mergedToBasicModules,
         setMergedToBasicModules,
-        toggleMergeToBasic
+        toggleMergeToBasic,
+        advancedModulePriceOverrides,
+        setAdvancedModulePriceOverride,
+        setAdvancedModulePriceOverrides
     }
 
     return (

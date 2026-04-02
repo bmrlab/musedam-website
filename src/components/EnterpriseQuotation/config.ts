@@ -466,7 +466,7 @@ export const useAdvancedConfigs = () => {
             key: EAdvancedModules.GA_CONTAINER,
             label: moduleNames[EAdvancedModules.GA],
             price: advancedPricing.modules[EAdvancedModules.GA] ?? 0,
-            noPrice:true,
+            noPrice: true,
             hint: t('ga.hint'),
             subFlex: 'column' as const,
             noCheckBox: true,
