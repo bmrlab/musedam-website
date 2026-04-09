@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const SchedulePostSchema = z.object({
   postId: z.number(),
-  publishAt: z.string().datetime(),
+  publishAt: z.string().datetime({ offset: true }),
 })
 
 export async function POST(req: NextRequest) {
