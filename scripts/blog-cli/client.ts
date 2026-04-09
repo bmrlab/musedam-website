@@ -40,8 +40,8 @@ export class PayloadClient {
     collection: string,
     data: T,
     query?: Query,
-  ): Promise<T> {
-    return this.request<T>(`/${collection}`, {
+  ): Promise<{ doc: PayloadDoc }> {
+    return this.request<{ doc: PayloadDoc }>(`/${collection}`, {
       method: 'POST',
       query,
       body: data,
@@ -53,15 +53,15 @@ export class PayloadClient {
     id: number | string,
     data: T,
     query?: Query,
-  ): Promise<T> {
-    return this.request<T>(`/${collection}/${id}`, {
+  ): Promise<{ doc: PayloadDoc }> {
+    return this.request<{ doc: PayloadDoc }>(`/${collection}/${id}`, {
       method: 'PATCH',
       query,
       body: data,
     })
   }
 
-  async uploadMedia(filePath: string, alt: string): Promise<PayloadDoc> {
+  async uploadMedia(filePath: string, alt: string): Promise<{ doc: PayloadDoc }> {
     const fileBuffer = await fs.readFile(filePath)
     const formData = new FormData()
     const file = new Blob([fileBuffer], { type: 'application/octet-stream' })
@@ -69,15 +69,15 @@ export class PayloadClient {
     formData.append('file', file, basename(filePath))
     formData.append('alt', alt)
 
-    return this.request<PayloadDoc>('/media', {
+    return this.request<{ doc: PayloadDoc }>('/media', {
       method: 'POST',
       body: formData,
       headers: {},
     })
   }
 
-  async schedulePost(postId: number, publishAt: string): Promise<unknown> {
-    return this.request<unknown>('/schedule-post', {
+  async schedulePost(postId: number, publishAt: string): Promise<void> {
+    await this.request<unknown>('/schedule-post', {
       method: 'POST',
       body: { postId, publishAt },
     })
