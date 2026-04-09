@@ -327,6 +327,10 @@ export class Publisher {
       data.authors = await this.resolveAuthorsStrict(input.authors)
     }
 
+    if (!options.skipRelatedPosts && input.relatedPosts !== undefined) {
+      data.relatedPosts = await this.resolveRelatedPostsStrict(input.relatedPosts)
+    }
+
     if (input.metaImage !== undefined) {
       if (typeof input.metaImage === 'number') {
         data.meta = { image: input.metaImage }
@@ -340,10 +344,6 @@ export class Publisher {
           )
         }
       }
-    }
-
-    if (!options.skipRelatedPosts && input.relatedPosts !== undefined) {
-      data.relatedPosts = await this.resolveRelatedPostsStrict(input.relatedPosts)
     }
 
     return data
