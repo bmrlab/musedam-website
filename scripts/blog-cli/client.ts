@@ -64,10 +64,10 @@ export class PayloadClient {
   async uploadMedia(filePath: string, alt: string): Promise<{ doc: PayloadDoc }> {
     const fileBuffer = await fs.readFile(filePath)
     const formData = new FormData()
-    const file = new Blob([fileBuffer], { type: 'application/octet-stream' })
+    const file = new Blob([fileBuffer], { type: getMimeType(filePath) })
 
     formData.append('file', file, basename(filePath))
-    formData.append('alt', alt)
+    formData.append('_payload', JSON.stringify({ alt }))
 
     return this.request<{ doc: PayloadDoc }>('/media', {
       method: 'POST',
@@ -163,5 +163,27 @@ export class PayloadClient {
     }
 
     searchParams.append(key, String(value))
+  }
+}
+
+function getMimeType(filePath: string): string {
+  const extension = basename(filePath).split('.').pop()?.toLowerCase()
+
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    case 'png':
+      return 'image/png'
+    case 'gif':
+      return 'image/gif'
+    case 'webp':
+      return 'image/webp'
+    case 'avif':
+      return 'image/avif'
+    case 'svg':
+      return 'image/svg+xml'
+    default:
+      return 'application/octet-stream'
   }
 }
