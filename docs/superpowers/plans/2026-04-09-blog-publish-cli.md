@@ -83,8 +83,8 @@ const SchedulePostSchema = z.object({
 export async function POST(req: Request) {
   const payload = await getPayload({ config: configPromise })
 
-  // Verify API Key auth — reuse Payload's built-in auth
-  const user = await payload.auth({ req })
+  // Verify API Key auth via Payload's built-in auth
+  const { user } = await payload.auth({ headers: req.headers })
   if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -103,8 +103,11 @@ export async function POST(req: Request) {
   }
 
   // Verify the post exists and is a draft
-  const post = await payload.findByID({ collection: 'posts', id: postId })
-  if (!post) {
+  // findByID throws NotFound if the document doesn't exist, so wrap in try-catch
+  let post
+  try {
+    post = await payload.findByID({ collection: 'posts', id: postId, draft: true })
+  } catch {
     return Response.json({ error: 'Post not found' }, { status: 404 })
   }
   if (post._status === 'published') {
@@ -117,7 +120,7 @@ export async function POST(req: Request) {
       type: 'publish' as const,
       doc: { relationTo: 'posts' as const, value: postId },
     },
-    waitUntil: publishDate.toISOString(),
+    waitUntil: publishDate,
   })
 
   return Response.json({
@@ -128,9 +131,11 @@ export async function POST(req: Request) {
 }
 ```
 
-> **Note:** `payload.auth({ req })` 的具体签名需在实现时验证。如果 PayloadCMS 3.80.0 不支持这个方式，改用从 request header 中提取 API Key 并手动调用 `payload.find({ collection: 'users', where: { apiKey: { equals: key } } })` 来验证。
->
-> 同样，`payload.jobs.queue()` 的 `task` / `input` 参数类型需与 PayloadCMS 源码对照验证。如果类型不匹配，参考 `node_modules/@payloadcms/payload/dist/queues` 中的类型定义调整。
+> **Implementation notes:**
+> - `payload.auth()` 接受 `{ headers: req.headers }` 返回 `{ user, permissions }`。
+> - `payload.findByID()` 在文档不存在时抛出 `NotFound` 异常，不返回 null，所以用 try-catch。需传 `draft: true` 才能查到草稿。
+> - `payload.jobs.queue()` 的 `waitUntil` 接受 `Date` 对象，不是 ISO 字符串。
+> - 如果编译时 `payload.jobs.queue` 类型不匹配，检查 `node_modules/payload/dist/types` 中的实际签名并调整。
 
 - [ ] **Step 2: Verify the endpoint compiles**
 
@@ -235,24 +240,27 @@ export interface PublishResult {
 
 - [ ] **Step 2: Verify the schema parses correctly**
 
-Run: `npx tsx -e "
-const { PostInputSchema } = require('./scripts/blog-cli/types');
+Create `scripts/blog-cli/test-types.ts` (temporary verification script):
+
+```typescript
+import { PostInputSchema } from './types'
+
 // Valid input
 const r1 = PostInputSchema.safeParse({
   title: { zh: '测试文章' },
   content: { zh: { root: { type: 'root', children: [] } } },
   slug: 'test-post',
   action: 'draft',
-});
-console.log('valid:', r1.success);
+})
+console.log('valid:', r1.success)
 
 // Missing slug for Chinese title
 const r2 = PostInputSchema.safeParse({
   title: { zh: '测试文章' },
   content: { zh: { root: { type: 'root', children: [] } } },
   action: 'draft',
-});
-console.log('missing slug:', !r2.success);
+})
+console.log('missing slug:', !r2.success)
 
 // Schedule without publishedAt
 const r3 = PostInputSchema.safeParse({
@@ -260,14 +268,13 @@ const r3 = PostInputSchema.safeParse({
   content: { zh: { root: { type: 'root', children: [] } } },
   slug: 'test',
   action: 'schedule',
-});
-console.log('schedule no date:', !r3.success);
-"
-`
+})
+console.log('schedule no date:', !r3.success)
+```
 
-Expected: all three `console.log` output `true`.
+Run: `npx tsx scripts/blog-cli/test-types.ts`
 
-> **Note:** 如果 `require` 不工作（ESM 模块），改用 `npx tsx --eval` 配合 `import` 语法，或创建临时 `scripts/blog-cli/test-types.ts` 文件运行。
+Expected: all three lines output `true`. Then delete the test file: `rm scripts/blog-cli/test-types.ts`
 
 - [ ] **Step 3: Commit**
 
@@ -370,7 +377,6 @@ export class PayloadClient {
   ): Promise<{ doc: PayloadDoc }> {
     const fs = await import('node:fs')
     const path = await import('node:path')
-    const { Blob } = await import('node:buffer')
 
     const fileBuffer = fs.readFileSync(filePath)
     const fileName = path.basename(filePath)
@@ -409,7 +415,7 @@ export class PayloadClient {
 }
 ```
 
-> **Note:** `schedulePost` 调用的是 Task 2 中创建的 `POST /api/schedule-post` 端点。`this.baseUrl` 应为 PayloadCMS API 根路径（如 `https://site.com/api`），而 `schedule-post` route 位于同一 `(payload)/api/` 下，所以 URL 拼接为 `${this.baseUrl}/schedule-post`。实现时验证这个路径是否正确（取决于 Next.js 路由结构，可能需要 `${siteUrl}/api/schedule-post`）。
+> **Route path:** `schedule-post` route 文件在 `src/app/(payload)/api/schedule-post/route.ts`，Next.js 将其映射为 `/api/schedule-post`。PayloadCMS 的 `[...slug]` catch-all 不会拦截它（Next.js 给显式路由优先级高于 catch-all）。因此 `${this.baseUrl}/schedule-post`（即 `https://site.com/api/schedule-post`）是正确的路径。
 
 - [ ] **Step 2: Commit**
 
@@ -779,6 +785,7 @@ export class Publisher {
 
   // --- Private helpers ---
 
+  /** Returns null if slug is empty — posts without slug cannot be deduplicated */
   private async findExistingPost(slug: string): Promise<PayloadDoc | null> {
     if (!slug) return null
     const res = await this.client.find('posts', {
@@ -891,7 +898,8 @@ export class Publisher {
       case 'publish': {
         const publishData: Record<string, unknown> = { _status: 'published' }
         if (input.publishedAt) publishData.publishedAt = input.publishedAt
-        await this.client.update('posts', postId, publishData)
+        // draft: 'true' is needed so PayloadCMS can find the draft version before publishing
+        await this.client.update('posts', postId, publishData, { draft: 'true' })
         result.url = `/blog/${input.slug}`
         break
       }
