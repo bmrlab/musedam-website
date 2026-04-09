@@ -1,0 +1,159 @@
+{
+  "title": {
+    "zh": "MuseDAM 3.0 全新发布：AI 驱动的数字资产管理",
+    "en": "MuseDAM 3.0 Launch: AI-Powered Digital Asset Management"
+  },
+  "content": {
+    "zh": {
+      "root": {
+        "type": "root",
+        "children": [
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "我们很高兴地宣布 MuseDAM 3.0 正式发布。本次更新带来了全新的 AI 驱动功能，让数字资产管理变得更加智能和高效。" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "heading",
+            "tag": "h2",
+            "children": [
+              { "type": "text", "text": "核心亮点" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "AI 智能标签：自动识别图片内容并生成精准标签，大幅减少手动分类时间。支持多语言标签识别，覆盖中英日韩等主流语言。" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "智能搜索：基于语义理解的全新搜索引擎，不仅匹配关键词，更能理解搜索意图。输入「蓝色背景的产品图」即可精确定位目标资产。" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "heading",
+            "tag": "h2",
+            "children": [
+              { "type": "text", "text": "立即体验" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "MuseDAM 3.0 现已对所有用户开放。登录您的账户即可体验全部新功能，无需额外付费。" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "version": 1
+      }
+    },
+    "en": {
+      "root": {
+        "type": "root",
+        "children": [
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "We are thrilled to announce the official release of MuseDAM 3.0. This update introduces AI-powered features that make digital asset management smarter and more efficient than ever." }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "heading",
+            "tag": "h2",
+            "children": [
+              { "type": "text", "text": "Key Highlights" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "AI Smart Tagging: Automatically recognizes image content and generates precise tags, dramatically reducing manual categorization time. Supports multilingual tag recognition covering Chinese, English, Japanese, Korean, and more." }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "Semantic Search: A brand-new search engine powered by semantic understanding. It doesn't just match keywords — it understands search intent. Type 'product photos with blue background' to pinpoint your target assets." }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "heading",
+            "tag": "h2",
+            "children": [
+              { "type": "text", "text": "Try It Now" }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          },
+          {
+            "type": "paragraph",
+            "children": [
+              { "type": "text", "text": "MuseDAM 3.0 is now available to all users. Log in to your account to experience all the new features at no extra cost." }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "version": 1
+      }
+    }
+  },
+  "slug": "musedam-3-ai-digital-asset-management",
+  "categories": ["AI", "智能资产管理"],
+  "isHeroArticle": false,
+  "isTopArticle": false,
+  "action": "publish"
+}

@@ -1,0 +1,30 @@
+{
+  "title": {
+    "zh": "CLI 定时发布测试",
+    "en": "CLI Schedule Test"
+  },
+  "content": {
+    "zh": {
+      "root": {
+        "type": "root",
+        "children": [
+          {
+            "type": "paragraph",
+            "children": [{ "type": "text", "text": "定时发布的测试文章。" }],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "version": 1
+      }
+    }
+  },
+  "slug": "cli-schedule-test",
+  "publishedAt": "2026-04-09T09:00:00Z",
+  "action": "schedule"
+}

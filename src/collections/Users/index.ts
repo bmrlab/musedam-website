@@ -16,6 +16,7 @@ export const Users: CollectionConfig = {
   },
   // https://github.com/payloadcms/payload/releases/tag/v3.44.0
   auth: {
+    useAPIKey: true,
     useSessions: false,
   },
   fields: [
