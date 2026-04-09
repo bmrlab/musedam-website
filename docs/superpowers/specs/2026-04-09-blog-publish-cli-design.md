@@ -64,7 +64,7 @@ PAYLOAD_API_KEY=your-api-key
 | `categories` | No | Category names (zh locale), resolved to IDs by script. |
 | `authors` | No | Author emails, resolved to IDs by script. |
 | `relatedPosts` | No | Post slugs, resolved to IDs by script. |
-| `slug` | Recommended | Custom slug. PayloadCMS auto-generates from `title`, but the `formatSlug` function strips non-ASCII characters (`\w` = `[a-zA-Z0-9_]`), so Chinese-only titles produce empty slugs. **For Chinese posts, always provide an explicit slug** (e.g. pinyin or English). |
+| `slug` | **Yes** (for Chinese posts) | Custom slug. PayloadCMS `formatSlug` strips non-ASCII characters (`\w` = `[a-zA-Z0-9_]`), so Chinese titles produce empty slugs. CLI **must reject** input without `slug` when `title.zh` contains non-ASCII characters. |
 | `isHeroArticle` | No | Default false |
 | `isTopArticle` | No | Default false |
 | `publishedAt` | No | ISO 8601 date. Required when `action` is `"schedule"` and must be a future date. |
@@ -91,13 +91,21 @@ PAYLOAD_API_KEY=your-api-key
 
 ## API Call Flow
 
-### Step 1: Duplicate Check
+### Step 1: Upsert Check (Duplicate Detection + Resume)
 
 ```
-GET /api/posts?where[slug][equals]=<slug>&locale=zh
+GET /api/posts?where[slug][equals]=<slug>
 ```
 
-If a post with the same slug exists, log a warning and skip (or update if an `--update` flag is provided in the future).
+根据查询结果决定行为：
+
+| 情况 | 行为 |
+|------|------|
+| 不存在 | 正常创建（Step 2+） |
+| 已存在且 `_status: "draft"` | **Resume 模式**：视为上次失败后的恢复，跳过创建，直接 PATCH 更新该文章，然后继续后续 action 步骤 |
+| 已存在且 `_status: "published"` | 跳过并 warn（除非传入 `--force` 标志则覆盖更新） |
+
+这保证了：脚本中途失败后重跑不会被 duplicate 卡住，而是恢复上次未完成的流程。
 
 ### Step 2: Upload Meta Image (if needed)
 
@@ -120,6 +128,15 @@ GET /api/categories?where[title][equals]=产品更新&locale=zh
 GET /api/posts?where[slug][equals]=another-post-slug
 GET /api/users?where[email][equals]=admin@musedam.cc
 ```
+
+#### 同批次内互相引用 (relatedPosts)
+
+批量发布时，`relatedPosts` 中的 slug 可能指向同一批次中尚未创建的文章。处理策略：
+
+1. **两趟处理（Two-pass）：**
+   - **第一趟**：按顺序创建所有文章（草稿），跳过无法解析的 `relatedPosts`
+   - **第二趟**：所有文章创建完毕后，回填 `relatedPosts` 关系（PATCH 更新）
+2. 脚本维护一个 `slug → postId` 的映射表，第一趟创建时写入，第二趟回填时查询
 
 ### Step 4: Create Post (Chinese, Draft)
 
@@ -160,32 +177,56 @@ PATCH /api/posts/{id}?locale=en&draft=true
 |--------|-----------|
 | `draft` | No further action. |
 | `publish` | `PATCH /api/posts/{id}` with `{ "_status": "published", "publishedAt": "<now or provided date>" }` |
-| `schedule` | 1. Keep post as `_status: "draft"`. 2. `POST /api/payload-jobs` to queue a `schedulePublish` task with `waitUntil` set to the `publishedAt` date. PayloadCMS jobs queue will publish the post at the scheduled time. |
+| `schedule` | See "Scheduled Publishing" section below. |
 
-### Scheduled Publishing Details
+### Scheduled Publishing
 
-PayloadCMS `schedulePublish` does NOT work by setting `_status: "published"` with a future date — that would publish immediately. Instead, it uses a jobs queue:
+PayloadCMS `schedulePublish` does NOT work by setting `_status: "published"` with a future date — that would publish immediately. It uses an internal jobs queue (`payload.jobs.queue()`).
 
-```
-POST /api/payload-jobs
-Content-Type: application/json
+**实现策略（按优先级）：**
 
-{
-  "taskSlug": "schedulePublish",
-  "input": {
-    "type": "publish",
-    "doc": {
-      "relationTo": "posts",
-      "value": "<post_id>"
-    }
-  },
-  "waitUntil": "2026-04-15T10:00:00Z"
-}
-```
+1. **首选：受控服务端入口（Server Endpoint）**
+   在项目中创建一个专用 API route（如 `POST /api/schedule-post`），内部使用 PayloadCMS Local API 调用 `payload.jobs.queue()`：
 
-The post remains in draft status. When the job fires at `waitUntil`, PayloadCMS changes `_status` to `"published"` automatically.
+   ```typescript
+   // src/app/(payload)/api/schedule-post/route.ts
+   import { getPayload } from 'payload'
+   import configPromise from '@payload-config'
 
-> **Implementation Priority:** The exact `POST /api/payload-jobs` payload format must be verified as the **first implementation task** by testing against a running PayloadCMS instance or reading the PayloadCMS 3.x jobs queue source code. The `TaskSchedulePublish` type shows `value: number | Post`, meaning post IDs are **numeric**. If the REST API does not expose job creation directly, the fallback is to use PayloadCMS Local API within a server script (running in the same Node.js process as Payload).
+   export async function POST(req: Request) {
+     const payload = await getPayload({ config: configPromise })
+     const { postId, publishAt } = await req.json()
+     // TODO: 认证校验
+     await payload.jobs.queue({
+       task: 'schedulePublish',
+       input: {
+         type: 'publish',
+         doc: { relationTo: 'posts', value: postId },
+       },
+       waitUntil: publishAt,
+     })
+     return Response.json({ success: true, scheduledAt: publishAt })
+   }
+   ```
+
+   这是最可靠的方式，因为直接使用 PayloadCMS 官方 Local API，不依赖未验证的 REST 端点。
+
+2. **备选：REST API `POST /api/payload-jobs`**
+   如果 PayloadCMS 暴露了 jobs collection 的 REST 端点，可以直接调用。但此端点**未在官方文档中明确记录**，实现前必须验证：
+   - 端点是否存在且可写
+   - payload 格式是否正确
+   - 权限是否允许 API Key 用户创建 job
+
+   ```
+   POST /api/payload-jobs
+   {
+     "taskSlug": "schedulePublish",
+     "input": { "type": "publish", "doc": { "relationTo": "posts", "value": <post_id> } },
+     "waitUntil": "2026-04-15T10:00:00Z"
+   }
+   ```
+
+> **Implementation Priority:** 实现的第一步是验证定时发布接口。先尝试方案 1（创建受控 server endpoint），如果项目架构不允许，再验证方案 2。
 
 > **Note on IDs:** All entity IDs in this system (posts, media, categories, users) are **numbers**, not strings.
 
@@ -218,28 +259,48 @@ npx tsx scripts/blog-cli/index.ts list --status draft
 
 ### Core Flow
 
+**单篇模式：**
 ```
-Read JSON file(s)
-  → Validate input (action + publishedAt consistency)
-  → Check for duplicate slug
+Read JSON file
+  → Validate input (action + publishedAt + slug for Chinese titles)
+  → Upsert check (slug lookup → create / resume / skip)
   → Resolve categories/authors/relatedPosts to IDs
   → Upload metaImage (if local file path)
-  → POST /api/posts to create post (Chinese, draft)
-  → PATCH /api/posts/{id}?locale=en (if English content provided)
-  → Based on action:
-      draft    → keep as draft, done
-      publish  → PATCH _status=published
-      schedule → POST /api/payload-jobs with schedulePublish task
+  → Create or update post (Chinese, draft)
+  → PATCH locale=en (if English content provided)
+  → Execute action (publish / schedule / draft)
   → Output result (post ID, URL, status)
+```
+
+**批量模式（Two-pass）：**
+```
+Pass 1 — Create all posts:
+  Read all JSON files
+  → Validate each input
+  → For each file:
+      → Upsert check
+      → Resolve categories/authors to IDs (skip relatedPosts)
+      → Upload metaImage
+      → Create or update post (Chinese, draft)
+      → PATCH locale=en (if provided)
+      → Record slug → postId mapping
+
+Pass 2 — Backfill relatedPosts + execute actions:
+  For each file:
+      → Resolve relatedPosts using slug → postId mapping + API lookup
+      → PATCH relatedPosts onto post
+      → Execute action (publish / schedule / draft)
+      → Output result
 ```
 
 ### Error Handling
 
-- Input validation failure (e.g. `schedule` without future `publishedAt`): reject with clear error message
-- Duplicate slug detected: log warning, skip that post
+- Input validation failure (e.g. `schedule` without future `publishedAt`, Chinese title without `slug`): reject with clear error message
+- Slug exists + published: log warning, skip (unless `--force`)
+- Slug exists + draft: resume mode, update existing post
 - Category/author not found: log error, skip that post
 - Image upload failure: log error, continue creating post without meta image
-- Batch mode: single post failure does not block remaining posts
+- Batch mode: single post failure does not block remaining posts; Pass 2 skips posts that failed in Pass 1
 - All errors are logged with the source JSON file name for traceability
 
 ## Out of Scope
