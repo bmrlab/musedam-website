@@ -111,6 +111,7 @@ async function cmdPublish(args: string[]): Promise<void> {
   const publisher = new Publisher(client, resolver)
 
   const files = collectJsonFiles(target)
+  console.log(`Found ${files.length} JSON file(s)`)
   const results =
     files.length === 1
       ? [await publisher.processFile(files[0], { force })]
