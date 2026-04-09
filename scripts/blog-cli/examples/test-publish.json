@@ -1,0 +1,29 @@
+{
+  "title": {
+    "zh": "CLI 发布测试",
+    "en": "CLI Publish Test"
+  },
+  "content": {
+    "zh": {
+      "root": {
+        "type": "root",
+        "children": [
+          {
+            "type": "paragraph",
+            "children": [{ "type": "text", "text": "立即发布的测试文章。" }],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "version": 1
+      }
+    }
+  },
+  "slug": "cli-publish-test",
+  "action": "publish"
+}

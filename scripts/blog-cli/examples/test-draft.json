@@ -1,0 +1,29 @@
+{
+  "title": {
+    "zh": "CLI 测试文章",
+    "en": "CLI Test Post"
+  },
+  "content": {
+    "zh": {
+      "root": {
+        "type": "root",
+        "children": [
+          {
+            "type": "paragraph",
+            "children": [{ "type": "text", "text": "这是一篇通过 CLI 创建的测试文章。" }],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "version": 1
+      }
+    }
+  },
+  "slug": "cli-test-post",
+  "action": "draft"
+}
