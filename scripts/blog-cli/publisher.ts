@@ -1,5 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { formatSlug } from '../../src/fields/slug/formatSlug'
 import type { PayloadClient, PayloadDoc } from './client'
 import type { Resolver } from './resolver'
 import { PostInputSchema, type PostInput, type PublishResult } from './types'
@@ -18,6 +19,9 @@ export class Publisher {
     options: { force?: boolean } = {},
   ): Promise<PublishResult> {
     const fileName = path.basename(filePath)
+    let postId: number | null = null
+    let slug = ''
+    let action: PublishResult['action'] = 'draft'
 
     try {
       const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>
@@ -39,36 +43,43 @@ export class Publisher {
       }
 
       const input = parsed.data
-      const slug = input.slug ?? ''
-      const existing = await this.findExistingPost(slug)
-      let postId: number
+      const canonicalSlug = this.getCanonicalSlug(input)
+      action = input.action
+      slug = canonicalSlug
+      const existing = await this.findExistingPost(canonicalSlug)
       let isResume = false
 
       if (existing) {
         const existingStatus = existing._status as string | undefined
+        const existingSlug = typeof existing.slug === 'string' ? existing.slug : canonicalSlug
         if (existingStatus === 'published' && !options.force) {
           return {
             file: fileName,
             postId: existing.id,
-            slug,
+            slug: existingSlug,
             status: 'skipped',
             action: input.action,
             error: 'Post already published. Use --force to overwrite.',
           }
         }
 
-        postId = existing.id
         isResume = true
-        await this.updatePost(postId, input)
+        postId = existing.id
+        slug = existingSlug
+        const doc = await this.updatePost(existing.id, input)
+        postId = doc.id
+        slug = this.getPersistedSlug(doc, canonicalSlug)
       } else {
-        postId = await this.createPost(input)
+        const doc = await this.createPost(input)
+        postId = doc.id
+        slug = this.getPersistedSlug(doc, canonicalSlug)
+      }
+
+      if (Object.prototype.hasOwnProperty.call(input.title, 'en') || input.content.en) {
+        await this.addEnglishLocale(postId, input)
       }
 
       this.resolver.registerPost(slug, postId)
-
-      if (input.title.en || input.content.en) {
-        await this.addEnglishLocale(postId, input)
-      }
 
       const result: PublishResult = {
         file: fileName,
@@ -78,16 +89,16 @@ export class Publisher {
         action: input.action,
       }
 
-      await this.executeAction(postId, input, result)
+      await this.executeAction(postId, slug, input, result)
 
       return result
     } catch (error) {
       return {
         file: fileName,
-        postId: null,
-        slug: '',
+        postId,
+        slug,
         status: 'error',
-        action: 'draft',
+        action,
         error: error instanceof Error ? error.message : String(error),
       }
     }
@@ -102,6 +113,7 @@ export class Publisher {
       filePath: string
       input: PostInput
       postId: number
+      slug: string
       isResume: boolean
     }> = []
 
@@ -109,6 +121,9 @@ export class Publisher {
 
     for (const filePath of filePaths) {
       const fileName = path.basename(filePath)
+      let postId: number | null = null
+      let slug = ''
+      let action: PublishResult['action'] = 'draft'
 
       try {
         const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>
@@ -131,18 +146,20 @@ export class Publisher {
         }
 
         const input = parsed.data
-        const slug = input.slug ?? ''
-        const existing = await this.findExistingPost(slug)
-        let postId: number
+        const canonicalSlug = this.getCanonicalSlug(input)
+        action = input.action
+        slug = canonicalSlug
+        const existing = await this.findExistingPost(canonicalSlug)
         let isResume = false
 
         if (existing) {
           const existingStatus = existing._status as string | undefined
+          const existingSlug = typeof existing.slug === 'string' ? existing.slug : canonicalSlug
           if (existingStatus === 'published' && !options.force) {
             results.push({
               file: fileName,
               postId: existing.id,
-              slug,
+              slug: existingSlug,
               status: 'skipped',
               action: input.action,
               error: 'Post already published. Use --force to overwrite.',
@@ -150,28 +167,32 @@ export class Publisher {
             continue
           }
 
-          postId = existing.id
           isResume = true
-          await this.updatePost(postId, input, { skipRelatedPosts: true })
+          postId = existing.id
+          slug = existingSlug
+          const doc = await this.updatePost(existing.id, input, { skipRelatedPosts: true })
+          postId = doc.id
+          slug = this.getPersistedSlug(doc, canonicalSlug)
         } else {
-          postId = await this.createPost(input, { skipRelatedPosts: true })
+          const doc = await this.createPost(input, { skipRelatedPosts: true })
+          postId = doc.id
+          slug = this.getPersistedSlug(doc, canonicalSlug)
         }
 
-        this.resolver.registerPost(slug, postId)
-
-        if (input.title.en || input.content.en) {
+        if (Object.prototype.hasOwnProperty.call(input.title, 'en') || input.content.en) {
           await this.addEnglishLocale(postId, input)
         }
 
-        pass1Data.push({ filePath, input, postId, isResume })
+        this.resolver.registerPost(slug, postId)
+        pass1Data.push({ filePath, input, postId, slug, isResume })
         console.log(`  [ok] ${fileName} -> id=${postId} (${isResume ? 'resumed' : 'created'})`)
       } catch (error) {
         results.push({
           file: fileName,
-          postId: null,
-          slug: '',
+          postId,
+          slug,
           status: 'error',
-          action: 'draft',
+          action,
           error: error instanceof Error ? error.message : String(error),
         })
       }
@@ -179,38 +200,36 @@ export class Publisher {
 
     console.log(`\n[Pass 2] Backfilling relatedPosts & executing actions...\n`)
 
-    for (const { filePath, input, postId, isResume } of pass1Data) {
+    for (const { filePath, input, postId, slug, isResume } of pass1Data) {
       const fileName = path.basename(filePath)
 
       try {
-        if (input.relatedPosts?.length) {
+        if (input.relatedPosts !== undefined) {
           const relatedIds = await this.resolver.resolveRelatedPosts(input.relatedPosts)
-          if (relatedIds.length > 0) {
-            await this.client.update(
-              'posts',
-              postId,
-              { relatedPosts: relatedIds },
-              { draft: 'true', locale: 'zh' },
-            )
-          }
+          await this.client.update(
+            'posts',
+            postId,
+            { relatedPosts: relatedIds },
+            { draft: 'true', locale: 'zh' },
+          )
         }
 
         const result: PublishResult = {
           file: fileName,
           postId,
-          slug: input.slug ?? '',
+          slug,
           status: isResume ? 'resumed' : 'created',
           action: input.action,
         }
 
-        await this.executeAction(postId, input, result)
+        await this.executeAction(postId, slug, input, result)
         results.push(result)
         console.log(`  [ok] ${fileName} -> ${input.action} (id=${postId})`)
       } catch (error) {
         results.push({
           file: fileName,
           postId,
-          slug: input.slug ?? '',
+          slug,
           status: 'error',
           action: input.action,
           error: error instanceof Error ? error.message : String(error),
@@ -238,27 +257,29 @@ export class Publisher {
   private async createPost(
     input: PostInput,
     options: { skipRelatedPosts?: boolean } = {},
-  ): Promise<number> {
+  ): Promise<PayloadDoc> {
     const data = await this.buildPostData(input, options)
     const res = await this.client.create('posts', data, {
       locale: 'zh',
       draft: 'true',
     })
 
-    return res.doc.id
+    return res.doc
   }
 
   private async updatePost(
     id: number,
     input: PostInput,
     options: { skipRelatedPosts?: boolean } = {},
-  ): Promise<void> {
+  ): Promise<PayloadDoc> {
     const data = await this.buildPostData(input, options)
 
-    await this.client.update('posts', id, data, {
+    const res = await this.client.update('posts', id, data, {
       locale: 'zh',
       draft: 'true',
     })
+
+    return res.doc
   }
 
   private async buildPostData(
@@ -277,11 +298,11 @@ export class Publisher {
       data.slug = input.slug
     }
 
-    if (input.categories?.length) {
+    if (input.categories !== undefined) {
       data.categories = await this.resolver.resolveCategories(input.categories)
     }
 
-    if (input.authors?.length) {
+    if (input.authors !== undefined) {
       data.authors = await this.resolver.resolveAuthors(input.authors)
     }
 
@@ -300,11 +321,9 @@ export class Publisher {
       }
     }
 
-    if (!options.skipRelatedPosts && input.relatedPosts?.length) {
+    if (!options.skipRelatedPosts && input.relatedPosts !== undefined) {
       const relatedIds = await this.resolver.resolveRelatedPosts(input.relatedPosts)
-      if (relatedIds.length > 0) {
-        data.relatedPosts = relatedIds
-      }
+      data.relatedPosts = relatedIds
     }
 
     return data
@@ -313,7 +332,7 @@ export class Publisher {
   private async addEnglishLocale(postId: number, input: PostInput): Promise<void> {
     const data: Record<string, unknown> = {}
 
-    if (input.title.en) {
+    if (Object.prototype.hasOwnProperty.call(input.title, 'en')) {
       data.title = input.title.en
     }
 
@@ -331,6 +350,7 @@ export class Publisher {
 
   private async executeAction(
     postId: number,
+    slug: string,
     input: PostInput,
     result: PublishResult,
   ): Promise<void> {
@@ -343,7 +363,7 @@ export class Publisher {
         }
 
         await this.client.update('posts', postId, publishData, { draft: 'true' })
-        result.url = `/blog/${input.slug ?? ''}`
+        result.url = `/blog/${slug}`
         break
       }
       case 'schedule':
@@ -353,6 +373,14 @@ export class Publisher {
       case 'draft':
         break
     }
+  }
+
+  private getCanonicalSlug(input: PostInput): string {
+    return input.slug ? formatSlug(input.slug) : formatSlug(input.title.zh)
+  }
+
+  private getPersistedSlug(doc: PayloadDoc, canonicalSlug: string): string {
+    return typeof doc.slug === 'string' ? doc.slug : canonicalSlug
   }
 }
 
