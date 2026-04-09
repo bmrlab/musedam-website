@@ -45,6 +45,16 @@ export class Publisher {
       const input = parsed.data
       const canonicalSlug = this.getCanonicalSlug(input)
       action = input.action
+      if (canonicalSlug === '') {
+        return {
+          file: fileName,
+          postId: null,
+          slug: '',
+          status: 'error',
+          action,
+          error: this.buildEmptySlugError(input),
+        }
+      }
       slug = canonicalSlug
       const existing = await this.findExistingPost(canonicalSlug)
       let isResume = false
@@ -148,6 +158,17 @@ export class Publisher {
         const input = parsed.data
         const canonicalSlug = this.getCanonicalSlug(input)
         action = input.action
+        if (canonicalSlug === '') {
+          results.push({
+            file: fileName,
+            postId: null,
+            slug: '',
+            status: 'error',
+            action,
+            error: this.buildEmptySlugError(input),
+          })
+          continue
+        }
         slug = canonicalSlug
         const existing = await this.findExistingPost(canonicalSlug)
         let isResume = false
@@ -205,7 +226,7 @@ export class Publisher {
 
       try {
         if (input.relatedPosts !== undefined) {
-          const relatedIds = await this.resolver.resolveRelatedPosts(input.relatedPosts)
+          const relatedIds = await this.resolveRelatedPostsStrict(input.relatedPosts)
           await this.client.update(
             'posts',
             postId,
@@ -299,11 +320,11 @@ export class Publisher {
     }
 
     if (input.categories !== undefined) {
-      data.categories = await this.resolver.resolveCategories(input.categories)
+      data.categories = await this.resolveCategoriesStrict(input.categories)
     }
 
     if (input.authors !== undefined) {
-      data.authors = await this.resolver.resolveAuthors(input.authors)
+      data.authors = await this.resolveAuthorsStrict(input.authors)
     }
 
     if (input.metaImage !== undefined) {
@@ -322,8 +343,7 @@ export class Publisher {
     }
 
     if (!options.skipRelatedPosts && input.relatedPosts !== undefined) {
-      const relatedIds = await this.resolver.resolveRelatedPosts(input.relatedPosts)
-      data.relatedPosts = relatedIds
+      data.relatedPosts = await this.resolveRelatedPostsStrict(input.relatedPosts)
     }
 
     return data
@@ -381,6 +401,55 @@ export class Publisher {
 
   private getPersistedSlug(doc: PayloadDoc, canonicalSlug: string): string {
     return typeof doc.slug === 'string' ? doc.slug : canonicalSlug
+  }
+
+  private buildEmptySlugError(input: PostInput): string {
+    return input.slug
+      ? 'Validation failed: slug: normalized slug is empty'
+      : 'Validation failed: slug: normalized title-derived slug is empty'
+  }
+
+  private async resolveCategoriesStrict(names: string[]): Promise<number[]> {
+    return this.resolveStrictArray(names, 'Category', (name) =>
+      this.resolver.resolveCategory(name),
+    )
+  }
+
+  private async resolveAuthorsStrict(emails: string[]): Promise<number[]> {
+    return this.resolveStrictArray(emails, 'Author', (email) =>
+      this.resolver.resolveAuthor(email),
+    )
+  }
+
+  private async resolveRelatedPostsStrict(slugs: string[]): Promise<number[]> {
+    return this.resolveStrictArray(slugs, 'Related post', (slug) =>
+      this.resolver.resolvePostBySlug(slug),
+    )
+  }
+
+  private async resolveStrictArray(
+    values: string[],
+    label: string,
+    resolve: (value: string) => Promise<number | null>,
+  ): Promise<number[]> {
+    const resolved: number[] = []
+    const missing: string[] = []
+
+    for (const value of values) {
+      const id = await resolve(value)
+      if (id === null) {
+        missing.push(value)
+        continue
+      }
+
+      resolved.push(id)
+    }
+
+    if (missing.length > 0) {
+      throw new Error(`${label} not found: ${missing.join(', ')}`)
+    }
+
+    return resolved
   }
 }
 
