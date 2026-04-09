@@ -64,7 +64,7 @@ PAYLOAD_API_KEY=your-api-key
 | `categories` | No | Category names (zh locale), resolved to IDs by script. |
 | `authors` | No | Author emails, resolved to IDs by script. |
 | `relatedPosts` | No | Post slugs, resolved to IDs by script. |
-| `slug` | No | Custom slug. If omitted, auto-generated from `title.zh` by PayloadCMS. |
+| `slug` | Recommended | Custom slug. PayloadCMS auto-generates from `title`, but the `formatSlug` function strips non-ASCII characters (`\w` = `[a-zA-Z0-9_]`), so Chinese-only titles produce empty slugs. **For Chinese posts, always provide an explicit slug** (e.g. pinyin or English). |
 | `isHeroArticle` | No | Default false |
 | `isTopArticle` | No | Default false |
 | `publishedAt` | No | ISO 8601 date. Required when `action` is `"schedule"` and must be a future date. |
@@ -75,7 +75,7 @@ PAYLOAD_API_KEY=your-api-key
 | action | publishedAt | Behavior |
 |--------|-------------|----------|
 | `draft` | ignored | Save as draft |
-| `publish` | omitted | Publish immediately, `publishedAt` auto-set to now |
+| `publish` | omitted | Publish immediately, `publishedAt` auto-set to now by server-side `beforeChange` hook (CLI should not send `publishedAt` in this case) |
 | `publish` | provided | Publish immediately with the given `publishedAt` |
 | `schedule` | **required, must be future** | Queue a scheduled publish job |
 | `schedule` | omitted or past | **Error**: reject the input |
@@ -185,7 +185,9 @@ Content-Type: application/json
 
 The post remains in draft status. When the job fires at `waitUntil`, PayloadCMS changes `_status` to `"published"` automatically.
 
-> **Note:** The exact payload-jobs REST API format needs to be verified against the running PayloadCMS instance during implementation. If the REST API does not expose job creation directly, the fallback is to use PayloadCMS Local API within a server script (running in the same Node.js process as Payload).
+> **Implementation Priority:** The exact `POST /api/payload-jobs` payload format must be verified as the **first implementation task** by testing against a running PayloadCMS instance or reading the PayloadCMS 3.x jobs queue source code. The `TaskSchedulePublish` type shows `value: number | Post`, meaning post IDs are **numeric**. If the REST API does not expose job creation directly, the fallback is to use PayloadCMS Local API within a server script (running in the same Node.js process as Payload).
+
+> **Note on IDs:** All entity IDs in this system (posts, media, categories, users) are **numbers**, not strings.
 
 ## Script Tool Design
 
