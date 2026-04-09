@@ -65,6 +65,83 @@ function collectJsonFiles(target: string): string[] {
   process.exit(1)
 }
 
+function parsePublishArgs(args: string[]): { force: boolean; target: string } {
+  let force = false
+  let target: string | undefined
+
+  for (const arg of args) {
+    if (arg === '--force') {
+      if (force) {
+        console.error('[error] Duplicate --force flag')
+        usage()
+      }
+
+      force = true
+      continue
+    }
+
+    if (arg.startsWith('--')) {
+      console.error(`[error] Unknown flag: ${arg}`)
+      usage()
+    }
+
+    if (target !== undefined) {
+      console.error(`[error] Unexpected extra argument: ${arg}`)
+      usage()
+    }
+
+    target = arg
+  }
+
+  if (target === undefined) {
+    console.error('[error] Missing file or directory argument')
+    usage()
+  }
+
+  return { force, target }
+}
+
+function parseListArgs(args: string[]): { status?: 'draft' | 'published' } {
+  let status: 'draft' | 'published' | undefined
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index]
+
+    if (arg === '--status') {
+      const value = args[index + 1]
+
+      if (value === undefined || value.startsWith('--')) {
+        console.error('[error] Missing status value after --status')
+        usage()
+      }
+
+      if (value !== 'draft' && value !== 'published') {
+        console.error('[error] Invalid status value. Expected draft or published.')
+        usage()
+      }
+
+      if (status !== undefined) {
+        console.error('[error] Duplicate --status flag')
+        usage()
+      }
+
+      status = value
+      index += 1
+      continue
+    }
+
+    if (arg.startsWith('--')) {
+      console.error(`[error] Unknown flag: ${arg}`)
+      usage()
+    }
+
+    console.error(`[error] Unexpected extra argument: ${arg}`)
+    usage()
+  }
+
+  return { status }
+}
+
 function printResults(results: PublishResult[]): void {
   console.log('--- Results ---')
 
@@ -95,12 +172,12 @@ function printResults(results: PublishResult[]): void {
 }
 
 async function cmdPublish(args: string[]): Promise<void> {
-  const force = args.includes('--force')
-  const target = args.find((arg) => !arg.startsWith('--'))
+  const { force, target } = parsePublishArgs(args)
+  const files = collectJsonFiles(target)
 
-  if (!target) {
-    console.error('[error] Missing file or directory argument')
-    usage()
+  if (files.length === 0) {
+    console.error(`[error] No JSON files found: ${path.resolve(target)}`)
+    process.exit(1)
   }
 
   const client = new PayloadClient({
@@ -110,7 +187,6 @@ async function cmdPublish(args: string[]): Promise<void> {
   const resolver = new Resolver(client)
   const publisher = new Publisher(client, resolver)
 
-  const files = collectJsonFiles(target)
   console.log(`Found ${files.length} JSON file(s)`)
   const results =
     files.length === 1
@@ -121,18 +197,7 @@ async function cmdPublish(args: string[]): Promise<void> {
 }
 
 async function cmdList(args: string[]): Promise<void> {
-  const statusIndex = args.indexOf('--status')
-  const status = statusIndex >= 0 ? args[statusIndex + 1] : undefined
-
-  if (statusIndex >= 0 && (!status || status.startsWith('--'))) {
-    console.error('[error] Missing status value after --status')
-    usage()
-  }
-
-  if (status !== undefined && status !== 'draft' && status !== 'published') {
-    console.error('[error] Invalid status value. Expected draft or published.')
-    usage()
-  }
+  const { status } = parseListArgs(args)
 
   const client = new PayloadClient({
     apiUrl: getEnv('PAYLOAD_API_URL'),
