@@ -11,6 +11,10 @@ export class Resolver {
   }
 
   registerPost(slug: string, id: number): void {
+    if (slug.trim() === '') {
+      return
+    }
+
     this.postSlugCache.set(slug, id)
   }
 
@@ -56,6 +60,10 @@ export class Resolver {
   }
 
   async resolvePostBySlug(slug: string): Promise<number | null> {
+    if (slug.trim() === '') {
+      return null
+    }
+
     const cached = this.postSlugCache.get(slug)
     if (cached !== undefined) {
       return cached
@@ -76,44 +84,50 @@ export class Resolver {
   }
 
   async resolveCategories(names: string[]): Promise<number[]> {
-    const resolved = await Promise.all(names.map(async (name) => {
+    const resolved: number[] = []
+
+    for (const name of names) {
       const id = await this.resolveCategory(name)
       if (id === null) {
         console.warn(`Category not found: ${name}`)
-        return null
+        continue
       }
 
-      return id
-    }))
+      resolved.push(id)
+    }
 
-    return resolved.filter((id): id is number => id !== null)
+    return resolved
   }
 
   async resolveAuthors(emails: string[]): Promise<number[]> {
-    const resolved = await Promise.all(emails.map(async (email) => {
+    const resolved: number[] = []
+
+    for (const email of emails) {
       const id = await this.resolveAuthor(email)
       if (id === null) {
         console.warn(`Author not found: ${email}`)
-        return null
+        continue
       }
 
-      return id
-    }))
+      resolved.push(id)
+    }
 
-    return resolved.filter((id): id is number => id !== null)
+    return resolved
   }
 
   async resolveRelatedPosts(slugs: string[]): Promise<number[]> {
-    const resolved = await Promise.all(slugs.map(async (slug) => {
+    const resolved: number[] = []
+
+    for (const slug of slugs) {
       const id = await this.resolvePostBySlug(slug)
       if (id === null) {
         console.warn(`Related post not found: ${slug}`)
-        return null
+        continue
       }
 
-      return id
-    }))
+      resolved.push(id)
+    }
 
-    return resolved.filter((id): id is number => id !== null)
+    return resolved
   }
 }
