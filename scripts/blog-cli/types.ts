@@ -12,12 +12,12 @@ export const LexicalJsonSchema = z.object({
 export const LocalizedTextSchema = z.object({
   zh: z.string().min(1),
   en: z.string().optional(),
-})
+}).strict()
 
 export const LocalizedContentSchema = z.object({
   zh: LexicalJsonSchema,
   en: LexicalJsonSchema.optional(),
-})
+}).strict()
 
 export const PostInputSchema = z
   .object({
@@ -30,9 +30,10 @@ export const PostInputSchema = z
     relatedPosts: z.array(z.string()).optional(),
     isHeroArticle: z.boolean().default(false),
     isTopArticle: z.boolean().default(false),
-    publishedAt: z.string().datetime().optional(),
+    publishedAt: z.string().datetime({ offset: true }).optional(),
     action: z.enum(['publish', 'schedule', 'draft']),
   })
+  .strict()
   .superRefine((data, ctx) => {
     if (/[^\x00-\x7F]/.test(data.title.zh) && !data.slug) {
       ctx.addIssue({
