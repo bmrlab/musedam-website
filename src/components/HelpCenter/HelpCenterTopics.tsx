@@ -16,7 +16,8 @@ interface HelpCenterTopicsProps {
 export const HelpCenterTopics: React.FC<HelpCenterTopicsProps> = ({ topics }) => {
     return (
         <div className={cn("gap-10 pb-[100px]",
-            topics.length < 3 ? 'flex-col flex md:flex-row md:justify-between' : 'grid grid-cols-1 md:grid-cols-3 '
+            topics.length < 3 ? 'flex flex-col md:flex-row md:justify-between' : 'grid grid-cols-1',
+            topics.length >= 3 && (topics.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'),
         )}>
             {topics.map((topic, index) => (
                 <TopicCard
@@ -43,7 +44,7 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, isHighlighted, className }
         <Card
             className={cn(
                 'group cursor-pointer border-none bg-[#F4F4F4] transition-all duration-300',
-                'hover:ring-8 hover:ring-[#B1FC01] flex flex-col',
+                'flex flex-col hover:ring-8 hover:ring-[#B1FC01]',
                 // 'hover:-translate-y-1 hover:shadow-lg',
                 className
             )}
@@ -62,7 +63,7 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, isHighlighted, className }
                     {topic.title}
                 </CardTitle>
             </CardHeader>
-            <div className='flex-1 flex flex-col justify-between'>
+            <div className='flex flex-1 flex-col justify-between'>
                 <CardContent className="pb-4 font-mono font-light">
                     {/* Bullets 描述 */}
                     <ul className="space-y-2">

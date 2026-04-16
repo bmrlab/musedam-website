@@ -87,7 +87,14 @@ export const HelpCenterArticleContent: React.FC<HelpCenterArticleContentProps> =
                         {document.title}
                     </h1>
                     <div className="flex items-center gap-3 font-mono text-sm font-light">
-                        <div className="size-12 rounded-full bg-[#141414]" />
+                        <div className="relative size-12 overflow-hidden rounded-full border border-[#E5E5E5] bg-white p-2">
+                            <Image
+                                src="/assets/logo.svg"
+                                alt="MuseDAM logo"
+                                fill
+                                className="object-contain p-2"
+                            />
+                        </div>
                         <div className="flex flex-col items-start justify-between gap-2">
                             <span>Written by {getAuthorName()}</span>
                             <span>Updated on {formatDate(getPublishedDate())}</span>
