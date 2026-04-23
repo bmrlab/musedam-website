@@ -15,7 +15,7 @@ export const slugField: Slug = (fieldToUse = 'title', overrides = {}) => {
   const checkBoxField: CheckboxField = {
     name: 'slugLock',
     type: 'checkbox',
-    defaultValue: true,
+    defaultValue: false,
     admin: {
       hidden: true,
       position: 'sidebar',

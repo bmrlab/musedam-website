@@ -2,7 +2,15 @@
 import React, { useCallback, useEffect } from 'react'
 import { TextFieldClientProps } from 'payload'
 
-import { useField, Button, TextInput, FieldLabel, useFormFields, useForm } from '@payloadcms/ui'
+import {
+  useField,
+  Button,
+  TextInput,
+  FieldLabel,
+  useFormFields,
+  useForm,
+  useDocumentInfo,
+} from '@payloadcms/ui'
 
 import { formatSlug } from './formatSlug'
 import './index.scss'
@@ -29,6 +37,9 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
 
   const { dispatchFields } = useForm()
 
+  const { id: docId } = useDocumentInfo()
+  const isCreating = !docId
+
   // The value of the checkbox
   // We're using separate useFormFields to minimise re-renders
   const checkboxValue = useFormFields(([fields]) => {
@@ -41,6 +52,7 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
   })
 
   useEffect(() => {
+    if (!isCreating) return
     if (checkboxValue) {
       if (targetFieldValue) {
         const formattedSlug = formatSlug(targetFieldValue)
@@ -50,7 +62,7 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
         if (value !== '') setValue('')
       }
     }
-  }, [targetFieldValue, checkboxValue, setValue, value])
+  }, [targetFieldValue, checkboxValue, setValue, value, isCreating])
 
   const handleLock = useCallback(
     (e) => {
@@ -65,16 +77,18 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
     [checkboxValue, checkboxFieldPath, dispatchFields],
   )
 
-  const readOnly = readOnlyFromProps || checkboxValue
+  const readOnly = readOnlyFromProps || (isCreating && checkboxValue)
 
   return (
     <div className="field-type slug-field-component">
       <div className="label-wrapper">
         <FieldLabel htmlFor={`field-${path}`} label={label} />
 
-        <Button className="lock-button" buttonStyle="none" onClick={handleLock}>
-          {checkboxValue ? 'Unlock' : 'Lock'}
-        </Button>
+        {isCreating && (
+          <Button className="lock-button" buttonStyle="none" onClick={handleLock}>
+            {checkboxValue ? 'Unlock' : 'Lock'}
+          </Button>
+        )}
       </div>
 
       <TextInput
