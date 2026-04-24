@@ -7,9 +7,9 @@ import {
   MUSE_MAINLAND_SERVER_URL,
 } from '@/constant/url'
 
-import type { SessionUser } from '@/types/user'
+import { ESpaceRule, SessionUser } from '@/types/user'
 
-const getFetchUserUrl = (path: string) => {
+export const getFetchUserUrl = (path: string) => {
   const host =
     process.env.DEPLOY_REGION === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL
   return `${host}/mini-dam-user${path}`
@@ -21,7 +21,8 @@ const getFetchUserUrl = (path: string) => {
 export const getServerSession: () => Promise<SessionUser | null> = cache(async () => {
   const cookieStore = await cookies()
   const sessionToken = cookieStore.get('session_token')?.value
-  // const sessionToken = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..zKxbbh38XPgOLkvR.NADkK6foFEhtUX6kvwMOkv5ypH5gGQ4La0JerDEfaUva8MMR2OD3sE8Y9D4P5vJKIXtZavuMZe8v-V5reVGF-oTMmaSTe62TgvxEYdsH7zwO1joOVvWbV7YlMGH7JWhKBsAhBhDemq4pV9F4UmA0GKvyCLmndbAq7Bzm6xamNjydV3QhJp0P1P9jHVDCYclRNMPPjd0KUto68bUQcvwxsdrP2g7qfoZ3M_4rMOcLGEMNVYUJTZvePa7NAMNZO-LjJSbHJR11K5myvkhHhLS3RcGJ3PBzUwRmM60HUxfZzsM.t0LbxoPXbCLl5SZWwPhRUw'
+  // const sessionToken =
+  //   'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..EugHy2WwI8tQj71Q.prRlcpTaPGsFE8FHEEtVd3vy9LJZXzpgL7lfPO0iqfqniuDWUJ_FM7J55NtY_XI2hwqHu40LA53IQhGbWX6jz3bk6iZmUyZJld3QHfmQ3bSA-whsCEW8pooeIAQNHBxUMepl0RaclHufYIPgZzOZ93HitRzAqEmDTWAEKiqyJIyNrJpDxYSpNjqo4K3-ylz9BBl0yiDjaQ8dHSn-GcTQcQt-YErrIfHeQyeDIs4aVMSNXepHEuNblgZt78TLvZu8TtiTNlYRE17FrSbPpHzUB2AmZA21ouf7KEIV9wgurxkkNfY.OHkz3E9mLKdKMHImvnpnSg'
 
   if (!sessionToken) return null
 
@@ -36,10 +37,8 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
       body: JSON.stringify({ code: sessionToken }),
     },
   )
-
   if (!response.ok) return null
   const data: { userId: string; token: string; orgId?: string } = await response.json()
-  // console.log("data-----", data)
 
   const requestHeader = {
     'Content-Type': 'application/json',
@@ -90,6 +89,7 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
     isPro: userData.result.proInvalidDate
       ? new Date(userData.result.proInvalidDate) > new Date()
       : false,
+    isEnterpriseUser: false,
   }
 
   // 获取用户团队列表
@@ -103,9 +103,16 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
   ])
 
   if (orgResponse.ok) {
-    const orgData: { code: string; message: string; result: { id: number }[] } =
-      await orgResponse.json()
+    const orgData: {
+      code: string
+      message: string
+      result: { id: number; orgFeeType: ESpaceRule }[]
+    } = await orgResponse.json()
+    const isEnterpriseUser =
+      orgData.result.findIndex((v) => v.orgFeeType === ESpaceRule.ENTERPRISE) > -1
+
     result.hasOrg = orgData.code === '0' && orgData.result.length > 0
+    result.isEnterpriseUser = isEnterpriseUser
   }
 
   if (userSaleInfo) {

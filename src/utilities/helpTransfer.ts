@@ -1,4 +1,5 @@
 import type { Payload } from 'payload'
+import type { HelpDocument } from '@/payload-types'
 
 type LocalizedValue<T> = T | Record<string, T>
 
@@ -389,14 +390,15 @@ const repairHelpDocumentInvalidFields = async (
   const existing = await findBySlug(payload, 'help-documents', doc.slug)
   const localizedTitle = buildLocalizedStrings(doc.title)
   const localizedExcerpt = buildLocalizedStrings(doc.excerpt ?? null)
-  const status = doc._status ?? 'draft'
+  const status: HelpDocument['_status'] =
+    doc._status === 'published' || doc._status === 'draft' ? doc._status : 'draft'
 
   const localeData = (locale: (typeof SUPPORTED_LOCALES)[number]) => {
-    const data: Record<string, unknown> = {
+    const data = {
       slug: doc.slug,
       title: localizedTitle[locale],
       excerpt: localizedExcerpt[locale],
-      content: structuredClone(EMPTY_LEXICAL_CONTENT),
+      content: structuredClone(EMPTY_LEXICAL_CONTENT) as HelpDocument['content'],
       category: categoryId,
       _status: status,
     }
@@ -475,7 +477,7 @@ const upsertHelpDocumentAllLocales = async (
     content: localizedRaw,
     category: categoryId,
     index: doc.index ?? 999,
-    _status: doc._status ?? 'draft',
+    _status: doc._status === 'published' || doc._status === 'draft' ? doc._status : 'draft',
     relatedArticles: [],
   }
   // Text-only import mode: skip SEO/meta image fields entirely to avoid invalid relationship IDs.
@@ -484,8 +486,9 @@ const upsertHelpDocumentAllLocales = async (
   if (!existing?.id) {
     const created = await payload.create({
       collection: 'help-documents',
-      data,
-      locale: 'all',
+      data: data as any,
+      draft: false,
+      locale: 'en',
       overrideAccess: true,
     })
     return { op: 'created', id: created.id as number }
@@ -499,8 +502,8 @@ const upsertHelpDocumentAllLocales = async (
   await payload.update({
     collection: 'help-documents',
     id: existing.id,
-    data,
-    locale: 'all',
+    data: data as any,
+    locale: 'en',
     overrideAccess: true,
   })
   return { op: 'updated', id: existing.id as number }
@@ -515,7 +518,7 @@ const findBySlug = async (
     collection,
     limit: 1,
     where: { slug: { equals: slug } },
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
     depth: 0,
   })
@@ -534,9 +537,9 @@ const createOrUpdate = async (
     await payload.create({
       collection,
       data,
-      locale: 'all',
+      locale: 'all' as any,
       overrideAccess: true,
-    })
+    } as any)
     return 'created'
   }
 
@@ -544,9 +547,9 @@ const createOrUpdate = async (
     collection,
     id: existing.id,
     data,
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
-  })
+  } as any)
   return 'updated'
 }
 
@@ -556,7 +559,7 @@ const getMediaByIds = async (payload: Payload, ids: number[]) => {
     collection: 'media',
     limit: ids.length,
     where: { id: { in: ids } },
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
   })
   return result.docs
@@ -567,7 +570,7 @@ export const buildHelpCenterExport = async (payload: Payload): Promise<HelpTrans
     collection: 'help-topics',
     limit: 1000,
     sort: 'index',
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
     depth: 1,
   })
@@ -575,7 +578,7 @@ export const buildHelpCenterExport = async (payload: Payload): Promise<HelpTrans
     collection: 'help-categories',
     limit: 5000,
     sort: 'index',
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
     depth: 1,
   })
@@ -583,7 +586,7 @@ export const buildHelpCenterExport = async (payload: Payload): Promise<HelpTrans
     collection: 'help-documents',
     limit: 10000,
     sort: 'index',
-    locale: 'all',
+    locale: 'all' as any,
     overrideAccess: true,
     depth: 2,
   })
@@ -857,7 +860,7 @@ export const importHelpCenterContent = async (
           data: {
             relatedArticles: relationIds,
           },
-          locale: 'all',
+          locale: 'all' as any,
           overrideAccess: true,
         })
       } catch (error) {
@@ -891,9 +894,9 @@ const findMediaByStableKey = async (payload: Payload, media: ExportedMedia) => {
   const result = await payload.find({
     collection: 'media',
     limit: 1,
-    where,
+    where: where as any,
     overrideAccess: true,
-    locale: 'all',
+    locale: 'all' as any,
   })
   return result.docs[0] || null
 }
@@ -1026,7 +1029,7 @@ export const syncHelpCenterMedia = async (
         collection: 'help-topics',
         id: existing.id,
         data: { coverImage: mapped },
-        locale: 'all',
+        locale: 'all' as any,
         overrideAccess: true,
       })
       summary.patchedTopics += 1
@@ -1079,7 +1082,7 @@ export const syncHelpCenterMedia = async (
         collection: 'help-documents',
         id: existing.id,
         data: updateData,
-        locale: 'all',
+        locale: 'all' as any,
         overrideAccess: true,
       })
       summary.patchedDocuments += 1
