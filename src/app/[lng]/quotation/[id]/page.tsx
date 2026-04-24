@@ -33,15 +33,7 @@ export default async function MuseQuotationDetailPage({
         return (
             <QuotationPreview
                 id={id}
-                user={{
-                    userId: userId ?? '',
-                    orgId: orgId,
-                    token: user?.token,
-                    isOrg: true,
-                    hasOrg: true,
-                    isSale: true,
-                    isPro: false
-                }}
+                user={user}
                 isAdmin={!!uId && !!oId}
             />
         )
