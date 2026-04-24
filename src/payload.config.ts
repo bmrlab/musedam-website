@@ -10,13 +10,13 @@ import { buildConfig, PayloadRequest } from 'payload'
 import sharp from 'sharp' // sharp-import
 
 import { Categories } from './collections/Categories'
+import { HelpCategories } from './collections/HelpCategories'
+import { HelpDocuments } from './collections/HelpDocuments'
+import { HelpTopics } from './collections/HelpTopics'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
-import { HelpTopics } from './collections/HelpTopics'
-import { HelpCategories } from './collections/HelpCategories'
-import { HelpDocuments } from './collections/HelpDocuments'
 import { plugins } from './plugins'
 import getServerSideURL from './utilities/getServerSideURL'
 
@@ -52,7 +52,7 @@ export default buildConfig({
       beforeLogin: ['@/components/BeforeLogin'],
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/PayloadAdmin/HelpTransferTools'],
+      afterDashboard: ['@/components/PayloadAdmin/HelpTransferTools'],
     },
     importMap: {
       baseDir: path.resolve(dirname),

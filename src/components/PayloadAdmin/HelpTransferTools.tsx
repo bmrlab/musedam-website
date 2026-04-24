@@ -13,8 +13,10 @@ type ApiResult = {
 export default function HelpTransferTools() {
   const [contentFile, setContentFile] = useState<File | null>(null)
   const [mediaFile, setMediaFile] = useState<File | null>(null)
+  const [relatedFile, setRelatedFile] = useState<File | null>(null)
   const [dryRunImport, setDryRunImport] = useState(false)
   const [dryRunMedia, setDryRunMedia] = useState(true)
+  const [dryRunRelatedImport, setDryRunRelatedImport] = useState(true)
   const [loading, setLoading] = useState<string | null>(null)
   const [result, setResult] = useState<ApiResult | null>(null)
   const [actionLabel, setActionLabel] = useState<string>('')
@@ -118,6 +120,44 @@ export default function HelpTransferTools() {
     }
   }
 
+  const onExportRelatedArticles = async () => {
+    setActionLabel('导出关联文章关系')
+    setLoading('rel-export')
+    setResult(null)
+    try {
+      const response = await fetch('/api/help-transfer/related-articles/export', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        const json = (await response.json()) as ApiResult
+        setResult(json)
+        return
+      }
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = `help-related-articles-${Date.now()}.json`
+      a.click()
+      URL.revokeObjectURL(objectUrl)
+      setResult({ success: true, message: '导出完成：每条记录为 parentSlug + 有序 relatedSlugs。' })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const onImportRelatedArticles = async () => {
+    setActionLabel('导入关联文章关系')
+    setLoading('rel-import')
+    setResult(null)
+    try {
+      await callWithFile('/api/help-transfer/related-articles/import', relatedFile, dryRunRelatedImport)
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div style={{ margin: '16px 0 24px', maxWidth: 860 }}>
       <h3 style={{ margin: '0 0 8px', fontSize: 22 }}>帮助中心迁移工具</h3>
@@ -172,6 +212,50 @@ export default function HelpTransferTools() {
         </label>
         <button type="button" style={primaryButtonStyle} disabled={disabled} onClick={onSyncMedia}>
           {loading === 'media' ? '同步中...' : '同步帮助中心媒体'}
+        </button>
+      </div>
+
+      <div style={cardStyle}>
+        <h4 style={{ marginTop: 0 }}>4) 关联文章（仅 slug 关系）</h4>
+        <p style={{ ...secondaryTextStyle, marginTop: 0 }}>
+          在<strong>源站</strong>导出 JSON（parentSlug → relatedSlugs 顺序即展示顺序）；在<strong>目标站</strong>导入时按
+          slug 查 id，并重写 <code>relatedArticles</code> 的 rel 行。正文已导入但关联未带上时，用此补全。
+        </p>
+        <button
+          type="button"
+          style={primaryButtonStyle}
+          disabled={disabled}
+          onClick={onExportRelatedArticles}
+        >
+          {loading === 'rel-export' ? '导出中...' : '导出关联关系'}
+        </button>
+        <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--theme-elevation-200)' }} />
+        <input
+          type="file"
+          accept="application/json"
+          onChange={(event) => setRelatedFile(event.target.files?.[0] ?? null)}
+        />
+        <p style={secondaryTextStyle}>当前文件：{relatedFile ? relatedFile.name : '未选择'}</p>
+        <label style={{ display: 'block', margin: '10px 0', fontSize: 13 }}>
+          <input
+            type="checkbox"
+            checked={dryRunRelatedImport}
+            onChange={(e) => setDryRunRelatedImport(e.target.checked)}
+          />{' '}
+          先 dry-run（仅统计，不写库）
+        </label>
+        {!dryRunRelatedImport && (
+          <p style={{ margin: '8px 0', color: '#ca8a04', fontSize: 13 }}>
+            正式导入会删除各 parent 下 path=relatedArticles 的旧行，再按 JSON 顺序插入。
+          </p>
+        )}
+        <button
+          type="button"
+          style={primaryButtonStyle}
+          disabled={disabled}
+          onClick={onImportRelatedArticles}
+        >
+          {loading === 'rel-import' ? '导入中...' : '导入关联关系'}
         </button>
       </div>
 

@@ -19,6 +19,10 @@ const withMDX = withMDXRaw({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // "Part terminated early due to unexpected end of multipart data"
+  experimental: {
+    proxyClientMaxBodySize: '64mb',
+  },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.

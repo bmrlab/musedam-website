@@ -160,6 +160,15 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
             </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>}
+
+        <AccordionItemWrapper value="blog">
+          <AccordionTriggerWrapper disabled>
+            <LocaleLink href="/help" onClick={onClose}>
+              {t('nav-bar.help')}
+            </LocaleLink>
+          </AccordionTriggerWrapper>
+        </AccordionItemWrapper>
+
       </Accordion>
       <div className="fixed bottom-0 left-0 h-[95px] w-screen bg-black px-[30px] py-5">
         <Link href={user ? '/home' : '/auth'} prefetch={false}>
