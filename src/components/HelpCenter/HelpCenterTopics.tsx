@@ -17,7 +17,7 @@ export const HelpCenterTopics: React.FC<HelpCenterTopicsProps> = ({ topics }) =>
     return (
         <div className={cn("gap-10 pb-[100px]",
             topics.length < 3 ? 'flex flex-col md:flex-row md:justify-between' : 'grid grid-cols-1',
-            topics.length >= 3 && (topics.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'),
+            topics.length >= 3 && (topics.length === 4 ? 'lg:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-3'),
         )}>
             {topics.map((topic, index) => (
                 <TopicCard
@@ -37,8 +37,39 @@ interface TopicCardProps {
     className?: string
 }
 
+type LocalizedTextMap = Record<string, string | undefined>
+type TopicBullet = NonNullable<PayloadHelpTopic['bullets']>[number]
+
+const normalizeLng = (lng: string): 'en' | 'zh' => {
+    if (lng.startsWith('zh')) return 'zh'
+    return 'en'
+}
+
+const resolveBulletText = (bullet: TopicBullet, lng: string) => {
+    if (typeof bullet === 'string') return bullet
+
+    if (typeof bullet?.text === 'string') return bullet.text
+
+    const text = bullet?.text as unknown
+    if (!text || typeof text !== 'object') return ''
+
+    const textMap = text as LocalizedTextMap
+    const normalizedLng = normalizeLng(lng)
+
+    return (
+        textMap[lng] ||
+        textMap[normalizedLng] ||
+        textMap['en-US'] ||
+        textMap.en ||
+        textMap['zh-CN'] ||
+        textMap['zh-TW'] ||
+        textMap.zh ||
+        ''
+    )
+}
+
 const TopicCard: React.FC<TopicCardProps> = ({ topic, isHighlighted, className }) => {
-    const { t } = useHelpCenterTranslation()
+    const { t, i18n } = useHelpCenterTranslation()
 
     return (
         <Card
@@ -67,12 +98,17 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, isHighlighted, className }
                 <CardContent className="pb-4 font-mono font-light">
                     {/* Bullets 描述 */}
                     <ul className="space-y-2">
-                        {topic.bullets && topic.bullets.map((bullet, index) => (
-                            <li key={index} className="flex items-center text-sm text-[#141414]">
-                                <span className='w-[9px] text-center'>·</span>
-                                {typeof bullet === 'string' ? bullet : bullet.text}
-                            </li>
-                        ))}
+                        {topic.bullets && topic.bullets.map((bullet, index) => {
+                            const bulletText = resolveBulletText(bullet, i18n.resolvedLanguage || i18n.language || 'en')
+                            if (!bulletText) return null
+
+                            return (
+                                <li key={index} className="flex items-center text-sm text-[#141414]">
+                                    <span className='w-[9px] text-center'>·</span>
+                                    {bulletText}
+                                </li>
+                            )
+                        })}
                     </ul>
                 </CardContent>
 

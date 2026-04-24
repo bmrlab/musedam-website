@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/utilities/cn';
 import { SessionUser } from '@/types/user';
 import { LocaleLink } from '@/components/LocalLink';
+import { History } from 'lucide-react';
 
 const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
     const { allFeature } = useEnterprisePlan();
@@ -42,13 +43,26 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
             <div className="mb-[60px] flex flex-col items-center">
                 <h2 className="font-feature text-[40px] text-[#070707] md:text-[64px]">{t('title')}</h2>
                 {/* 生成报价单 */}
-                {user?.isSale && <LocaleLink href='/quotation'>
-                    <button
-                        className="mt-10 rounded-xl bg-black px-6 py-3 text-white-72 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none "
-                    >
-                        {t('button')}
-                    </button>
-                </LocaleLink>}
+                {user?.isSale && <div className="mt-10 flex items-center gap-3">
+                    <LocaleLink href='/quotation'>
+                        <button
+                            className="rounded-xl bg-black px-6 py-3 text-white-72 shadow transition-colors duration-200 hover:bg-[rgba(0,0,0,0.8)] focus:outline-none"
+                        >
+                            {t('button')}
+                        </button>
+                    </LocaleLink>
+
+                    {/* 历史记录 */}
+                    <LocaleLink href='/quotation/history'>
+                        <button
+                            className=" flex size-[48px] items-center justify-center rounded-xl border bg-black text-white-72 transition-colors duration-200  hover:bg-[rgba(0,0,0,0.8)] focus:outline-none "
+                            aria-label={t('historyButton')}
+                            title={t('historyButton')}
+                        >
+                            <History className="size-5" />
+                        </button>
+                    </LocaleLink>
+                </div>}
             </div>
 
             <div className="flex flex-col gap-6 font-euclid">

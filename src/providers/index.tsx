@@ -5,6 +5,7 @@ import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
 import { CountryProvider } from './Country'
 import { QuotationStoreProvider } from './QuotationStore'
+import { HelpEnterpriseGateUiProvider } from './HelpEnterpriseGateUi'
 
 export const Providers: React.FC<{
   lng: string
@@ -18,7 +19,7 @@ export const Providers: React.FC<{
         <ThemeProvider>
           <HeaderThemeProvider>
             <QuotationStoreProvider>
-              {children}
+              <HelpEnterpriseGateUiProvider>{children}</HelpEnterpriseGateUiProvider>
             </QuotationStoreProvider>
           </HeaderThemeProvider>
         </ThemeProvider>

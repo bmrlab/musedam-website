@@ -223,6 +223,14 @@ export default function HeaderDesktop({
           </NavigationMenuLink>
         </LocaleLink>
       </NavigationMenuItem>
+
+      {/* <NavigationMenuItem>
+        <LocaleLink href="/help" legacyBehavior passHref>
+          <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
+            {t('nav-bar.help')}
+          </NavigationMenuLink>
+        </LocaleLink>
+      </NavigationMenuItem> */}
     </NavigationMenuList>
   }
 

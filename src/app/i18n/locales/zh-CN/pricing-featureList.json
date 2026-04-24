@@ -1,6 +1,7 @@
 {
     "title": "功能清单",
     "button": "生成报价单",
+    "historyButton": "历史记录",
     "category": "模块",
     "details": "功能描述"
 }

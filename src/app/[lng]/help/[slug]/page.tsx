@@ -14,6 +14,9 @@ import { HelpCenterBreadcrumb } from '@/components/HelpCenter/HelpCenterBreadcru
 import { HelpCenterTopicHeader } from '@/components/HelpCenter/HelpCenterTopicHeader'
 import { HelpCenterCategories } from '@/components/HelpCenter/HelpCenterCategories'
 import { HelpCenterSkeleton } from '@/components/HelpCenter/skeleton/HelpCenterSkeleton'
+import { HelpCenterEnterpriseGate } from '@/components/HelpCenter/HelpCenterEnterpriseGate'
+import { getServerSession } from '@/utilities/auth'
+import { isEnterpriseOnlyHelpTopic } from '@/utilities/helpEnterpriseTopic'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,6 +69,29 @@ async function HelpCenterTopicContent({
     }
 
     const topicDoc = topic.docs[0]
+
+    const user = await getServerSession()
+    if (isEnterpriseOnlyHelpTopic(topicDoc.slug) && !user?.isEnterpriseUser) {
+        return (
+            <>
+                <PageSEO
+                    type="help"
+                    title={`${topicDoc.title} | ${t('help.shortTitle')} | MuseDAM`}
+                    description={topicDoc.description || t('help.description')}
+                    url={`help/${slug}`}
+                    image="/assets/logo.svg"
+                    lng={lng}
+                    breadcrumbs={[
+                        { name: t('help.shortTitle'), url: '/help' },
+                        { name: topicDoc.title, url: `/help/${slug}` },
+                    ]}
+                />
+                <div className="flex w-full flex-col items-center bg-white">
+                    <HelpCenterEnterpriseGate lng={lng} />
+                </div>
+            </>
+        )
+    }
 
     // 获取该专题下的分类
     const categories = await payload.find({

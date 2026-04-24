@@ -74,5 +74,9 @@
     "help": {
         "shortTitle": "Help Center",
         "description": "MuseDAM Help Center provides comprehensive usage guides and frequently asked questions to help you quickly master the various features of the digital asset management platform and improve work efficiency."
+    },
+    "enterpriseGate": {
+        "title": "No access",
+        "description": "This page is for enterprise users only. If you are an enterprise user, please log in to your account."
     }
 }

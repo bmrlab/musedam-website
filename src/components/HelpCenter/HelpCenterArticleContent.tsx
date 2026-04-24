@@ -71,7 +71,7 @@ export const HelpCenterArticleContent: React.FC<HelpCenterArticleContentProps> =
 
 
     return (
-        <div className="flex gap-8 relative mt-10">
+        <div className="relative mt-10 flex gap-8">
             {/* 左侧目录 */}
             {tableOfContents.length > 0 && (
                 <HelpCenterTableOfContents
@@ -80,7 +80,7 @@ export const HelpCenterArticleContent: React.FC<HelpCenterArticleContentProps> =
             )}
 
             {/* 右侧文章内容 */}
-            <article className="flex-1 text-[#262626] overflow-hidden">
+            <article className="flex-1 overflow-hidden text-[#262626]">
                 {/* 文章头部 */}
                 <header className="mb-10">
                     <h1 className="text-gray-90 mb-4 font-euclid text-2xl font-medium md:text-[32px] md:leading-[45px]">
@@ -92,7 +92,7 @@ export const HelpCenterArticleContent: React.FC<HelpCenterArticleContentProps> =
                                 src="/assets/logo.svg"
                                 alt="MuseDAM logo"
                                 fill
-                                className="object-contain p-2"
+                                className="rounded-full object-contain"
                             />
                         </div>
                         <div className="flex flex-col items-start justify-between gap-2">
@@ -126,7 +126,7 @@ export const HelpCenterArticleContent: React.FC<HelpCenterArticleContentProps> =
                     {/* 这里应该渲染富文本内容 */}
                     <div className="leading-relaxed text-gray-700">
                         <RichText
-                            className="font-light font-euclidlight help-article-content"
+                            className="help-article-content font-euclidlight font-light"
                             content={document.content}
                             enableGutter={false}
                             enableProse={false}

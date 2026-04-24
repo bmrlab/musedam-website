@@ -5,7 +5,9 @@ import { usePathname } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useHelpEnterpriseGateUi } from '@/providers/HelpEnterpriseGateUi'
 import { SessionUser } from '@/types/user'
+import { ENTERPRISE_ONLY_HELP_TOPIC_SLUGS } from '@/utilities/helpEnterpriseTopic'
 import Intercom, { update } from '@intercom/messenger-js-sdk'
 
 
@@ -15,13 +17,27 @@ interface LayoutContentProps {
   user: SessionUser | null
 }
 
+function stripLocalePrefix(path: string) {
+  return path.replace(/^\/en-US|^\/zh-CN|^\/zh-TW/, '') || '/'
+}
+
 export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) {
   const pathname = usePathname()
+  const { hideFooterFromGate } = useHelpEnterpriseGateUi()
   const isQuotationPage = pathname?.includes('/quotation')
   // const { changeLocale } = useLanguage()
 
   const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '')), [pathname])
   const miniFooterPage = useMemo(() => !!pathname && pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '').startsWith('/help'), [pathname])
+
+  /** 专题页 URL 即 topic.slug，可与 session 一起在首屏隐藏 Footer（无需等子树 effect） */
+  const hideFooterForEnterpriseTopicPath = useMemo(() => {
+    if (!pathname || user?.isEnterpriseUser) return false
+    const p = stripLocalePrefix(pathname)
+    return ENTERPRISE_ONLY_HELP_TOPIC_SLUGS.some((slug) => p === `/help/${slug}`)
+  }, [pathname, user?.isEnterpriseUser])
+
+  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath
 
   // 初始化 Intercom - 只在首次挂载时初始化（quotation 页面不初始化）
   useEffect(() => {
@@ -169,7 +185,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
   ) : (
     <>
       <Header isGlobal={isGlobal} user={user} />
-      <div className="flex w-full flex-col items-center justify-center pt-[56px] md:pt-[70px]">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center pt-[56px] md:pt-[70px]">
         <NextTopLoader
           color={darkHeadPage ? "#fff" : "#000"}
           height={1}
@@ -177,7 +193,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
         />
         {children}
       </div>
-      <Footer isMini={miniFooterPage} />
+      {!hideFooter && <Footer isMini={miniFooterPage} />}
     </>
   )
 }

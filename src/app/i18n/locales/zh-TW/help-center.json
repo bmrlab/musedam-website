@@ -74,5 +74,9 @@
   "help": {
     "shortTitle": "幫助中心",
     "description": "MuseDAM 幫助中心提供全面的使用指南和常見問題，以幫助您快速掌握數位資產管理平台的各項功能，並提高工作效率。"
+  },
+  "enterpriseGate": {
+    "title": "暫無權限",
+    "description": "目前頁面僅限企業版使用者存取。若您為企業使用者，請先登入帳戶～"
   }
 }

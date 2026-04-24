@@ -15,6 +15,9 @@ import { HelpCenterArticleContent } from '@/components/HelpCenter/HelpCenterArti
 import { HelpCenterFeedback } from '@/components/HelpCenter/HelpCenterFeedback'
 import { HelpCenterSkeleton } from '@/components/HelpCenter/skeleton/HelpCenterSkeleton'
 import { RelatedArticles } from '@/components/HelpCenter/RelatedArticles'
+import { HelpCenterEnterpriseGate } from '@/components/HelpCenter/HelpCenterEnterpriseGate'
+import { getServerSession } from '@/utilities/auth'
+import { isEnterpriseOnlyHelpTopic } from '@/utilities/helpEnterpriseTopic'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,6 +82,36 @@ async function HelpCenterArticlePage({
     // 获取分类和专题信息
     const category = documentDoc.category as any
     const topic = category?.topic as any
+    const topicSlug =
+        topic && typeof topic === 'object' && typeof topic.slug === 'string' ? topic.slug : undefined
+
+    const user = await getServerSession()
+    if (isEnterpriseOnlyHelpTopic(topicSlug) && !user?.isEnterpriseUser) {
+        return (
+            <>
+                <PageSEO
+                    type="help"
+                    title={`${documentDoc.title} | ${t('help.shortTitle')} | MuseDAM`}
+                    description={documentDoc.excerpt || t('help.description')}
+                    url={`help/article/${slug}`}
+                    image="/assets/logo.svg"
+                    lng={lng}
+                    breadcrumbs={[
+                        { name: t('help.shortTitle'), url: '/help' },
+                        { name: topic?.title || '', url: topic?.slug ? `/help/${topic.slug}` : '/help' },
+                        {
+                            name: category?.title || '',
+                            url: category?.slug ? `/help/category/${category.slug}` : '/help',
+                        },
+                        { name: documentDoc.title, url: `/help/article/${slug}` },
+                    ]}
+                />
+                <div className="flex w-full flex-col items-center bg-white">
+                    <HelpCenterEnterpriseGate lng={lng} />
+                </div>
+            </>
+        )
+    }
 
     // 获取关联文章
     const payload = await getPayload({ config: configPromise })
@@ -138,7 +171,7 @@ async function HelpCenterArticlePage({
             />
             <div className="flex min-h-screen w-full flex-col items-center">
                 <div className="w-full max-w-[1440px] bg-white px-5 py-[30px] md:px-[180px] md:py-[80px]">
-                    <div className='md:mb-20 flex justify-center mb-5'>
+                    <div className="mb-5 flex justify-center md:mb-20">
                         {/* Search Bar */}
                         <HelpCenterSearch />
                     </div>

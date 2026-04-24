@@ -14,6 +14,9 @@ import { HelpCenterBreadcrumb } from '@/components/HelpCenter/HelpCenterBreadcru
 import { HelpCenterTopicHeader } from '@/components/HelpCenter/HelpCenterTopicHeader'
 import { HelpCenterCategories } from '@/components/HelpCenter/HelpCenterCategories'
 import { HelpCenterSkeleton } from '@/components/HelpCenter/skeleton/HelpCenterSkeleton'
+import { HelpCenterEnterpriseGate } from '@/components/HelpCenter/HelpCenterEnterpriseGate'
+import { getServerSession } from '@/utilities/auth'
+import { isEnterpriseOnlyHelpTopic } from '@/utilities/helpEnterpriseTopic'
 
 export const dynamic = 'force-dynamic'
 
@@ -85,6 +88,30 @@ async function HelpCenterTopicContent({
 
     if (!topic) {
         notFound()
+    }
+
+    const user = await getServerSession()
+    if (isEnterpriseOnlyHelpTopic(topic.slug) && !user?.isEnterpriseUser) {
+        return (
+            <>
+                <PageSEO
+                    type="help"
+                    title={`${category.title} | ${t('help.shortTitle')} | MuseDAM`}
+                    description={category.description || t('help.description')}
+                    url={`help/category/${slug}`}
+                    image="/assets/logo.svg"
+                    lng={lng}
+                    breadcrumbs={[
+                        { name: t('help.shortTitle'), url: '/help' },
+                        { name: topic.title, url: `/help/${topic.slug}` },
+                        { name: category.title, url: `/help/category/${slug}` },
+                    ]}
+                />
+                <div className="flex w-full flex-col items-center bg-white">
+                    <HelpCenterEnterpriseGate lng={lng} />
+                </div>
+            </>
+        )
     }
 
     // 获取每个分类下的文档

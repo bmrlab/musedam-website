@@ -1,6 +1,7 @@
 {
     "title": "Feature List",
     "button": "Generate a quotation",
+    "historyButton": "Quotation history",
     "category": "Category",
     "details": "Details"
 }
