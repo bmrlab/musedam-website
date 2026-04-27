@@ -63,7 +63,7 @@ export const usePricing = () => {
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
-              [EAdvancedModules.SMART_FOLDERS]: 5000,
+              [EAdvancedModules.SMART_FOLDERS]: 10000,
               [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
               [EAdvancedModules.DAT]: 5000,
               [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
@@ -317,11 +317,15 @@ export const useAdvancedConfigs = () => {
       label: moduleNames[EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE],
       price: advancedPricing.modules[EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE],
     },
-    {
-      key: EAdvancedModules.STANDARD_PROJECT_HUB,
-      label: moduleNames[EAdvancedModules.STANDARD_PROJECT_HUB],
-      price: advancedPricing.modules[EAdvancedModules.STANDARD_PROJECT_HUB],
-    },
+    ...(isInChina
+      ? [
+          {
+            key: EAdvancedModules.STANDARD_PROJECT_HUB,
+            label: moduleNames[EAdvancedModules.STANDARD_PROJECT_HUB],
+            price: advancedPricing.modules[EAdvancedModules.STANDARD_PROJECT_HUB],
+          },
+        ]
+      : []),
     // {
     //   key: EAdvancedModules.ADVANCED_PROJECT_HUB,
     //   label: moduleNames[EAdvancedModules.ADVANCED_PROJECT_HUB],
@@ -368,17 +372,21 @@ export const useAdvancedConfigs = () => {
       label: moduleNames[EAdvancedModules.SMART_FOLDERS],
       price: advancedPricing.modules[EAdvancedModules.SMART_FOLDERS],
     },
-    {
-      key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
-      label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-      price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-      hint: t('publicAssetsAndDerivatives.hint'),
-    },
-    {
-      key: EAdvancedModules.DAT,
-      label: moduleNames[EAdvancedModules.DAT],
-      price: advancedPricing.modules[EAdvancedModules.DAT],
-    },
+    ...(isInChina
+      ? [
+          {
+            key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
+            label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+            price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+            hint: t('publicAssetsAndDerivatives.hint'),
+          },
+          {
+            key: EAdvancedModules.DAT,
+            label: moduleNames[EAdvancedModules.DAT],
+            price: advancedPricing.modules[EAdvancedModules.DAT],
+          },
+        ]
+      : []),
     {
       key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
       label: moduleNames[EAdvancedModules.COPYRIGHT_MANAGEMENT],
