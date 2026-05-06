@@ -65,7 +65,7 @@
     "analyticsMonitoring.2.detail": "Detailed analytics on individual user activities and asset interaction patterns",
     "extensions.title": "Applications & Extensions",
     "extensions.0.name": "Desktop App",
-    "extensions.0.detail": "MuseDAM Desktop Application for enhanced file transfer efficiency (upload/download) with advanced features including batch operations, large file transfers, resume capability, and flexible transfer controls",
+    "extensions.0.detail": "MuseDAM (GEA Context Management System) Desktop Application for enhanced file transfer efficiency (upload/download) with advanced features including batch operations, large file transfers, resume capability, and flexible transfer controls",
     "extensions.1.name": "Web Browser Extension",
     "extensions.1.detail": "Drag-and-drop or batch collection of images, videos, and web content with one-click saving functionality",
     "extensions.2.name": "Social Media Collection",

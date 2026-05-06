@@ -65,7 +65,7 @@
   "analyticsMonitoring.2.detail": "詳細分析個別用戶活動和資產互動模式。",
   "extensions.title": "應用與擴展",
   "extensions.0.name": "桌面應用程式",
-  "extensions.0.detail": "MuseDAM 桌面應用程式，以提高文件傳輸效率（上傳/下載），並具備批量操作、大文件傳輸、恢復能力和靈活的傳輸控制等先進功能。",
+  "extensions.0.detail": "MuseDAM（GEA上下文管理系統）桌面應用程式，以提高文件傳輸效率（上傳/下載），並具備批量操作、大文件傳輸、恢復能力和靈活的傳輸控制等先進功能。",
   "extensions.1.name": "網頁瀏覽器擴展",
   "extensions.1.detail": "拖放或批量收集圖片、視頻和網頁內容，並具備一鍵保存功能。",
   "extensions.2.name": "社交媒體收集",

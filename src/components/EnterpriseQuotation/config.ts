@@ -372,21 +372,17 @@ export const useAdvancedConfigs = () => {
       label: moduleNames[EAdvancedModules.SMART_FOLDERS],
       price: advancedPricing.modules[EAdvancedModules.SMART_FOLDERS],
     },
-    ...(isInChina
-      ? [
-          {
-            key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
-            label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-            price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-            hint: t('publicAssetsAndDerivatives.hint'),
-          },
-          {
-            key: EAdvancedModules.DAT,
-            label: moduleNames[EAdvancedModules.DAT],
-            price: advancedPricing.modules[EAdvancedModules.DAT],
-          },
-        ]
-      : []),
+    {
+      key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
+      label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+      price: advancedPricing.modules[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+      hint: t('publicAssetsAndDerivatives.hint'),
+    },
+    {
+      key: EAdvancedModules.DAT,
+      label: moduleNames[EAdvancedModules.DAT],
+      price: advancedPricing.modules[EAdvancedModules.DAT],
+    },
     {
       key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
       label: moduleNames[EAdvancedModules.COPYRIGHT_MANAGEMENT],

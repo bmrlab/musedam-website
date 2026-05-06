@@ -65,7 +65,7 @@
     "analyticsMonitoring.2.detail": "详细分析个人用户活动和素材交互模式",
     "extensions.title": "应用与插件",
     "extensions.0.name": "本地文件传输 App",
-    "extensions.0.detail": "MuseDAM 桌面应用程序，提升文件传输效率（上传/下载），包含批量操作、大文件传输、断点续传和灵活传输控制等高级功能",
+    "extensions.0.detail": "MuseDAM（GEA上下文管理系统）桌面应用程序，提升文件传输效率（上传/下载），包含批量操作、大文件传输、断点续传和灵活传输控制等高级功能",
     "extensions.1.name": "浏览器插件",
     "extensions.1.detail": "拖拽或批量收集图片、视频和网页内容，一键保存功能",
     "extensions.2.name": "社交媒体采集",
