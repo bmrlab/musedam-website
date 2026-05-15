@@ -6,9 +6,13 @@ import { getBlogArticles } from '@/data/blog'
 
 export const dynamic = 'force-dynamic'
 
+// Global deploy is English-only — do not expose zh URLs to search engines.
+const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+const sitemapLanguages = isGlobal ? [enLng] : languages
+
 // Generate sitemap base URLs with language paths
 const generateLangUrls = (path: string = '') => {
-  return languages.map((lng) => ({
+  return sitemapLanguages.map((lng) => ({
     url: `${getServerSideURL()}/${lng}${path}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
@@ -80,7 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
 
     // 动态添加所有博客文章的 URL，添加错误处理
-    for (const lng of languages) {
+    for (const lng of sitemapLanguages) {
       try {
         // 只支持 'en' | 'zh'，做映射
         const payloadLocale = lng === enLng ? 'en' : 'zh'

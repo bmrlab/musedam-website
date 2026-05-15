@@ -6,6 +6,7 @@ import { z } from 'zod'
 const SchedulePostSchema = z.object({
   postId: z.number(),
   publishAt: z.string().datetime({ offset: true }),
+  locale: z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -70,10 +71,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Post is already published' }, { status: 409 })
     }
 
+    // Resolve which locale to publish.
+    // - Caller can pass `locale` explicitly to publish a single locale.
+    // - Global deploy defaults to 'en' so missing zh fields don't block publish.
+    // - Mainland deploy without `locale` keeps the all-locales publish behaviour.
+    const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+    const configLocales = (payload.config.localization
+      ? payload.config.localization.locales.map((l: any) => (typeof l === 'string' ? l : l.code))
+      : []) as string[]
+    const effectiveLocale = parsed.data.locale ?? (isGlobal ? 'en' : undefined)
+
+    if (effectiveLocale && !configLocales.includes(effectiveLocale)) {
+      return NextResponse.json(
+        { error: `Invalid locale: ${effectiveLocale}` },
+        { status: 400 },
+      )
+    }
+
     await payload.jobs.queue({
       task: 'schedulePublish',
       input: {
         type: 'publish',
+        ...(effectiveLocale ? { locale: effectiveLocale } : {}),
         doc: {
           relationTo: 'posts',
           value: parsed.data.postId,
