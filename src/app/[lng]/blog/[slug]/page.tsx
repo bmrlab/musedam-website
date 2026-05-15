@@ -76,6 +76,7 @@ export default async function Post({ params: paramsPromise }: Args) {
     <>
       <BlogSEO
         title={post.meta?.title || blogT('title')}
+        description={post.meta?.description || blogT('description')}
         url={`/${lng}/blog/${slug}`}
         image={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
         socialImage={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}

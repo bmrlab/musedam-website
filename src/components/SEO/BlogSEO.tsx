@@ -11,6 +11,8 @@ interface BlogSEOProps {
     url: string
     /** Article title without the site suffix. */
     title: string
+    /** Plain-text article summary surfaced in the BlogPosting schema. */
+    description: string
     /** Locale tag, e.g. `'en-US'`, `'zh-CN'`. */
     lng: string
     /** Banner image used by both OG and JSON-LD. Absolute or root-relative. */
@@ -36,6 +38,7 @@ interface BlogSEOProps {
 export const BlogSEO: React.FC<BlogSEOProps> = ({
     url,
     title,
+    description,
     lng,
     image,
     socialImage,
@@ -62,7 +65,7 @@ export const BlogSEO: React.FC<BlogSEOProps> = ({
                     type="blogPosting"
                     data={{
                         title,
-                        description: '',
+                        description,
                         url: fullUrl,
                         image: ogImage,
                         headline: articleData.headline,
