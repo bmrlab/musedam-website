@@ -63,14 +63,15 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
       : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
   const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
 
-  // Global deploy is English-only: permanently redirect any zh-* path to its en-US counterpart
-  // so the zh URLs are not indexed by search engines.
+  // Global deploy serves blog content in English only — landing pages keep their
+  // multilingual i18n versions. Redirect zh-*/blog paths to /en-US/blog so the
+  // blog URLs are not indexed by search engines under a zh locale.
   if (isGlobal) {
-    const zhMatch = req.nextUrl.pathname.match(/^\/(zh-CN|zh-TW|zh)(\/.*)?$/)
-    if (zhMatch) {
-      const rest = zhMatch[2] ?? ''
+    const blogMatch = req.nextUrl.pathname.match(/^\/(zh-CN|zh-TW|zh)\/blog(\/.*)?$/)
+    if (blogMatch) {
+      const rest = blogMatch[2] ?? ''
       return NextResponse.redirect(
-        new URL(`/en-US${rest}${req.nextUrl.search}`, req.url),
+        new URL(`/en-US/blog${rest}${req.nextUrl.search}`, req.url),
         301,
       )
     }

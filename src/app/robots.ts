@@ -17,8 +17,9 @@ export default function robots(): MetadataRoute.Robots {
         '/*/pricing/dam',
         '/*/pricing/ai',
         '/quotation/',
-        // Global deploy is English-only — block crawlers from indexing zh paths.
-        ...(isGlobal ? ['/zh-CN/', '/zh-TW/'] : []),
+        // Global deploy serves blog content in English only — block crawlers
+        // from indexing zh blog URLs. Landing pages keep multilingual i18n.
+        ...(isGlobal ? ['/zh-CN/blog/', '/zh-TW/blog/'] : []),
       ],
     },
     sitemap: `${getServerSideURL()}/sitemap.xml`,
