@@ -72,25 +72,12 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   const keywords = getKeywords()
 
-
-
-  // 计算阅读时间（简单估算：每分钟200字）
-  const getReadingTime = (content: any): number => {
-    if (!content || typeof content !== 'object') return 5
-
-    // 简单的字数统计逻辑
-    const textContent = JSON.stringify(content).replace(/[^\w\s]/gi, '')
-    const wordCount = textContent.split(/\s+/).length
-    const readingTime = Math.ceil(wordCount / 200)
-    return readingTime
-  }
-
   return (
     <>
       <BlogSEO
         title={post.meta?.title || blogT('title')}
         description={post.meta?.description || blogT('description')}
-        url={`/blog/${slug}`}
+        url={`/${lng}/blog/${slug}`}
         image={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
         socialImage={typeof post.meta?.image === 'object' && post.meta.image?.url ? post.meta.image.url : '/assets/logo.svg'}
         lng={lng}
@@ -104,14 +91,11 @@ export default async function Post({ params: paramsPromise }: Args) {
           wordCount: post.content ? JSON.stringify(post.content).length : 0
         }}
         breadcrumbs={[
-          { name: seoT('home.shortTitle'), url: `/` },
-          { name: blogT('shortTitle'), url: `/blog` },
-          { name: post.title, url: `/blog/${slug}` }
+          { name: seoT('home.shortTitle'), url: `/${lng}` },
+          { name: blogT('shortTitle'), url: `/${lng}/blog` },
+          { name: post.title, url: `/${lng}/blog/${slug}` }
         ]}
-        category={blogT('seo.category')}
-        tags={keywords}
         lastModified={post.updatedAt || post.publishedAt || new Date().toISOString()}
-        readingTime={getReadingTime(post.content)}
       />
       <article className="mx-auto min-h-[calc(100vh-56px-68px)] w-full max-w-[1440px] bg-white md:min-h-[calc(100vh-70px)]">
         <PageClient />
@@ -149,7 +133,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { lng, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ slug, lng })
 
-  return generateMeta({ doc: post })
+  return generateMeta({ doc: post, lng, pathPrefix: 'blog', isArticle: true })
 }
 
 const queryPostBySlug = cache(async ({ slug, lng }: { slug: string; lng: string }) => {

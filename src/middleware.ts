@@ -63,20 +63,26 @@ function determineLanguageAndSetCookie(req: NextRequest, response: NextResponse)
       : getCookieDomain(req.headers.get('host') ?? req.nextUrl.hostname)
   const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
 
+  // Global deploy serves blog content in English only — landing pages keep their
+  // multilingual i18n versions. Redirect zh-*/blog paths to /en-US/blog so the
+  // blog URLs are not indexed by search engines under a zh locale.
+  if (isGlobal) {
+    const blogMatch = req.nextUrl.pathname.match(/^\/(zh-CN|zh-TW|zh)\/blog(\/.*)?$/)
+    if (blogMatch) {
+      const rest = blogMatch[2] ?? ''
+      return NextResponse.redirect(
+        new URL(`/en-US/blog${rest}${req.nextUrl.search}`, req.url),
+        301,
+      )
+    }
+  }
+
   // If lng in path is valid, just response with cookie set
   const requestDefaultLanguage = languages.find((loc) => req.nextUrl.pathname.startsWith(`/${loc}`))
   if (typeof requestDefaultLanguage !== 'undefined') {
     response.cookies.set(languageCookieName, requestDefaultLanguage!, { sameSite: 'lax', domain })
     return response
   }
-
-  // 2. 全局区域（海外）强制跳转英文，并清除可能存在的语言 Cookie
-  // if (isGlobal) {
-  //   response.cookies.delete(languageCookieName) // 清除旧 Cookie
-  //   return NextResponse.redirect(
-  //     new URL(`/en-US${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),
-  //   )
-  // }
 
   // Otherwise, use following logic to get a default lng
   // 1. use the valid language in referer header

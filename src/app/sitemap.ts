@@ -6,9 +6,14 @@ import { getBlogArticles } from '@/data/blog'
 
 export const dynamic = 'force-dynamic'
 
+// Global deploy serves blog content in English only — landing pages keep their
+// multilingual i18n versions, but blog URLs are en-US-only.
+const isGlobal = process.env.DEPLOY_REGION?.toLowerCase() === 'global'
+const blogLanguages = isGlobal ? [enLng] : languages
+
 // Generate sitemap base URLs with language paths
-const generateLangUrls = (path: string = '') => {
-  return languages.map((lng) => ({
+const generateLangUrls = (path: string = '', langs: readonly string[] = languages) => {
+  return langs.map((lng) => ({
     url: `${getServerSideURL()}/${lng}${path}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
@@ -69,9 +74,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       sitemap.push(...generateLangUrls(path))
     })
 
-    // Add blog pages
+    // Add blog pages (en-only on global)
     blogPages.forEach((path) => {
-      sitemap.push(...generateLangUrls(path))
+      sitemap.push(...generateLangUrls(path, blogLanguages))
     })
 
     // Add pricing pages
@@ -79,8 +84,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       sitemap.push(...generateLangUrls(path))
     })
 
-    // 动态添加所有博客文章的 URL，添加错误处理
-    for (const lng of languages) {
+    // 动态添加所有博客文章的 URL，添加错误处理（global 仅 en-US）
+    for (const lng of blogLanguages) {
       try {
         // 只支持 'en' | 'zh'，做映射
         const payloadLocale = lng === enLng ? 'en' : 'zh'
