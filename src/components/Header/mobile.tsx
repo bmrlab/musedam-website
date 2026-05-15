@@ -153,13 +153,13 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
 
-        {!isGlobal && <AccordionItemWrapper value="blog">
+        <AccordionItemWrapper value="blog">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/blog" onClick={onClose}>
               {t('nav-bar.blog')}
             </LocaleLink>
           </AccordionTriggerWrapper>
-        </AccordionItemWrapper>}
+        </AccordionItemWrapper>
 
         <AccordionItemWrapper value="blog">
           <AccordionTriggerWrapper disabled>
