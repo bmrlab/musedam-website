@@ -7,13 +7,28 @@ import { cn, twx } from "@/utilities/cn";
 import Image from 'next/image'
 import ContactUsDialog from "../ContactUsDialog";
 import { useToast } from '@/hooks/use-toast'
-import { EExpectTime, EOrgSize, isValidEmail } from "@/utilities/feishu";
+import {
+    EAssetManagement,
+    EExpectTime,
+    EIndustry,
+    EInterestedFeature,
+    EOrgSize,
+    EPurchasingRole,
+    isValidEmail,
+} from "@/utilities/feishu";
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import { useCountry } from "@/providers/Country";
 import { CheckIcon } from "@radix-ui/react-icons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/Language";
 import { trackEvent, whoami, update } from '@intercom/messenger-js-sdk';
+import {
+    ASSET_MANAGEMENT_OPTIONS,
+    INDUSTRY_OPTIONS,
+    INTERESTED_FEATURE_OPTIONS,
+    PURCHASING_ROLE_OPTIONS,
+} from './bookDemoFormOptions';
+import { FormMultiSelect, FormSingleSelect } from './bookDemoSurveySelects';
 
 const invalidEmailDomains = new Set([
     '@qq.com',
@@ -104,6 +119,10 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         company: "",
         position: "",
         phone: "",
+        industry: undefined as EIndustry | undefined,
+        purchasingRole: undefined as EPurchasingRole | undefined,
+        assetManagement: [] as EAssetManagement[],
+        interestedFeatures: [] as EInterestedFeature[],
         teamSize: undefined as EOrgSize | undefined,
         expectTime: undefined as EExpectTime | undefined,
         wechat: "",
@@ -114,6 +133,39 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
     const handleChange = (key: keyof typeof formData, value: any) => {
         setFormData(prev => ({ ...prev, [key]: value }));
     };
+
+    const toggleArrayField = <T extends EAssetManagement | EInterestedFeature>(
+        key: 'assetManagement' | 'interestedFeatures',
+        value: T,
+    ) => {
+        setFormData(prev => {
+            const current = prev[key] as T[];
+            const next = current.includes(value)
+                ? current.filter(v => v !== value)
+                : [...current, value];
+            return { ...prev, [key]: next };
+        });
+    };
+
+    const industries = INDUSTRY_OPTIONS.map(item => ({
+        value: item.value,
+        label: t(`form.industry.${item.key}`),
+    }));
+
+    const purchasingRoles = PURCHASING_ROLE_OPTIONS.map(item => ({
+        value: item.value,
+        label: t(`form.purchasingRole.${item.key}`),
+    }));
+
+    const assetManagementOptions = ASSET_MANAGEMENT_OPTIONS.map(item => ({
+        value: item.value,
+        label: t(`form.assetManagement.${item.key}`),
+    }));
+
+    const interestedFeatureOptions = INTERESTED_FEATURE_OPTIONS.map(item => ({
+        value: item.value,
+        label: t(`form.interestedFeatures.${item.key}`),
+    }));
 
     const teamSizes = [
         { label: t('form.size.2-10'), value: EOrgSize.TEN },
@@ -135,12 +187,18 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
     // 统一 disable 校验
     // 手机号格式校验（中国大陆）
     const isValidPhone = (phone: string) => /^1[3-9]\d{9}$/.test(phone);
+    const hasSurveyFields = (form: typeof formData) =>
+        form.industry !== undefined
+        && form.purchasingRole !== undefined
+        && form.assetManagement.length >= 1
+        && form.interestedFeatures.length >= 1;
+
     const getIsDisabled = (form: typeof formData, isGlobal: boolean) => {
+        const surveyOk = hasSurveyFields(form);
         if (isGlobal) {
-            return !form.email || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime;
-        } else {
-            return !form.phone || !form.name || !form.company || !form.position || !form.teamSize || !form.expectTime || !form.wechat || !form.companyEmail;
+            return !form.email || !form.name || !form.company || !form.position || !surveyOk || !form.teamSize || !form.expectTime;
         }
+        return !form.phone || !form.name || !form.company || !form.position || !surveyOk || !form.teamSize || !form.expectTime || !form.wechat || !form.companyEmail;
     };
     const isDisabled = getIsDisabled(formData, !isInChina);
     const handleSubmit = async (e?: React.FormEvent) => {
@@ -174,8 +232,22 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
 
         setSubmitting(true)
         try {
-            const { name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat } = formData;
-            const submitData = { name, company, position, teamSize, expectTime, entrance: from };
+            const {
+                name, email, company, position, teamSize, expectTime, phone, companyEmail, wechat,
+                industry, purchasingRole, assetManagement, interestedFeatures,
+            } = formData;
+            const industryLabel = industries.find(i => i.value === industry)!.label;
+            const purchasingRoleLabel = purchasingRoles.find(i => i.value === purchasingRole)!.label;
+            const assetManagementLabels = assetManagementOptions
+                .filter(o => assetManagement.includes(o.value))
+                .map(o => o.label);
+            const interestedFeatureLabels = interestedFeatureOptions
+                .filter(o => interestedFeatures.includes(o.value))
+                .map(o => o.label);
+            const submitData = {
+                name, company, position, teamSize, expectTime, entrance: from,
+                industry, purchasingRole, assetManagement, interestedFeatures,
+            };
             const updateUserInfo = {
                 email: isInChina ? companyEmail : email,
                 name: name,
@@ -197,8 +269,8 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 // 如果检查失败，为了安全起见也进行更新（可能还未初始化完成）
                 update(updateUserInfo);
             }
+            submitData['phone'] = phone
             if (isInChina) {
-                submitData['phone'] = phone
                 submitData['companyEmail'] = companyEmail
                 submitData['wechat'] = wechat
             } else {
@@ -219,6 +291,10 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 event_category: "form_submission",
                 event_label: "book_demo_request",
                 company_name: formData.company,
+                industry: industryLabel,
+                purchasing_role: purchasingRoleLabel,
+                asset_management: assetManagementLabels.join(', '),
+                interested_features: interestedFeatureLabels.join(', '),
                 team_size: formData.teamSize,
                 expect_time: formData.expectTime,
                 position: formData.position,
@@ -236,7 +312,7 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                     {
                         ...trackData,
                         email: isInChina ? companyEmail : email,
-                        phone: isInChina ? phone : undefined,
+                        phone: phone,
                     });
             } catch (error) {
                 console.warn('Intercom event tracking failed:', error);
@@ -249,6 +325,10 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                 company: "",
                 position: "",
                 phone: "",
+                industry: undefined,
+                purchasingRole: undefined,
+                assetManagement: [],
+                interestedFeatures: [],
                 teamSize: undefined,
                 expectTime: undefined,
                 companyEmail: "",
@@ -270,10 +350,14 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         "wechat"
     ] as const : [
         "name",
+        "phone",
         "email",
         "company",
         "position"
     ] as const
+
+    const baseCount = formInputLabelKeys.length;
+    const surveyFieldClass = 'col-span-1';
 
     return (<>
         <div ref={componentRef} className={cn("flex w-full justify-center font-euclid ",
@@ -344,8 +428,52 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                             })
                         }
 
+                        <div className={surveyFieldClass}>
+                            <FormLabel>{baseCount + 1}{'. '}{t('form.industry.label')}</FormLabel>
+                            <FormSingleSelect
+                                value={formData.industry}
+                                placeholder={t('form.industry.placeholder')}
+                                options={industries}
+                                dark={dark}
+                                onChange={(value) => handleChange('industry', value)}
+                            />
+                        </div>
+
+                        <div className={surveyFieldClass}>
+                            <FormLabel>{baseCount + 2}{'. '}{t('form.purchasingRole.label')}</FormLabel>
+                            <FormSingleSelect
+                                value={formData.purchasingRole}
+                                placeholder={t('form.purchasingRole.placeholder')}
+                                options={purchasingRoles}
+                                dark={dark}
+                                onChange={(value) => handleChange('purchasingRole', value)}
+                            />
+                        </div>
+
+                        <div className={surveyFieldClass}>
+                            <FormLabel>{baseCount + 3}{'. '}{t('form.assetManagement.label')}</FormLabel>
+                            <FormMultiSelect
+                                values={formData.assetManagement}
+                                placeholder={t('form.assetManagement.placeholder')}
+                                options={assetManagementOptions}
+                                dark={dark}
+                                onToggle={(value) => toggleArrayField('assetManagement', value)}
+                            />
+                        </div>
+
+                        <div className={cn(surveyFieldClass, !isInChina && 'col-span-2')}>
+                            <FormLabel>{baseCount + 4}{'. '}{t('form.interestedFeatures.label')}</FormLabel>
+                            <FormMultiSelect
+                                values={formData.interestedFeatures}
+                                placeholder={t('form.interestedFeatures.placeholder')}
+                                options={interestedFeatureOptions}
+                                dark={dark}
+                                onToggle={(value) => toggleArrayField('interestedFeatures', value)}
+                            />
+                        </div>
+
                         <div className="col-span-2">
-                            <FormLabel >{formInputLabelKeys.length + 1}{'. '}{t('form.size.label')}</FormLabel>
+                            <FormLabel >{baseCount + 5}{'. '}{t('form.size.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid grid-cols-2 gap-2 md:grid-cols-3"
                                 defaultValue={formData.teamSize?.toString()}>
@@ -378,7 +506,7 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
                         </div>
 
                         <div className="col-span-2">
-                            <FormLabel >{formInputLabelKeys.length + 2}{'. '}{t('form.expect.label')}</FormLabel>
+                            <FormLabel >{baseCount + 6}{'. '}{t('form.expect.label')}</FormLabel>
                             <RadioGroup.Root
                                 className="grid grid-cols-2 gap-2 md:grid-cols-3"
                                 defaultValue={formData.expectTime?.toString()}
