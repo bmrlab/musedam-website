@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { cn } from '@/utilities/cn'
+import Icons from '@/components/icon'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
@@ -109,7 +109,7 @@ export function FormMultiSelect<T extends number>({
         )}
       >
         <span className="line-clamp-1 flex-1">{displayText}</span>
-        <ChevronDownIcon className={cn('size-4 shrink-0 transition-transform', open && 'rotate-180')} />
+        <Icons.arrowDownSolid className={cn('size-4 shrink-0 opacity-50 transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
         <div
