@@ -12,8 +12,8 @@
         "title": "Let's get to know you",
         "name.label": "Your Name",
         "name.placeholder": "Enter your name",
-        "email.label": "Business Email",
-        "email.placeholder": "Enter your company email",
+        "email.label": "Email",
+        "email.placeholder": "Enter your email",
         "phone.label": "Phone Number",
         "phone.placeholder": "Enter your phone number",
         "phone.invalid": "Please enter a correct phone number",
@@ -33,9 +33,8 @@
             "label": "Your Position",
             "placeholder": "Enter your position"
         },
-        "companyEmail.label": "Your Business Email",
-        "companyEmail.placeholder": "Enter your company email",
-        "companyEmail.businessRequired": "Please provide your business email address~",
+        "companyEmail.label": "Your Email",
+        "companyEmail.placeholder": "Enter your email",
         "wechat.label": "Your Wechat",
         "wechat.placeholder": "Enter your wechat",
         "industry": {

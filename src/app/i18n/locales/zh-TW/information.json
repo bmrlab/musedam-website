@@ -12,8 +12,8 @@
     "title": "讓我們了解您",
     "name.label": "您的姓名",
     "name.placeholder": "輸入您的姓名",
-    "email.label": "商業電子郵件",
-    "email.placeholder": "輸入您的公司電子郵件",
+    "email.label": "電子郵件",
+    "email.placeholder": "輸入您的電子郵件",
     "phone.label": "電話號碼",
     "phone.placeholder": "輸入您的電話號碼",
     "phone.invalid": "請輸入正確的電話號碼",
@@ -33,9 +33,8 @@
       "label": "您的職位",
       "placeholder": "輸入您的職位"
     },
-    "companyEmail.label": "您的商業電子郵件",
-    "companyEmail.placeholder": "輸入您的公司電子郵件",
-    "companyEmail.businessRequired": "請提供您的商業電子郵件地址~",
+    "companyEmail.label": "您的電子郵件",
+    "companyEmail.placeholder": "輸入您的電子郵件",
     "wechat.label": "您的微信",
     "wechat.placeholder": "輸入您的微信",
     "industry": {
