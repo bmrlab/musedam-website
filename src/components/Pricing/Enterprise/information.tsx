@@ -158,9 +158,6 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         { label: t('form.expect.notSure'), value: EExpectTime.NOT_SURE },
     ];
 
-    // 统一 disable 校验
-    // 手机号格式校验（中国大陆）
-    const isValidPhone = (phone: string) => /^1[3-9]\d{9}$/.test(phone);
     const hasSurveyFields = (form: typeof formData) =>
         form.industry !== undefined
         && form.purchasingRole !== undefined
@@ -180,11 +177,6 @@ export const Information = ({ inNewPage, dark, from }: { inNewPage?: boolean, da
         if (isDisabled) {
             toast({ duration: 2000, description: t('form.required') });
             return;
-        }
-
-        if (isInChina && !isValidPhone(formData.phone)) {
-            toast({ duration: 2000, description: t('form.phone.invalid') });
-            return
         }
 
         if (isInChina && !isValidEmail(formData.companyEmail)) {
