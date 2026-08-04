@@ -1086,7 +1086,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               value={businessRole}
               onValueChange={(v) => handleBusinessRoleChange(v as BusinessRole)}
             >
-              <SelectTrigger className="h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
+              <SelectTrigger className="hidden h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
                 <SelectValue />
                 <ChevronDown className="size-4 opacity-70" />
               </SelectTrigger>
@@ -1422,10 +1422,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   enableColdHotStorage: c,
                                   ...(c
                                     ? {
-                                        chinaHotStorage:
-                                          advancedConfig.chinaHotStorage ??
-                                          advancedConfig.storageSpace,
-                                      }
+                                      chinaHotStorage:
+                                        advancedConfig.chinaHotStorage ??
+                                        advancedConfig.storageSpace,
+                                    }
                                     : {}),
                                 })
                               }
@@ -1453,12 +1453,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   enableMultiRegionStorage: c,
                                   ...(c && !advancedConfig.enableColdHotStorage
                                     ? {
-                                        chinaHotStorage:
-                                          advancedConfig.chinaHotStorage ??
-                                          advancedConfig.storageSpace,
-                                        overseasHotStorage:
-                                          advancedConfig.overseasHotStorage ?? 1,
-                                      }
+                                      chinaHotStorage:
+                                        advancedConfig.chinaHotStorage ??
+                                        advancedConfig.storageSpace,
+                                      overseasHotStorage:
+                                        advancedConfig.overseasHotStorage ?? 1,
+                                    }
                                     : {}),
                                 })
                               }
