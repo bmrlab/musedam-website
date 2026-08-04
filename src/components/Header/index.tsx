@@ -33,7 +33,7 @@ export function Header({ isGlobal, user }: { isGlobal: boolean, user: SessionUse
   return (
     <nav
       className={cn(
-        'fixed z-50 flex h-[56px] w-full items-center font-mono md:h-[70px] transition-all duration-300 ease-in-out border-b border-solid',
+        'fixed z-50 flex h-[56px] w-full items-center border-b border-solid font-mono transition-all duration-300 ease-in-out md:h-[70px]',
         isEnterprisePage && 'bg-[#070707] text-white md:backdrop-blur-md',
         isEnterprisePage && scrollTop > 70 && ' border-white/20 bg-black/60',
         isEnterprisePage && scrollTop <= 70 && 'border-transparent',

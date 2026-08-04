@@ -42,19 +42,27 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     const { rows } = useQuoteDetailData()
 
     const {
-        customerInfo,
-        setCustomerInfo,
-        setSubscriptionYears,
-        setFeatureView,
-        setDiscount,
-        showNoBuyFeature,
-        setShowNoBuyFeature,
-        setAdvancedModules,
-        setAdvancedConfig,
-        setEditInfo,
-        setMergedToBasicModules,
-        setAdvancedModulePriceOverrides
-    } = useQuotationStore()
+    customerInfo,
+    setCustomerInfo,
+    setSubscriptionYears,
+    setFeatureView,
+    setDiscount,
+    showNoBuyFeature,
+    setShowNoBuyFeature,
+    setAdvancedModules,
+    setAdvancedConfig,
+    setEditInfo,
+    setMergedToBasicModules,
+    setAdvancedModulePriceOverrides,
+    setModuleBillingModes,
+    setModuleVariants,
+    setModuleMultiSelections,
+    setActiveTab,
+    setBusinessRole,
+    setPrivateConfig,
+    setPrivateImplProducts,
+    setCustomServices,
+  } = useQuotationStore()
 
     // 初始化数据
     useEffect(() => {
@@ -73,18 +81,75 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                     contact: info.customerContact ?? '',
                 })
 
+                if (content.businessRole === 'pod' || content.businessRole === 'muse') {
+                    setBusinessRole(content.businessRole)
+                }
+
                 if (content.advancedConfig) {
-                    setAdvancedConfig(content.advancedConfig)
+                    const nextConfig = {
+                        geaDam: true,
+                        geaContext: false,
+                        geaAiPointsPack: 0,
+                        ...content.advancedConfig,
+                    }
+                    // DAM / GEA 至少保留一个
+                    if (!nextConfig.geaDam && !nextConfig.geaContext) {
+                        nextConfig.geaDam = true
+                    }
+                    setAdvancedConfig(nextConfig)
                 }
 
                 if (content.advancedModules) {
-                    setAdvancedModules(content.advancedModules)
+                    setAdvancedModules((prev) => ({ ...prev, ...content.advancedModules }))
                 }
                 if (content.mergedToBasicModules) {
                     setMergedToBasicModules(new Set(content.mergedToBasicModules))
                 }
                 if (content.advancedModulePriceOverrides) {
                     setAdvancedModulePriceOverrides(content.advancedModulePriceOverrides)
+                }
+                if (content.moduleBillingModes) {
+                    setModuleBillingModes(content.moduleBillingModes)
+                }
+                if (content.moduleVariants) {
+                    setModuleVariants((prev) => ({ ...prev, ...content.moduleVariants }))
+                }
+                if (content.moduleMultiSelections) {
+                    setModuleMultiSelections(content.moduleMultiSelections)
+                }
+                if (content.activeTab) {
+                    setActiveTab(content.activeTab)
+                }
+                if (content.privateConfig) {
+                    const rawType = content.privateConfig.licenseType
+                    const licenseType =
+                        rawType === 'saas' || rawType === 'encrypted'
+                            ? 'encrypted'
+                            : rawType === 'source'
+                              ? 'source'
+                              : rawType === 'perpetual'
+                                ? 'perpetual'
+                                : 'encrypted'
+                    const rawFreq = content.privateConfig.iterationFrequency
+                    setPrivateConfig({
+                        enabled: false,
+                        licenseEnabled: true,
+                        opsEnabled: true,
+                        basicMaintenance: true,
+                        versionIteration: false,
+                        implementationEnabled: true,
+                        cloudProvider: 'aliyun',
+                        ...content.privateConfig,
+                        licenseType,
+                        // 刊例改为 1/4 次；历史 2 次按 1 次兼容
+                        iterationFrequency: rawFreq === 4 ? 4 : 1,
+                    })
+                }
+                if (content.privateImplProducts) {
+                    setPrivateImplProducts((prev) => ({ ...prev, ...content.privateImplProducts }))
+                }
+                if (content.customServices) {
+                    setCustomServices(content.customServices)
                 }
                 setDiscount(realDiscount)
                 setFeatureView(content.featureView)
@@ -107,7 +172,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;

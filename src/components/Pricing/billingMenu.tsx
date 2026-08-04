@@ -71,7 +71,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
   // 企业官网-团队版
   const enterpriseSummary = {
     [EPlanProductType.TEAM_BASIC]: [
-      t('pricing.summary.seats', { val: 2 }),
+      t('pricing.summary.seats', { val: 5 }),
       t('pricing.summary.storage.expand', { val: '100GB' }),
       t('pricing.summary.ai.new'),
       t('pricing.enterpriseSummary.basicFolderPermissions'),
@@ -255,7 +255,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       [BillingType.yearly]: EMuseProductType.ABROAD_ORG_BASIC_YEARLY,
       period: t('pricing.perMonth'),
       priceGlobal: '60',
-      price: '225',
+      price: '224',
       color: '#BBB3FF'
     },
     {

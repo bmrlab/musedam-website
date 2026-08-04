@@ -28,6 +28,12 @@ const QuoteDetailTable: FC = () => {
                         <div className='flex flex-col gap-[2px]'>
                             <span className={row.bold ? 'font-bold' : 'font-normal'}>
                                 {row.name}
+                                {row.billingMode === 'gift' && (
+                                    <span className="ml-2 text-xs text-[#2E7D4F]">({t('billing.gift')})</span>
+                                )}
+                                {row.billingMode === 'discount' && (
+                                    <span className="ml-2 text-xs text-[#C45C26]">({t('billing.discount')})</span>
+                                )}
                             </span>
                             {row.des && <span className='whitespace-pre-line text-xs font-light text-[#141414]'>{row.des}</span>}
                         </div>

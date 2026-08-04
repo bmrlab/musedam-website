@@ -1,42 +1,159 @@
-import { EAdvancedModules, EPrivateModules } from './config'
+import {
+  BillingMode,
+  BusinessRole,
+  EAdvancedModules,
+  EGeaBaseModules,
+  EPrivateImplProducts,
+  EPrivateModules,
+  ExtensionBaseProduct,
+  PrivateCloudProvider,
+  PrivateIterationFrequency,
+  PrivateLicenseType,
+} from './enums'
+
+export type {
+  BillingMode,
+  BusinessRole,
+  ExtensionBaseProduct,
+  PrivateCloudProvider,
+  PrivateIterationFrequency,
+  PrivateLicenseType,
+}
+export {
+  EAdvancedModules,
+  EGeaBaseModules,
+  EPrivateImplProducts,
+  EPrivateModules,
+} from './enums'
 
 export enum TabEnum {
-    BASIC = 'basic',
-    ADVANCED = 'advanced',
-    PRIVATE = 'private'
+  BASIC = 'basic',
+  /** 企业版 SaaS */
+  ADVANCED = 'advanced',
+  /** 私有化部署 */
+  PRIVATE = 'private',
+  /** 定制服务（占位） */
+  CUSTOM = 'custom',
 }
 
 export interface ICustomerInfo {
-    company: string,
-    contact: string,
-    email: string,
-    yourEmail: string
+  company: string
+  contact: string
+  email: string
+  yourEmail: string
 }
 
+/** 成员席位计价方式 */
+export type SeatPricingMode = 'bySeat' | 'byTier'
+
+/** 按档位席位档 */
+export type SeatTier = 'lte200' | 'lte500' | 'lte1000' | 'unlimited'
+
 export interface IAdvancedInfo {
-    memberSeats: number,
-    storageSpace: number,
-    aiPoints: number,
+  memberSeats: number
+  /** 席位计价：按席位 / 按档位 */
+  seatPricingMode?: SeatPricingMode
+  /** 按档位时选中的档位 */
+  seatTier?: SeatTier
+  storageSpace: number
+  /** 启用冷热库 */
+  enableColdHotStorage?: boolean
+  /** 启用多区域分桶存储 */
+  enableMultiRegionStorage?: boolean
+  /** 中国热库 TB */
+  chinaHotStorage?: number
+  /** 中国冷库 TB */
+  chinaColdStorage?: number
+  /** 海外热库 TB */
+  overseasHotStorage?: number
+  /** 海外冷库 TB */
+  overseasColdStorage?: number
+  aiPoints: number
+  /** GEA 基础：DAM 数字资产管理 */
+  geaDam: boolean
+  /** GEA+Context 智能体基座 */
+  geaContext: boolean
+  /** 基础区 AI 点数包份数（1万点/份） */
+  geaAiPointsPack: number
 }
 
 export interface IPrivateConfig {
-    licenseType: 'saas' | 'perpetual'
-    memberSeats: number
+  /** 私有化总开关 */
+  enabled: boolean
+  /** 软件授权费开关 */
+  licenseEnabled: boolean
+  licenseType: PrivateLicenseType
+  /** 产品运营及维护开关 */
+  opsEnabled: boolean
+  /** 基础维护 */
+  basicMaintenance: boolean
+  /** 版本迭代 */
+  versionIteration: boolean
+  iterationFrequency: PrivateIterationFrequency
+  /** 私有化部署实施开关 */
+  implementationEnabled: boolean
+  cloudProvider: PrivateCloudProvider
+  /** @deprecated 兼容历史报价 */
+  memberSeats?: number
+}
+
+export type CustomServiceRole =
+  | 'operations' // legacy
+  | 'developer' // legacy → 现作 L1 产品设计师/开发工程师
+  | 'architect' // legacy
+  | 'algorithm' // legacy
+  | 'fde'
+  | 'aiEngineer'
+  | 'aiConsultant'
+  | 'founder'
+  | 'custom'
+
+export interface ICustomServiceDetail {
+  id: string
+  description: string
+}
+
+export interface ICustomServiceRoleLine {
+  id: string
+  /** 角色按细分项时，对应的细分项 */
+  detailId?: string
+  role: CustomServiceRole
+  customRoleName?: string
+  quantity: number
+}
+
+export interface ICustomService {
+  id: string
+  name: string
+  roleByDetail: boolean
+  details: ICustomServiceDetail[]
+  roleLines: ICustomServiceRoleLine[]
 }
 
 export type IAdvancedModules = Record<EAdvancedModules, boolean | number>
 
+/** @deprecated 兼容历史报价结构 */
 export type IPrivateModules = Record<EAdvancedModules | EPrivateModules, boolean> & {
-    maintenanceYears: number
+  maintenanceYears: number
 }
 
+export type IPrivateImplProducts = Record<EPrivateImplProducts, boolean>
+
 export interface IBasicConfig {
-    memberSeats: number,
-    storageSpace: number,
-    aiPoints: number
+  memberSeats: number
+  storageSpace: number
+  aiPoints: number
 }
 
 export enum EFeatureView {
-    'OVERVIEW' = 'overview',
-    'DETAIL' = 'detail'
-} 
+  OVERVIEW = 'overview',
+  DETAIL = 'detail',
+}
+
+export type ModuleBillingModes = Partial<Record<EAdvancedModules | EGeaBaseModules, BillingMode>>
+
+/** 版本类子选项（基础版 / 高阶版等） */
+export type ModuleVariantSelections = Partial<Record<EAdvancedModules, string>>
+
+/** 渠道 / 特征等多选 */
+export type ModuleMultiSelections = Partial<Record<EAdvancedModules, string[]>>

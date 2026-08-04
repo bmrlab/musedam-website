@@ -255,7 +255,7 @@ export default function HeaderDesktop({
         {isInChina && <LocaleSwitch />}
         {isEnterprisePage ?
           <Link
-            href={user ? '/home' : '/auth'}
+            href={user ? '/home' : 'https://muse-web.test.tezign.com/auth'}
             prefetch={false}
           >
             <DarkButton className={'mr-5 h-[48px]'}>

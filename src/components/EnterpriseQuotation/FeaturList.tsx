@@ -65,8 +65,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
     const { t } = useTranslation('quotation-feature')
 
     // 从 rows 中获取已购买的模块 key（这些是未合并的模块）
-    const rowsKeysSet = new Set(rows.map((v) => v.key).filter((v) => !!v) as string[])
-
+    void rows
     // 按照 allModules 的原始顺序，筛选出所有已购买的模块（包括合并和未合并的）
     // 这样合并的模块会保持原始顺序，而不是追加到最后
     const featureListKeys = allModules
@@ -80,7 +79,6 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         })
         .map((module) => module.key)
         .filter((v) => !!v) as string[]
-
 
     const basicList: DisplayRow[] = (() => {
         // const groups = featureListKeys.map(code => basicGroupsByCode[basicKeyToGroups[code]]).filter((v) => !!v)
@@ -99,8 +97,15 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
     const advancedList: DisplayRow[] = (() => {
         const groups = featureListKeys.map(code => {
             let info = advancedGroupsByCode[advancedKeyToGroup[code]]
+            if (!info) {
+                // 新模块无详情时用模块名占位
+                return { title: String(code), items: [{ name: String(code), detail: '' }] }
+            }
             if (code === EAdvancedModules.ENTERPRISE_SSO && info.items) {
-                info.items = info.items?.filter((v) => hasSSOType.includes(v.key))
+                info = {
+                    ...info,
+                    items: info.items?.filter((v) => hasSSOType.includes(v.key)),
+                }
             }
             return info
         }).filter((v) => !!v)

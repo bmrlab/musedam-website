@@ -14,14 +14,15 @@ export const useEnterprisePlan = () => {
             { name: tFeatures('aiCapabilities.1.name'), detail: tFeatures('aiCapabilities.1.detail') },
             { name: tFeatures('aiCapabilities.2.name'), detail: tFeatures('aiCapabilities.2.detail') },
             { name: tFeatures('aiCapabilities.3.name'), detail: tFeatures('aiCapabilities.3.detail') },
-            { name: tFeatures('aiCapabilities.4.name'), detail: tFeatures('aiCapabilities.4.detail') }
+            { name: tFeatures('aiCapabilities.4.name'), detail: tFeatures('aiCapabilities.4.detail') },
+            { name: tFeatures('aiCapabilities.5.name'), detail: tFeatures('aiCapabilities.5.detail') }
         ],
         [tFeatures('storageManagement.title')]: [
             { name: tFeatures('storageManagement.0.name'), detail: tFeatures('storageManagement.0.detail') },
             { name: tFeatures('storageManagement.1.name'), detail: tFeatures('storageManagement.1.detail') },
             { name: tFeatures('storageManagement.2.name'), detail: tFeatures('storageManagement.2.detail') }
         ],
-        [tFeatures('assetOrganization.title')]: Array.from({ length: 10 }).map((_, i) => ({
+        [tFeatures('assetOrganization.title')]: Array.from({ length: 11 }).map((_, i) => ({
             name: tFeatures(`assetOrganization.${i}.name`), detail: tFeatures(`assetOrganization.${i}.detail`)
         })),
         [tFeatures('sharingCollaboration.title')]: [
@@ -45,23 +46,19 @@ export const useEnterprisePlan = () => {
 
     // Advanced
     const advancedList = {
-        [tFeatures('advancedFeatures.title')]: [
-            { name: tFeatures('advancedFeatures.0.name'), detail: tFeatures('advancedFeatures.0.detail'), showBeta: true },
-            { name: tFeatures('advancedFeatures.1.name'), detail: tFeatures('advancedFeatures.1.detail') },
-            { name: tFeatures('advancedFeatures.2.name'), detail: tFeatures('advancedFeatures.2.detail') },
-            { name: tFeatures('advancedFeatures.3.name'), detail: tFeatures('advancedFeatures.3.detail') },
-            { name: tFeatures('advancedFeatures.4.name'), detail: tFeatures('advancedFeatures.4.detail') },
-            { name: tFeatures('advancedFeatures.5.name'), detail: tFeatures('advancedFeatures.5.detail') },
-            { name: tFeatures('advancedFeatures.6.name'), detail: tFeatures('advancedFeatures.6.detail') },
-            { name: tFeatures('advancedFeatures.7.name'), detail: tFeatures('advancedFeatures.7.detail') }
-        ],
+        [tFeatures('advancedFeatures.title')]: Array.from({ length: 14 }).map((_, i) => ({
+            name: tFeatures(`advancedFeatures.${i}.name`),
+            detail: tFeatures(`advancedFeatures.${i}.detail`),
+            showBeta: i === 0
+        })),
         [tFeatures('customSystemHomepage.title')]: [
             { name: tFeatures('customSystemHomepage.0.name'), detail: tFeatures('customSystemHomepage.0.detail') },
             { name: tFeatures('customSystemHomepage.1.name'), detail: tFeatures('customSystemHomepage.1.detail') },
             { name: tFeatures('customSystemHomepage.2.name'), detail: tFeatures('customSystemHomepage.2.detail') },
             { name: tFeatures('customSystemHomepage.3.name'), detail: tFeatures('customSystemHomepage.3.detail') },
             { name: tFeatures('customSystemHomepage.4.name'), detail: tFeatures('customSystemHomepage.4.detail') },
-            { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') }
+            { name: tFeatures('customSystemHomepage.5.name'), detail: tFeatures('customSystemHomepage.5.detail') },
+            { name: tFeatures('customSystemHomepage.6.name'), detail: tFeatures('customSystemHomepage.6.detail') }
         ],
         [tFeatures('smartFolders.title')]: [
             { name: tFeatures('smartFolders.0.name'), detail: tFeatures('smartFolders.0.detail') },
@@ -107,7 +104,8 @@ export const useEnterprisePlan = () => {
         [tFeatures('complianceCheck.title')]: [
             { name: tFeatures('complianceCheck.0.name'), detail: tFeatures('complianceCheck.0.detail') },
             { name: tFeatures('complianceCheck.1.name'), detail: tFeatures('complianceCheck.1.detail') },
-            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') }
+            { name: tFeatures('complianceCheck.2.name'), detail: tFeatures('complianceCheck.2.detail') },
+            { name: tFeatures('complianceCheck.3.name'), detail: tFeatures('complianceCheck.3.detail') }
         ],
         // 版权管理
         [tFeatures('copyrightManagement.title')]: [
@@ -193,6 +191,74 @@ export const useEnterprisePlan = () => {
         ],
     };
 
+    const heading = (key: string) => ({ name: tFeatures(`${key}.title`) });
+    const groupItems = (key: string) =>
+        advancedList[tFeatures(`${key}.title`)] || [];
+    const placeholderItems = groupItems('aiAutoTaggingEngine');
+    const workflowItems = Array.from({ length: 3 }).map((_, i) => ({
+        name: tFeatures(`workflowCommon.${i}.name`),
+        detail: tFeatures(`workflowCommon.${i}.detail`)
+    }));
+
+    // Extension modules are grouped by the business areas used in the latest design.
+    const extensionList = {
+        [tFeatures('extensionSections.assetOrganization')]: [
+            heading('customSystemHomepage'), ...groupItems('customSystemHomepage'),
+            heading('smartFolders'), ...groupItems('smartFolders'),
+            heading('customMetadataFields'), ...groupItems('customMetadataFields'),
+            heading('brandLibrary'), ...groupItems('smartFolders'),
+            heading('productLibrary'), ...groupItems('smartFolders'),
+            heading('projectHub'), ...groupItems('smartFolders')
+        ],
+        [tFeatures('extensionSections.aiIntelligence')]: [
+            heading('aiAutoTaggingEngine'), ...groupItems('aiAutoTaggingEngine'),
+            heading('aiFeatureRecognition'), ...placeholderItems
+        ],
+        [tFeatures('extensionSections.creativeProduction')]: [
+            heading('museAI'), ...groupItems('museAI'),
+            heading('ingenOps'), ...groupItems('batchTemplating'),
+            heading('clipoRemix'), ...placeholderItems
+        ],
+        [tFeatures('extensionSections.collaborationWorkflow')]: [
+            heading('fileCollection'), ...placeholderItems,
+            heading('approvalCenter'), ...placeholderItems,
+            heading('deliveryApprovalCenter'), ...groupItems('deliveryApprovalCenter'),
+            heading('taskWorkflow'), ...workflowItems,
+            heading('automationCenter'), ...workflowItems
+        ],
+        [tFeatures('extensionSections.complianceCopyright')]: [
+            heading('complianceCheck'), ...groupItems('complianceCheck'),
+            heading('brandComplianceAgent'), ...placeholderItems,
+            heading('copyrightManagement'), ...groupItems('copyrightManagement'),
+            heading('watermark'), ...groupItems('watermark')
+        ],
+        [tFeatures('extensionSections.distributionDelivery')]: [
+            heading('publicAssetsAndDerivatives'), ...groupItems('publicAssetsAndDerivatives'),
+            heading('dat'), ...groupItems('dat'),
+            heading('portal'), ...placeholderItems,
+            heading('socialDistribution'), ...workflowItems,
+            heading('ecommerceDistribution'), ...workflowItems
+        ],
+        [tFeatures('extensionSections.integrationInfrastructure')]: [
+            heading('notionSync'), ...groupItems('complianceCheck'),
+            ...(isInChina ? [
+                heading('feishuDrive'), ...placeholderItems,
+                heading('feishuBitable'), ...placeholderItems,
+                heading('feishuApproval'), ...workflowItems
+            ] : []),
+            heading('enterpriseSingleSignOn'), ...groupItems('enterpriseSingleSignOn'),
+            ...(isInChina ? [heading('globalAcceleration'), ...groupItems('globalAcceleration')] : [])
+        ],
+        [tFeatures('extensionSections.serviceSupport')]: [
+            heading('customerService'), ...groupItems('customerService'),
+            heading('professionalServicesSupport'),
+            ...Array.from({ length: 3 }).map((_, i) => ({
+                name: tFeatures(`professionalServicesSupport.${i}.name`),
+                detail: tFeatures(`professionalServicesSupport.${i}.detail`)
+            }))
+        ]
+    };
+
     // Value-Added Services
     const addedList = {
         [tFeatures('capacityExpansion.title')]: [
@@ -216,11 +282,20 @@ export const useEnterprisePlan = () => {
         },
         advanced: {
             title: tFeatures('Advanced'),
-            list: advancedList
+            hideGroupTitles: true,
+            list: {
+                [tFeatures('advancedFeatures.title')]: advancedList[tFeatures('advancedFeatures.title')]
+            }
+        },
+        extensions: {
+            title: tFeatures('Extensions'),
+            list: extensionList
         },
         added: {
             title: tFeatures('ValueAddedServices'),
-            list: addedList
+            list: {
+                [tFeatures('capacityExpansion.title')]: addedList[tFeatures('capacityExpansion.title')]
+            }
         }
     };
 
@@ -267,10 +342,20 @@ export const useEnterprisePlan = () => {
         [EAdvancedModules.ADVANCED_FEATURES]: 'advancedFeatures',
         [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 'customSystemHomepage',
         [EAdvancedModules.STANDARD_PROJECT_HUB]: 'standardProjectHub',
+        [EAdvancedModules.PROJECT_HUB]: 'standardProjectHub',
         [EAdvancedModules.ADVANCED_PROJECT_HUB]: 'advancedProjectHub',
         [EAdvancedModules.AI_AUTO_TAG]: 'aiAutoTaggingEngine',
         [EAdvancedModules.MUSE_AI]: 'museAI',
+        [EAdvancedModules.MUSE_AI_BASIC]: 'museAI',
+        [EAdvancedModules.MUSE_AI_STANDARD]: 'museAI',
+        [EAdvancedModules.MUSE_AI_ADVANCED]: 'museAI',
         [EAdvancedModules.MUSE_CUT]: 'museCut',
+        [EAdvancedModules.BATCH_TEMPLATING]: 'batchTemplating',
+        [EAdvancedModules.HTML_EXPORT]: 'batchTemplating',
+        [EAdvancedModules.CLIPO_REMIX]: 'museCut',
+        [EAdvancedModules.CLIPO_REMIX_BEE]: 'museCut',
+        [EAdvancedModules.CLIPO_REMIX_PANDA]: 'museCut',
+        [EAdvancedModules.CLIPO_REMIX_LION]: 'museCut',
         [EAdvancedModules.COMPLIANCE_CHECK]: 'complianceCheck',
         [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 'deliveryApprovalCenter',
         [EAdvancedModules.SMART_FOLDERS]: 'smartFolders',
@@ -281,6 +366,7 @@ export const useEnterprisePlan = () => {
         [EAdvancedModules.WATERMARK]: 'watermark',
         [EAdvancedModules.ENTERPRISE_SSO]: 'enterpriseSingleSignOn',
         [EAdvancedModules.GA]: 'globalAcceleration',
+        [EAdvancedModules.GA_CONTAINER]: 'globalAcceleration',
         [EAdvancedModules.CUSTOMER_SERVICE]: 'customerService',
     };
 

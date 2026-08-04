@@ -1,678 +1,1003 @@
-"use client"
+'use client'
 
 import { useTranslation } from '@/app/i18n/client'
-import { usePricing, useBasicConfigs, useAdvancedConfigs, EAdvancedModules, EPrivateModules } from './config'
+import {
+  usePricing,
+  useBasicConfigs,
+  useAdvancedModuleGroups,
+  EAdvancedModules,
+  EPrivateImplProducts,
+  IModules,
+  IModuleGroup,
+  calcPrivateBasicMaintenance,
+  calcPrivateLicenseFee,
+  isSaasProductSelected,
+  useCustomServiceRoleOptions,
+} from './config'
 import { TabEnum } from './types'
 import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { useCountry } from '@/providers/Country'
 import { useMemo } from 'react'
-import { useLanguage } from '@/providers/Language'
 import { useQuotationStore } from '@/providers/QuotationStore'
-import { isInChina } from '@/utilities/isInChina'
+import { BillingMode, EGeaBaseModules } from './enums'
+import { useLanguage } from '@/providers/Language'
+import {
+  calcMemberSeatsCost,
+  calcStorageCost,
+  getSeatPricingMode,
+  getSeatTier,
+} from './seatStorage'
+import { getModuleSku } from './skuMap'
 
 export interface QuoteDetailRow {
-    name: React.ReactNode
-    quantity: string
-    unit?: string
-    subtotal?: number | string
-    bold?: boolean
-    isSection?: boolean
-    isModule?: boolean
-    des?: string
-    previewDes?: string
-    key?: string
+  name: React.ReactNode
+  quantity: string
+  unit?: string
+  subtotal?: number | string
+  bold?: boolean
+  isSection?: boolean
+  isModule?: boolean
+  des?: string
+  previewDes?: string
+  key?: string
+  /** 刊例 SKU，前端可不展示 */
+  sku?: string
+  groupId?: string
+  billingMode?: BillingMode
+  oneTime?: boolean
 }
 
 export interface QuoteDetailRowFormatted {
-    name: React.ReactNode
-    quantity: string
-    unit?: string
-    subtotal?: string
-    bold?: boolean
-    isSection?: boolean
-    isModule?: boolean
-    des?: string
-    previewDes?: string
-    key?: string
+  name: React.ReactNode
+  quantity: string
+  unit?: string
+  subtotal?: string
+  bold?: boolean
+  isSection?: boolean
+  isModule?: boolean
+  des?: string
+  previewDes?: string
+  key?: string
+  /** 刊例 SKU，前端可不展示 */
+  sku?: string
+  groupId?: string
+  billingMode?: BillingMode
+  oneTime?: boolean
 }
 
 export interface QuoteDetailData {
-    rows: QuoteDetailRowFormatted[]
-    allModules: QuoteDetailRow[]
-    subtotal: string
-    total: string
-    years: number
-    totalNumPerYear: number
-    /** 基础套餐价格/年 */
-    basicCostPerYear: number
-    /** 折后总价 */
-    discountTotal?: string
-    /** 购买的sso内容 */
-    hasSSOType: EAdvancedModules[]
+  rows: QuoteDetailRowFormatted[]
+  allModules: QuoteDetailRow[]
+  subtotal: string
+  total: string
+  years: number
+  totalNumPerYear: number
+  basicCostPerYear: number
+  discountTotal?: string
+  hasSSOType: EAdvancedModules[]
+  /** 用于赠送门槛判断：不含赠送模块的 SaaS 年价（再乘整体折扣得折后总价） */
+  saasPaidTotalPerYear: number
+  /** 拓展模块已勾选（非赠送）年费合计 */
+  extensionCostPerYear: number
+  /** 私有化授权费基数：模块费 + 席位费（不含存储） */
+  saasLicenseBasePerYear: number
+  /** 私有化一次性实施费用合计 */
+  privateOneTimeTotal: number
+  /** 定制服务一次性费用合计 */
+  customOneTimeTotal: number
 }
 
+const getBillingMode = (
+  key: string,
+  modes: Partial<Record<string, BillingMode>>,
+): BillingMode => modes[key] ?? 'paid'
+
+const resolveUnitPrice = (
+  key: string,
+  listPrice: number,
+  mode: BillingMode,
+  overrides: Partial<Record<string, number>>,
+): number => {
+  if (mode === 'gift') return 0
+  if (mode === 'discount') {
+    return overrides[key] ?? listPrice
+  }
+  return overrides[key] ?? listPrice
+}
 
 export const useQuoteDetailData = (): QuoteDetailData => {
-    const {
-        activeTab,
-        advancedConfig,
-        advancedModules,
-        privateConfig,
-        privateModules,
-        basicConfig,
-        subscriptionYears,
-        discount,
-        museAITagOption,
-        museCutTagOption,
-        gaTagOption,
-        cdnTagOption,
-        mergedToBasicModules,
-        advancedModulePriceOverrides
-    } = useQuotationStore()
-    const { isInChina } = useCountry()
-    const { t } = useTranslation('quotation')
-    const basicConfigs = useBasicConfigs()
-    const advancedConfigs = useAdvancedConfigs()
-    const { pricing, moduleNames, prefix, ssoTypeNames, allSSOType } = usePricing()
-    const advancedPricing = pricing.advanced.modules
-    const { language } = useLanguage()
+  const {
+    activeTab,
+    advancedConfig,
+    advancedModules,
+    privateConfig,
+    privateImplProducts,
+    customServices,
+    basicConfig,
+    subscriptionYears,
+    discount,
+    moduleBillingModes,
+    moduleVariants,
+    moduleMultiSelections,
+    advancedModulePriceOverrides,
+    gaTagOption,
+    cdnTagOption,
+  } = useQuotationStore()
+  const { isInChina } = useCountry()
+  const { t } = useTranslation('quotation')
+  const basicConfigs = useBasicConfigs()
+  const moduleGroups = useAdvancedModuleGroups()
+  const visibleModuleGroups = useMemo(
+    () =>
+      moduleGroups.filter((group) => {
+        const base = group.baseProduct ?? 'dam'
+        if (base === 'dam') return advancedConfig.geaDam
+        if (base === 'gea') return advancedConfig.geaContext
+        return true
+      }),
+    [moduleGroups, advancedConfig.geaDam, advancedConfig.geaContext],
+  )
+  const customRoleOptions = useCustomServiceRoleOptions()
+  const { pricing, moduleNames, prefix, ssoTypeNames, allSSOType } = usePricing()
+  const advancedPricing = pricing.advanced.modules
 
-    const renderCost = (cost: number) => {
-        return `${prefix}${formatWithToLocaleString(cost)}${t('per.year')}`
+  const getYear = (years: number) => {
+    if (years > 1) return `${years} ${t('years')}`
+    return `1 ${t('year')}`
+  }
+
+  const renderCost = (cost: number, oneTime?: boolean) => {
+    if (cost === 0) return t('free')
+    return oneTime
+      ? `${prefix}${formatWithToLocaleString(cost)}`
+      : `${prefix}${formatWithToLocaleString(cost)}${t('per.year')}`
+  }
+
+  const rows: QuoteDetailRow[] = []
+  let allModules: QuoteDetailRow[] = []
+  let basicCostPerYear = 0
+  let privatePerYear = 0
+  let privateOneTimeTotal = 0
+  let customOneTimeTotal = 0
+  let hasSSOType: EAdvancedModules[] = []
+  let extensionCostPerYear = 0
+  let saasLicenseBasePerYear = 0
+
+  const calcModuleLine = (
+    module: IModules,
+    opts?: { forceSelected?: boolean },
+  ): QuoteDetailRow | null => {
+    const { key, label, price, noCheckBox, variantOptions, multiOptions, oneTime, min, unit, sku } =
+      module
+    if (price === undefined || price === null) return null
+    // 纯容器（无自身计价）：展开子项由调用方处理；带 multiOptions / 数量的 noCheckBox 仍需计价
+    if (
+      noCheckBox &&
+      key !== EAdvancedModules.ENTERPRISE_SSO &&
+      key !== EAdvancedModules.GA_CONTAINER &&
+      !multiOptions?.length &&
+      min === undefined
+    ) {
+      return null
     }
 
-    const getYear = (years: number) => {
-        if (years > 1) {
-            return `${years} ${t('years')}`
-        }
-        return `1 ${t('year')}`
+    const mode = getBillingMode(key, moduleBillingModes)
+    const selected =
+      opts?.forceSelected ||
+      (key === EAdvancedModules.ENTERPRISE_SSO
+        ? allSSOType.some((s) => !!advancedModules[s])
+        : key === EAdvancedModules.GA_CONTAINER
+          ? !!advancedModules[EAdvancedModules.CDN_GLOBAL] || !!advancedModules[EAdvancedModules.GA]
+          : !!advancedModules[key])
+
+    const resolveLineSku = (fallback?: string) => fallback ?? sku ?? getModuleSku(key)
+
+    // Variant modules
+    if (variantOptions?.length) {
+      const variantValue = moduleVariants[key] ?? variantOptions[0].value
+      const variant = variantOptions.find((v) => v.value === variantValue) ?? variantOptions[0]
+      const unitPrice = resolveUnitPrice(key, variant.price, mode, advancedModulePriceOverrides)
+      return {
+        key,
+        sku: resolveLineSku(variant.sku),
+        name: `${label}（${variant.label}）`,
+        quantity: oneTime ? '1' : getYear(selected ? subscriptionYears : 1),
+        unit: mode === 'gift' ? t('free') : renderCost(unitPrice, oneTime),
+        subtotal: selected ? (mode === 'gift' ? t('free') : unitPrice) : unitPrice,
+        isModule: true,
+        billingMode: mode,
+        notBuy: !selected,
+      } as QuoteDetailRow & { notBuy?: boolean }
     }
 
-    const rows: QuoteDetailRow[] = []
-    let allModules: QuoteDetailRow[] = []
-
-    let basicCostPerYear = 0
-    let privatePerYear = 0
-    let hasSSOType: EAdvancedModules[] = []
-
-    if (activeTab === TabEnum.BASIC || activeTab === TabEnum.ADVANCED) {
-        const isBasic = activeTab === TabEnum.BASIC;
-        const packageBasic = isBasic ? basicConfig : advancedConfig
-        const pricingBasic = isBasic ? pricing.basic : pricing.advanced
-
-        // 主套餐
-        rows.push(isBasic ? {
-            name: t('basic.edition'),
-            quantity: `${subscriptionYears} ${subscriptionYears > 1 ? t('years') : t('year')}`,
-            bold: true,
-            isSection: true,
-        } : {
-            name: t('enterprise.edition'),
-            quantity: `${subscriptionYears} ${subscriptionYears > 1 ? t('years') : t('year')}`,
-            bold: true,
-            isSection: true,
-        })
-
-        // 基础配置项
-        basicConfigs.forEach(({ key, title, hint }) => {
-            let quantity = ''
-            let cost = 0
-            if (key === 'memberSeats') {
-                quantity = `${packageBasic.memberSeats} ${t('seats')}`
-                cost = packageBasic.memberSeats * pricingBasic.memberSeatPrice
-            } else if (key === 'storageSpace') {
-                quantity = `${packageBasic.storageSpace}` + (isBasic ? 'GB' : 'TB')
-                cost = packageBasic.storageSpace * pricingBasic.storageSpacePrice
-            } else if (key === 'aiPoints') {
-                quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t("ai.AutoTagEngine.unit.s") : ''} \n(${formatWithToLocaleString(100000 * packageBasic.aiPoints)}${t('expansion.points')})`
-                cost = Math.round(packageBasic.aiPoints * pricingBasic.aiPointsPrice)
-            }
-
-            basicCostPerYear += cost
-            if (cost > 0) {
-                rows.push({
-                    key,
-                    name: title,
-                    quantity: quantity,
-                    des: hint.at(-1),
-                    unit: renderCost(cost / (key === 'memberSeats' ? packageBasic.memberSeats : key === 'storageSpace' ? packageBasic.storageSpace : packageBasic.aiPoints)),
-                    subtotal: cost,
-                })
-            }
-        })
+    // Multi-select channel / feature priced per selection
+    if (multiOptions?.length && (key === EAdvancedModules.SOCIAL_CHANNELS || key === EAdvancedModules.ECOM_CHANNELS || key === EAdvancedModules.REGIONAL_COMPLIANCE || key === EAdvancedModules.FEATURE_LIBRARY)) {
+      const selectedOpts = moduleMultiSelections[key] ?? []
+      const count = selectedOpts.length
+      const unitPrice = resolveUnitPrice(key, price, mode, advancedModulePriceOverrides)
+      const cost = unitPrice * Math.max(count, 0)
+      const names = selectedOpts
+        .map((v) => multiOptions.find((o) => o.value === v)?.label)
+        .filter(Boolean)
+        .join(', ')
+      const selectedSkus = selectedOpts
+        .map((v) => multiOptions.find((o) => o.value === v)?.sku)
+        .filter(Boolean) as string[]
+      const isSelected = count > 0 || !!advancedModules[key]
+      return {
+        key,
+        sku: selectedSkus.length ? selectedSkus.join(',') : resolveLineSku(),
+        name: names ? `${label}（${names}）` : label,
+        quantity: oneTime ? String(Math.max(count, 1)) : getYear(isSelected ? subscriptionYears : 1),
+        unit:
+          mode === 'gift'
+            ? t('free')
+            : `${prefix}${formatWithToLocaleString(unitPrice)}${unit ?? t('per.year')}`,
+        subtotal: isSelected ? (mode === 'gift' ? t('free') : cost) : cost,
+        isModule: true,
+        billingMode: mode,
+        notBuy: !isSelected,
+      } as QuoteDetailRow & { notBuy?: boolean }
     }
 
-    if (activeTab === TabEnum.ADVANCED) {
-        // 高级模块
-        const moduleRows = advancedConfigs.map(({ key, label, price, hint, noCheckBox, subModules }) => {
-            // 如果 price 不存在，不显示
-            if (price === undefined || price === null) {
-                return null
-            }
-            // 跳过有 noCheckBox 的父模块（如 ENTERPRISE_SSO、GA_CONTAINER），它们只作为容器，不单独显示
-            // 但 SSO 和 GA_CONTAINER 需要特殊处理，检查子模块是否被选中
-            if (noCheckBox && key !== EAdvancedModules.ENTERPRISE_SSO && key !== EAdvancedModules.GA_CONTAINER) {
-                return null
-            }
-            if (key === EAdvancedModules.AI_AUTO_TAG) {
-                const moduleCost = Number(advancedPricing[EAdvancedModules.AI_AUTO_TAG_MODULE])
-                const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.AI_AUTO_TAG_POINTS]), 1)
-                const perPointCost = advancedPricing[EAdvancedModules.AI_AUTO_TAG_POINTS]
-                const pointsCost = pointsNum * perPointCost
-                const cost = moduleCost + pointsCost
-
-                const realYear = advancedModules[key] ? subscriptionYears : 1
-                return {
-                    key,
-                    name: label,
-                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? pointsNum * 10 : (pointsNum * 10 * 10000).toLocaleString() })}`,
-                    unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
-                    subtotal: cost,
-                    isModule: true,
-                    des: t('ai.AutoTagEngine.des', { moduleCost: moduleCost.toLocaleString(), pointsNum: pointsNum, prefix: prefix, pointsCost: pointsCost.toLocaleString() }),
-                    previewDes: t('ai.AutoTagEngine.previewDes'),
-                }
-            }
-            if (key === EAdvancedModules.MUSE_AI) {
-                const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_AI]), 1)
-                let perPointCost = advancedPricing[EAdvancedModules.MUSE_AI]
-                // 根据选择的 tagOption 调整价格
-                const moduleConfig = advancedConfigs.find(m => m.key === key)
-                if (moduleConfig?.tagOptions) {
-                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === museAITagOption)
-                    if (selectedOption?.priceMultiplier) {
-                        perPointCost = perPointCost * selectedOption.priceMultiplier
-                    }
-                }
-                const cost = pointsNum * perPointCost
-                const realYear = advancedModules[key] ? subscriptionYears : 1
-                // 根据选择的 tagOption 显示对应的点数
-                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === museAITagOption)
-                const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
-                return {
-                    key,
-                    name: label,
-                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity",
-                        { value: language === 'zh-CN' ? pointsDisplay : (pointsDisplay * 10000).toLocaleString() })}`,
-                    unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
-                    subtotal: cost,
-                    isModule: true,
-                    des: t('ai.museAI.des', { pointsNum: pointsNum, prefix: prefix, pointsCost: cost.toLocaleString() }),
-                    previewDes: t('ai.museAI.previewDes'),
-                }
-            }
-
-            if (key === EAdvancedModules.MUSE_CUT) {
-                const pointsNum = Math.max(Number(advancedModules[EAdvancedModules.MUSE_CUT]), 1)
-                let perPointCost = advancedPricing[EAdvancedModules.MUSE_CUT]
-                // 根据选择的 tagOption 调整价格
-                const moduleConfig = advancedConfigs.find(m => m.key === key)
-                if (moduleConfig?.tagOptions) {
-                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === museCutTagOption)
-                    if (selectedOption?.priceMultiplier) {
-                        perPointCost = perPointCost * selectedOption.priceMultiplier
-                    }
-                }
-                const cost = pointsNum * perPointCost
-                const realYear = advancedModules[key] ? subscriptionYears : 1
-                // 根据选择的 tagOption 显示对应的点数
-                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === museCutTagOption)
-                const pointsDisplay = selectedOption ? parseInt(selectedOption.value) / 10000 : pointsNum * 50
-                return {
-                    key,
-                    name: label,
-                    quantity: `${realYear} ${t("year")}${t(realYear > 1 ? "ai.AutoTagEngine.quantity.perYear" : "ai.AutoTagEngine.quantity",
-                        { value: language === 'zh-CN' ? pointsDisplay : (pointsDisplay * 10000).toLocaleString() })}`,
-                    unit: `${prefix}${cost.toLocaleString()}${t('per.year')}`,
-                    subtotal: cost,
-                    isModule: true,
-                    des: t('ai.museCut.des', { pointsNum: pointsNum, prefix: prefix, pointsCost: cost.toLocaleString() }),
-                    previewDes: t('ai.museCut.previewDes'),
-                }
-            }
-
-            if (key === EAdvancedModules.ENTERPRISE_SSO) {
-                hasSSOType = allSSOType.filter((v) => !!advancedModules[v])
-                const cost = hasSSOType.length * price
-                return {
-                    key,
-                    name: `${label}(${(hasSSOType.length > 0 ? hasSSOType : allSSOType).map((v) => ssoTypeNames[v]).join(', ')})`,
-                    quantity: getYear(hasSSOType.length ? subscriptionYears : 1),
-                    unit: `${prefix}${price.toLocaleString()}${t('sso.unit')}`,
-                    subtotal: cost,
-                    isModule: true,
-                    notBuy: !hasSSOType.length
-                }
-            }
-
-            if (key === EAdvancedModules.GA_CONTAINER) {
-                // 检查是否是 GA 父模块（有 subModules）
-                const moduleConfig = advancedConfigs.find(m => m.key === key)
-                if (moduleConfig?.subModules) {
-                    // GA 父模块：检查子模块是否被选中
-                    const selectedSubModules: string[] = []
-                    let totalCost = 0
-                    let hasSelected = false
-
-                    moduleConfig.subModules.forEach((subModule) => {
-                        if (subModule.key === EAdvancedModules.CDN_TRAFFIC && advancedModules[EAdvancedModules.CDN_TRAFFIC]) {
-                            const cdnNum = Math.max(Number(advancedModules[EAdvancedModules.CDN_TRAFFIC]), 1)
-                            let perTBCost = subModule.price
-                            const selectedOption = subModule.tagOptions?.find(opt => opt.value === cdnTagOption)
-                            if (selectedOption?.priceMultiplier) {
-                                perTBCost = perTBCost * selectedOption.priceMultiplier
-                            }
-                            const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
-                            selectedSubModules.push(`${subModule.label}(${tbDisplay * cdnNum}TB)`)
-                            totalCost += perTBCost * cdnNum
-                            hasSelected = true
-                        } else if (subModule.key === EAdvancedModules.GA && advancedModules[EAdvancedModules.GA]) {
-                            const gaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
-                            let perTBCost = subModule.price
-                            const selectedOption = subModule.tagOptions?.find(opt => opt.value === gaTagOption)
-                            if (selectedOption?.priceMultiplier) {
-                                perTBCost = perTBCost * selectedOption.priceMultiplier
-                            }
-                            const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
-                            selectedSubModules.push(`${subModule.label}(${tbDisplay * gaNum}TB)`)
-                            totalCost += perTBCost * gaNum
-                            hasSelected = true
-                        }
-                    })
-
-                    if (hasSelected) {
-                        return {
-                            key,
-                            name: `${label}(${selectedSubModules.join(', ')})`,
-                            quantity: getYear(subscriptionYears),
-                            unit: `${prefix}${totalCost.toLocaleString()}${t('per.year')}`,
-                            subtotal: totalCost,
-                            isModule: true,
-                            notBuy: false
-                        }
-                    } else {
-                        return {
-                            key,
-                            name: label,
-                            quantity: getYear(1),
-                            unit: `${prefix}${price.toLocaleString()}${t('per.year')}`,
-                            subtotal: 0,
-                            isModule: true,
-                            notBuy: true
-                        }
-                    }
-                } else {
-                    // GA 子模块（单独处理的情况，不应该到这里）
-                    const GaNum = Math.max(Number(advancedModules[EAdvancedModules.GA]), 1)
-                    let perTBCost = price
-                    if (moduleConfig?.tagOptions) {
-                        const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === gaTagOption)
-                        if (selectedOption?.priceMultiplier) {
-                            perTBCost = perTBCost * selectedOption.priceMultiplier
-                        }
-                    }
-                    const cost = perTBCost * GaNum
-                    const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === gaTagOption)
-                    const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
-                    return {
-                        key,
-                        name: `${label}(${tbDisplay * GaNum}TB${t("package")})`,
-                        quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                        unit: `${prefix}${cost.toLocaleString()}/${tbDisplay}TB${t('per.year')}`,
-                        subtotal: cost,
-                        isModule: true,
-                    }
-                }
-            }
-
-            if (key === EAdvancedModules.CDN_TRAFFIC) {
-                const cdnNum = Math.max(Number(advancedModules[EAdvancedModules.CDN_TRAFFIC]), 1)
-                let perTBCost = price
-                // 根据选择的 tagOption 调整价格
-                const moduleConfig = advancedConfigs.find(m => m.key === key)
-                if (moduleConfig?.tagOptions) {
-                    const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === cdnTagOption)
-                    if (selectedOption?.priceMultiplier) {
-                        perTBCost = perTBCost * selectedOption.priceMultiplier
-                    }
-                }
-                const cost = perTBCost * cdnNum
-                const selectedOption = moduleConfig?.tagOptions?.find(opt => opt.value === cdnTagOption)
-                const tbDisplay = selectedOption ? parseInt(selectedOption.value.replace('TB', '')) : 10
-                return {
-                    key,
-                    name: `${label}(${tbDisplay * cdnNum}TB${t("package")})`,
-                    quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                    unit: `${prefix}${cost.toLocaleString()}/${tbDisplay * cdnNum}TB${t('per.year')}`,
-                    subtotal: cost,
-                    isModule: true,
-                }
-            }
-
-            return {
-                key,
-                name: label,
-                quantity: getYear(!advancedModules[key] ? 1 : subscriptionYears),
-                unit: (key === EAdvancedModules.ADVANCED_FEATURES
-                    ? (advancedModulePriceOverrides[key] ?? price)
-                    : price) === 0
-                    ? t('free')
-                    : !(key === EAdvancedModules.ADVANCED_FEATURES
-                        ? (advancedModulePriceOverrides[key] ?? price)
-                        : price)
-                        ? undefined
-                        : `${prefix}${(key === EAdvancedModules.ADVANCED_FEATURES
-                            ? (advancedModulePriceOverrides[key] ?? price)
-                            : price).toLocaleString()}${t('per.year')}`,
-                subtotal: (key === EAdvancedModules.ADVANCED_FEATURES
-                    ? (advancedModulePriceOverrides[key] ?? price)
-                    : price) === 0
-                    ? t('free')
-                    : !(key === EAdvancedModules.ADVANCED_FEATURES
-                        ? (advancedModulePriceOverrides[key] ?? price)
-                        : price)
-                        ? undefined
-                        : (key === EAdvancedModules.ADVANCED_FEATURES
-                            ? (advancedModulePriceOverrides[key] ?? price)
-                            : price),
-                isModule: true,
-                des: hint
-            }
-        }).filter((v) => v !== null) as QuoteDetailRow[]
-
-
-        allModules = moduleRows;
-        const filterModules = moduleRows.filter((v) => {
-            if (!v || (v as any).notBuy || !v.key) {
-                return false
-            }
-            // 对于 GA_CONTAINER，检查子模块是否被选中，而不是检查 advancedModules[GA_CONTAINER]
-            if (v.key === EAdvancedModules.GA_CONTAINER) {
-                return advancedModules[EAdvancedModules.CDN_TRAFFIC] || advancedModules[EAdvancedModules.GA]
-            }
-            // 对于 ENTERPRISE_SSO（无勾选框父模块），如果有任一子模块被选中，也需要在报价中展示
-            if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
-                return hasSSOType.length > 0
-            }
-            // 对于其他模块，检查 advancedModules 中是否有对应的 key
-            return advancedModules[v.key as EAdvancedModules]
-        })
-
-        // 分离合并到基础报价的模块和普通模块
-        const mergedModules = filterModules.filter((v) => v.key && mergedToBasicModules.has(v.key as EAdvancedModules))
-        // 普通模块：只排除被合并的父级模块
-        // 注意：moduleRows 中只包含父级模块，子模块不会单独出现在这里
-        const normalModules = filterModules.filter((v) => {
-            if (!v.key) return true
-            // 只排除被合并的父级模块
-            return !mergedToBasicModules.has(v.key as EAdvancedModules)
-        })
-
-        // 计算合并到基础报价的模块总价格（按年计算）
-        // 注意：父级模块的价格已经包含了子模块的价格（如 AI_AUTO_TAG 包含子模块，ENTERPRISE_SSO 的价格基于选中的子模块）
-        let mergedCostPerYear = 0
-        if (mergedModules.length > 0) {
-            mergedCostPerYear = mergedModules.reduce((total, module) => {
-                // 父级模块的价格（已经包含子模块价格）
-                const moduleCost = typeof module.subtotal === 'number' ? module.subtotal : 0
-                return total + moduleCost
-            }, 0)
-            // basicCostPerYear += mergedCostPerYear
-        }
-
-        // 将合并模块的价格加到"Enterprise Features"这一行
-        if (mergedCostPerYear > 0) {
-            const enterpriseFeaturesIndex = normalModules.findIndex(m => m.key === EAdvancedModules.ADVANCED_FEATURES)
-            if (enterpriseFeaturesIndex !== -1) {
-                const enterpriseFeatures = normalModules[enterpriseFeaturesIndex]
-                const originalCost = typeof enterpriseFeatures.subtotal === 'number' ? enterpriseFeatures.subtotal : 0
-                const newCost = originalCost + mergedCostPerYear
-                // 更新 Enterprise Features 的价格
-                normalModules[enterpriseFeaturesIndex] = {
-                    ...enterpriseFeatures,
-                    subtotal: newCost,
-                    unit: `${prefix}${newCost.toLocaleString()}${t('per.year')}`,
-                }
-            }
-        }
-
-        // 显示企业模块：按照原始顺序显示，合并模块不显示价格
-        if (filterModules.length > 0) {
-            rows.push({
-                name: t('advanced.modules.title'),
-                quantity: '',
-                unit: '',
-                subtotal: '',
-                isSection: true,
-                bold: true
-            })
-
-            // 创建普通模块的 Map，方便按 key 查找（价格已更新）
-            const normalModulesMap = new Map(normalModules.map(m => [m.key, m]))
-            // 创建合并模块的 Set，方便快速判断
-            const mergedModulesSet = new Set(mergedModules.map(m => m.key))
-
-            // 按照 filterModules 的原始顺序遍历显示
-            filterModules.forEach(module => {
-                if (module.key && mergedModulesSet.has(module.key)) {
-                    // 合并模块：不显示价格
-                    rows.push({
-                        ...module,
-                        unit: undefined,
-                        subtotal: undefined,
-                    })
-                } else {
-                    // 普通模块：从 normalModulesMap 中取（价格已更新）
-                    const normalModule = normalModulesMap.get(module.key)
-                    if (normalModule) {
-                        rows.push(normalModule)
-                    }
-                }
-            })
-        }
+    // SSO container
+    if (key === EAdvancedModules.ENTERPRISE_SSO) {
+      hasSSOType = allSSOType.filter((v) => !!advancedModules[v])
+      const unitPrice = resolveUnitPrice(key, price, mode, advancedModulePriceOverrides)
+      const cost = hasSSOType.length * unitPrice
+      const ssoSkus = (hasSSOType.length > 0 ? hasSSOType : allSSOType)
+        .map((v) => getModuleSku(v))
+        .filter(Boolean) as string[]
+      return {
+        key,
+        sku: ssoSkus.join(',') || undefined,
+        name: `${label}(${(hasSSOType.length > 0 ? hasSSOType : allSSOType).map((v) => ssoTypeNames[v]).join(', ')})`,
+        quantity: getYear(hasSSOType.length ? subscriptionYears : 1),
+        unit: `${prefix}${formatWithToLocaleString(unitPrice)}${t('sso.unit')}`,
+        subtotal: cost,
+        isModule: true,
+        billingMode: mode,
+        notBuy: !hasSSOType.length,
+      } as QuoteDetailRow & { notBuy?: boolean }
     }
 
-    if (activeTab === TabEnum.PRIVATE) {
-        // 软件许可
-        rows.push({
-            name: t('software.license'),
-            quantity: `${subscriptionYears} ${t('year.s')}`,
-            bold: true,
-            isSection: true,
-        })
-
-        // 成员席位
-        const memberCost = privateConfig.memberSeats * pricing.private.memberSeatPrice
-        basicCostPerYear += memberCost
-        rows.push({
-            name: t('member.seat'),
-            quantity: `${privateConfig.memberSeats} ${t('seats')}`,
-            unit: `${prefix}${privateConfig.memberSeats * pricing.private.memberSeatPrice}${t('per.year')}`,
-            subtotal: memberCost,
-        })
-
-        // 高级模块
-        const moduleRows: QuoteDetailRow[] = []
-        Object.keys(privateModules).filter(key => key !== EPrivateModules.PRIVATE_IMPLEMENTATION && key !== EPrivateModules.OPERATION_MAINTENANCE && key !== 'maintenanceYears').forEach(key => {
-            if (privateModules[key]) {
-                const price = pricing.private.modules[key]
-                // 如果 price 不存在，不显示
-                if (price === undefined || price === null) {
-                    return
-                }
-                // privatePerYear += price
-                moduleRows.push({
-                    name: moduleNames[key],
-                    quantity: `1 ${t('year.s')}`,
-                    unit: `${prefix}${price}${t('per.year')}`,
-                    subtotal: price === 0 ? t('free') : price,
-                    isModule: true,
-                })
-            }
-        })
-
-        if (moduleRows.length > 0) {
-            rows.push({
-                name: t('advanced.modules.title'),
-                quantity: '',
-                unit: '',
-                subtotal: '',
-                isSection: true,
-            })
-            rows.push(...moduleRows)
-        }
-
-        // 私有化实施
-        if (privateModules.privateImplementation) {
-            const price = pricing.private.modules.privateImplementation
-            // 如果 price 不存在，不显示
-            if (price !== undefined && price !== null) {
-                privatePerYear += price
-                rows.push({
-                    name: t('private.implementation'),
-                    quantity: '1',
-                    unit: `${prefix}${price}`,
-                    subtotal: price,
-                })
-            }
-        }
-
-        // 运维服务
-        if (privateModules.operationMaintenance) {
-            const operationMaintenancePrice = pricing.private.modules.operationMaintenance
-            // 如果 price 不存在，不显示
-            if (operationMaintenancePrice !== undefined && operationMaintenancePrice !== null) {
-                const price = operationMaintenancePrice * privateModules.maintenanceYears
-                privatePerYear += price
-                rows.push({
-                    name: t('operation.maintenance.times', { times: privateModules.maintenanceYears }),
-                    quantity: `${privateModules.maintenanceYears} ${t('year.s')}`,
-                    unit: `${prefix}${operationMaintenancePrice}${t('per.year')}`,
-                    subtotal: price,
-                })
-            }
-        }
+    // GA container
+    if (key === EAdvancedModules.GA_CONTAINER) {
+      const parts: string[] = []
+      const skus: string[] = []
+      let totalCost = 0
+      let hasSelected = false
+      const cdnNum = Number(advancedModules[EAdvancedModules.CDN_GLOBAL]) || 0
+      const gaNum = Number(advancedModules[EAdvancedModules.GA]) || 0
+      if (cdnNum > 0) {
+        const p = resolveUnitPrice(
+          EAdvancedModules.CDN_GLOBAL,
+          advancedPricing[EAdvancedModules.CDN_GLOBAL] ?? 30000,
+          getBillingMode(EAdvancedModules.CDN_GLOBAL, moduleBillingModes),
+          advancedModulePriceOverrides,
+        )
+        parts.push(`${t('ga.cdnOss')}(${cdnNum * 10}TB)`)
+        const s = getModuleSku(EAdvancedModules.CDN_GLOBAL)
+        if (s) skus.push(s)
+        totalCost += p * cdnNum
+        hasSelected = true
+      }
+      if (gaNum > 0) {
+        const p = resolveUnitPrice(
+          EAdvancedModules.GA,
+          advancedPricing[EAdvancedModules.GA] ?? 90000,
+          getBillingMode(EAdvancedModules.GA, moduleBillingModes),
+          advancedModulePriceOverrides,
+        )
+        parts.push(`${t('ga.dedicatedLine')}(${gaNum * 10}TB)`)
+        const s = getModuleSku(EAdvancedModules.GA)
+        if (s) skus.push(s)
+        totalCost += p * gaNum
+        hasSelected = true
+      }
+      return {
+        key,
+        sku: skus.join(',') || undefined,
+        name: parts.length ? `${label}(${parts.join(', ')})` : label,
+        quantity: getYear(hasSelected ? subscriptionYears : 1),
+        unit: renderCost(totalCost),
+        subtotal: totalCost,
+        isModule: true,
+        notBuy: !hasSelected,
+      } as QuoteDetailRow & { notBuy?: boolean }
     }
 
+    // AI auto tag (module + optional feature library already separate)
+    if (key === EAdvancedModules.AI_AUTO_TAG) {
+      const unitPrice = resolveUnitPrice(
+        key,
+        advancedPricing[EAdvancedModules.AI_AUTO_TAG_MODULE] ?? price,
+        mode,
+        advancedModulePriceOverrides,
+      )
+      return {
+        key,
+        sku: resolveLineSku(),
+        name: label,
+        quantity: getYear(selected ? subscriptionYears : 1),
+        unit: mode === 'gift' ? t('free') : renderCost(unitPrice),
+        subtotal: selected ? (mode === 'gift' ? t('free') : unitPrice) : unitPrice,
+        isModule: true,
+        billingMode: mode,
+        des: module.hint,
+        notBuy: !selected,
+      } as QuoteDetailRow & { notBuy?: boolean }
+    }
 
+    // Quantity modules：未勾选（数值为 0）不计价，min 仅约束勾选后的下限
+    const isNumeric = typeof advancedModules[key] === 'number'
+    const qty = isNumeric ? Number(advancedModules[key]) : selected ? 1 : 0
+    const isSelected = isNumeric ? qty > 0 : selected
+    let listPrice = price
+    // legacy tag multipliers for GA/CDN if still present
+    if (key === EAdvancedModules.CDN_TRAFFIC && cdnTagOption === '5TB') listPrice = price * 0.5
+    if (key === EAdvancedModules.GA && gaTagOption === '5TB') listPrice = price * 0.5
 
-    const advancedCostPerYear = useMemo(() => Object.keys(advancedModules).filter((v) => !!advancedModules[v]).reduce((total, key) => {
-        // 如果模块已合并到基础报价，不计入高级模块价格
-        // if (mergedToBasicModules.has(key as EAdvancedModules)) {
-        //     return total
-        // }
-        const value = advancedModules[key];
-        let price =
-            key === EAdvancedModules.ADVANCED_FEATURES && advancedModulePriceOverrides[key]
-                ? advancedModulePriceOverrides[key]!
-                : advancedPricing[key]
-        if (!price) return total
-        // 如果是 MUSE_AI 或 MUSE_CUT，根据选择的 tagOption 调整价格
-        if (key === EAdvancedModules.MUSE_AI || key === EAdvancedModules.MUSE_CUT) {
-            const moduleConfig = advancedConfigs.find(m => m.key === key)
-            if (moduleConfig?.tagOptions) {
-                const currentTagOption = key === EAdvancedModules.MUSE_AI ? museAITagOption : museCutTagOption
-                const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
-                if (selectedOption?.priceMultiplier) {
-                    price = price * selectedOption.priceMultiplier
-                }
-            }
-        }
-        // 如果是 GA 或 CDN_TRAFFIC，根据选择的 tagOption 调整价格
-        if (key === EAdvancedModules.GA || key === EAdvancedModules.CDN_TRAFFIC) {
-            const moduleConfig = advancedConfigs.find(m => m.key === key)
-            if (moduleConfig?.tagOptions) {
-                const currentTagOption = key === EAdvancedModules.GA ? gaTagOption : cdnTagOption
-                const selectedOption = moduleConfig.tagOptions.find(opt => opt.value === currentTagOption)
-                if (selectedOption?.priceMultiplier) {
-                    price = price * selectedOption.priceMultiplier
-                }
-            }
-        }
-        return total + price * (typeof value === 'number' ? value : 1)
-    }, 0), [advancedModules, advancedPricing, advancedConfigs, museAITagOption, museCutTagOption, gaTagOption, cdnTagOption, advancedModulePriceOverrides])
-
-    const totalPerYear = basicCostPerYear + advancedCostPerYear
-    /** 未税- 未折扣价 */
-    const noTaxTotal = totalPerYear * subscriptionYears
-
-    /** 未税- 折扣价 */
-    const discountTotal = noTaxTotal * ((discount || 10) / 10)
-
-
+    const unitPrice = resolveUnitPrice(key, listPrice, mode, advancedModulePriceOverrides)
+    const multiplier = isNumeric
+      ? qty > 0
+        ? Math.max(qty, min ?? 0)
+        : 0
+      : selected
+        ? 1
+        : 0
+    const cost = unitPrice * multiplier
 
     return {
-        rows: rows.map((v) => ({
-            ...v,
-            subtotal: typeof v.subtotal === 'string' ? v.subtotal : v.subtotal ? prefix + (v.subtotal * subscriptionYears).toLocaleString() : undefined
-        })),
-        allModules, // 全部高级模块
-        subtotal: prefix + noTaxTotal.toLocaleString(),
-        /** 税后- 折扣价 */
-        total: prefix + (discountTotal * (isInChina ? 1.06 : 1)).toLocaleString(),
-        discountTotal: discount ? prefix + discountTotal.toLocaleString() : undefined,
-        years: subscriptionYears,
-        basicCostPerYear: basicCostPerYear,
-        totalNumPerYear: totalPerYear,
-        hasSSOType: hasSSOType
+      key,
+      sku: resolveLineSku(),
+      name: label,
+      quantity: oneTime
+        ? String(Math.max(multiplier, 1))
+        : getYear(isSelected ? subscriptionYears : 1),
+      unit: mode === 'gift' ? t('free') : renderCost(unitPrice, oneTime),
+      subtotal: isSelected ? (mode === 'gift' ? t('free') : cost) : unitPrice,
+      isModule: true,
+      billingMode: mode,
+      des: module.hint,
+      notBuy: !isSelected,
+    } as QuoteDetailRow & { notBuy?: boolean }
+  }
+
+  if (activeTab === TabEnum.BASIC) {
+    const packageBasic = basicConfig
+    const pricingBasic = pricing.basic
+
+    rows.push({
+      name: t('basic.edition'),
+      quantity: `${subscriptionYears} ${subscriptionYears > 1 ? t('years') : t('year')}`,
+      bold: true,
+      isSection: true,
+    })
+
+    basicConfigs.forEach(({ key, title, hint }) => {
+      let quantity = ''
+      let cost = 0
+      if (key === 'memberSeats') {
+        quantity = `${packageBasic.memberSeats} ${t('seats')}`
+        cost = packageBasic.memberSeats * pricingBasic.memberSeatPrice
+      } else if (key === 'storageSpace') {
+        quantity = `${packageBasic.storageSpace}GB`
+        cost = packageBasic.storageSpace * pricingBasic.storageSpacePrice
+      } else if (key === 'aiPoints') {
+        quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t('ai.AutoTagEngine.unit.s') : ''} \n(${formatWithToLocaleString(100000 * packageBasic.aiPoints)}${t('expansion.points')})`
+        cost = Math.round(packageBasic.aiPoints * pricingBasic.aiPointsPrice)
+      }
+
+      basicCostPerYear += cost
+      if (cost > 0) {
+        rows.push({
+          key,
+          name: title,
+          quantity,
+          des: hint.at(-1),
+          unit: renderCost(
+            cost /
+              (key === 'memberSeats'
+                ? packageBasic.memberSeats
+                : key === 'storageSpace'
+                  ? packageBasic.storageSpace
+                  : packageBasic.aiPoints),
+          ),
+          subtotal: cost,
+        })
+      }
+    })
+  } else {
+    // 企业版 SaaS 明细：无论当前在 SaaS / 私有化 / 定制服务页签，都始终展示
+    const packageBasic = advancedConfig
+    const pricingBasic = pricing.advanced
+
+    rows.push({
+      name: t('gea.plan'),
+      quantity: `${subscriptionYears} ${subscriptionYears > 1 ? t('years') : t('year')}`,
+      bold: true,
+      isSection: true,
+    })
+
+    if (advancedConfig.geaDam) {
+      const mode = getBillingMode(EGeaBaseModules.DAM, moduleBillingModes)
+      const price = resolveUnitPrice(
+        EGeaBaseModules.DAM,
+        pricing.advanced.damPrice,
+        mode,
+        advancedModulePriceOverrides,
+      )
+      basicCostPerYear += mode === 'gift' ? 0 : price
+      rows.push({
+        key: EGeaBaseModules.DAM,
+        sku: getModuleSku(EGeaBaseModules.DAM),
+        name: t('gea.dam'),
+        quantity: getYear(subscriptionYears),
+        unit: mode === 'gift' ? t('free') : renderCost(price),
+        subtotal: mode === 'gift' ? t('free') : price,
+        billingMode: mode,
+      })
     }
+    if (advancedConfig.geaContext) {
+      const mode = getBillingMode(EGeaBaseModules.GEA_CONTEXT, moduleBillingModes)
+      const price = resolveUnitPrice(
+        EGeaBaseModules.GEA_CONTEXT,
+        pricing.advanced.geaContextPrice,
+        mode,
+        advancedModulePriceOverrides,
+      )
+      basicCostPerYear += mode === 'gift' ? 0 : price
+      rows.push({
+        key: EGeaBaseModules.GEA_CONTEXT,
+        sku: getModuleSku(EGeaBaseModules.GEA_CONTEXT),
+        name: t('gea.context'),
+        quantity: getYear(subscriptionYears),
+        unit: mode === 'gift' ? t('free') : renderCost(price),
+        subtotal: mode === 'gift' ? t('free') : price,
+        billingMode: mode,
+      })
+    }
+    if (advancedConfig.geaAiPointsPack > 0) {
+      const mode = getBillingMode(EGeaBaseModules.AI_POINTS_PACK, moduleBillingModes)
+      const unitPrice = resolveUnitPrice(
+        EGeaBaseModules.AI_POINTS_PACK,
+        pricing.advanced.geaAiPackPrice,
+        mode,
+        advancedModulePriceOverrides,
+      )
+      const cost = unitPrice * advancedConfig.geaAiPointsPack
+      basicCostPerYear += mode === 'gift' ? 0 : cost
+      rows.push({
+        key: EGeaBaseModules.AI_POINTS_PACK,
+        sku: getModuleSku(EGeaBaseModules.AI_POINTS_PACK),
+        name: t('gea.aiPointsPack'),
+        quantity: `${advancedConfig.geaAiPointsPack} ${t('ai.AutoTagEngine.unit')}`,
+        unit: mode === 'gift' ? t('free') : renderCost(unitPrice),
+        subtotal: mode === 'gift' ? t('free') : cost,
+        billingMode: mode,
+      })
+    }
+
+    basicConfigs.forEach(({ key, title, hint }) => {
+      if (key === 'memberSeats') {
+        const cost = calcMemberSeatsCost(packageBasic, pricingBasic)
+        basicCostPerYear += cost
+        if (cost > 0) {
+          const isTier = getSeatPricingMode(packageBasic) === 'byTier'
+          rows.push({
+            key,
+            sku: isTier
+              ? getModuleSku(`seat.${getSeatTier(packageBasic)}`)
+              : getModuleSku(key),
+            name: title,
+            quantity: isTier
+              ? t(`seat.tier.${getSeatTier(packageBasic)}`)
+              : `${packageBasic.memberSeats} ${t('seats')}`,
+            des: hint.at(-1),
+            unit: isTier
+              ? renderCost(cost)
+              : renderCost(pricingBasic.memberSeatPrice),
+            subtotal: cost,
+          })
+        }
+        return
+      }
+
+      if (key === 'storageSpace') {
+        if (packageBasic.enableColdHotStorage) {
+          const fee = pricingBasic.coldHotStorageFee
+          basicCostPerYear += fee
+          if (fee > 0) {
+            rows.push({
+              key: 'coldHotStorageFee',
+              sku: getModuleSku('coldHotStorageFee'),
+              name: t('storage.coldHot'),
+              quantity: '1',
+              unit: renderCost(fee),
+              subtotal: fee,
+            })
+          }
+          const pushStorageLine = (
+            rowKey: string,
+            name: string,
+            qty: number,
+            unitPrice: number,
+          ) => {
+            if (qty <= 0) return
+            const lineCost = qty * unitPrice
+            basicCostPerYear += lineCost
+            rows.push({
+              key: rowKey,
+              sku: getModuleSku(rowKey) ?? getModuleSku(key),
+              name,
+              quantity: `${qty}TB`,
+              unit: renderCost(unitPrice),
+              subtotal: lineCost,
+            })
+          }
+          pushStorageLine(
+            'chinaHotStorage',
+            `${t('storage.china')} · ${t('storage.hot.full')}`,
+            packageBasic.chinaHotStorage ?? 0,
+            pricingBasic.chinaHotStoragePrice,
+          )
+          pushStorageLine(
+            'chinaColdStorage',
+            `${t('storage.china')} · ${t('storage.cold.full')}`,
+            packageBasic.chinaColdStorage ?? 0,
+            pricingBasic.chinaColdStoragePrice,
+          )
+          if (packageBasic.enableMultiRegionStorage) {
+            pushStorageLine(
+              'overseasHotStorage',
+              `${t('storage.overseas')} · ${t('storage.hot.full')}`,
+              packageBasic.overseasHotStorage ?? 0,
+              pricingBasic.overseasHotStoragePrice,
+            )
+            pushStorageLine(
+              'overseasColdStorage',
+              `${t('storage.overseas')} · ${t('storage.cold.full')}`,
+              packageBasic.overseasColdStorage ?? 0,
+              pricingBasic.overseasColdStoragePrice,
+            )
+          }
+          return
+        }
+
+        if (packageBasic.enableMultiRegionStorage) {
+          const pushStorageLine = (
+            rowKey: string,
+            name: string,
+            qty: number,
+            unitPrice: number,
+          ) => {
+            if (qty <= 0) return
+            const lineCost = qty * unitPrice
+            basicCostPerYear += lineCost
+            rows.push({
+              key: rowKey,
+              sku: getModuleSku(rowKey) ?? getModuleSku(key),
+              name,
+              quantity: `${qty}TB`,
+              unit: renderCost(unitPrice),
+              subtotal: lineCost,
+            })
+          }
+          pushStorageLine(
+            'chinaStorage',
+            `${t('storage.china')} · ${t('storage.space')}`,
+            packageBasic.chinaHotStorage ?? packageBasic.storageSpace ?? 0,
+            pricingBasic.chinaHotStoragePrice,
+          )
+          pushStorageLine(
+            'overseasStorage',
+            `${t('storage.overseas')} · ${t('storage.space')}`,
+            packageBasic.overseasHotStorage ?? 0,
+            pricingBasic.overseasHotStoragePrice,
+          )
+          return
+        }
+
+        const cost = calcStorageCost(packageBasic, pricingBasic)
+        basicCostPerYear += cost
+        if (cost > 0) {
+          rows.push({
+            key,
+            sku: getModuleSku(key),
+            name: title,
+            quantity: `${packageBasic.storageSpace}TB`,
+            des: hint.at(-1),
+            unit: renderCost(pricingBasic.storageSpacePrice),
+            subtotal: cost,
+          })
+        }
+        return
+      }
+
+      if (key === 'aiPoints') {
+        const quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t('ai.AutoTagEngine.unit.s') : ''} \n(${formatWithToLocaleString(100000 * packageBasic.aiPoints)}${t('expansion.points')})`
+        const cost = Math.round(packageBasic.aiPoints * pricingBasic.aiPointsPrice)
+        basicCostPerYear += cost
+        if (cost > 0) {
+          rows.push({
+            key,
+            sku: getModuleSku(key),
+            name: title,
+            quantity,
+            des: hint.at(-1),
+            unit: renderCost(pricingBasic.aiPointsPrice),
+            subtotal: cost,
+          })
+        }
+      }
+    })
+
+    const collected: QuoteDetailRow[] = []
+
+    const pushModuleTree = (module: IModules, group: IModuleGroup) => {
+      if (module.noCheckBox && module.noPrice && module.subModules?.length) {
+        module.subModules.forEach((sub) => pushModuleTree(sub, group))
+        return
+      }
+
+      const line = calcModuleLine(module)
+      if (line) {
+        collected.push({ ...line, groupId: group.id })
+      }
+
+      if (module.subModules?.length && module.key === EAdvancedModules.AI_AUTO_TAG) {
+        module.subModules.forEach((sub) => {
+          const subLine = calcModuleLine(sub)
+          if (subLine) collected.push({ ...subLine, groupId: group.id })
+        })
+      }
+      if (module.subModules?.length && module.key === EAdvancedModules.AI_FEATURE_RECOGNITION) {
+        module.subModules.forEach((sub) => {
+          const subLine = calcModuleLine(sub)
+          if (subLine) collected.push({ ...subLine, groupId: group.id })
+        })
+      }
+      if (module.subModules?.length && module.key === EAdvancedModules.COMPLIANCE_CHECK) {
+        module.subModules.forEach((sub) => {
+          const subLine = calcModuleLine(sub)
+          if (subLine) collected.push({ ...subLine, groupId: group.id })
+        })
+      }
+    }
+
+    visibleModuleGroups.forEach((group) => {
+      group.modules.forEach((m) => pushModuleTree(m, group))
+    })
+
+    allModules = collected
+
+    const purchased = collected.filter((v) => !(v as any).notBuy && v.key)
+
+    if (purchased.length > 0) {
+      rows.push({
+        name: t('extension.modules'),
+        quantity: '',
+        unit: '',
+        subtotal: '',
+        isSection: true,
+        bold: true,
+      })
+
+      let lastGroup: string | undefined
+      purchased.forEach((module) => {
+        if (module.groupId && module.groupId !== lastGroup) {
+          lastGroup = module.groupId
+          const group = visibleModuleGroups.find((g) => g.id === module.groupId)
+          if (group) {
+            rows.push({
+              name: group.title,
+              quantity: '',
+              unit: '',
+              subtotal: '',
+              isSection: true,
+              bold: true,
+              groupId: group.id,
+            })
+          }
+        }
+        rows.push(module)
+        const cost = typeof module.subtotal === 'number' ? module.subtotal : 0
+        if (module.billingMode !== 'gift') {
+          extensionCostPerYear += cost
+        }
+      })
+    }
+  }
+
+  // SaaS 授权费基数：DAM + GEA Context + 席位 + 拓展模块（不含存储 / AI 点数包）
+  {
+    let licenseBase = 0
+    if (advancedConfig.geaDam) {
+      const mode = getBillingMode(EGeaBaseModules.DAM, moduleBillingModes)
+      if (mode !== 'gift') {
+        licenseBase += resolveUnitPrice(
+          EGeaBaseModules.DAM,
+          pricing.advanced.damPrice,
+          mode,
+          advancedModulePriceOverrides,
+        )
+      }
+    }
+    if (advancedConfig.geaContext) {
+      const mode = getBillingMode(EGeaBaseModules.GEA_CONTEXT, moduleBillingModes)
+      if (mode !== 'gift') {
+        licenseBase += resolveUnitPrice(
+          EGeaBaseModules.GEA_CONTEXT,
+          pricing.advanced.geaContextPrice,
+          mode,
+          advancedModulePriceOverrides,
+        )
+      }
+    }
+    licenseBase += calcMemberSeatsCost(advancedConfig, pricing.advanced)
+    licenseBase += extensionCostPerYear
+    saasLicenseBasePerYear = licenseBase
+  }
+
+  // 私有化费用：开关开启即计入报价（不依赖当前页签）
+  if (privateConfig.enabled) {
+    rows.push({
+      name: t('private.cloud.title'),
+      quantity: getYear(subscriptionYears),
+      bold: true,
+      isSection: true,
+    })
+
+    if (privateConfig.licenseEnabled) {
+      const licenseFee = calcPrivateLicenseFee(privateConfig.licenseType, saasLicenseBasePerYear, {
+        perpetualBuyout: pricing.private.perpetualBuyout,
+        sourceMultiplier: pricing.private.sourceMultiplier,
+      })
+      const isPerpetual = privateConfig.licenseType === 'perpetual'
+      if (!isPerpetual) privatePerYear += licenseFee
+      else privateOneTimeTotal += licenseFee
+
+      const licenseLabel =
+        privateConfig.licenseType === 'encrypted'
+          ? t('private.license.encrypted')
+          : privateConfig.licenseType === 'source'
+            ? t('private.license.source')
+            : t('private.license.perpetual')
+
+      rows.push({
+        key: 'privateLicense',
+        name: `${t('private.license.fee')}（${licenseLabel}）`,
+        quantity: isPerpetual ? '1' : getYear(subscriptionYears),
+        unit: renderCost(licenseFee, isPerpetual),
+        subtotal: licenseFee,
+        oneTime: isPerpetual,
+        des: t('private.license.hint'),
+      })
+    }
+
+    if (privateConfig.opsEnabled) {
+      if (privateConfig.basicMaintenance) {
+        const maintenanceBase =
+          privateConfig.licenseEnabled && privateConfig.licenseType !== 'perpetual'
+            ? calcPrivateLicenseFee(privateConfig.licenseType, saasLicenseBasePerYear, {
+                perpetualBuyout: pricing.private.perpetualBuyout,
+                sourceMultiplier: pricing.private.sourceMultiplier,
+              })
+            : saasLicenseBasePerYear
+        const price = calcPrivateBasicMaintenance(
+          maintenanceBase,
+          pricing.private.basicMaintenanceRate,
+        )
+        privatePerYear += price
+        rows.push({
+          key: 'privateBasicMaintenance',
+          sku: getModuleSku('private.ops.basic'),
+          name: t('private.ops.basic'),
+          quantity: getYear(subscriptionYears),
+          unit: renderCost(price),
+          subtotal: price,
+          des: t('private.ops.basic.rate', {
+            rate: String(Math.round(pricing.private.basicMaintenanceRate * 100)),
+          }),
+        })
+      }
+      if (privateConfig.versionIteration) {
+        const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+        privatePerYear += price
+        rows.push({
+          key: 'privateVersionIteration',
+          sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
+          name: `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
+          quantity: getYear(subscriptionYears),
+          unit: renderCost(price),
+          subtotal: price,
+        })
+      }
+    }
+
+    if (privateConfig.implementationEnabled) {
+      const implItems: { key: EPrivateImplProducts; label: string }[] = [
+        { key: EPrivateImplProducts.DAM, label: t('gea.dam') },
+        { key: EPrivateImplProducts.GEA_CONTEXT, label: t('gea.context') },
+        { key: EPrivateImplProducts.MUSE_AI, label: t('module.museAI') },
+        { key: EPrivateImplProducts.INGEN_OPS, label: t('module.ingenOps') },
+        { key: EPrivateImplProducts.CLIPO_REMIX, label: t('module.clipoRemix') },
+      ]
+
+      const selectedImpl = implItems.filter(
+        ({ key }) =>
+          isSaasProductSelected(key, advancedConfig, advancedModules) ||
+          !!privateImplProducts[key],
+      )
+
+      if (selectedImpl.length > 0) {
+        rows.push({
+          name: t('private.implementation.once'),
+          quantity: '',
+          unit: '',
+          subtotal: '',
+          isSection: true,
+          bold: true,
+        })
+        selectedImpl.forEach(({ key, label }) => {
+          const price = pricing.private.implProducts[key]
+          privateOneTimeTotal += price
+          rows.push({
+            key,
+            sku: getModuleSku(key),
+            name: label,
+            quantity: '1',
+            unit: renderCost(price, true),
+            subtotal: price,
+            oneTime: true,
+            isModule: true,
+          })
+        })
+      }
+    }
+  }
+
+  const validCustomServices = customServices.filter((service) => service.name.trim())
+  if (validCustomServices.length > 0) {
+    rows.push({
+      name: t('custom.service.section'),
+      quantity: '',
+      unit: '',
+      subtotal: '',
+      isSection: true,
+      bold: true,
+    })
+
+    const roleMap = new Map(customRoleOptions.map((option) => [option.value, option]))
+    validCustomServices.forEach((service) => {
+      service.roleLines.forEach((line) => {
+        const option = roleMap.get(line.role)
+        const roleName =
+          line.role === 'custom' && line.customRoleName ? line.customRoleName : option?.label
+        const price = option?.price ?? 0
+        const cost = price * line.quantity
+        const descriptions = service.roleByDetail
+          ? service.details
+              .filter((detail) => detail.id === line.detailId && detail.description.trim())
+              .map((detail) => detail.description.trim())
+          : service.details
+              .filter((detail) => detail.description.trim())
+              .map((detail) => detail.description.trim())
+
+        customOneTimeTotal += cost
+        rows.push({
+          key: line.id,
+          sku: getModuleSku(`custom.role.${line.role}`),
+          name: roleName ? `${service.name}（${roleName}）` : service.name,
+          quantity: `${line.quantity}${t('custom.personDay')}`,
+          unit: `${prefix}${formatWithToLocaleString(price)}${t('custom.perPersonDay')}`,
+          subtotal: cost,
+          oneTime: true,
+          des: descriptions.join('\n'),
+        })
+      })
+    })
+  }
+
+  const saasAnnual = basicCostPerYear + extensionCostPerYear
+  const annualTotal = saasAnnual + privatePerYear
+  const noTaxTotal =
+    annualTotal * subscriptionYears + privateOneTimeTotal + customOneTimeTotal
+  const discountTotal = noTaxTotal * ((discount || 10) / 10)
+
+  // silence unused
+  void moduleNames
+  void basicConfig
+
+  return {
+    rows: rows.map((v) => ({
+      ...v,
+      subtotal:
+        typeof v.subtotal === 'string'
+          ? v.subtotal
+          : v.subtotal
+            ? prefix +
+              (
+                Number(v.subtotal) *
+                (v.oneTime || v.key === EAdvancedModules.PORTAL_THEME ? 1 : subscriptionYears)
+              ).toLocaleString()
+            : undefined,
+    })),
+    allModules,
+    subtotal: prefix + noTaxTotal.toLocaleString(),
+    total: prefix + (discountTotal * (isInChina ? 1.06 : 1)).toLocaleString(),
+    discountTotal: discount ? prefix + discountTotal.toLocaleString() : undefined,
+    years: subscriptionYears,
+    basicCostPerYear,
+    extensionCostPerYear,
+    totalNumPerYear:
+      annualTotal + (privateOneTimeTotal + customOneTimeTotal) / subscriptionYears,
+    hasSSOType,
+    /** 赠送门槛仅看 SaaS 付费年价，不含私有化 */
+    saasPaidTotalPerYear: saasAnnual,
+    saasLicenseBasePerYear,
+    privateOneTimeTotal,
+    customOneTimeTotal,
+  }
 }
 
-
 export const useExpandServices = () => {
-    const { t } = useTranslation('quotation')
-    const { isInChina } = useCountry()
-    const { language } = useLanguage()
+  const { t } = useTranslation('quotation')
+  const { isInChina } = useCountry()
+  const { language } = useLanguage()
 
-    const expansions = useMemo(() => [
-        {
-            name: t('expansion.memberSeats'),
-            description: t('expansion.memberSeats.desc'),
-            value: (isInChina ? '¥1,000' : '$300') + t('memberSeats.perYear'),
-            unit: (isInChina ? '¥1,000' : '$300') + t('memberSeats.perYear'),
-            quantity: `1 ${t('year')}`
-        },
-
-        {
-            name: t('expansion.storageSpace'),
-            description: t('expansion.storageSpace.desc'),
-            value: (isInChina ? '¥5,000/TB' : '$1,000/TB') + t("per.year"),
-            unit: (isInChina ? '¥5,000/TB' : '$1,000/TB') + t('per.year'),
-            quantity: `1 ${t('year')}`
-        },
-
-        {
-            name: t('expansion.aiPoints'),
-            description: t('expansion.aiPoints.desc'),
-            value: `${isInChina ? '¥20,000' : '$4,000'}${t('per.year')}\n /100,000` + t('expansion.points'),
-            unit: (isInChina ? '¥20,000' : '$4,000') + '/' + t("ai.AutoTagEngine.unit"),
-            quantity: `1 ${t('year')}\n${t("ai.AutoTagEngine.quantity", { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`
-        },
-
-        {
-            name: t('expansion.downloadData'),
-            description: t('expansion.downloadData.desc'),
-            value: isInChina ? '¥150/TB' : '$30/TB',
-            unit: (isInChina ? '¥150' : '$30') + '/TB',
-            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
-        },
-        {
-            name: t('expansion.CDN'),
-            description: t('expansion.CDN.desc'),
-            value: (isInChina ? '¥600/TB' : '$120/TB'),
-            unit: (isInChina ? '¥600' : '$120') + '/TB',
-            quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
-        },
-        ...(!isInChina ? [] : [
+  const expansions = useMemo(
+    () => [
+      {
+        name: t('expansion.memberSeats'),
+        description: t('expansion.memberSeats.desc'),
+        value: (isInChina ? '¥1,000' : '$300') + t('memberSeats.perYear'),
+        unit: (isInChina ? '¥1,000' : '$300') + t('memberSeats.perYear'),
+        quantity: `1 ${t('year')}`,
+      },
+      {
+        name: t('expansion.storageSpace'),
+        description: t('expansion.storageSpace.desc'),
+        value: (isInChina ? '¥5,000/TB' : '$1,000/TB') + t('per.year'),
+        unit: (isInChina ? '¥5,000/TB' : '$1,000/TB') + t('per.year'),
+        quantity: `1 ${t('year')}`,
+      },
+      {
+        name: t('expansion.aiPoints'),
+        description: t('expansion.aiPoints.desc'),
+        value: `${isInChina ? '¥20,000' : '$4,000'}${t('per.year')}\n /100,000` + t('expansion.points'),
+        unit: (isInChina ? '¥20,000' : '$4,000') + '/' + t('ai.AutoTagEngine.unit'),
+        quantity: `1 ${t('year')}\n${t('ai.AutoTagEngine.quantity', { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`,
+      },
+      {
+        name: t('expansion.downloadData'),
+        description: t('expansion.downloadData.desc'),
+        value: isInChina ? '¥150/TB' : '$30/TB',
+        unit: (isInChina ? '¥150' : '$30') + '/TB',
+        quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
+      },
+      {
+        name: t('expansion.CDN'),
+        description: t('expansion.CDN.desc'),
+        value: isInChina ? '¥600/TB' : '$120/TB',
+        unit: (isInChina ? '¥600' : '$120') + '/TB',
+        quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
+      },
+      ...(!isInChina
+        ? []
+        : [
             {
-                name: t('expansion.GA'),
-                description: `${t('expansion.GA.cdnOss.desc')}\n${t('expansion.GA.dedicatedLine.desc')}`,
-                value: '¥3,000/TB\n¥9,000/TB',
-                unit: '¥3,000/TB\n¥9,000/TB',
-                quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}\n1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`
-            }
-        ])
-    ], [t, isInChina, language])
+              name: t('expansion.GA'),
+              description: `${t('expansion.GA.cdnOss.desc')}\n${t('expansion.GA.dedicatedLine.desc')}`,
+              value: '¥3,000/TB\n¥9,000/TB',
+              unit: '¥3,000/TB\n¥9,000/TB',
+              quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}\n1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
+            },
+          ]),
+    ],
+    [t, isInChina, language],
+  )
 
-    return expansions
+  return expansions
 }

@@ -77,6 +77,7 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                     const categoryState = expandedCategories[categoryKey] || {};
                     const isExpend = categoryState.expanded;
                     const groupStates = categoryState.groups || {};
+                    const hideGroupTitles = 'hideGroupTitles' in categoryData && categoryData.hideGroupTitles;
                     const categoriesMap: [string, {
                         name: string;
                         detail?: string;
@@ -87,7 +88,10 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                         {/* 分组标题行 */}
                         <div className="sticky top-[56px] z-[1] w-full bg-[#F0F0EA] md:top-[70px]">
                             <div
-                                className='flex cursor-pointer items-center rounded-t-2xl border border-[#D1D1CC] bg-[#E1E1DC] py-3'
+                                className={cn(
+                                    'flex cursor-pointer items-center border border-[#D1D1CC] bg-[#E1E1DC] py-3',
+                                    hideGroupTitles && !isExpend ? 'rounded-2xl' : 'rounded-t-2xl'
+                                )}
                                 onClick={() => toggleCategory(categoryKey)}
                             >
                                 <div className="flex-1 pl-4 text-lg font-bold text-[#141414]">{categoryData.title}</div>
@@ -99,13 +103,16 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                 </button>
                             </div>
                         </div>
-                        <div className="rounded-b-2xl border border-y-0 border-[#D1D1CC]">
+                        <div className={cn(
+                            "rounded-b-2xl border border-y-0 border-[#D1D1CC]",
+                            hideGroupTitles && !isExpend && "hidden"
+                        )}>
                             {categoriesMap.map(([groupKey, groupItems], index) => {
                                 const isLast = index + 1 === categoriesMap.length
                                 const isGroupExpanded = groupStates[groupKey];
                                 return <React.Fragment key={groupKey}>
                                     {/* 小组标题 */}
-                                    <div className={cn(
+                                    {!hideGroupTitles && <div className={cn(
                                         "cursor-pointer items-center border-b border-[#D1D1CC] p-4 font-medium text-[#141414]",
                                         "transition-all duration-300 ease-in-out hover:bg-[#E1E1DC]",
                                         !isExpend && !isGroupExpanded && isLast && 'rounded-b-2xl'
@@ -113,7 +120,7 @@ const FeatureList: FC<{ user: SessionUser | null }> = ({ user }) => {
                                         onClick={() => toggleGroup(categoryKey, groupKey)}
                                     >
                                         <span className='mr-[10px] inline-block'>{index < 9 ? '0' : ''}{index + 1}</span>{groupKey}
-                                    </div>
+                                    </div>}
                                     {/* 展开时显示所有小组下的功能项 ，两列 */}
                                     <div
                                         className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpend || isGroupExpanded ? 'max-h-[2000px]' : 'max-h-0'}`}

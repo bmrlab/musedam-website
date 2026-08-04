@@ -20,9 +20,9 @@ export const getFetchUserUrl = (path: string) => {
  */
 export const getServerSession: () => Promise<SessionUser | null> = cache(async () => {
   const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('session_token')?.value
-  // const sessionToken =
-  //   'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..EugHy2WwI8tQj71Q.prRlcpTaPGsFE8FHEEtVd3vy9LJZXzpgL7lfPO0iqfqniuDWUJ_FM7J55NtY_XI2hwqHu40LA53IQhGbWX6jz3bk6iZmUyZJld3QHfmQ3bSA-whsCEW8pooeIAQNHBxUMepl0RaclHufYIPgZzOZ93HitRzAqEmDTWAEKiqyJIyNrJpDxYSpNjqo4K3-ylz9BBl0yiDjaQ8dHSn-GcTQcQt-YErrIfHeQyeDIs4aVMSNXepHEuNblgZt78TLvZu8TtiTNlYRE17FrSbPpHzUB2AmZA21ouf7KEIV9wgurxkkNfY.OHkz3E9mLKdKMHImvnpnSg'
+  // const sessionToken = cookieStore.get('session_token')?.value
+  const sessionToken =
+    'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..xLZB0DGJCHHk6o3t.7TXJ06fKU-831wR1_SVqJaRHzn5h9e5EhejhzleQczn9VvHDP-KiPQMw9TetTZriilvTTQJpg0DL54zRCZi-LwY2m-uKI8CmN-uhkkTvR-h3DwOncFc2nE6X6y03_S1Uoa_Imyx8s0uZUCP4XyYYkojzTlzsESyYXCUoeySjolJhGa0uJgmYbeUWkmXxLsArbmw6hER1itaZhRL9Y9h8GKFz0Zz-E3SBJW0Gw-6MpgwAKRLXLRI8IYQOjjXk7cMeGtX0FiA2U-086JtsrMHU8_8qGXGrs9BN2FeqaCX3wYHpHvXL.QRujLLYdJT9MDprg9Z2q0g'
 
   if (!sessionToken) return null
 
