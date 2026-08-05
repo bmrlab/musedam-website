@@ -192,27 +192,88 @@ const PurpleBadge = ({ text }: { text: string }) => (
   </span>
 )
 
+const clampModuleDiscount = (val: number) =>
+  Math.min(10, Math.max(1, Math.round(val * 10) / 10))
+
 const BillingToggle: FC<{
   value: BillingMode
   onChange: (mode: BillingMode) => void
-}> = ({ value, onChange }) => {
+  discountValue?: number
+  onDiscountChange?: (val: number | undefined) => void
+}> = ({ value, onChange, discountValue, onDiscountChange }) => {
   const { t } = useTranslation('quotation')
   const items: BillingMode[] = ['paid', 'discount', 'gift']
+  const [discountInput, setDiscountInput] = useState(
+    discountValue !== undefined ? String(discountValue) : '',
+  )
+
+  useEffect(() => {
+    setDiscountInput(discountValue !== undefined ? String(discountValue) : '')
+  }, [discountValue])
+
   return (
-    <div className="flex h-6 w-[118px] items-center gap-0.5 rounded border border-white/20 bg-[#141414] p-[3px] text-xs">
-      {items.map((mode) => (
-        <button
-          key={mode}
-          type="button"
-          onClick={() => onChange(mode)}
-          className={cn(
-            'flex h-[18px] w-9 items-center justify-center rounded text-white transition-colors',
-            value === mode ? 'bg-[#444444]' : 'bg-transparent hover:bg-white/10',
-          )}
-        >
-          {t(`billing.${mode}`)}
-        </button>
-      ))}
+    <div className="flex flex-col items-end gap-[11px]">
+      <div className="flex h-6 w-[118px] items-center gap-0.5 rounded border border-white/20 bg-[#141414] p-[3px] text-xs">
+        {items.map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            onClick={() => onChange(mode)}
+            className={cn(
+              'flex h-[18px] w-9 items-center justify-center rounded text-white transition-colors',
+              value === mode ? 'bg-[#444444]' : 'bg-transparent hover:bg-white/10',
+            )}
+          >
+            {t(`billing.${mode}`)}
+          </button>
+        ))}
+      </div>
+      {value === 'discount' && onDiscountChange && (
+        <div className="flex w-[118px] items-center gap-1.5">
+          <Input
+            type="number"
+            min={1}
+            max={10}
+            step={0.1}
+            value={discountInput}
+            onChange={(e) => {
+              const raw = e.target.value
+              setDiscountInput(raw)
+              if (raw === '') {
+                onDiscountChange(undefined)
+                return
+              }
+              const parsed = Number(raw)
+              if (Number.isNaN(parsed)) return
+              onDiscountChange(parsed)
+            }}
+            onBlur={() => {
+              if (discountInput === '') {
+                onDiscountChange(undefined)
+                setDiscountInput('')
+                return
+              }
+              const parsed = Number(discountInput)
+              if (Number.isNaN(parsed)) {
+                onDiscountChange(undefined)
+                setDiscountInput('')
+                return
+              }
+              const next = clampModuleDiscount(parsed)
+              onDiscountChange(next)
+              setDiscountInput(String(next))
+            }}
+            className={cn(
+              'h-[30px] w-[93px] rounded-none border-2 border-white/20 bg-transparent px-2 text-center text-sm font-medium text-white',
+              'appearance-none [-moz-appearance:textfield]',
+              '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+              'focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
+            )}
+            placeholder="1-10"
+          />
+          <span className="shrink-0 text-sm text-white">{t('discount.unit')}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -700,7 +761,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const displayPrice = (key: string, listPrice: number) => {
     const mode = moduleBillingModes[key as EAdvancedModules] ?? 'paid'
     if (mode === 'gift') return 0
-    return advancedModulePriceOverrides[key as EAdvancedModules] ?? listPrice
+    if (mode === 'discount') {
+      const rate = advancedModulePriceOverrides[key as EAdvancedModules]
+      if (typeof rate === 'number') return listPrice * (clampModuleDiscount(rate) / 10)
+      return listPrice
+    }
+    return listPrice
   }
 
   /** SaaS 折后年总价：仅作赠送门槛判断，不在 UI 展示 */
@@ -886,20 +952,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 value={mode}
                 onChange={(next) => {
                   setModuleBillingMode(key, next)
+                  if (next !== 'discount') setAdvancedModulePriceOverride(key, undefined)
                 }}
-              />
-            )}
-            {mode === 'discount' && giftEligible && giftOk && (
-              <Input
-                type="number"
-                min={0}
-                value={advancedModulePriceOverrides[key] ?? module.price}
-                onChange={(e) => {
-                  const parsed = Number(e.target.value)
-                  if (!Number.isNaN(parsed)) setAdvancedModulePriceOverride(key, Math.max(0, parsed))
-                }}
-                className="h-8 w-[115px] rounded-none border-[rgba(255,255,255,0.2)] text-white"
-                placeholder={t('discount.edit.price')}
+                discountValue={advancedModulePriceOverrides[key]}
+                onDiscountChange={(val) => setAdvancedModulePriceOverride(key, val)}
               />
             )}
             {typeof advancedModules[key] === 'number' && (
@@ -1245,7 +1301,16 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   {isGiftAllowed(AI_POINTS_GIFT_THRESHOLD) && (
                     <BillingToggle
                       value={aiPointsPackMode}
-                      onChange={handleAiPointsPackBillingChange}
+                      onChange={(mode) => {
+                        handleAiPointsPackBillingChange(mode)
+                        if (mode !== 'discount') {
+                          setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, undefined)
+                        }
+                      }}
+                      discountValue={advancedModulePriceOverrides[EGeaBaseModules.AI_POINTS_PACK]}
+                      onDiscountChange={(val) =>
+                        setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, val)
+                      }
                     />
                   )}
                 </div>
@@ -1875,7 +1940,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             </span>
                           </Label>
                         </div>
-                        <Select
+                        {/* 私部支持方式-暂时隐藏 */}
+                        {/* <Select
                           value={privateConfig.licenseType}
                           onValueChange={(v) =>
                             updatePrivateConfig({ licenseType: v as PrivateLicenseType })
@@ -1891,7 +1957,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               </SelectItem>
                             ))}
                           </SelectContent>
-                        </Select>
+                        </Select> */}
                       </div>
 
                       {privateConfig.licenseEnabled && (

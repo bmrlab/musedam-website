@@ -37,10 +37,9 @@ const QuoteDetailTable: FC = () => {
                             </span>
                             {row.des && <span className='whitespace-pre-line text-xs font-light text-[#141414]'>{row.des}</span>}
                         </div>
-                        {!row.unit && row.quantity ?
-                            <span>{row.quantity}</span> :
-                            <span>{row.unit}</span>
-                        }
+                        <span>
+                            {row.unit ?? (row.subtotal || row.quantity || '')}
+                        </span>
                     </TableLine>
                 ))}
                 <TableLine className=" bg-[#E1E1DC] text-sm font-bold">

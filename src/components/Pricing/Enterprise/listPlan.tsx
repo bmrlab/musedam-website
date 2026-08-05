@@ -208,6 +208,73 @@ export const useEnterprisePlan = () => {
     };
 
     // Pricing FeatureList only — Quotation uses *GroupsByCode / *KeyToGroup below
+    const heading = (key: string) => ({ name: tFeatures(`${key}.title`) });
+    const groupItems = (key: string) =>
+        advancedList[tFeatures(`${key}.title`)] || [];
+    const placeholderItems = groupItems('aiAutoTaggingEngine');
+    const workflowItems = Array.from({ length: 3 }).map((_, i) => ({
+        name: tFeatures(`workflowCommon.${i}.name`),
+        detail: tFeatures(`workflowCommon.${i}.detail`)
+    }));
+
+    const extensionList = {
+        [tFeatures('extensionSections.assetOrganization')]: [
+            heading('customSystemHomepage'), ...groupItems('customSystemHomepage'),
+            heading('smartFolders'), ...groupItems('smartFolders'),
+            heading('customMetadataFields'), ...groupItems('customMetadataFields'),
+            heading('brandLibrary'), ...groupItems('smartFolders'),
+            heading('productLibrary'), ...groupItems('smartFolders'),
+            heading('projectHub'), ...groupItems('smartFolders')
+        ],
+        [tFeatures('extensionSections.aiIntelligence')]: [
+            heading('aiAutoTaggingEngine'), ...groupItems('aiAutoTaggingEngine'),
+            heading('aiFeatureRecognition'), ...placeholderItems
+        ],
+        [tFeatures('extensionSections.creativeProduction')]: [
+            heading('museAI'), ...groupItems('museAI'),
+            heading('ingenOps'), ...groupItems('batchTemplating'),
+            heading('clipoRemix'), ...placeholderItems
+        ],
+        [tFeatures('extensionSections.collaborationWorkflow')]: [
+            heading('fileCollection'), ...placeholderItems,
+            heading('approvalCenter'), ...placeholderItems,
+            heading('deliveryApprovalCenter'), ...groupItems('deliveryApprovalCenter'),
+            heading('taskWorkflow'), ...workflowItems,
+            heading('automationCenter'), ...workflowItems
+        ],
+        [tFeatures('extensionSections.complianceCopyright')]: [
+            heading('complianceCheck'), ...groupItems('complianceCheck'),
+            heading('brandComplianceAgent'), ...placeholderItems,
+            heading('copyrightManagement'), ...groupItems('copyrightManagement'),
+            heading('watermark'), ...groupItems('watermark')
+        ],
+        [tFeatures('extensionSections.distributionDelivery')]: [
+            heading('publicAssetsAndDerivatives'), ...groupItems('publicAssetsAndDerivatives'),
+            heading('dat'), ...groupItems('dat'),
+            heading('portal'), ...placeholderItems,
+            heading('socialDistribution'), ...workflowItems,
+            heading('ecommerceDistribution'), ...workflowItems
+        ],
+        [tFeatures('extensionSections.integrationInfrastructure')]: [
+            heading('notionSync'), ...groupItems('complianceCheck'),
+            ...(isInChina ? [
+                heading('feishuDrive'), ...placeholderItems,
+                heading('feishuBitable'), ...placeholderItems,
+                heading('feishuApproval'), ...workflowItems
+            ] : []),
+            heading('enterpriseSingleSignOn'), ...groupItems('enterpriseSingleSignOn'),
+            ...(isInChina ? [heading('globalAcceleration'), ...groupItems('globalAcceleration')] : [])
+        ],
+        [tFeatures('extensionSections.serviceSupport')]: [
+            heading('customerService'), ...groupItems('customerService'),
+            heading('professionalServicesSupport'),
+            ...Array.from({ length: 3 }).map((_, i) => ({
+                name: tFeatures(`professionalServicesSupport.${i}.name`),
+                detail: tFeatures(`professionalServicesSupport.${i}.detail`)
+            }))
+        ]
+    };
+
     const allFeature = {
         basic: {
             title: tFeatures('Basic'),
@@ -215,11 +282,20 @@ export const useEnterprisePlan = () => {
         },
         advanced: {
             title: tFeatures('Advanced'),
-            list: advancedList
+            hideGroupTitles: true,
+            list: {
+                [tFeatures('advancedFeatures.title')]: advancedList[tFeatures('advancedFeatures.title')]
+            }
+        },
+        extensions: {
+            title: tFeatures('Extensions'),
+            list: extensionList
         },
         added: {
             title: tFeatures('ValueAddedServices'),
-            list: addedList
+            list: {
+                [tFeatures('capacityExpansion.title')]: addedList[tFeatures('capacityExpansion.title')]
+            }
         }
     };
 

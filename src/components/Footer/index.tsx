@@ -101,6 +101,7 @@ export default function Footer({ isMini }: { isMini?: boolean }) {
           <span>{t('networkInformationAc')}</span>
           <span>{t('networkInformationAc2')}</span>
           <span>{t('networkInformationAc3')}</span>
+          <span>{t('networkInformationAc4')}</span>
         </div>
       )}
     </>

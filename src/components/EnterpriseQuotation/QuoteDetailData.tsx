@@ -92,6 +92,9 @@ const getBillingMode = (
   modes: Partial<Record<string, BillingMode>>,
 ): BillingMode => modes[key] ?? 'paid'
 
+const clampModuleDiscount = (val: number) =>
+  Math.min(10, Math.max(1, Math.round(val * 10) / 10))
+
 const resolveUnitPrice = (
   key: string,
   listPrice: number,
@@ -100,9 +103,11 @@ const resolveUnitPrice = (
 ): number => {
   if (mode === 'gift') return 0
   if (mode === 'discount') {
-    return overrides[key] ?? listPrice
+    const rate = overrides[key]
+    if (typeof rate === 'number') return listPrice * (clampModuleDiscount(rate) / 10)
+    return listPrice
   }
-  return overrides[key] ?? listPrice
+  return listPrice
 }
 
 export const useQuoteDetailData = (): QuoteDetailData => {
@@ -871,12 +876,19 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     const roleMap = new Map(customRoleOptions.map((option) => [option.value, option]))
     validCustomServices.forEach((service) => {
+      const lineBlocks: string[] = []
+      let serviceCost = 0
+      let totalQuantity = 0
+
       service.roleLines.forEach((line) => {
         const option = roleMap.get(line.role)
         const roleName =
           line.role === 'custom' && line.customRoleName ? line.customRoleName : option?.label
         const price = option?.price ?? 0
         const cost = price * line.quantity
+        serviceCost += cost
+        totalQuantity += line.quantity
+
         const descriptions = service.roleByDetail
           ? service.details
               .filter((detail) => detail.id === line.detailId && detail.description.trim())
@@ -885,17 +897,31 @@ export const useQuoteDetailData = (): QuoteDetailData => {
               .filter((detail) => detail.description.trim())
               .map((detail) => detail.description.trim())
 
-        customOneTimeTotal += cost
-        rows.push({
-          key: line.id,
-          sku: getModuleSku(`custom.role.${line.role}`),
-          name: roleName ? `${service.name}（${roleName}）` : service.name,
-          quantity: `${line.quantity}${t('custom.personDay')}`,
-          unit: `${prefix}${formatWithToLocaleString(price)}${t('custom.perPersonDay')}`,
-          subtotal: cost,
-          oneTime: true,
-          des: descriptions.join('\n'),
-        })
+        const detailText = descriptions.join('；')
+        const titleLine =
+          detailText && roleName
+            ? `${detailText}：${roleName}`
+            : detailText || roleName || ''
+
+        lineBlocks.push(
+          [
+            titleLine,
+            `${prefix}${formatWithToLocaleString(price)}${t('custom.perPersonDay')} × ${line.quantity}${t('custom.personDay')}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        )
+      })
+
+      customOneTimeTotal += serviceCost
+      rows.push({
+        key: service.id,
+        name: service.name,
+        quantity: totalQuantity ? `${totalQuantity}${t('custom.personDay')}` : '',
+        unit: undefined,
+        subtotal: serviceCost,
+        oneTime: true,
+        des: lineBlocks.join('\n\n'),
       })
     })
   }
