@@ -1086,7 +1086,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               value={businessRole}
               onValueChange={(v) => handleBusinessRoleChange(v as BusinessRole)}
             >
-              <SelectTrigger className="hidden h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
+              <SelectTrigger className="h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
                 <SelectValue />
                 <ChevronDown className="size-4 opacity-70" />
               </SelectTrigger>
