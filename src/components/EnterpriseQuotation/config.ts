@@ -1083,7 +1083,6 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           key: EAdvancedModules.ENTERPRISE_SSO,
           label: moduleNames[EAdvancedModules.ENTERPRISE_SSO],
           price: m[EAdvancedModules.SSO_FEISHU] ?? 0,
-          tag: t('badge.noTrial'),
           unit: t('sso.unit'),
           noCheckBox: true,
           subFlex: 'row',
