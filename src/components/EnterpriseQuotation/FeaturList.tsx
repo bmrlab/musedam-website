@@ -12,6 +12,25 @@ interface IDetailItem {
 }
 type DisplayRow = { title: string; detail?: string; items?: IDetailItem[] }
 
+const splitModuleName = (raw: string): { title: string; children: string[] } => {
+    const text = raw.trim()
+    const full = text.match(/^(.*?)（(.*)）$/)
+    if (full) {
+        return {
+            title: full[1].trim(),
+            children: full[2].split('、').map((v) => v.trim()).filter(Boolean),
+        }
+    }
+    const half = text.match(/^(.*?)\((.*)\)$/)
+    if (half) {
+        return {
+            title: half[1].trim(),
+            children: half[2].split(',').map((v) => v.trim()).filter(Boolean),
+        }
+    }
+    return { title: text, children: [] }
+}
+
 const DetailItem = ({ item, isInExport }: { item: IDetailItem, isInExport?: boolean }) => {
     return <div
         className={cn("grid min-h-[55px] grid-cols-5 justify-between border-t px-6 py-[15px] text-base",
@@ -66,6 +85,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
 
     // 从 rows 中获取已购买的模块 key（这些是未合并的模块）
     void rows
+    void mergedToBasicModules
     // 按照 allModules 的原始顺序，筛选出所有已购买的模块（包括合并和未合并的）
     // 这样合并的模块会保持原始顺序，而不是追加到最后
     const featureListKeys = allModules
@@ -95,11 +115,29 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
 
 
     const advancedList: DisplayRow[] = (() => {
+        const purchasedModuleByKey = new Map<string, QuoteDetailRow>()
+        allModules.forEach((modRow) => {
+            if (!modRow.key || (modRow as any).notBuy) return
+            if (!purchasedModuleByKey.has(modRow.key)) purchasedModuleByKey.set(modRow.key, modRow)
+        })
+
+        const fallbackFromPurchasedModule = (code: string): DisplayRow => {
+            const modRow = purchasedModuleByKey.get(code)
+            const moduleName = String(modRow?.name ?? code)
+            const { title, children } = splitModuleName(moduleName)
+            const detail = typeof modRow?.des === 'string' ? modRow.des : undefined
+            return {
+                title,
+                detail,
+                items: children.map((name) => ({ name, detail: '' })),
+            }
+        }
+
         const groups = featureListKeys.map(code => {
             let info = advancedGroupsByCode[advancedKeyToGroup[code]]
             if (!info) {
-                // 新模块无详情时用模块名占位
-                return { title: String(code), items: [{ name: String(code), detail: '' }] }
+                // 未接入 pricing-featureList 映射时，从已购模块标题中提取子项拼接展示
+                return fallbackFromPurchasedModule(code)
             }
             if (code === EAdvancedModules.ENTERPRISE_SSO && info.items) {
                 info = {
@@ -113,7 +151,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         if (featureView === EFeatureView.OVERVIEW) {
             return groups.map(group => ({
                 title: group.title,
-                detail: group.items?.map(i => i.name).join(', ')
+                detail: group.items?.map(i => i.name).join(', ') || group.detail
             }))
         }
         // DETAIL
