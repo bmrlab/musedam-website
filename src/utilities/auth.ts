@@ -9,6 +9,24 @@ import {
 
 import { ESpaceRule, SessionUser } from '@/types/user'
 
+const normalizeBusinessRole = (raw: unknown): 'muse' | 'pod' | undefined => {
+  if (typeof raw !== 'string') return undefined
+  const value = raw.trim().toLowerCase()
+  if (value === 'muse') return 'muse'
+  if (value === 'pod') return 'pod'
+  return undefined
+}
+
+const parseBusinessRoles = (
+  candidate: unknown,
+): Array<'muse' | 'pod'> => {
+  if (!Array.isArray(candidate)) return []
+  const roles = candidate
+    .map((item) => normalizeBusinessRole(item))
+    .filter(Boolean) as Array<'muse' | 'pod'>
+  return Array.from(new Set(roles))
+}
+
 export const getFetchUserUrl = (path: string) => {
   const host =
     process.env.DEPLOY_REGION === 'global' ? MUSE_GLOBAL_SERVER_URL : MUSE_MAINLAND_SERVER_URL
@@ -113,14 +131,24 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
     result.isEnterpriseUser = isEnterpriseUser
   }
 
-  if (userSaleInfo) {
+  if (userSaleInfo.ok) {
     const orgMemberInfo: {
       code: string
       message: string
-      result: { isSale: 0 | 1; email: string }
+      result: {
+        isSale: 0 | 1
+        email: string
+        saleRoles?: string[]
+      }
     } = await userSaleInfo.json()
     result.isSale = Boolean(orgMemberInfo.result.isSale)
     result.orgEmail = orgMemberInfo.result.email
+
+    // 销售角色统一使用 saleRoles（可选值：muse / pod）
+    const uniqueRoles = parseBusinessRoles(orgMemberInfo.result.saleRoles)
+    if (uniqueRoles.length > 0) result.businessRoles = uniqueRoles
+
+    result.businessRole = uniqueRoles.length === 1 ? uniqueRoles[0] : undefined
   }
   return result
 })

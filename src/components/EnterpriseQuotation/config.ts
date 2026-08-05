@@ -103,11 +103,13 @@ export interface IModuleGroup {
 export const usePricing = () => {
   const { t } = useTranslation('quotation')
   const { isInChina } = useCountry()
-  const { businessRole } = useQuotationStore()
+  const { businessRole, privateConfig } = useQuotationStore()
   const isGlobal = !isInChina
   const prefix = isGlobal ? '$' : '¥'
   // Pod: 20w/年；Muse: 5w/年
   const damPriceByRole = businessRole === 'pod' ? 200000 : 50000
+  // 私有化部署实施按云厂商计价：阿里云 10w，其它云 15w
+  const privateDeployPrice = privateConfig.cloudProvider === 'aliyun' ? 100000 : 150000
 
   const pricing = useMemo(
     () => ({
@@ -320,11 +322,11 @@ export const usePricing = () => {
               [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
             } as Record<string, number>,
             implProducts: {
-              [EPrivateImplProducts.DAM]: 100000,
-              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
-              [EPrivateImplProducts.MUSE_AI]: 50000,
-              [EPrivateImplProducts.INGEN_OPS]: 50000,
-              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
+              [EPrivateImplProducts.DAM]: privateDeployPrice,
+              [EPrivateImplProducts.GEA_CONTEXT]: privateDeployPrice,
+              [EPrivateImplProducts.MUSE_AI]: privateDeployPrice,
+              [EPrivateImplProducts.INGEN_OPS]: privateDeployPrice,
+              [EPrivateImplProducts.CLIPO_REMIX]: privateDeployPrice,
             } as Record<EPrivateImplProducts, number>,
           }
         : {
@@ -340,15 +342,15 @@ export const usePricing = () => {
               [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
             } as Record<string, number>,
             implProducts: {
-              [EPrivateImplProducts.DAM]: 100000,
-              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
-              [EPrivateImplProducts.MUSE_AI]: 50000,
-              [EPrivateImplProducts.INGEN_OPS]: 50000,
-              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
+              [EPrivateImplProducts.DAM]: privateDeployPrice,
+              [EPrivateImplProducts.GEA_CONTEXT]: privateDeployPrice,
+              [EPrivateImplProducts.MUSE_AI]: privateDeployPrice,
+              [EPrivateImplProducts.INGEN_OPS]: privateDeployPrice,
+              [EPrivateImplProducts.CLIPO_REMIX]: privateDeployPrice,
             } as Record<EPrivateImplProducts, number>,
           },
     }),
-    [isGlobal, damPriceByRole],
+    [isGlobal, damPriceByRole, privateDeployPrice],
   )
 
   const moduleNames: Record<string, string> = {

@@ -183,7 +183,7 @@ const initialPrivateConfig: IPrivateConfig = {
   licenseType: 'encrypted',
   opsEnabled: true,
   basicMaintenance: true,
-  versionIteration: false,
+  versionIteration: true,
   iterationFrequency: 1,
   implementationEnabled: true,
   cloudProvider: 'aliyun',

@@ -807,18 +807,16 @@ export const useQuoteDetailData = (): QuoteDetailData => {
           }),
         })
       }
-      if (privateConfig.versionIteration) {
-        const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
-        privatePerYear += price
-        rows.push({
-          key: 'privateVersionIteration',
-          sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
-          name: `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
-          quantity: getYear(subscriptionYears),
-          unit: renderCost(price),
-          subtotal: price,
-        })
-      }
+      const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+      privatePerYear += price
+      rows.push({
+        key: 'privateVersionIteration',
+        sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
+        name: `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
+        quantity: getYear(subscriptionYears),
+        unit: renderCost(price),
+        subtotal: price,
+      })
     }
 
     if (privateConfig.implementationEnabled) {

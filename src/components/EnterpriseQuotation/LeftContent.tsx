@@ -398,6 +398,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const showGeaExtensions = advancedConfig.geaContext && moduleGroups.some((g) => g.baseProduct === 'gea')
   const aiPointsPackMode = (moduleBillingModes[EGeaBaseModules.AI_POINTS_PACK] ?? 'paid') as BillingMode
   const aiPointsValue = AI_GIFT_POINTS * AI_POINT_UNIT_PRICE
+  const userBusinessRoles = useMemo<BusinessRole[]>(() => {
+    return user?.businessRoles ?? []
+  }, [user])
+  const loginBusinessRole = useMemo<BusinessRole | undefined>(() => {
+    if (userBusinessRoles.length === 1) return userBusinessRoles[0]
+    return undefined
+  }, [userBusinessRoles])
+  const canSwitchBusinessRole = userBusinessRoles.includes('muse') && userBusinessRoles.includes('pod')
 
   useEffect(() => {
     if (editInfo) setOpenDiscount(editInfo.discount !== undefined)
@@ -410,6 +418,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   useEffect(() => {
     setLoading(false)
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    if (loginBusinessRole && businessRole !== loginBusinessRole) setBusinessRole(loginBusinessRole)
+  }, [user, loginBusinessRole, userBusinessRoles, businessRole, setBusinessRole])
 
   const tabs = [
     { key: TabEnum.ADVANCED, label: t('tab.saas'), enabled: true },
@@ -607,9 +620,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     if (!privateConfig.enabled || !privateConfig.opsEnabled) return 0
     let total = 0
     if (privateConfig.basicMaintenance) total += privateBasicMaintenanceFee
-    if (privateConfig.versionIteration) {
-      total += pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
-    }
+    total += pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
     return total
   }, [privateConfig, pricing.private, privateBasicMaintenanceFee])
 
@@ -1138,19 +1149,21 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </LocaleLink>
           </div>
           <div className="flex items-center gap-4">
-            <Select
-              value={businessRole}
-              onValueChange={(v) => handleBusinessRoleChange(v as BusinessRole)}
-            >
-              <SelectTrigger className="h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
-                <SelectValue />
-                <ChevronDown className="size-4 opacity-70" />
-              </SelectTrigger>
-              <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
-                <SelectItem value="muse">Muse</SelectItem>
-                <SelectItem value="pod">Pod</SelectItem>
-              </SelectContent>
-            </Select>
+            {canSwitchBusinessRole && (
+              <Select
+                value={businessRole}
+                onValueChange={(v) => handleBusinessRoleChange(v as BusinessRole)}
+              >
+                <SelectTrigger className="h-8 w-auto min-w-[88px] gap-1 border-none bg-transparent px-2 text-base text-white shadow-none focus:ring-0 [&>svg]:hidden">
+                  <SelectValue />
+                  <ChevronDown className="size-4 opacity-70" />
+                </SelectTrigger>
+                <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                  <SelectItem value="muse">Muse</SelectItem>
+                  <SelectItem value="pod">Pod</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             <LocaleSwitch />
           </div>
         </div>
@@ -2025,59 +2038,50 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                           </div>
 
                           <div className="space-y-3">
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                checked={privateConfig.versionIteration}
-                                onCheckedChange={(c: boolean) =>
-                                  updatePrivateConfig({ versionIteration: c })
-                                }
-                                className="size-4 shrink-0 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
-                              />
-                              <Label>{t('private.ops.iteration')}</Label>
+                            <Label>{t('private.ops.iteration')}</Label>
+                            <div className="ml-6 grid gap-3 md:grid-cols-2">
+                              {([1, 4] as PrivateIterationFrequency[]).map((freq) => {
+                                const active = privateConfig.iterationFrequency === freq
+                                const price = pricing.private.iterationPrices[freq]
+                                return (
+                                  <button
+                                    key={freq}
+                                    type="button"
+                                    onClick={() =>
+                                      updatePrivateConfig({
+                                        iterationFrequency: freq,
+                                        versionIteration: true,
+                                      })
+                                    }
+                                    className={cn(
+                                      'rounded-lg border px-4 py-3 text-left transition-colors',
+                                      active
+                                        ? 'border-[#3366FF] bg-[#3366FF]/10'
+                                        : 'border-[rgba(255,255,255,0.15)]',
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-2 text-sm text-white">
+                                      <span
+                                        className={cn(
+                                          'size-3 rounded-full border',
+                                          active
+                                            ? 'border-[#3366FF] bg-[#3366FF]'
+                                            : 'border-white/40',
+                                        )}
+                                      />
+                                      {t('private.ops.iteration.times', { times: freq })}
+                                    </div>
+                                    <div className="mt-1 text-sm text-white-72">
+                                      {prefix} {formatWithToLocaleString(price)}
+                                      {t('per.year')}
+                                    </div>
+                                  </button>
+                                )
+                              })}
                             </div>
-
-                            {privateConfig.versionIteration && (
-                              <div className="ml-6 grid gap-3 md:grid-cols-2">
-                                {([1, 4] as PrivateIterationFrequency[]).map((freq) => {
-                                  const active = privateConfig.iterationFrequency === freq
-                                  const price = pricing.private.iterationPrices[freq]
-                                  return (
-                                    <button
-                                      key={freq}
-                                      type="button"
-                                      onClick={() =>
-                                        updatePrivateConfig({ iterationFrequency: freq })
-                                      }
-                                      className={cn(
-                                        'rounded-lg border px-4 py-3 text-left transition-colors',
-                                        active
-                                          ? 'border-[#3366FF] bg-[#3366FF]/10'
-                                          : 'border-[rgba(255,255,255,0.15)]',
-                                      )}
-                                    >
-                                      <div className="flex items-center gap-2 text-sm text-white">
-                                        <span
-                                          className={cn(
-                                            'size-3 rounded-full border',
-                                            active
-                                              ? 'border-[#3366FF] bg-[#3366FF]'
-                                              : 'border-white/40',
-                                          )}
-                                        />
-                                        {t('private.ops.iteration.times', { times: freq })}
-                                      </div>
-                                      <div className="mt-1 text-sm text-white-72">
-                                        {prefix} {formatWithToLocaleString(price)}
-                                        {t('per.year')}
-                                      </div>
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            )}
                           </div>
 
-                          {(privateConfig.basicMaintenance || privateConfig.versionIteration) && (
+                          {(privateConfig.basicMaintenance || privateConfig.opsEnabled) && (
                             <DesParagraph className="text-white">
                               {prefix} {formatWithToLocaleString(privateOpsAnnual)}
                               {t('per.year')}

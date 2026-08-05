@@ -136,7 +136,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                         licenseEnabled: true,
                         opsEnabled: true,
                         basicMaintenance: true,
-                        versionIteration: false,
+                        versionIteration: true,
                         implementationEnabled: true,
                         cloudProvider: 'aliyun',
                         ...content.privateConfig,
