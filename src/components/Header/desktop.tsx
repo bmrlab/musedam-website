@@ -256,14 +256,14 @@ export default function HeaderDesktop({
         {isInChina && <LocaleSwitch />}
         {isEnterprisePage ?
           <Link
-            href={user ? '/home' : MUSE_MAINLAND_AUTH_URL}
+            href={user ? '/home' : '/auth'}
             prefetch={false}
           >
             <DarkButton className={'mr-5 h-[48px]'}>
               <p className="hidden md:block">{user ? t('button.enter') : t('button.login')}</p>
             </DarkButton>
           </Link> : <Link
-            href={user ? '/home' : MUSE_MAINLAND_AUTH_URL}
+            href={user ? '/home' : '/auth'}
             prefetch={false}
             className="z-50 flex h-full w-[140px] items-center justify-center bg-black text-[14px] font-light leading-[22px] text-white transition duration-300 hover:bg-[#043FFB]"
           >
