@@ -14,6 +14,8 @@ import {
   EPrivateImplProducts,
   EPrivateModules,
   ExtensionBaseProduct,
+  MUSE_GIFT_THRESHOLD,
+  POD_GIFT_THRESHOLD,
   PrivateIterationFrequency,
   PrivateLicenseType,
 } from './enums'
@@ -90,6 +92,8 @@ export interface IModules {
   priceText?: string
   /** 未勾选父模块时也展示子模块 */
   alwaysShowSubs?: boolean
+  /** 无 checkbox 的多选容器：标题与选项整体缩进，与同级带 checkbox 的模块对齐 */
+  indent?: boolean
 }
 
 export interface IModuleGroup {
@@ -315,6 +319,11 @@ export const usePricing = () => {
             basicMaintenanceRate: 0.15,
             iterationPrices: {
               1: 150000,
+              4: 120000,
+            } as Record<PrivateIterationFrequency, number>,
+            /** 刊例价（划线价）；仅在有限时优惠时与 iterationPrices 不同 */
+            iterationListPrices: {
+              1: 150000,
               4: 240000,
             } as Record<PrivateIterationFrequency, number>,
             modules: {
@@ -334,6 +343,10 @@ export const usePricing = () => {
             sourceMultiplier: 3,
             basicMaintenanceRate: 0.15,
             iterationPrices: {
+              1: 150000,
+              4: 120000,
+            } as Record<PrivateIterationFrequency, number>,
+            iterationListPrices: {
               1: 150000,
               4: 240000,
             } as Record<PrivateIterationFrequency, number>,
@@ -439,17 +452,18 @@ export const usePricing = () => {
         EAdvancedModules.SSO_WECOM,
         EAdvancedModules.SSO_DINGTALK,
         EAdvancedModules.SSO_Teams,
-        EAdvancedModules.SSO_GOOGLE,
       ]
-    : [EAdvancedModules.SSO_SAML, EAdvancedModules.SSO_Teams, EAdvancedModules.SSO_GOOGLE]
+    : [EAdvancedModules.SSO_SAML, EAdvancedModules.SSO_Teams]
 
-  return { pricing, moduleNames, prefix, ssoTypeNames, allSSOType, isGlobal }
+  // 赠送门槛（折后 SaaS 年价）：Pod 20 万；Muse 10 万
+  const giftThreshold = businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
+
+  return { pricing, moduleNames, prefix, ssoTypeNames, allSSOType, isGlobal, giftThreshold }
 }
 
 export const useBasicConfigs = () => {
   const { t } = useTranslation('quotation')
-  const { activeTab } = useQuotationStore()
-  const { isInChina } = useCountry()
+  const { activeTab, businessRole } = useQuotationStore()
   const { pricing, prefix } = usePricing()
   const basicPricing = pricing.basic
   const advancedPricing = pricing.advanced
@@ -489,7 +503,8 @@ export const useBasicConfigs = () => {
           key: EBasicConfigKey.MEMBER_SEATS,
           title: t('member.seat'),
           hint: [t('advanced.memberSeats.hint')],
-          min: isInChina ? 10 : 10,
+          // 起售席位：Pod 10 席；Muse 5 席
+          min: businessRole === 'pod' ? 10 : 5,
           price: advancedPricing.memberSeatPrice,
           des:
             `${prefix} ${advancedPricing.memberSeatPrice}${t('memberSeats.perYear')}` +
@@ -525,6 +540,29 @@ export interface ICustomServiceRoleOption {
 export const useCustomServiceRoleOptions = (): ICustomServiceRoleOption[] => {
   const { t } = useTranslation('quotation')
   const { isGlobal } = usePricing()
+  const { businessRole } = useQuotationStore()
+
+  // Pod 客户成功服务人天（刊例 OPS-ENT / OPS-ONS / OPS-ONST），仅 Pod 模式展示
+  const podRoles: ICustomServiceRoleOption[] =
+    businessRole === 'pod'
+      ? [
+          {
+            value: 'csCustom',
+            label: t('custom.role.csCustom'),
+            price: isGlobal ? 500 : 2500,
+          },
+          {
+            value: 'csOnsite',
+            label: t('custom.role.csOnsite'),
+            price: isGlobal ? 560 : 2800,
+          },
+          {
+            value: 'csOnsiteTravel',
+            label: t('custom.role.csOnsiteTravel'),
+            price: isGlobal ? 800 : 4000,
+          },
+        ]
+      : []
 
   // 国内刊例：SVC-MANDAY-L1~L5
   return [
@@ -553,6 +591,7 @@ export const useCustomServiceRoleOptions = (): ICustomServiceRoleOption[] => {
       label: t('custom.role.founder'),
       price: isGlobal ? 10000 : 50000,
     },
+    ...podRoles,
     {
       value: 'custom',
       label: t('custom.role.custom'),
@@ -566,7 +605,10 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
   const { pricing, moduleNames, prefix } = usePricing()
   const advancedPricing = pricing.advanced
   const { isInChina } = useCountry()
+  const { businessRole } = useQuotationStore()
   const m = advancedPricing.modules
+  /** 赠送门槛：Pod 20w；Muse 10w（元数据自定义字段例外，仍为 20w） */
+  const giftThreshold = businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
 
   const giftPaid: BillingMode[] = ['paid', 'discount', 'gift']
 
@@ -582,7 +624,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           price: m[EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE],
           giftEligible: true,
           giftBadge: t('badge.optionalGift'),
-          giftThreshold: 200000,
+          giftThreshold,
         },
         {
           key: EAdvancedModules.SMART_FOLDERS,
@@ -590,7 +632,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           price: m[EAdvancedModules.SMART_FOLDERS],
           giftEligible: true,
           giftBadge: t('badge.optionalGift'),
-          giftThreshold: 200000,
+          giftThreshold,
         },
         {
           key: EAdvancedModules.CUSTOM_METADATA_FIELDS,
@@ -598,7 +640,8 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           price: m[EAdvancedModules.CUSTOM_METADATA_FIELDS],
           giftEligible: true,
           giftBadge: t('badge.optionalGift'),
-          giftThreshold: 200000,
+          // 元数据自定义字段门槛固定 20 万（Pod / Muse 一致）
+          giftThreshold: POD_GIFT_THRESHOLD,
         },
         {
           key: EAdvancedModules.ASSET_ANALYTICS,
@@ -653,21 +696,6 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
                 { label: t('feature.ip'), value: 'ip' },
               ],
             },
-            {
-              key: EAdvancedModules.AI_AUTO_TAG_POINTS,
-              label: moduleNames[EAdvancedModules.AI_AUTO_TAG_POINTS],
-              price: m[EAdvancedModules.AI_AUTO_TAG_POINTS],
-              tag: t('ai.pointsPack.tag'),
-              hint: t('ai.pointsPack.periodHint'),
-              priceText: t('ai.pointsPack.valueHint', {
-                prefix,
-                price: formatWithToLocaleString(m[EAdvancedModules.AI_AUTO_TAG_POINTS]),
-              }),
-              giftEligible: true,
-              giftBadge: t('badge.optionalGift'),
-              giftThreshold: 0,
-              requires: EAdvancedModules.AI_AUTO_TAG,
-            },
           ],
         },
         {
@@ -676,25 +704,6 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           price: m[EAdvancedModules.AI_FEATURE_RECOGNITION],
           launchTag: t('launch.oct'),
           hint: t('ai.featureRecognition.hint'),
-          subFlex: 'column',
-          alwaysShowSubs: true,
-          subModules: [
-            {
-              key: EAdvancedModules.AI_FEATURE_POINTS,
-              label: moduleNames[EAdvancedModules.AI_FEATURE_POINTS],
-              price: m[EAdvancedModules.AI_FEATURE_POINTS],
-              tag: t('ai.pointsPack.tag'),
-              hint: t('ai.pointsPack.periodHint'),
-              priceText: t('ai.pointsPack.valueHint', {
-                prefix,
-                price: formatWithToLocaleString(m[EAdvancedModules.AI_FEATURE_POINTS]),
-              }),
-              giftEligible: true,
-              giftBadge: t('badge.optionalGift'),
-              giftThreshold: 0,
-              requires: EAdvancedModules.AI_FEATURE_RECOGNITION,
-            },
-          ],
         },
       ],
     },
@@ -785,20 +794,6 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
             },
           ],
         },
-        {
-          key: EAdvancedModules.CREATIVE_AI_POINTS,
-          label: moduleNames[EAdvancedModules.CREATIVE_AI_POINTS],
-          price: m[EAdvancedModules.CREATIVE_AI_POINTS],
-          tag: t('ai.pointsPack.tag'),
-          hint: t('ai.creativePoints.periodHint'),
-          priceText: t('ai.pointsPack.valueHint', {
-            prefix,
-            price: formatWithToLocaleString(m[EAdvancedModules.CREATIVE_AI_POINTS]),
-          }),
-          giftEligible: true,
-          giftBadge: t('badge.optionalGift'),
-          giftThreshold: 0,
-        },
       ],
     },
     {
@@ -813,7 +808,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           launchTag: t('launch.sep'),
           giftEligible: true,
           giftBadge: t('badge.optionalGift'),
-          giftThreshold: 200000,
+          giftThreshold,
         },
         {
           key: EAdvancedModules.APPROVAL_CENTER,
@@ -958,6 +953,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
               unit: t('unit.perChannelYear'),
               hint: t('socialChannels.hint'),
               noCheckBox: true,
+              indent: true,
               multiCols: 2,
               multiOptions: [
                 { label: t('channel.xiaohongshu'), value: 'xiaohongshu' },
@@ -989,6 +985,8 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
               label: moduleNames[EAdvancedModules.SOCIAL_ATTRIBUTION],
               price: m[EAdvancedModules.SOCIAL_ATTRIBUTION],
               launchTag: t('launch.sep'),
+              hint: t('socialAttribution.requires'),
+              requires: EAdvancedModules.SOCIAL_CHANNELS,
             },
           ],
         },
@@ -1000,6 +998,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           unit: t('unit.perChannelYear'),
           hint: t('ecomChannels.hint'),
           noCheckBox: true,
+          indent: true,
           multiCols: 2,
           multiOptions: [
             { label: 'Amazon', value: 'amazon' },
@@ -1123,13 +1122,6 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
               noPrice: true,
               price: m[EAdvancedModules.SSO_Teams] ?? 0,
             },
-            {
-              key: EAdvancedModules.SSO_GOOGLE,
-              label: t('sso.google'),
-              noPrice: true,
-              price: m[EAdvancedModules.SSO_GOOGLE] ?? 0,
-              launchTag: t('launch.dec'),
-            },
           ],
         },
         ...(isInChina
@@ -1187,6 +1179,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           key: EAdvancedModules.PROFESSIONAL_SERVICES,
           label: moduleNames[EAdvancedModules.PROFESSIONAL_SERVICES],
           price: m[EAdvancedModules.PROFESSIONAL_SERVICES],
+          hint: t('professionalServices.hint'),
         },
       ],
     },

@@ -270,7 +270,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       [BillingType.yearly]: EMuseProductType.ABROAD_ORG_PROFESSION_YEARLY,
       period: t('pricing.perMonth'),
       priceGlobal: '1,250',
-      price: '4,200',
+      price: '5,000',
       color: '#FFA3F2'
     },
     {

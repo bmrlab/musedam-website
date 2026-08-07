@@ -10,12 +10,15 @@ import React, {
 } from 'react'
 import { SessionUser } from '@/types/user'
 import {
+  AI_GIFT_PACKS,
+  AI_GIFT_POINTS,
   BillingMode,
   BusinessRole,
   EAdvancedModules,
   EGeaBaseModules,
   EPrivateImplProducts,
   EPrivateModules,
+  PRIVATE_DEFAULT_AI_POINTS,
 } from '@/components/EnterpriseQuotation/enums'
 import {
   TabEnum,
@@ -119,6 +122,18 @@ interface QuotationStoreType {
   discount: number | undefined
   setDiscount: React.Dispatch<React.SetStateAction<number | undefined>>
 
+  /** 定制服务折扣，可与整体折扣独立设置 */
+  customDiscount: number | undefined
+  setCustomDiscount: React.Dispatch<React.SetStateAction<number | undefined>>
+
+  /**
+   * 报价单「优惠折扣」列：按行覆盖的折扣系数（0-1，如 9.5 折为 0.95）。
+   * 未覆盖的行跟随【优惠设置】；优惠设置变更时清空覆盖以刷新默认值。
+   */
+  rowDiscounts: Record<string, number>
+  setRowDiscount: (rowKey: string, factor?: number) => void
+  setRowDiscounts: React.Dispatch<React.SetStateAction<Record<string, number>>>
+
   showNoBuyFeature: boolean
   setShowNoBuyFeature: React.Dispatch<React.SetStateAction<boolean>>
 
@@ -137,7 +152,7 @@ interface QuotationStoreType {
   cdnTagOption: string
   setCdnTagOption: (value: string) => void
 
-  /** @deprecated 保留兼容历史报价 */
+  /** 合并到主报价的模块：价格并入 DAM（未选则 GEA）行，模块本身只列名称 */
   mergedToBasicModules: Set<EAdvancedModules>
   setMergedToBasicModules: React.Dispatch<React.SetStateAction<Set<EAdvancedModules>>>
   toggleMergeToBasic: (module: EAdvancedModules) => void
@@ -187,6 +202,9 @@ const initialPrivateConfig: IPrivateConfig = {
   iterationFrequency: 1,
   implementationEnabled: true,
   cloudProvider: 'aliyun',
+  // 私有化默认勾选 50 万点
+  aiPointsEnabled: true,
+  aiPointsOption: PRIVATE_DEFAULT_AI_POINTS,
 }
 
 const initialCustomServices: ICustomService[] = [
@@ -213,9 +231,11 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
   const initialAdvancedConfig: IAdvancedInfo = useMemo(
     () => ({
       memberSeats: isInChina ? 10 : 10,
-      seatPricingMode: 'bySeat',
+      // 默认角色为 Pod，席位按档位计价
+      seatPricingMode: 'byTier',
       seatTier: 'lte200',
-      storageSpace: 2,
+      // 默认 1TB
+      storageSpace: 1,
       enableColdHotStorage: false,
       enableMultiRegionStorage: false,
       chinaHotStorage: 1,
@@ -225,7 +245,9 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
       aiPoints: 0,
       geaDam: true,
       geaContext: false,
-      geaAiPointsPack: 0,
+      // AI 点数订阅默认勾选 5 万点
+      geaAiPointsPack: AI_GIFT_PACKS,
+      geaAiPointsOption: AI_GIFT_POINTS,
     }),
     [isInChina],
   )
@@ -244,6 +266,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
   const [customServices, setCustomServices] = useState<ICustomService[]>(initialCustomServices)
   const [subscriptionYears, setSubscriptionYears] = useState(1)
   const [discount, setDiscount] = useState<number | undefined>(undefined)
+  const [customDiscount, setCustomDiscount] = useState<number | undefined>(undefined)
+  const [rowDiscounts, setRowDiscounts] = useState<Record<string, number>>({})
   const [featureView, setFeatureView] = useState<EFeatureView>(EFeatureView.OVERVIEW)
   const [showNoBuyFeature, setShowNoBuyFeature] = useState(false)
   const [editInfo, setEditInfo] = useState<IQuotationInfo | undefined>()
@@ -285,6 +309,15 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     [],
   )
 
+  const setRowDiscount = useCallback((rowKey: string, factor?: number) => {
+    setRowDiscounts((prev) => {
+      const next = { ...prev }
+      if (typeof factor === 'number') next[rowKey] = factor
+      else delete next[rowKey]
+      return next
+    })
+  }, [])
+
   const setModuleBillingMode = useCallback(
     (module: EAdvancedModules | EGeaBaseModules, mode: BillingMode) => {
       setModuleBillingModes((prev) => ({ ...prev, [module]: mode }))
@@ -325,6 +358,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setCustomServices(initialCustomServices)
     setSubscriptionYears(1)
     setDiscount(undefined)
+    setCustomDiscount(undefined)
+    setRowDiscounts({})
     setFeatureView(EFeatureView.OVERVIEW)
     setShowNoBuyFeature(false)
     setEditInfo(undefined)
@@ -371,6 +406,11 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setFeatureView,
     discount,
     setDiscount,
+    customDiscount,
+    setCustomDiscount,
+    rowDiscounts,
+    setRowDiscount,
+    setRowDiscounts,
     showNoBuyFeature,
     setShowNoBuyFeature,
     initializeUserEmail,

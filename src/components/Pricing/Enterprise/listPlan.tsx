@@ -211,56 +211,67 @@ export const useEnterprisePlan = () => {
     const heading = (key: string) => ({ name: tFeatures(`${key}.title`) });
     const groupItems = (key: string) =>
         advancedList[tFeatures(`${key}.title`)] || [];
-    const placeholderItems = groupItems('aiAutoTaggingEngine');
-    const workflowItems = Array.from({ length: 3 }).map((_, i) => ({
-        name: tFeatures(`workflowCommon.${i}.name`),
-        detail: tFeatures(`workflowCommon.${i}.detail`)
-    }));
+    /** 走查文档「pricing更新模块描述」按 <module>.<i>.name / .detail 落库，count 为条目数 */
+    const docItems = (key: string, count: number) =>
+        Array.from({ length: count }).map((_, i) => ({
+            name: tFeatures(`${key}.${i}.name`),
+            detail: tFeatures(`${key}.${i}.detail`)
+        }));
 
     const extensionList = {
         [tFeatures('extensionSections.assetOrganization')]: [
             heading('customSystemHomepage'), ...groupItems('customSystemHomepage'),
-            heading('smartFolders'), ...groupItems('smartFolders'),
+            heading('smartFolders'), ...docItems('smartFolders', 3),
             heading('customMetadataFields'), ...groupItems('customMetadataFields'),
-            heading('brandLibrary'), ...groupItems('smartFolders'),
-            heading('productLibrary'), ...groupItems('smartFolders'),
-            heading('projectHub'), ...groupItems('smartFolders')
+            heading('assetAnalytics'), ...docItems('assetAnalytics', 4),
+            heading('brandLibrary'), ...docItems('brandLibrary', 5),
+            heading('productLibrary'), ...docItems('productLibrary', 4),
+            heading('projectHub'), ...docItems('projectHub', 4)
         ],
         [tFeatures('extensionSections.aiIntelligence')]: [
             heading('aiAutoTaggingEngine'), ...groupItems('aiAutoTaggingEngine'),
-            heading('aiFeatureRecognition'), ...placeholderItems
+            heading('featureLibrary'), ...docItems('featureLibrary', 4),
+            heading('aiFeatureRecognition'), ...docItems('aiFeatureRecognition', 4)
         ],
         [tFeatures('extensionSections.creativeProduction')]: [
             heading('museAI'), ...groupItems('museAI'),
-            heading('ingenOps'), ...groupItems('batchTemplating'),
-            heading('clipoRemix'), ...placeholderItems
+            heading('batchTemplating'), ...docItems('batchTemplating', 4),
+            heading('professionalPrint'), ...docItems('professionalPrint', 3),
+            heading('htmlExport'), ...docItems('htmlExport', 3),
+            heading('clipoRemix'), ...docItems('clipoRemix', 5)
         ],
         [tFeatures('extensionSections.collaborationWorkflow')]: [
-            heading('fileCollection'), ...placeholderItems,
-            heading('approvalCenter'), ...placeholderItems,
+            heading('fileCollection'), ...docItems('fileCollection', 4),
+            heading('approvalCenter'), ...docItems('approvalCenter', 5),
             heading('deliveryApprovalCenter'), ...groupItems('deliveryApprovalCenter'),
-            heading('taskWorkflow'), ...workflowItems,
-            heading('automationCenter'), ...workflowItems
+            heading('taskWorkflowBasic'), ...docItems('taskWorkflowBasic', 6),
+            heading('taskWorkflowAdvanced'), ...docItems('taskWorkflowAdvanced', 7),
+            heading('automationCenter'), ...docItems('automationCenter', 6)
         ],
         [tFeatures('extensionSections.complianceCopyright')]: [
             heading('complianceCheck'), ...groupItems('complianceCheck'),
-            heading('brandComplianceAgent'), ...placeholderItems,
+            heading('brandComplianceAgent'), ...docItems('brandComplianceAgent', 4),
+            heading('storeInspectionAgent'), ...docItems('storeInspectionAgent', 3),
             heading('copyrightManagement'), ...groupItems('copyrightManagement'),
             heading('watermark'), ...groupItems('watermark')
         ],
         [tFeatures('extensionSections.distributionDelivery')]: [
             heading('publicAssetsAndDerivatives'), ...groupItems('publicAssetsAndDerivatives'),
             heading('dat'), ...groupItems('dat'),
-            heading('portal'), ...placeholderItems,
-            heading('socialDistribution'), ...workflowItems,
-            heading('ecommerceDistribution'), ...workflowItems
+            heading('portal'), ...docItems('portal', 6),
+            heading('portalTheme'), ...docItems('portalTheme', 4),
+            heading('socialArticle'), ...docItems('socialArticle', 4),
+            heading('socialAttribution'), ...docItems('socialAttribution', 3),
+            heading('ecomAttribution'), ...docItems('ecomAttribution', 3)
         ],
         [tFeatures('extensionSections.integrationInfrastructure')]: [
-            heading('notionSync'), ...groupItems('complianceCheck'),
+            heading('notionSync'), ...docItems('notionSync', 2),
             ...(isInChina ? [
-                heading('feishuDrive'), ...placeholderItems,
-                heading('feishuBitable'), ...placeholderItems,
-                heading('feishuApproval'), ...workflowItems
+                heading('feishuDriveBasic'), ...docItems('feishuDriveBasic', 3),
+                heading('feishuDriveAdvanced'), ...docItems('feishuDriveAdvanced', 3),
+                heading('feishuBitableOneWay'), ...docItems('feishuBitableOneWay', 4),
+                heading('feishuBitableTwoWay'), ...docItems('feishuBitableTwoWay', 4),
+                heading('feishuApproval'), ...docItems('feishuApproval', 3)
             ] : []),
             heading('enterpriseSingleSignOn'), ...groupItems('enterpriseSingleSignOn'),
             ...(isInChina ? [heading('globalAcceleration'), ...groupItems('globalAcceleration')] : [])

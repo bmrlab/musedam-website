@@ -72,10 +72,11 @@ export const QuotationPreview: FC<{ id: string, user: SessionUser | null, inShar
         return <Loading />
     }
 
+    // 走查：报价单生成后即为快照，历史报价单不允许再编辑
     return <QuotationPreviewContent
         info={info}
         showDownload={isSelf}
-        showEdit={isSelf}
+        showEdit={false}
         showShare={isSelf}
         user={props.user}
     />

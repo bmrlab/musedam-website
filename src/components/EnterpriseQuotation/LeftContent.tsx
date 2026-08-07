@@ -11,6 +11,7 @@ import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { encodeNumber } from '@/utilities/numberCodec'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import * as Switch from '@radix-ui/react-switch'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { ChevronDown, ChevronRight, Info, Loader2, Minus, Plus } from 'lucide-react'
 import { SessionUser } from '@/types/user'
 import { useToast } from '@/hooks/use-toast'
@@ -54,11 +55,12 @@ import {
   TabEnum,
 } from './types'
 import {
-  AI_GIFT_PACKS,
   AI_GIFT_POINTS,
   AI_POINT_UNIT_PRICE,
-  AI_POINTS_GIFT_THRESHOLD,
+  AI_POINTS_OPTIONS,
+  AI_POINTS_PER_PACK,
   EBasicConfigKey,
+  PRIVATE_DEFAULT_AI_POINTS,
   type BillingMode,
 } from './enums'
 import { SEAT_TIERS } from './seatStorage'
@@ -71,7 +73,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useQuoteDetailData } from './QuoteDetailData'
+import { SEAT_UNMERGE_KEY, useQuoteDetailData } from './QuoteDetailData'
 
 interface NumControlProps {
   value: number
@@ -278,6 +280,69 @@ const BillingToggle: FC<{
   )
 }
 
+/** 合并到主报价：模块价格并入 DAM（未选则 GEA）行，模块本身只列名称 */
+const MergeToBasicIcon: FC<{ isMerged: boolean; onToggle: () => void }> = ({
+  isMerged,
+  onToggle,
+}) => {
+  const { t } = useTranslation('quotation')
+  const [isHovered, setIsHovered] = useState(false)
+  const svgColor = isMerged || isHovered ? 'white' : '#BFBFBF'
+
+  return (
+    <Tooltip.Provider>
+      <Tooltip.Root delayDuration={0}>
+        <Tooltip.Trigger asChild>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggle()
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={cn(
+              'flex size-[22px] shrink-0 items-center justify-center rounded transition-colors',
+              isMerged ? 'bg-[#3366FF]' : isHovered ? 'bg-[#3A3A3A]' : 'text-[#BFBFBF]',
+            )}
+          >
+            <svg
+              width="15"
+              height="14"
+              viewBox="0 0 15 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-[14px]"
+            >
+              <path
+                d="M4.46219 3.41343H10.8339V1.1576C10.8339 0.514488 10.3095 0 9.67633 0H1.1576C0.524382 0 0 0.524382 0 1.1576V9.67633C0 10.3194 0.524382 10.8339 1.1576 10.8339H3.75972V4.10601C3.75972 3.73004 4.07632 3.41343 4.46219 3.41343Z"
+                fill={svgColor}
+              />
+              <path
+                d="M13.1887 3.41309H10.834V10.141C10.834 10.5269 10.5174 10.8435 10.1315 10.8435H3.75977V12.8421C3.75977 13.4852 4.28415 13.9997 4.91736 13.9997H13.1788C13.822 13.9997 14.3364 13.4753 14.3364 12.8421V4.57068C14.3463 3.93747 13.822 3.41309 13.1887 3.41309Z"
+                fill={svgColor}
+              />
+              <path
+                d="M9.61668 6.31245H7.86545V4.55132C7.86545 4.40291 7.74672 4.28418 7.59831 4.28418H6.75732C6.60891 4.28418 6.49018 4.40291 6.49018 4.55132V6.31245H4.72905C4.58064 6.31245 4.46191 6.43118 4.46191 6.57959V7.42058C4.46191 7.56899 4.58064 7.68771 4.72905 7.68771H6.48029V9.44884C6.48029 9.59725 6.59902 9.71598 6.74743 9.71598H7.58842C7.73683 9.71598 7.85555 9.59725 7.85555 9.44884V7.68771H9.61668C9.76509 7.68771 9.88382 7.56899 9.88382 7.42058V6.57959C9.88382 6.43118 9.76509 6.31245 9.61668 6.31245Z"
+                fill={svgColor}
+              />
+            </svg>
+          </button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="z-50 rounded bg-[#333] px-3 py-2 text-xs text-white shadow-lg"
+            sideOffset={4}
+          >
+            {isMerged ? t('merge.cancel.to.basic') : t('merge.to.basic')}
+            <Tooltip.Arrow className="fill-[#333]" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+  )
+}
+
 const Cost = ({ cost, costTitle }: { cost: number; costTitle?: string }) => {
   const { t } = useTranslation('quotation')
   const { prefix } = usePricing()
@@ -299,7 +364,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const { t } = useTranslation('quotation')
   const basicConfigs = useBasicConfigs()
   const moduleGroups = useAdvancedModuleGroups()
-  const { pricing, prefix } = usePricing()
+  const { pricing, prefix, giftThreshold: aiPointsGiftThreshold } = usePricing()
   const { isInChina } = useCountry()
   const isGlobal = !isInChina
   const { toast } = useToast()
@@ -307,6 +372,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const { language } = useLanguage()
   const {
     subtotal,
+    discountTotal,
     totalNumPerYear,
     years,
     basicCostPerYear,
@@ -316,6 +382,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   } = useQuoteDetailData()
 
   const [openDiscount, setOpenDiscount] = useState(false)
+  const [openCustomDiscount, setOpenCustomDiscount] = useState(false)
   const [loading, setLoading] = useState(false)
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
 
@@ -338,6 +405,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setFeatureView,
     discount,
     setDiscount,
+    customDiscount,
+    setCustomDiscount,
+    rowDiscounts,
+    setRowDiscounts,
     showNoBuyFeature,
     setShowNoBuyFeature,
     editInfo,
@@ -351,6 +422,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     moduleMultiSelections,
     setModuleMultiSelection,
     setModuleMultiSelections,
+    mergedToBasicModules,
+    setMergedToBasicModules,
+    toggleMergeToBasic,
     privateConfig,
     setPrivateConfig,
     privateImplProducts,
@@ -397,7 +471,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const showDamExtensions = advancedConfig.geaDam
   const showGeaExtensions = advancedConfig.geaContext && moduleGroups.some((g) => g.baseProduct === 'gea')
   const aiPointsPackMode = (moduleBillingModes[EGeaBaseModules.AI_POINTS_PACK] ?? 'paid') as BillingMode
-  const aiPointsValue = AI_GIFT_POINTS * AI_POINT_UNIT_PRICE
+  /** AI 点数订阅当前规格：已勾选时由份数推导，否则取下拉选择 */
+  const aiPointsSelected =
+    advancedConfig.geaAiPointsPack > 0
+      ? advancedConfig.geaAiPointsPack * AI_POINTS_PER_PACK
+      : (advancedConfig.geaAiPointsOption ?? AI_GIFT_POINTS)
+  const aiPointsValue = aiPointsSelected * AI_POINT_UNIT_PRICE
   const userBusinessRoles = useMemo<BusinessRole[]>(() => {
     return user?.businessRoles ?? []
   }, [user])
@@ -405,11 +484,21 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     if (userBusinessRoles.length === 1) return userBusinessRoles[0]
     return undefined
   }, [userBusinessRoles])
+  // const canSwitchBusinessRole = true
   const canSwitchBusinessRole = userBusinessRoles.includes('muse') && userBusinessRoles.includes('pod')
 
   useEffect(() => {
     if (editInfo) setOpenDiscount(editInfo.discount !== undefined)
   }, [editInfo])
+
+  useEffect(() => {
+    setOpenCustomDiscount(customDiscount !== undefined)
+  }, [customDiscount])
+
+  // 【优惠设置】变更后，报价单「优惠折扣」列回到新的默认值
+  useEffect(() => {
+    setRowDiscounts({})
+  }, [discount, setRowDiscounts])
 
   useEffect(() => {
     if (activeTab === TabEnum.BASIC) setDiscount(undefined)
@@ -421,7 +510,16 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
   useEffect(() => {
     if (!user) return
-    if (loginBusinessRole && businessRole !== loginBusinessRole) setBusinessRole(loginBusinessRole)
+    if (loginBusinessRole && businessRole !== loginBusinessRole) {
+      setBusinessRole(loginBusinessRole)
+      // 席位计价方式与起售量跟随角色：Pod 按档位 / 10 席起，Muse 按席位 / 5 席起
+      setAdvancedConfig({
+        ...advancedConfig,
+        seatPricingMode: loginBusinessRole === 'pod' ? 'byTier' : 'bySeat',
+        memberSeats: Math.max(loginBusinessRole === 'pod' ? 10 : 5, advancedConfig.memberSeats),
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loginBusinessRole, userBusinessRoles, businessRole, setBusinessRole])
 
   const tabs = [
@@ -500,12 +598,18 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
   const handleBusinessRoleChange = (role: BusinessRole) => {
     setBusinessRole(role)
-    if (aiPointsPackMode === 'gift') {
-      setAdvancedConfig({
-        ...advancedConfig,
-        geaAiPointsPack: AI_GIFT_PACKS,
-      })
-    }
+    // 起售席位：Pod 10 席、Muse 5 席；切换角色时把低于起售量的席位补齐
+    const seatMin = role === 'pod' ? 10 : 5
+    const nextSeats = Math.max(seatMin, advancedConfig.memberSeats)
+    setAdvancedConfig({
+      ...advancedConfig,
+      memberSeats: nextSeats,
+      // Pod 默认按档位计价，Muse 默认按席位
+      seatPricingMode: role === 'pod' ? 'byTier' : 'bySeat',
+      ...(aiPointsPackMode === 'gift'
+        ? { geaAiPointsPack: aiPointsSelected / AI_POINTS_PER_PACK }
+        : {}),
+    })
   }
 
   const handleAiPointsPackBillingChange = (mode: BillingMode) => {
@@ -513,7 +617,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     if (mode === 'gift') {
       setAdvancedConfig({
         ...advancedConfig,
-        geaAiPointsPack: AI_GIFT_PACKS,
+        geaAiPointsPack: aiPointsSelected / AI_POINTS_PER_PACK,
       })
     }
   }
@@ -584,7 +688,50 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     checked: boolean | number,
   ) => {
     setAdvancedModules((st) => ({ ...st, [module]: checked }))
+    // 取消勾选后不再参与合并到主报价
+    if (!checked) {
+      setMergedToBasicModules((prev) => {
+        if (!prev.has(module as EAdvancedModules)) return prev
+        const next = new Set(prev)
+        next.delete(module as EAdvancedModules)
+        return next
+      })
+    }
   }
+
+  /** 取消父模块时递归清空其子模块的勾选、多选与计费方式 */
+  const clearDescendants = useCallback(
+    (module: IModules) => {
+      const keys: EAdvancedModules[] = []
+      const collect = (list: IModules[]) => {
+        list.forEach((m) => {
+          keys.push(m.key)
+          if (m.subModules?.length) collect(m.subModules)
+        })
+      }
+      if (module.subModules?.length) collect(module.subModules)
+      if (!keys.length) return
+
+      setAdvancedModules((st) => {
+        const next = { ...st }
+        keys.forEach((k) => {
+          next[k] = typeof next[k] === 'number' ? 0 : false
+        })
+        return next
+      })
+      setModuleMultiSelections((prev) => {
+        const next = { ...prev }
+        keys.forEach((k) => delete next[k])
+        return next
+      })
+      setModuleBillingModes((prev) => {
+        const next = { ...prev }
+        keys.forEach((k) => delete next[k])
+        return next
+      })
+    },
+    [setAdvancedModules, setModuleMultiSelections, setModuleBillingModes],
+  )
 
   const formInfo = [
     { id: 'company' as const, label: t('customer.company'), required: true },
@@ -615,6 +762,27 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     saasLicenseBasePerYear,
     pricing.private.basicMaintenanceRate,
   ])
+
+  /** 基础配置项的「合并到主报价」按钮；无主报价行（DAM / GEA 均未选）时不展示 */
+  const renderBasicMergeIcon = (mergeKey: string) => {
+    if (!advancedConfig.geaDam && !advancedConfig.geaContext) return null
+    // 席位存的是「取消合并」标记，默认合并
+    const inverted = mergeKey === SEAT_UNMERGE_KEY
+    const flagged = mergedToBasicModules.has(mergeKey as EAdvancedModules)
+    return (
+      <MergeToBasicIcon
+        isMerged={inverted ? !flagged : flagged}
+        onToggle={() => toggleMergeToBasic(mergeKey as EAdvancedModules)}
+      />
+    )
+  }
+
+  // 私有化开启时「部署实施」恒为必选（兼容历史报价里未勾选的情况）
+  useEffect(() => {
+    if (privateConfig.enabled && !privateConfig.implementationEnabled) {
+      updatePrivateConfig({ implementationEnabled: true })
+    }
+  }, [privateConfig.enabled, privateConfig.implementationEnabled])
 
   const privateOpsAnnual = useMemo(() => {
     if (!privateConfig.enabled || !privateConfig.opsEnabled) return 0
@@ -679,8 +847,17 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       }, 0)
       : 0
 
+  /** 私有化 API 点数：规格 × 单价（点数包按 1 万点/份计价） */
+  const privateAiPoints = privateConfig.aiPointsOption ?? PRIVATE_DEFAULT_AI_POINTS
+  const privateAiPointsFee = privateConfig.aiPointsEnabled
+    ? (privateAiPoints / AI_POINTS_PER_PACK) * pricing.advanced.geaAiPackPrice
+    : 0
+
   const privateDisplayTotal =
-    (privateConfig.licenseEnabled ? privateLicenseFee : 0) + privateOpsAnnual + privateImplTotal
+    (privateConfig.licenseEnabled ? privateLicenseFee : 0) +
+    privateOpsAnnual +
+    privateImplTotal +
+    privateAiPointsFee
 
   const handleGenerate = useCallback(async () => {
     if (!user?.orgId || !user.token) {
@@ -703,6 +880,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       privateConfig,
       privateImplProducts,
       customServices,
+      customDiscount,
+      rowDiscounts,
+      mergedToBasicModules: Array.from(mergedToBasicModules),
       prefix,
       featureView,
       showNoBuyFeature,
@@ -755,6 +935,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     privateConfig,
     privateImplProducts,
     customServices,
+    customDiscount,
+    rowDiscounts,
+    mergedToBasicModules,
     prefix,
     featureView,
     showNoBuyFeature,
@@ -786,32 +969,76 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     [saasPaidTotalPerYear, discount],
   )
 
-  const isGiftAllowed = (threshold?: number) => {
+  /**
+   * 该模块当前对 SaaS 折后年价的贡献；判断赠送门槛时需要先扣掉自身价格
+   * （走查：「不算它本身的价格 > 20w 才显示可选赠送」）
+   */
+  const ownDiscountedContribution = useCallback(
+    (key: EAdvancedModules | EGeaBaseModules, listPrice: number) => {
+      const mode = (moduleBillingModes[key] ?? 'paid') as BillingMode
+      if (mode === 'gift') return 0
+      const raw = advancedModules[key as EAdvancedModules]
+      const qty = typeof raw === 'number' ? raw : raw ? 1 : 0
+      if (qty <= 0) return 0
+      const rate = advancedModulePriceOverrides[key]
+      const unit =
+        mode === 'discount' && typeof rate === 'number'
+          ? listPrice * (clampModuleDiscount(rate) / 10)
+          : listPrice
+      return unit * qty * ((discount ?? 10) / 10)
+    },
+    [moduleBillingModes, advancedModules, advancedModulePriceOverrides, discount],
+  )
+
+  const isGiftAllowed = (
+    threshold?: number,
+    key?: EAdvancedModules | EGeaBaseModules,
+    listPrice?: number,
+  ) => {
     if (!threshold) return true
-    return saasDiscountedTotalPerYear >= threshold
+    const own =
+      key !== undefined && typeof listPrice === 'number'
+        ? ownDiscountedContribution(key, listPrice)
+        : 0
+    return saasDiscountedTotalPerYear - own >= threshold
   }
 
   // 门槛不满足时，隐藏切换控件并回退为付费，避免残留折扣/赠送价
   useEffect(() => {
-    const giftOk = (threshold?: number) =>
-      !threshold || saasDiscountedTotalPerYear >= threshold
-
-    const resetIfNeeded = (key: EAdvancedModules | EGeaBaseModules, threshold?: number) => {
-      if (giftOk(threshold)) return
+    const resetIfNeeded = (
+      key: EAdvancedModules | EGeaBaseModules,
+      threshold?: number,
+      listPrice?: number,
+    ) => {
+      if (!threshold) return
+      const own = typeof listPrice === 'number' ? ownDiscountedContribution(key, listPrice) : 0
+      if (saasDiscountedTotalPerYear - own >= threshold) return
       const mode = moduleBillingModes[key]
       if (mode && mode !== 'paid') setModuleBillingMode(key, 'paid')
     }
 
-    resetIfNeeded(EGeaBaseModules.AI_POINTS_PACK, AI_POINTS_GIFT_THRESHOLD)
+    resetIfNeeded(
+      EGeaBaseModules.AI_POINTS_PACK,
+      aiPointsGiftThreshold,
+      pricing.advanced.geaAiPackPrice,
+    )
 
     const walk = (modules: IModules[]) => {
       modules.forEach((m) => {
-        if (m.giftEligible) resetIfNeeded(m.key, m.giftThreshold)
+        if (m.giftEligible) resetIfNeeded(m.key, m.giftThreshold, m.price)
         if (m.subModules?.length) walk(m.subModules)
       })
     }
     moduleGroups.forEach((g) => walk(g.modules))
-  }, [saasDiscountedTotalPerYear, moduleBillingModes, moduleGroups, setModuleBillingMode])
+  }, [
+    saasDiscountedTotalPerYear,
+    moduleBillingModes,
+    moduleGroups,
+    setModuleBillingMode,
+    ownDiscountedContribution,
+    pricing.advanced.geaAiPackPrice,
+    aiPointsGiftThreshold,
+  ])
 
   const countSelectedInGroup = (modules: IModules[]) => {
     let selected = 0
@@ -855,12 +1082,24 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       tag,
       boxed,
       multiCols,
+      indent,
     } = module
     const mode = (moduleBillingModes[key] ?? 'paid') as BillingMode
     const price = displayPrice(key, module.price)
-    const giftOk = isGiftAllowed(giftThreshold)
+    const giftOk = isGiftAllowed(giftThreshold, key, module.price)
     const parentOk = !requires || !!advancedModules[requires]
     const checked = !!advancedModules[key]
+    /**
+     * 「合并到主报价」仅对可勾选、且已勾选的独立模块开放；
+     * 容器类（SSO / 海外加速）与子模块不参与。
+     */
+    const canMergeToBasic =
+      !isSub &&
+      !noCheckBox &&
+      !module.noPrice &&
+      checked &&
+      key !== EAdvancedModules.ENTERPRISE_SSO &&
+      key !== EAdvancedModules.GA_CONTAINER
 
     if (noCheckBox && module.subModules?.length && module.noPrice) {
       const isGrid = module.subFlex === 'row'
@@ -873,7 +1112,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             <div className="space-y-[6px]">
               <Label className="flex flex-wrap items-center gap-2 font-normal text-white">
                 {module.label}
-                {module.description && <ModuleInfoIcon description={module.description} />}
+                {module.description && (
+                  <ModuleInfoIcon description={module.description} skuKey={key} />
+                )}
               </Label>
               {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
             </div>
@@ -888,7 +1129,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const body = (
       <div className="space-y-3">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-          <div className={cn('flex items-start', !boxed && !(noCheckBox && multiOptions) && 'space-x-2')}>
+          <div
+            className={cn(
+              'flex items-start',
+              !boxed && !(noCheckBox && multiOptions) && 'space-x-2',
+              // 无 checkbox 的多选容器（分发渠道 / 电商分发）与同级模块对齐
+              indent && 'ml-6',
+            )}
+          >
             {!boxed && !(noCheckBox && multiOptions) && (
               <div className="flex h-[22px] shrink-0 items-center">
                 {noCheckBox ? (
@@ -922,6 +1170,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       } else {
                         handleModuleChange(key, nextVal)
                       }
+                      // 取消整体模块时，其子项（特征库 / 区域合规拓展等）也一并取消
+                      if (!c) clearDescendants(module)
                       if (c && variantOptions?.length && !moduleVariants[key]) {
                         setModuleVariant(key, variantOptions[0].value)
                       }
@@ -932,9 +1182,17 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               </div>
             )}
             <div className="space-y-[6px]">
-              <Label className="flex flex-wrap items-center gap-2 font-normal">
+              <Label className="flex min-h-[22px] flex-wrap items-center gap-2 font-normal">
                 <span>{module.label}</span>
-                {module.description && <ModuleInfoIcon description={module.description} />}
+                {module.description && (
+                  <ModuleInfoIcon description={module.description} skuKey={key} />
+                )}
+                {canMergeToBasic && (
+                  <MergeToBasicIcon
+                    isMerged={mergedToBasicModules.has(key)}
+                    onToggle={() => toggleMergeToBasic(key)}
+                  />
+                )}
                 {tag && (
                   <span className="rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px] text-sm">
                     {tag}
@@ -1016,7 +1274,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 text-sm text-white">
                       {opt.label}
-                      {opt.description && <ModuleInfoIcon description={opt.description} />}
+                      {opt.description && (
+                        <ModuleInfoIcon description={opt.description} skuKey={opt.value} />
+                      )}
                       {opt.launchTag && <LaunchBadge text={opt.launchTag} />}
                     </div>
                     <div className="mt-1 text-sm text-white-72">
@@ -1039,7 +1299,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             <div
               className={cn(
                 'grid gap-x-2 gap-y-3',
-                noCheckBox ? 'ml-0' : 'ml-6',
+                noCheckBox && !indent ? 'ml-0' : 'ml-6',
                 multiCols === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3',
               )}
             >
@@ -1074,7 +1334,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     />
                     <span className="flex items-center gap-1">
                       {opt.label}
-                      {opt.description && <ModuleInfoIcon description={opt.description} />}
+                      {opt.description && (
+                        <ModuleInfoIcon description={opt.description} skuKey={opt.value} />
+                      )}
                       {opt.launchTag && <LaunchBadge text={opt.launchTag} />}
                     </span>
                   </label>
@@ -1106,7 +1368,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       />
                       <span className="flex items-center gap-1">
                         {sub.label}
-                        {sub.description && <ModuleInfoIcon description={sub.description} />}
+                        {sub.description && (
+                          <ModuleInfoIcon description={sub.description} skuKey={sub.key} />
+                        )}
                         {sub.launchTag && <LaunchBadge text={sub.launchTag} />}
                       </span>
                     </label>
@@ -1226,8 +1490,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </TabsList>
 
             <TabsContent value={TabEnum.ADVANCED} className="mt-6 space-y-4">
-              <BlockBox>
-                <div className="flex w-full items-center justify-between space-x-2">
+              <BlockBox className="overflow-hidden">
+                {/* 套餐头部：整块背景 + 下边框，与卡片左右出血对齐 */}
+                <div className="-mx-5 -mt-6 flex w-auto items-center justify-between space-x-2 border-b border-[rgba(255,255,255,0.1)] bg-[#191919] p-5">
                   <div className="space-y-[6px]">
                     <Label className="text-white">{t('gea.plan')}</Label>
                     <DesParagraph>{t('gea.plan.hint')}</DesParagraph>
@@ -1245,7 +1510,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <div className="space-y-[6px]">
                       <Label className="flex flex-wrap items-center gap-2">
                         {t('gea.dam')}
-                        <ModuleInfoIcon description={t('moduleDesc.geaDam')} />
+                        <ModuleInfoIcon
+                          description={t('moduleDesc.geaDam')}
+                          skuKey={EGeaBaseModules.DAM}
+                        />
                       </Label>
                       <DesParagraph>
                         {prefix} {formatWithToLocaleString(pricing.advanced.damPrice)}
@@ -1265,7 +1533,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <div className="space-y-[6px]">
                       <Label className="flex flex-wrap items-center gap-2">
                         {t('gea.context')}
-                        <ModuleInfoIcon description={t('moduleDesc.geaContext')} />
+                        <ModuleInfoIcon
+                          description={t('moduleDesc.geaContext')}
+                          skuKey={EGeaBaseModules.GEA_CONTEXT}
+                        />
                       </Label>
                       <DesParagraph>
                         {prefix} {formatWithToLocaleString(pricing.advanced.geaContextPrice)}
@@ -1282,9 +1553,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       onCheckedChange={(checked) =>
                         setAdvancedConfig({
                           ...advancedConfig,
-                          geaAiPointsPack: checked
-                            ? AI_GIFT_PACKS
-                            : 0,
+                          geaAiPointsPack: checked ? aiPointsSelected / AI_POINTS_PER_PACK : 0,
                         })
                       }
                       className="mt-1 size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
@@ -1292,40 +1561,72 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <div className="space-y-[6px]">
                       <Label className="flex flex-wrap items-center gap-2">
                         {t('gea.aiPointsPack')}
-                        <ModuleInfoIcon description={t('moduleDesc.geaAiPointsPack')} />
-                        <span className="rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px] text-sm">
-                          {t('gea.aiPointsPack.tag', {
-                            points: String(AI_GIFT_POINTS / 10000),
-                          })}
-                        </span>
-                        {isGiftAllowed(AI_POINTS_GIFT_THRESHOLD) && (
-                          <OrangeBadge text={t('badge.optionalGift')} />
-                        )}
+                        <ModuleInfoIcon
+                          description={t('moduleDesc.geaAiPointsPack')}
+                          skuKey={EGeaBaseModules.AI_POINTS_PACK}
+                        />
+                        <Select
+                          value={String(aiPointsSelected)}
+                          onValueChange={(v) => {
+                            const points = Number(v)
+                            setAdvancedConfig({
+                              ...advancedConfig,
+                              geaAiPointsOption: points,
+                              // 已勾选时同步调整份数
+                              geaAiPointsPack:
+                                advancedConfig.geaAiPointsPack > 0
+                                  ? points / AI_POINTS_PER_PACK
+                                  : advancedConfig.geaAiPointsPack,
+                            })
+                          }}
+                        >
+                          <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                            {AI_POINTS_OPTIONS.map((points) => (
+                              <SelectItem key={points} value={String(points)}>
+                                {t('gea.aiPointsPack.tag', { points: String(points / 10000) })}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isGiftAllowed(
+                          aiPointsGiftThreshold,
+                          EGeaBaseModules.AI_POINTS_PACK,
+                          pricing.advanced.geaAiPackPrice,
+                        ) && <OrangeBadge text={t('badge.optionalGift')} />}
+                        {advancedConfig.geaAiPointsPack > 0 &&
+                          renderBasicMergeIcon(EGeaBaseModules.AI_POINTS_PACK)}
                       </Label>
                       <HintParagraph>{t('gea.aiPointsPack.cycleHint')}</HintParagraph>
                       <DesParagraph>
                         {t('gea.aiPointsPack.valueHint', {
-                          points: String(AI_GIFT_POINTS / 10000),
+                          points: String(aiPointsSelected / 10000),
                           price: formatWithToLocaleString(aiPointsValue),
                         })}
                       </DesParagraph>
                     </div>
                   </div>
-                  {isGiftAllowed(AI_POINTS_GIFT_THRESHOLD) && (
-                    <BillingToggle
-                      value={aiPointsPackMode}
-                      onChange={(mode) => {
-                        handleAiPointsPackBillingChange(mode)
-                        if (mode !== 'discount') {
-                          setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, undefined)
+                  {isGiftAllowed(
+                    aiPointsGiftThreshold,
+                    EGeaBaseModules.AI_POINTS_PACK,
+                    pricing.advanced.geaAiPackPrice,
+                  ) && (
+                      <BillingToggle
+                        value={aiPointsPackMode}
+                        onChange={(mode) => {
+                          handleAiPointsPackBillingChange(mode)
+                          if (mode !== 'discount') {
+                            setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, undefined)
+                          }
+                        }}
+                        discountValue={advancedModulePriceOverrides[EGeaBaseModules.AI_POINTS_PACK]}
+                        onDiscountChange={(val) =>
+                          setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, val)
                         }
-                      }}
-                      discountValue={advancedModulePriceOverrides[EGeaBaseModules.AI_POINTS_PACK]}
-                      onDiscountChange={(val) =>
-                        setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, val)
-                      }
-                    />
-                  )}
+                      />
+                    )}
                 </div>
 
                 {basicConfigs.map(({ title, hint, des, key, min, tag }) => {
@@ -1337,6 +1638,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <div className="flex w-full items-center justify-between gap-2">
                           <Label className="flex items-center gap-3 text-[16px] text-white">
                             {title}
+                            {renderBasicMergeIcon(SEAT_UNMERGE_KEY)}
                             <Select
                               value={seatMode}
                               onValueChange={(v) =>
@@ -1473,6 +1775,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               <div className="rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px] font-euclidlight text-sm font-light">
                                 {unitTag}
                               </div>
+                              {renderBasicMergeIcon(EBasicConfigKey.STORAGE_SPACE)}
                             </Label>
                             <div className="space-y-0">
                               {hint.map((item, i) => (
@@ -1512,7 +1815,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             <div className="space-y-0.5">
                               <Label className="flex items-center gap-1.5 text-white">
                                 {t('storage.coldHot')}
-                                <ModuleInfoIcon description={t('moduleDesc.coldHotStorage')} />
+                                <ModuleInfoIcon
+                                  description={t('moduleDesc.coldHotStorage')}
+                                  skuKey="coldHotStorage"
+                                />
                               </Label>
                               <HintParagraph>
                                 {prefix}{' '}
@@ -1547,6 +1853,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 {t('storage.multiRegion')}
                                 <ModuleInfoIcon
                                   description={t('moduleDesc.multiRegionStorage')}
+                                  skuKey="overseasStorage"
                                 />
                               </Label>
                               <HintParagraph>{t('storage.multiRegion.hint')}</HintParagraph>
@@ -1703,8 +2010,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         key={key}
                       >
                         <div className="space-y-[6px]">
-                          <Label className="flex items-center gap-3 text-[16px] text-white">
+                          <Label className="flex min-h-[22px] items-center gap-3 text-[16px] text-white">
                             {title}
+                            {(advancedConfig.aiPoints ?? 0) > 0 &&
+                              renderBasicMergeIcon(EBasicConfigKey.AI_POINTS)}
                           </Label>
                           <div className="space-y-0">
                             {hint.map((item, i) => (
@@ -1782,7 +2091,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               <button
                                 type="button"
                                 className={cn(
-                                  'flex w-full items-center justify-between border-y border-[rgba(255,255,255,0.1)] bg-[#141414] px-4 py-5 text-left',
+                                  'flex h-20 w-full items-center justify-between border-y border-[rgba(255,255,255,0.1)] bg-[#141414] px-4 text-left',
                                   groupIndex > 0 && '-mt-px',
                                 )}
                                 onClick={() =>
@@ -1803,8 +2112,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   <span
                                     aria-hidden
                                     className={cn(
-                                      'inline-block size-0 border-x-4 border-t-[5px] border-x-transparent border-t-current transition-transform duration-300 ease-in-out',
-                                      collapsed && 'rotate-180',
+                                      'inline-block size-0 border-y-4 border-l-[5px] border-y-transparent border-l-current transition-transform duration-300 ease-in-out',
+                                      !collapsed && 'rotate-90',
                                     )}
                                   />
                                 </span>
@@ -1856,7 +2165,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               <button
                                 type="button"
                                 className={cn(
-                                  'flex w-full items-center justify-between border-y border-[rgba(255,255,255,0.1)] bg-[#141414] px-4 py-5 text-left',
+                                  'flex h-20 w-full items-center justify-between border-y border-[rgba(255,255,255,0.1)] bg-[#141414] px-4 text-left',
                                   groupIndex > 0 && '-mt-px',
                                 )}
                                 onClick={() =>
@@ -1877,8 +2186,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   <span
                                     aria-hidden
                                     className={cn(
-                                      'inline-block size-0 border-x-4 border-t-[5px] border-x-transparent border-t-current transition-transform duration-300 ease-in-out',
-                                      collapsed && 'rotate-180',
+                                      'inline-block size-0 border-y-4 border-l-[5px] border-y-transparent border-l-current transition-transform duration-300 ease-in-out',
+                                      !collapsed && 'rotate-90',
                                     )}
                                   />
                                 </span>
@@ -1920,7 +2229,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   <Label className="text-white">{t('private.cloud.title')}</Label>
                   <Switch.Root
                     checked={privateConfig.enabled}
-                    onCheckedChange={(open) => updatePrivateConfig({ enabled: open })}
+                    onCheckedChange={(open) =>
+                      // 私有化开启时「部署实施」必选
+                      updatePrivateConfig(
+                        open ? { enabled: true, implementationEnabled: true } : { enabled: false },
+                      )
+                    }
                     className={cn(
                       'relative h-[22px] w-[44px] cursor-pointer rounded-full border outline-none',
                       'group transition-all duration-300 ease-in-out',
@@ -2024,7 +2338,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               />
                             </div>
                             <div className="space-y-[6px]">
-                              <Label>{t('private.ops.basic')}</Label>
+                              <Label className="flex items-center gap-2">
+                                {t('private.ops.basic')}
+                                <ModuleInfoIcon
+                                  description={t('private.ops.basic.hint')}
+                                  skuKey="private.ops.basic"
+                                />
+                              </Label>
+                              <HintParagraph>{t('private.ops.basic.hint')}</HintParagraph>
                               <DesParagraph>
                                 {t('private.ops.basic.rate', {
                                   rate: String(Math.round(pricing.private.basicMaintenanceRate * 100)),
@@ -2038,11 +2359,20 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                           </div>
 
                           <div className="space-y-3">
-                            <Label>{t('private.ops.iteration')}</Label>
+                            <div className="space-y-[6px]">
+                              <Label className="flex items-center gap-2">
+                                {t('private.ops.iteration')}
+                                <ModuleInfoIcon description={t('private.ops.iteration.hint1')} />
+                              </Label>
+                              <HintParagraph>{t('private.ops.iteration.hint1')}</HintParagraph>
+                              <HintParagraph>{t('private.ops.iteration.hint2')}</HintParagraph>
+                            </div>
                             <div className="ml-6 grid gap-3 md:grid-cols-2">
                               {([1, 4] as PrivateIterationFrequency[]).map((freq) => {
                                 const active = privateConfig.iterationFrequency === freq
                                 const price = pricing.private.iterationPrices[freq]
+                                const listPrice = pricing.private.iterationListPrices[freq]
+                                const discounted = listPrice > price
                                 return (
                                   <button
                                     key={freq}
@@ -2063,17 +2393,28 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                     <div className="flex items-center gap-2 text-sm text-white">
                                       <span
                                         className={cn(
-                                          'size-3 rounded-full border',
-                                          active
-                                            ? 'border-[#3366FF] bg-[#3366FF]'
-                                            : 'border-white/40',
+                                          'flex size-4 shrink-0 items-center justify-center rounded-full border',
+                                          active ? 'border-[#3366FF]' : 'border-white/40',
                                         )}
-                                      />
+                                      >
+                                        {active && (
+                                          <span className="size-2 rounded-full bg-[#3366FF]" />
+                                        )}
+                                      </span>
                                       {t('private.ops.iteration.times', { times: freq })}
+                                      {discounted && <OrangeBadge text={t('badge.limitedHalfOff')} />}
                                     </div>
-                                    <div className="mt-1 text-sm text-white-72">
-                                      {prefix} {formatWithToLocaleString(price)}
-                                      {t('per.year')}
+                                    <div className="mt-1 flex items-center gap-2 text-sm text-white-72">
+                                      {discounted && (
+                                        <span className="text-white-50 line-through">
+                                          {prefix} {formatWithToLocaleString(listPrice)}
+                                          {t('per.year')}
+                                        </span>
+                                      )}
+                                      <span>
+                                        {prefix} {formatWithToLocaleString(price)}
+                                        {t('per.year')}
+                                      </span>
                                     </div>
                                   </button>
                                 )
@@ -2096,10 +2437,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            checked={privateConfig.implementationEnabled}
-                            onCheckedChange={(c: boolean) =>
-                              updatePrivateConfig({ implementationEnabled: c })
-                            }
+                            checked
+                            disabled
                             className="size-4 shrink-0 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                           />
                           <Label className="flex items-center gap-2">
@@ -2169,13 +2508,112 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       )}
                     </div>
 
+                    {/* API 点数费用（默认勾选 50 万点） */}
+                    <div className="space-y-4 border-t border-[rgba(255,255,255,0.1)] pt-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start space-x-2">
+                          <Checkbox
+                            checked={Boolean(privateConfig.aiPointsEnabled)}
+                            onCheckedChange={(c: boolean) =>
+                              updatePrivateConfig({ aiPointsEnabled: c })
+                            }
+                            className="mt-1 size-4 shrink-0 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                          />
+                          <div className="space-y-[6px]">
+                            <Label className="flex flex-wrap items-center gap-2">
+                              {t('private.aiPointsPack')}
+                              <ModuleInfoIcon
+                                description={t('moduleDesc.geaAiPointsPack')}
+                                skuKey="privateAiPoints"
+                              />
+                              <Select
+                                value={String(privateAiPoints)}
+                                onValueChange={(v) =>
+                                  updatePrivateConfig({ aiPointsOption: Number(v) })
+                                }
+                              >
+                                <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                                  {AI_POINTS_OPTIONS.map((points) => (
+                                    <SelectItem key={points} value={String(points)}>
+                                      {t('gea.aiPointsPack.tag', { points: String(points / 10000) })}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </Label>
+                            <HintParagraph>{t('gea.aiPointsPack.cycleHint')}</HintParagraph>
+                            <DesParagraph>
+                              {prefix} {formatWithToLocaleString(privateAiPointsFee)}
+                              {t('per.year')}
+                            </DesParagraph>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <Cost cost={privateDisplayTotal} costTitle={t('base.cost')} />
                   </>
                 )}
               </BlockBox>
             </TabsContent>
-            <TabsContent value={TabEnum.CUSTOM} className="mt-6">
+            <TabsContent value={TabEnum.CUSTOM} className="mt-6 space-y-5">
               <CustomServiceContent />
+              {/* 定制服务可单独设置折扣 */}
+              {!isGlobal && (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <TitleDiv>{t('custom.discount.settings')}</TitleDiv>
+                    <Switch.Root
+                      checked={openCustomDiscount}
+                      onCheckedChange={(open) => {
+                        setCustomDiscount(open ? 9.5 : undefined)
+                        setOpenCustomDiscount(open)
+                      }}
+                      className={cn(
+                        'relative h-[22px] w-[44px] cursor-pointer rounded-full border outline-none',
+                        'group transition-all duration-300 ease-in-out',
+                        !openCustomDiscount
+                          ? 'border-[rgba(255,255,255,0.2)] hover:border-white/40'
+                          : 'data-[state=checked]:border-transparent data-[state=checked]:bg-[#3366FF]',
+                      )}
+                    >
+                      <Switch.Thumb className="block size-[18px] translate-x-0.5 rounded-full bg-white-72 transition-all duration-300 ease-in-out group-hover:bg-white data-[state=checked]:translate-x-[24px] data-[state=checked]:bg-white" />
+                    </Switch.Root>
+                  </div>
+                  {openCustomDiscount && (
+                    <BlockBox className="flex items-center justify-between space-y-0">
+                      <div className="space-y-[6px]">
+                        <Label>{t('discount.input.label')}</Label>
+                        <DesParagraph>{t('discount.input.hint')}</DesParagraph>
+                      </div>
+                      <div className="flex items-center gap-[10px]">
+                        <Input
+                          value={customDiscount ?? ''}
+                          onChange={(e) => {
+                            if (e.target.value === '') {
+                              setCustomDiscount(undefined)
+                              return
+                            }
+                            setCustomDiscount(e.target.value as unknown as number)
+                          }}
+                          onBlur={(e) => {
+                            const val = e.target.value ? Number(e.target.value) : 9.5
+                            setCustomDiscount(
+                              Math.max(1, Math.min(10, Math.round(val * 100) / 100)),
+                            )
+                          }}
+                          className="h-[44px] max-w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
+                          placeholder="1-10"
+                        />
+                        <span className="text-base">{t('discount.unit')}</span>
+                      </div>
+                    </BlockBox>
+                  )}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 
@@ -2246,7 +2684,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               <TitleDiv>{t('feature.display.options')}</TitleDiv>
               <RadioGroup.Root className="flex flex-col gap-3 md:flex-row md:gap-6" value={featureView}>
                 {[EFeatureView.OVERVIEW, EFeatureView.DETAIL].map((listType) => (
-                  <BlockBox className="flex h-full flex-1 items-center space-x-2 space-y-0" key={listType}>
+                  <BlockBox
+                    className={cn(
+                      'flex h-full flex-1 cursor-pointer items-center space-x-2 space-y-0 transition-colors',
+                      listType === featureView ? 'border-[#3366FF]' : 'hover:border-white/40',
+                    )}
+                    key={listType}
+                    onClick={() => setFeatureView(listType)}
+                  >
                     <RadioGroup.Item
                       className={cn(
                         'mr-2 flex size-4 shrink-0 items-center justify-center rounded-full border border-[rgba(255,255,255,0.2)]',
@@ -2275,8 +2720,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               >
                 {[false, true].map((radio) => (
                   <BlockBox
-                    className="flex h-full flex-1 items-center space-x-2 space-y-0"
+                    className={cn(
+                      'flex h-full flex-1 cursor-pointer items-center space-x-2 space-y-0 transition-colors',
+                      showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
+                    )}
                     key={String(radio)}
+                    onClick={() => setShowNoBuyFeature(radio)}
                   >
                     <RadioGroup.Item
                       className={cn(
@@ -2299,10 +2748,17 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-between border-t border-white/15 bg-black p-5 md:px-[60px] md:py-7">
+      <div className="flex h-[80px] shrink-0 items-center justify-between border-t border-white/15 bg-black px-5">
         <div className="flex items-center gap-3 text-white">
           <span className="text-base font-medium">{t('custom.total')}</span>
-          <span className="text-2xl font-semibold">{subtotal}</span>
+          {discountTotal ? (
+            <span className="flex items-baseline gap-2">
+              <span className="text-base font-normal text-white-50 line-through">{subtotal}</span>
+              <span className="text-2xl font-semibold">{discountTotal}</span>
+            </span>
+          ) : (
+            <span className="text-2xl font-semibold">{subtotal}</span>
+          )}
         </div>
         <Button
           disabled={loading}

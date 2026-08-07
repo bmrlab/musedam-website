@@ -1,17 +1,25 @@
 'use client'
 
 import { FC, useState } from 'react'
-import * as Tooltip from '@radix-ui/react-tooltip'
 import { cn } from '@/utilities/cn'
+import * as Tooltip from '@radix-ui/react-tooltip'
+
+import { useTranslation } from '@/app/i18n/client'
+
+import { getModuleSku } from './skuMap'
 
 interface ModuleInfoIconProps {
   description: string
+  /** 模块 / 变体 / 多选项 key，用于查询并展示 SKU 编码 */
+  skuKey?: string
   className?: string
 }
 
 /** 模块功能描述 Info：默认 20% 透明度，hover 100% + tooltip */
-export const ModuleInfoIcon: FC<ModuleInfoIconProps> = ({ description, className }) => {
+export const ModuleInfoIcon: FC<ModuleInfoIconProps> = ({ description, skuKey, className }) => {
+  const { t } = useTranslation('quotation')
   const [open, setOpen] = useState(false)
+  const sku = skuKey ? getModuleSku(skuKey) : undefined
   if (!description) return null
 
   return (
@@ -63,6 +71,11 @@ export const ModuleInfoIcon: FC<ModuleInfoIconProps> = ({ description, className
             sideOffset={6}
             className="z-[200] max-w-[280px] rounded-md bg-[#333] px-3 py-2 text-[12px] leading-[18px] text-white shadow-lg"
           >
+            {sku && (
+              <div className="mb-1 text-white-72">
+                {t('sku.code')}：{sku}
+              </div>
+            )}
             {description}
             <Tooltip.Arrow className="fill-[#333]" />
           </Tooltip.Content>

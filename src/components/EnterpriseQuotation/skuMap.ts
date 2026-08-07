@@ -30,7 +30,9 @@ export const MODULE_SKU_MAP: Record<string, string> = {
   'aiPoints.cr100k': 'CR-100K',
   'aiPoints.cr500k': 'CR-500K',
   'traffic.cnDl': 'TRAFFIC-CN-DL',
+  'traffic.baidu': 'TRAFFIC-BAIDU',
   'service.migrate': 'SVC-MIGRATE',
+  privateAiPoints: 'CR-500K',
 
   // ① 资产管理与组织
   [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 'DAM-HOME',
@@ -157,6 +159,10 @@ export const MODULE_SKU_MAP: Record<string, string> = {
   'custom.role.aiEngineer': 'SVC-MANDAY-L3',
   'custom.role.aiConsultant': 'SVC-MANDAY-L4',
   'custom.role.founder': 'SVC-MANDAY-L5',
+  // Pod 客户成功服务人天
+  'custom.role.csCustom': 'OPS-ENT',
+  'custom.role.csOnsite': 'OPS-ONS',
+  'custom.role.csOnsiteTravel': 'OPS-ONST',
 }
 
 export const getModuleSku = (key: string): string | undefined => MODULE_SKU_MAP[key]

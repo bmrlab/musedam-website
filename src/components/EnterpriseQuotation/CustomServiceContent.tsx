@@ -75,14 +75,14 @@ const RoleDropdown = ({ line, onChange }: RoleDropdownProps) => {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex h-7 max-w-[180px] items-center gap-1 rounded border border-white/20 bg-transparent px-2 text-sm text-white"
+        className="flex h-7 items-center gap-1 whitespace-nowrap rounded border border-white/20 bg-transparent px-2 text-sm text-white"
       >
-        <span className="truncate">{label}</span>
+        <span>{label}</span>
         <ChevronDown className="size-3 shrink-0 text-white-50" />
       </button>
 
       {open && (
-        <div className="absolute bottom-[calc(100%+6px)] left-0 z-30 w-[230px] overflow-hidden rounded-lg border border-white/20 bg-[#141414] p-1 shadow-2xl">
+        <div className="absolute bottom-[calc(100%+6px)] left-0 z-30 w-max min-w-[230px] overflow-hidden whitespace-nowrap rounded-lg border border-white/20 bg-[#141414] p-1 shadow-2xl">
           {options
             .filter((option) => option.value !== 'custom')
             .map((option) => (

@@ -62,6 +62,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     setPrivateConfig,
     setPrivateImplProducts,
     setCustomServices,
+    setCustomDiscount,
+    setRowDiscounts,
   } = useQuotationStore()
 
     // 初始化数据
@@ -151,6 +153,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 if (content.customServices) {
                     setCustomServices(content.customServices)
                 }
+                setCustomDiscount(content.customDiscount)
+                setRowDiscounts(content.rowDiscounts ?? {})
                 setDiscount(realDiscount)
                 setFeatureView(content.featureView)
                 setShowNoBuyFeature(content.showNoBuyFeature)
@@ -172,7 +176,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;

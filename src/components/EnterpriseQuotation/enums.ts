@@ -23,7 +23,18 @@ export const AI_POINTS_PER_PACK = 10000
 export const AI_GIFT_POINTS = 50000
 export const AI_GIFT_PACKS = AI_GIFT_POINTS / AI_POINTS_PER_PACK
 export const AI_POINT_UNIT_PRICE = 0.2
-export const AI_POINTS_GIFT_THRESHOLD = 200000
+/**
+ * 赠送门槛（折后 SaaS 年价）：Pod 20 万；Muse 10 万。
+ * Muse 下仅「元数据自定义字段」仍按 20 万计。
+ */
+export const POD_GIFT_THRESHOLD = 200000
+export const MUSE_GIFT_THRESHOLD = 100000
+
+/** AI 点数订阅可选规格：5 万 / 10 万 / 50 万点 */
+export const AI_POINTS_OPTIONS = [50000, 100000, 500000] as const
+export type AiPointsOption = (typeof AI_POINTS_OPTIONS)[number]
+/** 私有化默认勾选 50 万点 */
+export const PRIVATE_DEFAULT_AI_POINTS: AiPointsOption = 500000
 
 export enum EAdvancedModules {
   // ① 资产管理与组织

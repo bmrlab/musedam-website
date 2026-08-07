@@ -75,6 +75,8 @@ export interface IAdvancedInfo {
   geaContext: boolean
   /** 基础区 AI 点数包份数（1万点/份） */
   geaAiPointsPack: number
+  /** AI 点数订阅规格（点数），可选 5 万 / 10 万 / 50 万 */
+  geaAiPointsOption?: number
 }
 
 export interface IPrivateConfig {
@@ -93,6 +95,10 @@ export interface IPrivateConfig {
   /** 私有化部署实施开关 */
   implementationEnabled: boolean
   cloudProvider: PrivateCloudProvider
+  /** API 点数费用开关 */
+  aiPointsEnabled?: boolean
+  /** API 点数规格（点数），可选 5 万 / 10 万 / 50 万 */
+  aiPointsOption?: number
   /** @deprecated 兼容历史报价 */
   memberSeats?: number
 }
@@ -106,6 +112,10 @@ export type CustomServiceRole =
   | 'aiEngineer'
   | 'aiConsultant'
   | 'founder'
+  /** Pod 客户成功服务人天 */
+  | 'csCustom'
+  | 'csOnsite'
+  | 'csOnsiteTravel'
   | 'custom'
 
 export interface ICustomServiceDetail {

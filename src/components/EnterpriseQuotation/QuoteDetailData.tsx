@@ -19,7 +19,12 @@ import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { useCountry } from '@/providers/Country'
 import { useMemo } from 'react'
 import { useQuotationStore } from '@/providers/QuotationStore'
-import { BillingMode, EGeaBaseModules } from './enums'
+import {
+  AI_POINTS_PER_PACK,
+  BillingMode,
+  EGeaBaseModules,
+  PRIVATE_DEFAULT_AI_POINTS,
+} from './enums'
 import { useLanguage } from '@/providers/Language'
 import {
   calcMemberSeatsCost,
@@ -52,6 +57,8 @@ export interface QuoteDetailRowFormatted {
   quantity: string
   unit?: string
   subtotal?: string
+  /** 该行小计的数值（已乘订阅年限），用于「优惠折扣」列计算 */
+  amount?: number
   bold?: boolean
   isSection?: boolean
   isModule?: boolean
@@ -87,6 +94,31 @@ export interface QuoteDetailData {
   customOneTimeTotal: number
 }
 
+/** 基础配置里支持「合并到主报价」的项（席位见 SEAT_UNMERGE_KEY） */
+export const MERGEABLE_BASIC_KEYS = {
+  AI_POINTS_PACK: EGeaBaseModules.AI_POINTS_PACK as string,
+  STORAGE: 'storageSpace',
+  AI_POINTS: 'aiPoints',
+} as const
+
+/**
+ * 成员席位默认就并入主报价行，所以这里存的是「取消合并」标记：
+ * set 中不含该 key = 合并（历史报价的默认行为）。
+ */
+export const SEAT_UNMERGE_KEY = 'memberSeatsUnmerged'
+
+/** 存储空间在报价单中可能拆出的行 key */
+const STORAGE_ROW_KEYS = [
+  'storageSpace',
+  'coldHotStorageFee',
+  'chinaHotStorage',
+  'chinaColdStorage',
+  'overseasHotStorage',
+  'overseasColdStorage',
+  'chinaStorage',
+  'overseasStorage',
+]
+
 const getBillingMode = (
   key: string,
   modes: Partial<Record<string, BillingMode>>,
@@ -94,6 +126,17 @@ const getBillingMode = (
 
 const clampModuleDiscount = (val: number) =>
   Math.min(10, Math.max(1, Math.round(val * 10) / 10))
+
+/** 折扣 / 赠送模块在名称后追加橘色标注，如「元数据自定义字段（1 折）」 */
+const withBillingSuffix = (name: React.ReactNode, suffix?: string): React.ReactNode => {
+  if (!suffix) return name
+  return (
+    <>
+      {name}
+      <span className="text-[#FA8C16]">（{suffix}）</span>
+    </>
+  )
+}
 
 const resolveUnitPrice = (
   key: string,
@@ -121,17 +164,43 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     basicConfig,
     subscriptionYears,
     discount,
+    customDiscount,
+    rowDiscounts,
     moduleBillingModes,
     moduleVariants,
     moduleMultiSelections,
     advancedModulePriceOverrides,
+    mergedToBasicModules,
     gaTagOption,
     cdnTagOption,
   } = useQuotationStore()
   const { isInChina } = useCountry()
+  const { language } = useLanguage()
   const { t } = useTranslation('quotation')
   const basicConfigs = useBasicConfigs()
   const moduleGroups = useAdvancedModuleGroups()
+
+  /** 存储空间在报价单里可能拆成冷/热、境内/境外多行，统一跟随「存储空间」的合并开关 */
+  const isMergedToBasic = (rowKey: string): boolean => {
+    if (mergedToBasicModules.has(rowKey as EAdvancedModules)) return true
+    return (
+      STORAGE_ROW_KEYS.includes(rowKey) &&
+      mergedToBasicModules.has(MERGEABLE_BASIC_KEYS.STORAGE as EAdvancedModules)
+    )
+  }
+
+  /** 折扣 / 赠送模块在报价单名称后的橘色标注文案 */
+  const billingSuffix = (row: QuoteDetailRow): string | undefined => {
+    if (!row.key) return undefined
+    if (row.billingMode === 'gift') return t('billing.gift')
+    if (row.billingMode !== 'discount') return undefined
+    const rate = advancedModulePriceOverrides[row.key as EAdvancedModules]
+    if (typeof rate !== 'number') return t('billing.discount')
+    const value = clampModuleDiscount(rate)
+    return language === 'zh-CN' || language === 'zh-TW'
+      ? `${value}${t('discount.unit')}`
+      : `${Math.round((10 - value) * 10)}% off`
+  }
   const visibleModuleGroups = useMemo(
     () =>
       moduleGroups.filter((group) => {
@@ -167,6 +236,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   let hasSSOType: EAdvancedModules[] = []
   let extensionCostPerYear = 0
   let saasLicenseBasePerYear = 0
+  /** 「合并到主报价」的模块把价格并入这一行（DAM，未选则 GEA） */
+  let mergeTargetRowIndex: number | undefined
 
   const calcModuleLine = (
     module: IModules,
@@ -425,6 +496,20 @@ export const useQuoteDetailData = (): QuoteDetailData => {
       isSection: true,
     })
 
+    /**
+     * 成员席位默认合并进 DAM 数字资产管理；未选 DAM 时合并进 GEA OS + Context System。
+     * 两者都未选时（理论上不会发生）仍单独成行。
+     */
+    const memberSeatsCost = calcMemberSeatsCost(packageBasic, pricingBasic)
+    const seatsMerged = !mergedToBasicModules.has(SEAT_UNMERGE_KEY as EAdvancedModules)
+    const seatMergeTarget: EGeaBaseModules | undefined = !seatsMerged
+      ? undefined
+      : advancedConfig.geaDam
+        ? EGeaBaseModules.DAM
+        : advancedConfig.geaContext
+          ? EGeaBaseModules.GEA_CONTEXT
+          : undefined
+
     if (advancedConfig.geaDam) {
       const mode = getBillingMode(EGeaBaseModules.DAM, moduleBillingModes)
       const price = resolveUnitPrice(
@@ -433,14 +518,18 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         mode,
         advancedModulePriceOverrides,
       )
-      basicCostPerYear += mode === 'gift' ? 0 : price
+      const merged = seatMergeTarget === EGeaBaseModules.DAM ? memberSeatsCost : 0
+      const lineTotal = (mode === 'gift' ? 0 : price) + merged
+      basicCostPerYear += lineTotal
+      // DAM 行即主报价行，其它项「合并到主报价」时并入此行
+      mergeTargetRowIndex = rows.length
       rows.push({
         key: EGeaBaseModules.DAM,
         sku: getModuleSku(EGeaBaseModules.DAM),
         name: t('gea.dam'),
         quantity: getYear(subscriptionYears),
-        unit: mode === 'gift' ? t('free') : renderCost(price),
-        subtotal: mode === 'gift' ? t('free') : price,
+        unit: mode === 'gift' && !merged ? t('free') : renderCost(lineTotal),
+        subtotal: mode === 'gift' && !merged ? t('free') : lineTotal,
         billingMode: mode,
       })
     }
@@ -452,14 +541,18 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         mode,
         advancedModulePriceOverrides,
       )
-      basicCostPerYear += mode === 'gift' ? 0 : price
+      const merged = seatMergeTarget === EGeaBaseModules.GEA_CONTEXT ? memberSeatsCost : 0
+      const lineTotal = (mode === 'gift' ? 0 : price) + merged
+      basicCostPerYear += lineTotal
+      // 未选 DAM 时，GEA 行作为主报价行
+      if (mergeTargetRowIndex === undefined) mergeTargetRowIndex = rows.length
       rows.push({
         key: EGeaBaseModules.GEA_CONTEXT,
         sku: getModuleSku(EGeaBaseModules.GEA_CONTEXT),
         name: t('gea.context'),
         quantity: getYear(subscriptionYears),
-        unit: mode === 'gift' ? t('free') : renderCost(price),
-        subtotal: mode === 'gift' ? t('free') : price,
+        unit: mode === 'gift' && !merged ? t('free') : renderCost(lineTotal),
+        subtotal: mode === 'gift' && !merged ? t('free') : lineTotal,
         billingMode: mode,
       })
     }
@@ -486,7 +579,9 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     basicConfigs.forEach(({ key, title, hint }) => {
       if (key === 'memberSeats') {
-        const cost = calcMemberSeatsCost(packageBasic, pricingBasic)
+        // 已合并进 DAM / GEA 行，不再单独成行
+        if (seatMergeTarget) return
+        const cost = memberSeatsCost
         basicCostPerYear += cost
         if (cost > 0) {
           const isTier = getSeatPricingMode(packageBasic) === 'byTier'
@@ -689,29 +784,40 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         bold: true,
       })
 
-      let lastGroup: string | undefined
+      // 走查：报价单不再展示 7 大模块分组标题，仅列出已购模块
       purchased.forEach((module) => {
-        if (module.groupId && module.groupId !== lastGroup) {
-          lastGroup = module.groupId
-          const group = visibleModuleGroups.find((g) => g.id === module.groupId)
-          if (group) {
-            rows.push({
-              name: group.title,
-              quantity: '',
-              unit: '',
-              subtotal: '',
-              isSection: true,
-              bold: true,
-              groupId: group.id,
-            })
-          }
-        }
-        rows.push(module)
         const cost = typeof module.subtotal === 'number' ? module.subtotal : 0
+        rows.push(module)
         if (module.billingMode !== 'gift') {
           extensionCostPerYear += cost
         }
       })
+    }
+
+    /**
+     * 「合并到主报价」：基础配置项与拓展模块统一处理 —— 行内只列名称，
+     * 价格并入主报价行（DAM，未选则 GEA）。总价不变，仅展示位置变化。
+     */
+    if (mergeTargetRowIndex !== undefined) {
+      let mergedCostPerYear = 0
+      rows.forEach((row, index) => {
+        if (index === mergeTargetRowIndex || !row.key) return
+        if (!isMergedToBasic(row.key)) return
+        if (row.billingMode !== 'gift' && typeof row.subtotal === 'number') {
+          mergedCostPerYear += row.subtotal
+        }
+        rows[index] = { ...row, unit: undefined, subtotal: undefined }
+      })
+      if (mergedCostPerYear > 0) {
+        const target = rows[mergeTargetRowIndex]
+        const base = typeof target.subtotal === 'number' ? target.subtotal : 0
+        const nextTotal = base + mergedCostPerYear
+        rows[mergeTargetRowIndex] = {
+          ...target,
+          unit: renderCost(nextTotal),
+          subtotal: nextTotal,
+        }
+      }
     }
   }
 
@@ -808,14 +914,47 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         })
       }
       const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+      const iterationListPrice =
+        pricing.private.iterationListPrices[privateConfig.iterationFrequency] ?? price
+      // 限时折扣档位（如一年4次 5 折）在名称后标注折扣
+      const iterationRate =
+        iterationListPrice > price && iterationListPrice > 0
+          ? clampModuleDiscount((price / iterationListPrice) * 10)
+          : undefined
+      const iterationSuffix =
+        iterationRate === undefined
+          ? undefined
+          : language === 'zh-CN' || language === 'zh-TW'
+            ? `${iterationRate}${t('discount.unit')}`
+            : `${Math.round((10 - iterationRate) * 10)}% off`
       privatePerYear += price
       rows.push({
         key: 'privateVersionIteration',
         sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
-        name: `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
+        name: withBillingSuffix(
+          `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
+          iterationSuffix,
+        ),
         quantity: getYear(subscriptionYears),
         unit: renderCost(price),
         subtotal: price,
+      })
+    }
+
+    if (privateConfig.aiPointsEnabled) {
+      const points = privateConfig.aiPointsOption ?? PRIVATE_DEFAULT_AI_POINTS
+      const packs = points / AI_POINTS_PER_PACK
+      const unitPrice = pricing.advanced.geaAiPackPrice
+      const price = packs * unitPrice
+      privatePerYear += price
+      rows.push({
+        key: 'privateAiPoints',
+        sku: getModuleSku('privateAiPoints'),
+        name: t('private.aiPointsPack'),
+        quantity: t('gea.aiPointsPack.tag', { points: String(points / 10000) }),
+        unit: renderCost(unitPrice),
+        subtotal: price,
+        des: t('gea.aiPointsPack.cycleHint'),
       })
     }
 
@@ -864,7 +1003,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   const validCustomServices = customServices.filter((service) => service.name.trim())
   if (validCustomServices.length > 0) {
     rows.push({
-      name: t('custom.service.section'),
+      name: t('custom.service.section.pro'),
       quantity: '',
       unit: '',
       subtotal: '',
@@ -911,13 +1050,15 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         )
       })
 
-      customOneTimeTotal += serviceCost
+      // 定制服务可单独设置折扣
+      const discountedServiceCost = Math.round(serviceCost * ((customDiscount ?? 10) / 10))
+      customOneTimeTotal += discountedServiceCost
       rows.push({
         key: service.id,
         name: service.name,
         quantity: totalQuantity ? `${totalQuantity}${t('custom.personDay')}` : '',
         unit: undefined,
-        subtotal: serviceCost,
+        subtotal: discountedServiceCost,
         oneTime: true,
         des: lineBlocks.join('\n\n'),
       })
@@ -928,7 +1069,28 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   const annualTotal = saasAnnual + privatePerYear
   const noTaxTotal =
     annualTotal * subscriptionYears + privateOneTimeTotal + customOneTimeTotal
-  const discountTotal = noTaxTotal * ((discount || 10) / 10)
+
+  /** 该行小计的数值（已乘订阅年限） */
+  const rowAmount = (v: QuoteDetailRow): number | undefined => {
+    if (typeof v.subtotal !== 'number') return undefined
+    const years = v.oneTime || v.key === EAdvancedModules.PORTAL_THEME ? 1 : subscriptionYears
+    return v.subtotal * years
+  }
+
+  /**
+   * 折后小计：默认整体折扣；「优惠折扣」列被编辑过的行按其系数叠加差额。
+   * 小计（未税）不受影响，仅折后小计变化。
+   */
+  const defaultFactor = (discount || 10) / 10
+  const rowDiscountDelta = rows.reduce((sum, v) => {
+    if (!v.key) return sum
+    const override = rowDiscounts[v.key]
+    if (typeof override !== 'number') return sum
+    const amount = rowAmount(v)
+    if (amount === undefined) return sum
+    return sum + amount * (override - defaultFactor)
+  }, 0)
+  const discountTotal = noTaxTotal * defaultFactor + rowDiscountDelta
 
   // silence unused
   void moduleNames
@@ -937,6 +1099,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   return {
     rows: rows.map((v) => ({
       ...v,
+      name: withBillingSuffix(v.name, billingSuffix(v)),
+      amount: rowAmount(v),
       subtotal:
         typeof v.subtotal === 'string'
           ? v.subtotal
@@ -997,8 +1161,8 @@ export const useExpandServices = () => {
       {
         name: t('expansion.downloadData'),
         description: t('expansion.downloadData.desc'),
-        value: isInChina ? '¥150/TB' : '$30/TB',
-        unit: (isInChina ? '¥150' : '$30') + '/TB',
+        value: isInChina ? '¥600/TB' : '$120/TB',
+        unit: (isInChina ? '¥600' : '$120') + '/TB',
         quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
       },
       {
@@ -1012,8 +1176,16 @@ export const useExpandServices = () => {
         ? []
         : [
             {
+              name: t('expansion.baiduDrive'),
+              description: t('expansion.baiduDrive.desc'),
+              value: '¥600/TB',
+              unit: '¥600/TB',
+              quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
+            },
+            {
               name: t('expansion.GA'),
               description: `${t('expansion.GA.cdnOss.desc')}\n${t('expansion.GA.dedicatedLine.desc')}`,
+              // 数量 / 单价按 CDN、GA 两行分行展示
               value: '¥3,000/TB\n¥9,000/TB',
               unit: '¥3,000/TB\n¥9,000/TB',
               quantity: `1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}\n1 ${t('ai.AutoTagEngine.unit')}${t('expand.download.quantity', { value: '1TB' })}`,
