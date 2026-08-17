@@ -124,5 +124,11 @@
         "title": "MuseDAM | 帮助中心 - 查找答案，学习使用",
         "description": "MuseDAM 帮助中心提供全面的使用指南和常见问题解答，帮助您快速掌握数字资产管理平台的各项功能，提升工作效率。",
         "shortTitle": "帮助中心"
+    },
+    "demos": {
+        "storeInspection": {
+            "title": "MuseDAM | 门店巡检 Agent 演示",
+            "description": "体验 MuseDAM 门店巡检 Agent 演示，查看 AI Agent 如何完成门店巡检。"
+        }
     }
 }

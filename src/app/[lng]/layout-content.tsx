@@ -25,6 +25,8 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
   const pathname = usePathname()
   const { hideFooterFromGate } = useHelpEnterpriseGateUi()
   const isQuotationPage = pathname?.includes('/quotation')
+  const isDemoPage = stripLocalePrefix(pathname || '').startsWith('/demos/')
+  const hideIntercomPage = isQuotationPage || isDemoPage
   // const { changeLocale } = useLanguage()
 
   const darkHeadPage = useMemo(() => !!pathname && ['', '/', '/pricing'].includes(pathname.replace('/en-US', '').replace('/zh-CN', '').replace('/zh-TW', '')), [pathname])
@@ -37,12 +39,12 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     return ENTERPRISE_ONLY_HELP_TOPIC_SLUGS.some((slug) => p === `/help/${slug}`)
   }, [pathname, user?.isEnterpriseUser])
 
-  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath
+  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath || isDemoPage
 
   // 初始化 Intercom - 只在首次挂载时初始化（quotation 页面不初始化）
   useEffect(() => {
     // 如果是 quotation 页面，不初始化 Intercom
-    if (isQuotationPage) return
+    if (hideIntercomPage) return
 
     // 首次初始化
     const userInfo = user ? {
@@ -61,7 +63,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
 
   // 当用户信息变化时，更新 Intercom 用户信息（quotation 页面不更新）
   useEffect(() => {
-    if (typeof window === 'undefined' || isQuotationPage) return
+    if (typeof window === 'undefined' || hideIntercomPage) return
 
     const userInfo = user ? {
       user_id: user.userId,
@@ -74,7 +76,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     } catch (error) {
       console.error("update intercom user info failed", error)
     }
-  }, [user, isQuotationPage])
+  }, [user, hideIntercomPage])
 
   // 根据路由控制 Intercom 显示/隐藏
   useEffect(() => {
@@ -145,8 +147,8 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
       }
     }
 
-    if (isQuotationPage) {
-      // quotation 页面：立即隐藏并持续监控
+    if (hideIntercomPage) {
+      // quotation / demo 页面：立即隐藏并持续监控
       hideIntercom()
 
       // 使用 MutationObserver 持续隐藏新出现的 Intercom 元素
@@ -178,14 +180,14 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
         clearTimeout(timeoutId)
       }
     }
-  }, [isQuotationPage])
+  }, [hideIntercomPage])
 
   return isQuotationPage ? (
     children
   ) : (
     <>
       <Header isGlobal={isGlobal} user={user} />
-      <div className="flex min-h-screen w-full flex-col items-center justify-center pt-[56px] md:pt-[70px]">
+      <div className={`flex w-full flex-col items-center pt-[56px] md:pt-[70px] ${isDemoPage ? 'h-dvh overflow-hidden' : 'min-h-screen justify-center'}`}>
         <NextTopLoader
           color={darkHeadPage ? "#fff" : "#000"}
           height={1}
