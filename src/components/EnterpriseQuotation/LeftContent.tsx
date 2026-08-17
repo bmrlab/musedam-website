@@ -1789,7 +1789,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 })
                               }
                             >
-                              <SelectTrigger className="h-8 w-auto min-w-[88px] rounded-full border-[rgba(255,255,255,0.2)] bg-[#141414] px-3 text-sm text-white focus:ring-0">
+                              <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
@@ -2176,7 +2176,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 })
                               }
                             >
-                              <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
+                              <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
@@ -2442,7 +2442,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             updatePrivateConfig({ licenseType: v as PrivateLicenseType })
                           }
                         >
-                          <SelectTrigger className="h-8 w-auto min-w-[120px] rounded-full border-[rgba(255,255,255,0.2)] bg-[#141414] px-3 text-sm text-white focus:ring-0">
+                          <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
@@ -2616,7 +2616,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             updatePrivateConfig({ cloudProvider: v as PrivateCloudProvider })
                           }
                         >
-                          <SelectTrigger className="h-8 w-auto min-w-[100px] rounded-full border-[rgba(255,255,255,0.2)] bg-[#141414] px-3 text-sm text-white focus:ring-0">
+                          <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
@@ -2694,7 +2694,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   updatePrivateConfig({ aiPointsOption: Number(v) })
                                 }
                               >
-                                <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
+                                <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">

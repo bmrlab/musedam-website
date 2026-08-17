@@ -39,7 +39,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     return ENTERPRISE_ONLY_HELP_TOPIC_SLUGS.some((slug) => p === `/help/${slug}`)
   }, [pathname, user?.isEnterpriseUser])
 
-  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath || isDemoPage
+  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath
 
   // 初始化 Intercom - 只在首次挂载时初始化（quotation 页面不初始化）
   useEffect(() => {
@@ -182,12 +182,12 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     }
   }, [hideIntercomPage])
 
-  return isQuotationPage ? (
+  return isQuotationPage || isDemoPage ? (
     children
   ) : (
     <>
       <Header isGlobal={isGlobal} user={user} />
-      <div className={`flex w-full flex-col items-center pt-[56px] md:pt-[70px] ${isDemoPage ? 'h-dvh overflow-hidden' : 'min-h-screen justify-center'}`}>
+      <div className="flex min-h-screen w-full flex-col items-center justify-center pt-[56px] md:pt-[70px]">
         <NextTopLoader
           color={darkHeadPage ? "#fff" : "#000"}
           height={1}

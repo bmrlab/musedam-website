@@ -9,7 +9,7 @@ export default function StoreInspectionDemo({ title }: { title: string }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <div className="relative h-[calc(100dvh-56px)] w-full md:h-[calc(100dvh-70px)]">
+    <div className="relative h-dvh w-full">
       {!loaded && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0e0e10] text-sm text-white/60">
           Unpacking...
