@@ -13,9 +13,10 @@ const InfoLine = twx.p`font-normal text-[rgba(20,20,20,0.8)]`
 
 
 /** 「优惠折扣」列：0-1 的折扣系数，默认跟随【优惠设置】×0.1 */
-const RowDiscountInput: FC<{ rowKey: string; defaultFactor: number }> = ({
+const RowDiscountInput: FC<{ rowKey: string; defaultFactor: number; locked?: boolean }> = ({
     rowKey,
     defaultFactor,
+    locked,
 }) => {
     const { rowDiscounts, setRowDiscount } = useQuotationStore()
     const override = rowDiscounts[rowKey]
@@ -42,6 +43,15 @@ const RowDiscountInput: FC<{ rowKey: string; defaultFactor: number }> = ({
         setDraft(String(next))
     }
 
+    // 私有化实施费等不可打折的行：固定展示 1，不接受输入（无输入框样式）
+    if (locked) {
+        return (
+            <div className="flex h-7 w-[88px] items-center justify-end px-2 text-right text-xs text-[rgba(20,20,20,0.6)]">
+                1
+            </div>
+        )
+    }
+
     return (
         <input
             type="number"
@@ -55,7 +65,7 @@ const RowDiscountInput: FC<{ rowKey: string; defaultFactor: number }> = ({
                 if (e.key === 'Enter') e.currentTarget.blur()
             }}
             className={cn(
-                'h-7 w-full rounded border border-[#BFBFBB] bg-transparent px-1 text-center text-xs',
+                'h-7 w-[88px] rounded border border-[#BFBFBB] bg-transparent px-2 text-right text-xs',
                 'appearance-none [-moz-appearance:textfield]',
                 '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
                 'focus:border-[#141414] focus:outline-none',
@@ -78,12 +88,6 @@ const QuoteDetailTable: FC = () => {
         <div className={'w-full border border-[#BFBFBB]'}>
             <TableLine className={"bg-[#E1E1DC] text-lg font-bold"}>{t('product.service.details')}</TableLine>
             <div className="text-sm">
-                {showDiscountColumn && (
-                    <TableLine className="bg-[#F0F0EA] text-xs font-bold">
-                        <span />
-                        <span className="w-[88px] shrink-0 text-center">{t('discount.column')}</span>
-                    </TableLine>
-                )}
                 {rows.map((row, index) => (
                     <TableLine key={index}>
                         <div className='flex flex-col gap-[2px]'>
@@ -97,10 +101,15 @@ const QuoteDetailTable: FC = () => {
                                 {row.unit ?? (row.subtotal || row.quantity || '')}
                             </span>
                             {showDiscountColumn && (
-                                <span className="w-[88px] shrink-0">
+                                // 列宽 140px，输入框固定 88px 居右
+                                <span className="flex w-[140px] shrink-0 justify-end">
                                     {/* 赠送 / 零价行无需折扣 */}
                                     {row.key && row.billingMode !== 'gift' && !!row.amount ? (
-                                        <RowDiscountInput rowKey={row.key} defaultFactor={defaultFactor} />
+                                        <RowDiscountInput
+                                            rowKey={row.key}
+                                            defaultFactor={row.discountFactor ?? defaultFactor}
+                                            locked={row.discountLocked}
+                                        />
                                     ) : null}
                                 </span>
                             )}

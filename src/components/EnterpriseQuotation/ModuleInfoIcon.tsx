@@ -12,14 +12,21 @@ interface ModuleInfoIconProps {
   description: string
   /** 模块 / 变体 / 多选项 key，用于查询并展示 SKU 编码 */
   skuKey?: string
+  /** 已解析好的 SKU（优先于 skuKey），用于版本档位等自带 sku 的配置项 */
+  sku?: string
   className?: string
 }
 
 /** 模块功能描述 Info：默认 20% 透明度，hover 100% + tooltip */
-export const ModuleInfoIcon: FC<ModuleInfoIconProps> = ({ description, skuKey, className }) => {
+export const ModuleInfoIcon: FC<ModuleInfoIconProps> = ({
+  description,
+  skuKey,
+  sku: skuProp,
+  className,
+}) => {
   const { t } = useTranslation('quotation')
   const [open, setOpen] = useState(false)
-  const sku = skuKey ? getModuleSku(skuKey) : undefined
+  const sku = skuProp ?? (skuKey ? getModuleSku(skuKey) : undefined)
   if (!description) return null
 
   return (

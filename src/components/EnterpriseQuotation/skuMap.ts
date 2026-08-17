@@ -54,9 +54,6 @@ export const MODULE_SKU_MAP: Record<string, string> = {
   'feature.person': 'DAM-TAG-FACE',
   'feature.ip': 'DAM-TAG-IP',
   [EAdvancedModules.AI_FEATURE_RECOGNITION]: 'DAM-FEAT',
-  [EAdvancedModules.AI_AUTO_TAG_POINTS]: 'CR-50K',
-  [EAdvancedModules.AI_FEATURE_POINTS]: 'CR-50K',
-  [EAdvancedModules.CREATIVE_AI_POINTS]: 'CR-50K',
 
   // ③ 创意与内容生产
   [EAdvancedModules.MUSE_AI_BASIC]: 'MAI-BASE',

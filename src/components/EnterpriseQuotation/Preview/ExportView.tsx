@@ -43,9 +43,18 @@ export const ExportView: FC<ExportViewProps> = ({
     return (
         <div className="page-content w-full max-w-[1440px] bg-white px-[100px] py-[120px]" ref={ref}>
             {/* 第一页容器 */}
-            <div className="first-page relative h-[1800px]" >
+            {/* 用 min-h + flex 代替固定高度：内容变长时向下撑开，不会与底部服务条款重叠 */}
+            <div className="first-page relative flex min-h-[1800px] flex-col" >
                 {/* 顶部Logo和标题 */}
-                <Image src="/assets/logo.svg" alt="Muse Logo" width={100} height={100} className='mb-2 h-12 w-auto' />
+                {/* 导出时 w-auto 拿不到 SVG 的固有宽高会被拉伸，这里固定为方形并显式给出尺寸 */}
+                <Image
+                    src="/assets/logo.svg"
+                    alt="Muse Logo"
+                    width={48}
+                    height={48}
+                    style={{ width: 48, height: 48 }}
+                    className='mb-2 shrink-0'
+                />
                 <div className="mb-8 mt-[8px] flex flex-row items-center justify-between">
                     <div>
                         <div className="mb-2 text-[48px] font-bold">{t("quote.title")}</div>
@@ -76,8 +85,8 @@ export const ExportView: FC<ExportViewProps> = ({
                 {/* 产品与服务明细表格 */}
                 <PreviewDetailTable info={info} isExport={true} />
 
-                {/* 服务条款 */}
-                <div className="absolute bottom-0">
+                {/* 服务条款：内容短时靠底部，内容长时跟随表格自然下移 */}
+                <div className="avoid-break mt-auto pt-[50px]">
                     <h3 className="mb-5 text-xl font-semibold text-[#141414]">{t("service.terms")}</h3>
                     <ul className="space-y-1 text-base  text-[#262626]">
                         <li>{t('service.terms.1')}</li>

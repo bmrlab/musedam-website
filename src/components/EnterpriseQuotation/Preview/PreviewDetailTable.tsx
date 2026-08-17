@@ -12,9 +12,9 @@ const Table = twx.table`w-full mb-4 text-[#262626] font-normal`
 const Th = twx.th`detail-th bg-[#F9FAFB] font-bold text-left md:px-6 md:py-[13px] px-3 py-[10px] border-b border-[#E1E1DC] md:text-lg text-base vertical-align-middle `
 const Td = twx.td`detail-td md:px-6 md:py-[13px] px-3 py-[10px] border-b border-[#E1E1DC] md:text-base text-sm vertical-align-middle w-auto`
 const ExportLine = twx.div`flex-content whitespace-pre-line`
-const Tr = twx.tr``
+const Tr = twx.tr`avoid-break`
 
-const TotalLine = twx.div`detail-total flex w-[540px] max-w-full  justify-between md:text-xl text-base md:px-6 md:py-[13px] px-3 py-[10px] font-semibold`
+const TotalLine = twx.div`avoid-break detail-total flex w-[540px] max-w-full  justify-between md:text-xl text-base md:px-6 md:py-[13px] px-3 py-[10px] font-semibold`
 
 type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'>
 
