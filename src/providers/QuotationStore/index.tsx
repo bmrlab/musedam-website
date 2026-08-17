@@ -11,7 +11,7 @@ import React, {
 import { SessionUser } from '@/types/user'
 import {
   AI_GIFT_PACKS,
-  AI_GIFT_POINTS,
+  AI_POINTS_DEFAULT_OPTION,
   BillingMode,
   BusinessRole,
   EAdvancedModules,
@@ -136,6 +136,9 @@ interface QuotationStoreType {
 
   showNoBuyFeature: boolean
   setShowNoBuyFeature: React.Dispatch<React.SetStateAction<boolean>>
+  /** 展示未选模块报价时，勾选要展示的模块 key；undefined 表示全部展示 */
+  noBuyModuleKeys: string[] | undefined
+  setNoBuyModuleKeys: React.Dispatch<React.SetStateAction<string[] | undefined>>
 
   initializeUserEmail: (user: SessionUser | null) => void
   resetToInitial: () => void
@@ -205,6 +208,7 @@ const initialPrivateConfig: IPrivateConfig = {
   // 私有化默认勾选 50 万点
   aiPointsEnabled: true,
   aiPointsOption: PRIVATE_DEFAULT_AI_POINTS,
+  aiPointsQty: 1,
 }
 
 const initialCustomServices: ICustomService[] = [
@@ -242,12 +246,13 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
       chinaColdStorage: 1,
       overseasHotStorage: 1,
       overseasColdStorage: 1,
-      aiPoints: 0,
+      // AI 点数订阅默认 1 份 10 万点
+      aiPoints: 1,
+      aiPointsOption: AI_POINTS_DEFAULT_OPTION,
       geaDam: true,
       geaContext: false,
-      // AI 点数订阅默认勾选 5 万点
+      // AI 点数包固定 5 万点
       geaAiPointsPack: AI_GIFT_PACKS,
-      geaAiPointsOption: AI_GIFT_POINTS,
     }),
     [isInChina],
   )
@@ -270,6 +275,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
   const [rowDiscounts, setRowDiscounts] = useState<Record<string, number>>({})
   const [featureView, setFeatureView] = useState<EFeatureView>(EFeatureView.OVERVIEW)
   const [showNoBuyFeature, setShowNoBuyFeature] = useState(false)
+  const [noBuyModuleKeys, setNoBuyModuleKeys] = useState<string[] | undefined>(undefined)
   const [editInfo, setEditInfo] = useState<IQuotationInfo | undefined>()
   const [museAITagOption, setMuseAITagOption] = useState<string>('500000')
   const [museCutTagOption, setMuseCutTagOption] = useState<string>('500000')
@@ -362,6 +368,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setRowDiscounts({})
     setFeatureView(EFeatureView.OVERVIEW)
     setShowNoBuyFeature(false)
+    setNoBuyModuleKeys(undefined)
     setEditInfo(undefined)
     setMuseAITagOption('500000')
     setMuseCutTagOption('500000')
@@ -413,6 +420,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setRowDiscounts,
     showNoBuyFeature,
     setShowNoBuyFeature,
+    noBuyModuleKeys,
+    setNoBuyModuleKeys,
     initializeUserEmail,
     resetToInitial,
     editInfo,

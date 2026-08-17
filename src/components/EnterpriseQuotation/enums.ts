@@ -35,6 +35,11 @@ export const AI_POINTS_OPTIONS = [50000, 100000, 500000] as const
 export type AiPointsOption = (typeof AI_POINTS_OPTIONS)[number]
 /** 私有化默认勾选 50 万点 */
 export const PRIVATE_DEFAULT_AI_POINTS: AiPointsOption = 500000
+/** AI 点数订阅默认规格：10 万点/份，也是刊例单价（aiPointsPrice）对应的基准规格 */
+export const AI_POINTS_DEFAULT_OPTION: AiPointsOption = 100000
+/** 按所选规格换算订阅单价：刊例价对应 10 万点/份，其余规格等比缩放（即 ¥0.2/点） */
+export const calcAiPointsUnitPrice = (basePrice: number, option?: number) =>
+  Math.round((basePrice * (option ?? AI_POINTS_DEFAULT_OPTION)) / AI_POINTS_DEFAULT_OPTION)
 
 export enum EAdvancedModules {
   // ① 资产管理与组织
@@ -54,14 +59,12 @@ export enum EAdvancedModules {
   // ② AI 与智能化
   AI_AUTO_TAG = 'aiAutoTag',
   AI_AUTO_TAG_MODULE = 'aiAutoTagModule',
-  AI_AUTO_TAG_POINTS = 'aiAutoTagPoints',
   FEATURE_LIBRARY = 'featureLibrary',
   FEATURE_BRAND = 'featureBrand',
   FEATURE_PRODUCT = 'featureProduct',
   FEATURE_PERSON = 'featurePerson',
   FEATURE_IP = 'featureIp',
   AI_FEATURE_RECOGNITION = 'aiFeatureRecognition',
-  AI_FEATURE_POINTS = 'aiFeaturePoints',
 
   // ③ 创意与内容生产
   MUSE_AI = 'museAI',
@@ -78,9 +81,6 @@ export enum EAdvancedModules {
   CLIPO_REMIX_LION = 'clipoRemixLion',
   /** 创意分组标题：智能成片（容器，不计价） */
   SMART_FILM = 'smartFilm',
-  /** 创意与内容生产共用 AI 点数包 */
-  CREATIVE_AI_POINTS = 'creativeAiPoints',
-
   // ④ 协作与工作流
   FILE_COLLECTION = 'fileCollection',
   APPROVAL_CENTER = 'approvalCenter',
@@ -159,6 +159,9 @@ export type PrivateLicenseType = 'encrypted' | 'source' | 'perpetual'
 /** 私有化云厂商 */
 export type PrivateCloudProvider = 'aliyun' | 'aws' | 'tencent' | 'huawei'
 
+/** 阿里云 / AWS 之外的云平台，DAM 实施费单独定价（其余模块与阿里云 / AWS 一致） */
+export const OTHER_CLOUD_DAM_IMPL_PRICE = 150000
+
 /** 版本迭代频次 */
 export type PrivateIterationFrequency = 1 | 4
 
@@ -184,5 +187,18 @@ export enum EPrivateImplProducts {
   INGEN_OPS = 'implIngenOps',
   CLIPO_REMIX = 'implClipoRemix',
 }
+
+/** 私有化实施费：阿里云 / AWS 走刊例价，其他云平台仅 DAM 单独定价 */
+export const getPrivateImplPrice = (
+  key: EPrivateImplProducts,
+  implProducts: Record<EPrivateImplProducts, number>,
+  cloudProvider?: PrivateCloudProvider,
+) =>
+  key === EPrivateImplProducts.DAM &&
+  !!cloudProvider &&
+  cloudProvider !== 'aliyun' &&
+  cloudProvider !== 'aws'
+    ? OTHER_CLOUD_DAM_IMPL_PRICE
+    : implProducts[key]
 
 export type BillingMode = 'paid' | 'discount' | 'gift'

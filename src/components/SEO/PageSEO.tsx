@@ -51,7 +51,7 @@ export const PageSEO: React.FC<PageSEOProps> = ({
                 url: baseUrl,
                 logo: `${baseUrl}/assets/logo.svg`,
                 description: isZhCN
-                    ? 'MuseDAM 是一款智能数字资产管理软件,提供资源采集、文件整理、团队协作和 AI 生成等功能,助力企业高效管理数字资产。'
+                    ? 'MuseDAM 是一款智能数字资产管理软件，提供资源采集、文件整理、团队协作和 AI 生成等功能，助力企业高效管理数字资产。'
                     : 'Discover MuseDAM, the smart digital asset management software that simplifies collection, organization, and team collaboration with AI-powered features.'
             }} />
 

@@ -36,10 +36,13 @@ import {
   usePricing,
 } from './config'
 import {
+  AI_POINTS_DEFAULT_OPTION,
   CLIPO_REMIX_VARIANT_KEYS,
+  getPrivateImplPrice,
   MUSE_AI_VARIANT_KEYS,
 } from './enums'
 import { ModuleInfoIcon } from './ModuleInfoIcon'
+import { NoBuyModulesDialog } from './NoBuyModulesDialog'
 import {
   BusinessRole,
   EFeatureView,
@@ -73,7 +76,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SEAT_UNMERGE_KEY, useQuoteDetailData } from './QuoteDetailData'
+import { SEAT_UNMERGE_KEY, useNotBuyRows, useQuoteDetailData } from './QuoteDetailData'
 
 interface NumControlProps {
   value: number
@@ -343,11 +346,20 @@ const MergeToBasicIcon: FC<{ isMerged: boolean; onToggle: () => void }> = ({
   )
 }
 
-const Cost = ({ cost, costTitle }: { cost: number; costTitle?: string }) => {
+const Cost = ({
+  cost,
+  costTitle,
+  oneTimeCost,
+}: {
+  cost: number
+  costTitle?: string
+  /** 一次性费用（如私有化实施费）：单独成行，不带 /年 后缀 */
+  oneTimeCost?: number
+}) => {
   const { t } = useTranslation('quotation')
   const { prefix } = usePricing()
   return (
-    <div className="border-t border-[rgba(255,255,255,0.1)] pt-4">
+    <div className="space-y-3 border-t border-[rgba(255,255,255,0.1)] pt-4">
       <div className="flex items-center justify-between text-white">
         <Label className="text-lg font-normal">{costTitle ?? t('base.cost')}</Label>
         <span className="flex items-center text-xl font-medium">
@@ -356,6 +368,15 @@ const Cost = ({ cost, costTitle }: { cost: number; costTitle?: string }) => {
           <span className="text-sm">{t('per.year')}</span>
         </span>
       </div>
+      {!!oneTimeCost && (
+        <div className="flex items-center justify-between text-white">
+          <Label className="text-lg font-normal">{t('price.oneTime')}</Label>
+          <span className="flex items-center text-xl font-medium">
+            {prefix}
+            {formatWithToLocaleString(oneTimeCost)}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -371,8 +392,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const router = useRouter()
   const { language } = useLanguage()
   const {
+    rows: quoteRows,
     subtotal,
     discountTotal,
+    noTaxTotalNum,
+    discountTotalNum,
     totalNumPerYear,
     years,
     basicCostPerYear,
@@ -382,6 +406,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   } = useQuoteDetailData()
 
   const [openDiscount, setOpenDiscount] = useState(false)
+  /** 「展示未选模块报价」的模块勾选弹窗 */
+  const [noBuyDialogOpen, setNoBuyDialogOpen] = useState(false)
+  const noBuyCandidates = useNotBuyRows(quoteRows)
   const [openCustomDiscount, setOpenCustomDiscount] = useState(false)
   const [loading, setLoading] = useState(false)
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
@@ -411,6 +438,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setRowDiscounts,
     showNoBuyFeature,
     setShowNoBuyFeature,
+    noBuyModuleKeys,
+    setNoBuyModuleKeys,
     editInfo,
     advancedModulePriceOverrides,
     setAdvancedModulePriceOverride,
@@ -471,12 +500,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const showDamExtensions = advancedConfig.geaDam
   const showGeaExtensions = advancedConfig.geaContext && moduleGroups.some((g) => g.baseProduct === 'gea')
   const aiPointsPackMode = (moduleBillingModes[EGeaBaseModules.AI_POINTS_PACK] ?? 'paid') as BillingMode
-  /** AI 点数订阅当前规格：已勾选时由份数推导，否则取下拉选择 */
-  const aiPointsSelected =
-    advancedConfig.geaAiPointsPack > 0
-      ? advancedConfig.geaAiPointsPack * AI_POINTS_PER_PACK
-      : (advancedConfig.geaAiPointsOption ?? AI_GIFT_POINTS)
+  /** AI 点数包固定 5 万点，规格选择在「AI 点数订阅」行 */
+  const aiPointsSelected = AI_GIFT_POINTS
   const aiPointsValue = aiPointsSelected * AI_POINT_UNIT_PRICE
+  /** AI 点数订阅规格（单价由 useBasicConfigs 按规格换算） */
+  const aiPointsOption = advancedConfig.aiPointsOption ?? AI_POINTS_DEFAULT_OPTION
   const userBusinessRoles = useMemo<BusinessRole[]>(() => {
     return user?.businessRoles ?? []
   }, [user])
@@ -495,10 +523,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setOpenCustomDiscount(customDiscount !== undefined)
   }, [customDiscount])
 
-  // 【优惠设置】变更后，报价单「优惠折扣」列回到新的默认值
+  // 【优惠设置】/【定制服务折扣】变更后，报价单「优惠折扣」列回到新的默认值
   useEffect(() => {
     setRowDiscounts({})
-  }, [discount, setRowDiscounts])
+  }, [discount, customDiscount, setRowDiscounts])
 
   useEffect(() => {
     if (activeTab === TabEnum.BASIC) setDiscount(undefined)
@@ -777,18 +805,53 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     )
   }
 
-  // 私有化开启时「部署实施」恒为必选（兼容历史报价里未勾选的情况）
+  // 私有化开启时「部署实施」「产品运营及维护」「基础维护」恒为必选（兼容历史报价里未勾选的情况）
   useEffect(() => {
-    if (privateConfig.enabled && !privateConfig.implementationEnabled) {
-      updatePrivateConfig({ implementationEnabled: true })
+    if (!privateConfig.enabled) return
+    const patch: Partial<IPrivateConfig> = {}
+    if (!privateConfig.implementationEnabled) patch.implementationEnabled = true
+    if (!privateConfig.opsEnabled) patch.opsEnabled = true
+    if (!privateConfig.basicMaintenance) patch.basicMaintenance = true
+    if (Object.keys(patch).length) updatePrivateConfig(patch)
+  }, [
+    privateConfig.enabled,
+    privateConfig.implementationEnabled,
+    privateConfig.opsEnabled,
+    privateConfig.basicMaintenance,
+  ])
+
+  /** 切换「展示未选模块报价」：选「展示」时弹窗勾选要列出的模块 */
+  const handleShowNoBuyChange = (next: boolean) => {
+    setShowNoBuyFeature(next)
+    if (next) setNoBuyDialogOpen(true)
+    else setNoBuyModuleKeys(undefined)
+  }
+
+  /** 私有化开启时 SaaS 侧的付费点数项禁用（赠送不受限，仍可勾选） */
+  const saasAiPointsLocked = privateConfig.enabled && aiPointsPackMode !== 'gift'
+
+  // 私有化部署的 AI 点数包独立配置，开启后 SaaS 侧的付费点数项置 0（UI 同时禁用）
+  useEffect(() => {
+    if (!privateConfig.enabled) return
+    const patch: Partial<typeof advancedConfig> = {}
+    if (aiPointsPackMode !== 'gift' && advancedConfig.geaAiPointsPack > 0) {
+      patch.geaAiPointsPack = 0
     }
-  }, [privateConfig.enabled, privateConfig.implementationEnabled])
+    if ((advancedConfig.aiPoints ?? 0) > 0) patch.aiPoints = 0
+    // 私有化不含存储空间
+    if (advancedConfig.storageSpace > 0) patch.storageSpace = 0
+    if (advancedConfig.enableColdHotStorage) patch.enableColdHotStorage = false
+    if (advancedConfig.enableMultiRegionStorage) patch.enableMultiRegionStorage = false
+    if (Object.keys(patch).length) setAdvancedConfig({ ...advancedConfig, ...patch })
+  }, [privateConfig.enabled, aiPointsPackMode, advancedConfig, setAdvancedConfig])
 
   const privateOpsAnnual = useMemo(() => {
     if (!privateConfig.enabled || !privateConfig.opsEnabled) return 0
     let total = 0
     if (privateConfig.basicMaintenance) total += privateBasicMaintenanceFee
-    total += pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+    if (privateConfig.versionIteration) {
+      total += pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+    }
     return total
   }, [privateConfig, pricing.private, privateBasicMaintenanceFee])
 
@@ -800,7 +863,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       {
         key: EPrivateImplProducts.DAM,
         label: t('gea.dam'),
-        price: pricing.private.implProducts[EPrivateImplProducts.DAM],
+        // 阿里云 / AWS 之外的云平台，DAM 实施费单独定价
+        price: getPrivateImplPrice(
+          EPrivateImplProducts.DAM,
+          pricing.private.implProducts,
+          privateConfig.cloudProvider,
+        ),
       },
       {
         key: EPrivateImplProducts.GEA_CONTEXT,
@@ -847,17 +915,24 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       }, 0)
       : 0
 
-  /** 私有化 API 点数：规格 × 单价（点数包按 1 万点/份计价） */
+  /** 私有化 API 点数：规格 × 份数 × 单价（点数包按 1 万点/份计价） */
   const privateAiPoints = privateConfig.aiPointsOption ?? PRIVATE_DEFAULT_AI_POINTS
+  const privateAiPointsQty = privateConfig.aiPointsQty ?? 1
   const privateAiPointsFee = privateConfig.aiPointsEnabled
-    ? (privateAiPoints / AI_POINTS_PER_PACK) * pricing.advanced.geaAiPackPrice
+    ? (privateAiPoints / AI_POINTS_PER_PACK) * pricing.advanced.geaAiPackPrice * privateAiPointsQty
     : 0
 
-  const privateDisplayTotal =
-    (privateConfig.licenseEnabled ? privateLicenseFee : 0) +
+  /** 永久买断为一次性；其余授权方式按年 */
+  const privateLicenseIsOneTime = privateConfig.licenseType === 'perpetual'
+  /** 私有化年费：软件授权费（非买断）+ 运维 + AI 点数包 */
+  const privateAnnualTotal =
+    (privateConfig.licenseEnabled && !privateLicenseIsOneTime ? privateLicenseFee : 0) +
     privateOpsAnnual +
-    privateImplTotal +
     privateAiPointsFee
+  /** 私有化一次性费用：部署实施费（+ 永久买断授权费） */
+  const privateOneTimeDisplayTotal =
+    privateImplTotal +
+    (privateConfig.licenseEnabled && privateLicenseIsOneTime ? privateLicenseFee : 0)
 
   const handleGenerate = useCallback(async () => {
     if (!user?.orgId || !user.token) {
@@ -886,6 +961,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       prefix,
       featureView,
       showNoBuyFeature,
+      noBuyModuleKeys,
       lang: language,
     }
     try {
@@ -941,6 +1017,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     prefix,
     featureView,
     showNoBuyFeature,
+    noBuyModuleKeys,
     language,
     toast,
     customerInfo,
@@ -962,6 +1039,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     }
     return listPrice
   }
+
+  /** 整单刊例：整体折后价 ÷ 折前价（中文显示折扣数，其余语言显示 % OFF），最多保留 2 位小数 */
+  const overallDiscountText = useMemo(() => {
+    const ratio = noTaxTotalNum ? discountTotalNum / noTaxTotalNum : 1
+    const val = language === 'zh-CN' ? ratio * 10 : (1 - ratio) * 100
+    // 去掉多余的 0：8 → 「8」，9.4 → 「9.4」，9.412 → 「9.41」
+    return String(Math.round(val * 100) / 100)
+  }, [noTaxTotalNum, discountTotalNum, language])
 
   /** SaaS 折后年总价：仅作赠送门槛判断，不在 UI 展示 */
   const saasDiscountedTotalPerYear = useMemo(
@@ -1040,6 +1125,57 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     aiPointsGiftThreshold,
   ])
 
+  /** 扁平化后的模块配置，便于按 key 查找依赖的父模块 */
+  const moduleByKey = useMemo(() => {
+    const map = new Map<EAdvancedModules, IModules>()
+    const walk = (modules: IModules[]) => {
+      modules.forEach((m) => {
+        map.set(m.key, m)
+        if (m.subModules?.length) walk(m.subModules)
+      })
+    }
+    moduleGroups.forEach((g) => walk(g.modules))
+    return map
+  }, [moduleGroups])
+
+  /** 模块是否算「已选」：多选型模块（如电商分发）需至少选中一个渠道 */
+  const isModuleSelected = useCallback(
+    (key: EAdvancedModules) => {
+      const raw = advancedModules[key]
+      const qty = typeof raw === 'number' ? raw : raw ? 1 : 0
+      if (qty <= 0) return false
+      if (moduleByKey.get(key)?.multiOptions?.length) {
+        return (moduleMultiSelections[key] ?? []).length > 0
+      }
+      return true
+    },
+    [advancedModules, moduleMultiSelections, moduleByKey],
+  )
+
+  // 依赖的父模块未选时（如「电商分发」一个渠道都没选），自动取消勾选依赖模块
+  useEffect(() => {
+    moduleByKey.forEach((m, key) => {
+      if (!m.requires || isModuleSelected(m.requires)) return
+      const raw = advancedModules[key]
+      if (raw) handleModuleChange(key, typeof raw === 'number' ? 0 : false)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleByKey, isModuleSelected, advancedModules])
+
+  /** 渲染分组内的模块：`groupWithPrev` 的模块与上一个模块同处一块，中间不画分割线 */
+  const renderGroupModules = (modules: IModules[]) => {
+    const blocks: IModules[][] = []
+    modules.forEach((m) => {
+      if (m.groupWithPrev && blocks.length) blocks[blocks.length - 1].push(m)
+      else blocks.push([m])
+    })
+    return blocks.map((block) => (
+      <div key={block[0].key} className="space-y-5 py-5 first:pt-0 last:pb-0">
+        {block.map((m) => renderModuleItem(m))}
+      </div>
+    ))
+  }
+
   const countSelectedInGroup = (modules: IModules[]) => {
     let selected = 0
     let total = 0
@@ -1087,7 +1223,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const mode = (moduleBillingModes[key] ?? 'paid') as BillingMode
     const price = displayPrice(key, module.price)
     const giftOk = isGiftAllowed(giftThreshold, key, module.price)
-    const parentOk = !requires || !!advancedModules[requires]
+    const parentOk = !requires || isModuleSelected(requires)
     const checked = !!advancedModules[key]
     /**
      * 「合并到主报价」仅对可勾选、且已勾选的独立模块开放；
@@ -1185,7 +1321,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               <Label className="flex min-h-[22px] flex-wrap items-center gap-2 font-normal">
                 <span>{module.label}</span>
                 {module.description && (
-                  <ModuleInfoIcon description={module.description} skuKey={key} />
+                  // 有版本档位时 SKU 挂在各档位上（如飞书云盘导入-基础版/高阶版），父级不再展示
+                  <ModuleInfoIcon
+                    description={module.description}
+                    skuKey={variantOptions?.length ? undefined : key}
+                  />
                 )}
                 {canMergeToBasic && (
                   <MergeToBasicIcon
@@ -1198,7 +1338,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     {tag}
                   </span>
                 )}
-                {giftEligible && giftBadge && <OrangeBadge text={giftBadge} />}
+                {giftEligible && giftOk && giftBadge && <OrangeBadge text={giftBadge} />}
                 {launchTag && <LaunchBadge text={launchTag} />}
                 {key === EAdvancedModules.ENTERPRISE_SSO && <PurpleBadge text={t('badge.noTrial')} />}
               </Label>
@@ -1236,7 +1376,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     : (advancedModules[key] as number)
                 }
                 onChange={(val) => handleModuleChange(key, val)}
-                disabled={!advancedModules[key] && min !== 0}
+                disabled={!parentOk || (!advancedModules[key] && min !== 0)}
                 min={min}
               />
             )}
@@ -1275,7 +1415,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <div className="flex flex-wrap items-center gap-2 text-sm text-white">
                       {opt.label}
                       {opt.description && (
-                        <ModuleInfoIcon description={opt.description} skuKey={opt.value} />
+                        <ModuleInfoIcon description={opt.description} sku={opt.sku} />
                       )}
                       {opt.launchTag && <LaunchBadge text={opt.launchTag} />}
                     </div>
@@ -1299,7 +1439,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             <div
               className={cn(
                 'grid gap-x-2 gap-y-3',
-                noCheckBox && !indent ? 'ml-0' : 'ml-6',
+                // 无 checkbox 的渠道容器：勾选框悬挂在左侧，渠道名与标题文字对齐
+                noCheckBox && multiOptions ? 'ml-0' : 'ml-6',
                 multiCols === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3',
               )}
             >
@@ -1335,7 +1476,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     <span className="flex items-center gap-1">
                       {opt.label}
                       {opt.description && (
-                        <ModuleInfoIcon description={opt.description} skuKey={opt.value} />
+                        <ModuleInfoIcon description={opt.description} sku={opt.sku} />
                       )}
                       {opt.launchTag && <LaunchBadge text={opt.launchTag} />}
                     </span>
@@ -1351,10 +1492,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
           (checked || noCheckBox || module.alwaysShowSubs) && (
             <div
               className={cn(
-                'ml-[26px]',
                 module.subFlex === 'row'
-                  ? 'mt-3 flex flex-wrap items-center gap-2 md:gap-8'
-                  : 'mt-2 space-y-5',
+                  ? // 两列、行间距 12px；勾选框悬挂在左侧，子项文字与标题文字对齐
+                    'mt-3 grid grid-cols-2 gap-x-2 gap-y-3'
+                  : 'ml-[26px] mt-2 space-y-5',
               )}
             >
               {module.subModules.map((sub) => {
@@ -1387,7 +1528,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       return (
         <div
           key={key}
-          className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-4"
+          // p-6：卡片内文字与外部标题文字（ml-6）左对齐
+          className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[#141414] p-6"
         >
           {body}
         </div>
@@ -1546,9 +1688,19 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   </div>
                 </div>
 
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start space-x-2">
+                <div
+                  className={cn(
+                    'flex items-start justify-between gap-3',
+                    // 私有化部署的 AI 点数包独立配置，此处仅保留赠送
+                    saasAiPointsLocked && 'opacity-50',
+                  )}
+                >
+                  <div
+                    className={cn('flex items-start space-x-2', saasAiPointsLocked && 'cursor-not-allowed')}
+                    title={saasAiPointsLocked ? t('aiPoints.privateHint') : undefined}
+                  >
                     <Checkbox
+                      disabled={saasAiPointsLocked}
                       checked={advancedConfig.geaAiPointsPack > 0}
                       onCheckedChange={(checked) =>
                         setAdvancedConfig({
@@ -1565,32 +1717,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                           description={t('moduleDesc.geaAiPointsPack')}
                           skuKey={EGeaBaseModules.AI_POINTS_PACK}
                         />
-                        <Select
-                          value={String(aiPointsSelected)}
-                          onValueChange={(v) => {
-                            const points = Number(v)
-                            setAdvancedConfig({
-                              ...advancedConfig,
-                              geaAiPointsOption: points,
-                              // 已勾选时同步调整份数
-                              geaAiPointsPack:
-                                advancedConfig.geaAiPointsPack > 0
-                                  ? points / AI_POINTS_PER_PACK
-                                  : advancedConfig.geaAiPointsPack,
-                            })
-                          }}
-                        >
-                          <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
-                            {AI_POINTS_OPTIONS.map((points) => (
-                              <SelectItem key={points} value={String(points)}>
-                                {t('gea.aiPointsPack.tag', { points: String(points / 10000) })}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="rounded-sm border border-[rgba(255,255,255,0.2)] px-[6px] py-[2px] font-euclidlight text-sm font-light">
+                          {t('gea.aiPointsPack.tag', { points: String(aiPointsSelected / 10000) })}
+                        </div>
                         {isGiftAllowed(
                           aiPointsGiftThreshold,
                           EGeaBaseModules.AI_POINTS_PACK,
@@ -1767,7 +1896,15 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     )
 
                     return (
-                      <div className="w-full space-y-4" key={key}>
+                      <div
+                        className={cn(
+                          'w-full space-y-4',
+                          // 私有化部署不含存储空间：置 0 且不可编辑
+                          privateConfig.enabled && 'pointer-events-none opacity-50',
+                        )}
+                        key={key}
+                        title={privateConfig.enabled ? t('storage.privateHint') : undefined}
+                      >
                         <div className="flex w-full items-center justify-between gap-2">
                           <div className="space-y-[6px]">
                             <Label className="flex items-center gap-3 text-[16px] text-white">
@@ -2006,12 +2143,38 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   if (key === EBasicConfigKey.AI_POINTS) {
                     return (
                       <div
-                        className="flex w-full items-center justify-between space-x-2 border-t border-[rgba(255,255,255,0.1)] pt-4"
+                        className={cn(
+                          'flex w-full items-center justify-between space-x-2 border-t border-[rgba(255,255,255,0.1)] pt-4',
+                          // 私有化部署单独配置 AI 点数包，此处置 0 且不可编辑
+                          privateConfig.enabled && 'cursor-not-allowed opacity-50',
+                        )}
                         key={key}
+                        title={privateConfig.enabled ? t('aiPoints.privateHint') : undefined}
                       >
                         <div className="space-y-[6px]">
-                          <Label className="flex min-h-[22px] items-center gap-3 text-[16px] text-white">
+                          <Label className="flex min-h-[22px] flex-wrap items-center gap-3 text-[16px] text-white">
                             {title}
+                            <Select
+                              disabled={privateConfig.enabled}
+                              value={String(aiPointsOption)}
+                              onValueChange={(v) =>
+                                setAdvancedConfig({
+                                  ...advancedConfig,
+                                  aiPointsOption: Number(v),
+                                })
+                              }
+                            >
+                              <SelectTrigger className="h-7 w-auto min-w-[86px] gap-1 rounded-sm border-[rgba(255,255,255,0.2)] bg-transparent px-[6px] py-[2px] text-sm text-white focus:ring-0">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                                {AI_POINTS_OPTIONS.map((points) => (
+                                  <SelectItem key={points} value={String(points)}>
+                                    {t('gea.aiPointsPack.tag', { points: String(points / 10000) })}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             {(advancedConfig.aiPoints ?? 0) > 0 &&
                               renderBasicMergeIcon(EBasicConfigKey.AI_POINTS)}
                           </Label>
@@ -2025,6 +2188,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         <NumControl
                           value={advancedConfig[key as keyof typeof advancedConfig] as number}
                           onChange={(val) => updateQuantity(key, val)}
+                          disabled={privateConfig.enabled}
                           min={min}
                         />
                       </div>
@@ -2126,11 +2290,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               >
                                 <div className="overflow-hidden">
                                   <div className="divide-y divide-[rgba(255,255,255,0.1)] px-4 py-5">
-                                    {group.modules.map((m) => (
-                                      <div key={m.key} className="py-5 first:pt-0 last:pb-0">
-                                        {renderModuleItem(m)}
-                                      </div>
-                                    ))}
+                                    {renderGroupModules(group.modules)}
                                   </div>
                                 </div>
                               </div>
@@ -2200,11 +2360,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               >
                                 <div className="overflow-hidden">
                                   <div className="divide-y divide-[rgba(255,255,255,0.1)] px-4 py-5">
-                                    {group.modules.map((m) => (
-                                      <div key={m.key} className="py-5 first:pt-0 last:pb-0">
-                                        {renderModuleItem(m)}
-                                      </div>
-                                    ))}
+                                    {renderGroupModules(group.modules)}
                                   </div>
                                 </div>
                               </div>
@@ -2312,11 +2468,6 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     {/* 产品运营及维护 */}
                     <div className="space-y-4 border-t border-[rgba(255,255,255,0.1)] pt-6">
                       <div className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={privateConfig.opsEnabled}
-                          onCheckedChange={(c: boolean) => updatePrivateConfig({ opsEnabled: c })}
-                          className="size-4 shrink-0 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
-                        />
                         <Label className="flex items-center gap-2">
                           {t('private.ops.title')}
                           <span title={t('product.operation.maintenance.description')}>
@@ -2326,14 +2477,13 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       </div>
 
                       {privateConfig.opsEnabled && (
-                        <div className="ml-6 space-y-4">
+                        <div className="space-y-4">
                           <div className="flex items-start space-x-2">
                             <div className="flex h-[16px] shrink-0 items-center">
+                              {/* 基础维护为必选项 */}
                               <Checkbox
-                                checked={privateConfig.basicMaintenance}
-                                onCheckedChange={(c: boolean) =>
-                                  updatePrivateConfig({ basicMaintenance: c })
-                                }
+                                checked
+                                disabled
                                 className="size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
                               />
                             </div>
@@ -2345,29 +2495,34 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   skuKey="private.ops.basic"
                                 />
                               </Label>
-                              <HintParagraph>{t('private.ops.basic.hint')}</HintParagraph>
+                              <HintParagraph>{t('private.ops.basic.desc')}</HintParagraph>
                               <DesParagraph>
-                                {t('private.ops.basic.rate', {
-                                  rate: String(Math.round(pricing.private.basicMaintenanceRate * 100)),
-                                })}
-                                {' ≈ '}
-                                {prefix}{' '}
-                                {formatWithToLocaleString(privateBasicMaintenanceFee)}
-                                {t('per.year')}
+                                {prefix} {formatWithToLocaleString(privateBasicMaintenanceFee)}
                               </DesParagraph>
                             </div>
                           </div>
 
                           <div className="space-y-3">
-                            <div className="space-y-[6px]">
-                              <Label className="flex items-center gap-2">
-                                {t('private.ops.iteration')}
-                                <ModuleInfoIcon description={t('private.ops.iteration.hint1')} />
-                              </Label>
-                              <HintParagraph>{t('private.ops.iteration.hint1')}</HintParagraph>
-                              <HintParagraph>{t('private.ops.iteration.hint2')}</HintParagraph>
+                            <div className="flex items-start space-x-2">
+                              <div className="flex h-[16px] shrink-0 items-center">
+                                <Checkbox
+                                  checked={privateConfig.versionIteration}
+                                  onCheckedChange={(c: boolean) =>
+                                    updatePrivateConfig({ versionIteration: c })
+                                  }
+                                  className="size-4 border-white/20 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
+                                />
+                              </div>
+                              <div className="space-y-[6px]">
+                                <Label className="flex items-center gap-2">
+                                  {t('private.ops.iteration')}
+                                  <ModuleInfoIcon description={t('private.ops.iteration.hint1')} />
+                                </Label>
+                                <HintParagraph>{t('private.ops.iteration.hint1')}</HintParagraph>
+                                <HintParagraph>{t('private.ops.iteration.hint2')}</HintParagraph>
+                              </div>
                             </div>
-                            <div className="ml-6 grid gap-3 md:grid-cols-2">
+                            <div className="grid gap-3 md:grid-cols-2">
                               {([1, 4] as PrivateIterationFrequency[]).map((freq) => {
                                 const active = privateConfig.iterationFrequency === freq
                                 const price = pricing.private.iterationPrices[freq]
@@ -2385,9 +2540,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                     }
                                     className={cn(
                                       'rounded-lg border px-4 py-3 text-left transition-colors',
-                                      active
+                                      active && privateConfig.versionIteration
                                         ? 'border-[#3366FF] bg-[#3366FF]/10'
                                         : 'border-[rgba(255,255,255,0.15)]',
+                                      // 未勾选「版本迭代」时档位置灰，点击即勾选
+                                      !privateConfig.versionIteration && 'opacity-50',
                                     )}
                                   >
                                     <div className="flex items-center gap-2 text-sm text-white">
@@ -2421,13 +2578,6 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                               })}
                             </div>
                           </div>
-
-                          {(privateConfig.basicMaintenance || privateConfig.opsEnabled) && (
-                            <DesParagraph className="text-white">
-                              {prefix} {formatWithToLocaleString(privateOpsAnnual)}
-                              {t('per.year')}
-                            </DesParagraph>
-                          )}
                         </div>
                       )}
                     </div>
@@ -2551,10 +2701,19 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                             </DesParagraph>
                           </div>
                         </div>
+                        <NumControl
+                          value={privateAiPointsQty}
+                          onChange={(val) => updatePrivateConfig({ aiPointsQty: Math.max(1, val) })}
+                          min={1}
+                        />
                       </div>
                     </div>
 
-                    <Cost cost={privateDisplayTotal} costTitle={t('base.cost')} />
+                    <Cost
+                      cost={privateAnnualTotal}
+                      costTitle={t('price.annual')}
+                      oneTimeCost={privateOneTimeDisplayTotal}
+                    />
                   </>
                 )}
               </BlockBox>
@@ -2639,40 +2798,52 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 </Switch.Root>
               </div>
               {openDiscount && (
-                <BlockBox className="flex items-center justify-between space-y-0">
-                  <div className="space-y-[6px]">
-                    <Label>{t('discount.input.label')}</Label>
-                    <DesParagraph>{t('discount.input.hint')}</DesParagraph>
+                <BlockBox className="space-y-0">
+                  <div className="mb-5 flex items-center justify-between">
+                    <div className="space-y-[6px]">
+                      <Label>{t('discount.input.label')}</Label>
+                      <DesParagraph>{t('discount.input.hint')}</DesParagraph>
+                    </div>
+                    <div className="flex items-center gap-[10px]">
+                      <Input
+                        value={
+                          discount !== undefined
+                            ? language === 'zh-CN'
+                              ? discount
+                              : Math.round((10 - discount) * 10)
+                            : ''
+                        }
+                        onChange={(e) => {
+                          if (e.target.value === '') {
+                            setDiscount(undefined)
+                            return
+                          }
+                          setDiscount(e.target.value as unknown as number)
+                        }}
+                        onBlur={(e) => {
+                          let val = e.target.value ? Number(e.target.value) : 9.5
+                          if (language === 'zh-CN') {
+                            setDiscount(Math.max(8, Math.min(10, Math.round(val * 100) / 100)))
+                          } else {
+                            const validInputVal = Math.max(0, Math.min(20, Math.floor(val)))
+                            setDiscount(Math.max(8, (100 - validInputVal) / 10))
+                          }
+                        }}
+                        className="h-[44px] max-w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
+                        placeholder={language === 'zh-CN' ? '8-10' : '0-20'}
+                      />
+                      <span className="text-base">{t('discount.unit')}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-[10px]">
-                    <Input
-                      value={
-                        discount !== undefined
-                          ? language === 'zh-CN'
-                            ? discount
-                            : Math.round((10 - discount) * 10)
-                          : ''
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === '') {
-                          setDiscount(undefined)
-                          return
-                        }
-                        setDiscount(e.target.value as unknown as number)
-                      }}
-                      onBlur={(e) => {
-                        let val = e.target.value ? Number(e.target.value) : 9.5
-                        if (language === 'zh-CN') {
-                          setDiscount(Math.max(8, Math.min(10, Math.round(val * 100) / 100)))
-                        } else {
-                          const validInputVal = Math.max(0, Math.min(20, Math.floor(val)))
-                          setDiscount(Math.max(8, (100 - validInputVal) / 10))
-                        }
-                      }}
-                      className="h-[44px] max-w-[115px] rounded-none border-[rgba(255,255,255,0.2)] font-medium text-white"
-                      placeholder={language === 'zh-CN' ? '8-10' : '0-20'}
-                    />
-                    <span className="text-base">{t('discount.unit')}</span>
+                  {/* 整单刊例：整体折后价 ÷ 折前价，保留 2 位小数 */}
+                  <div className="mt-5 flex items-center justify-between border-t border-white/15 pt-5">
+                    <Label>{t('discount.overall')}</Label>
+                    <span className="text-base text-white">
+                      <span className='text-lg'>{overallDiscountText}</span>
+                      <span className={language === 'zh-CN' ? 'ml-1' : ''}>
+                        {t('discount.unit')}
+                      </span>
+                    </span>
                   </div>
                 </BlockBox>
               )}
@@ -2725,7 +2896,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
                     )}
                     key={String(radio)}
-                    onClick={() => setShowNoBuyFeature(radio)}
+                    onClick={() => handleShowNoBuyChange(radio)}
                   >
                     <RadioGroup.Item
                       className={cn(
@@ -2733,7 +2904,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                         showNoBuyFeature === radio ? 'border-[#3366FF]' : 'hover:border-white/40',
                       )}
                       value={radio.toString()}
-                      onClick={() => setShowNoBuyFeature(radio)}
+                      onClick={() => handleShowNoBuyChange(radio)}
                     >
                       <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                     </RadioGroup.Item>
@@ -2743,6 +2914,25 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   </BlockBox>
                 ))}
               </RadioGroup.Root>
+              {showNoBuyFeature && (
+                <div className="flex items-center gap-3">
+                  <DesParagraph>
+                    {t('noBuy.dialog.selectedCount', {
+                      count: noBuyModuleKeys
+                        ? noBuyCandidates.filter((v) => v.key && noBuyModuleKeys.includes(v.key))
+                            .length
+                        : noBuyCandidates.length,
+                    })}
+                  </DesParagraph>
+                  <button
+                    type="button"
+                    className="text-sm text-[#3366FF] hover:underline"
+                    onClick={() => setNoBuyDialogOpen(true)}
+                  >
+                    {t('noBuy.dialog.title')}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -2782,6 +2972,14 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               : t('generate.now')}
         </Button>
       </div>
+
+      <NoBuyModulesDialog
+        open={noBuyDialogOpen}
+        onOpenChange={setNoBuyDialogOpen}
+        candidates={noBuyCandidates}
+        value={noBuyModuleKeys}
+        onConfirm={(keys) => setNoBuyModuleKeys(keys)}
+      />
     </div>
   )
 }

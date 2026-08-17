@@ -20,9 +20,12 @@ import { useCountry } from '@/providers/Country'
 import { useMemo } from 'react'
 import { useQuotationStore } from '@/providers/QuotationStore'
 import {
+  AI_POINTS_DEFAULT_OPTION,
   AI_POINTS_PER_PACK,
   BillingMode,
+  calcAiPointsUnitPrice,
   EGeaBaseModules,
+  getPrivateImplPrice,
   PRIVATE_DEFAULT_AI_POINTS,
 } from './enums'
 import { useLanguage } from '@/providers/Language'
@@ -70,6 +73,10 @@ export interface QuoteDetailRowFormatted {
   groupId?: string
   billingMode?: BillingMode
   oneTime?: boolean
+  /** 该行「优惠折扣」列的默认系数（实施费恒为 1，定制服务跟随定制折扣） */
+  discountFactor?: number
+  /** 该行折扣不可编辑 */
+  discountLocked?: boolean
 }
 
 export interface QuoteDetailData {
@@ -81,12 +88,16 @@ export interface QuoteDetailData {
   totalNumPerYear: number
   basicCostPerYear: number
   discountTotal?: string
+  /** 折前总价（未税）数值 */
+  noTaxTotalNum: number
+  /** 折后总价（未税）数值，已叠加逐行折扣 */
+  discountTotalNum: number
   hasSSOType: EAdvancedModules[]
   /** 用于赠送门槛判断：不含赠送模块的 SaaS 年价（再乘整体折扣得折后总价） */
   saasPaidTotalPerYear: number
   /** 拓展模块已勾选（非赠送）年费合计 */
   extensionCostPerYear: number
-  /** 私有化授权费基数：模块费 + 席位费（不含存储） */
+  /** 私有化授权费基数：模块费 + 席位费（不含存储 / AI 点数） */
   saasLicenseBasePerYear: number
   /** 私有化一次性实施费用合计 */
   privateOneTimeTotal: number
@@ -118,6 +129,9 @@ const STORAGE_ROW_KEYS = [
   'chinaStorage',
   'overseasStorage',
 ]
+
+/** 私有化部署实施行：一次性实施费不打折 */
+const PRIVATE_IMPL_ROW_KEYS: string[] = Object.values(EPrivateImplProducts)
 
 const getBillingMode = (
   key: string,
@@ -236,6 +250,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   let hasSSOType: EAdvancedModules[] = []
   let extensionCostPerYear = 0
   let saasLicenseBasePerYear = 0
+  /** 定制服务行：折扣跟随【定制服务】页签的 customDiscount */
+  const customServiceRowKeys = new Set<string>()
   /** 「合并到主报价」的模块把价格并入这一行（DAM，未选则 GEA） */
   let mergeTargetRowIndex: number | undefined
 
@@ -556,8 +572,10 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         billingMode: mode,
       })
     }
-    if (advancedConfig.geaAiPointsPack > 0) {
-      const mode = getBillingMode(EGeaBaseModules.AI_POINTS_PACK, moduleBillingModes)
+    const aiPackMode = getBillingMode(EGeaBaseModules.AI_POINTS_PACK, moduleBillingModes)
+    // 私有化部署单独配置 AI 点数包，SaaS 侧只保留赠送的点数行
+    if (advancedConfig.geaAiPointsPack > 0 && (!privateConfig.enabled || aiPackMode === 'gift')) {
+      const mode = aiPackMode
       const unitPrice = resolveUnitPrice(
         EGeaBaseModules.AI_POINTS_PACK,
         pricing.advanced.geaAiPackPrice,
@@ -605,6 +623,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
       }
 
       if (key === 'storageSpace') {
+        // 私有化部署不含存储空间，不计价也不出现在报价单
+        if (privateConfig.enabled) return
         if (packageBasic.enableColdHotStorage) {
           const fee = pricingBasic.coldHotStorageFee
           basicCostPerYear += fee
@@ -716,8 +736,13 @@ export const useQuoteDetailData = (): QuoteDetailData => {
       }
 
       if (key === 'aiPoints') {
-        const quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t('ai.AutoTagEngine.unit.s') : ''} \n(${formatWithToLocaleString(100000 * packageBasic.aiPoints)}${t('expansion.points')})`
-        const cost = Math.round(packageBasic.aiPoints * pricingBasic.aiPointsPrice)
+        // 私有化部署单独配置 AI 点数包，SaaS 侧不再出现点数行
+        if (privateConfig.enabled) return
+        // 单价随所选规格变化（刊例价对应 10 万点/份）
+        const option = advancedConfig.aiPointsOption ?? AI_POINTS_DEFAULT_OPTION
+        const unitPrice = calcAiPointsUnitPrice(pricingBasic.aiPointsPrice, option)
+        const quantity = `${packageBasic.aiPoints} ${t('ai.AutoTagEngine.unit')}${packageBasic.aiPoints > 1 ? t('ai.AutoTagEngine.unit.s') : ''} \n(${formatWithToLocaleString(option * packageBasic.aiPoints)}${t('expansion.points')})`
+        const cost = Math.round(packageBasic.aiPoints * unitPrice)
         basicCostPerYear += cost
         if (cost > 0) {
           rows.push({
@@ -726,7 +751,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
             name: title,
             quantity,
             des: hint.at(-1),
-            unit: renderCost(pricingBasic.aiPointsPrice),
+            unit: renderCost(unitPrice),
             subtotal: cost,
           })
         }
@@ -821,7 +846,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     }
   }
 
-  // SaaS 授权费基数：DAM + GEA Context + 席位 + 拓展模块（不含存储 / AI 点数包）
+  // SaaS 授权费基数：DAM + GEA Context + 席位 + 拓展模块（不含存储 / AI 点数）
   {
     let licenseBase = 0
     if (advancedConfig.geaDam) {
@@ -851,6 +876,15 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     saasLicenseBasePerYear = licenseBase
   }
 
+  /**
+   * 加密部署包的授权费 = SaaS 年费本身，直接由 SaaS 明细行计价，不再单列「软件授权费」；
+   * 源码部署包（×3）/ 永久买断另有定价，仍单列授权费行，此时 SaaS 行只展示不计价。
+   */
+  const licenseBilledBySaasRows =
+    privateConfig.enabled && privateConfig.licenseEnabled && privateConfig.licenseType === 'encrypted'
+  /** 私有化下不计入小计的 SaaS 行数（授权费单列时才排除） */
+  const saasRowCount = licenseBilledBySaasRows ? 0 : rows.length
+
   // 私有化费用：开关开启即计入报价（不依赖当前页签）
   if (privateConfig.enabled) {
     rows.push({
@@ -860,7 +894,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
       isSection: true,
     })
 
-    if (privateConfig.licenseEnabled) {
+    if (privateConfig.licenseEnabled && !licenseBilledBySaasRows) {
       const licenseFee = calcPrivateLicenseFee(privateConfig.licenseType, saasLicenseBasePerYear, {
         perpetualBuyout: pricing.private.perpetualBuyout,
         sourceMultiplier: pricing.private.sourceMultiplier,
@@ -908,53 +942,55 @@ export const useQuoteDetailData = (): QuoteDetailData => {
           quantity: getYear(subscriptionYears),
           unit: renderCost(price),
           subtotal: price,
-          des: t('private.ops.basic.rate', {
-            rate: String(Math.round(pricing.private.basicMaintenanceRate * 100)),
-          }),
         })
       }
-      const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
-      const iterationListPrice =
-        pricing.private.iterationListPrices[privateConfig.iterationFrequency] ?? price
-      // 限时折扣档位（如一年4次 5 折）在名称后标注折扣
-      const iterationRate =
-        iterationListPrice > price && iterationListPrice > 0
-          ? clampModuleDiscount((price / iterationListPrice) * 10)
-          : undefined
-      const iterationSuffix =
-        iterationRate === undefined
-          ? undefined
-          : language === 'zh-CN' || language === 'zh-TW'
-            ? `${iterationRate}${t('discount.unit')}`
-            : `${Math.round((10 - iterationRate) * 10)}% off`
-      privatePerYear += price
-      rows.push({
-        key: 'privateVersionIteration',
-        sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
-        name: withBillingSuffix(
-          `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
-          iterationSuffix,
-        ),
-        quantity: getYear(subscriptionYears),
-        unit: renderCost(price),
-        subtotal: price,
-      })
+      if (privateConfig.versionIteration) {
+        const price = pricing.private.iterationPrices[privateConfig.iterationFrequency] ?? 0
+        const iterationListPrice =
+          pricing.private.iterationListPrices[privateConfig.iterationFrequency] ?? price
+        // 限时折扣档位（如一年4次 5 折）在名称后标注折扣
+        const iterationRate =
+          iterationListPrice > price && iterationListPrice > 0
+            ? clampModuleDiscount((price / iterationListPrice) * 10)
+            : undefined
+        const iterationSuffix =
+          iterationRate === undefined
+            ? undefined
+            : language === 'zh-CN' || language === 'zh-TW'
+              ? `${iterationRate}${t('discount.unit')}`
+              : `${Math.round((10 - iterationRate) * 10)}% off`
+        privatePerYear += price
+        rows.push({
+          key: 'privateVersionIteration',
+          sku: getModuleSku(`private.ops.iteration.${privateConfig.iterationFrequency}`),
+          name: withBillingSuffix(
+            `${t('private.ops.iteration')}（${t('private.ops.iteration.times', { times: privateConfig.iterationFrequency })}）`,
+            iterationSuffix,
+          ),
+          quantity: getYear(subscriptionYears),
+          unit: renderCost(price),
+          subtotal: price,
+        })
+      }
     }
 
     if (privateConfig.aiPointsEnabled) {
       const points = privateConfig.aiPointsOption ?? PRIVATE_DEFAULT_AI_POINTS
+      const qty = privateConfig.aiPointsQty ?? 1
       const packs = points / AI_POINTS_PER_PACK
-      const unitPrice = pricing.advanced.geaAiPackPrice
-      const price = packs * unitPrice
+      // 单价按「份」计：一份即所选规格的点数
+      const unitPrice = packs * pricing.advanced.geaAiPackPrice
+      const price = unitPrice * qty
       privatePerYear += price
       rows.push({
         key: 'privateAiPoints',
         sku: getModuleSku('privateAiPoints'),
         name: t('private.aiPointsPack'),
-        quantity: t('gea.aiPointsPack.tag', { points: String(points / 10000) }),
+        quantity: `${qty} ${t('ai.AutoTagEngine.unit')}${qty > 1 ? t('ai.AutoTagEngine.unit.s') : ''} \n(${t('gea.aiPointsPack.tag', { points: String(points / 10000) })})`,
         unit: renderCost(unitPrice),
         subtotal: price,
-        des: t('gea.aiPointsPack.cycleHint'),
+        // 概览只展示单价列，规格与份数并入描述，便于核对私有化里的配置
+        des: `${t('gea.aiPointsPack.tag', { points: String(points / 10000) })} × ${qty} ${t('ai.AutoTagEngine.unit')}\n${t('gea.aiPointsPack.cycleHint')}`,
       })
     }
 
@@ -983,7 +1019,11 @@ export const useQuoteDetailData = (): QuoteDetailData => {
           bold: true,
         })
         selectedImpl.forEach(({ key, label }) => {
-          const price = pricing.private.implProducts[key]
+          const price = getPrivateImplPrice(
+            key,
+            pricing.private.implProducts,
+            privateConfig.cloudProvider,
+          )
           privateOneTimeTotal += price
           rows.push({
             key,
@@ -1050,15 +1090,15 @@ export const useQuoteDetailData = (): QuoteDetailData => {
         )
       })
 
-      // 定制服务可单独设置折扣
-      const discountedServiceCost = Math.round(serviceCost * ((customDiscount ?? 10) / 10))
-      customOneTimeTotal += discountedServiceCost
+      // 小计按刊例价计，定制折扣由「优惠折扣」列按 customDiscount 应用
+      customOneTimeTotal += serviceCost
+      customServiceRowKeys.add(service.id)
       rows.push({
         key: service.id,
         name: service.name,
         quantity: totalQuantity ? `${totalQuantity}${t('custom.personDay')}` : '',
         unit: undefined,
-        subtotal: discountedServiceCost,
+        subtotal: serviceCost,
         oneTime: true,
         des: lineBlocks.join('\n\n'),
       })
@@ -1066,7 +1106,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   }
 
   const saasAnnual = basicCostPerYear + extensionCostPerYear
-  const annualTotal = saasAnnual + privatePerYear
+  // 私有化开启时 SaaS 年费已体现在「软件授权费」里，不再重复计入总价
+  const annualTotal = (privateConfig.enabled && !licenseBilledBySaasRows ? 0 : saasAnnual) + privatePerYear
   const noTaxTotal =
     annualTotal * subscriptionYears + privateOneTimeTotal + customOneTimeTotal
 
@@ -1082,13 +1123,31 @@ export const useQuoteDetailData = (): QuoteDetailData => {
    * 小计（未税）不受影响，仅折后小计变化。
    */
   const defaultFactor = (discount || 10) / 10
-  const rowDiscountDelta = rows.reduce((sum, v) => {
-    if (!v.key) return sum
-    const override = rowDiscounts[v.key]
-    if (typeof override !== 'number') return sum
+  /**
+   * 每行的默认折扣系数：
+   * 私有化部署实施费不参与打折（锁定 1）；定制服务跟随【定制服务】页签的折扣；其余跟随【优惠设置】。
+   */
+  const rowDefaultFactor = (v: QuoteDetailRow): number => {
+    if (!v.key) return defaultFactor
+    if (PRIVATE_IMPL_ROW_KEYS.includes(v.key)) return 1
+    if (customServiceRowKeys.has(v.key)) return (customDiscount ?? 10) / 10
+    return defaultFactor
+  }
+  /** 实施费固定 1 折扣系数，不允许在「优惠折扣」列改 */
+  const isDiscountLocked = (v: QuoteDetailRow): boolean =>
+    !!v.key && PRIVATE_IMPL_ROW_KEYS.includes(v.key)
+  /** 私有化下不计入小计的 SaaS 行：也不参与「优惠折扣」列 */
+  const isExcludedFromTotal = (index: number) =>
+    privateConfig.enabled && !licenseBilledBySaasRows && index < saasRowCount
+  const rowDiscountDelta = rows.reduce((sum, v, index) => {
+    if (!v.key || isExcludedFromTotal(index)) return sum
+    const rowDefault = rowDefaultFactor(v)
+    const override = isDiscountLocked(v) ? undefined : rowDiscounts[v.key]
+    const factor = typeof override === 'number' ? override : rowDefault
+    if (factor === defaultFactor) return sum
     const amount = rowAmount(v)
     if (amount === undefined) return sum
-    return sum + amount * (override - defaultFactor)
+    return sum + amount * (factor - defaultFactor)
   }, 0)
   const discountTotal = noTaxTotal * defaultFactor + rowDiscountDelta
 
@@ -1097,10 +1156,13 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   void basicConfig
 
   return {
-    rows: rows.map((v) => ({
+    rows: rows.map((v, index) => ({
       ...v,
       name: withBillingSuffix(v.name, billingSuffix(v)),
-      amount: rowAmount(v),
+      // 不计入小计的 SaaS 行不显示「优惠折扣」输入
+      amount: isExcludedFromTotal(index) ? undefined : rowAmount(v),
+      discountFactor: rowDefaultFactor(v),
+      discountLocked: isDiscountLocked(v),
       subtotal:
         typeof v.subtotal === 'string'
           ? v.subtotal
@@ -1116,6 +1178,8 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     subtotal: prefix + noTaxTotal.toLocaleString(),
     total: prefix + (discountTotal * (isInChina ? 1.06 : 1)).toLocaleString(),
     discountTotal: discount ? prefix + discountTotal.toLocaleString() : undefined,
+    noTaxTotalNum: noTaxTotal,
+    discountTotalNum: discountTotal,
     years: subscriptionYears,
     basicCostPerYear,
     extensionCostPerYear,
@@ -1128,6 +1192,55 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     privateOneTimeTotal,
     customOneTimeTotal,
   }
+}
+
+/**
+ * 「未选模块报价」候选行：未购买、未合并到基础报价、且不在正式报价行里的模块。
+ * 供报价单表格与左侧的模块勾选弹窗共用，保证两边列表一致。
+ */
+export const useNotBuyRows = (rows: QuoteDetailData['rows']): QuoteDetailRow[] => {
+  const { allModules, hasSSOType } = useQuoteDetailData()
+  const { allSSOType } = usePricing()
+  const { mergedToBasicModules, advancedModules } = useQuotationStore()
+  const moduleGroups = useAdvancedModuleGroups()
+
+  /** 子模块（版本档位）→ 父模块名称，用于「视频混剪 (Clipo Remix)-蜜蜂版」这类展示 */
+  const parentLabelByKey = useMemo(() => {
+    const map = new Map<string, string>()
+    const walk = (modules: IModules[], parentLabel?: string) => {
+      modules.forEach((m) => {
+        if (parentLabel) map.set(m.key, parentLabel)
+        if (m.subModules?.length) walk(m.subModules, m.label)
+      })
+    }
+    moduleGroups.forEach((g) => walk(g.modules))
+    return map
+  }, [moduleGroups])
+
+  const withParentName = (row: QuoteDetailRow): QuoteDetailRow => {
+    const parent = row.key ? parentLabelByKey.get(row.key) : undefined
+    if (!parent || typeof row.name !== 'string') return row
+    // 子模块名已含父模块名（如「创意生产·批量套版」）时不再重复拼接
+    const parentBase = parent.split(' (')[0]
+    if (row.name.startsWith(parent) || row.name.startsWith(parentBase)) return row
+    return { ...row, name: `${parent}-${row.name}` }
+  }
+
+  return allModules
+    .filter((v) => {
+      if (!v.key) return false
+      // 排除合并到基础报价的模块（它们已购买，只是合并了）
+      if (mergedToBasicModules.has(v.key as EAdvancedModules)) return false
+
+      const notBuy = (v as QuoteDetailRow & { notBuy?: boolean }).notBuy
+      if (!notBuy && advancedModules[v.key as EAdvancedModules]) return false
+
+      if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
+        return hasSSOType.length < allSSOType.length
+      }
+      return !rows.find((item) => item.key === v.key)
+    })
+    .map(withParentName)
 }
 
 export const useExpandServices = () => {
@@ -1156,7 +1269,7 @@ export const useExpandServices = () => {
         description: t('expansion.aiPoints.desc'),
         value: `${isInChina ? '¥20,000' : '$4,000'}${t('per.year')}\n /100,000` + t('expansion.points'),
         unit: (isInChina ? '¥20,000' : '$4,000') + '/' + t('ai.AutoTagEngine.unit'),
-        quantity: `1 ${t('year')}\n${t('ai.AutoTagEngine.quantity', { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`,
+        quantity: `1 ${t('year')}${t('ai.AutoTagEngine.quantity', { value: language === 'zh-CN' ? 10 : (100000).toLocaleString() })}`,
       },
       {
         name: t('expansion.downloadData'),

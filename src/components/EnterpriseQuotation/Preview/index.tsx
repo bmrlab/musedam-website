@@ -76,7 +76,7 @@ export const QuotationPreview: FC<{ id: string, user: SessionUser | null, inShar
     return <QuotationPreviewContent
         info={info}
         showDownload={isSelf}
-        showEdit={false}
+        showEdit={true}
         showShare={isSelf}
         user={props.user}
     />

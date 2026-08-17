@@ -6,7 +6,9 @@ import { formatWithToLocaleString } from '@/utilities/formatPrice'
 import { useTranslation } from '@/app/i18n/client'
 
 import {
+  AI_POINTS_DEFAULT_OPTION,
   BillingMode,
+  calcAiPointsUnitPrice,
   EAdvancedModules,
   EBasicConfigKey,
   EGeaBaseModules,
@@ -82,6 +84,8 @@ export interface IModules {
   }[]
   /** 一次性收费 */
   oneTime?: boolean
+  /** 与上一个模块同属一块（中间不画分割线），如「门户主题定制」跟随「门户网站」 */
+  groupWithPrev?: boolean
   /** 父模块依赖（未购买父模块时禁用） */
   requires?: EAdvancedModules
   /** 卡片容器样式（如社媒账户增购） */
@@ -107,13 +111,11 @@ export interface IModuleGroup {
 export const usePricing = () => {
   const { t } = useTranslation('quotation')
   const { isInChina } = useCountry()
-  const { businessRole, privateConfig } = useQuotationStore()
+  const { businessRole } = useQuotationStore()
   const isGlobal = !isInChina
   const prefix = isGlobal ? '$' : '¥'
   // Pod: 20w/年；Muse: 5w/年
   const damPriceByRole = businessRole === 'pod' ? 200000 : 50000
-  // 私有化部署实施按云厂商计价：阿里云 10w，其它云 15w
-  const privateDeployPrice = privateConfig.cloudProvider === 'aliyun' ? 100000 : 150000
 
   const pricing = useMemo(
     () => ({
@@ -162,10 +164,8 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
               [EAdvancedModules.AI_AUTO_TAG_MODULE]: 6000,
-              [EAdvancedModules.AI_AUTO_TAG_POINTS]: 1000,
               [EAdvancedModules.FEATURE_LIBRARY]: 0, // TODO: overseas price
               [EAdvancedModules.AI_FEATURE_RECOGNITION]: 0, // TODO: overseas price
-              [EAdvancedModules.AI_FEATURE_POINTS]: 1000,
               [EAdvancedModules.MUSE_AI]: 20000,
               [EAdvancedModules.MUSE_AI_BASIC]: 10000, // TODO: overseas price
               [EAdvancedModules.MUSE_AI_STANDARD]: 0, // TODO: overseas price
@@ -178,7 +178,6 @@ export const usePricing = () => {
               [EAdvancedModules.CLIPO_REMIX_BEE]: 0, // TODO: overseas price
               [EAdvancedModules.CLIPO_REMIX_PANDA]: 0, // TODO: overseas price
               [EAdvancedModules.CLIPO_REMIX_LION]: 0, // TODO: overseas price
-              [EAdvancedModules.CREATIVE_AI_POINTS]: 1000,
               [EAdvancedModules.FILE_COLLECTION]: 0, // TODO: overseas price
               [EAdvancedModules.APPROVAL_CENTER]: 0, // TODO: overseas price
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
@@ -251,10 +250,8 @@ export const usePricing = () => {
               [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
               [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
               [EAdvancedModules.AI_AUTO_TAG_MODULE]: 30000,
-              [EAdvancedModules.AI_AUTO_TAG_POINTS]: 5000,
               [EAdvancedModules.FEATURE_LIBRARY]: 10000,
               [EAdvancedModules.AI_FEATURE_RECOGNITION]: 30000,
-              [EAdvancedModules.AI_FEATURE_POINTS]: 5000,
               [EAdvancedModules.MUSE_AI]: 100000,
               [EAdvancedModules.MUSE_AI_BASIC]: 50000,
               [EAdvancedModules.MUSE_AI_STANDARD]: 100000,
@@ -267,7 +264,6 @@ export const usePricing = () => {
               [EAdvancedModules.CLIPO_REMIX_BEE]: 98000,
               [EAdvancedModules.CLIPO_REMIX_PANDA]: 198000,
               [EAdvancedModules.CLIPO_REMIX_LION]: 398000,
-              [EAdvancedModules.CREATIVE_AI_POINTS]: 5000,
               [EAdvancedModules.FILE_COLLECTION]: 20000,
               [EAdvancedModules.APPROVAL_CENTER]: 100000,
               [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
@@ -316,7 +312,8 @@ export const usePricing = () => {
             /** 源码部署倍数 */
             sourceMultiplier: 3,
             /** 基础维护 = 软件授权费 × 比例 */
-            basicMaintenanceRate: 0.15,
+            // 基础维护不再收费
+            basicMaintenanceRate: 0,
             iterationPrices: {
               1: 150000,
               4: 120000,
@@ -331,17 +328,18 @@ export const usePricing = () => {
               [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
             } as Record<string, number>,
             implProducts: {
-              [EPrivateImplProducts.DAM]: privateDeployPrice,
-              [EPrivateImplProducts.GEA_CONTEXT]: privateDeployPrice,
-              [EPrivateImplProducts.MUSE_AI]: privateDeployPrice,
-              [EPrivateImplProducts.INGEN_OPS]: privateDeployPrice,
-              [EPrivateImplProducts.CLIPO_REMIX]: privateDeployPrice,
+              [EPrivateImplProducts.DAM]: 100000,
+              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
+              [EPrivateImplProducts.MUSE_AI]: 50000,
+              [EPrivateImplProducts.INGEN_OPS]: 50000,
+              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
             } as Record<EPrivateImplProducts, number>,
           }
         : {
             perpetualBuyout: 6000000,
             sourceMultiplier: 3,
-            basicMaintenanceRate: 0.15,
+            // 基础维护不再收费
+            basicMaintenanceRate: 0,
             iterationPrices: {
               1: 150000,
               4: 120000,
@@ -355,15 +353,15 @@ export const usePricing = () => {
               [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
             } as Record<string, number>,
             implProducts: {
-              [EPrivateImplProducts.DAM]: privateDeployPrice,
-              [EPrivateImplProducts.GEA_CONTEXT]: privateDeployPrice,
-              [EPrivateImplProducts.MUSE_AI]: privateDeployPrice,
-              [EPrivateImplProducts.INGEN_OPS]: privateDeployPrice,
-              [EPrivateImplProducts.CLIPO_REMIX]: privateDeployPrice,
+              [EPrivateImplProducts.DAM]: 100000,
+              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
+              [EPrivateImplProducts.MUSE_AI]: 50000,
+              [EPrivateImplProducts.INGEN_OPS]: 50000,
+              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
             } as Record<EPrivateImplProducts, number>,
           },
     }),
-    [isGlobal, damPriceByRole, privateDeployPrice],
+    [isGlobal, damPriceByRole],
   )
 
   const moduleNames: Record<string, string> = {
@@ -379,10 +377,8 @@ export const usePricing = () => {
     [EAdvancedModules.ADVANCED_PROJECT_HUB]: t('module.advancedProjectHub'),
     [EAdvancedModules.AI_AUTO_TAG]: t('module.aiAutoTag'),
     [EAdvancedModules.AI_AUTO_TAG_MODULE]: t('module.aiAutoTagModule'),
-    [EAdvancedModules.AI_AUTO_TAG_POINTS]: t('module.aiAutoTagPoints'),
     [EAdvancedModules.FEATURE_LIBRARY]: t('module.featureLibrary'),
     [EAdvancedModules.AI_FEATURE_RECOGNITION]: t('module.aiFeatureRecognition'),
-    [EAdvancedModules.AI_FEATURE_POINTS]: t('module.aiFeaturePoints'),
     [EAdvancedModules.MUSE_AI]: t('module.museAI'),
     [EAdvancedModules.MUSE_AI_BASIC]: t('variant.basic'),
     [EAdvancedModules.MUSE_AI_STANDARD]: t('variant.standard'),
@@ -396,7 +392,6 @@ export const usePricing = () => {
     [EAdvancedModules.CLIPO_REMIX_PANDA]: t('variant.clipoPanda'),
     [EAdvancedModules.CLIPO_REMIX_LION]: t('variant.clipoLion'),
     [EAdvancedModules.SMART_FILM]: t('module.smartFilm'),
-    [EAdvancedModules.CREATIVE_AI_POINTS]: t('module.creativeAiPoints'),
     [EAdvancedModules.FILE_COLLECTION]: t('module.fileCollection'),
     [EAdvancedModules.APPROVAL_CENTER]: t('module.approvalCenter'),
     [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: t('module.deliveryApprovalCenter'),
@@ -463,10 +458,15 @@ export const usePricing = () => {
 
 export const useBasicConfigs = () => {
   const { t } = useTranslation('quotation')
-  const { activeTab, businessRole } = useQuotationStore()
+  const { activeTab, businessRole, advancedConfig } = useQuotationStore()
   const { pricing, prefix } = usePricing()
   const basicPricing = pricing.basic
   const advancedPricing = pricing.advanced
+  /** AI 点数订阅所选规格：单价按 10 万点/份的刊例价等比换算 */
+  const aiPointsOption = advancedConfig.aiPointsOption ?? AI_POINTS_DEFAULT_OPTION
+  const aiPointsUnitPrice = calcAiPointsUnitPrice(advancedPricing.aiPointsPrice, aiPointsOption)
+  const aiPointsTag = (points: number) =>
+    t('gea.aiPointsPack.tag', { points: String(points / 10000) })
 
   return activeTab === TabEnum.BASIC
     ? [
@@ -492,7 +492,7 @@ export const useBasicConfigs = () => {
           key: 'aiPoints' as const,
           title: t('ai.points'),
           min: 0,
-          hint: [t('aiPoints.hint')],
+          hint: [t('aiPoints.hint', { points: aiPointsTag(AI_POINTS_DEFAULT_OPTION) })],
           des:
             `${prefix} ${formatWithToLocaleString(basicPricing.aiPointsPrice)}${t('per.year')}` +
             ` ( ${prefix} ${parseFloat((basicPricing.aiPointsPrice / 100000).toFixed(3))}${t('aiPoints.unit')})`,
@@ -522,11 +522,11 @@ export const useBasicConfigs = () => {
           key: EBasicConfigKey.AI_POINTS,
           title: t('ai.points'),
           min: 0,
-          hint: [t('aiPoints.hint')],
+          hint: [t('aiPoints.hint', { points: aiPointsTag(aiPointsOption) })],
           des:
-            `${prefix} ${formatWithToLocaleString(advancedPricing.aiPointsPrice)}${t('per.year')}` +
-            ` ( ${prefix} ${parseFloat((advancedPricing.aiPointsPrice / 100000).toFixed(3))}${t('aiPoints.unit')} )`,
-          price: advancedPricing.aiPointsPrice,
+            `${prefix} ${formatWithToLocaleString(aiPointsUnitPrice)}${t('per.year')}` +
+            ` ( ${prefix} ${parseFloat((aiPointsUnitPrice / aiPointsOption).toFixed(3))}${t('aiPoints.unit')} )`,
+          price: aiPointsUnitPrice,
         },
       ]
 }
@@ -931,6 +931,7 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           unit: t('unit.oneTimePerItem'),
           hint: t('portalTheme.hint'),
           requires: EAdvancedModules.PORTAL,
+          groupWithPrev: true,
           min: 1,
         },
         {
@@ -979,6 +980,8 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
               min: 0,
               noCheckBox: true,
               boxed: true,
+              // 渠道一个都没选时，增购数量自动归 0
+              requires: EAdvancedModules.SOCIAL_CHANNELS,
             },
             {
               key: EAdvancedModules.SOCIAL_ATTRIBUTION,
@@ -1014,6 +1017,11 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           price: m[EAdvancedModules.ECOM_ACCOUNT_PACK],
           hint: t('ecomAccountPack.hint'),
           min: 0,
+          // 与「社媒绑定账户增购」一致：无勾选框、带边框的独立卡片
+          noCheckBox: true,
+          boxed: true,
+          // 渠道一个都没选时，增购数量自动归 0
+          requires: EAdvancedModules.ECOM_CHANNELS,
         },
         {
           key: EAdvancedModules.ECOM_ATTRIBUTION,

@@ -1,6 +1,6 @@
 "use client"
 import { cn, twx } from '@/utilities/cn'
-import { QuoteDetailData, useExpandServices, useQuoteDetailData } from '../QuoteDetailData'
+import { QuoteDetailData, useExpandServices, useNotBuyRows, useQuoteDetailData } from '../QuoteDetailData'
 import { useTranslation } from 'react-i18next'
 import { FC } from 'react'
 import { EAdvancedModules } from '../enums'
@@ -12,40 +12,20 @@ const Table = twx.table`w-full mb-4 text-[#262626] font-normal`
 const Th = twx.th`detail-th bg-[#F9FAFB] font-bold text-left md:px-6 md:py-[13px] px-3 py-[10px] border-b border-[#E1E1DC] md:text-lg text-base vertical-align-middle `
 const Td = twx.td`detail-td md:px-6 md:py-[13px] px-3 py-[10px] border-b border-[#E1E1DC] md:text-base text-sm vertical-align-middle`
 const ExportLine = twx.div`flex-content whitespace-pre-line`
-const Tr = twx.tr``
+const Tr = twx.tr`avoid-break`
 
 
 export const NotBuyDetailTable: FC<{ rows: QuoteDetailData['rows'], isExport?: boolean }> = ({ rows, isExport }) => {
-    const { allModules, hasSSOType } = useQuoteDetailData()
+    const { hasSSOType } = useQuoteDetailData()
     const { ssoTypeNames, allSSOType } = usePricing()
     const advancedConfigs = useAdvancedConfigs()
-    const { mergedToBasicModules, advancedModules } = useQuotationStore()
+    const { noBuyModuleKeys } = useQuotationStore()
 
-    const notBuyRows = allModules.filter((v) => {
-        if (!v.key) return false
-
-        // 排除合并到基础报价的模块（它们已购买，只是合并了）
-        if (mergedToBasicModules.has(v.key as EAdvancedModules)) {
-            return false
-        }
-
-        // 使用和 filterModules 相同的逻辑判断是否已购买
-        const notBuy = (v as any).notBuy
-        const isPurchased = !notBuy && advancedModules[v.key]
-
-        // 如果已购买，排除（不管是否在 rows 中）
-        if (isPurchased) {
-            return false
-        }
-
-        // 特殊处理 ENTERPRISE_SSO
-        if (v.key === EAdvancedModules.ENTERPRISE_SSO) {
-            return hasSSOType.length < allSSOType.length
-        }
-
-        // 其他模块：不在 rows 中且未购买
-        return !rows.find(item => item.key === v.key)
-    })
+    const candidates = useNotBuyRows(rows)
+    // 未指定时（历史报价）展示全部候选模块
+    const notBuyRows = noBuyModuleKeys
+        ? candidates.filter((v) => v.key && noBuyModuleKeys.includes(v.key))
+        : candidates
 
 
     const { t } = useTranslation('quotation')

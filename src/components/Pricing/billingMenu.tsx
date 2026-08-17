@@ -77,8 +77,8 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       t('pricing.enterpriseSummary.basicFolderPermissions'),
     ],
     [EPlanProductType.TEAM_FLAGSHIP]: [
-      t('pricing.summary.seats', { val: isInChina ? 15 : 10 }),
-      t('pricing.summary.storage', { val: '3T(3072G)' }),
+      t('pricing.summary.seats', { val: isInChina ? 5 : 10 }),
+      t('pricing.summary.storage.expand', { val: '1T(1024G)' }),
       t('pricing.enterpriseSummary.includesAllBasic'),
       t('pricing.enterpriseSummary.advancedPermissions'),
       t('pricing.enterpriseSummary.advancedExtensions'),
@@ -210,8 +210,8 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
           t('plan.summary.copyright.enterprise'),
           t('plan.summary.usage_rights'),
           t('plan.summary.points.perMonth', { val: '24,000' }),
-          t('plan.summary.storage', { val: '3T' }),
-          t('plan.summary.seats.team', { val: 15 }),
+          t('plan.summary.storage', { val: '1T' }),
+          t('plan.summary.seats.team', { val: 5 }),
           t('plan.summary.team.gallery'),
         ],
 
@@ -255,7 +255,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       [BillingType.yearly]: EMuseProductType.ABROAD_ORG_BASIC_YEARLY,
       period: t('pricing.perMonth'),
       priceGlobal: '60',
-      price: '224',
+      price: '417',
       color: '#BBB3FF'
     },
     {

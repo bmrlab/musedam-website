@@ -68,14 +68,17 @@ export interface IAdvancedInfo {
   overseasHotStorage?: number
   /** 海外冷库 TB */
   overseasColdStorage?: number
+  /** AI 点数订阅份数 */
   aiPoints: number
+  /** AI 点数订阅规格（点数/份），可选 5 万 / 10 万 / 50 万 */
+  aiPointsOption?: number
   /** GEA 基础：DAM 数字资产管理 */
   geaDam: boolean
   /** GEA+Context 智能体基座 */
   geaContext: boolean
-  /** 基础区 AI 点数包份数（1万点/份） */
+  /** 基础区 AI 点数包份数（1万点/份），固定 5 万点 */
   geaAiPointsPack: number
-  /** AI 点数订阅规格（点数），可选 5 万 / 10 万 / 50 万 */
+  /** @deprecated 规格选择已移至 AI 点数订阅（aiPointsOption），点数包固定 5 万点 */
   geaAiPointsOption?: number
 }
 
@@ -99,6 +102,8 @@ export interface IPrivateConfig {
   aiPointsEnabled?: boolean
   /** API 点数规格（点数），可选 5 万 / 10 万 / 50 万 */
   aiPointsOption?: number
+  /** API 点数份数 */
+  aiPointsQty?: number
   /** @deprecated 兼容历史报价 */
   memberSeats?: number
 }

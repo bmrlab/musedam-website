@@ -6,6 +6,7 @@ import { QuoteDetailRow, useQuoteDetailData } from './QuoteDetailData'
 import { useEnterprisePlan } from '../Pricing/Enterprise/listPlan'
 import { cn } from '@/utilities/cn'
 import { EAdvancedModules } from './enums'
+import { IModules, useAdvancedModuleGroups } from './config'
 
 interface IDetailItem {
     name: string, detail: string
@@ -33,7 +34,7 @@ const splitModuleName = (raw: string): { title: string; children: string[] } => 
 
 const DetailItem = ({ item, isInExport }: { item: IDetailItem, isInExport?: boolean }) => {
     return <div
-        className={cn("grid min-h-[55px] grid-cols-5 justify-between border-t px-6 py-[15px] text-base",
+        className={cn("avoid-break grid min-h-[55px] grid-cols-5 justify-between border-t px-6 py-[15px] text-base",
             isInExport ? 'text-lg' : 'text-base'
         )}
         key={item.name}
@@ -49,10 +50,10 @@ const DetailItem = ({ item, isInExport }: { item: IDetailItem, isInExport?: bool
 
 const List = ({ list, isInExport }: { list: DisplayRow[], isInExport?: boolean }) => {
     return <div className="space-y-0 text-xl">
-        {list.map(({ title, detail, items }) => (
-            <React.Fragment key={title}>
+        {list.map(({ title, detail, items }, index) => (
+            <React.Fragment key={`${title}-${index}`}>
                 <div
-                    className={cn("grid min-h-[55px] grid-cols-5 justify-between border-t transition-colors",
+                    className={cn("avoid-break grid min-h-[55px] grid-cols-5 justify-between border-t transition-colors",
                         isInExport ? 'px-6 py-[15px] text-lg' : 'px-[12px] py-[10px] text-sm md:px-6 md:py-[15px] md:text-base'
                     )}
                 >
@@ -64,7 +65,9 @@ const List = ({ list, isInExport }: { list: DisplayRow[], isInExport?: boolean }
                     </div>
                 </div>
 
-                {items?.map((item) => <DetailItem item={item} key={item.name} isInExport={isInExport} />)}
+                {items?.map((item, i) => (
+                    <DetailItem item={item} key={`${item.name}-${i}`} isInExport={isInExport} />
+                ))}
             </React.Fragment>
         ))}
     </div>
@@ -78,6 +81,20 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         advancedModules,
     } = useQuotationStore()
     const { hasSSOType, allModules } = useQuoteDetailData()
+    const moduleGroups = useAdvancedModuleGroups()
+
+    /** 模块 key → 模块功能描述（moduleDesc.*），未接入 featureList 映射的模块用它兜底 */
+    const moduleDescByKey = React.useMemo(() => {
+        const map = new Map<string, string>()
+        const walk = (modules: IModules[]) => {
+            modules.forEach((m) => {
+                if (m.description) map.set(m.key, m.description)
+                if (m.subModules?.length) walk(m.subModules)
+            })
+        }
+        moduleGroups.forEach((g) => walk(g.modules))
+        return map
+    }, [moduleGroups])
     // 所有权益/映射
     const { basicGroupsByCode, advancedGroupsByCode, advancedKeyToGroup } = useEnterprisePlan()
 
@@ -98,7 +115,7 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
             return isPurchased
         })
         .map((module) => module.key)
-        .filter((v) => !!v) as string[]
+        .filter((v, i, arr) => !!v && arr.indexOf(v) === i) as string[]
 
     const basicList: DisplayRow[] = (() => {
         // const groups = featureListKeys.map(code => basicGroupsByCode[basicKeyToGroups[code]]).filter((v) => !!v)
@@ -124,13 +141,11 @@ export const FeatureList: FC<{ rows: QuoteDetailRow[], isInExport?: boolean }> =
         const fallbackFromPurchasedModule = (code: string): DisplayRow => {
             const modRow = purchasedModuleByKey.get(code)
             const moduleName = String(modRow?.name ?? code)
-            const { title, children } = splitModuleName(moduleName)
-            const detail = typeof modRow?.des === 'string' ? modRow.des : undefined
-            return {
-                title,
-                detail,
-                items: children.map((name) => ({ name, detail: '' })),
-            }
+            // 只取模块名主体：括号里的英文名 / 已选渠道不再单独成行
+            const { title } = splitModuleName(moduleName)
+            const detail =
+                (typeof modRow?.des === 'string' ? modRow.des : undefined) ?? moduleDescByKey.get(code)
+            return { title, detail }
         }
 
         const groups = featureListKeys.map(code => {

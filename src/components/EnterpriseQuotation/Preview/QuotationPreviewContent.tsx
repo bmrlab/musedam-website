@@ -49,6 +49,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     setDiscount,
     showNoBuyFeature,
     setShowNoBuyFeature,
+    setNoBuyModuleKeys,
     setAdvancedModules,
     setAdvancedConfig,
     setEditInfo,
@@ -158,6 +159,8 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 setDiscount(realDiscount)
                 setFeatureView(content.featureView)
                 setShowNoBuyFeature(content.showNoBuyFeature)
+                // 历史报价没有该字段时保持 undefined，即展示全部未选模块
+                setNoBuyModuleKeys(content.noBuyModuleKeys)
                 setSubscriptionYears(info.subscriptionYears)
 
                 const totalCost = (info.annualPrice / 100) * info.subscriptionYears
@@ -176,7 +179,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setNoBuyModuleKeys, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;
@@ -213,6 +216,11 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
         .page-content .all-total{
             font-size: 22px !important;
         }
+        /* 分页时不要把整行/整块内容从中间切开 */
+        .page-content .avoid-break{
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
         `;
         document.head.appendChild(style);
 
@@ -242,6 +250,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 mode: ['css'],
                 before: '.page-break-before',
                 after: '.page-break-after',
+                avoid: ['.avoid-break', 'tr', 'thead'],
             }
         };
 
@@ -402,9 +411,14 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 user={user} // 这里需要根据实际情况传入用户信息
             />
 
-            {/* 导出视图（隐藏） */}
+            {/* 导出视图（离屏渲染）
+                不能用 display:none：否则 offsetWidth/scrollHeight 为 0，
+                html2canvas 会以 0 宽度重排克隆节点，导致文字换行错乱、互相遮挡 */}
             {showDownload && (
-                <div className='hidden'>
+                <div
+                    aria-hidden
+                    className='pointer-events-none fixed left-[-20000px] top-0 w-[1440px]'
+                >
                     <ExportView
                         info={{ ...quoteInfo, rows }}
                         quoteNo={info.quotationNo || ''}
