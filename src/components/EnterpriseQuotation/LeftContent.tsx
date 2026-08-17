@@ -53,6 +53,7 @@ import {
   PrivateCloudProvider,
   PrivateIterationFrequency,
   PrivateLicenseType,
+  QUOTATION_CONTENT_VERSION,
   SeatPricingMode,
   SeatTier,
   TabEnum,
@@ -385,7 +386,12 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const { t } = useTranslation('quotation')
   const basicConfigs = useBasicConfigs()
   const moduleGroups = useAdvancedModuleGroups()
-  const { pricing, prefix, giftThreshold: aiPointsGiftThreshold } = usePricing()
+  const {
+    pricing,
+    currentPricing,
+    prefix,
+    giftThreshold: aiPointsGiftThreshold,
+  } = usePricing()
   const { isInChina } = useCountry()
   const isGlobal = !isInChina
   const { toast } = useToast()
@@ -440,6 +446,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setShowNoBuyFeature,
     noBuyModuleKeys,
     setNoBuyModuleKeys,
+    pricingSnapshot,
     editInfo,
     advancedModulePriceOverrides,
     setAdvancedModulePriceOverride,
@@ -963,6 +970,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       showNoBuyFeature,
       noBuyModuleKeys,
       lang: language,
+      // 冻结刊例价：新报价单存当前价；编辑历史报价单时保留其原有快照
+      pricingSnapshot: pricingSnapshot ?? currentPricing,
+      contentVersion: QUOTATION_CONTENT_VERSION,
     }
     try {
       const userInfo = {
@@ -1018,6 +1028,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     featureView,
     showNoBuyFeature,
     noBuyModuleKeys,
+    pricingSnapshot,
+    currentPricing,
     language,
     toast,
     customerInfo,

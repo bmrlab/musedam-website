@@ -103,6 +103,7 @@
   "subtotal": "Subtotal",
   "discount.subtotal": "Discount Subtotal( {{discount}} OFF)",
   "vat": "VAT",
+  "legacy.total": "Original quote (at creation)",
   "total": "Total",
   "quote.date": "Quote Date",
   "quote.valid.days": "Valid for 30 days",

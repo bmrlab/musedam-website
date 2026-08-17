@@ -10,7 +10,10 @@ import { ExpandService, NotBuyDetailTable } from './NotBuyDetailTable'
 import { useLanguage } from '@/providers/Language'
 import { useCountry } from '@/providers/Country'
 
-type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'>
+type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'> & {
+    /** 价格快照上线前的历史报价单：保存时的总计 */
+    legacyTotal?: string
+}
 
 interface ExportViewProps {
     info: QuoteDetailDataById

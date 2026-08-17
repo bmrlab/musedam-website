@@ -108,17 +108,8 @@ export interface IModuleGroup {
   baseProduct?: ExtensionBaseProduct
 }
 
-export const usePricing = () => {
-  const { t } = useTranslation('quotation')
-  const { isInChina } = useCountry()
-  const { businessRole } = useQuotationStore()
-  const isGlobal = !isInChina
-  const prefix = isGlobal ? '$' : '¥'
-  // Pod: 20w/年；Muse: 5w/年
-  const damPriceByRole = businessRole === 'pod' ? 200000 : 50000
-
-  const pricing = useMemo(
-    () => ({
+/** 刊例价表：仅取决于境内外与业务角色 */
+const buildPricing = (isGlobal: boolean, damPriceByRole: number) => ({
       basic: isGlobal
         ? {
             baseCost: 0,
@@ -360,9 +351,30 @@ export const usePricing = () => {
               [EPrivateImplProducts.CLIPO_REMIX]: 50000,
             } as Record<EPrivateImplProducts, number>,
           },
-    }),
+})
+
+/** 刊例价快照：保存报价单时写入 content.pricingSnapshot */
+export type IQuotationPricing = ReturnType<typeof buildPricing>
+
+export const usePricing = () => {
+  const { t } = useTranslation('quotation')
+  const { isInChina } = useCountry()
+  const { businessRole, pricingSnapshot } = useQuotationStore()
+  const isGlobal = !isInChina
+  const prefix = isGlobal ? '$' : '¥'
+  // Pod: 20w/年；Muse: 5w/年
+  const damPriceByRole = businessRole === 'pod' ? 200000 : 50000
+
+  const currentPricing = useMemo(
+    () => buildPricing(isGlobal, damPriceByRole),
     [isGlobal, damPriceByRole],
   )
+
+  /**
+   * 报价单保存时会把当时的刊例价写进 content.pricingSnapshot，
+   * 打开历史报价单时优先用快照，保证事后调价不影响已生成的报价。
+   */
+  const pricing = pricingSnapshot ?? currentPricing
 
   const moduleNames: Record<string, string> = {
     [EAdvancedModules.ADVANCED_FEATURES]: t('module.advancedFeatures'),
@@ -453,7 +465,17 @@ export const usePricing = () => {
   // 赠送门槛（折后 SaaS 年价）：Pod 20 万；Muse 10 万
   const giftThreshold = businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
 
-  return { pricing, moduleNames, prefix, ssoTypeNames, allSSOType, isGlobal, giftThreshold }
+  return {
+    pricing,
+    /** 当前刊例价（不受快照影响）：保存新报价单时写入快照 */
+    currentPricing,
+    moduleNames,
+    prefix,
+    ssoTypeNames,
+    allSSOType,
+    isGlobal,
+    giftThreshold,
+  }
 }
 
 export const useBasicConfigs = () => {

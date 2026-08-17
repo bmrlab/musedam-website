@@ -3,6 +3,7 @@ import { useQuotationStore } from '@/providers/QuotationStore'
 import { cn, twx } from '@/utilities/cn'
 import Image from 'next/image'
 import { QuoteDetailData, useQuoteDetailData } from '../QuoteDetailData'
+import { EDITABLE_SINCE } from '../types'
 import { useTranslation } from 'react-i18next'
 import { FeatureList } from '../FeaturList'
 import { FC, useEffect, useMemo, useRef, useState } from 'react'
@@ -34,12 +35,15 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     const { t } = useTranslation('quotation')
     const { isInChina } = useCountry()
     const router = useRouter()
-    const [quoteInfo, setQuoteInfo] = useState<QuoteDetailDataById | undefined>()
+    const [loaded, setLoaded] = useState(false)
+    /** 价格快照上线前的报价单：保存时的总计（含税），与按现价重算的金额并列展示 */
+    const [legacyTotal, setLegacyTotal] = useState<string | undefined>()
     const [shareDialogOpen, setShareDialogOpen] = useState(false)
     const { toast } = useToast()
     const { language, changeLocale } = useLanguage()
     const contentRef = useRef<HTMLDivElement>(null)
-    const { rows } = useQuoteDetailData()
+    // 金额按当前配置 + 刊例价（v2 报价单为其快照）重算，保证单据内部自洽
+    const { rows, subtotal, total, discountTotal } = useQuoteDetailData()
 
     const {
     customerInfo,
@@ -50,6 +54,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     showNoBuyFeature,
     setShowNoBuyFeature,
     setNoBuyModuleKeys,
+    setPricingSnapshot,
     setAdvancedModules,
     setAdvancedConfig,
     setEditInfo,
@@ -161,16 +166,21 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 setShowNoBuyFeature(content.showNoBuyFeature)
                 // 历史报价没有该字段时保持 undefined，即展示全部未选模块
                 setNoBuyModuleKeys(content.noBuyModuleKeys)
+                // contentVersion < 2 的历史报价没有刊例价快照，仍按当前刊例价重算
+                setPricingSnapshot(content.pricingSnapshot)
                 setSubscriptionYears(info.subscriptionYears)
 
-                const totalCost = (info.annualPrice / 100) * info.subscriptionYears
-                const discountTotalNum = ((realDiscount || 10) / 10) * totalCost
-
-                setQuoteInfo({
-                    subtotal: content.prefix + totalCost.toLocaleString(),
-                    discountTotal: realDiscount ? content.prefix + discountTotalNum.toLocaleString() : undefined,
-                    total: content.prefix + (discountTotalNum * (isInChina ? 1.06 : 1)).toLocaleString(),
-                })
+                // 无刊例价快照的历史报价单：保留保存时的总价，作为「历史报价」并列展示
+                if (!content.pricingSnapshot) {
+                    const totalCost = (info.annualPrice / 100) * info.subscriptionYears
+                    const discountTotalNum = ((realDiscount || 10) / 10) * totalCost
+                    setLegacyTotal(
+                        content.prefix + (discountTotalNum * (isInChina ? 1.06 : 1)).toLocaleString(),
+                    )
+                } else {
+                    setLegacyTotal(undefined)
+                }
+                setLoaded(true)
             } catch (error) {
                 console.error('Error parsing quotation content:', error)
                 toast({
@@ -179,7 +189,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setNoBuyModuleKeys, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setNoBuyModuleKeys, setPricingSnapshot, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;
@@ -314,7 +324,13 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
         }) : ''
     }, [language, info.createTime])
 
-    if (!quoteInfo) {
+    /**
+     * 报价规则在 2026-08-14 有较大调整，此前生成的报价单只读，
+     * 避免用当前刊例价重新保存后与原单不一致。
+     */
+    const canEdit = showEdit && (info.createTime ?? 0) >= EDITABLE_SINCE
+
+    if (!loaded) {
         return <Loading />
     }
 
@@ -322,7 +338,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
         <div className="flex min-h-screen flex-col items-center bg-white text-black">
             {/* 操作按钮 */}
             <div className='absolute right-[24px] top-[30px] z-[1] flex max-w-[1440px] justify-end gap-[6px] md:right-[100px] md:top-[76px] md:gap-2'>
-                {showEdit && (
+                {canEdit && (
                     <Button className='size-[40px] rounded-[8px] md:size-[44px] md:rounded-2xl [&_svg]:size-5 md:[&_svg]:size-6' onClick={handleEdit}>
                         <EditIcon />
                     </Button>
@@ -376,7 +392,10 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
 
 
                     {/* 产品与服务明细表格 */}
-                    <PreviewDetailTable info={{ ...quoteInfo, rows }} />
+                    {/* 「历史报价」仅给销售看，分享页与导出的 PDF 不展示 */}
+                    <PreviewDetailTable
+                        info={{ rows, subtotal, total, discountTotal, legacyTotal: showEdit ? legacyTotal : undefined }}
+                    />
 
                     {/* 服务条款 - 添加ref并调整样式 */}
                     <div
@@ -420,7 +439,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                     className='pointer-events-none fixed left-[-20000px] top-0 w-[1440px]'
                 >
                     <ExportView
-                        info={{ ...quoteInfo, rows }}
+                        info={{ rows, subtotal, total, discountTotal }}
                         quoteNo={info.quotationNo || ''}
                         generatedDay={info.createTime || 0}
                         customerInfo={customerInfo}

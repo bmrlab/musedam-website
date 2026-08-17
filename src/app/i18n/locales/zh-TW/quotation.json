@@ -103,6 +103,7 @@
   "subtotal": "小計",
   "discount.subtotal": "折扣小計（{{discount}} 折）",
   "vat": "增值稅",
+  "legacy.total": "歷史報價（產生時）",
   "total": "總計",
   "quote.date": "報價日期",
   "quote.valid.days": "有效期 30 天",

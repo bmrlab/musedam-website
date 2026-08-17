@@ -16,10 +16,13 @@ const Tr = twx.tr`avoid-break`
 
 const TotalLine = twx.div`avoid-break detail-total flex w-[540px] max-w-full  justify-between md:text-xl text-base md:px-6 md:py-[13px] px-3 py-[10px] font-semibold`
 
-type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'>
+type QuoteDetailDataById = Pick<QuoteDetailData, 'rows' | 'subtotal' | 'total' | 'discountTotal'> & {
+    /** 价格快照上线前的历史报价单：保存时的总价（未税），与按现价重算的金额并列展示 */
+    legacyTotal?: string
+}
 
 export const PreviewDetailTable: FC<{ info: QuoteDetailDataById, isExport?: boolean }> = ({ info, isExport }) => {
-    const { rows, subtotal, total, discountTotal } = info
+    const { rows, subtotal, total, discountTotal, legacyTotal } = info
     const { t } = useTranslation('quotation')
     const { discount } = useQuotationStore()
     const { isInChina } = useCountry()
@@ -104,6 +107,12 @@ export const PreviewDetailTable: FC<{ info: QuoteDetailDataById, isExport?: bool
                 <div>{t("total")}</div>
                 <div>{total}</div>
             </TotalLine>
+            {legacyTotal && (
+                <TotalLine className='text-base font-normal text-[#8C8C8C] md:text-lg'>
+                    <div>{t("legacy.total")}</div>
+                    <div>{legacyTotal}</div>
+                </TotalLine>
+            )}
         </div>
     </div>
     )

@@ -35,6 +35,7 @@ import {
   ModuleMultiSelections,
   ICustomService,
 } from '@/components/EnterpriseQuotation/types'
+import type { IQuotationPricing } from '@/components/EnterpriseQuotation/config'
 import { IQuotationInfo } from '@/endpoints/quotation'
 import { useCountry } from '../Country'
 
@@ -136,6 +137,13 @@ interface QuotationStoreType {
 
   showNoBuyFeature: boolean
   setShowNoBuyFeature: React.Dispatch<React.SetStateAction<boolean>>
+  /**
+   * 历史报价单的刊例价快照（content.pricingSnapshot）：
+   * 有值时 usePricing 用它替代当前刊例价，保证事后调价不影响已生成的报价单。
+   */
+  pricingSnapshot: IQuotationPricing | undefined
+  setPricingSnapshot: React.Dispatch<React.SetStateAction<IQuotationPricing | undefined>>
+
   /** 展示未选模块报价时，勾选要展示的模块 key；undefined 表示全部展示 */
   noBuyModuleKeys: string[] | undefined
   setNoBuyModuleKeys: React.Dispatch<React.SetStateAction<string[] | undefined>>
@@ -276,6 +284,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
   const [featureView, setFeatureView] = useState<EFeatureView>(EFeatureView.OVERVIEW)
   const [showNoBuyFeature, setShowNoBuyFeature] = useState(false)
   const [noBuyModuleKeys, setNoBuyModuleKeys] = useState<string[] | undefined>(undefined)
+  const [pricingSnapshot, setPricingSnapshot] = useState<IQuotationPricing | undefined>(undefined)
   const [editInfo, setEditInfo] = useState<IQuotationInfo | undefined>()
   const [museAITagOption, setMuseAITagOption] = useState<string>('500000')
   const [museCutTagOption, setMuseCutTagOption] = useState<string>('500000')
@@ -369,6 +378,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setFeatureView(EFeatureView.OVERVIEW)
     setShowNoBuyFeature(false)
     setNoBuyModuleKeys(undefined)
+    setPricingSnapshot(undefined)
     setEditInfo(undefined)
     setMuseAITagOption('500000')
     setMuseCutTagOption('500000')
@@ -422,6 +432,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setShowNoBuyFeature,
     noBuyModuleKeys,
     setNoBuyModuleKeys,
+    pricingSnapshot,
+    setPricingSnapshot,
     initializeUserEmail,
     resetToInitial,
     editInfo,

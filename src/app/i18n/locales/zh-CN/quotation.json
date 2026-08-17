@@ -109,6 +109,7 @@
   "subtotal": "小计（未税）",
   "discount.subtotal": "优惠小计（{{discount}}折）",
   "vat": "增值税率",
+  "legacy.total": "历史报价（生成时）",
   "total": "总计（含税）",
   "customer.information": "客户信息",
   "service.provider": "服务提供商",

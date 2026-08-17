@@ -172,3 +172,16 @@ export type ModuleVariantSelections = Partial<Record<EAdvancedModules, string>>
 
 /** 渠道 / 特征等多选 */
 export type ModuleMultiSelections = Partial<Record<EAdvancedModules, string[]>>
+
+/**
+ * 报价单 content 的结构版本：
+ * 1 = 无刊例价快照（打开时按当前刊例价重算）；
+ * 2 = 含 pricingSnapshot，价格在保存时冻结。
+ */
+export const QUOTATION_CONTENT_VERSION = 2
+
+/**
+ * 报价规则调整日（2026-08-14 00:00 本地时区）：
+ * 此前生成的报价单只读，不再提供编辑入口。
+ */
+export const EDITABLE_SINCE = new Date(2026, 7, 14).getTime()
