@@ -177,6 +177,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
     customServices,
     basicConfig,
     subscriptionYears,
+    geaPlanType,
     discount,
     customDiscount,
     rowDiscounts,
@@ -229,16 +230,30 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   const { pricing, moduleNames, prefix, ssoTypeNames, allSSOType } = usePricing()
   const advancedPricing = pricing.advanced.modules
 
+  /** GEA 套餐选择 POC 时，Advanced 页签整体按月计价（月价 = 年价 / 12，保留 2 位小数） */
+  const isGeaPoc = geaPlanType === 'poc' && activeTab === TabEnum.ADVANCED
+  /** 年价 -> 月价：先按 2 位小数取整，再乘选择的月份，保证「单价 × 数量 = 小计」对得上 */
+  const monthlyUnitPrice = (annual: number) => Math.round((annual / 12) * 100) / 100
+  /** 该行/总价按订阅周期折算：正式套餐乘年数；POC 先算月价（2 位小数）再乘月数 */
+  const applyDuration = (annual: number) =>
+    isGeaPoc ? monthlyUnitPrice(annual) * subscriptionYears : annual * subscriptionYears
+
+  /** 小项行的数量/单价展示始终按年，不随 POC 变化；仅套餐头行、总价随 POC 折算 */
   const getYear = (years: number) => {
     if (years > 1) return `${years} ${t('years')}`
     return `1 ${t('year')}`
   }
 
+  /** 套餐头行（GEA 企业上下文系统）数量：POC 显示选择的月份，正式套餐显示年份 */
+  const getPlanDuration = (count: number) => {
+    if (isGeaPoc) return `${count} ${count > 1 ? t('months') : t('month')}`
+    return getYear(count)
+  }
+
   const renderCost = (cost: number, oneTime?: boolean) => {
     if (cost === 0) return t('free')
-    return oneTime
-      ? `${prefix}${formatWithToLocaleString(cost)}`
-      : `${prefix}${formatWithToLocaleString(cost)}${t('per.year')}`
+    if (oneTime) return `${prefix}${formatWithToLocaleString(cost)}`
+    return `${prefix}${formatWithToLocaleString(cost)}${t('per.year')}`
   }
 
   const rows: QuoteDetailRow[] = []
@@ -507,7 +522,7 @@ export const useQuoteDetailData = (): QuoteDetailData => {
 
     rows.push({
       name: t('gea.plan'),
-      quantity: `${subscriptionYears} ${subscriptionYears > 1 ? t('years') : t('year')}`,
+      quantity: getPlanDuration(subscriptionYears),
       bold: true,
       isSection: true,
     })
@@ -1108,14 +1123,13 @@ export const useQuoteDetailData = (): QuoteDetailData => {
   const saasAnnual = basicCostPerYear + extensionCostPerYear
   // 私有化开启时 SaaS 年费已体现在「软件授权费」里，不再重复计入总价
   const annualTotal = (privateConfig.enabled && !licenseBilledBySaasRows ? 0 : saasAnnual) + privatePerYear
-  const noTaxTotal =
-    annualTotal * subscriptionYears + privateOneTimeTotal + customOneTimeTotal
+  const noTaxTotal = applyDuration(annualTotal) + privateOneTimeTotal + customOneTimeTotal
 
-  /** 该行小计的数值（已乘订阅年限） */
+  /** 该行小计的数值（已乘订阅年限 / POC 下已按月折算） */
   const rowAmount = (v: QuoteDetailRow): number | undefined => {
     if (typeof v.subtotal !== 'number') return undefined
-    const years = v.oneTime || v.key === EAdvancedModules.PORTAL_THEME ? 1 : subscriptionYears
-    return v.subtotal * years
+    if (v.oneTime || v.key === EAdvancedModules.PORTAL_THEME) return v.subtotal
+    return applyDuration(v.subtotal)
   }
 
   /**
@@ -1163,21 +1177,27 @@ export const useQuoteDetailData = (): QuoteDetailData => {
       amount: isExcludedFromTotal(index) ? undefined : rowAmount(v),
       discountFactor: rowDefaultFactor(v),
       discountLocked: isDiscountLocked(v),
+      // POC 下小项行仍按年价展示（参考价），不随所选月份折算；仅总价按 POC 折算
       subtotal:
         typeof v.subtotal === 'string'
           ? v.subtotal
           : v.subtotal
             ? prefix +
-              (
-                Number(v.subtotal) *
-                (v.oneTime || v.key === EAdvancedModules.PORTAL_THEME ? 1 : subscriptionYears)
-              ).toLocaleString()
+              formatWithToLocaleString(
+                isGeaPoc && !v.oneTime && v.key !== EAdvancedModules.PORTAL_THEME
+                  ? v.subtotal
+                  : (rowAmount(v) ?? 0),
+              )
             : undefined,
     })),
     allModules,
-    subtotal: prefix + noTaxTotal.toLocaleString(),
-    total: prefix + (discountTotal * (isInChina ? 1.06 : 1)).toLocaleString(),
-    discountTotal: discount ? prefix + discountTotal.toLocaleString() : undefined,
+    subtotal: prefix + formatWithToLocaleString(noTaxTotal, isGeaPoc ? 2 : 0),
+    total:
+      prefix +
+      formatWithToLocaleString(discountTotal * (isInChina ? 1.06 : 1), isGeaPoc ? 2 : 0),
+    discountTotal: discount
+      ? prefix + formatWithToLocaleString(discountTotal, isGeaPoc ? 2 : 0)
+      : undefined,
     noTaxTotalNum: noTaxTotal,
     discountTotalNum: discountTotal,
     years: subscriptionYears,

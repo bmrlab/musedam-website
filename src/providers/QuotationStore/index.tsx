@@ -34,6 +34,7 @@ import {
   ModuleVariantSelections,
   ModuleMultiSelections,
   ICustomService,
+  GeaPlanType,
 } from '@/components/EnterpriseQuotation/types'
 import type { IQuotationPricing } from '@/components/EnterpriseQuotation/config'
 import { IQuotationInfo } from '@/endpoints/quotation'
@@ -116,6 +117,10 @@ interface QuotationStoreType {
 
   subscriptionYears: number
   setSubscriptionYears: (years: number) => void
+
+  /** GEA 套餐类型：正式套餐按年计价，POC 按月计价（月价 = 年价 / 12） */
+  geaPlanType: GeaPlanType
+  setGeaPlanType: (type: GeaPlanType) => void
 
   featureView: EFeatureView
   setFeatureView: (view: EFeatureView) => void
@@ -278,6 +283,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
   )
   const [customServices, setCustomServices] = useState<ICustomService[]>(initialCustomServices)
   const [subscriptionYears, setSubscriptionYears] = useState(1)
+  const [geaPlanType, setGeaPlanType] = useState<GeaPlanType>('formal')
   const [discount, setDiscount] = useState<number | undefined>(undefined)
   const [customDiscount, setCustomDiscount] = useState<number | undefined>(undefined)
   const [rowDiscounts, setRowDiscounts] = useState<Record<string, number>>({})
@@ -372,6 +378,7 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setPrivateImplProducts(getInitialPrivateImplProducts())
     setCustomServices(initialCustomServices)
     setSubscriptionYears(1)
+    setGeaPlanType('formal')
     setDiscount(undefined)
     setCustomDiscount(undefined)
     setRowDiscounts({})
@@ -419,6 +426,8 @@ export const QuotationStoreProvider = ({ children }: { children: ReactNode }) =>
     setCustomServices,
     subscriptionYears,
     setSubscriptionYears,
+    geaPlanType,
+    setGeaPlanType,
     featureView,
     setFeatureView,
     discount,

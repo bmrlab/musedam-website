@@ -65,6 +65,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
     setModuleMultiSelections,
     setActiveTab,
     setBusinessRole,
+    setGeaPlanType,
     setPrivateConfig,
     setPrivateImplProducts,
     setCustomServices,
@@ -91,6 +92,10 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
 
                 if (content.businessRole === 'pod' || content.businessRole === 'muse') {
                     setBusinessRole(content.businessRole)
+                }
+
+                if (content.geaPlanType === 'poc' || content.geaPlanType === 'formal') {
+                    setGeaPlanType(content.geaPlanType)
                 }
 
                 if (content.advancedConfig) {
@@ -189,7 +194,7 @@ export const QuotationPreviewContent: FC<QuotationPreviewContentProps> = ({ info
                 })
             }
         }
-    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setNoBuyModuleKeys, setPricingSnapshot, setSubscriptionYears, toast, changeLocale, t])
+    }, [info, isInChina, setCustomerInfo, setAdvancedConfig, setAdvancedModules, setMergedToBasicModules, setAdvancedModulePriceOverrides, setModuleBillingModes, setModuleVariants, setModuleMultiSelections, setActiveTab, setBusinessRole, setGeaPlanType, setPrivateConfig, setPrivateImplProducts, setCustomServices, setCustomDiscount, setRowDiscounts, setDiscount, setFeatureView, setShowNoBuyFeature, setNoBuyModuleKeys, setPricingSnapshot, setSubscriptionYears, toast, changeLocale, t])
 
     const exportToPDF = async () => {
         const element = contentRef.current;

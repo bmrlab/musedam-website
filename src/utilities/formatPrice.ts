@@ -1,7 +1,8 @@
-export function formatWithToLocaleString(num: number) {
+export function formatWithToLocaleString(num: number, fractionDigits = 0) {
     if (!num) { return 0 }
     // 处理可能的精度问题
     return num.toLocaleString('zh-CN', {
-        maximumFractionDigits: 0 // 保留最多20位小数
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
     });
 }

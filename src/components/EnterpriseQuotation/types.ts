@@ -49,6 +49,9 @@ export type SeatPricingMode = 'bySeat' | 'byTier'
 /** 按档位席位档 */
 export type SeatTier = 'lte200' | 'lte500' | 'lte1000' | 'unlimited'
 
+/** GEA 套餐类型：正式套餐按年订阅，POC 按月订阅（月价 = 年价 / 12） */
+export type GeaPlanType = 'formal' | 'poc'
+
 export interface IAdvancedInfo {
   memberSeats: number
   /** 席位计价：按席位 / 按档位 */

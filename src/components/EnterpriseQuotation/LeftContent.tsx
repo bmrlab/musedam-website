@@ -47,6 +47,7 @@ import {
   BusinessRole,
   EFeatureView,
   ExtensionBaseProduct,
+  GeaPlanType,
   IAdvancedModules,
   ICustomerInfo,
   IPrivateConfig,
@@ -434,6 +435,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     setBasicConfig,
     subscriptionYears,
     setSubscriptionYears,
+    geaPlanType,
+    setGeaPlanType,
     featureView,
     setFeatureView,
     discount,
@@ -953,6 +956,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     const content = {
       activeTab,
       businessRole,
+      geaPlanType,
       advancedModules,
       advancedConfig,
       advancedModulePriceOverrides,
@@ -1012,6 +1016,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     user,
     activeTab,
     businessRole,
+    geaPlanType,
     advancedModules,
     advancedConfig,
     advancedModulePriceOverrides,
@@ -1648,8 +1653,24 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 {/* 套餐头部：整块背景 + 下边框，与卡片左右出血对齐 */}
                 <div className="-mx-5 -mt-6 flex w-auto items-center justify-between space-x-2 border-b border-[rgba(255,255,255,0.1)] bg-[#191919] p-5">
                   <div className="space-y-[6px]">
-                    <Label className="text-white">{t('gea.plan')}</Label>
-                    <DesParagraph>{t('gea.plan.hint')}</DesParagraph>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Label className="text-white">{t('gea.plan')}</Label>
+                      <Select
+                        value={geaPlanType}
+                        onValueChange={(v) => setGeaPlanType(v as GeaPlanType)}
+                      >
+                        <SelectTrigger className="h-7 w-auto min-w-[92px] gap-1 border border-[rgba(255,255,255,0.2)] bg-transparent px-2 text-sm text-white shadow-none focus:ring-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                          <SelectItem value="formal">{t('gea.plan.type.formal')}</SelectItem>
+                          <SelectItem value="poc">{t('gea.plan.type.poc')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <DesParagraph>
+                      {geaPlanType === 'poc' ? t('gea.plan.hint.poc') : t('gea.plan.hint')}
+                    </DesParagraph>
                   </div>
                   <NumControl value={subscriptionYears} onChange={setSubscriptionYears} min={1} />
                 </div>
