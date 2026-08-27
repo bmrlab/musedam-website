@@ -21,8 +21,8 @@ import {
   PrivateIterationFrequency,
   PrivateLicenseType,
 } from './enums'
-import { CustomServiceRole, TabEnum } from './types'
 import { getModuleSku } from './skuMap'
+import { CustomServiceRole, TabEnum } from './types'
 
 export { getModuleSku, MODULE_SKU_MAP } from './skuMap'
 
@@ -110,247 +110,249 @@ export interface IModuleGroup {
 
 /** 刊例价表：仅取决于境内外与业务角色 */
 const buildPricing = (isGlobal: boolean, damPriceByRole: number) => ({
-      basic: isGlobal
-        ? {
-            baseCost: 0,
-            memberSeatPrice: 300,
-            storageSpacePrice: 120,
-            aiPointsPrice: 1000,
-          }
-        : {
-            baseCost: 0,
-            memberSeatPrice: 1000,
-            storageSpacePrice: 600,
-            aiPointsPrice: 20000,
-          },
-      advanced: isGlobal
-        ? {
-            baseCost: 0,
-            damPrice: 0, // TODO: overseas price
-            geaContextPrice: 0, // TODO: overseas price
-            geaAiPackPrice: 0, // TODO: overseas price (1万点)
-            memberSeatPrice: 300,
-            storageSpacePrice: 1000,
-            seatTierPrices: {
-              lte200: 30000,
-              lte500: 45000,
-              lte1000: 60000,
-              unlimited: 90000,
-            },
-            coldHotStorageFee: 20000,
-            chinaHotStoragePrice: 1000,
-            chinaColdStoragePrice: 100,
-            overseasHotStoragePrice: 2000,
-            overseasColdStoragePrice: 400,
-            aiPointsPrice: 4000,
-            modules: {
-              [EAdvancedModules.ADVANCED_FEATURES]: 9000,
-              [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
-              [EAdvancedModules.SMART_FOLDERS]: 10000,
-              [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
-              [EAdvancedModules.BRAND_LIBRARY]: 0, // TODO: overseas price
-              [EAdvancedModules.PRODUCT_LIBRARY]: 0, // TODO: overseas price
-              [EAdvancedModules.PROJECT_HUB]: 0, // TODO: overseas price
-              [EAdvancedModules.ASSET_ANALYTICS]: 0, // TODO: overseas price
-              [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
-              [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
-              [EAdvancedModules.AI_AUTO_TAG_MODULE]: 6000,
-              [EAdvancedModules.FEATURE_LIBRARY]: 0, // TODO: overseas price
-              [EAdvancedModules.AI_FEATURE_RECOGNITION]: 0, // TODO: overseas price
-              [EAdvancedModules.MUSE_AI]: 20000,
-              [EAdvancedModules.MUSE_AI_BASIC]: 10000, // TODO: overseas price
-              [EAdvancedModules.MUSE_AI_STANDARD]: 0, // TODO: overseas price
-              [EAdvancedModules.MUSE_AI_ADVANCED]: 40000, // TODO: overseas price
-              [EAdvancedModules.BATCH_TEMPLATING]: 15000,
-              [EAdvancedModules.PROFESSIONAL_PRINT]: 0, // TODO: overseas price
-              [EAdvancedModules.HTML_EXPORT]: 0, // TODO: overseas price
-              [EAdvancedModules.MUSE_CUT]: 30000,
-              [EAdvancedModules.CLIPO_REMIX]: 0, // TODO: overseas price
-              [EAdvancedModules.CLIPO_REMIX_BEE]: 0, // TODO: overseas price
-              [EAdvancedModules.CLIPO_REMIX_PANDA]: 0, // TODO: overseas price
-              [EAdvancedModules.CLIPO_REMIX_LION]: 0, // TODO: overseas price
-              [EAdvancedModules.FILE_COLLECTION]: 0, // TODO: overseas price
-              [EAdvancedModules.APPROVAL_CENTER]: 0, // TODO: overseas price
-              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000,
-              [EAdvancedModules.TASK_WORKFLOW]: 0, // TODO: overseas price
-              [EAdvancedModules.TASK_WORKFLOW_BASIC]: 0, // TODO: overseas price
-              [EAdvancedModules.TASK_WORKFLOW_ADVANCED]: 0, // TODO: overseas price
-              [EAdvancedModules.AUTOMATION_CENTER]: 0, // TODO: overseas price
-              [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
-              [EAdvancedModules.REGIONAL_COMPLIANCE]: 0, // TODO: overseas price
-              [EAdvancedModules.BRAND_COMPLIANCE_AGENT]: 0, // TODO: overseas price
-              [EAdvancedModules.STORE_INSPECTION_AGENT]: 0, // TODO: overseas price
-              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000,
-              [EAdvancedModules.WATERMARK]: 15000,
-              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000,
-              [EAdvancedModules.DAT]: 5000,
-              [EAdvancedModules.PORTAL]: 0, // TODO: overseas price
-              [EAdvancedModules.PORTAL_THEME]: 0, // TODO: overseas price
-              [EAdvancedModules.SOCIAL_ARTICLE]: 0, // TODO: overseas price
-              [EAdvancedModules.SOCIAL_ATTRIBUTION]: 0, // TODO: overseas price
-              [EAdvancedModules.SOCIAL_CHANNELS]: 0, // TODO: overseas price
-              [EAdvancedModules.SOCIAL_ACCOUNT_PACK]: 0, // TODO: overseas price
-              [EAdvancedModules.ECOM_CHANNELS]: 0, // TODO: overseas price
-              [EAdvancedModules.ECOM_ACCOUNT_PACK]: 0, // TODO: overseas price
-              [EAdvancedModules.ECOM_ATTRIBUTION]: 0, // TODO: overseas price
-              [EAdvancedModules.NOTION_SYNC]: 0, // TODO: overseas price
-              [EAdvancedModules.FEISHU_DRIVE]: 0, // TODO: overseas price
-              [EAdvancedModules.FEISHU_BITABLE]: 0, // TODO: overseas price
-              [EAdvancedModules.FEISHU_APPROVAL]: 0, // TODO: overseas price
-              [EAdvancedModules.SSO_SAML]: 0, // TODO: overseas price
-              [EAdvancedModules.SSO_FEISHU]: 5000,
-              [EAdvancedModules.SSO_WECOM]: 5000,
-              [EAdvancedModules.SSO_DINGTALK]: 5000,
-              [EAdvancedModules.SSO_Teams]: 5000,
-              [EAdvancedModules.SSO_GOOGLE]: 0, // TODO: overseas price
-              [EAdvancedModules.CUSTOMER_SERVICE]: 0,
-              [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
-              [EAdvancedModules.GA]: 0,
-              [EAdvancedModules.CDN_TRAFFIC]: 0,
-              [EAdvancedModules.CDN_GLOBAL]: 0,
-            } as Record<string, number>,
-          }
-        : {
-            baseCost: 0,
-            damPrice: damPriceByRole,
-            geaContextPrice: 200000,
-            geaAiPackPrice: 2000, // 1万点/份
-            memberSeatPrice: 1000,
-            storageSpacePrice: 5000,
-            seatTierPrices: {
-              lte200: 100000,
-              lte500: 150000,
-              lte1000: 200000,
-              unlimited: 300000,
-            },
-            coldHotStorageFee: 100000,
-            chinaHotStoragePrice: 5000,
-            chinaColdStoragePrice: 500,
-            overseasHotStoragePrice: 10000,
-            overseasColdStoragePrice: 2000,
-            aiPointsPrice: 20000,
-            modules: {
-              [EAdvancedModules.ADVANCED_FEATURES]: 20000,
-              [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,
-              [EAdvancedModules.SMART_FOLDERS]: 20000,
-              [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
-              [EAdvancedModules.BRAND_LIBRARY]: 30000,
-              [EAdvancedModules.PRODUCT_LIBRARY]: 30000,
-              [EAdvancedModules.PROJECT_HUB]: 30000,
-              [EAdvancedModules.ASSET_ANALYTICS]: 30000,
-              [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
-              [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
-              [EAdvancedModules.AI_AUTO_TAG_MODULE]: 30000,
-              [EAdvancedModules.FEATURE_LIBRARY]: 10000,
-              [EAdvancedModules.AI_FEATURE_RECOGNITION]: 30000,
-              [EAdvancedModules.MUSE_AI]: 100000,
-              [EAdvancedModules.MUSE_AI_BASIC]: 50000,
-              [EAdvancedModules.MUSE_AI_STANDARD]: 100000,
-              [EAdvancedModules.MUSE_AI_ADVANCED]: 200000,
-              [EAdvancedModules.BATCH_TEMPLATING]: 28000,
-              [EAdvancedModules.PROFESSIONAL_PRINT]: 55000,
-              [EAdvancedModules.HTML_EXPORT]: 55000,
-              [EAdvancedModules.MUSE_CUT]: 100000,
-              [EAdvancedModules.CLIPO_REMIX]: 198000,
-              [EAdvancedModules.CLIPO_REMIX_BEE]: 98000,
-              [EAdvancedModules.CLIPO_REMIX_PANDA]: 198000,
-              [EAdvancedModules.CLIPO_REMIX_LION]: 398000,
-              [EAdvancedModules.FILE_COLLECTION]: 20000,
-              [EAdvancedModules.APPROVAL_CENTER]: 100000,
-              [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
-              [EAdvancedModules.TASK_WORKFLOW]: 50000,
-              [EAdvancedModules.TASK_WORKFLOW_BASIC]: 50000,
-              [EAdvancedModules.TASK_WORKFLOW_ADVANCED]: 100000,
-              [EAdvancedModules.AUTOMATION_CENTER]: 50000,
-              [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
-              [EAdvancedModules.REGIONAL_COMPLIANCE]: 30000,
-              [EAdvancedModules.BRAND_COMPLIANCE_AGENT]: 20000,
-              [EAdvancedModules.STORE_INSPECTION_AGENT]: 20000,
-              [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 50000,
-              [EAdvancedModules.WATERMARK]: 30000,
-              [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 30000,
-              [EAdvancedModules.DAT]: 20000,
-              [EAdvancedModules.PORTAL]: 100000,
-              [EAdvancedModules.PORTAL_THEME]: 52500,
-              [EAdvancedModules.SOCIAL_ARTICLE]: 100000,
-              [EAdvancedModules.SOCIAL_ATTRIBUTION]: 30000,
-              [EAdvancedModules.SOCIAL_CHANNELS]: 30000,
-              [EAdvancedModules.SOCIAL_ACCOUNT_PACK]: 10000,
-              [EAdvancedModules.ECOM_CHANNELS]: 30000,
-              [EAdvancedModules.ECOM_ACCOUNT_PACK]: 10000,
-              [EAdvancedModules.ECOM_ATTRIBUTION]: 30000,
-              [EAdvancedModules.NOTION_SYNC]: 20000,
-              [EAdvancedModules.FEISHU_DRIVE]: 30000,
-              [EAdvancedModules.FEISHU_BITABLE]: 50000,
-              [EAdvancedModules.FEISHU_APPROVAL]: 30000,
-              [EAdvancedModules.SSO_SAML]: 5000,
-              [EAdvancedModules.SSO_FEISHU]: 5000,
-              [EAdvancedModules.SSO_WECOM]: 5000,
-              [EAdvancedModules.SSO_DINGTALK]: 5000,
-              [EAdvancedModules.SSO_Teams]: 5000,
-              [EAdvancedModules.SSO_GOOGLE]: 5000,
-              [EAdvancedModules.CUSTOMER_SERVICE]: 0,
-              [EAdvancedModules.PROFESSIONAL_SERVICES]: 50000,
-              [EAdvancedModules.GA]: 90000,
-              [EAdvancedModules.CDN_TRAFFIC]: 6000,
-              [EAdvancedModules.CDN_GLOBAL]: 30000,
-            } as Record<string, number>,
-          },
-      private: isGlobal
-        ? {
-            /** 源码永久买断固定价 */
-            perpetualBuyout: 6000000,
-            /** 源码部署倍数 */
-            sourceMultiplier: 3,
-            /** 基础维护 = 软件授权费 × 比例 */
-            // 基础维护不再收费
-            basicMaintenanceRate: 0,
-            iterationPrices: {
-              1: 150000,
-              4: 120000,
-            } as Record<PrivateIterationFrequency, number>,
-            /** 刊例价（划线价）；仅在有限时优惠时与 iterationPrices 不同 */
-            iterationListPrices: {
-              1: 150000,
-              4: 240000,
-            } as Record<PrivateIterationFrequency, number>,
-            modules: {
-              [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
-              [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
-            } as Record<string, number>,
-            implProducts: {
-              [EPrivateImplProducts.DAM]: 100000,
-              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
-              [EPrivateImplProducts.MUSE_AI]: 50000,
-              [EPrivateImplProducts.INGEN_OPS]: 50000,
-              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
-            } as Record<EPrivateImplProducts, number>,
-          }
-        : {
-            perpetualBuyout: 6000000,
-            sourceMultiplier: 3,
-            // 基础维护不再收费
-            basicMaintenanceRate: 0,
-            iterationPrices: {
-              1: 150000,
-              4: 120000,
-            } as Record<PrivateIterationFrequency, number>,
-            iterationListPrices: {
-              1: 150000,
-              4: 240000,
-            } as Record<PrivateIterationFrequency, number>,
-            modules: {
-              [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
-              [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
-            } as Record<string, number>,
-            implProducts: {
-              [EPrivateImplProducts.DAM]: 100000,
-              [EPrivateImplProducts.GEA_CONTEXT]: 80000,
-              [EPrivateImplProducts.MUSE_AI]: 50000,
-              [EPrivateImplProducts.INGEN_OPS]: 50000,
-              [EPrivateImplProducts.CLIPO_REMIX]: 50000,
-            } as Record<EPrivateImplProducts, number>,
-          },
+  basic: isGlobal
+    ? {
+        baseCost: 0,
+        memberSeatPrice: 300,
+        storageSpacePrice: 120,
+        aiPointsPrice: 1000,
+      }
+    : {
+        baseCost: 0,
+        memberSeatPrice: 1000,
+        storageSpacePrice: 600,
+        aiPointsPrice: 20000,
+      },
+  advanced: isGlobal
+    ? {
+        baseCost: 0,
+        damPrice: damPriceByRole,
+        geaContextPrice: 0, // TODO: overseas price
+        geaAiPackPrice: 0, // TODO: overseas price (1万点)
+        memberSeatPrice: 300,
+        storageSpacePrice: 1000,
+        seatTierPrices: {
+          lte200: 30000,
+          lte500: 45000,
+          lte1000: 60000,
+          unlimited: 90000,
+        },
+        coldHotStorageFee: 20000,
+        chinaHotStoragePrice: 1000,
+        chinaColdStoragePrice: 100,
+        overseasHotStoragePrice: 2000,
+        overseasColdStoragePrice: 400,
+        aiPointsPrice: 4000,
+        modules: {
+          // 刊例参考：MuseDAM Global SaaS 报价单（DIPP）；未在其中列出的拓展模块在海外版隐藏，价格保留占位
+          [EAdvancedModules.ADVANCED_FEATURES]: 9000,
+          [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 5000,
+          [EAdvancedModules.SMART_FOLDERS]: 10000, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 15000,
+          [EAdvancedModules.BRAND_LIBRARY]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.PRODUCT_LIBRARY]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.PROJECT_HUB]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.ASSET_ANALYTICS]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.STANDARD_PROJECT_HUB]: 15000,
+          [EAdvancedModules.ADVANCED_PROJECT_HUB]: 30000,
+          [EAdvancedModules.AI_AUTO_TAG_MODULE]: 6000,
+          [EAdvancedModules.FEATURE_LIBRARY]: 0, // 海外版隐藏：报价单未单独列出
+          [EAdvancedModules.AI_FEATURE_RECOGNITION]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.MUSE_AI]: 20000,
+          // MuseAI 设计 Agent：报价单仅一档 $20,000/年（含 50 万点），海外版只展示 BASIC 档
+          [EAdvancedModules.MUSE_AI_BASIC]: 20000,
+          [EAdvancedModules.MUSE_AI_STANDARD]: 0, // 海外版隐藏：报价单不分档
+          [EAdvancedModules.MUSE_AI_ADVANCED]: 0, // 海外版隐藏：报价单不分档
+          [EAdvancedModules.BATCH_TEMPLATING]: 15000,
+          [EAdvancedModules.PROFESSIONAL_PRINT]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.HTML_EXPORT]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.MUSE_CUT]: 30000,
+          [EAdvancedModules.CLIPO_REMIX]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.CLIPO_REMIX_BEE]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.CLIPO_REMIX_PANDA]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.CLIPO_REMIX_LION]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.FILE_COLLECTION]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.APPROVAL_CENTER]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 15000, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.TASK_WORKFLOW]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.TASK_WORKFLOW_BASIC]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.TASK_WORKFLOW_ADVANCED]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.AUTOMATION_CENTER]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.COMPLIANCE_CHECK]: 15000,
+          [EAdvancedModules.REGIONAL_COMPLIANCE]: 5000,
+          [EAdvancedModules.BRAND_COMPLIANCE_AGENT]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.STORE_INSPECTION_AGENT]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 15000, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.WATERMARK]: 15000,
+          [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 15000, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.DAT]: 5000, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.PORTAL]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.PORTAL_THEME]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.SOCIAL_ARTICLE]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.SOCIAL_ATTRIBUTION]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.SOCIAL_CHANNELS]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.SOCIAL_ACCOUNT_PACK]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.ECOM_CHANNELS]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.ECOM_ACCOUNT_PACK]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.ECOM_ATTRIBUTION]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.NOTION_SYNC]: 0, // 海外版隐藏：报价单未列出
+          [EAdvancedModules.FEISHU_DRIVE]: 0, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.FEISHU_BITABLE]: 0, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.FEISHU_APPROVAL]: 0, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.SSO_SAML]: 0,
+          [EAdvancedModules.SSO_FEISHU]: 5000, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.SSO_WECOM]: 5000, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.SSO_DINGTALK]: 5000, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.SSO_Teams]: 5000,
+          [EAdvancedModules.SSO_GOOGLE]: 0,
+          [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+          [EAdvancedModules.PROFESSIONAL_SERVICES]: 15000,
+          [EAdvancedModules.GA]: 0, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.CDN_TRAFFIC]: 0, // 海外版隐藏：仅国内展示
+          [EAdvancedModules.CDN_GLOBAL]: 0, // 海外版隐藏：仅国内展示
+        } as Record<string, number>,
+      }
+    : {
+        baseCost: 0,
+        damPrice: damPriceByRole,
+        geaContextPrice: 200000,
+        geaAiPackPrice: 2000, // 1万点/份
+        memberSeatPrice: 1000,
+        storageSpacePrice: 5000,
+        seatTierPrices: {
+          lte200: 100000,
+          lte500: 150000,
+          lte1000: 200000,
+          unlimited: 300000,
+        },
+        coldHotStorageFee: 100000,
+        chinaHotStoragePrice: 5000,
+        chinaColdStoragePrice: 500,
+        overseasHotStoragePrice: 10000,
+        overseasColdStoragePrice: 2000,
+        aiPointsPrice: 20000,
+        modules: {
+          [EAdvancedModules.ADVANCED_FEATURES]: 20000,
+          [EAdvancedModules.CUSTOM_SYSTEM_HOMEPAGE]: 10000,
+          [EAdvancedModules.SMART_FOLDERS]: 20000,
+          [EAdvancedModules.CUSTOM_METADATA_FIELDS]: 30000,
+          [EAdvancedModules.BRAND_LIBRARY]: 30000,
+          [EAdvancedModules.PRODUCT_LIBRARY]: 30000,
+          [EAdvancedModules.PROJECT_HUB]: 30000,
+          [EAdvancedModules.ASSET_ANALYTICS]: 30000,
+          [EAdvancedModules.STANDARD_PROJECT_HUB]: 30000,
+          [EAdvancedModules.ADVANCED_PROJECT_HUB]: 100000,
+          [EAdvancedModules.AI_AUTO_TAG_MODULE]: 30000,
+          [EAdvancedModules.FEATURE_LIBRARY]: 10000,
+          [EAdvancedModules.AI_FEATURE_RECOGNITION]: 30000,
+          [EAdvancedModules.MUSE_AI]: 100000,
+          [EAdvancedModules.MUSE_AI_BASIC]: 50000,
+          [EAdvancedModules.MUSE_AI_STANDARD]: 100000,
+          [EAdvancedModules.MUSE_AI_ADVANCED]: 200000,
+          [EAdvancedModules.BATCH_TEMPLATING]: 28000,
+          [EAdvancedModules.PROFESSIONAL_PRINT]: 55000,
+          [EAdvancedModules.HTML_EXPORT]: 55000,
+          [EAdvancedModules.MUSE_CUT]: 100000,
+          [EAdvancedModules.CLIPO_REMIX]: 198000,
+          [EAdvancedModules.CLIPO_REMIX_BEE]: 98000,
+          [EAdvancedModules.CLIPO_REMIX_PANDA]: 198000,
+          [EAdvancedModules.CLIPO_REMIX_LION]: 398000,
+          [EAdvancedModules.FILE_COLLECTION]: 20000,
+          [EAdvancedModules.APPROVAL_CENTER]: 100000,
+          [EAdvancedModules.DELIVERY_APPROVAL_CENTER]: 50000,
+          [EAdvancedModules.TASK_WORKFLOW]: 50000,
+          [EAdvancedModules.TASK_WORKFLOW_BASIC]: 50000,
+          [EAdvancedModules.TASK_WORKFLOW_ADVANCED]: 100000,
+          [EAdvancedModules.AUTOMATION_CENTER]: 50000,
+          [EAdvancedModules.COMPLIANCE_CHECK]: 30000,
+          [EAdvancedModules.REGIONAL_COMPLIANCE]: 30000,
+          [EAdvancedModules.BRAND_COMPLIANCE_AGENT]: 20000,
+          [EAdvancedModules.STORE_INSPECTION_AGENT]: 20000,
+          [EAdvancedModules.COPYRIGHT_MANAGEMENT]: 50000,
+          [EAdvancedModules.WATERMARK]: 30000,
+          [EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES]: 30000,
+          [EAdvancedModules.DAT]: 20000,
+          [EAdvancedModules.PORTAL]: 100000,
+          [EAdvancedModules.PORTAL_THEME]: 52500,
+          [EAdvancedModules.SOCIAL_ARTICLE]: 100000,
+          [EAdvancedModules.SOCIAL_ATTRIBUTION]: 30000,
+          [EAdvancedModules.SOCIAL_CHANNELS]: 30000,
+          [EAdvancedModules.SOCIAL_ACCOUNT_PACK]: 10000,
+          [EAdvancedModules.ECOM_CHANNELS]: 30000,
+          [EAdvancedModules.ECOM_ACCOUNT_PACK]: 10000,
+          [EAdvancedModules.ECOM_ATTRIBUTION]: 30000,
+          [EAdvancedModules.NOTION_SYNC]: 20000,
+          [EAdvancedModules.FEISHU_DRIVE]: 30000,
+          [EAdvancedModules.FEISHU_BITABLE]: 50000,
+          [EAdvancedModules.FEISHU_APPROVAL]: 30000,
+          [EAdvancedModules.SSO_SAML]: 5000,
+          [EAdvancedModules.SSO_FEISHU]: 5000,
+          [EAdvancedModules.SSO_WECOM]: 5000,
+          [EAdvancedModules.SSO_DINGTALK]: 5000,
+          [EAdvancedModules.SSO_Teams]: 5000,
+          [EAdvancedModules.SSO_GOOGLE]: 5000,
+          [EAdvancedModules.CUSTOMER_SERVICE]: 0,
+          [EAdvancedModules.PROFESSIONAL_SERVICES]: 50000,
+          [EAdvancedModules.GA]: 90000,
+          [EAdvancedModules.CDN_TRAFFIC]: 6000,
+          [EAdvancedModules.CDN_GLOBAL]: 30000,
+        } as Record<string, number>,
+      },
+  private: isGlobal
+    ? {
+        /** 源码永久买断固定价 */
+        perpetualBuyout: 6000000,
+        /** 源码部署倍数 */
+        sourceMultiplier: 3,
+        /** 基础维护 = 软件授权费 × 比例 */
+        // 基础维护不再收费
+        basicMaintenanceRate: 0,
+        iterationPrices: {
+          1: 150000,
+          4: 120000,
+        } as Record<PrivateIterationFrequency, number>,
+        /** 刊例价（划线价）；仅在有限时优惠时与 iterationPrices 不同 */
+        iterationListPrices: {
+          1: 150000,
+          4: 240000,
+        } as Record<PrivateIterationFrequency, number>,
+        modules: {
+          [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
+          [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
+        } as Record<string, number>,
+        implProducts: {
+          [EPrivateImplProducts.DAM]: 100000,
+          [EPrivateImplProducts.GEA_CONTEXT]: 80000,
+          [EPrivateImplProducts.MUSE_AI]: 50000,
+          [EPrivateImplProducts.INGEN_OPS]: 50000,
+          [EPrivateImplProducts.CLIPO_REMIX]: 50000,
+        } as Record<EPrivateImplProducts, number>,
+      }
+    : {
+        perpetualBuyout: 6000000,
+        sourceMultiplier: 3,
+        // 基础维护不再收费
+        basicMaintenanceRate: 0,
+        iterationPrices: {
+          1: 150000,
+          4: 120000,
+        } as Record<PrivateIterationFrequency, number>,
+        iterationListPrices: {
+          1: 150000,
+          4: 240000,
+        } as Record<PrivateIterationFrequency, number>,
+        modules: {
+          [EPrivateModules.PRIVATE_IMPLEMENTATION]: 18000,
+          [EPrivateModules.OPERATION_MAINTENANCE]: 5000,
+        } as Record<string, number>,
+        implProducts: {
+          [EPrivateImplProducts.DAM]: 100000,
+          [EPrivateImplProducts.GEA_CONTEXT]: 80000,
+          [EPrivateImplProducts.MUSE_AI]: 50000,
+          [EPrivateImplProducts.INGEN_OPS]: 50000,
+          [EPrivateImplProducts.CLIPO_REMIX]: 50000,
+        } as Record<EPrivateImplProducts, number>,
+      },
 })
 
 /** 刊例价快照：保存报价单时写入 content.pricingSnapshot */
@@ -363,7 +365,7 @@ export const usePricing = () => {
   const isGlobal = !isInChina
   const prefix = isGlobal ? '$' : '¥'
   // Pod: 20w/年；Muse: 5w/年
-  const damPriceByRole = businessRole === 'pod' ? 200000 : 50000
+  const damPriceByRole = isGlobal ? 15000 : businessRole === 'pod' ? 200000 : 50000
 
   const currentPricing = useMemo(
     () => buildPricing(isGlobal, damPriceByRole),
@@ -462,8 +464,9 @@ export const usePricing = () => {
       ]
     : [EAdvancedModules.SSO_SAML, EAdvancedModules.SSO_Teams]
 
-  // 赠送门槛（折后 SaaS 年价）：Pod 20 万；Muse 10 万
-  const giftThreshold = businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
+  // 赠送门槛（折后 SaaS 年价）：Pod 20 万；Muse 10 万；海外版不区分 muse/pod，统一按 Muse 门槛
+  const giftThreshold =
+    !isGlobal && businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
 
   return {
     pricing,
@@ -481,7 +484,7 @@ export const usePricing = () => {
 export const useBasicConfigs = () => {
   const { t } = useTranslation('quotation')
   const { activeTab, businessRole, advancedConfig } = useQuotationStore()
-  const { pricing, prefix } = usePricing()
+  const { pricing, prefix, isGlobal } = usePricing()
   const basicPricing = pricing.basic
   const advancedPricing = pricing.advanced
   /** AI 点数订阅所选规格：单价按 10 万点/份的刊例价等比换算 */
@@ -525,8 +528,8 @@ export const useBasicConfigs = () => {
           key: EBasicConfigKey.MEMBER_SEATS,
           title: t('member.seat'),
           hint: [t('advanced.memberSeats.hint')],
-          // 起售席位：Pod 10 席；Muse 5 席
-          min: businessRole === 'pod' ? 10 : 5,
+          // 起售席位：Pod 10 席；Muse 5 席；海外版统一 10 席起
+          min: isGlobal ? 10 : businessRole === 'pod' ? 10 : 5,
           price: advancedPricing.memberSeatPrice,
           des:
             `${prefix} ${advancedPricing.memberSeatPrice}${t('memberSeats.perYear')}` +
@@ -564,9 +567,9 @@ export const useCustomServiceRoleOptions = (): ICustomServiceRoleOption[] => {
   const { isGlobal } = usePricing()
   const { businessRole } = useQuotationStore()
 
-  // Pod 客户成功服务人天（刊例 OPS-ENT / OPS-ONS / OPS-ONST），仅 Pod 模式展示
+  // Pod 客户成功服务人天（刊例 OPS-ENT / OPS-ONS / OPS-ONST），仅 Pod 模式展示；海外版不区分 muse/pod，不展示
   const podRoles: ICustomServiceRoleOption[] =
-    businessRole === 'pod'
+    !isGlobal && businessRole === 'pod'
       ? [
           {
             value: 'csCustom',
@@ -624,13 +627,14 @@ export const useCustomServiceRoleOptions = (): ICustomServiceRoleOption[] => {
 
 export const useAdvancedModuleGroups = (): IModuleGroup[] => {
   const { t } = useTranslation('quotation')
-  const { pricing, moduleNames, prefix } = usePricing()
+  const { pricing, moduleNames, prefix, isGlobal } = usePricing()
   const advancedPricing = pricing.advanced
   const { isInChina } = useCountry()
   const { businessRole } = useQuotationStore()
   const m = advancedPricing.modules
-  /** 赠送门槛：Pod 20w；Muse 10w（元数据自定义字段例外，仍为 20w） */
-  const giftThreshold = businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
+  /** 赠送门槛：Pod 20w；Muse 10w（元数据自定义字段例外，仍为 20w）；海外版不区分 muse/pod */
+  const giftThreshold =
+    !isGlobal && businessRole === 'pod' ? POD_GIFT_THRESHOLD : MUSE_GIFT_THRESHOLD
 
   const giftPaid: BillingMode[] = ['paid', 'discount', 'gift']
 
@@ -648,14 +652,18 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           giftBadge: t('badge.optionalGift'),
           giftThreshold,
         },
-        {
-          key: EAdvancedModules.SMART_FOLDERS,
-          label: moduleNames[EAdvancedModules.SMART_FOLDERS],
-          price: m[EAdvancedModules.SMART_FOLDERS],
-          giftEligible: true,
-          giftBadge: t('badge.optionalGift'),
-          giftThreshold,
-        },
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.SMART_FOLDERS,
+                label: moduleNames[EAdvancedModules.SMART_FOLDERS],
+                price: m[EAdvancedModules.SMART_FOLDERS],
+                giftEligible: true,
+                giftBadge: t('badge.optionalGift'),
+                giftThreshold,
+              },
+            ]),
         {
           key: EAdvancedModules.CUSTOM_METADATA_FIELDS,
           label: moduleNames[EAdvancedModules.CUSTOM_METADATA_FIELDS],
@@ -665,28 +673,32 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           // 元数据自定义字段门槛固定 20 万（Pod / Muse 一致）
           giftThreshold: POD_GIFT_THRESHOLD,
         },
-        {
-          key: EAdvancedModules.ASSET_ANALYTICS,
-          label: moduleNames[EAdvancedModules.ASSET_ANALYTICS],
-          price: m[EAdvancedModules.ASSET_ANALYTICS],
-          launchTag: t('launch.oct'),
-        },
-        {
-          key: EAdvancedModules.BRAND_LIBRARY,
-          label: moduleNames[EAdvancedModules.BRAND_LIBRARY],
-          price: m[EAdvancedModules.BRAND_LIBRARY],
-          launchTag: t('launch.oct'),
-        },
-        {
-          key: EAdvancedModules.PRODUCT_LIBRARY,
-          label: moduleNames[EAdvancedModules.PRODUCT_LIBRARY],
-          price: m[EAdvancedModules.PRODUCT_LIBRARY],
-        },
-        {
-          key: EAdvancedModules.PROJECT_HUB,
-          label: moduleNames[EAdvancedModules.PROJECT_HUB],
-          price: m[EAdvancedModules.PROJECT_HUB],
-        },
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.ASSET_ANALYTICS,
+                label: moduleNames[EAdvancedModules.ASSET_ANALYTICS],
+                price: m[EAdvancedModules.ASSET_ANALYTICS],
+                launchTag: t('launch.oct'),
+              },
+              {
+                key: EAdvancedModules.BRAND_LIBRARY,
+                label: moduleNames[EAdvancedModules.BRAND_LIBRARY],
+                price: m[EAdvancedModules.BRAND_LIBRARY],
+                launchTag: t('launch.oct'),
+              },
+              {
+                key: EAdvancedModules.PRODUCT_LIBRARY,
+                label: moduleNames[EAdvancedModules.PRODUCT_LIBRARY],
+                price: m[EAdvancedModules.PRODUCT_LIBRARY],
+              },
+              {
+                key: EAdvancedModules.PROJECT_HUB,
+                label: moduleNames[EAdvancedModules.PROJECT_HUB],
+                price: m[EAdvancedModules.PROJECT_HUB],
+              },
+            ]),
       ],
     },
     {
@@ -701,32 +713,38 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           hint: t('ai.autoTag.hint'),
           subFlex: 'column',
           alwaysShowSubs: true,
-          subModules: [
-            {
-              key: EAdvancedModules.FEATURE_LIBRARY,
-              label: moduleNames[EAdvancedModules.FEATURE_LIBRARY],
-              price: m[EAdvancedModules.FEATURE_LIBRARY],
-              unit: t('unit.perItem'),
-              hint: t('featureLibrary.requires'),
-              requires: EAdvancedModules.AI_AUTO_TAG,
-              noCheckBox: true,
-              multiCols: 2,
-              multiOptions: [
-                { label: t('feature.brand'), value: 'brand' },
-                { label: t('feature.product'), value: 'product' },
-                { label: t('feature.person'), value: 'person' },
-                { label: t('feature.ip'), value: 'ip' },
+          subModules: isGlobal
+            ? []
+            : [
+                {
+                  key: EAdvancedModules.FEATURE_LIBRARY,
+                  label: moduleNames[EAdvancedModules.FEATURE_LIBRARY],
+                  price: m[EAdvancedModules.FEATURE_LIBRARY],
+                  unit: t('unit.perItem'),
+                  hint: t('featureLibrary.requires'),
+                  requires: EAdvancedModules.AI_AUTO_TAG,
+                  noCheckBox: true,
+                  multiCols: 2,
+                  multiOptions: [
+                    { label: t('feature.brand'), value: 'brand' },
+                    { label: t('feature.product'), value: 'product' },
+                    { label: t('feature.person'), value: 'person' },
+                    { label: t('feature.ip'), value: 'ip' },
+                  ],
+                },
               ],
-            },
-          ],
         },
-        {
-          key: EAdvancedModules.AI_FEATURE_RECOGNITION,
-          label: moduleNames[EAdvancedModules.AI_FEATURE_RECOGNITION],
-          price: m[EAdvancedModules.AI_FEATURE_RECOGNITION],
-          launchTag: t('launch.oct'),
-          hint: t('ai.featureRecognition.hint'),
-        },
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.AI_FEATURE_RECOGNITION,
+                label: moduleNames[EAdvancedModules.AI_FEATURE_RECOGNITION],
+                price: m[EAdvancedModules.AI_FEATURE_RECOGNITION],
+                launchTag: t('launch.oct'),
+                hint: t('ai.featureRecognition.hint'),
+              },
+            ]),
       ],
     },
     {
@@ -741,24 +759,33 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           noPrice: true,
           noCheckBox: true,
           hint: t('creative.module.hint'),
-          subModules: [
-            {
-              key: EAdvancedModules.MUSE_AI_BASIC,
-              label: moduleNames[EAdvancedModules.MUSE_AI_BASIC],
-              price: m[EAdvancedModules.MUSE_AI_BASIC],
-            },
-            {
-              key: EAdvancedModules.MUSE_AI_STANDARD,
-              label: moduleNames[EAdvancedModules.MUSE_AI_STANDARD],
-              price: m[EAdvancedModules.MUSE_AI_STANDARD],
-            },
-            {
-              key: EAdvancedModules.MUSE_AI_ADVANCED,
-              label: moduleNames[EAdvancedModules.MUSE_AI_ADVANCED],
-              price: m[EAdvancedModules.MUSE_AI_ADVANCED],
-              launchTag: t('launch.dec'),
-            },
-          ],
+          // 海外版报价单 MuseAI 设计 Agent 不分档，只展示一档（BASIC）
+          subModules: isGlobal
+            ? [
+                {
+                  key: EAdvancedModules.MUSE_AI_BASIC,
+                  label: moduleNames[EAdvancedModules.MUSE_AI],
+                  price: m[EAdvancedModules.MUSE_AI_BASIC],
+                },
+              ]
+            : [
+                {
+                  key: EAdvancedModules.MUSE_AI_BASIC,
+                  label: moduleNames[EAdvancedModules.MUSE_AI_BASIC],
+                  price: m[EAdvancedModules.MUSE_AI_BASIC],
+                },
+                {
+                  key: EAdvancedModules.MUSE_AI_STANDARD,
+                  label: moduleNames[EAdvancedModules.MUSE_AI_STANDARD],
+                  price: m[EAdvancedModules.MUSE_AI_STANDARD],
+                },
+                {
+                  key: EAdvancedModules.MUSE_AI_ADVANCED,
+                  label: moduleNames[EAdvancedModules.MUSE_AI_ADVANCED],
+                  price: m[EAdvancedModules.MUSE_AI_ADVANCED],
+                  launchTag: t('launch.dec'),
+                },
+              ],
         },
         {
           key: EAdvancedModules.BATCH_TEMPLATING,
@@ -768,105 +795,121 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
           noCheckBox: true,
           hint: t('creative.module.hint'),
           subFlex: 'row',
-          subModules: [
-            {
-              key: EAdvancedModules.BATCH_TEMPLATING,
-              label: t('module.batchTemplating'),
-              price: m[EAdvancedModules.BATCH_TEMPLATING],
-            },
-            {
-              key: EAdvancedModules.PROFESSIONAL_PRINT,
-              label: moduleNames[EAdvancedModules.PROFESSIONAL_PRINT],
-              price: m[EAdvancedModules.PROFESSIONAL_PRINT],
-              launchTag: t('launch.aug'),
-            },
-            {
-              key: EAdvancedModules.HTML_EXPORT,
-              label: moduleNames[EAdvancedModules.HTML_EXPORT],
-              price: m[EAdvancedModules.HTML_EXPORT],
-              launchTag: t('launch.aug'),
-            },
-          ],
+          subModules: isGlobal
+            ? [
+                {
+                  key: EAdvancedModules.BATCH_TEMPLATING,
+                  label: t('module.batchTemplating'),
+                  price: m[EAdvancedModules.BATCH_TEMPLATING],
+                },
+              ]
+            : [
+                {
+                  key: EAdvancedModules.BATCH_TEMPLATING,
+                  label: t('module.batchTemplating'),
+                  price: m[EAdvancedModules.BATCH_TEMPLATING],
+                },
+                {
+                  key: EAdvancedModules.PROFESSIONAL_PRINT,
+                  label: moduleNames[EAdvancedModules.PROFESSIONAL_PRINT],
+                  price: m[EAdvancedModules.PROFESSIONAL_PRINT],
+                  launchTag: t('launch.aug'),
+                },
+                {
+                  key: EAdvancedModules.HTML_EXPORT,
+                  label: moduleNames[EAdvancedModules.HTML_EXPORT],
+                  price: m[EAdvancedModules.HTML_EXPORT],
+                  launchTag: t('launch.aug'),
+                },
+              ],
         },
-        {
-          key: EAdvancedModules.SMART_FILM,
-          label: moduleNames[EAdvancedModules.SMART_FILM],
-          price: 0,
-          noPrice: true,
-          noCheckBox: true,
-          hint: t('creative.module.hint'),
-          subModules: [
-            {
-              key: EAdvancedModules.CLIPO_REMIX_BEE,
-              label: moduleNames[EAdvancedModules.CLIPO_REMIX_BEE],
-              price: m[EAdvancedModules.CLIPO_REMIX_BEE],
-              launchTag: t('launch.sep'),
-            },
-            {
-              key: EAdvancedModules.CLIPO_REMIX_PANDA,
-              label: moduleNames[EAdvancedModules.CLIPO_REMIX_PANDA],
-              price: m[EAdvancedModules.CLIPO_REMIX_PANDA],
-              launchTag: t('launch.sep'),
-            },
-            {
-              key: EAdvancedModules.CLIPO_REMIX_LION,
-              label: moduleNames[EAdvancedModules.CLIPO_REMIX_LION],
-              price: m[EAdvancedModules.CLIPO_REMIX_LION],
-              launchTag: t('launch.sep'),
-            },
-          ],
-        },
+        // 海外版隐藏：报价单未列出创意剪辑（ClipoRemix）
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.SMART_FILM,
+                label: moduleNames[EAdvancedModules.SMART_FILM],
+                price: 0,
+                noPrice: true,
+                noCheckBox: true,
+                hint: t('creative.module.hint'),
+                subModules: [
+                  {
+                    key: EAdvancedModules.CLIPO_REMIX_BEE,
+                    label: moduleNames[EAdvancedModules.CLIPO_REMIX_BEE],
+                    price: m[EAdvancedModules.CLIPO_REMIX_BEE],
+                    launchTag: t('launch.sep'),
+                  },
+                  {
+                    key: EAdvancedModules.CLIPO_REMIX_PANDA,
+                    label: moduleNames[EAdvancedModules.CLIPO_REMIX_PANDA],
+                    price: m[EAdvancedModules.CLIPO_REMIX_PANDA],
+                    launchTag: t('launch.sep'),
+                  },
+                  {
+                    key: EAdvancedModules.CLIPO_REMIX_LION,
+                    label: moduleNames[EAdvancedModules.CLIPO_REMIX_LION],
+                    price: m[EAdvancedModules.CLIPO_REMIX_LION],
+                    launchTag: t('launch.sep'),
+                  },
+                ],
+              },
+            ]),
       ],
     },
     {
       id: EModuleGroupId.COLLAB,
       title: t('group.collab'),
       baseProduct: 'dam',
-      modules: [
-        {
-          key: EAdvancedModules.FILE_COLLECTION,
-          label: moduleNames[EAdvancedModules.FILE_COLLECTION],
-          price: m[EAdvancedModules.FILE_COLLECTION],
-          launchTag: t('launch.sep'),
-          giftEligible: true,
-          giftBadge: t('badge.optionalGift'),
-          giftThreshold,
-        },
-        {
-          key: EAdvancedModules.APPROVAL_CENTER,
-          label: moduleNames[EAdvancedModules.APPROVAL_CENTER],
-          price: m[EAdvancedModules.APPROVAL_CENTER],
-        },
-        {
-          key: EAdvancedModules.DELIVERY_APPROVAL_CENTER,
-          label: moduleNames[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
-          price: m[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
-        },
-        {
-          key: EAdvancedModules.TASK_WORKFLOW,
-          label: moduleNames[EAdvancedModules.TASK_WORKFLOW],
-          price: m[EAdvancedModules.TASK_WORKFLOW_BASIC],
-          variantOptions: [
+      // 海外版隐藏：报价单未列出协作类模块
+      modules: isGlobal
+        ? []
+        : [
             {
-              label: t('variant.basic'),
-              value: 'basic',
-              price: m[EAdvancedModules.TASK_WORKFLOW_BASIC],
+              key: EAdvancedModules.FILE_COLLECTION,
+              label: moduleNames[EAdvancedModules.FILE_COLLECTION],
+              price: m[EAdvancedModules.FILE_COLLECTION],
+              launchTag: t('launch.sep'),
+              giftEligible: true,
+              giftBadge: t('badge.optionalGift'),
+              giftThreshold,
             },
             {
-              label: t('variant.advanced'),
-              value: 'advanced',
-              price: m[EAdvancedModules.TASK_WORKFLOW_ADVANCED],
-              launchTag: t('launch.tbd'),
+              key: EAdvancedModules.APPROVAL_CENTER,
+              label: moduleNames[EAdvancedModules.APPROVAL_CENTER],
+              price: m[EAdvancedModules.APPROVAL_CENTER],
+            },
+            {
+              key: EAdvancedModules.DELIVERY_APPROVAL_CENTER,
+              label: moduleNames[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
+              price: m[EAdvancedModules.DELIVERY_APPROVAL_CENTER],
+            },
+            {
+              key: EAdvancedModules.TASK_WORKFLOW,
+              label: moduleNames[EAdvancedModules.TASK_WORKFLOW],
+              price: m[EAdvancedModules.TASK_WORKFLOW_BASIC],
+              variantOptions: [
+                {
+                  label: t('variant.basic'),
+                  value: 'basic',
+                  price: m[EAdvancedModules.TASK_WORKFLOW_BASIC],
+                },
+                {
+                  label: t('variant.advanced'),
+                  value: 'advanced',
+                  price: m[EAdvancedModules.TASK_WORKFLOW_ADVANCED],
+                  launchTag: t('launch.tbd'),
+                },
+              ],
+            },
+            {
+              key: EAdvancedModules.AUTOMATION_CENTER,
+              label: moduleNames[EAdvancedModules.AUTOMATION_CENTER],
+              price: m[EAdvancedModules.AUTOMATION_CENTER],
+              launchTag: t('launch.aug'),
             },
           ],
-        },
-        {
-          key: EAdvancedModules.AUTOMATION_CENTER,
-          label: moduleNames[EAdvancedModules.AUTOMATION_CENTER],
-          price: m[EAdvancedModules.AUTOMATION_CENTER],
-          launchTag: t('launch.aug'),
-        },
-      ],
     },
     {
       id: EModuleGroupId.COMPLIANCE,
@@ -897,24 +940,29 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
             },
           ],
         },
-        {
-          key: EAdvancedModules.BRAND_COMPLIANCE_AGENT,
-          label: moduleNames[EAdvancedModules.BRAND_COMPLIANCE_AGENT],
-          price: m[EAdvancedModules.BRAND_COMPLIANCE_AGENT],
-          launchTag: t('launch.sep'),
-          hint: t('brandCompliance.hint'),
-        },
-        {
-          key: EAdvancedModules.STORE_INSPECTION_AGENT,
-          label: moduleNames[EAdvancedModules.STORE_INSPECTION_AGENT],
-          price: m[EAdvancedModules.STORE_INSPECTION_AGENT],
-          launchTag: t('launch.sep'),
-        },
-        {
-          key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
-          label: moduleNames[EAdvancedModules.COPYRIGHT_MANAGEMENT],
-          price: m[EAdvancedModules.COPYRIGHT_MANAGEMENT],
-        },
+        // 海外版隐藏：报价单未列出品牌合规 Agent / 门店巡检 Agent / 版权管理
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.BRAND_COMPLIANCE_AGENT,
+                label: moduleNames[EAdvancedModules.BRAND_COMPLIANCE_AGENT],
+                price: m[EAdvancedModules.BRAND_COMPLIANCE_AGENT],
+                launchTag: t('launch.sep'),
+                hint: t('brandCompliance.hint'),
+              },
+              {
+                key: EAdvancedModules.STORE_INSPECTION_AGENT,
+                label: moduleNames[EAdvancedModules.STORE_INSPECTION_AGENT],
+                price: m[EAdvancedModules.STORE_INSPECTION_AGENT],
+                launchTag: t('launch.sep'),
+              },
+              {
+                key: EAdvancedModules.COPYRIGHT_MANAGEMENT,
+                label: moduleNames[EAdvancedModules.COPYRIGHT_MANAGEMENT],
+                price: m[EAdvancedModules.COPYRIGHT_MANAGEMENT],
+              },
+            ]),
         {
           key: EAdvancedModules.WATERMARK,
           label: moduleNames[EAdvancedModules.WATERMARK],
@@ -926,145 +974,158 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
       id: EModuleGroupId.DISTRIBUTION,
       title: t('group.distribution'),
       baseProduct: 'dam',
-      modules: [
-        {
-          key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
-          label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-          price: m[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
-          hint: t('publicAssetsAndDerivatives.hint'),
-        },
-        {
-          key: EAdvancedModules.DAT,
-          label: moduleNames[EAdvancedModules.DAT],
-          price: m[EAdvancedModules.DAT],
-          hint: t('dat.requires'),
-          requires: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
-        },
-        {
-          key: EAdvancedModules.PORTAL,
-          label: moduleNames[EAdvancedModules.PORTAL],
-          price: m[EAdvancedModules.PORTAL],
-        },
-        {
-          key: EAdvancedModules.PORTAL_THEME,
-          label: moduleNames[EAdvancedModules.PORTAL_THEME],
-          price: m[EAdvancedModules.PORTAL_THEME],
-          oneTime: true,
-          unit: t('unit.oneTimePerItem'),
-          hint: t('portalTheme.hint'),
-          requires: EAdvancedModules.PORTAL,
-          groupWithPrev: true,
-          min: 1,
-        },
-        {
-          key: EAdvancedModules.SOCIAL_DISTRIBUTION,
-          label: moduleNames[EAdvancedModules.SOCIAL_DISTRIBUTION],
-          price: 0,
-          noPrice: true,
-          noCheckBox: true,
-          subModules: [
+      // 海外版隐藏：报价单未列出门户/公开链接/社媒电商分发类模块
+      modules: isGlobal
+        ? []
+        : [
             {
-              key: EAdvancedModules.SOCIAL_ARTICLE,
-              label: moduleNames[EAdvancedModules.SOCIAL_ARTICLE],
-              price: m[EAdvancedModules.SOCIAL_ARTICLE],
-              launchTag: t('launch.sep'),
+              key: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
+              label: moduleNames[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+              price: m[EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES],
+              hint: t('publicAssetsAndDerivatives.hint'),
             },
             {
-              key: EAdvancedModules.SOCIAL_CHANNELS,
-              label: moduleNames[EAdvancedModules.SOCIAL_CHANNELS],
-              price: m[EAdvancedModules.SOCIAL_CHANNELS],
+              key: EAdvancedModules.DAT,
+              label: moduleNames[EAdvancedModules.DAT],
+              price: m[EAdvancedModules.DAT],
+              hint: t('dat.requires'),
+              requires: EAdvancedModules.PUBLIC_ASSETS_AND_DERIVATIVES,
+            },
+            {
+              key: EAdvancedModules.PORTAL,
+              label: moduleNames[EAdvancedModules.PORTAL],
+              price: m[EAdvancedModules.PORTAL],
+            },
+            {
+              key: EAdvancedModules.PORTAL_THEME,
+              label: moduleNames[EAdvancedModules.PORTAL_THEME],
+              price: m[EAdvancedModules.PORTAL_THEME],
+              oneTime: true,
+              unit: t('unit.oneTimePerItem'),
+              hint: t('portalTheme.hint'),
+              requires: EAdvancedModules.PORTAL,
+              groupWithPrev: true,
+              min: 1,
+            },
+            {
+              key: EAdvancedModules.SOCIAL_DISTRIBUTION,
+              label: moduleNames[EAdvancedModules.SOCIAL_DISTRIBUTION],
+              price: 0,
+              noPrice: true,
+              noCheckBox: true,
+              subModules: [
+                {
+                  key: EAdvancedModules.SOCIAL_ARTICLE,
+                  label: moduleNames[EAdvancedModules.SOCIAL_ARTICLE],
+                  price: m[EAdvancedModules.SOCIAL_ARTICLE],
+                  launchTag: t('launch.sep'),
+                },
+                {
+                  key: EAdvancedModules.SOCIAL_CHANNELS,
+                  label: moduleNames[EAdvancedModules.SOCIAL_CHANNELS],
+                  price: m[EAdvancedModules.SOCIAL_CHANNELS],
+                  unit: t('unit.perChannelYear'),
+                  hint: t('socialChannels.hint'),
+                  noCheckBox: true,
+                  indent: true,
+                  multiCols: 2,
+                  multiOptions: [
+                    { label: t('channel.xiaohongshu'), value: 'xiaohongshu' },
+                    { label: t('channel.douyin'), value: 'douyin' },
+                    { label: t('channel.wechat'), value: 'wechat', launchTag: t('launch.tbd') },
+                    { label: t('channel.channels'), value: 'channels', launchTag: t('launch.tbd') },
+                    {
+                      label: t('channel.weibo'),
+                      value: 'weibo',
+                      launchTag: t('launch.tbd'),
+                      fullRow: true,
+                    },
+                    { label: 'YouTube', value: 'youtube' },
+                    { label: 'TikTok', value: 'tiktok' },
+                    { label: 'Facebook Page', value: 'facebook' },
+                    { label: 'Instagram Business', value: 'instagram' },
+                    { label: 'LinkedIn', value: 'linkedin' },
+                    { label: 'LinkedIn Company Page', value: 'linkedinCompany' },
+                    { label: 'X/Twitter', value: 'twitter' },
+                  ],
+                },
+                {
+                  key: EAdvancedModules.SOCIAL_ACCOUNT_PACK,
+                  label: moduleNames[EAdvancedModules.SOCIAL_ACCOUNT_PACK],
+                  price: m[EAdvancedModules.SOCIAL_ACCOUNT_PACK],
+                  hint: t('socialAccountPack.hint'),
+                  unit: t('unit.perYearAccounts50'),
+                  min: 0,
+                  noCheckBox: true,
+                  boxed: true,
+                  // 渠道一个都没选时，增购数量自动归 0
+                  requires: EAdvancedModules.SOCIAL_CHANNELS,
+                },
+                {
+                  key: EAdvancedModules.SOCIAL_ATTRIBUTION,
+                  label: moduleNames[EAdvancedModules.SOCIAL_ATTRIBUTION],
+                  price: m[EAdvancedModules.SOCIAL_ATTRIBUTION],
+                  launchTag: t('launch.sep'),
+                  hint: t('socialAttribution.requires'),
+                  requires: EAdvancedModules.SOCIAL_CHANNELS,
+                },
+              ],
+            },
+            {
+              key: EAdvancedModules.ECOM_CHANNELS,
+              label: moduleNames[EAdvancedModules.ECOM_CHANNELS],
+              price: m[EAdvancedModules.ECOM_CHANNELS],
+              launchTag: t('launch.oct'),
               unit: t('unit.perChannelYear'),
-              hint: t('socialChannels.hint'),
+              hint: t('ecomChannels.hint'),
               noCheckBox: true,
               indent: true,
               multiCols: 2,
               multiOptions: [
-                { label: t('channel.xiaohongshu'), value: 'xiaohongshu' },
-                { label: t('channel.douyin'), value: 'douyin' },
-                { label: t('channel.wechat'), value: 'wechat', launchTag: t('launch.tbd') },
-                { label: t('channel.channels'), value: 'channels', launchTag: t('launch.tbd') },
-                { label: t('channel.weibo'), value: 'weibo', launchTag: t('launch.tbd'), fullRow: true },
-                { label: 'YouTube', value: 'youtube' },
-                { label: 'TikTok', value: 'tiktok' },
-                { label: 'Facebook Page', value: 'facebook' },
-                { label: 'Instagram Business', value: 'instagram' },
-                { label: 'LinkedIn', value: 'linkedin' },
-                { label: 'LinkedIn Company Page', value: 'linkedinCompany' },
-                { label: 'X/Twitter', value: 'twitter' },
+                { label: 'Amazon', value: 'amazon' },
+                { label: 'Lazada', value: 'lazada' },
+                { label: 'Shopee', value: 'shopee' },
+                { label: 'TikTok Shop', value: 'tiktokShop' },
+                { label: 'Shopify', value: 'shopify' },
               ],
             },
             {
-              key: EAdvancedModules.SOCIAL_ACCOUNT_PACK,
-              label: moduleNames[EAdvancedModules.SOCIAL_ACCOUNT_PACK],
-              price: m[EAdvancedModules.SOCIAL_ACCOUNT_PACK],
-              hint: t('socialAccountPack.hint'),
-              unit: t('unit.perYearAccounts50'),
+              key: EAdvancedModules.ECOM_ACCOUNT_PACK,
+              label: moduleNames[EAdvancedModules.ECOM_ACCOUNT_PACK],
+              price: m[EAdvancedModules.ECOM_ACCOUNT_PACK],
+              hint: t('ecomAccountPack.hint'),
               min: 0,
+              // 与「社媒绑定账户增购」一致：无勾选框、带边框的独立卡片
               noCheckBox: true,
               boxed: true,
               // 渠道一个都没选时，增购数量自动归 0
-              requires: EAdvancedModules.SOCIAL_CHANNELS,
+              requires: EAdvancedModules.ECOM_CHANNELS,
             },
             {
-              key: EAdvancedModules.SOCIAL_ATTRIBUTION,
-              label: moduleNames[EAdvancedModules.SOCIAL_ATTRIBUTION],
-              price: m[EAdvancedModules.SOCIAL_ATTRIBUTION],
-              launchTag: t('launch.sep'),
-              hint: t('socialAttribution.requires'),
-              requires: EAdvancedModules.SOCIAL_CHANNELS,
+              key: EAdvancedModules.ECOM_ATTRIBUTION,
+              label: moduleNames[EAdvancedModules.ECOM_ATTRIBUTION],
+              price: m[EAdvancedModules.ECOM_ATTRIBUTION],
+              launchTag: t('launch.dec'),
+              hint: t('ecomAttribution.requires'),
+              requires: EAdvancedModules.ECOM_CHANNELS,
             },
           ],
-        },
-        {
-          key: EAdvancedModules.ECOM_CHANNELS,
-          label: moduleNames[EAdvancedModules.ECOM_CHANNELS],
-          price: m[EAdvancedModules.ECOM_CHANNELS],
-          launchTag: t('launch.oct'),
-          unit: t('unit.perChannelYear'),
-          hint: t('ecomChannels.hint'),
-          noCheckBox: true,
-          indent: true,
-          multiCols: 2,
-          multiOptions: [
-            { label: 'Amazon', value: 'amazon' },
-            { label: 'Lazada', value: 'lazada' },
-            { label: 'Shopee', value: 'shopee' },
-            { label: 'TikTok Shop', value: 'tiktokShop' },
-            { label: 'Shopify', value: 'shopify' },
-          ],
-        },
-        {
-          key: EAdvancedModules.ECOM_ACCOUNT_PACK,
-          label: moduleNames[EAdvancedModules.ECOM_ACCOUNT_PACK],
-          price: m[EAdvancedModules.ECOM_ACCOUNT_PACK],
-          hint: t('ecomAccountPack.hint'),
-          min: 0,
-          // 与「社媒绑定账户增购」一致：无勾选框、带边框的独立卡片
-          noCheckBox: true,
-          boxed: true,
-          // 渠道一个都没选时，增购数量自动归 0
-          requires: EAdvancedModules.ECOM_CHANNELS,
-        },
-        {
-          key: EAdvancedModules.ECOM_ATTRIBUTION,
-          label: moduleNames[EAdvancedModules.ECOM_ATTRIBUTION],
-          price: m[EAdvancedModules.ECOM_ATTRIBUTION],
-          launchTag: t('launch.dec'),
-          hint: t('ecomAttribution.requires'),
-          requires: EAdvancedModules.ECOM_CHANNELS,
-        },
-      ],
     },
     {
       id: EModuleGroupId.INTEGRATION,
       title: t('group.integration'),
       baseProduct: 'dam',
       modules: [
-        {
-          key: EAdvancedModules.NOTION_SYNC,
-          label: moduleNames[EAdvancedModules.NOTION_SYNC],
-          price: m[EAdvancedModules.NOTION_SYNC],
-        },
+        // 海外版隐藏：报价单未列出 Notion 同步
+        ...(isGlobal
+          ? []
+          : [
+              {
+                key: EAdvancedModules.NOTION_SYNC,
+                label: moduleNames[EAdvancedModules.NOTION_SYNC],
+                price: m[EAdvancedModules.NOTION_SYNC],
+              },
+            ]),
         ...(isInChina
           ? [
               {
@@ -1336,10 +1397,12 @@ export const useAdvancedModuleGroups = (): IModuleGroup[] => {
     }
   }
 
-  return groups.map((g) => ({
-    ...g,
-    modules: g.modules.map(attachMeta),
-  }))
+  return groups
+    .filter((g) => g.modules.length > 0)
+    .map((g) => ({
+      ...g,
+      modules: g.modules.map(attachMeta),
+    }))
 }
 
 /** 扁平化分组模块，供计价 / 兼容旧逻辑 */
@@ -1420,7 +1483,5 @@ export const calcPrivateLicenseFee = (
 }
 
 /** 私有化基础维护：软件授权费 × 比例（永久买断按 SaaS 年费基数） */
-export const calcPrivateBasicMaintenance = (
-  annualLicenseBase: number,
-  rate: number,
-): number => Math.round(annualLicenseBase * rate)
+export const calcPrivateBasicMaintenance = (annualLicenseBase: number, rate: number): number =>
+  Math.round(annualLicenseBase * rate)

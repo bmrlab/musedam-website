@@ -4,6 +4,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { editQuotation, saveQuotation } from '@/endpoints/quotation'
+import { useCountry } from '@/providers/Country'
 import { useLanguage } from '@/providers/Language'
 import { useQuotationStore } from '@/providers/QuotationStore'
 import { cn, twx } from '@/utilities/cn'
@@ -13,9 +14,18 @@ import * as RadioGroup from '@radix-ui/react-radio-group'
 import * as Switch from '@radix-ui/react-switch'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { ChevronDown, ChevronRight, Info, Loader2, Minus, Plus } from 'lucide-react'
+
 import { SessionUser } from '@/types/user'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useTranslation } from '@/app/i18n/client'
+
 import { LocaleSwitch } from '../Header/LocalSwitch'
 import { LocaleLink } from '../LocalLink'
 import { Button } from '../ui/button'
@@ -23,26 +33,36 @@ import { Checkbox } from '../ui/checkbox'
 import { Input } from '../ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import {
+  calcPrivateBasicMaintenance,
+  calcPrivateLicenseFee,
   EAdvancedModules,
   EGeaBaseModules,
   EPrivateImplProducts,
   IModules,
-  PRIVATE_IMPL_SAAS_MAP,
-  calcPrivateBasicMaintenance,
-  calcPrivateLicenseFee,
   isSaasProductSelected,
+  PRIVATE_IMPL_SAAS_MAP,
   useAdvancedModuleGroups,
   useBasicConfigs,
   usePricing,
 } from './config'
+import { CustomServiceContent } from './CustomServiceContent'
 import {
+  AI_GIFT_POINTS,
+  AI_POINT_UNIT_PRICE,
   AI_POINTS_DEFAULT_OPTION,
+  AI_POINTS_OPTIONS,
+  AI_POINTS_PER_PACK,
   CLIPO_REMIX_VARIANT_KEYS,
+  EBasicConfigKey,
   getPrivateImplPrice,
   MUSE_AI_VARIANT_KEYS,
+  PRIVATE_DEFAULT_AI_POINTS,
+  type BillingMode,
 } from './enums'
 import { ModuleInfoIcon } from './ModuleInfoIcon'
 import { NoBuyModulesDialog } from './NoBuyModulesDialog'
+import { SEAT_UNMERGE_KEY, useNotBuyRows, useQuoteDetailData } from './QuoteDetailData'
+import { SEAT_TIERS } from './seatStorage'
 import {
   BusinessRole,
   EFeatureView,
@@ -59,26 +79,6 @@ import {
   SeatTier,
   TabEnum,
 } from './types'
-import {
-  AI_GIFT_POINTS,
-  AI_POINT_UNIT_PRICE,
-  AI_POINTS_OPTIONS,
-  AI_POINTS_PER_PACK,
-  EBasicConfigKey,
-  PRIVATE_DEFAULT_AI_POINTS,
-  type BillingMode,
-} from './enums'
-import { SEAT_TIERS } from './seatStorage'
-import { useCountry } from '@/providers/Country'
-import { CustomServiceContent } from './CustomServiceContent'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { SEAT_UNMERGE_KEY, useNotBuyRows, useQuoteDetailData } from './QuoteDetailData'
 
 interface NumControlProps {
   value: number
@@ -199,8 +199,7 @@ const PurpleBadge = ({ text }: { text: string }) => (
   </span>
 )
 
-const clampModuleDiscount = (val: number) =>
-  Math.min(10, Math.max(1, Math.round(val * 10) / 10))
+const clampModuleDiscount = (val: number) => Math.min(10, Math.max(1, Math.round(val * 10) / 10))
 
 const BillingToggle: FC<{
   value: BillingMode
@@ -387,12 +386,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const { t } = useTranslation('quotation')
   const basicConfigs = useBasicConfigs()
   const moduleGroups = useAdvancedModuleGroups()
-  const {
-    pricing,
-    currentPricing,
-    prefix,
-    giftThreshold: aiPointsGiftThreshold,
-  } = usePricing()
+  const { pricing, currentPricing, prefix, giftThreshold: aiPointsGiftThreshold } = usePricing()
   const { isInChina } = useCountry()
   const isGlobal = !isInChina
   const { toast } = useToast()
@@ -508,8 +502,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   }
 
   const showDamExtensions = advancedConfig.geaDam
-  const showGeaExtensions = advancedConfig.geaContext && moduleGroups.some((g) => g.baseProduct === 'gea')
-  const aiPointsPackMode = (moduleBillingModes[EGeaBaseModules.AI_POINTS_PACK] ?? 'paid') as BillingMode
+  const showGeaExtensions =
+    advancedConfig.geaContext && moduleGroups.some((g) => g.baseProduct === 'gea')
+  const aiPointsPackMode = (moduleBillingModes[EGeaBaseModules.AI_POINTS_PACK] ??
+    'paid') as BillingMode
   /** AI 点数包固定 5 万点，规格选择在「AI 点数订阅」行 */
   const aiPointsSelected = AI_GIFT_POINTS
   const aiPointsValue = aiPointsSelected * AI_POINT_UNIT_PRICE
@@ -523,7 +519,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     return undefined
   }, [userBusinessRoles])
   // const canSwitchBusinessRole = true
-  const canSwitchBusinessRole = userBusinessRoles.includes('muse') && userBusinessRoles.includes('pod')
+  const canSwitchBusinessRole =
+    userBusinessRoles.includes('muse') && userBusinessRoles.includes('pod')
 
   useEffect(() => {
     if (editInfo) setOpenDiscount(editInfo.discount !== undefined)
@@ -550,15 +547,29 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     if (!user) return
     if (loginBusinessRole && businessRole !== loginBusinessRole) {
       setBusinessRole(loginBusinessRole)
-      // 席位计价方式与起售量跟随角色：Pod 按档位 / 10 席起，Muse 按席位 / 5 席起
+      // 席位计价方式与起售量跟随角色：Pod 按档位 / 10 席起，Muse 按席位 / 5 席起；海外版不区分角色，统一按席位 / 10 席起
+      const isPod = !isGlobal && loginBusinessRole === 'pod'
       setAdvancedConfig({
         ...advancedConfig,
-        seatPricingMode: loginBusinessRole === 'pod' ? 'byTier' : 'bySeat',
-        memberSeats: Math.max(loginBusinessRole === 'pod' ? 10 : 5, advancedConfig.memberSeats),
+        seatPricingMode: isPod ? 'byTier' : 'bySeat',
+        memberSeats: Math.max(isGlobal ? 10 : isPod ? 10 : 5, advancedConfig.memberSeats),
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loginBusinessRole, userBusinessRoles, businessRole, setBusinessRole])
+  }, [user, loginBusinessRole, userBusinessRoles, businessRole, setBusinessRole, isGlobal])
+
+  // 海外版不区分 muse/pod：无论初始档位配置如何，席位计价方式强制按席位 / 10 席起
+  useEffect(() => {
+    if (!isGlobal) return
+    if (advancedConfig.seatPricingMode === 'byTier' || advancedConfig.memberSeats < 10) {
+      setAdvancedConfig({
+        ...advancedConfig,
+        seatPricingMode: 'bySeat',
+        memberSeats: Math.max(10, advancedConfig.memberSeats),
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGlobal])
 
   const tabs = [
     { key: TabEnum.ADVANCED, label: t('tab.saas'), enabled: true },
@@ -626,8 +637,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   /** DAM / GEA 至少选一个；取消某基础模块时清空其拓展模块 */
   const handleGeaBaseChange = (field: 'geaDam' | 'geaContext', checked: boolean) => {
     if (!checked) {
-      const otherSelected =
-        field === 'geaDam' ? advancedConfig.geaContext : advancedConfig.geaDam
+      const otherSelected = field === 'geaDam' ? advancedConfig.geaContext : advancedConfig.geaDam
       if (!otherSelected) return
       clearExtensionModulesForBase(field === 'geaDam' ? 'dam' : 'gea')
     }
@@ -636,14 +646,15 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
 
   const handleBusinessRoleChange = (role: BusinessRole) => {
     setBusinessRole(role)
-    // 起售席位：Pod 10 席、Muse 5 席；切换角色时把低于起售量的席位补齐
-    const seatMin = role === 'pod' ? 10 : 5
+    // 起售席位：Pod 10 席、Muse 5 席；切换角色时把低于起售量的席位补齐；海外版不区分角色
+    const isPod = !isGlobal && role === 'pod'
+    const seatMin = isPod ? 10 : 5
     const nextSeats = Math.max(seatMin, advancedConfig.memberSeats)
     setAdvancedConfig({
       ...advancedConfig,
       memberSeats: nextSeats,
       // Pod 默认按档位计价，Muse 默认按席位
-      seatPricingMode: role === 'pod' ? 'byTier' : 'bySeat',
+      seatPricingMode: isPod ? 'byTier' : 'bySeat',
       ...(aiPointsPackMode === 'gift'
         ? { geaAiPointsPack: aiPointsSelected / AI_POINTS_PER_PACK }
         : {}),
@@ -721,10 +732,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     syncSaasFromPrivateProduct(product, checked)
   }
 
-  const handleModuleChange = (
-    module: keyof IAdvancedModules,
-    checked: boolean | number,
-  ) => {
+  const handleModuleChange = (module: keyof IAdvancedModules, checked: boolean | number) => {
     setAdvancedModules((st) => ({ ...st, [module]: checked }))
     // 取消勾选后不再参与合并到主报价
     if (!checked) {
@@ -870,37 +878,37 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
     label: string
     price: number
   }[] = [
-      {
-        key: EPrivateImplProducts.DAM,
-        label: t('gea.dam'),
-        // 阿里云 / AWS 之外的云平台，DAM 实施费单独定价
-        price: getPrivateImplPrice(
-          EPrivateImplProducts.DAM,
-          pricing.private.implProducts,
-          privateConfig.cloudProvider,
-        ),
-      },
-      {
-        key: EPrivateImplProducts.GEA_CONTEXT,
-        label: t('gea.context'),
-        price: pricing.private.implProducts[EPrivateImplProducts.GEA_CONTEXT],
-      },
-      {
-        key: EPrivateImplProducts.MUSE_AI,
-        label: t('module.museAI'),
-        price: pricing.private.implProducts[EPrivateImplProducts.MUSE_AI],
-      },
-      {
-        key: EPrivateImplProducts.INGEN_OPS,
-        label: t('module.ingenOps'),
-        price: pricing.private.implProducts[EPrivateImplProducts.INGEN_OPS],
-      },
-      {
-        key: EPrivateImplProducts.CLIPO_REMIX,
-        label: t('module.clipoRemix'),
-        price: pricing.private.implProducts[EPrivateImplProducts.CLIPO_REMIX],
-      },
-    ]
+    {
+      key: EPrivateImplProducts.DAM,
+      label: t('gea.dam'),
+      // 阿里云 / AWS 之外的云平台，DAM 实施费单独定价
+      price: getPrivateImplPrice(
+        EPrivateImplProducts.DAM,
+        pricing.private.implProducts,
+        privateConfig.cloudProvider,
+      ),
+    },
+    {
+      key: EPrivateImplProducts.GEA_CONTEXT,
+      label: t('gea.context'),
+      price: pricing.private.implProducts[EPrivateImplProducts.GEA_CONTEXT],
+    },
+    {
+      key: EPrivateImplProducts.MUSE_AI,
+      label: t('module.museAI'),
+      price: pricing.private.implProducts[EPrivateImplProducts.MUSE_AI],
+    },
+    {
+      key: EPrivateImplProducts.INGEN_OPS,
+      label: t('module.ingenOps'),
+      price: pricing.private.implProducts[EPrivateImplProducts.INGEN_OPS],
+    },
+    {
+      key: EPrivateImplProducts.CLIPO_REMIX,
+      label: t('module.clipoRemix'),
+      price: pricing.private.implProducts[EPrivateImplProducts.CLIPO_REMIX],
+    },
+  ]
 
   const licenseTypeOptions: { value: PrivateLicenseType; label: string }[] = [
     { value: 'encrypted', label: t('private.license.encrypted') },
@@ -918,11 +926,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
   const privateImplTotal =
     privateConfig.enabled && privateConfig.implementationEnabled
       ? privateImplProductList.reduce((sum, item) => {
-        const checked =
-          isSaasProductSelected(item.key, advancedConfig, advancedModules) ||
-          !!privateImplProducts[item.key]
-        return checked ? sum + item.price : sum
-      }, 0)
+          const checked =
+            isSaasProductSelected(item.key, advancedConfig, advancedModules) ||
+            !!privateImplProducts[item.key]
+          return checked ? sum + item.price : sum
+        }, 0)
       : 0
 
   /** 私有化 API 点数：规格 × 份数 × 单价（点数包按 1 万点/份计价） */
@@ -1305,9 +1313,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       const museAiExclusive = (MUSE_AI_VARIANT_KEYS as readonly string[]).includes(
                         key,
                       )
-                      const clipoExclusive = (CLIPO_REMIX_VARIANT_KEYS as readonly string[]).includes(
-                        key,
-                      )
+                      const clipoExclusive = (
+                        CLIPO_REMIX_VARIANT_KEYS as readonly string[]
+                      ).includes(key)
                       if (c && (museAiExclusive || clipoExclusive)) {
                         const group = museAiExclusive
                           ? MUSE_AI_VARIANT_KEYS
@@ -1357,7 +1365,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 )}
                 {giftEligible && giftOk && giftBadge && <OrangeBadge text={giftBadge} />}
                 {launchTag && <LaunchBadge text={launchTag} />}
-                {key === EAdvancedModules.ENTERPRISE_SSO && <PurpleBadge text={t('badge.noTrial')} />}
+                {key === EAdvancedModules.ENTERPRISE_SSO && (
+                  <PurpleBadge text={t('badge.noTrial')} />
+                )}
               </Label>
               {module.hint && <HintParagraph>{module.hint}</HintParagraph>}
               {/* 有版本档位时价格展示在档位卡片内，主行不再重复 */}
@@ -1365,8 +1375,8 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                 <DesParagraph>
                   {mode === 'gift' || price === 0
                     ? t('free')
-                    : module.priceText ??
-                    `${prefix} ${formatWithToLocaleString(price)} ${unit ?? (oneTime ? '' : t('per.year'))}`}
+                    : (module.priceText ??
+                      `${prefix} ${formatWithToLocaleString(price)} ${unit ?? (oneTime ? '' : t('per.year'))}`)}
                 </DesParagraph>
               )}
             </div>
@@ -1388,9 +1398,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
               <NumControl
                 // 未勾选时展示 min 作为占位，实际计价仍以 0 为准
                 value={
-                  !(advancedModules[key] as number) && min
-                    ? min
-                    : (advancedModules[key] as number)
+                  !(advancedModules[key] as number) && min ? min : (advancedModules[key] as number)
                 }
                 onChange={(val) => handleModuleChange(key, val)}
                 disabled={!parentOk || (!advancedModules[key] && min !== 0)}
@@ -1477,9 +1485,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       disabled={!parentOk}
                       onCheckedChange={(c) => {
                         const prev = moduleMultiSelections[key] ?? []
-                        const next = c
-                          ? [...prev, opt.value]
-                          : prev.filter((v) => v !== opt.value)
+                        const next = c ? [...prev, opt.value] : prev.filter((v) => v !== opt.value)
                         setModuleMultiSelection(key, next)
                         if (next.length > 0 && !advancedModules[key]) {
                           handleModuleChange(key, true)
@@ -1553,11 +1559,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
       )
     }
 
-    return (
-      <div key={key}>
-        {body}
-      </div>
-    )
+    return <div key={key}>{body}</div>
   }
 
   return (
@@ -1572,7 +1574,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
             </LocaleLink>
           </div>
           <div className="flex items-center gap-4">
-            {canSwitchBusinessRole && (
+            {canSwitchBusinessRole && !isGlobal && (
               <Select
                 value={businessRole}
                 onValueChange={(v) => handleBusinessRoleChange(v as BusinessRole)}
@@ -1729,7 +1731,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   )}
                 >
                   <div
-                    className={cn('flex items-start space-x-2', saasAiPointsLocked && 'cursor-not-allowed')}
+                    className={cn(
+                      'flex items-start space-x-2',
+                      saasAiPointsLocked && 'cursor-not-allowed',
+                    )}
                     title={saasAiPointsLocked ? t('aiPoints.privateHint') : undefined}
                   >
                     <Checkbox
@@ -1775,25 +1780,28 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                     EGeaBaseModules.AI_POINTS_PACK,
                     pricing.advanced.geaAiPackPrice,
                   ) && (
-                      <BillingToggle
-                        value={aiPointsPackMode}
-                        onChange={(mode) => {
-                          handleAiPointsPackBillingChange(mode)
-                          if (mode !== 'discount') {
-                            setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, undefined)
-                          }
-                        }}
-                        discountValue={advancedModulePriceOverrides[EGeaBaseModules.AI_POINTS_PACK]}
-                        onDiscountChange={(val) =>
-                          setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, val)
+                    <BillingToggle
+                      value={aiPointsPackMode}
+                      onChange={(mode) => {
+                        handleAiPointsPackBillingChange(mode)
+                        if (mode !== 'discount') {
+                          setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, undefined)
                         }
-                      />
-                    )}
+                      }}
+                      discountValue={advancedModulePriceOverrides[EGeaBaseModules.AI_POINTS_PACK]}
+                      onDiscountChange={(val) =>
+                        setAdvancedModulePriceOverride(EGeaBaseModules.AI_POINTS_PACK, val)
+                      }
+                    />
+                  )}
                 </div>
 
                 {basicConfigs.map(({ title, hint, des, key, min, tag }) => {
                   if (key === EBasicConfigKey.MEMBER_SEATS) {
-                    const seatMode = advancedConfig.seatPricingMode ?? 'bySeat'
+                    // 海外版报价单只有按席位计价，没有档位选项
+                    const seatMode = isGlobal
+                      ? 'bySeat'
+                      : (advancedConfig.seatPricingMode ?? 'bySeat')
                     const seatTier = advancedConfig.seatTier ?? 'lte200'
                     return (
                       <div className="w-full space-y-3" key={key}>
@@ -1801,23 +1809,25 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                           <Label className="flex items-center gap-3 text-[16px] text-white">
                             {title}
                             {renderBasicMergeIcon(SEAT_UNMERGE_KEY)}
-                            <Select
-                              value={seatMode}
-                              onValueChange={(v) =>
-                                setAdvancedConfig({
-                                  ...advancedConfig,
-                                  seatPricingMode: v as SeatPricingMode,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
-                                <SelectItem value="bySeat">{t('seat.mode.bySeat')}</SelectItem>
-                                <SelectItem value="byTier">{t('seat.mode.byTier')}</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            {!isGlobal && (
+                              <Select
+                                value={seatMode}
+                                onValueChange={(v) =>
+                                  setAdvancedConfig({
+                                    ...advancedConfig,
+                                    seatPricingMode: v as SeatPricingMode,
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="h-6 w-auto min-w-[84px] gap-1 rounded-[4px] border-[rgba(255,255,255,0.2)] bg-[#141414] px-2 py-0 text-sm text-white shadow-none focus:ring-0 [&>svg]:opacity-30">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
+                                  <SelectItem value="bySeat">{t('seat.mode.bySeat')}</SelectItem>
+                                  <SelectItem value="byTier">{t('seat.mode.byTier')}</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
                           </Label>
                           {seatMode === 'bySeat' && (
                             <NumControl
@@ -1973,10 +1983,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   enableColdHotStorage: c,
                                   ...(c
                                     ? {
-                                      chinaHotStorage:
-                                        advancedConfig.chinaHotStorage ??
-                                        advancedConfig.storageSpace,
-                                    }
+                                        chinaHotStorage:
+                                          advancedConfig.chinaHotStorage ??
+                                          advancedConfig.storageSpace,
+                                      }
                                     : {}),
                                 })
                               }
@@ -2007,12 +2017,11 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                   enableMultiRegionStorage: c,
                                   ...(c && !advancedConfig.enableColdHotStorage
                                     ? {
-                                      chinaHotStorage:
-                                        advancedConfig.chinaHotStorage ??
-                                        advancedConfig.storageSpace,
-                                      overseasHotStorage:
-                                        advancedConfig.overseasHotStorage ?? 1,
-                                    }
+                                        chinaHotStorage:
+                                          advancedConfig.chinaHotStorage ??
+                                          advancedConfig.storageSpace,
+                                        overseasHotStorage: advancedConfig.overseasHotStorage ?? 1,
+                                      }
                                     : {}),
                                 })
                               }
@@ -2592,7 +2601,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                         )}
                                       </span>
                                       {t('private.ops.iteration.times', { times: freq })}
-                                      {discounted && <OrangeBadge text={t('badge.limitedHalfOff')} />}
+                                      {discounted && (
+                                        <OrangeBadge text={t('badge.limitedHalfOff')} />
+                                      )}
                                     </div>
                                     <div className="mt-1 flex items-center gap-2 text-sm text-white-72">
                                       {discounted && (
@@ -2721,7 +2732,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                                 <SelectContent className="border-[rgba(255,255,255,0.2)] bg-[#141414] text-white">
                                   {AI_POINTS_OPTIONS.map((points) => (
                                     <SelectItem key={points} value={String(points)}>
-                                      {t('gea.aiPointsPack.tag', { points: String(points / 10000) })}
+                                      {t('gea.aiPointsPack.tag', {
+                                        points: String(points / 10000),
+                                      })}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -2872,7 +2885,7 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                   <div className="mt-5 flex items-center justify-between border-t border-white/15 pt-5">
                     <Label>{t('discount.overall')}</Label>
                     <span className="text-base text-white">
-                      <span className='text-lg'>{overallDiscountText}</span>
+                      <span className="text-lg">{overallDiscountText}</span>
                       <span className={language === 'zh-CN' ? 'ml-1' : ''}>
                         {t('discount.unit')}
                       </span>
@@ -2886,7 +2899,10 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
           {activeTab === TabEnum.ADVANCED && (
             <div className="space-y-5">
               <TitleDiv>{t('feature.display.options')}</TitleDiv>
-              <RadioGroup.Root className="flex flex-col gap-3 md:flex-row md:gap-6" value={featureView}>
+              <RadioGroup.Root
+                className="flex flex-col gap-3 md:flex-row md:gap-6"
+                value={featureView}
+              >
                 {[EFeatureView.OVERVIEW, EFeatureView.DETAIL].map((listType) => (
                   <BlockBox
                     className={cn(
@@ -2907,7 +2923,9 @@ export const LeftContent: FC<{ user?: SessionUser }> = ({ user }) => {
                       <RadioGroup.Indicator className="size-2 rounded-full bg-[#3366FF]" />
                     </RadioGroup.Item>
                     <Label className="text-[14px] leading-[1.3em] text-white">
-                      {listType === EFeatureView.OVERVIEW ? t('feature.overview') : t('feature.details')}
+                      {listType === EFeatureView.OVERVIEW
+                        ? t('feature.overview')
+                        : t('feature.details')}
                     </Label>
                   </BlockBox>
                 ))}
