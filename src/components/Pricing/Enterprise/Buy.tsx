@@ -44,7 +44,7 @@ export default function Buy({
                 </FlexRowContainer>
 
                 <div className="no-scrollbar w-full overflow-x-scroll px-5 md:px-[80px]">
-                    <div className='flex w-fit min-w-full flex-col items-stretch justify-center gap-[30px] md:flex-row md:gap-10'>
+                    <div className='flex w-fit min-w-full flex-col items-stretch justify-center gap-[30px] md:flex-row md:items-end md:gap-10'>
                         {enterpriseBillingMenu.map((plan, index) => {
                             const {
                                 key,

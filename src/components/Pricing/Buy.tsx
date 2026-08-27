@@ -20,10 +20,10 @@ import * as RadioGroup from '@radix-ui/react-radio-group'
 import { SessionUser } from '@/types/user'
 import { FlexColContainer, FlexRowContainer } from '@/components/StyleWrapper/Container'
 import { useTranslation } from '@/app/i18n/client'
+import { useLanguage } from '@/providers/Language'
 
 import { Button } from '../ui/button'
 import { useBillingMenu } from './billingMenu'
-import ContactUsDialog from './ContactUsDialog'
 import { BillingType, PlanType } from './types/plan'
 import { EMuseProductType } from './types/products'
 
@@ -41,6 +41,7 @@ export default function Buy({
   const pricingData = use(pricingDataPromise)
   const { billingMenu } = useBillingMenu({ isMuseAI: isMuseAI ?? false }) // 在组件内
   const router = useRouter()
+  const { language } = useLanguage()
   const searchParams = useSearchParams()
   const currentPlan = useMemo(
     () => searchParams?.get('plan') ?? (PlanType.team as PlanType),
@@ -64,7 +65,6 @@ export default function Buy({
     router.push(`?${params.toString()}`)
   }
   const { t } = useTranslation('pricing')
-  const [open, setOpen] = useState(false)
 
   // console.log('pricingMap', pricingMap)
   const tabs = [
@@ -314,11 +314,7 @@ export default function Buy({
                     // 注意这里的判断条件和下面按钮文字的
                     // 保持完全一致
                     if (buttonType === 'contact') {
-                      if (isInChina) {
-                        setOpen(true)
-                      } else {
-                        window.open(`mailto:${MUSE_CONTACT_EMAIL}`)
-                      }
+                      router.push(`/${language}/book-demo?from=pricing-btn`)
                     } else if (
                       (buttonType === 'try' &&
                         (!user || (!!user && currentPlan === PlanType.team && !user.hasOrg))) ||
@@ -383,8 +379,6 @@ export default function Buy({
           })}
         </div>
       </FlexColContainer>
-
-      <ContactUsDialog open={open} setOpen={setOpen} />
     </>
   )
 }
