@@ -71,17 +71,17 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
   // 企业官网-团队版
   const enterpriseSummary = {
     [EPlanProductType.TEAM_BASIC]: [
-      t('pricing.summary.seats', { val: 5 }),
-      t('pricing.summary.storage.expand', { val: '100GB' }),
+      t('pricing.enterpriseSummary.seatsExpandable'),
+      t('pricing.enterpriseSummary.storageExpandable'),
       t('pricing.summary.ai.new'),
-      t('pricing.enterpriseSummary.basicFolderPermissions'),
+      t('pricing.enterpriseSummary.flexibleSharing'),
     ],
     [EPlanProductType.TEAM_FLAGSHIP]: [
-      t('pricing.summary.seats', { val: isInChina ? 5 : 10 }),
-      t('pricing.summary.storage.expand', { val: '1T(1024G)' }),
-      t('pricing.enterpriseSummary.includesAllBasic'),
-      t('pricing.enterpriseSummary.advancedPermissions'),
-      t('pricing.enterpriseSummary.advancedExtensions'),
+      t('pricing.enterpriseSummary.seatsExpandable'),
+      t('pricing.enterpriseSummary.storageExpandable'),
+      t('pricing.enterpriseSummary.versionAndComments'),
+      t('pricing.enterpriseSummary.advancedPermissionsOrg'),
+      t('pricing.enterpriseSummary.expansionModules'),
     ],
     [EPlanProductType.ENTERPRISE]: [
       t('pricing.enterpriseSummary.customPlans'),
@@ -247,8 +247,9 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     {
       key: EPlanProductType.TEAM_BASIC,
       title: t('pricing.enterpriseBilling.basic.title'),
+      heading: t('pricing.enterpriseBilling.basic.heading'),
       description: t('pricing.enterpriseBilling.basic.description'),
-      buttonType: 'try',
+      buttonType: 'contact',
       linkText: t('pricing.plan.actions.buy-now'),
       summary: enterpriseSummary[EPlanProductType.TEAM_BASIC],
       [BillingType.monthly]: EMuseProductType.ABROAD_ORG_BASIC_MONTHLY,
@@ -261,6 +262,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     {
       key: EPlanProductType.TEAM_FLAGSHIP,
       title: t('pricing.enterpriseBilling.advanced.title'),
+      heading: t('pricing.enterpriseBilling.advanced.heading'),
       description: t('pricing.enterpriseBilling.advanced.description'),
       buttonType: 'bookDemo',
       linkText: t('pricing.plan.actions.buy-now'),
@@ -276,8 +278,9 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
     {
       key: EPlanProductType.ENTERPRISE,
       title: t('pricing.enterpriseBilling.custom.title'),
+      heading: t('pricing.enterpriseBilling.custom.heading'),
       description: t('pricing.enterpriseBilling.custom.description'),
-      buttonType: 'bookDemo',
+      buttonType: 'contact',
       summary: enterpriseSummary[EPlanProductType.ENTERPRISE],
       icon: '/assets/Pricing/vip.svg',
       [BillingType.monthly]: t('pricing.contact.sales'),
