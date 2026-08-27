@@ -36,7 +36,7 @@ COPY . .
 #   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
 #   else echo "Lockfile not found." && exit 1; \
 #   fi
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.12.1
 RUN pnpm run build
 
 # Production image, copy all the files and run next
