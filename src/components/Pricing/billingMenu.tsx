@@ -277,7 +277,7 @@ export const useBillingMenu = ({ isMuseAI }: { isMuseAI: boolean }) => {
       key: EPlanProductType.ENTERPRISE,
       title: t('pricing.enterpriseBilling.custom.title'),
       description: t('pricing.enterpriseBilling.custom.description'),
-      buttonType: 'contact',
+      buttonType: 'bookDemo',
       summary: enterpriseSummary[EPlanProductType.ENTERPRISE],
       icon: '/assets/Pricing/vip.svg',
       [BillingType.monthly]: t('pricing.contact.sales'),

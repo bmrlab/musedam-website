@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import {
     MUSE_GLOBAL_AUTH_URL,
     MUSE_MAINLAND_AUTH_URL,
@@ -16,7 +16,6 @@ import { useTranslation } from '@/app/i18n/client'
 
 import { Button } from '../../ui/button'
 import { useBillingMenu } from '../billingMenu'
-import ContactUsDialog from '../ContactUsDialog'
 import { PlanType } from '../types/plan'
 import { LocaleLink } from '@/components/LocalLink'
 import { useLanguage } from '@/providers/Language'
@@ -35,7 +34,6 @@ export default function Buy({
     const { language } = useLanguage()
     const isEn = language === 'en-US'
     const { t } = useTranslation('pricing')
-    const [open, setOpen] = useState(false)
 
     const getPriceRender = useCallback(
         (price?: string) => {
@@ -65,7 +63,6 @@ export default function Buy({
     ]
 
     return (
-        <>
             <FlexColContainer className="w-full items-center pb-[120px] pt-5 font-euclid md:pt-[60px]">
                 <FlexRowContainer className="mb-10 w-full justify-between px-5 md:mb-[60px] md:px-[80px] ">
                     <h1 className='w-full text-center font-feature text-[40px] leading-[51px] text-white md:text-[78px] md:leading-[87px]'>{t('pricing.title.new')}</h1>
@@ -177,8 +174,5 @@ export default function Buy({
                     </div>
                 </div>
             </FlexColContainer>
-
-            <ContactUsDialog open={open} setOpen={setOpen} />
-        </>
     )
 }
