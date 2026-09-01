@@ -30,13 +30,9 @@ export default async function MuseDAMPricingPage({
   const { lng } = await params
   const { plan } = await searchParams
 
-  // 没指定版本且用户已登录，要切换对对应的版本
-  if (user && typeof plan === 'undefined') {
-    if (user.isOrg) {
-      redirect(`/${lng}/pricing/dam?plan=team`)
-    } else {
-      redirect(`/${lng}/pricing/dam?plan=personal`)
-    }
+  // 暂时全部隐藏团队版，统一落到个人版
+  if (plan !== 'personal') {
+    redirect(`/${lng}/pricing/dam?plan=personal`)
   }
 
   const pricingData = getPricingList(
@@ -46,8 +42,8 @@ export default async function MuseDAMPricingPage({
   return (
     <FlexColContainer className="w-full items-center">
       <FlexColContainer className="max-w-full items-center md:w-[1260px]">
-        <Buy pricingData={pricingData} user={user} />
-        <DetailTableOfMuseDam />
+        <Buy pricingData={pricingData} user={user} showTeamPlan={false} />
+        <DetailTableOfMuseDam showTeamPlan={false} />
       </FlexColContainer>
     </FlexColContainer>
   )

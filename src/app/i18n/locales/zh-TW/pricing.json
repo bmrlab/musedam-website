@@ -128,6 +128,7 @@
   "pricing.configure.on.demand": "自訂",
   "pricing.contact": "自訂",
   "pricing.contact.now": "立即聯繫",
+  "pricing.consult.enterprise": "諮詢企業版",
   "pricing.controlNet.hint": "使用 ControlNet 模型，用戶可以選擇精確線條控制、上色線條圖、骨架綁定等功能，並根據深度圖結構視角準確重繪",
   "pricing.convert.batch.images": "批量圖片轉提示詞",
   "pricing.corporate.email.login": "企業郵箱登入",

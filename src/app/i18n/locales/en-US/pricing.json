@@ -128,6 +128,7 @@
   "pricing.configure.on.demand": "Custom",
   "pricing.contact": "Custom",
   "pricing.contact.now": "Get in touch",
+  "pricing.consult.enterprise": "Consult Enterprise",
   "pricing.controlNet.hint": "Using the ControlNet model, users can select functions such as precise line control, coloring line drawings, skeletal binding, and accurately redrawing according to the depth map structure perspective",
   "pricing.convert.batch.images": "Batch image to prompt words",
   "pricing.corporate.email.login": "Enterprise mailbox login",

@@ -106,6 +106,7 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
       ? new Date(userData.result.proInvalidDate) > new Date()
       : false,
     isEnterpriseUser: false,
+    isPaidTeamUser: false,
   }
 
   // 获取用户团队列表
@@ -124,11 +125,13 @@ export const getServerSession: () => Promise<SessionUser | null> = cache(async (
       message: string
       result: { id: number; orgFeeType: ESpaceRule }[]
     } = await orgResponse.json()
-    const isEnterpriseUser =
-      orgData.result.findIndex((v) => v.orgFeeType === ESpaceRule.ENTERPRISE) > -1
-
-    result.hasOrg = orgData.code === '0' && orgData.result.length > 0
-    result.isEnterpriseUser = isEnterpriseUser
+    const orgs = orgData.code === '0' ? (orgData.result ?? []) : []
+    result.hasOrg = orgs.length > 0
+    result.isEnterpriseUser = orgs.some((v) => v.orgFeeType === ESpaceRule.ENTERPRISE)
+    const currentOrg = orgId
+      ? orgs.find((v) => String(v.id) === String(orgId))
+      : undefined
+    result.isPaidTeamUser = result.isOrg && currentOrg?.orgFeeType === ESpaceRule.PAID
   }
 
   if (userSaleInfo.ok) {

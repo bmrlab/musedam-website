@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Fragment, useEffect, useRef, } from 'react'
+import { Fragment, useEffect, useMemo, useRef, } from 'react'
 import { useTranslation } from '@/app/i18n/client'
 import { cn } from '@/utilities/cn'
 import { FlexCenterContainer } from '../../StyleWrapper/Container'
@@ -10,12 +10,37 @@ import { usePlanMuseDAM } from './museDamPlan'
 import { ESpaceType } from '../types/plan'
 import { useCountry } from '@/providers/Country'
 
-export default function DetailTableOfMuseDam() {
+export default function DetailTableOfMuseDam({ showTeamPlan = true }: { showTeamPlan?: boolean }) {
     const { planMuseDAM } = usePlanMuseDAM()
     const { t } = useTranslation('pricing')
     const { isInChina } = useCountry()
     const containerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLTableSectionElement>(null);
+
+    const columns = useMemo(() => {
+        const all = [
+            {
+                key: ESpaceType.PERSON_FREE,
+                titleKey: 'pricing.free',
+                desKey: 'pricing.free.des'
+            }, {
+                key: ESpaceType.PERSON_PRO,
+                titleKey: 'pricing.pro',
+                desKey: 'pricing.pro.des'
+            }, {
+                key: ESpaceType.TEAM,
+                titleKey: 'pricing.team',
+                desKey: 'pricing.team.des'
+            }, {
+                key: ESpaceType.ENTERPRISE,
+                titleKey: 'pricing.team.enterprise',
+                desKey: 'pricing.team.table.enterprise.des',
+                icon: '/assets/Pricing/vip.svg'
+            }
+        ]
+        return showTeamPlan ? all : all.filter((item) => item.key !== ESpaceType.TEAM)
+    }, [showTeamPlan])
+    const colSpan = columns.length + 1
 
     useEffect(() => {
         const container = containerRef.current;
@@ -39,29 +64,8 @@ export default function DetailTableOfMuseDam() {
         return () => {
             window.removeEventListener('resize', checkIfNeedsScroll);
         };
-    }, []);
+    }, [columns.length]);
 
-    const columns = [
-        {
-            key: ESpaceType.PERSON_FREE,
-            titleKey: 'pricing.free',
-            desKey: 'pricing.free.des'
-        }, {
-            key: ESpaceType.PERSON_PRO,
-            titleKey: 'pricing.pro',
-            desKey: 'pricing.pro.des'
-        }, {
-            key: ESpaceType.TEAM,
-            titleKey: 'pricing.team',
-            desKey: 'pricing.team.des'
-        }, {
-            key: ESpaceType.ENTERPRISE,
-            titleKey: 'pricing.team.enterprise',
-            desKey: 'pricing.team.table.enterprise.des',
-            icon: '/assets/Pricing/vip.svg'
-        }
-
-    ]
     return (
         <div className="text-default mt-[60px] w-full">
             <h1 className="mb-[40px] text-center font-euclid text-[32px] leading-[45px]">{t('pricing.rights')}</h1>
@@ -100,11 +104,11 @@ export default function DetailTableOfMuseDam() {
                             <Fragment key={group.group}>
                                 {index < planMuseDAM.length && (
                                     <tr className="row--blank">
-                                        <td colSpan={5}></td>
+                                        <td colSpan={colSpan}></td>
                                     </tr>
                                 )}
                                 <tr className="row--group font-euclid" id={`planMuseDAM-group-${index}`}>
-                                    <td colSpan={5}>{group.group}</td>
+                                    <td colSpan={colSpan}>{group.group}</td>
                                 </tr>
                                 {group.items?.map((row, rowIndex) => (
                                     <tr

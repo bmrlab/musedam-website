@@ -31,22 +31,26 @@ export default function Buy({
   isMuseAI,
   user,
   pricingData: pricingDataPromise,
-  isDark
+  isDark,
+  showTeamPlan = true,
 }: {
   isMuseAI?: boolean
   user: SessionUser | null
   pricingData: Promise<[EMuseProductType, ProductItem][]>
   isDark?: boolean
+  /** DAM 定价页仅对生效中的付费团队版用户展示团队版 tab */
+  showTeamPlan?: boolean
 }) {
   const pricingData = use(pricingDataPromise)
   const { billingMenu } = useBillingMenu({ isMuseAI: isMuseAI ?? false }) // 在组件内
   const router = useRouter()
   const { language } = useLanguage()
   const searchParams = useSearchParams()
-  const currentPlan = useMemo(
-    () => searchParams?.get('plan') ?? (PlanType.team as PlanType),
-    [searchParams],
-  )
+  const currentPlan = useMemo(() => {
+    const plan = (searchParams?.get('plan') ?? PlanType.team) as PlanType
+    if (!showTeamPlan && plan === PlanType.team) return PlanType.personal
+    return plan
+  }, [searchParams, showTeamPlan])
   const { country, isInChina } = useCountry()
   // const [pricingData, setPricingData] = useState<[EMuseProductType, ProductItem][]>(cache)
 
@@ -72,10 +76,14 @@ export default function Buy({
       type: PlanType.personal,
       label: t('pricing.plan.tab.personal'),
     },
-    {
-      type: PlanType.team,
-      label: t('pricing.plan.tab.team'),
-    },
+    ...(showTeamPlan
+      ? [
+          {
+            type: PlanType.team,
+            label: t('pricing.plan.tab.team'),
+          },
+        ]
+      : []),
   ]
   const billingTypes = [
     {
@@ -137,6 +145,7 @@ export default function Buy({
             )}
         </FlexRowContainer>
         {/* Plan Type Toggle */}
+        {showTeamPlan && (
         <FlexRowContainer className={cn("relative rounded-full p-[4px]",
           isDark ? 'h-[56px] bg-[#E1E1DC] ' : 'h-[42px] bg-[#F4F5F6] '
         )}>
@@ -171,6 +180,7 @@ export default function Buy({
             )
           })}
         </FlexRowContainer>
+        )}
 
         {!isInChina && !isMuseAI ? (
           <div className="w-full">
@@ -344,6 +354,16 @@ export default function Buy({
                       ? t('pricing.plan.actions.try')
                       : t('pricing.plan.button.buy')}
                 </Button>
+                {!isMuseAI && currentPlan === PlanType.personal && (
+                  <Button
+                    className="mt-3 h-[40px] w-full rounded bg-[#262626] text-[14px] font-normal text-white transition-all duration-300 ease-in-out hover:bg-[#141414] hover:text-white"
+                    onClick={() => {
+                      router.push(`/${language}/book-demo?from=pricing-btn`)
+                    }}
+                  >
+                    {t('pricing.consult.enterprise')}
+                  </Button>
+                )}
                 {linkText &&
                   (!user || (!!user && currentPlan === PlanType.team && !user.hasOrg)) && (
                     <a
