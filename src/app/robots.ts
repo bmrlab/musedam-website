@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         '/admin/',
         // '/api/',
         '/musedam-apigw/',
+        '/demo-app/',
         '/*/pricing/dam',
         '/*/pricing/ai',
         '/quotation/',

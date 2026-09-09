@@ -19,7 +19,7 @@ acceptLanguage.languages(languages)
 // }
 
 const NON_I18N_PATH =
-  /\.(.*)$|^favicon\.ico$|^\/(_next|assets)\/|^\/admin|^\/api|^\/musedam-apigw\// // 不需要国际化的路径，如 API 网关、有扩展名结尾的静态资源
+  /\.(.*)$|^favicon\.ico$|^\/(_next|assets)\/|^\/admin|^\/api|^\/musedam-apigw\/|^\/demo-app(\/|$)/ // 不需要国际化的路径，如 API 网关、demo-app OSS 代理、有扩展名结尾的静态资源
 
 function handlePingRequest(req: NextRequest) {
   const path = req.nextUrl.pathname
