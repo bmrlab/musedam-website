@@ -52,5 +52,6 @@
   "more-features.team-management.title": "Team",
   "more-features.dynamic-feedback.title": "Feedback",
   "not.sale.user": "No Permission",
-  "not.sale.user.button": "See Pricing"
+  "not.sale.user.button": "See Pricing",
+  "nav-bar.developers": "Developers"
 }

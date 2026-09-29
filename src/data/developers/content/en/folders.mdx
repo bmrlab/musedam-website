@@ -1,0 +1,326 @@
+## Folder management
+
+### Get folder paths
+
+**Endpoint**: `/folder-path`
+
+**Method**: POST
+
+**Description**: Get complete paths for specified folders.
+
+**Request parameters**:
+
+```json
+[123, 456, 789]
+```
+
+**Parameters**:
+
+- A list of folder IDs.
+
+**Response**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": {
+    "123": "Root/Child folder 1/Child folder 2",
+    "456": "Root/Other folder",
+    "789": "Root/Sample folder"
+  }
+}
+```
+
+**Behavior**:
+
+- Builds the full path from the folder treeCode.
+- Returns a map of folder IDs to path strings.
+- Uses / as the path separator.
+
+---
+
+### Get descendant folder IDs
+
+**Endpoint**: `/get-sub-folder-ids`
+
+**Method**: POST
+
+**Description**: Get all descendant folder IDs for specified folders.
+
+**Request parameters**:
+
+```json
+[123, 456, 789]
+```
+
+**Parameters**:
+
+- A list of parent folder IDs.
+
+**Response**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": {
+    "123": [123,124, 125, 126],
+    "456": [456,457, 458],
+    "789": [789]
+  }
+}
+```
+
+**Behavior**:
+
+- Recursively queries all descendant levels.
+- Returns a map of parent folder IDs to folder ID lists.
+- Supports querying multiple parent folders in one request.
+
+---
+
+### Get folder auto-tags
+
+**Endpoint**: `/folder-auto-tags`
+
+**Method**: POST
+
+**Description**: Batch-query auto-tags configured directly on folders, excluding tags inherited from ancestor folders.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| folderIds | List&lt;Long> | Yes | Up to 50 existing folder IDs in the current organization |
+
+**Response**: Map&lt;Long, List>, keyed by folderId. Folders with no auto-tags return an empty array.
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Tag ID |
+| name | String | Tag name |
+| parentId | Long | Parent tag ID |
+| parent | Object | Recursive parent tag; null when absent |
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/folder-auto-tags' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "folderIds": [10001, 10002]
+}'
+```
+
+## Search folders
+
+**Endpoint:** `/search-folders`
+
+**Method:** POST
+
+**Request parameters:**
+
+| Parameter | Type | Required | Description | Default |
+|-|-|-|-|-|
+| parentId | Long | No | Folder scope, including descendants; omit to search all folders; 0 means root | - |
+| needChildren | Boolean | No | With parentId set, true searches that folder and all descendants; false searches direct children only | false |
+| keywords | List&lt;String> | No | Multiple search keywords; ignored when parentId=0 | - |
+| sort | Object | No | Sort criteria | - |
+| sort.sortName | String | Yes, if sort is provided | CREATE_TIME, UPDATE_TIME, NAME, SIZE or SCORE | - |
+| sort.sortType | String | No | ASC (ascending) or DESC (descending) | DESC |
+| startPoint | Integer | No | Pagination start index | 0 |
+| endPoint | Integer | No | Pagination end index | 10 |
+| currentUserId | Long | No | Search folders accessible to this user |
+| folderIds | List&lt;Long> | No | Retrieve specified folder IDs. When provided, uses direct ID lookup instead of the regular keyword and pagination search |
+
+Request example:
+
+```json
+{
+    "parentId": 1234567890,
+    "needChildren": false,
+    "keywords": ["sample"],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 10
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/search-folders' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "parentId": 1234567890,
+    "needChildren": false,
+    "keywords": ["sample"],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 10
+}'
+```
+
+Response:
+
+| Field | Type | Description |
+|-|-|-|
+| code | String | Business status code; "0" indicates success |
+| message | String | Response message |
+| result | Object | Result object |
+| result.folders | Array | Folder list |
+| result.folders[].id | Long | Folder ID |
+| result.folders[].name | String | Folder name |
+| result.folders[].createUser | Long | Creator userId |
+| result.folders[].userId | Long | Owner userId |
+| result.total | Long | Total matching folders |
+| traceId | String | Trace ID |
+
+Example response:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "folders": [
+            {
+                "id": 1234567890,
+                "name": "Sample folder",
+                "createUser": 1765276754630496256,
+                "userId": 1765276754630496256
+            },
+            {
+                "id": 1234567891,
+                "name": "Another folder",
+                "createUser": 1765276754630496257,
+                "userId": 1765276754630496257
+            }
+        ],
+        "total": 2
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+## Create a folder
+
+**Endpoint:** `/create-folder`
+
+**Method:** POST
+
+**Request parameters:**
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| name | String | Yes | Folder name; cannot be empty |
+| parentFolderId | Long | Yes | Parent folder ID, greater than 0. The new folder is created inside this folder |
+
+Request example:
+
+```json
+{
+    "name": "New folder",
+    "parentFolderId": 1234567890
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/create-folder' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "New folder",
+    "parentFolderId": 1234567890
+}'
+```
+
+Response:
+
+| Field | Type | Description |
+|-|-|-|
+| code | String | Business status code; "0" indicates success |
+| message | String | Response message |
+| result | Object | Result object |
+| result.folderId | Long | ID of the created folder |
+| traceId | String | Trace ID |
+
+Example response:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "folderId": 1234567891
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+Notes:
+
+- The parent folder must exist; otherwise, an error is returned.
+- The creator defaults to the current team owner's user ID.
+- The folder defaults to team collaboration status.
+
+### Create a folder tree
+
+**Endpoint**: `/create-folder-tree`
+
+**Method**: POST
+
+**Description**: Create an entire subtree under a parent folder in one request. Duplicate sibling names are automatically renamed to name (2), name (3), and so on. The creator defaults to the team owner; collaborators are inherited from the parent folder.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| parentFolderId | Long | Yes | Parent folder ID; >0 creates under that folder, while 0 uses the team root |
+| nodes | List&lt;Node> | Yes | Root nodes of the subtree to create |
+
+**Node**：
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| name | String | Yes | Folder name |
+| children | List&lt;Node> | No | Child folders; nesting is supported |
+
+**Response**:
+
+| Field | Type | Description |
+|-|-|-|
+| parentFolderId | Long | Parent folder ID |
+| createdCount | Integer | Number of folders created |
+| pathToFolderId | Map&lt;String, Long> | Relative path → folder ID. Paths use the original requested names, excluding the parent directory, even if duplicate names are changed during creation |
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/create-folder-tree' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "parentFolderId": 123,
+  "nodes": [
+    {
+      "name": "Project assets",
+      "children": [
+        { "name": "Product images", "children": [] },
+        { "name": "Posters", "children": [] }
+      ]
+    }
+  ]
+}'
+```

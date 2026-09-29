@@ -1,0 +1,185 @@
+## 获取素材智能解析结果
+
+**接口地址**: `/get-asset-analysis-result`
+
+**请求方式**：POST
+
+**接口描述**:  获取素材智能解析结果
+
+**请求参数**:
+
+```text
+[6909122]
+```
+
+**参数说明**:
+
+- 素材id
+
+**响应结果**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "6909122": {
+            "aiTags": "紫色,平静,卡通,优雅,动漫,传统服饰,粉色,春季,自然风光,女性,年轻女子",
+            "aiTitle": "身穿传统服饰的女孩",
+            "aiDescription": "这是一幅动漫风格的画面，描绘了一位穿着蓝色带有白色花纹的传统服装的女孩。她的头发是长长的银灰色，并且垂在肩上。背景是一个充满粉色樱花树的场景，在阳光下显得非常柔和温暖。女孩的表情平静而温柔，给人一种宁静的感觉。",
+            "aiDetailedDescription": [
+                {
+                    "usage": "这幅图像是用于展示动漫风格的角色插画。"
+                },
+                {
+                    "mood": "这张图片传达出一种宁静和温柔的情绪氛围。"
+                },
+                {
+                    "culture_traits": "角色穿着传统的日本服饰（浴衣），体现了日式文化和审美特点。"
+                },
+                {
+                    "industry_domain": "该作品属于动画或漫画创作领域，可能与游戏、电影或其他视觉艺术相关。"
+                },
+                {
+                    "seasonality": "背景中的樱花树表明这是春季场景。"
+                },
+                {
+                    "holiday_theme": "虽然具体节日不明显，但整体色调和元素暗示了春天的传统庆祝活动。"
+                },
+                {
+                    "color_scheme": "主要颜色是蓝色调，并带有粉色点缀，在色彩搭配上显得柔和而和谐"
+                }
+            ],
+            "taskStatus": 1,
+            "customContent": null,
+            "taskFail": null
+        }
+    },
+    "traceId": "17555971993244441621"
+}
+```
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/get-asset-analysis-result' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '[6909122]'
+```
+
+## 获取素材原图处理后的公开链接
+
+**说明：**需要开通DAT能力
+
+**接口路径：** `/processed-public-links`
+
+**请求方式：** POST
+
+**请求参数：** `publicLinkProcessReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| assetIds | List&lt;Long> | 是 | 素材 ID 列表（assetId） |
+| w | Integer | 否 | 目标宽度（px），1–6000，超过原图参数无效 |
+| h | Integer | 否 | 目标高度（px），1–6000，超过原图参数无效 |
+| mode | String | 否 | 缩放模式，默认 fit。fit：等比缩放；crop：居中裁剪 |
+| q | Integer | 否 | 输出质量，1–100，默认 80 |
+| f | String | 否 | 输出格式：jpg / png / webp，不传则保持原格式 |
+| bg | String | 否 | 背景填充色（HEX，不含 #），如 FFFFFF |
+
+**mode 取值：**
+
+| 值 | 说明 |
+|-|-|
+| fit | 等比缩放，按长边缩放，保持宽高比，完整显示 |
+| crop | 居中裁剪到目标宽高 |
+
+**响应：** `Map<Long, String>`
+
+- Key：assetId  
+- Value：该素材原图公开链接的处理后 URL；无公开链接或素材不存在时为 `""`。
+
+## 批量获取素材衍生版本
+
+**说明：** 需团队已开启素材衍生能力；未开启时接口返回错误。
+
+**接口路径：** `/asset-derivative-versions`
+
+**请求方式：** `POST`
+
+**请求参数：** `assetDerivativeInfoReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| assetIds | List&lt;Long> | 是 | 素材 ID 列表（与开放接口其它处 `id` / `assetIds` 含义一致） |
+
+**响应：** `Map<Long, List<EnterpriseAssetDerivativeVersionDTO>>`
+
+- **Key：** 请求中的素材ID
+- **Value：** 该素材在**已开启**衍生规则下的全部衍生版本列表；无衍生版本或素材不存在时为 `[]`
+
+**`EnterpriseAssetDerivativeVersionDTO` 字段：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| size | Long | 文件大小（字节） |
+| width | Integer | 文件宽度（px） |
+| height | Integer | 文件高度（px） |
+| accessUrl | String | 可访问的下载链接；仅 `generateStatus = 1`（生成成功）时有值 |
+| publicUrl | String | 衍生版本公开链接；对应衍生规则已开启公开链接且已生成时有值 |
+| internalName | String | 衍生规则内部名称 |
+| displayName | String | 衍生规则显示名称 |
+| generateStatus | Integer | 生成状态（见下表） |
+| name | String | 素材名称 |
+
+**generateStatus 取值：**
+
+| 值 | 说明 |
+|-|-|
+| 0 | 处理中 |
+| 1 | 成功 |
+| 2 | 失败 |
+| 3 | 排队中 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/asset-derivative-versions' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "assetIds": [1234567890, 9876543210]
+}'
+```
+
+**响应示例：**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "1234567890": [
+            {
+                "size": 204800,
+                "width": 1920,
+                "name":"xxx",
+                "height": 1080,
+                "accessUrl": "https://example.com/download/xxx.jpg?token=...",
+                "publicUrl": "https://example.com/public/xxx.jpg",
+                "internalName": "web_preview",
+                "displayName": "Web 预览图",
+                "generateStatus": 1
+            }
+        ],
+        "9876543210": []
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+**注意事项：**
+
+- 仅返回**规则状态为已开启**的衍生版本；不按素材详情页「显示开关」过滤，返回该素材下全部符合条件的衍生版本。
+- `accessUrl` 为带有效期的签名下载链接；`publicUrl` 依赖团队在衍生规则中开启「生成公开链接」且对应衍生文件已生成公开读地址。

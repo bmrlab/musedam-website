@@ -25,6 +25,10 @@ import {
 import { LayoutContent } from './layout-content'
 
 export async function generateStaticParams() {
+  // Next 15.4 dev requests can concurrently rewrite prerender-manifest.json.
+  // Resolve routes on demand locally; keep static parameters for production builds.
+  if (process.env.NODE_ENV === 'development') return []
+
   return languages.map((lng) => ({ lng }))
 }
 

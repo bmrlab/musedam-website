@@ -1,0 +1,332 @@
+## Search assets
+
+**Endpoint**: /search-assets
+
+**Method**: POST
+
+**Description**: Search assets in an enterprise workspace.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| - | EnterpriseSearchReqVO | Yes | Asset search parameters |
+
+**EnterpriseSearchReqVO fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| parentId | Long | No | Search within this folder, excluding the root directory; includes descendants |
+| needChildren | Boolean | No | Include assets in child folders; default false |
+| extensions | List&lt;String> | No | File extensions |
+| color | String | No | Color |
+| areaThreshold | Integer | No | Color coverage threshold; default 20 |
+| colorThreshold | Integer | No | Color precision threshold; default 20 |
+| minLength | Long | No | Minimum video/audio duration in ms |
+| maxLength | Long | No | Maximum video/audio duration in ms |
+| minSize | Long | No | Minimum file size in bytes |
+| maxSize | Long | No | Maximum file size in bytes |
+| minHeight | Long | No | Minimum image height in px |
+| maxHeight | Long | No | Maximum image height in px |
+| minWidth | Long | No | Minimum image width in px |
+| maxWidth | Long | No | Maximum image width in px |
+| startTime | Long | No | Start of the update-time range |
+| endTime | Long | No | End of the update-time range |
+| keywords | List&lt;String> | No | Search keywords |
+| tags | List&lt;Long> | No | Tag IDs |
+| tagOrAnd | Boolean | No | Combine tags with OR/AND; true means AND; default true |
+| createUsers | List&lt;Long> | No | Creator IDs |
+| ratings | List&lt;Integer> | No | Ratings (scores) |
+| hasLink | Boolean | No | Whether an associated link exists |
+| link | String | No | Link to match |
+| hasDesc | Boolean | No | Whether a description exists |
+| desc | String | No | Description to match |
+| sort | SortConditionVO | No | Sort criteria |
+| startPoint | Integer | No | Pagination start index; default 0 |
+| endPoint | Integer | No | Pagination end index; default 10 |
+| region | List&lt;Float> | No | Search region coordinates |
+| customFieldTemplateIds | List&lt;Long> | No | Custom field template IDs |
+| customFieldId | Long | No | Custom field ID |
+| currentUserId | Long | No | Restrict results to assets accessible to this user |
+| w | Integer | No | Target width in px, 1–6000; used to generate publicUrl; values exceeding the original image dimensions have no effect |
+| h | Integer | No | Target height in px, 1–6000; used to generate publicUrl; values exceeding the original image dimensions have no effect |
+| mode | String | No | publicUrl resize mode: fit (proportional) or crop (center crop); default fit |
+| q | Integer | No | Output quality, 1–100; used to generate publicUrl |
+| f | String | No | Output format: jpg / png / webp; used to generate publicUrl |
+| bg | String | No | Background color in HEX without #; used to generate publicUrl |
+| keywordSearchType | String | No | DEEP (deep search, default), DEFAULT (standard in-app search), PRECISE (exact search), or DEEP_AND_PRECISE (both) |
+
+**SortConditionVO fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| sortName | SortConditionFieldEnum | Yes | Sort field |
+| sortType | SortTypeEnum | No | Sort direction |
+
+**SortConditionFieldEnum values**:
+
+| Value | Description |
+|-|-|
+| CREATE_TIME | Creation time |
+| UPDATE_TIME | Update time |
+| NAME | Name |
+| DURATION | Duration |
+| SIZE | Size |
+| SCORE | Rating |
+
+**SortTypeEnum values**:
+
+| Value | Description |
+|-|-|
+| ASC | Ascending |
+| DESC | Descending |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| assets | List&lt;MiniDamAssetDTO> | Assets |
+| total | Long | Total count |
+
+**MiniDamAssetDTO fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Asset ID |
+| parentIds | List&lt;Long> | Parent folder IDs |
+| userId | String | User ID |
+| name | String | Original filename |
+| downloadUrl | String | Download URL |
+| source | Integer | Asset source: 1 web, 2 upload, 3 copy |
+| link | String | Webpage URL |
+| extension | String | File extension |
+| duration | Long | Video duration |
+| size | Long | File size in KB |
+| width | Integer | File width |
+| height | Integer | File height |
+| description | String | Description |
+| score | Integer | Rating |
+| createTime | Date | Creation time |
+| createUser | String | Creator |
+| updateTime | Date | Update time |
+| updateUser | Long | Last updated by |
+| tags | List&lt;TagDTO> | Tags |
+| thumbnailAccessUrl | String | Thumbnail URL |
+| imageContentAnalysis | ImageContentAnalysis | AI analysis |
+| publicUrl | String | Processed public link using w/h/mode/q/f/bg; empty if no processing parameters or public link are available |
+
+**TagDTO fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Tag ID |
+| name | String | Tag name |
+
+**ImageContentAnalysis fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| aiTags | String | AI-generated tags |
+| aiTitle | String | AI-generated title |
+| aiDescription | String | AI-generated description |
+| aiDetailedDescription | JSONArray | Detailed AI analysis |
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/search-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "parentId": 100,
+    "needChildren": true,
+    "extensions": [
+        "jpg",
+        "png"
+    ],
+    "minSize": 1024,
+    "maxSize": 10485760,
+    "keywords": [
+        "product",
+        "promotion"
+    ],
+    "tags": [
+        1,
+        2
+    ],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 20
+}'
+```
+
+Response example:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 10001,
+                "parentIds": [
+                    100
+                ],
+                "userId": "user123",
+                "name": "product-promotion.jpg",
+                "downloadUrl": "https://example.com/download/10001",
+                "source": 2,
+                "extension": "jpg",
+                "size": 1024,
+                "width": 1920,
+                "height": 1080,
+                "description": "Product promotional image",
+                "score": 5,
+                "createTime": "2023-04-03T10:00:00",
+                "createUser": "Alex",
+                "tags": [
+                    {
+                        "id": 1,
+                        "name": "product"
+                    },
+                    {
+                        "id": 2,
+                        "name": "promotion"
+                    }
+                ],
+                "thumbnailAccessUrl": "https://example.com/thumbnail/10001",
+                "imageContentAnalysis": {
+                    "aiTags": "futuristic,streamlined,modern,yellow,city street,black,dusk,intelligent transport,sci-fi,advertising,autonomous driving,car,concept art",
+                    "aiTitle": "Futuristic urban sports car",
+                    "aiDescription": "A futuristic urban sports car with a streamlined body and orange accents illuminated at night. Triangular headlights and a distinctive rear spoiler reinforce its sporty, aerodynamic design.\n\nA busy city skyline, bright neon lights and passing cars create a dynamic science-fiction atmosphere.",
+                    "aiDetailedDescription": [
+                        {
+                            "usage": "A futuristic concept car for science-fiction films or video games."
+                        },
+                        {
+                            "mood": "Energetic and technological"
+                        },
+                        {
+                            "culture_traits": "Innovation and technological progress in modern urban culture"
+                        },
+                        {
+                            "industry_domain": "Automotive manufacturing and high technology"
+                        },
+                        {
+                            "seasonality": ""
+                        },
+                        {
+                            "holiday_theme": ""
+                        },
+                        {
+                            "color_scheme": "Black, yellow and orange"
+                        }
+                    ]
+                }
+            }
+        ],
+        "total": 150
+    }}
+```
+
+## Search shared assets
+
+**Endpoint**: /search-share
+
+**Method**: POST
+
+**Description**: Search assets within a shared link.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Default | Description |
+|-|-|-|-|-|
+| linkToken | String | Yes | - | Unique token identifying the shared link |
+| password | String | No | - | Access code; required if the share is password-protected |
+| folderId | Long | No | - | Folder to query; defaults to the root folder |
+| needChildren | Boolean | No | false | Include assets in child folders |
+| isRoot | Boolean | No | false | Whether this is the root of the share |
+| keyword | String | No | - | Filter assets whose filenames contain this keyword |
+| startPoint | Integer | No | 0 | Pagination start index |
+| endPoint | Integer | No | 40 | Pagination end index; default page size is 40 |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| assets | List&lt;MiniDamAssetDTO> | Assets |
+| totalCount | Long | Total asset count |
+| folders | List&lt;FolderDTO> | Folders |
+| folderCount | Long | Total folder count |
+
+**FolderDTO fields**
+
+| Parameter | Type | Description |
+|-|-|-|
+| id | Long | Folder ID |
+| name | String | Folder name |
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/search-share' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "linkToken":"12534a263031407481ccac298e3568f7",
+    "isRoot":false,
+    "folderId":23343,
+    "needChildren":true
+}'
+```
+
+Response example:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 6905957,
+                "parentIds": [
+                    23046,
+                    23345
+                ],
+                "userId": "1673603133161799680",
+                "name": "Banana-flavored chewing gum",
+                "downloadUrl": "https://example.com/assets/sample.jpg",
+                "source": null,
+                "link": null,
+                "extension": "png",
+                "duration": null,
+                "size": 209769,
+                "width": 800,
+                "height": 800,
+                "description": null,
+                "score": null,
+                "createTime": 1741160880000,
+                "createUser": "1673603133161799680",
+                "updateTime": 1741160880000,
+                "updateUser": 1673603133161799680,
+                "tags": [],
+                "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+            }
+        ],
+        "folders": [
+            {
+                "id": 23345,
+                "name": "Guest folder 2-1"
+            }
+        ],
+        "totalCount": 1,
+        "folderCount": 1
+    },
+    "traceId": "109456b3501142a4a015a0b53fe7bc7e"
+}
+```

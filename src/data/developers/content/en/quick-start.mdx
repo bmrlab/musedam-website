@@ -1,0 +1,74 @@
+## Obtain an API Key
+
+### **Option 1: MuseDAM administration**
+
+1. Sign in as an administrator and open MuseDAM Settings and Members.
+2. Open Security Controls → API Keys.
+3. Select Create New Key.
+
+<ApiKeyScreenshot
+  step="entry"
+  caption="Open API Keys and select Create New Key (Chinese interface)."
+/>
+
+4. Name the key and choose its permission type:
+
+   - API permissions: access assets in specified folders.
+   - Admin permissions: access all assets in the library.
+
+<ApiKeyScreenshot
+  step="create"
+  caption="Enter a name and choose API or Administrator permissions."
+/>
+
+5. Save and copy the API Key. It is shown only once.
+
+<ApiKeyScreenshot
+  step="detail"
+  caption="After creation, open key details to check its type and status. The key is masked in this screenshot."
+/>
+
+> For API-scoped keys, administrators must configure the allowed folders and access restrictions under Shared Folders → Folder Permissions.
+
+### **Option 2: Third-party application API**
+
+[Read app authentication and installation](./applications)
+
+> After an enterprise administrator enables and authorizes an application, it can use appId and appSecretKey to manage API Keys, then call the Open API with the issued key.
+
+## Authentication
+
+Include authentication in every API request:
+
+```text
+Authorization: Bearer your_api_key
+Content-Type: application/json
+```
+
+## Integration recommendations
+
+Call the API from your backend rather than directly from browser code:
+
+- Keep API Keys out of client-side code.
+- Prevent unauthorized access.
+- Apply additional access controls and request limits on your server.
+- Centralize API usage management and monitoring.
+
+Your frontend should send requests to your own backend, which calls MuseDAM on its behalf.
+
+## Make your first request
+
+Set `MUSEDAM_API_KEY` in your server environment, then run the command below. Mainland China and overseas accounts use different API domains. This English example uses the overseas endpoint.
+
+```bash
+curl --request POST 'https://open.musedam.ai/api/muse/search-assets' \
+  --header "Authorization: Bearer $MUSEDAM_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{"keywords": ["brand"], "startPoint": 0, "endPoint": 10}'
+```
+
+## Handle the response
+
+Read `result.assets` and `result.total`. For empty results, check the search criteria and folder permissions. Save `traceId` from failed responses for troubleshooting.
+
+[Asset search parameters](./search) · [Error handling](./errors)

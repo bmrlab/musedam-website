@@ -1,0 +1,31 @@
+This guide explains how MCP clients such as Cursor, Claude Desktop, and custom clients connect to the MuseDAM production MCP service using **Streamable HTTP**.
+MuseDAM MCP can also be used through a Skill. API documentation and downloads:
+https://github.com/kang-oy/musedam-open-api.git
+
+---
+
+## Service overview
+
+| Item | Description |
+|-|-|
+| Protocol | Model Context Protocol (MCP) |
+| Capabilities | MuseDAM Open APIs exposed as MCP tools: asset search, upload, editing, tags, folders, shared link search, team information, and more |
+| Authentication | A MuseDAM API key is required. See the API guide to obtain an `api_key` |
+
+### Production endpoint and regions
+
+| Environment | URL | Description |
+|-|-|-|
+| Production | `https://mcp-service.musedam.cc` | Defaults to Mainland China (`cn`); append `?region=overseas` for overseas accounts |
+
+---
+
+## Choose a connection method
+
+Connect to the remote MCP service using Streamable HTTP, without deploying a local process:
+
+| Method | Use case | API key delivery |
+|-|-|-|
+| **Streamable HTTP** | Client connects to a remote MCP service over HTTP | HTTP `Authorization` header, such as `Authorization: Bearer <api_key>` |
+
+---

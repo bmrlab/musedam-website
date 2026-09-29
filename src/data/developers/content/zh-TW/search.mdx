@@ -1,0 +1,332 @@
+## 素材檢索
+
+**接口路徑**：/search-assets
+
+**請求方式**：POST
+
+**接口描述**：檢索企業空間內的素材
+
+**請求參數**：
+
+| 參數名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| - | EnterpriseSearchReqVO | 是 | 素材檢索參數 |
+
+**EnterpriseSearchReqVO 參數說明**：
+
+| 字段名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| parentId | Long | 否 | 指定搜索目錄（不包括根目錄），包含所有子孫 |
+| needChildren | Boolean | 否 | 是否需要子級目錄下的素材，默認 false |
+| extensions | List&lt;String> | 否 | 文件類型擴展名 |
+| color | String | 否 | 顏色 |
+| areaThreshold | Integer | 否 | 顏色佔比，默認 20 |
+| colorThreshold | Integer | 否 | 顏色精準度，默認 20 |
+| minLength | Long | 否 | 最小時長（視頻、音頻），單位 ms |
+| maxLength | Long | 否 | 最大時長（視頻、音頻），單位 ms |
+| minSize | Long | 否 | 最小文件大小，單位 B |
+| maxSize | Long | 否 | 最大文件大小，單位 B |
+| minHeight | Long | 否 | 最小圖片高度，單位 px |
+| maxHeight | Long | 否 | 最大圖片高度，單位 px |
+| minWidth | Long | 否 | 最小圖片寬度，單位 px |
+| maxWidth | Long | 否 | 最大圖片寬度，單位 px |
+| startTime | Long | 否 | 開始時間（更新時間範圍） |
+| endTime | Long | 否 | 結束時間（更新時間範圍） |
+| keywords | List&lt;String> | 否 | 搜索關鍵字 |
+| tags | List&lt;Long> | 否 | 標籤 ID 列表 |
+| tagOrAnd | Boolean | 否 | 標籤篩選 or/and，true=and，默認 true |
+| createUsers | List&lt;Long> | 否 | 創建人 ID 列表 |
+| ratings | List&lt;Integer> | 否 | 評分列表（即 scores） |
+| hasLink | Boolean | 否 | 是否有鏈接 |
+| link | String | 否 | 輸入鏈接 |
+| hasDesc | Boolean | 否 | 是否有備註 |
+| desc | String | 否 | 輸入備註 |
+| sort | SortConditionVO | 否 | 排序條件 |
+| startPoint | Integer | 否 | 分頁開始索引，默認 0 |
+| endPoint | Integer | 否 | 分頁結束索引，默認 10 |
+| region | List&lt;Float> | 否 | 區域 |
+| customFieldTemplateIds | List&lt;Long> | 否 | 自定義字段模板 ID 列表 |
+| customFieldId | Long | 否 | 自定義字段 ID |
+| currentUserId | Long | 否 | 僅搜索該用戶有權限的素材 |
+| w | Integer | 否 | 目標寬度（px），範圍 1–6000；用於生成返回中的 publicUrl； 超過原圖參數無效 |
+| h | Integer | 否 | 目標高度（px），範圍 1–6000；用於生成返回中的 publicUrl； 超過原圖參數無效 |
+| mode | String | 否 | 縮放模式：fit-等比縮放，crop-居中裁剪；用於生成 publicUrl，默認 fit |
+| q | Integer | 否 | 輸出質量，範圍 1–100；用於生成 publicUrl |
+| f | String | 否 | 輸出格式：jpg / png / webp；用於生成 publicUrl |
+| bg | String | 否 | 背景填充色（HEX，不含 #）；用於生成 publicUrl |
+| keywordSearchType | String | 否 | 搜索類型：*DEEP(深度搜索 默認)，DEFAULT（站內默認搜索)，PRECISE（精準搜索） DEEP_AND_PRECISE(深度和精準)* |
+
+**SortConditionVO參數說明**：
+
+| 字段名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| sortName | SortConditionFieldEnum | 是 | 排序字段 |
+| sortType | SortTypeEnum | 否 | 排序方式 |
+
+**SortConditionFieldEnum枚舉值**：
+
+| 枚舉值 | 描述 |
+|-|-|
+| CREATE_TIME | 創建時間 |
+| UPDATE_TIME | 更新時間 |
+| NAME | 名稱 |
+| DURATION | 時長 |
+| SIZE | 大小 |
+| SCORE | 評分 |
+
+**SortTypeEnum枚舉值**：
+
+| 枚舉值 | 描述 |
+|-|-|
+| ASC | 正序 |
+| DESC | 倒序 |
+
+**響應參數**：
+
+| 參數名 | 類型 | 描述 |
+|-|-|-|
+| assets | List&lt;MiniDamAssetDTO> | 素材列表 |
+| total | Long | 總數量 |
+
+**MiniDamAssetDTO參數說明**：
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| id | Long | 素材ID |
+| parentIds | List&lt;Long> | 父文件夾ID列表 |
+| userId | String | 用戶ID |
+| name | String | 文件原始名稱 |
+| downloadUrl | String | 下載路徑 |
+| source | Integer | 素材來源(1:網頁，2:上傳，3:複製) |
+| link | String | 網頁鏈接 |
+| extension | String | 文件後綴 |
+| duration | Long | 視頻時長 |
+| size | Long | 文件大小(KB) |
+| width | Integer | 文件寬度 |
+| height | Integer | 文件高度 |
+| description | String | 描述 |
+| score | Integer | 評分 |
+| createTime | Date | 創建時間 |
+| createUser | String | 創建人 |
+| updateTime | Date | 更新時間 |
+| updateUser | Long | 更新人 |
+| tags | List&lt;TagDTO> | 標籤列表 |
+| thumbnailAccessUrl | String | 縮略圖訪問路徑 |
+| imageContentAnalysis | ImageContentAnalysis | 智能解析內容 |
+| publicUrl | String | 原圖公開鏈接（帶 w/h/mode/q/f/bg 處理參數）；未傳處理參數或無公開鏈接時為空字符串 |
+
+**TagDTO參數說明**：
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| id | Long | 標籤ID |
+| name | String | 標籤名稱 |
+
+**ImageContentAnalysis參數說明**：
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| aiTags | String | 智能標籤信息 |
+| aiTitle | String | 智能標籤名稱 |
+| aiDescription | String | 智能描述 |
+| aiDetailedDescription | JSONArray | 智能描述詳情 |
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/search-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "parentId": 100,
+    "needChildren": true,
+    "extensions": [
+        "jpg",
+        "png"
+    ],
+    "minSize": 1024,
+    "maxSize": 10485760,
+    "keywords": [
+        "产品",
+        "宣传"
+    ],
+    "tags": [
+        1,
+        2
+    ],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 20
+}'
+```
+
+響應示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 10001,
+                "parentIds": [
+                    100
+                ],
+                "userId": "user123",
+                "name": "产品宣传图.jpg",
+                "downloadUrl": "https://example.com/download/10001",
+                "source": 2,
+                "extension": "jpg",
+                "size": 1024,
+                "width": 1920,
+                "height": 1080,
+                "description": "产品宣传图片",
+                "score": 5,
+                "createTime": "2023-04-03T10:00:00",
+                "createUser": "张三",
+                "tags": [
+                    {
+                        "id": 1,
+                        "name": "产品"
+                    },
+                    {
+                        "id": 2,
+                        "name": "宣传"
+                    }
+                ],
+                "thumbnailAccessUrl": "https://example.com/thumbnail/10001",
+                "imageContentAnalysis": {
+                    "aiTags": "未来主义,流线型设计,现代,黄色,城市街道,黑色,黄昏,智能交通系统,科幻,广告,自动驾驶,汽车,概念艺术",
+                    "aiTitle": "未来感十足的城市跑车",
+                    "aiDescription": "这是一辆设计前卫、充满科技元素的未来城市跑车。车身采用了流线型的设计，并且在侧面有明显的橙色装饰线条点缀其中，在夜晚灯光下显得格外醒目。车辆两侧的大灯呈三角形排列，与整体风格相得益彰；而尾部则有一个独特的扰流板造型突出于后方，增加了运动气息的同时也提升了空气动力学性能。\n\n背景是一个繁华都市夜景场景——高楼大厦林立其间灯火辉煌霓虹闪烁映衬出一幅现代城市的繁忙景象街道上还有其他模糊不清的小汽车穿梭来往增添了几分动感氛围营造出了浓厚科幻色彩",
+                    "aiDetailedDescription": [
+                        {
+                            "usage": "这是一辆未来感十足的概念车，设计用于科幻电影或电子游戏中的场景。"
+                        },
+                        {
+                            "mood": "充满活力和科技感的情绪氛围"
+                        },
+                        {
+                            "culture_traits": "体现了现代都市文化的创新和技术进步特点"
+                        },
+                        {
+                            "industry_domain": "汽车制造与高科技产业相关联"
+                        },
+                        {
+                            "seasonality": ""
+                        },
+                        {
+                            "holiday_theme": ""
+                        },
+                        {
+                            "color_scheme": "主要使用了黑色、黄色以及橙色调作为车辆的主要颜色搭配"
+                        }
+                    ]
+                }
+            }
+        ],
+        "total": 150
+    }}
+```
+
+## 分享列表搜索
+
+**接口路徑**：/search-share
+
+**請求方式**：POST
+
+**接口描述**：檢索分享鏈接內的素材
+
+**請求參數**：
+
+| 參數名 | 類型 | 必填 | 默認值 | 描述 |
+|-|-|-|-|-|
+| linkToken | String | 是 | - | 分享鏈接的唯一標識token |
+| password | String | 否 | - | 分享鏈接的提取碼，如果分享設置了提取碼則必填 |
+| folderId | Long | 否 | - | 指定查詢的文件夾ID，不傳則默認查詢根目錄 |
+| needChildren | Boolean | 否 | false | 是否需要包含子目錄下的素材 |
+| isRoot | Boolean | 否 | false | 是否是分享的根目錄 |
+| keyword | String | 否 | - | 搜索關鍵詞，用於過濾文件名包含該關鍵詞的素材 |
+| startPoint | Integer | 否 | 0 | 分頁參數，開始索引位置 |
+| endPoint | Integer | 否 | 40 | 分頁參數，結束索引位置，每頁默認40條數據 |
+
+**響應參數**：
+
+| 參數名 | 類型 | 描述 |
+|-|-|-|
+| assets | List&lt;MiniDamAssetDTO> | 素材列表 |
+| totalCount | Long | 素材總數量 |
+| folders | List&lt;FolderDTO> | 文件夾列表 |
+| folderCount | Long | 文件夾總數 |
+
+**FolderDTO參數說明**
+
+| 參數名 | 類型 | 描述 |
+|-|-|-|
+| id | Long | 文件夾id |
+| name | String | 文件夾名稱 |
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/search-share' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "linkToken":"12534a263031407481ccac298e3568f7",
+    "isRoot":false,
+    "folderId":23343,
+    "needChildren":true
+}'
+```
+
+響應示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 6905957,
+                "parentIds": [
+                    23046,
+                    23345
+                ],
+                "userId": "1673603133161799680",
+                "name": "Wrigley's Doublemint香蕉味口香糖",
+                "downloadUrl": "https://example.com/assets/sample.jpg",
+                "source": null,
+                "link": null,
+                "extension": "png",
+                "duration": null,
+                "size": 209769,
+                "width": 800,
+                "height": 800,
+                "description": null,
+                "score": null,
+                "createTime": 1741160880000,
+                "createUser": "1673603133161799680",
+                "updateTime": 1741160880000,
+                "updateUser": 1673603133161799680,
+                "tags": [],
+                "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+            }
+        ],
+        "folders": [
+            {
+                "id": 23345,
+                "name": "访客测试2-1"
+            }
+        ],
+        "totalCount": 1,
+        "folderCount": 1
+    },
+    "traceId": "109456b3501142a4a015a0b53fe7bc7e"
+}
+```

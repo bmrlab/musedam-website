@@ -1,0 +1,265 @@
+## 标签管理接口
+
+### 批量合并标签
+
+**接口地址**: `/merge-tags`
+
+**请求方式**：POST
+
+**接口描述**: 批量合并企业标签，支持清空现有标签或合并新标签
+
+**请求参数**:
+
+```json
+{
+    "tags": [
+        {
+            "id": 10837,
+            "name": "商品分类d",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 10838,
+                    "name": "服装鞋包",
+                    "operation": 1,
+                    "sort": 4,
+                    "children": [
+                        {
+                            "name": "add2",
+                            "operation": "2"
+                        }
+                    ]
+                },
+                {
+                    "id": 10839,
+                    "sort": 5,
+                    "operation": 1,
+                    "name":"数码"
+                }
+            ]
+        }
+    ]
+}
+```
+
+**参数说明**:
+
+- `tags`: 标签层级结构列表
+
+  - `name`: 标签名称
+  - `id`: 标签id
+  - `operation`: 对该标签进行的操作  0 不操作 1更新 2创建 3 删除  默认0
+  - `sort`:  排序字段，标签信息从大到小排序
+  - `children`: 子标签列表，支持多级嵌套
+
+注意：
+
+```text
+operation 等于 1 的时候 --- id ，name 不为空，标签已存在，并且name不能为当前层级其他的标签名称
+operation 等于 2 的时候 --- id 为空 ，name不能为当前层级其他的标签名称
+operation 等于 3 的时候 --- id 不为空，并且标签已存在
+```
+
+**响应结果**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "tags": [
+            {
+                "name": "商品分类d",
+                "id": 10837,
+                "operation": 1,
+                "sort": null,
+                "children": [
+                    {
+                        "name": "服装鞋包",
+                        "id": 10838,
+                        "operation": 1,
+                        "sort": 4,
+                        "children": [
+                            {
+                                "name": "add2",
+                                "id": 13945,
+                                "operation": 2,
+                                "sort": null,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "数码",
+                        "id": 10839,
+                        "operation": 1,
+                        "sort": 5,
+                        "children": null
+                    }
+                ]
+            }
+        ]
+    },
+    "traceId": "17582767681984319367"
+}
+```
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/merge-tags' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "tags": [
+        {
+            "id": 8224,
+            "name": "网页设计",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 8269,
+                    "name": "界面设计",
+                    "operation": 0,
+                    "children": [
+                        {
+                            "name": "add",
+                            "operation": "2"
+                        },
+                        {
+                            "id": 10894,
+                            "operation": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'
+```
+
+---
+
+### 批量设置素材标签
+
+**接口地址**: `/set-assets-tags`
+
+**请求方式**：POST
+
+**接口描述**: 为指定素材批量设置标签
+
+**请求参数**:
+
+```json
+{
+  "assetIds": [123, 456, 789],
+  "tagIds": [1, 2, 3],
+  "remove": true
+}
+```
+
+**参数说明**:
+
+- `assetIds`: 素材ID列表（必填）
+- `tagIds`: 标签ID列表（必填）
+- `remove`: 是否移除历史标签，默认true
+
+**响应结果**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": true
+}
+```
+
+**业务逻辑**:
+
+- 支持批量为多个素材设置多个标签
+- 可选择是否清除素材的历史标签
+- 自动建立素材与标签的关联关系
+- 记录操作日志
+
+---
+
+### 获取企业版标签数据
+
+**接口地址**: `/query-tag-tree`
+
+**请求方式**：GET
+
+**接口描述**: 获取企业版标签树
+
+**请求示例**:
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/query-tag-tree' \
+--header 'Authorization: Bearer YOUR_API_KEY'
+```
+
+**响应结果**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": [
+        {
+            "id": 8221,
+            "name": "未分类",
+            "children": [
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                },
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                }
+            ]
+        },
+        {
+            "id": 10669,
+            "name": "b",
+            "children": null
+        }
+    ],
+    "traceId": "17555963042174156442"
+}
+```
+
+### 企业标签列表（分页）
+
+**接口路径**：`/enterprise-tag-list`
+
+**请求方式**：POST
+
+**接口描述**：分页查询企业标签列表，支持按父标签、关键字、标签类型筛选。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| pageNum | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页条数，默认 500 |
+| parentId | Long | 否 | 父标签 ID，默认 0（根级） |
+| keyword | String | 否 | 标签名称关键字 |
+| type | Integer | 否 | 标签类型：0 普通 / 1 智能 |
+
+**响应**：含 list（标签列表）、total（总数）。
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/enterprise-tag-list' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "pageNum": 1,
+  "pageSize": 50,
+  "parentId": 0
+}'
+```

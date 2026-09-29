@@ -1,0 +1,22 @@
+## Connection and tool call issues
+
+**Q: Streamable HTTP returns 401?**  
+
+A: Ensure the request includes `Authorization: Bearer <api_key>` and the key is correct and has not expired.
+
+**Q: Where do I get an API key?**  
+
+A: Request one from MuseDAM or your administrator. The MCP service does not provide a default key.
+
+**Q: Why are api_key and region no longer tool parameters?**  
+
+A: They are now managed through connection settings: headers and query parameters for HTTP. This keeps credentials out of individual tool arguments.
+
+**Q: A tool call fails with “Expected ',' or '&#125;' after property value in JSON at position 16”, and the MCP server receives no request?**  
+
+A: The error occurs in **Cursor**, before `tools/call` is sent. Cursor may have generated invalid JSON when serializing tool `arguments`, for example for `musedam_search_assets`, or encountered a JSON parsing error while processing the call.
+
+Suggested steps:
+
+1. Retry in Cursor or start a new conversation. If needed, report the client-side JSON error to Cursor, noting that the server received no request.
+2. For custom MCP clients, ensure `arguments` uses **valid JSON with double quotes** and that the entire `tools/call` message is parseable.

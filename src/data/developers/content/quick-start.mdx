@@ -1,0 +1,68 @@
+## 获取 API 密钥
+
+### **方式一：通过 MuseDAM 管理后台获取**
+
+1. 系统管理员登录 MuseDAM "设置与成员"管理后台
+2. 进入"安全管控" → "API 密钥"页面
+3. 点击"创建新密钥"
+
+<ApiKeyScreenshot step="entry" caption="进入「API 密钥」页面，点击「创建新密钥」。" />
+
+4. 设置密钥名称并选择权限类型：
+
+   - API 权限：可访问指定文件夹的素材
+   - Admin 权限：可访问资产库内所有素材
+
+<ApiKeyScreenshot step="create" caption="填写名称，按需选择「API」或「管理员」权限。" />
+
+5. 保存并复制 API Key（注意：仅显示一次）
+
+<ApiKeyScreenshot
+  step="detail"
+  caption="创建后可在密钥详情中查看类型与启用状态；图中密钥已掩码。"
+/>
+
+> 重要提示：对于 API 权限的密钥，系统管理员需在「共享文件夹」-「文件夹权限管理」中自定义权限范围和访问限制。
+
+### **方式二：通过第三方应用接口获取**
+
+[查看第三方应用认证与安装](./applications)
+
+> 概述：提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见"核心API接口"章节）。
+
+## 认证方式说明
+
+所有API请求都需要在请求头中包含认证信息：
+
+```text
+Authorization: Bearer your_api_key
+Content-Type: application/json
+```
+
+## 接口对接建议
+
+强烈建议使用服务端进行 API 对接，而非在前端直接调用 API，原因如下：
+
+- 保护 API 密钥安全，避免在客户端代码中暴露 API KEY
+- 防止未授权访问和潜在的安全风险
+- 可在服务端实现额外的访问控制和请求限制
+- 便于集中管理和监控 API 调用情况
+
+服务端对接模式下，客户端应通过您自己的服务器进行中转请求，而非直接访问 MuseDAM API。
+
+## 发起第一次请求
+
+先在服务端环境变量中设置 `MUSEDAM_API_KEY`，再运行以下命令。国内与海外账户使用各自的 API 域名。
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/search-assets' \
+  --header "Authorization: Bearer $MUSEDAM_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{"keywords": ["品牌"], "startPoint": 0, "endPoint": 10}'
+```
+
+## 处理响应
+
+读取 `result.assets` 和 `result.total`。结果为空时，先检查搜索条件和文件夹授权范围。保存失败响应中的 `traceId`，便于排查问题。
+
+[查看素材检索参数](./search) · [查看错误处理](./errors)

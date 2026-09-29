@@ -1,0 +1,365 @@
+## Subscribe to folders
+
+**Endpoint**: /folder-subscribe
+
+**Method**: POST
+
+**Description**: Subscribe to or unsubscribe from folder content updates.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| - | OpenApiSubReq | Yes | Subscription parameters |
+
+**OpenApiSubReq fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| folderIds | List&lt;Long> | Yes | Folder IDs to subscribe to |
+| callbackUrl | String | Yes | Callback URL |
+| eventType | String | No | Callback event type; default FOLDER_CONTENT_UPDATE |
+| operation | String | No | ADD to subscribe, DELETE to unsubscribe; default ADD |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| - | Boolean | Whether the operation succeeded |
+
+**Example**:
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/folder-subscribe' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "folderIds": [100, 101, 102],
+  "callbackUrl": "https://example.com/api/callback",
+  "eventType": "FOLDER_CONTENT_UPDATE",
+  "operation": "ADD"
+}'
+```
+
+Response example:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": true,
+    "traceId": "1753698709474457484"
+}
+```
+
+### Callback events
+
+When a subscribed folder changes, the service sends a POST request to the callback URL with the following fields:
+
+| Field | Type | Required | Description | Notes / example |
+|-|-|-|-|-|
+| eventType | String | Yes | Folder content change event identifier | Default: `FOLDER_CONTENT_UPDATE` |
+| folderId | Long | Yes | Changed folder ID | e.g. `123456789` |
+| eventTime | String | Yes | Event time | ISO8601 recommended: `2026-03-05T12:34:56+08:00` |
+| type | String | Yes | Change type | ADD, UPDATE or DELETE |
+| assets | List&lt;MaterialCallbackDTO> | Yes | Assets affected by the change | DELETE may contain only identifiers; other events should include full details |
+| orgId | Long | No | Organization ID identifying the event source | e.g. `10001`; may be optional when inferable from context |
+
+**MaterialCallbackDTO fields**
+
+| Field | Type | Required | Description | Notes / example |
+|-|-|-|-|-|
+| id | Long | Yes | Asset ID | e.g. `987654321` |
+| parentIds | List&lt;Long> | Yes | Parent folder path, from root to current parent | e.g. `[1, 23, 456]` |
+| userId | String | Yes | User who triggered the change | e.g. `"10001"` |
+| name | String | Yes | Original filename | e.g. `"brand-poster_v1.psd"` |
+| downloadUrl | String | Yes | Authorized direct or temporary download URL | e.g. `https://example.com/download/xxx` |
+| source | Integer | Yes | Asset source | 1 web, 2 upload, 3 copy |
+| link | String | No | Related source webpage or external URL | e.g. a landing page or original webpage |
+| extension | String | Yes | Extension without a leading dot | e.g. jpg, mp4, psd |
+| duration | Long | No | Video/audio duration in seconds | 120 means 120 seconds; other files may return null or 0 |
+| size | Long | Yes | File size in KB | 2048 is approximately 2 MB |
+| width | Integer | No | Media width in pixels | e.g. 1920; may be null for other file types |
+| height | Integer | No | Media height in pixels | e.g. 1080; may be null for other file types |
+| description | String | No | Asset description or notes | e.g. Spring 2026 campaign visual |
+| score | Integer | No | Asset rating | Usually 1–5; confirm the agreed range |
+| createUser | String | No | Original creator, which may differ from the event initiator | Original uploader user ID |
+
+Callback example:
+
+```json
+{
+  "eventType": "FOLDER_CONTENT_UPDATE",
+  "folderId": 23102,
+  "eventTime": "1753946835010",
+  "type": "UPDATE",
+  "assets": [
+    {
+      "id": 6906970,
+      "parentIds": [],
+      "userId": "1673603133161799680",
+      "name": "Ocean predators: dolphins chasing fish",
+      "downloadUrl": null,
+      "source": 2,
+      "link": null,
+      "extension": "rm",
+      "duration": null,
+      "size": null,
+      "width": null,
+      "height": null,
+      "description": "11",
+      "score": null,
+      "createUser": "1673603133161799680"
+    }
+  ]
+}
+```
+
+## Subscribe to asset events
+
+**Note**: This is separate from folder subscriptions (folder-subscribe / FOLDER_CONTENT_UPDATE). Subscribe at organization level; events are delivered asynchronously via POST to callbackUrl. Notifications do not block or modify asset ingestion.
+
+### List available event types
+
+**Endpoint**: `/material-automation-event-types`
+
+**Method**: GET
+
+**Description**: Return available event types and whether the current API Key subscribes to each type.
+
+**Response**: A list with these fields:
+
+| Field | Type | Description |
+|-|-|-|
+| code | String | Event code to use in eventTypes |
+| desc | String | Description in Chinese |
+| needsConfig | Boolean | Whether config is required; false for currently available events |
+| subscribed | Boolean | Whether this API Key has an active subscription |
+
+**Request example**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/material-automation-event-types' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### Subscribe or unsubscribe
+
+**Endpoint**: `/material-automation-subscribe`
+
+**Method**: POST
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| callbackUrl | String | Yes | Webhook callback URL |
+| eventTypes | List&lt;String> | Yes | Event types from the table below; multiple types supported |
+| operation | String | No | ADD to subscribe (default), DELETE to unsubscribe |
+
+**Available eventTypes**:
+
+| eventType | Description |
+|-|-|
+| MATERIAL_INBOUND_COMPLETED | Sent after successful asset ingestion; does not intercept ingestion |
+| MATERIAL_ADDED_TO_FOLDER | Assets added to folders through uploads or in-app/API actions; existing relationships do not trigger duplicate notifications |
+| MATERIAL_METADATA_UPDATED | Name, description, tags, owner or custom metadata changed |
+| MATERIAL_VERSION_CHANGED | Versions added, set as cover or removed |
+| MATERIAL_DELETED | Assets moved to the recycle bin or permanently deleted |
+
+**Response**: Boolean
+
+**Request example** (subscribe):
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/material-automation-subscribe' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "callbackUrl": "https://your.app/webhook/material-events",
+    "eventTypes": [
+        "MATERIAL_INBOUND_COMPLETED",
+        "MATERIAL_ADDED_TO_FOLDER",
+        "MATERIAL_METADATA_UPDATED",
+        "MATERIAL_VERSION_CHANGED",
+        "MATERIAL_DELETED"
+    ],
+    "operation": "ADD"
+}'
+```
+
+**Unsubscribe**: Set operation to DELETE. Subscriptions are identified by the current API Key, callbackUrl and eventType; no subscriptionId is required.
+
+**Webhook callback**: The service sends a POST request to callbackUrl with this body:
+
+| Field | Type | Description |
+|-|-|-|
+| eventId | String | Idempotency event ID |
+| eventType | String | Event type from the table above |
+| eventTime | String | Timestamp in milliseconds, encoded as a string |
+| payload | Object | Event-specific payload; see below |
+
+**Payload by event type**:
+
+| eventType | Payload fields |
+|-|-|
+| MATERIAL_INBOUND_COMPLETED | source (UPLOAD_ASSETS / PENDING_INBOUND_CONFIRM), initiatorUserId. Completed uploads: uploadResults, materialIds. Confirmed pending ingestion: pendingInboundIdToMaterialId |
+| MATERIAL_ADDED_TO_FOLDER | materialIds: cover asset IDs for newly created relationships; folderIds: destination folders |
+| MATERIAL_METADATA_UPDATED | changeType (BASIC / VALIDITY / TAGS / OWNER / METADATA / CUSTOM_FIELD), materialIds, materials[] containing only changed fields for this type; see below |
+| MATERIAL_VERSION_CHANGED | coverMaterialId, newMaterialId, action (ADD / SET_COVER / REPLACE_COVER_ON_UPLOAD / REMOVE); optional version. For REMOVE, coverMaterialId is the removed asset and newMaterialId is the latest asset remaining in that version chain. Optional removeType (ADD: move into the current folder; DELETE: move to recycle bin) and versionGroupDissolved |
+| MATERIAL_DELETED | materialIds; deleteAction (RECYCLE / PERMANENT); optional top-level folderIds for folders deleted in the same batch; materials[] snapshots before deletion (name / materialType / extension / tagIds / tagNames / folderIds / ownerUserId / createUserId) |
+
+**MATERIAL_METADATA_UPDATED materials[] by changeType**:
+
+| changeType | Fields in each materials entry (included when populated) |
+|-|-|
+| BASIC | materialId; name / description / score / link supplied in this update |
+| VALIDITY | materialId；validityStatus；validityStatusName；daysToExpire；startTime；endTime；isPermanent |
+| TAGS | materialId；tagIds；tagNames |
+| OWNER | materialId (new asset ID after transfer); ownerUserId |
+| METADATA | materialId; optional recordId; metadata containing only custom fields created or updated in this operation |
+| CUSTOM_FIELD | materialId；customFields：[&#123; "templateId": ... &#125;] |
+
+**Callback examples**: Each example is a complete POST body. Missing fields indicate unavailable values; allow optional fields rather than enforcing a fixed set of required properties.
+
+**MATERIAL_INBOUND_COMPLETED** (upload successfully ingested):
+
+```json
+{
+  "eventId": "evt_1753946835010_a1b2",
+  "eventType": "MATERIAL_INBOUND_COMPLETED",
+  "eventTime": "1753946835010",
+  "payload": {
+    "source": "UPLOAD_ASSETS",
+    "initiatorUserId": 10001,
+    "materialIds": [20001, 20002],
+    "uploadResults": [
+      {
+        "id": 20001,
+        "name": "spring-campaign.jpg",
+        "extension": "jpg",
+        "size": 204800,
+        "width": 1920,
+        "height": 1080,
+        "uploadStatus": 1
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_ADDED_TO_FOLDER**：
+
+```json
+{
+  "eventId": "evt_1753946900001_c3d4",
+  "eventType": "MATERIAL_ADDED_TO_FOLDER",
+  "eventTime": "1753946900001",
+  "payload": {
+    "materialIds": [20001, 20002],
+    "folderIds": [30001]
+  }
+}
+```
+
+**MATERIAL_METADATA_UPDATED** (changeType = BASIC; name, description and rating):
+
+```json
+{
+  "eventId": "evt_1753947000002_e5f6",
+  "eventType": "MATERIAL_METADATA_UPDATED",
+  "eventTime": "1753947000002",
+  "payload": {
+    "changeType": "BASIC",
+    "materialIds": [20001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "name": "spring-campaign_v2.jpg",
+        "description": "Spring 2026 key visual",
+        "score": 5
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_METADATA_UPDATED** (changeType = TAGS):
+
+```json
+{
+  "eventId": "evt_1753947050003_g7h8",
+  "eventType": "MATERIAL_METADATA_UPDATED",
+  "eventTime": "1753947050003",
+  "payload": {
+    "changeType": "TAGS",
+    "materialIds": [20001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "tagIds": [10837, 10838],
+        "tagNames": ["Product category", "Clothing and footwear"]
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_VERSION_CHANGED** (new version):
+
+```json
+{
+  "eventId": "evt_1753947100004_i9j0",
+  "eventType": "MATERIAL_VERSION_CHANGED",
+  "eventTime": "1753947100004",
+  "payload": {
+    "coverMaterialId": 20001,
+    "newMaterialId": 20088,
+    "action": "ADD",
+    "version": 3
+  }
+}
+```
+
+**MATERIAL_DELETED** (moved to recycle bin):
+
+```json
+{
+  "eventId": "evt_1753947200005_k1l2",
+  "eventType": "MATERIAL_DELETED",
+  "eventTime": "1753947200005",
+  "payload": {
+    "materialIds": [20001],
+    "deleteAction": "RECYCLE",
+    "folderIds": [30001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "name": "spring-campaign_v2.jpg",
+        "materialType": 1,
+        "extension": "jpg",
+        "tagIds": [10837, 10838],
+        "tagNames": ["Product category", "Clothing and footwear"],
+        "folderIds": [30001],
+        "ownerUserId": 10001,
+        "createUserId": 10001
+      }
+    ]
+  }
+}
+```
+
+**Notes**:
+
+- Events notify only; they do not intercept ingestion. Only the eventTypes listed above are available publicly.
+- The organization must have this subscription capability enabled; otherwise subscription fails.
+- Folder subscriptions can coexist with asset subscriptions. Subscribing to both may produce both notification types.
+- MATERIAL_DELETED may first report RECYCLE, then PERMANENT after permanent deletion of the same asset.
+
+## Receiver implementation guidance
+
+Deduplicate asset events using `eventId` and dispatch by `eventType`. Folder callbacks and asset events use separate protocols; do not mix their fields. Persist events before processing expensive tasks asynchronously. Agree on retry and signature verification behavior with the service provider.
+
+> The source specification contains differences between folder callback tables and examples for time formats, duration and size units. Confirm these with the service provider and handle nullable fields. Do not assume upload endpoints use the same units.

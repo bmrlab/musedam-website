@@ -1,0 +1,462 @@
+## Team APIs
+
+### Get team information
+
+**Endpoint**: `/org-info`
+
+**Method**: GET
+
+**Request parameters**:
+
+Request example:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/org-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json'
+```
+
+Response:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "id": 185,
+        "name": "Example team",
+        "orgNo": "M000001",
+        "orgFeeType": 4
+    },
+    "traceId": "17555160673301652392"
+}
+```
+
+### Get team credit balance
+
+**Endpoint**: `/org-point-info`
+
+**Method**: GET
+
+**Description**: Get the remaining credit balance of the team associated with the API Key.
+
+**Request parameters**: None. The API Key identifies the team; no team ID is required.
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| result | Double | Remaining team credits; a numeric value that may include decimals |
+
+**Example request**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/org-point-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json'
+```
+
+**Example response** (illustrative balance):
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": 1250.5,
+  "traceId": "example-trace-id"
+}
+```
+
+Read `result` directly to obtain the remaining credits.
+
+### Get team member information
+
+**Endpoint**: `/org-member-info`
+
+**Method**: POST
+
+**Request parameters**:
+
+```text
+{
+    "userId": "1765276754630496256"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/org-member-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "userId": "1765276754630496256"
+}'
+```
+
+Response:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "userId": "1765276754630496256",
+        "realName": "xxx",
+        "nickName": "xxxx",
+        "avatarUrl": "https://example.com/avatar.png",
+        "roleCode": "admin",
+        "departmentIds": [
+            0,
+            200
+        ],
+        "groupIds": [
+            20,
+            22
+        ]
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+### Query team members
+
+**Endpoint:** `/org-members-query`  
+
+**Method:** `POST`  
+
+**Description:** Query members of the current team with pagination and optional keyword, department, and status filters.
+
+**Request parameters:**
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| keyword | String | No | Search name, nickname, pinyin, email, or phone number |
+| page | Integer | No | Page number; defaults to `1` |
+| pageSize | Integer | No | Page size; defaults to `10` |
+| accountStatusEnumList | List&lt;String> | No | Member status filter: `PendingActivation`, `normal`, or `resigned` |
+| departmentId | Long | No | Filter by department |
+| needChildMember | Boolean | No | Include members of subdepartments; defaults to `false` |
+| needUserUseMemorySize | Boolean | No | Return members' used storage; defaults to `false` |
+| addType | Integer | No | Import source: `0` manual, `1` Feishu |
+| isSale | Integer | No | Sales staff: `0` no, `1` yes |
+
+**Response structure:**
+
+| Field | Type | Description |
+|-|-|-|
+| records | List&lt;Object> | Members; see the table below |
+| total | Long | Total records |
+| current | Long | Current page number |
+| size | Long | Page size |
+
+**records[] fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| userId | Long | User ID |
+| nickName | String | Nickname |
+| realName | String | Full name |
+| avatarUrl | String | Avatar URL |
+| roleName | String | Role name |
+| roleCode | String | Role code |
+| roleId | Long | Role ID |
+| orgRoleVO | Object | Enterprise role information; see below. May be empty for non-enterprise accounts |
+| departmentList | List&lt;Object> | Departments; see below |
+| jobTitle | String | Job title |
+| phone | String | Phone number |
+| email | String | Work email |
+| accountStatusEnum | String | Account status, such as `PendingActivation`, `normal`, or `resigned` |
+| joinTime | Date | Date joined |
+| toppingSort | Integer | Pinned sort order; higher values appear first |
+| userUseMemorySize | Long | Used storage in bytes; returned only when `needUserUseMemorySize=true` |
+| loginEmail | String | Login email |
+| addType | Integer | Import source: `0` manual, `1` Feishu |
+| userStatus | Integer | Registration status: `1` registered, `0` unregistered |
+| isSale | Integer | Sales staff: `0` no, `1` yes |
+| language | String | Language |
+| region | String | Region codes, comma-separated, such as `US,GB` |
+| storageRegionCode | String | Storage region code |
+
+**orgRoleVO fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Role ID |
+| name | String | Role name |
+| code | String | Role code |
+| createUser | Long | Creator's user ID |
+| createUserRealName | String | Creator's full name |
+| createUserNickName | String | Creator's nickname |
+| createUserAvatarUrl | String | Creator's avatar URL |
+
+**departmentList[] fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Department ID |
+| name | String | Department name |
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/org-members-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"page":1,"pageSize":10,"keyword":""}'
+```
+
+### Query team allowlist members
+
+**Endpoint:** `/org-whitelist-query`  
+
+**Method:** `POST`  
+
+**Description:** Query the current team's allowlist members with pagination and optional keyword and group filters.
+
+**Request parameters:**
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| keyword | String | No | Search name, phone number, or contact email |
+| page | Integer | No | Page number; defaults to `1` |
+| pageSize | Integer | No | Page size; defaults to `10` |
+| groupId | Long | No | Filter by group |
+| addType | Integer | No | Import source: `0` manual, `1` Feishu |
+
+**Response structure:**
+
+| Field | Type | Description |
+|-|-|-|
+| records | List&lt;Object> | Allowlist members; see below |
+| total | Long | Total records |
+| current | Long | Current page number |
+| size | Long | Page size |
+
+**records[] fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Allowlist record ID |
+| userId | Long | User ID; may be empty for unregistered users |
+| userName | String | User name |
+| userPhone | String | User phone number |
+| loginEmail | String | Login email |
+| userContactEmail | String | Contact email |
+| userAvatarUrl | String | Avatar URL |
+| toppingSort | Integer | Pinned sort order; higher values appear first |
+| remark | String | Notes |
+| addType | Integer | Import source: `0` manual, `1` Feishu |
+| createTime | Date | Creation time |
+| groups | List&lt;Object> | Groups the member belongs to; see below |
+
+**groups[] fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Group ID |
+| name | String | Group name |
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/org-whitelist-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"page":1,"pageSize":10,"keyword":""}'
+```
+
+### Query team departments
+
+**Endpoint**: `/org-departments-query`
+
+**Method**: GET
+
+**Description**: Get the direct child departments of a parent department in the current team. parentId=0 returns root departments.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| parentId | Long | No | Parent department ID; defaults to 0 for root departments |
+
+**Response**: A list of objects containing id and name.
+
+**Request example**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/org-departments-query?parentId=0' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### Query team groups
+
+**Endpoint**: `/org-groups-query`
+
+**Method**: GET
+
+**Description**: Get the direct child groups of a parent member group in the current team. parentId=0 returns root groups. Only enterprise team member groups are returned; enterprise allowlist groups are excluded.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| parentId | Long | No | Parent group ID; defaults to 0 for root groups |
+
+**Response**: A list of objects containing id and name.
+
+**Request example**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/org-groups-query?parentId=0' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### Query members by department ID
+
+**Endpoint**: `/department-members-query`
+
+**Method**: GET
+
+**Description**: Query department members, optionally including subdepartments. Fields generally match records[] in /org-members-query.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| departmentId | Long | Yes | Department ID |
+| needChildMember | Boolean | No | Include subdepartment members; defaults to false |
+
+**Request example**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/department-members-query?departmentId=123&needChildMember=false' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### Query members by group ID
+
+**Endpoint**: `/group-members-query`
+
+**Method**: POST
+
+**Description**: Query enterprise team group members with pagination. Fields generally match records[] in /org-members-query, except enterprise role information is not returned.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| groupId | Long | Yes | Group ID |
+| keyWord | String | No | Search keyword |
+| needChildMember | Boolean | No | Include child members; defaults to false |
+| page | Integer | No | Page number; defaults to 1 |
+| pageSize | Integer | No | Page size; defaults to 10 |
+
+**Response**: Contains records / total / current / size.
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/group-members-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"groupId":1,"keyWord":"","needChildMember":false,"page":1,"pageSize":10}'
+```
+
+## Send an in-app notification
+
+**Endpoint:** `/add-in-app-notify`  
+
+**Method:** `POST`
+
+**Description:** Send an **in-app notification** to a user in an enterprise workspace. The notification is stored and processed through the same follow-up flow as the console, including Feishu delivery where configured. Notifications can reference folders, assets, or asset groups and cover collaboration, deletion, permission requests and decisions, comments, and team changes. Use `notificationType` together with resource fields to describe the event. This endpoint lets third-party systems send notifications in automated workflows.
+
+**Request body:** `req`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| notificationType | String | Yes | **Must exactly match** a material service `notificationType` **code** listed below |
+| receiverId | Long | Yes | Recipient user ID |
+| senderId | Long | No | Sender user ID; defaults to the current user in the API context |
+| resourceType | Integer | No | **Must match** a `resourceType` listed below; omit if no resource is associated |
+| resourceName | String | No | Resource display name |
+| content | String | No | Notification body |
+| resourceId | Long | No | Associated resource ID |
+| permissionApprovedRoleId | Integer | No | Requested role ID for permission request notifications |
+
+**notificationType**
+
+| Code | Description |
+|-|-|
+| collaboration | Collaboration |
+| deletion | Deletion |
+| permission_approved | Permission request |
+| permission_success | Permission granted |
+| permission_refuse | Permission denied |
+| comment | Comment |
+| comment_reply | Comment reply |
+| share_comment | Share comment |
+| share_comment_reply | Share comment reply |
+| team_member_join | New member joined the team |
+| team_member_quit | Member left the team |
+| team_member_leave | Feishu member resigned |
+| asset_upload | Asset uploaded |
+| subfolder_asset_upload | Asset uploaded in a subfolder |
+| asset_version_upload | Asset version uploaded |
+| subfolder_asset_version_upload | Asset version uploaded in a subfolder |
+| asset_version_change | Asset version changed |
+| subfolder_asset_version_change | Asset version changed in a subfolder |
+| asset_version_remove | Asset version removed |
+| subfolder_asset_version_remove | Asset version removed in a subfolder |
+| asset_version_delete | Asset version deleted |
+| subfolder_asset_version_delete | Asset version deleted in a subfolder |
+| folder_and_material_delete | Folder and assets deleted |
+| subfolder_and_material_delete | Subfolder and assets deleted |
+| folder_delete | Folder deleted |
+| subfolder_delete | Subfolder deleted |
+| folder_material_delete | Assets in a folder deleted |
+| subfolder_material_delete | Assets in a subfolder deleted |
+| folder_material_move | Assets in a folder moved |
+| subfolder_material_move | Assets in a subfolder moved |
+| approval | Approval |
+
+**resourceType**
+
+| resourceType | Description |
+|-|-|
+| 1 | Folder (FOLDER) |
+| 2 | Asset (MATERIAL) |
+| 3 | Asset group (MATERIAL_GROUP) |
+| 4 | Team (TEAM) |
+
+Use with `resourceId`, which identifies the business record of the selected type, such as a folder, asset, or team ID.
+
+**Response:** `result` is a `Boolean`.
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/add-in-app-notify' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "notificationType": "permission_approved",
+    "receiverId": 1765276754630496256,
+    "resourceType": 1,
+    "resourceId": 1234567890,
+    "resourceName": "Brand asset library",
+    "content": "Request permission to view this shared folder",
+    "permissionApprovedRoleId": 2
+}'
+```
+
+**Example response:**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": true,
+    "traceId": "17561978534182325498"
+}
+```

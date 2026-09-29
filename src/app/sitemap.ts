@@ -3,6 +3,7 @@ import getServerSideURL from '@/utilities/getServerSideURL'
 
 import { languages, enLng } from './i18n/settings'
 import { getBlogArticles } from '@/data/blog'
+import { developerNavigation } from '@/data/developers'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // Add home pages for each language
     sitemap.push(...generateLangUrls())
+
+    // Public developer documentation
+    developerNavigation.forEach(({ slug }) => {
+      sitemap.push(...generateLangUrls(`/developers/${slug}`))
+    })
 
     // Add feature pages
     featurePages.forEach((path) => {

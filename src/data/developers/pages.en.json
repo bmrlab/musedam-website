@@ -1,0 +1,679 @@
+[
+  {
+    "slug": "quick-start",
+    "title": "Quick start",
+    "en": "Quick start",
+    "group": "start",
+    "description": "Make your first API request and choose the right integration path.",
+    "headings": [
+      {
+        "id": "obtain-an-api-key",
+        "title": "Obtain an API Key",
+        "level": 2
+      },
+      {
+        "id": "option-1-musedam-administration",
+        "title": "Option 1: MuseDAM administration",
+        "level": 3
+      },
+      {
+        "id": "option-2-third-party-application-api",
+        "title": "Option 2: Third-party application API",
+        "level": 3
+      },
+      {
+        "id": "authentication",
+        "title": "Authentication",
+        "level": 2
+      },
+      {
+        "id": "integration-recommendations",
+        "title": "Integration recommendations",
+        "level": 2
+      },
+      {
+        "id": "make-your-first-request",
+        "title": "Make your first request",
+        "level": 2
+      },
+      {
+        "id": "handle-the-response",
+        "title": "Handle the response",
+        "level": 2
+      }
+    ],
+    "markdown": "## Obtain an API Key\n\n### **Option 1: MuseDAM administration**\n\n1. Sign in as an administrator and open MuseDAM Settings and Members.\n2. Open Security Controls → API Keys.\n3. Select Create New Key.\n\n![Open API Keys and select Create New Key (Chinese interface).](/assets/developers/api-key/entry.png)\n\n4. Name the key and choose its permission type:\n\n   - API permissions: access assets in specified folders.\n   - Admin permissions: access all assets in the library.\n\n![Enter a name and choose API or Administrator permissions.](/assets/developers/api-key/create.png)\n\n5. Save and copy the API Key. It is shown only once.\n\n![After creation, open key details to check its type and status. The key is masked in this screenshot.](/assets/developers/api-key/detail.png)\n\n> For API-scoped keys, administrators must configure the allowed folders and access restrictions under Shared Folders → Folder Permissions.\n\n### **Option 2: Third-party application API**\n\n[Read app authentication and installation](./applications)\n\n> After an enterprise administrator enables and authorizes an application, it can use appId and appSecretKey to manage API Keys, then call the Open API with the issued key.\n\n## Authentication\n\nInclude authentication in every API request:\n\n```text\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n## Integration recommendations\n\nCall the API from your backend rather than directly from browser code:\n\n- Keep API Keys out of client-side code.\n- Prevent unauthorized access.\n- Apply additional access controls and request limits on your server.\n- Centralize API usage management and monitoring.\n\nYour frontend should send requests to your own backend, which calls MuseDAM on its behalf.\n\n## Make your first request\n\nSet `MUSEDAM_API_KEY` in your server environment, then run the command below. Mainland China and overseas accounts use different API domains. This English example uses the overseas endpoint.\n\n```bash\ncurl --request POST 'https://open.musedam.ai/api/muse/search-assets' \\\n  --header \"Authorization: Bearer $MUSEDAM_API_KEY\" \\\n  --header 'Content-Type: application/json' \\\n  --data '{\"keywords\": [\"brand\"], \"startPoint\": 0, \"endPoint\": 10}'\n```\n\n## Handle the response\n\nRead `result.assets` and `result.total`. For empty results, check the search criteria and folder permissions. Save `traceId` from failed responses for troubleshooting.\n\n[Asset search parameters](./search) · [Error handling](./errors)\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "authentication",
+    "title": "Authentication",
+    "en": "Authentication",
+    "group": "start",
+    "description": "Authenticate requests, select your region, and manage API keys securely.",
+    "headings": [
+      {
+        "id": "security-best-practices",
+        "title": "Security best practices",
+        "level": 2
+      },
+      {
+        "id": "api-key-quotas-and-pricing",
+        "title": "API Key quotas and pricing",
+        "level": 2
+      },
+      {
+        "id": "api-rate-limits-qps",
+        "title": "API rate limits (QPS)",
+        "level": 2
+      },
+      {
+        "id": "handling-rate-limits",
+        "title": "Handling rate limits",
+        "level": 2
+      },
+      {
+        "id": "permission-scope",
+        "title": "Permission scope",
+        "level": 2
+      }
+    ],
+    "markdown": "## Security best practices\n\n- **API Key protection**\n\n  - Never expose API Keys in frontend code.\n  - Store keys in environment variables.\n  - Rotate API Keys regularly.\n- **Access control**\n\n  - Apply least-privilege access.\n  - Use separate API Keys for different integrations.\n  - Monitor API usage.\n- **Network security**\n\n  - Access the API over HTTPS only.\n\n## API Key quotas and pricing\n\n#### Included quota\n\n- Each enterprise account includes **5 API Keys** at no additional charge.\n- Keys can have API permissions (specified folders) or Admin permissions (the entire library).\n\n#### Additional keys\n\n- Beyond 5 keys, each additional API Key costs **CNY 3,000 per year** in the referenced policy.\n- Additional keys can be purchased at any time and are billed annually.\n\n## API rate limits (QPS)\n\nQueries per second vary by endpoint and resource usage:\n\n| Endpoint category | QPS |\n|-|-|\n| **Read operations** | |\n| Batch asset retrieval | 5 |\n| Asset search | 10 |\n| **Write operations** | |\n| Asset upload | 5 |\n| Asset metadata update | 10 |\n| **Management operations** | |\n| Folder subscriptions | 5 |\n\n## Handling rate limits\n\nThe source specification does not define the rate-limit response format or retry contract. Limit concurrency and use bounded backoff for retryable errors. Confirm the outcome of writes before retrying to avoid duplicates.\n\n## Permission scope\n\n| **Operation** | **API permissions** | **Admin permissions** |\n|-|-|-|\n| View folder assets | Specified folders only | All folders in the library |\n| View specific assets | Specified folders only | Any asset |\n| View all assets | Specified folders only | Entire library |\n| Upload assets | Specified folders with upload permission | All Assets or any folder |\n| Update basic metadata (name, description, source, rating) | Specified folders with edit permission | Entire library |\n| Search assets | Specified folders only | Entire library |\n| Subscribe to folders | Specified folders only | Any folder |\n\n> Quotas and prices come from API v1.5 (2026-02-06). Confirm current terms and regional pricing with MuseDAM before enabling the service.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "search",
+    "title": "Asset search",
+    "en": "Asset search",
+    "group": "api",
+    "description": "Search assets and shared links with detailed filters and pagination.",
+    "headings": [
+      {
+        "id": "search-assets",
+        "title": "Search assets",
+        "level": 2
+      },
+      {
+        "id": "search-shared-assets",
+        "title": "Search shared assets",
+        "level": 2
+      }
+    ],
+    "markdown": "## Search assets\n\n**Endpoint**: /search-assets\n\n**Method**: POST\n\n**Description**: Search assets in an enterprise workspace.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| - | EnterpriseSearchReqVO | Yes | Asset search parameters |\n\n**EnterpriseSearchReqVO fields**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| parentId | Long | No | Search within this folder, excluding the root directory; includes descendants |\n| needChildren | Boolean | No | Include assets in child folders; default false |\n| extensions | List<String> | No | File extensions |\n| color | String | No | Color |\n| areaThreshold | Integer | No | Color coverage threshold; default 20 |\n| colorThreshold | Integer | No | Color precision threshold; default 20 |\n| minLength | Long | No | Minimum video/audio duration in ms |\n| maxLength | Long | No | Maximum video/audio duration in ms |\n| minSize | Long | No | Minimum file size in bytes |\n| maxSize | Long | No | Maximum file size in bytes |\n| minHeight | Long | No | Minimum image height in px |\n| maxHeight | Long | No | Maximum image height in px |\n| minWidth | Long | No | Minimum image width in px |\n| maxWidth | Long | No | Maximum image width in px |\n| startTime | Long | No | Start of the update-time range |\n| endTime | Long | No | End of the update-time range |\n| keywords | List<String> | No | Search keywords |\n| tags | List<Long> | No | Tag IDs |\n| tagOrAnd | Boolean | No | Combine tags with OR/AND; true means AND; default true |\n| createUsers | List<Long> | No | Creator IDs |\n| ratings | List<Integer> | No | Ratings (scores) |\n| hasLink | Boolean | No | Whether an associated link exists |\n| link | String | No | Link to match |\n| hasDesc | Boolean | No | Whether a description exists |\n| desc | String | No | Description to match |\n| sort | SortConditionVO | No | Sort criteria |\n| startPoint | Integer | No | Pagination start index; default 0 |\n| endPoint | Integer | No | Pagination end index; default 10 |\n| region | List<Float> | No | Search region coordinates |\n| customFieldTemplateIds | List<Long> | No | Custom field template IDs |\n| customFieldId | Long | No | Custom field ID |\n| currentUserId | Long | No | Restrict results to assets accessible to this user |\n| w | Integer | No | Target width in px, 1–6000; used to generate publicUrl; values exceeding the original image dimensions have no effect |\n| h | Integer | No | Target height in px, 1–6000; used to generate publicUrl; values exceeding the original image dimensions have no effect |\n| mode | String | No | publicUrl resize mode: fit (proportional) or crop (center crop); default fit |\n| q | Integer | No | Output quality, 1–100; used to generate publicUrl |\n| f | String | No | Output format: jpg / png / webp; used to generate publicUrl |\n| bg | String | No | Background color in HEX without #; used to generate publicUrl |\n| keywordSearchType | String | No | DEEP (deep search, default), DEFAULT (standard in-app search), PRECISE (exact search), or DEEP_AND_PRECISE (both) |\n\n**SortConditionVO fields**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| sortName | SortConditionFieldEnum | Yes | Sort field |\n| sortType | SortTypeEnum | No | Sort direction |\n\n**SortConditionFieldEnum values**:\n\n| Value | Description |\n|-|-|\n| CREATE_TIME | Creation time |\n| UPDATE_TIME | Update time |\n| NAME | Name |\n| DURATION | Duration |\n| SIZE | Size |\n| SCORE | Rating |\n\n**SortTypeEnum values**:\n\n| Value | Description |\n|-|-|\n| ASC | Ascending |\n| DESC | Descending |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| assets | List<MiniDamAssetDTO> | Assets |\n| total | Long | Total count |\n\n**MiniDamAssetDTO fields**:\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Asset ID |\n| parentIds | List<Long> | Parent folder IDs |\n| userId | String | User ID |\n| name | String | Original filename |\n| downloadUrl | String | Download URL |\n| source | Integer | Asset source: 1 web, 2 upload, 3 copy |\n| link | String | Webpage URL |\n| extension | String | File extension |\n| duration | Long | Video duration |\n| size | Long | File size in KB |\n| width | Integer | File width |\n| height | Integer | File height |\n| description | String | Description |\n| score | Integer | Rating |\n| createTime | Date | Creation time |\n| createUser | String | Creator |\n| updateTime | Date | Update time |\n| updateUser | Long | Last updated by |\n| tags | List<TagDTO> | Tags |\n| thumbnailAccessUrl | String | Thumbnail URL |\n| imageContentAnalysis | ImageContentAnalysis | AI analysis |\n| publicUrl | String | Processed public link using w/h/mode/q/f/bg; empty if no processing parameters or public link are available |\n\n**TagDTO fields**:\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Tag ID |\n| name | String | Tag name |\n\n**ImageContentAnalysis fields**:\n\n| Field | Type | Description |\n|-|-|-|\n| aiTags | String | AI-generated tags |\n| aiTitle | String | AI-generated title |\n| aiDescription | String | AI-generated description |\n| aiDetailedDescription | JSONArray | Detailed AI analysis |\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/search-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"parentId\": 100,\n    \"needChildren\": true,\n    \"extensions\": [\n        \"jpg\",\n        \"png\"\n    ],\n    \"minSize\": 1024,\n    \"maxSize\": 10485760,\n    \"keywords\": [\n        \"product\",\n        \"promotion\"\n    ],\n    \"tags\": [\n        1,\n        2\n    ],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 20\n}'\n```\n\nResponse example:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 10001,\n                \"parentIds\": [\n                    100\n                ],\n                \"userId\": \"user123\",\n                \"name\": \"product-promotion.jpg\",\n                \"downloadUrl\": \"https://example.com/download/10001\",\n                \"source\": 2,\n                \"extension\": \"jpg\",\n                \"size\": 1024,\n                \"width\": 1920,\n                \"height\": 1080,\n                \"description\": \"Product promotional image\",\n                \"score\": 5,\n                \"createTime\": \"2023-04-03T10:00:00\",\n                \"createUser\": \"Alex\",\n                \"tags\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"product\"\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"promotion\"\n                    }\n                ],\n                \"thumbnailAccessUrl\": \"https://example.com/thumbnail/10001\",\n                \"imageContentAnalysis\": {\n                    \"aiTags\": \"futuristic,streamlined,modern,yellow,city street,black,dusk,intelligent transport,sci-fi,advertising,autonomous driving,car,concept art\",\n                    \"aiTitle\": \"Futuristic urban sports car\",\n                    \"aiDescription\": \"A futuristic urban sports car with a streamlined body and orange accents illuminated at night. Triangular headlights and a distinctive rear spoiler reinforce its sporty, aerodynamic design.\\n\\nA busy city skyline, bright neon lights and passing cars create a dynamic science-fiction atmosphere.\",\n                    \"aiDetailedDescription\": [\n                        {\n                            \"usage\": \"A futuristic concept car for science-fiction films or video games.\"\n                        },\n                        {\n                            \"mood\": \"Energetic and technological\"\n                        },\n                        {\n                            \"culture_traits\": \"Innovation and technological progress in modern urban culture\"\n                        },\n                        {\n                            \"industry_domain\": \"Automotive manufacturing and high technology\"\n                        },\n                        {\n                            \"seasonality\": \"\"\n                        },\n                        {\n                            \"holiday_theme\": \"\"\n                        },\n                        {\n                            \"color_scheme\": \"Black, yellow and orange\"\n                        }\n                    ]\n                }\n            }\n        ],\n        \"total\": 150\n    }}\n```\n\n## Search shared assets\n\n**Endpoint**: /search-share\n\n**Method**: POST\n\n**Description**: Search assets within a shared link.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Default | Description |\n|-|-|-|-|-|\n| linkToken | String | Yes | - | Unique token identifying the shared link |\n| password | String | No | - | Access code; required if the share is password-protected |\n| folderId | Long | No | - | Folder to query; defaults to the root folder |\n| needChildren | Boolean | No | false | Include assets in child folders |\n| isRoot | Boolean | No | false | Whether this is the root of the share |\n| keyword | String | No | - | Filter assets whose filenames contain this keyword |\n| startPoint | Integer | No | 0 | Pagination start index |\n| endPoint | Integer | No | 40 | Pagination end index; default page size is 40 |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| assets | List<MiniDamAssetDTO> | Assets |\n| totalCount | Long | Total asset count |\n| folders | List<FolderDTO> | Folders |\n| folderCount | Long | Total folder count |\n\n**FolderDTO fields**\n\n| Parameter | Type | Description |\n|-|-|-|\n| id | Long | Folder ID |\n| name | String | Folder name |\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/search-share' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"linkToken\":\"12534a263031407481ccac298e3568f7\",\n    \"isRoot\":false,\n    \"folderId\":23343,\n    \"needChildren\":true\n}'\n```\n\nResponse example:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 6905957,\n                \"parentIds\": [\n                    23046,\n                    23345\n                ],\n                \"userId\": \"1673603133161799680\",\n                \"name\": \"Banana-flavored chewing gum\",\n                \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n                \"source\": null,\n                \"link\": null,\n                \"extension\": \"png\",\n                \"duration\": null,\n                \"size\": 209769,\n                \"width\": 800,\n                \"height\": 800,\n                \"description\": null,\n                \"score\": null,\n                \"createTime\": 1741160880000,\n                \"createUser\": \"1673603133161799680\",\n                \"updateTime\": 1741160880000,\n                \"updateUser\": 1673603133161799680,\n                \"tags\": [],\n                \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n            }\n        ],\n        \"folders\": [\n            {\n                \"id\": 23345,\n                \"name\": \"Guest folder 2-1\"\n            }\n        ],\n        \"totalCount\": 1,\n        \"folderCount\": 1\n    },\n    \"traceId\": \"109456b3501142a4a015a0b53fe7bc7e\"\n}\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "assets",
+    "title": "Asset management",
+    "en": "Asset management",
+    "group": "api",
+    "description": "Upload, download, modify, and organize assets with the Open API.",
+    "headings": [
+      {
+        "id": "upload-assets",
+        "title": "Upload assets",
+        "level": 2
+      },
+      {
+        "id": "download-assets",
+        "title": "Download assets",
+        "level": 2
+      },
+      {
+        "id": "modify-assets",
+        "title": "Modify assets",
+        "level": 2
+      },
+      {
+        "id": "move-assets-to-a-folder",
+        "title": "Move assets to a folder",
+        "level": 3
+      },
+      {
+        "id": "retrieve-assets-in-bulk",
+        "title": "Retrieve assets in bulk",
+        "level": 2
+      },
+      {
+        "id": "query-custom-metadata-by-asset-id",
+        "title": "Query custom metadata by asset ID",
+        "level": 3
+      },
+      {
+        "id": "query-team-metadata-fields",
+        "title": "Query team metadata fields",
+        "level": 3
+      },
+      {
+        "id": "check-transferred-assets-in-bulk",
+        "title": "Check transferred assets in bulk",
+        "level": 2
+      },
+      {
+        "id": "query-asset-users",
+        "title": "Query asset users",
+        "level": 2
+      }
+    ],
+    "markdown": "## Upload assets\n\n**Endpoint**: /upload-assets\n\n**Method**: POST\n\n**Description**: Upload assets to the DAM system.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| - | List<EnterpriseAssetSaveReq> | Yes | Asset save requests |\n\nThis section describes uploading from a downloadable URL. The parameters below apply to this integration method.\n\n**EnterpriseAssetSaveReq fields**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| folderIds | List<Long> | No | Target folder IDs. If empty, global upload permission such as upload to all assets is required. Otherwise, upload permission is required for every folder |\n| name | String | No | Display filename; if omitted, the server attempts to infer it from the `url` path |\n| url | String | Yes | **Directly downloadable** asset URL (GET returns 200). The server downloads the file and stores it under a new key. Avoid short links blocked by hotlink protection or regional restrictions |\n| extension | String | Yes | File extension, such as `jpg` or `mp4`, matching the resource type |\n| size | Long | No | Declared size in bytes. **The stored file size takes precedence after upload**. Use the local size to assist validation |\n| width | Integer | No | Image or video cover width in pixels. For **images**, the server attempts to read it from the downloaded file when omitted |\n| height | Integer | No | Image or video cover height in pixels. For **images**, the server attempts to read it from the downloaded file when omitted |\n| duration | Long | No | Video duration in **milliseconds** |\n| link | String | No | Associated webpage or source link |\n| description | String | No | Notes |\n| rating | Integer | No | Rating; written to the asset rating field, corresponding to internal `score` |\n| userId | Long | No | Asset owner user ID; defaults to the creator (the API key user). A specified user must belong to the current team |\n| oldAssetId | Long | No | Original asset ID (>0) when **uploading a new version**; used for cover/version association |\n| metadatas | List<MetadataDTO> | No | Custom metadata; **only effective when enabled for the team**. `fieldId` must match an ID from the metadata fields endpoint. Field validity is checked |\n| skipDuplicateByEtag | Boolean | No | Skip duplicates. When true, the server checks the team's OSS ETags after downloading to the asset bucket but before adding to the library. Existing identical content is not added again; returned id, key, and accessUrl refer to the existing asset. Defaults to false |\n\n**MetadataDTO (`metadatas` item):**\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| fieldId | String | Conditional | Metadata field ID used **during upload**, matching the fields endpoint; paired with `value` |\n| value | Object | No | Field value; type must match the field definition |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| assets | List<Item> | Successfully saved assets |\n\n**Item fields**:\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Asset ID |\n| key | String | File URL, OSS key, or downloadable file |\n| storePath | String | Asset OSS storage path; same as key |\n| skippedDuplicateByEtag | Boolean | true when an existing team asset is reused after an ETag match; id, key, and accessUrl refer to that asset |\n| name | String | Title |\n| accessUrl | String | Access URL |\n| uploadResult | String | NEW: newly uploaded and added to the library. DUPLICATE_BY_ETAG: duplicate found; no new asset added |\n\n**Example**:\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/upload-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[\n    {\n        \"folderIds\": [\n            23015\n        ],\n        \"url\": \"https://example.com/assets/sample.jpg\",\n        \"name\": \"Sample image\",\n        \"extension\": \"jpeg\"\n    }\n]'\n```\n\nResponse example:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 6908936,\n                \"key\": \"api_b9648d4570d2e08364a451b1eec88eea.jpeg\",\n                \"storePath\": \"api_b9648d4570d2e08364a451b1eec88eea.jpeg\",\n                \"uploadResult\": \"NEW\",\n                \"skippedDuplicateByEtag\": false,\n                \"name\": \"Sample image\",\n                \"accessUrl\": \"https://example.com/assets/sample.jpg\"\n            }\n        ]\n    }}\n```\n\n## Download assets\n\nAsset downloads do not require a separate endpoint. Obtain a download link in either of these ways:\n\n1. Search assets: each asset returned by `/search-assets` includes a `downloadUrl` field.\n2. Retrieve assets in bulk: the batch asset retrieval response also includes download links.\n\nUse `downloadUrl` directly to download the asset. Links generally contain the required authentication and access information and can be opened in a browser or used with a download tool.\n\n**Notes:**\n\n- Download links may expire after 10 hours. Use them promptly.\n- Ensure a stable connection when downloading large files.\n- For batch downloads, consider server-side scripts to reduce client download failures.\n\n## Modify assets\n\n**Endpoint**: /modify-assets\n\n**Method**: POST\n\n**Description**: Update basic asset information such as name, description, and rating.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| - | AssetModifyReq | Yes | Asset modification request |\n\n**AssetModifyReq fields**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| id | Long | Yes | Asset ID |\n| name | String | No | Filename |\n| description | String | No | Description |\n| score | Integer | No | Rating (1–5) |\n| link | String | No | Webpage link |\n| tags | List<Long> | No | Tag IDs |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| - | MiniDamAssetDTO | Updated asset information |\n\n**MiniDamAssetDTO fields**:\n\n[See MiniDamAssetDTO fields in asset search](./search)\n\n**Example**:\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/modify-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"id\":6908914,\n    \"name\":\"bottomTip45\",\n    \"description\":\"description 451\",\n    \"score\":5,\n    \"link\":\"wwww.baidu.com\"\n}'\n```\n\nResponse example:\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"id\": 6908914,\n    \"parentIds\": [],\n    \"userId\": \"1673603133161799680\",\n    \"name\": \"bottomTip45\",\n    \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n    \"source\": null,\n    \"link\": \"wwww.baidu.com\",\n    \"extension\": \"png\",\n    \"duration\": null,\n    \"size\": 111948,\n    \"width\": 290,\n    \"height\": 220,\n    \"description\": \"description 451\",\n    \"score\": 5,\n    \"createTime\": 1753428273000,\n    \"createUser\": \"1673603133161799680\",\n    \"updateTime\": 1753942888000,\n    \"updateUser\": 367024606,\n    \"tags\": [],\n    \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n  },\n  \"traceId\": \"17539429013299310816\"\n}\n```\n\n### Move assets to a folder\n\n**Endpoint**: `/move-assets-to-folder`\n\n**Method**: POST\n\n**Description**: Move or add a batch of assets from a source folder to a target folder.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| assetIds | List<Long> | Yes | Asset IDs; maximum 200 per request |\n| fromFolderId | Long | Conditional | Required and >0 when operationType=0 (move). The current folder association to remove |\n| toFolderId | Long | Yes | Target folder ID (>0) |\n| operationType | Integer | No | 0: move (remove from fromFolderId and add to toFolderId); 1: add (keep source association). Defaults to 0 |\n\n**Response**: Boolean\n\n**Example request** (move):\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/move-assets-to-folder' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"assetIds\": [6908914, 6908820],\n  \"fromFolderId\": 10001,\n  \"toFolderId\": 10002,\n  \"operationType\": 0\n}'\n```\n\n**Notes**:\n\n- Assets and folders must exist and belong to the current team. Edit permission for the relevant folders is required.\n- operationType=0 moves assets; =1 adds them while keeping them in both folders.\n\n## Retrieve assets in bulk\n\n**Endpoint**: /assets-by-ids\n\n**Method**: POST\n\n**Description**: Retrieve asset details for a list of asset IDs.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| - | List<Long> | Yes | Asset IDs |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| - | List<MiniDamAssetDTO> | Asset information |\n\n**MiniDamAssetDTO fields**:\n\n[See MiniDamAssetDTO fields in asset search](./search)\n\n**Example**:\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/assets-by-ids' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[6908914,6908820]'\n```\n\nResponse example:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 6908914,\n            \"parentIds\": [\n                28566\n            ],\n            \"userId\": \"1673603133161799680\",\n            \"name\": \"bottomTip45\",\n            \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n            \"source\": null,\n            \"link\": \"wwww.baidu.com\",\n            \"extension\": \"png\",\n            \"duration\": null,\n            \"size\": 111948,\n            \"width\": 290,\n            \"height\": 220,\n            \"description\": \"description 451\",\n            \"score\": 5,\n            \"createTime\": 1753428273000,\n            \"createUser\": \"1673603133161799680\",\n            \"updateTime\": 1753942901660,\n            \"updateUser\": 367024606,\n            \"tags\": [],\n            \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n        },\n        {\n            \"id\": 6908820,\n            \"parentIds\": [],\n            \"userId\": \"1673603133161799680\",\n            \"name\": \"Full-Stack-Serverless\",\n            \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n            \"source\": null,\n            \"link\": null,\n            \"extension\": \"epub\",\n            \"duration\": null,\n            \"size\": 4567444,\n            \"width\": null,\n            \"height\": null,\n            \"description\": null,\n            \"score\": null,\n            \"createTime\": 1753264933000,\n            \"createUser\": \"1673603133161799680\",\n            \"updateTime\": 1753264933000,\n            \"updateUser\": 1673603133161799680,\n            \"tags\": [\n                {\n                    \"name\": \"Social media design\",\n                    \"id\": 8223\n                },\n                {\n                    \"name\": \"Platform customization\",\n                    \"id\": 8247\n                },\n                {\n                    \"name\": \"cadahsjdkhasdhasjkdhajshdasjkhdajskhdjakshdasjhdajshdjkashd\",\n                    \"id\": 9084\n                },\n                {\n                    \"name\": \"asdashdlajksdhjkashdjksahdjashdlasdj\",\n                    \"id\": 9096\n                },\n                {\n                    \"name\": \"ccc\",\n                    \"id\": 9097\n                },\n                {\n                    \"name\": \"Web design\",\n                    \"id\": 8224\n                },\n                {\n                    \"name\": \"Interactive elements\",\n                    \"id\": 8270\n                }\n            ],\n            \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n        }\n    ],\n    \"traceId\": \"1753943463848693869\"\n}\n```\n\n### Query custom metadata by asset ID\n\n**Endpoint**: `/metadata-records-by-ids`\n\n**Method**: POST\n\n**Description**: Retrieve saved custom metadata values for asset IDs in bulk. IDs are omitted when custom metadata is disabled for the team or the asset has no metadata record.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| materialIds | List<Long> | Yes | Asset IDs; maximum 50 per request |\n\n**Response**: Map<Long, Object>. Keys are asset IDs; values are metadata objects mapping field names to values, including recordId, materialId, and other fields.\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/metadata-records-by-ids' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"materialIds\":[6908914,6908820]}'\n```\n\n**Example response**:\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"6908914\": {\n      \"materialId\": 6908914,\n      \"recordId\": \"rec_xxx\",\n      \"yourFieldName\": \"Custom value\"\n    }\n  },\n  \"traceId\": \"...\"\n}\n```\n\n**Notes**:\n\n- Only assets with metadata records are returned. IDs without records are omitted from result.\n- Uploading metadata uses fieldId (see the upload endpoint); this read endpoint uses field names as keys.\n\n### Query team metadata fields\n\n**Endpoint**: `/metadata-fields`\n\n**Method**: GET\n\n**Description**: Query configured custom metadata field definitions for the current team. Use the returned field id as metadatas[].fieldId during upload. Returns an empty list if custom metadata is disabled.\n\n**Response**: List<Object>; each item is a field definition:\n\n| Field | Type | Description |\n|-|-|-|\n| id | String | Field ID; use as fieldId during upload |\n| name | String | Field name; use as name when modifying asset metadata |\n| field_type / type | String | Field type, such as text, number, or select; refer to the actual response |\n\n**Request example**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/metadata-fields' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n**Note**: Built-in fields such as materialId also appear in the list. Filter them as needed.\n\n## Check transferred assets in bulk\n\n**Description:** Determine whether assets were created by a member resource transfer, such as resources transferred to another member when someone leaves or is removed.\n\n**Endpoint:** `/check-transferred-materials`\n\n**Method:** `POST`\n\n**Request parameters:** `enterpriseTransferMaterialCheckReq`\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| assetIds | List<Long> | Yes | Asset IDs; equivalent to materialId and to `id` / `assetIds` elsewhere in the Open API |\n\n**Response:** `Map<Long, Boolean>;`\n\n- **Key:** An asset ID (assetId) from the request\n- **Value:** `true` for an asset created by a transfer; `false` otherwise, including nonexistent assets\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/check-transferred-materials' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"assetIds\": [1234567890, 9876543210]\n}'\n```\n\n**Example response:**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"1234567890\": true,\n        \"9876543210\": false\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n**Notes:**\n\n- The request parameter is named `assetIds`.\n- Nonexistent asset IDs are also returned, with a value of `false`.\n\n---\n\n## Query asset users\n\n**Description**: Query users who downloaded or shared an asset, with pagination. Operation logs are aggregated by user to return counts and most recent activity. The asset must exist in the current team.\n\n**Endpoint**: `/material-access-users-query`\n\n**Method**: POST\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| assetId | Long | Yes | Asset ID |\n| operationTypes | List<Integer> | No | Operation types: 1 download, 2 share. Omit or leave empty to count both |\n| page | Integer | No | Page number; defaults to 1 |\n| pageSize | Integer | No | Page size; defaults to 20, maximum 100 |\n\n**Response**: Contains total and items. Each item has:\n\n| Field | Type | Description |\n|-|-|-|\n| userId | Long | User ID |\n| realName | String | Full name |\n| nickName | String | Nickname |\n| email | String | Email |\n| phone | String | Phone number |\n| avatarUrl | String | Avatar URL |\n| downloadCount | Long | Download count; 0 if operationTypes excludes 1 |\n| lastDownloadTime | Date | Most recent download time |\n| shareCount | Long | Share count; 0 if operationTypes excludes 2 |\n| lastShareTime | Date | Most recent share time |\n| lastOperationTime | Date | Most recent download or share time |\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/material-access-users-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"assetId\": 123456789,\n  \"operationTypes\": [1, 2],\n  \"page\": 1,\n  \"pageSize\": 20\n}'\n```\n\n**Notes**:\n\n- Only operations by users in the current team are counted. Departed or deleted users are still returned if logs remain, including userId and counts; profile fields such as name may be empty.\n- One record is returned per userId, combining download and share statistics.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "tags",
+    "title": "Tags",
+    "en": "Tags",
+    "group": "api",
+    "description": "Manage enterprise tags and apply them to assets in bulk.",
+    "headings": [
+      {
+        "id": "tag-management-apis",
+        "title": "Tag management APIs",
+        "level": 2
+      },
+      {
+        "id": "merge-tags-in-bulk",
+        "title": "Merge tags in bulk",
+        "level": 3
+      },
+      {
+        "id": "set-asset-tags-in-bulk",
+        "title": "Set asset tags in bulk",
+        "level": 3
+      },
+      {
+        "id": "get-enterprise-tags",
+        "title": "Get enterprise tags",
+        "level": 3
+      },
+      {
+        "id": "list-enterprise-tags-with-pagination",
+        "title": "List enterprise tags with pagination",
+        "level": 3
+      }
+    ],
+    "markdown": "## Tag management APIs\n\n### Merge tags in bulk\n\n**Endpoint**: `/merge-tags`\n\n**Method**: POST\n\n**Description**: Merge enterprise tags in bulk, optionally clearing existing tags or merging new ones.\n\n**Request parameters**:\n\n```json\n{\n    \"tags\": [\n        {\n            \"id\": 10837,\n            \"name\": \"Product categories\",\n            \"operation\": 1,\n            \"children\": [\n                {\n                    \"id\": 10838,\n                    \"name\": \"Clothing and accessories\",\n                    \"operation\": 1,\n                    \"sort\": 4,\n                    \"children\": [\n                        {\n                            \"name\": \"add2\",\n                            \"operation\": \"2\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": 10839,\n                    \"sort\": 5,\n                    \"operation\": 1,\n                    \"name\":\"Electronics\"\n                }\n            ]\n        }\n    ]\n}\n```\n\n**Parameters**:\n\n- `tags`: Hierarchical tag list\n\n  - `name`: Tag name\n  - `id`: Tag ID\n  - `operation`: 0 no change, 1 update, 2 create, 3 delete; defaults to 0\n  - `sort`: Sort value; tags are ordered from highest to lowest\n  - `children`: Child tags; multiple nesting levels are supported\n\nNotes:\n\n```text\nFor operation 1, id and name are required, the tag must exist, and name must be unique among sibling tags.\nFor operation 2, id must be empty and name must be unique among sibling tags.\nFor operation 3, id is required and the tag must exist.\n```\n\n**Response**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"tags\": [\n            {\n                \"name\": \"Product categories\",\n                \"id\": 10837,\n                \"operation\": 1,\n                \"sort\": null,\n                \"children\": [\n                    {\n                        \"name\": \"Clothing and accessories\",\n                        \"id\": 10838,\n                        \"operation\": 1,\n                        \"sort\": 4,\n                        \"children\": [\n                            {\n                                \"name\": \"add2\",\n                                \"id\": 13945,\n                                \"operation\": 2,\n                                \"sort\": null,\n                                \"children\": null\n                            }\n                        ]\n                    },\n                    {\n                        \"name\": \"Electronics\",\n                        \"id\": 10839,\n                        \"operation\": 1,\n                        \"sort\": 5,\n                        \"children\": null\n                    }\n                ]\n            }\n        ]\n    },\n    \"traceId\": \"17582767681984319367\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/merge-tags' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"tags\": [\n        {\n            \"id\": 8224,\n            \"name\": \"Web design\",\n            \"operation\": 1,\n            \"children\": [\n                {\n                    \"id\": 8269,\n                    \"name\": \"Interface design\",\n                    \"operation\": 0,\n                    \"children\": [\n                        {\n                            \"name\": \"add\",\n                            \"operation\": \"2\"\n                        },\n                        {\n                            \"id\": 10894,\n                            \"operation\": 3\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}'\n```\n\n---\n\n### Set asset tags in bulk\n\n**Endpoint**: `/set-assets-tags`\n\n**Method**: POST\n\n**Description**: Set tags on specified assets in bulk.\n\n**Request parameters**:\n\n```json\n{\n  \"assetIds\": [123, 456, 789],\n  \"tagIds\": [1, 2, 3],\n  \"remove\": true\n}\n```\n\n**Parameters**:\n\n- `assetIds`: Asset IDs (required)\n- `tagIds`: Tag IDs (required)\n- `remove`: Whether to remove existing tags; defaults to true\n\n**Response**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": true\n}\n```\n\n**Behavior**:\n\n- Apply multiple tags to multiple assets in one request.\n- Choose whether to clear existing asset tags.\n- Asset-to-tag associations are created automatically.\n- Operations are logged.\n\n---\n\n### Get enterprise tags\n\n**Endpoint**: `/query-tag-tree`\n\n**Method**: GET\n\n**Description**: Get the enterprise tag tree.\n\n**Example request**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/query-tag-tree' \\\n--header 'Authorization: Bearer YOUR_API_KEY'\n```\n\n**Response**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 8221,\n            \"name\": \"Uncategorized\",\n            \"children\": [\n                {\n                    \"id\": 10634,\n                    \"name\": \"hh\",\n                    \"children\": null\n                },\n                {\n                    \"id\": 10634,\n                    \"name\": \"hh\",\n                    \"children\": null\n                }\n            ]\n        },\n        {\n            \"id\": 10669,\n            \"name\": \"b\",\n            \"children\": null\n        }\n    ],\n    \"traceId\": \"17555963042174156442\"\n}\n```\n\n### List enterprise tags with pagination\n\n**Endpoint**: `/enterprise-tag-list`\n\n**Method**: POST\n\n**Description**: Query enterprise tags with pagination and parent tag, keyword, or tag type filters.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| pageNum | Integer | No | Page number; defaults to 1 |\n| pageSize | Integer | No | Page size; defaults to 500 |\n| parentId | Long | No | Parent tag ID; defaults to 0 (root) |\n| keyword | String | No | Tag name keyword |\n| type | Integer | No | Tag type: 0 standard, 1 smart |\n\n**Response**: Contains list (tags) and total (record count).\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/enterprise-tag-list' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"pageNum\": 1,\n  \"pageSize\": 50,\n  \"parentId\": 0\n}'\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "folders",
+    "title": "Folders",
+    "en": "Folders",
+    "group": "api",
+    "description": "Search folders, retrieve paths, and create folder trees.",
+    "headings": [
+      {
+        "id": "folder-management",
+        "title": "Folder management",
+        "level": 2
+      },
+      {
+        "id": "get-folder-paths",
+        "title": "Get folder paths",
+        "level": 3
+      },
+      {
+        "id": "get-descendant-folder-ids",
+        "title": "Get descendant folder IDs",
+        "level": 3
+      },
+      {
+        "id": "get-folder-auto-tags",
+        "title": "Get folder auto-tags",
+        "level": 3
+      },
+      {
+        "id": "search-folders",
+        "title": "Search folders",
+        "level": 2
+      },
+      {
+        "id": "create-a-folder",
+        "title": "Create a folder",
+        "level": 2
+      },
+      {
+        "id": "create-a-folder-tree",
+        "title": "Create a folder tree",
+        "level": 3
+      }
+    ],
+    "markdown": "## Folder management\n\n### Get folder paths\n\n**Endpoint**: `/folder-path`\n\n**Method**: POST\n\n**Description**: Get complete paths for specified folders.\n\n**Request parameters**:\n\n```json\n[123, 456, 789]\n```\n\n**Parameters**:\n\n- A list of folder IDs.\n\n**Response**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"123\": \"Root/Child folder 1/Child folder 2\",\n    \"456\": \"Root/Other folder\",\n    \"789\": \"Root/Sample folder\"\n  }\n}\n```\n\n**Behavior**:\n\n- Builds the full path from the folder treeCode.\n- Returns a map of folder IDs to path strings.\n- Uses / as the path separator.\n\n---\n\n### Get descendant folder IDs\n\n**Endpoint**: `/get-sub-folder-ids`\n\n**Method**: POST\n\n**Description**: Get all descendant folder IDs for specified folders.\n\n**Request parameters**:\n\n```json\n[123, 456, 789]\n```\n\n**Parameters**:\n\n- A list of parent folder IDs.\n\n**Response**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"123\": [123,124, 125, 126],\n    \"456\": [456,457, 458],\n    \"789\": [789]\n  }\n}\n```\n\n**Behavior**:\n\n- Recursively queries all descendant levels.\n- Returns a map of parent folder IDs to folder ID lists.\n- Supports querying multiple parent folders in one request.\n\n---\n\n### Get folder auto-tags\n\n**Endpoint**: `/folder-auto-tags`\n\n**Method**: POST\n\n**Description**: Batch-query auto-tags configured directly on folders, excluding tags inherited from ancestor folders.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| folderIds | List<Long> | Yes | Up to 50 existing folder IDs in the current organization |\n\n**Response**: Map<Long, List>, keyed by folderId. Folders with no auto-tags return an empty array.\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Tag ID |\n| name | String | Tag name |\n| parentId | Long | Parent tag ID |\n| parent | Object | Recursive parent tag; null when absent |\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/folder-auto-tags' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"folderIds\": [10001, 10002]\n}'\n```\n\n## Search folders\n\n**Endpoint:** `/search-folders`\n\n**Method:** POST\n\n**Request parameters:**\n\n| Parameter | Type | Required | Description | Default |\n|-|-|-|-|-|\n| parentId | Long | No | Folder scope, including descendants; omit to search all folders; 0 means root | - |\n| needChildren | Boolean | No | With parentId set, true searches that folder and all descendants; false searches direct children only | false |\n| keywords | List<String> | No | Multiple search keywords; ignored when parentId=0 | - |\n| sort | Object | No | Sort criteria | - |\n| sort.sortName | String | Yes, if sort is provided | CREATE_TIME, UPDATE_TIME, NAME, SIZE or SCORE | - |\n| sort.sortType | String | No | ASC (ascending) or DESC (descending) | DESC |\n| startPoint | Integer | No | Pagination start index | 0 |\n| endPoint | Integer | No | Pagination end index | 10 |\n| currentUserId | Long | No | Search folders accessible to this user |\n| folderIds | List<Long> | No | Retrieve specified folder IDs. When provided, uses direct ID lookup instead of the regular keyword and pagination search |\n\nRequest example:\n\n```json\n{\n    \"parentId\": 1234567890,\n    \"needChildren\": false,\n    \"keywords\": [\"sample\"],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 10\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/search-folders' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"parentId\": 1234567890,\n    \"needChildren\": false,\n    \"keywords\": [\"sample\"],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 10\n}'\n```\n\nResponse:\n\n| Field | Type | Description |\n|-|-|-|\n| code | String | Business status code; \"0\" indicates success |\n| message | String | Response message |\n| result | Object | Result object |\n| result.folders | Array | Folder list |\n| result.folders[].id | Long | Folder ID |\n| result.folders[].name | String | Folder name |\n| result.folders[].createUser | Long | Creator userId |\n| result.folders[].userId | Long | Owner userId |\n| result.total | Long | Total matching folders |\n| traceId | String | Trace ID |\n\nExample response:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"folders\": [\n            {\n                \"id\": 1234567890,\n                \"name\": \"Sample folder\",\n                \"createUser\": 1765276754630496256,\n                \"userId\": 1765276754630496256\n            },\n            {\n                \"id\": 1234567891,\n                \"name\": \"Another folder\",\n                \"createUser\": 1765276754630496257,\n                \"userId\": 1765276754630496257\n            }\n        ],\n        \"total\": 2\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n## Create a folder\n\n**Endpoint:** `/create-folder`\n\n**Method:** POST\n\n**Request parameters:**\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| name | String | Yes | Folder name; cannot be empty |\n| parentFolderId | Long | Yes | Parent folder ID, greater than 0. The new folder is created inside this folder |\n\nRequest example:\n\n```json\n{\n    \"name\": \"New folder\",\n    \"parentFolderId\": 1234567890\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/create-folder' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"name\": \"New folder\",\n    \"parentFolderId\": 1234567890\n}'\n```\n\nResponse:\n\n| Field | Type | Description |\n|-|-|-|\n| code | String | Business status code; \"0\" indicates success |\n| message | String | Response message |\n| result | Object | Result object |\n| result.folderId | Long | ID of the created folder |\n| traceId | String | Trace ID |\n\nExample response:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"folderId\": 1234567891\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\nNotes:\n\n- The parent folder must exist; otherwise, an error is returned.\n- The creator defaults to the current team owner's user ID.\n- The folder defaults to team collaboration status.\n\n### Create a folder tree\n\n**Endpoint**: `/create-folder-tree`\n\n**Method**: POST\n\n**Description**: Create an entire subtree under a parent folder in one request. Duplicate sibling names are automatically renamed to name (2), name (3), and so on. The creator defaults to the team owner; collaborators are inherited from the parent folder.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| parentFolderId | Long | Yes | Parent folder ID; >0 creates under that folder, while 0 uses the team root |\n| nodes | List<Node> | Yes | Root nodes of the subtree to create |\n\n**Node**：\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| name | String | Yes | Folder name |\n| children | List<Node> | No | Child folders; nesting is supported |\n\n**Response**:\n\n| Field | Type | Description |\n|-|-|-|\n| parentFolderId | Long | Parent folder ID |\n| createdCount | Integer | Number of folders created |\n| pathToFolderId | Map<String, Long> | Relative path → folder ID. Paths use the original requested names, excluding the parent directory, even if duplicate names are changed during creation |\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/create-folder-tree' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"parentFolderId\": 123,\n  \"nodes\": [\n    {\n      \"name\": \"Project assets\",\n      \"children\": [\n        { \"name\": \"Product images\", \"children\": [] },\n        { \"name\": \"Posters\", \"children\": [] }\n      ]\n    }\n  ]\n}'\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "analysis",
+    "title": "Analysis & delivery",
+    "en": "Analysis & delivery",
+    "group": "api",
+    "description": "Retrieve AI analysis results, process images, and access asset derivatives.",
+    "headings": [
+      {
+        "id": "get-ai-analysis-results",
+        "title": "Get AI analysis results",
+        "level": 2
+      },
+      {
+        "id": "get-processed-public-links-for-original-assets",
+        "title": "Get processed public links for original assets",
+        "level": 2
+      },
+      {
+        "id": "retrieve-asset-derivatives-in-bulk",
+        "title": "Retrieve asset derivatives in bulk",
+        "level": 2
+      }
+    ],
+    "markdown": "## Get AI analysis results\n\n**Endpoint**: `/get-asset-analysis-result`\n\n**Method**: POST\n\n**Description**: Retrieve AI analysis results for an asset.\n\n**Request parameters**:\n\n```text\n[6909122]\n```\n\n**Parameters**:\n\n- Asset ID\n\n**Response**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"6909122\": {\n            \"aiTags\": \"purple,calm,cartoon,elegant,anime,traditional clothing,pink,spring,landscape,woman,young woman\",\n            \"aiTitle\": \"Girl in traditional clothing\",\n            \"aiDescription\": \"An anime-style illustration of a girl wearing blue traditional clothing with white patterns. Her long silver-gray hair falls over her shoulders. Pink cherry blossom trees fill the background with soft, warm sunlight. Her calm, gentle expression conveys tranquility.\",\n            \"aiDetailedDescription\": [\n                {\n                    \"usage\": \"An anime-style character illustration.\"\n                },\n                {\n                    \"mood\": \"A calm and gentle atmosphere.\"\n                },\n                {\n                    \"culture_traits\": \"The character wears a traditional Japanese yukata, reflecting Japanese cultural and aesthetic elements.\"\n                },\n                {\n                    \"industry_domain\": \"Animation or manga illustration, potentially related to games, film, or other visual arts.\"\n                },\n                {\n                    \"seasonality\": \"Cherry blossoms suggest a spring setting.\"\n                },\n                {\n                    \"holiday_theme\": \"No specific holiday is evident; the colors and elements suggest traditional spring celebrations.\"\n                },\n                {\n                    \"color_scheme\": \"Predominantly blue with pink accents, creating a soft and harmonious palette.\"\n                }\n            ],\n            \"taskStatus\": 1,\n            \"customContent\": null,\n            \"taskFail\": null\n        }\n    },\n    \"traceId\": \"17555971993244441621\"\n}\n```\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/get-asset-analysis-result' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[6909122]'\n```\n\n## Get processed public links for original assets\n\n**Prerequisite:** DAT must be enabled.\n\n**Endpoint:** `/processed-public-links`\n\n**Method:** POST\n\n**Request parameters:** `publicLinkProcessReq`\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| assetIds | List<Long> | Yes | Asset IDs (assetId) |\n| w | Integer | No | Target width in pixels, 1–6000; values exceeding the original width have no effect |\n| h | Integer | No | Target height in pixels, 1–6000; values exceeding the original height have no effect |\n| mode | String | No | Resize mode; defaults to fit. fit: preserve aspect ratio; crop: center crop |\n| q | Integer | No | Output quality, 1–100; defaults to 80 |\n| f | String | No | Output format: jpg / png / webp; omit to retain the original format |\n| bg | String | No | Background fill color in HEX without #, such as FFFFFF |\n\n**mode values:**\n\n| Value | Description |\n|-|-|\n| fit | Scale by the longer edge, preserving aspect ratio and the full image |\n| crop | Center crop to the target dimensions |\n\n**Response:** `Map<Long, String>`\n\n- Key：assetId  \n- Value: The processed public URL for the original asset, or `\"\"` if no public link exists or the asset is missing.\n\n## Retrieve asset derivatives in bulk\n\n**Prerequisite:** Asset derivatives must be enabled for the team; otherwise, the endpoint returns an error.\n\n**Endpoint:** `/asset-derivative-versions`\n\n**Method:** `POST`\n\n**Request parameters:** `assetDerivativeInfoReq`\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| assetIds | List<Long> | Yes | Asset IDs, matching `id` / `assetIds` elsewhere in the Open API |\n\n**Response:** `Map<Long, List<EnterpriseAssetDerivativeVersionDTO>>`\n\n- **Key:** An asset ID from the request\n- **Value:** All derivative versions under **enabled** rules; `[]` if none exist or the asset is missing\n\n**`EnterpriseAssetDerivativeVersionDTO` fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| size | Long | File size in bytes |\n| width | Integer | File width in pixels |\n| height | Integer | File height in pixels |\n| accessUrl | String | Download URL; populated only when `generateStatus = 1` (success) |\n| publicUrl | String | Derivative public URL; available when public links are enabled for the rule and the link has been generated |\n| internalName | String | Internal derivative rule name |\n| displayName | String | Derivative rule display name |\n| generateStatus | Integer | Generation status; see below |\n| name | String | Asset name |\n\n**generateStatus values:**\n\n| Value | Description |\n|-|-|\n| 0 | Processing |\n| 1 | Success |\n| 2 | Failed |\n| 3 | Queued |\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/asset-derivative-versions' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"assetIds\": [1234567890, 9876543210]\n}'\n```\n\n**Example response:**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"1234567890\": [\n            {\n                \"size\": 204800,\n                \"width\": 1920,\n                \"name\":\"xxx\",\n                \"height\": 1080,\n                \"accessUrl\": \"https://example.com/download/xxx.jpg?token=...\",\n                \"publicUrl\": \"https://example.com/public/xxx.jpg\",\n                \"internalName\": \"web_preview\",\n                \"displayName\": \"Web preview\",\n                \"generateStatus\": 1\n            }\n        ],\n        \"9876543210\": []\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n**Notes:**\n\n- Returns derivatives under **enabled rules**, regardless of the display toggle on the asset details page.\n- `accessUrl` is a signed download URL with an expiry. `publicUrl` requires public link generation to be enabled for the rule and a public read address to have been generated for the derivative.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "team",
+    "title": "Teams & members",
+    "en": "Teams & members",
+    "group": "api",
+    "description": "Query team information, members, departments, and groups.",
+    "headings": [
+      {
+        "id": "team-apis",
+        "title": "Team APIs",
+        "level": 2
+      },
+      {
+        "id": "get-team-information",
+        "title": "Get team information",
+        "level": 3
+      },
+      {
+        "id": "get-team-credit-balance",
+        "title": "Get team credit balance",
+        "level": 3
+      },
+      {
+        "id": "get-team-member-information",
+        "title": "Get team member information",
+        "level": 3
+      },
+      {
+        "id": "query-team-members",
+        "title": "Query team members",
+        "level": 3
+      },
+      {
+        "id": "query-team-allowlist-members",
+        "title": "Query team allowlist members",
+        "level": 3
+      },
+      {
+        "id": "query-team-departments",
+        "title": "Query team departments",
+        "level": 3
+      },
+      {
+        "id": "query-team-groups",
+        "title": "Query team groups",
+        "level": 3
+      },
+      {
+        "id": "query-members-by-department-id",
+        "title": "Query members by department ID",
+        "level": 3
+      },
+      {
+        "id": "query-members-by-group-id",
+        "title": "Query members by group ID",
+        "level": 3
+      },
+      {
+        "id": "send-an-in-app-notification",
+        "title": "Send an in-app notification",
+        "level": 2
+      }
+    ],
+    "markdown": "## Team APIs\n\n### Get team information\n\n**Endpoint**: `/org-info`\n\n**Method**: GET\n\n**Request parameters**:\n\nRequest example:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/org-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json'\n```\n\nResponse:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"id\": 185,\n        \"name\": \"Example team\",\n        \"orgNo\": \"M000001\",\n        \"orgFeeType\": 4\n    },\n    \"traceId\": \"17555160673301652392\"\n}\n```\n\n### Get team credit balance\n\n**Endpoint**: `/org-point-info`\n\n**Method**: GET\n\n**Description**: Get the remaining credit balance of the team associated with the API Key.\n\n**Request parameters**: None. The API Key identifies the team; no team ID is required.\n\n**Response fields**:\n\n| Field | Type | Description |\n|-|-|-|\n| result | Double | Remaining team credits; a numeric value that may include decimals |\n\n**Example request**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/org-point-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json'\n```\n\n**Example response** (illustrative balance):\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": 1250.5,\n  \"traceId\": \"example-trace-id\"\n}\n```\n\nRead `result` directly to obtain the remaining credits.\n\n### Get team member information\n\n**Endpoint**: `/org-member-info`\n\n**Method**: POST\n\n**Request parameters**:\n\n```text\n{\n    \"userId\": \"1765276754630496256\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/org-member-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"userId\": \"1765276754630496256\"\n}'\n```\n\nResponse:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"userId\": \"1765276754630496256\",\n        \"realName\": \"xxx\",\n        \"nickName\": \"xxxx\",\n        \"avatarUrl\": \"https://example.com/avatar.png\",\n        \"roleCode\": \"admin\",\n        \"departmentIds\": [\n            0,\n            200\n        ],\n        \"groupIds\": [\n            20,\n            22\n        ]\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n### Query team members\n\n**Endpoint:** `/org-members-query`  \n\n**Method:** `POST`  \n\n**Description:** Query members of the current team with pagination and optional keyword, department, and status filters.\n\n**Request parameters:**\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| keyword | String | No | Search name, nickname, pinyin, email, or phone number |\n| page | Integer | No | Page number; defaults to `1` |\n| pageSize | Integer | No | Page size; defaults to `10` |\n| accountStatusEnumList | List<String> | No | Member status filter: `PendingActivation`, `normal`, or `resigned` |\n| departmentId | Long | No | Filter by department |\n| needChildMember | Boolean | No | Include members of subdepartments; defaults to `false` |\n| needUserUseMemorySize | Boolean | No | Return members' used storage; defaults to `false` |\n| addType | Integer | No | Import source: `0` manual, `1` Feishu |\n| isSale | Integer | No | Sales staff: `0` no, `1` yes |\n\n**Response structure:**\n\n| Field | Type | Description |\n|-|-|-|\n| records | List<Object> | Members; see the table below |\n| total | Long | Total records |\n| current | Long | Current page number |\n| size | Long | Page size |\n\n**records[] fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| userId | Long | User ID |\n| nickName | String | Nickname |\n| realName | String | Full name |\n| avatarUrl | String | Avatar URL |\n| roleName | String | Role name |\n| roleCode | String | Role code |\n| roleId | Long | Role ID |\n| orgRoleVO | Object | Enterprise role information; see below. May be empty for non-enterprise accounts |\n| departmentList | List<Object> | Departments; see below |\n| jobTitle | String | Job title |\n| phone | String | Phone number |\n| email | String | Work email |\n| accountStatusEnum | String | Account status, such as `PendingActivation`, `normal`, or `resigned` |\n| joinTime | Date | Date joined |\n| toppingSort | Integer | Pinned sort order; higher values appear first |\n| userUseMemorySize | Long | Used storage in bytes; returned only when `needUserUseMemorySize=true` |\n| loginEmail | String | Login email |\n| addType | Integer | Import source: `0` manual, `1` Feishu |\n| userStatus | Integer | Registration status: `1` registered, `0` unregistered |\n| isSale | Integer | Sales staff: `0` no, `1` yes |\n| language | String | Language |\n| region | String | Region codes, comma-separated, such as `US,GB` |\n| storageRegionCode | String | Storage region code |\n\n**orgRoleVO fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Role ID |\n| name | String | Role name |\n| code | String | Role code |\n| createUser | Long | Creator's user ID |\n| createUserRealName | String | Creator's full name |\n| createUserNickName | String | Creator's nickname |\n| createUserAvatarUrl | String | Creator's avatar URL |\n\n**departmentList[] fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Department ID |\n| name | String | Department name |\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/org-members-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"page\":1,\"pageSize\":10,\"keyword\":\"\"}'\n```\n\n### Query team allowlist members\n\n**Endpoint:** `/org-whitelist-query`  \n\n**Method:** `POST`  \n\n**Description:** Query the current team's allowlist members with pagination and optional keyword and group filters.\n\n**Request parameters:**\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| keyword | String | No | Search name, phone number, or contact email |\n| page | Integer | No | Page number; defaults to `1` |\n| pageSize | Integer | No | Page size; defaults to `10` |\n| groupId | Long | No | Filter by group |\n| addType | Integer | No | Import source: `0` manual, `1` Feishu |\n\n**Response structure:**\n\n| Field | Type | Description |\n|-|-|-|\n| records | List<Object> | Allowlist members; see below |\n| total | Long | Total records |\n| current | Long | Current page number |\n| size | Long | Page size |\n\n**records[] fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Allowlist record ID |\n| userId | Long | User ID; may be empty for unregistered users |\n| userName | String | User name |\n| userPhone | String | User phone number |\n| loginEmail | String | Login email |\n| userContactEmail | String | Contact email |\n| userAvatarUrl | String | Avatar URL |\n| toppingSort | Integer | Pinned sort order; higher values appear first |\n| remark | String | Notes |\n| addType | Integer | Import source: `0` manual, `1` Feishu |\n| createTime | Date | Creation time |\n| groups | List<Object> | Groups the member belongs to; see below |\n\n**groups[] fields:**\n\n| Field | Type | Description |\n|-|-|-|\n| id | Long | Group ID |\n| name | String | Group name |\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/org-whitelist-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"page\":1,\"pageSize\":10,\"keyword\":\"\"}'\n```\n\n### Query team departments\n\n**Endpoint**: `/org-departments-query`\n\n**Method**: GET\n\n**Description**: Get the direct child departments of a parent department in the current team. parentId=0 returns root departments.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| parentId | Long | No | Parent department ID; defaults to 0 for root departments |\n\n**Response**: A list of objects containing id and name.\n\n**Request example**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/org-departments-query?parentId=0' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### Query team groups\n\n**Endpoint**: `/org-groups-query`\n\n**Method**: GET\n\n**Description**: Get the direct child groups of a parent member group in the current team. parentId=0 returns root groups. Only enterprise team member groups are returned; enterprise allowlist groups are excluded.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| parentId | Long | No | Parent group ID; defaults to 0 for root groups |\n\n**Response**: A list of objects containing id and name.\n\n**Request example**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/org-groups-query?parentId=0' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### Query members by department ID\n\n**Endpoint**: `/department-members-query`\n\n**Method**: GET\n\n**Description**: Query department members, optionally including subdepartments. Fields generally match records[] in /org-members-query.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| departmentId | Long | Yes | Department ID |\n| needChildMember | Boolean | No | Include subdepartment members; defaults to false |\n\n**Request example**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/department-members-query?departmentId=123&needChildMember=false' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### Query members by group ID\n\n**Endpoint**: `/group-members-query`\n\n**Method**: POST\n\n**Description**: Query enterprise team group members with pagination. Fields generally match records[] in /org-members-query, except enterprise role information is not returned.\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| groupId | Long | Yes | Group ID |\n| keyWord | String | No | Search keyword |\n| needChildMember | Boolean | No | Include child members; defaults to false |\n| page | Integer | No | Page number; defaults to 1 |\n| pageSize | Integer | No | Page size; defaults to 10 |\n\n**Response**: Contains records / total / current / size.\n\n**Request example**:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/group-members-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"groupId\":1,\"keyWord\":\"\",\"needChildMember\":false,\"page\":1,\"pageSize\":10}'\n```\n\n## Send an in-app notification\n\n**Endpoint:** `/add-in-app-notify`  \n\n**Method:** `POST`\n\n**Description:** Send an **in-app notification** to a user in an enterprise workspace. The notification is stored and processed through the same follow-up flow as the console, including Feishu delivery where configured. Notifications can reference folders, assets, or asset groups and cover collaboration, deletion, permission requests and decisions, comments, and team changes. Use `notificationType` together with resource fields to describe the event. This endpoint lets third-party systems send notifications in automated workflows.\n\n**Request body:** `req`\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| notificationType | String | Yes | **Must exactly match** a material service `notificationType` **code** listed below |\n| receiverId | Long | Yes | Recipient user ID |\n| senderId | Long | No | Sender user ID; defaults to the current user in the API context |\n| resourceType | Integer | No | **Must match** a `resourceType` listed below; omit if no resource is associated |\n| resourceName | String | No | Resource display name |\n| content | String | No | Notification body |\n| resourceId | Long | No | Associated resource ID |\n| permissionApprovedRoleId | Integer | No | Requested role ID for permission request notifications |\n\n**notificationType**\n\n| Code | Description |\n|-|-|\n| collaboration | Collaboration |\n| deletion | Deletion |\n| permission_approved | Permission request |\n| permission_success | Permission granted |\n| permission_refuse | Permission denied |\n| comment | Comment |\n| comment_reply | Comment reply |\n| share_comment | Share comment |\n| share_comment_reply | Share comment reply |\n| team_member_join | New member joined the team |\n| team_member_quit | Member left the team |\n| team_member_leave | Feishu member resigned |\n| asset_upload | Asset uploaded |\n| subfolder_asset_upload | Asset uploaded in a subfolder |\n| asset_version_upload | Asset version uploaded |\n| subfolder_asset_version_upload | Asset version uploaded in a subfolder |\n| asset_version_change | Asset version changed |\n| subfolder_asset_version_change | Asset version changed in a subfolder |\n| asset_version_remove | Asset version removed |\n| subfolder_asset_version_remove | Asset version removed in a subfolder |\n| asset_version_delete | Asset version deleted |\n| subfolder_asset_version_delete | Asset version deleted in a subfolder |\n| folder_and_material_delete | Folder and assets deleted |\n| subfolder_and_material_delete | Subfolder and assets deleted |\n| folder_delete | Folder deleted |\n| subfolder_delete | Subfolder deleted |\n| folder_material_delete | Assets in a folder deleted |\n| subfolder_material_delete | Assets in a subfolder deleted |\n| folder_material_move | Assets in a folder moved |\n| subfolder_material_move | Assets in a subfolder moved |\n| approval | Approval |\n\n**resourceType**\n\n| resourceType | Description |\n|-|-|\n| 1 | Folder (FOLDER) |\n| 2 | Asset (MATERIAL) |\n| 3 | Asset group (MATERIAL_GROUP) |\n| 4 | Team (TEAM) |\n\nUse with `resourceId`, which identifies the business record of the selected type, such as a folder, asset, or team ID.\n\n**Response:** `result` is a `Boolean`.\n\n**Example request:**\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/add-in-app-notify' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"notificationType\": \"permission_approved\",\n    \"receiverId\": 1765276754630496256,\n    \"resourceType\": 1,\n    \"resourceId\": 1234567890,\n    \"resourceName\": \"Brand asset library\",\n    \"content\": \"Request permission to view this shared folder\",\n    \"permissionApprovedRoleId\": 2\n}'\n```\n\n**Example response:**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17561978534182325498\"\n}\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "events",
+    "title": "Events & webhooks",
+    "en": "Events & webhooks",
+    "group": "api",
+    "description": "Subscribe to folder events and send in-app notifications.",
+    "headings": [
+      {
+        "id": "subscribe-to-folders",
+        "title": "Subscribe to folders",
+        "level": 2
+      },
+      {
+        "id": "callback-events",
+        "title": "Callback events",
+        "level": 3
+      },
+      {
+        "id": "subscribe-to-asset-events",
+        "title": "Subscribe to asset events",
+        "level": 2
+      },
+      {
+        "id": "list-available-event-types",
+        "title": "List available event types",
+        "level": 3
+      },
+      {
+        "id": "subscribe-or-unsubscribe",
+        "title": "Subscribe or unsubscribe",
+        "level": 3
+      },
+      {
+        "id": "receiver-implementation-guidance",
+        "title": "Receiver implementation guidance",
+        "level": 2
+      }
+    ],
+    "markdown": "## Subscribe to folders\n\n**Endpoint**: /folder-subscribe\n\n**Method**: POST\n\n**Description**: Subscribe to or unsubscribe from folder content updates.\n\n**Request parameters**:\n\n| Parameter | Type | Required | Description |\n|-|-|-|-|\n| - | OpenApiSubReq | Yes | Subscription parameters |\n\n**OpenApiSubReq fields**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| folderIds | List<Long> | Yes | Folder IDs to subscribe to |\n| callbackUrl | String | Yes | Callback URL |\n| eventType | String | No | Callback event type; default FOLDER_CONTENT_UPDATE |\n| operation | String | No | ADD to subscribe, DELETE to unsubscribe; default ADD |\n\n**Response fields**:\n\n| Parameter | Type | Description |\n|-|-|-|\n| - | Boolean | Whether the operation succeeded |\n\n**Example**:\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/folder-subscribe' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"folderIds\": [100, 101, 102],\n  \"callbackUrl\": \"https://example.com/api/callback\",\n  \"eventType\": \"FOLDER_CONTENT_UPDATE\",\n  \"operation\": \"ADD\"\n}'\n```\n\nResponse example:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"1753698709474457484\"\n}\n```\n\n### Callback events\n\nWhen a subscribed folder changes, the service sends a POST request to the callback URL with the following fields:\n\n| Field | Type | Required | Description | Notes / example |\n|-|-|-|-|-|\n| eventType | String | Yes | Folder content change event identifier | Default: `FOLDER_CONTENT_UPDATE` |\n| folderId | Long | Yes | Changed folder ID | e.g. `123456789` |\n| eventTime | String | Yes | Event time | ISO8601 recommended: `2026-03-05T12:34:56+08:00` |\n| type | String | Yes | Change type | ADD, UPDATE or DELETE |\n| assets | List<MaterialCallbackDTO> | Yes | Assets affected by the change | DELETE may contain only identifiers; other events should include full details |\n| orgId | Long | No | Organization ID identifying the event source | e.g. `10001`; may be optional when inferable from context |\n\n**MaterialCallbackDTO fields**\n\n| Field | Type | Required | Description | Notes / example |\n|-|-|-|-|-|\n| id | Long | Yes | Asset ID | e.g. `987654321` |\n| parentIds | List<Long> | Yes | Parent folder path, from root to current parent | e.g. `[1, 23, 456]` |\n| userId | String | Yes | User who triggered the change | e.g. `\"10001\"` |\n| name | String | Yes | Original filename | e.g. `\"brand-poster_v1.psd\"` |\n| downloadUrl | String | Yes | Authorized direct or temporary download URL | e.g. `https://example.com/download/xxx` |\n| source | Integer | Yes | Asset source | 1 web, 2 upload, 3 copy |\n| link | String | No | Related source webpage or external URL | e.g. a landing page or original webpage |\n| extension | String | Yes | Extension without a leading dot | e.g. jpg, mp4, psd |\n| duration | Long | No | Video/audio duration in seconds | 120 means 120 seconds; other files may return null or 0 |\n| size | Long | Yes | File size in KB | 2048 is approximately 2 MB |\n| width | Integer | No | Media width in pixels | e.g. 1920; may be null for other file types |\n| height | Integer | No | Media height in pixels | e.g. 1080; may be null for other file types |\n| description | String | No | Asset description or notes | e.g. Spring 2026 campaign visual |\n| score | Integer | No | Asset rating | Usually 1–5; confirm the agreed range |\n| createUser | String | No | Original creator, which may differ from the event initiator | Original uploader user ID |\n\nCallback example:\n\n```json\n{\n  \"eventType\": \"FOLDER_CONTENT_UPDATE\",\n  \"folderId\": 23102,\n  \"eventTime\": \"1753946835010\",\n  \"type\": \"UPDATE\",\n  \"assets\": [\n    {\n      \"id\": 6906970,\n      \"parentIds\": [],\n      \"userId\": \"1673603133161799680\",\n      \"name\": \"Ocean predators: dolphins chasing fish\",\n      \"downloadUrl\": null,\n      \"source\": 2,\n      \"link\": null,\n      \"extension\": \"rm\",\n      \"duration\": null,\n      \"size\": null,\n      \"width\": null,\n      \"height\": null,\n      \"description\": \"11\",\n      \"score\": null,\n      \"createUser\": \"1673603133161799680\"\n    }\n  ]\n}\n```\n\n## Subscribe to asset events\n\n**Note**: This is separate from folder subscriptions (folder-subscribe / FOLDER_CONTENT_UPDATE). Subscribe at organization level; events are delivered asynchronously via POST to callbackUrl. Notifications do not block or modify asset ingestion.\n\n### List available event types\n\n**Endpoint**: `/material-automation-event-types`\n\n**Method**: GET\n\n**Description**: Return available event types and whether the current API Key subscribes to each type.\n\n**Response**: A list with these fields:\n\n| Field | Type | Description |\n|-|-|-|\n| code | String | Event code to use in eventTypes |\n| desc | String | Description in Chinese |\n| needsConfig | Boolean | Whether config is required; false for currently available events |\n| subscribed | Boolean | Whether this API Key has an active subscription |\n\n**Request example**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/muse/material-automation-event-types' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### Subscribe or unsubscribe\n\n**Endpoint**: `/material-automation-subscribe`\n\n**Method**: POST\n\n**Request parameters**:\n\n| Field | Type | Required | Description |\n|-|-|-|-|\n| callbackUrl | String | Yes | Webhook callback URL |\n| eventTypes | List<String> | Yes | Event types from the table below; multiple types supported |\n| operation | String | No | ADD to subscribe (default), DELETE to unsubscribe |\n\n**Available eventTypes**:\n\n| eventType | Description |\n|-|-|\n| MATERIAL_INBOUND_COMPLETED | Sent after successful asset ingestion; does not intercept ingestion |\n| MATERIAL_ADDED_TO_FOLDER | Assets added to folders through uploads or in-app/API actions; existing relationships do not trigger duplicate notifications |\n| MATERIAL_METADATA_UPDATED | Name, description, tags, owner or custom metadata changed |\n| MATERIAL_VERSION_CHANGED | Versions added, set as cover or removed |\n| MATERIAL_DELETED | Assets moved to the recycle bin or permanently deleted |\n\n**Response**: Boolean\n\n**Request example** (subscribe):\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/muse/material-automation-subscribe' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"callbackUrl\": \"https://your.app/webhook/material-events\",\n    \"eventTypes\": [\n        \"MATERIAL_INBOUND_COMPLETED\",\n        \"MATERIAL_ADDED_TO_FOLDER\",\n        \"MATERIAL_METADATA_UPDATED\",\n        \"MATERIAL_VERSION_CHANGED\",\n        \"MATERIAL_DELETED\"\n    ],\n    \"operation\": \"ADD\"\n}'\n```\n\n**Unsubscribe**: Set operation to DELETE. Subscriptions are identified by the current API Key, callbackUrl and eventType; no subscriptionId is required.\n\n**Webhook callback**: The service sends a POST request to callbackUrl with this body:\n\n| Field | Type | Description |\n|-|-|-|\n| eventId | String | Idempotency event ID |\n| eventType | String | Event type from the table above |\n| eventTime | String | Timestamp in milliseconds, encoded as a string |\n| payload | Object | Event-specific payload; see below |\n\n**Payload by event type**:\n\n| eventType | Payload fields |\n|-|-|\n| MATERIAL_INBOUND_COMPLETED | source (UPLOAD_ASSETS / PENDING_INBOUND_CONFIRM), initiatorUserId. Completed uploads: uploadResults, materialIds. Confirmed pending ingestion: pendingInboundIdToMaterialId |\n| MATERIAL_ADDED_TO_FOLDER | materialIds: cover asset IDs for newly created relationships; folderIds: destination folders |\n| MATERIAL_METADATA_UPDATED | changeType (BASIC / VALIDITY / TAGS / OWNER / METADATA / CUSTOM_FIELD), materialIds, materials[] containing only changed fields for this type; see below |\n| MATERIAL_VERSION_CHANGED | coverMaterialId, newMaterialId, action (ADD / SET_COVER / REPLACE_COVER_ON_UPLOAD / REMOVE); optional version. For REMOVE, coverMaterialId is the removed asset and newMaterialId is the latest asset remaining in that version chain. Optional removeType (ADD: move into the current folder; DELETE: move to recycle bin) and versionGroupDissolved |\n| MATERIAL_DELETED | materialIds; deleteAction (RECYCLE / PERMANENT); optional top-level folderIds for folders deleted in the same batch; materials[] snapshots before deletion (name / materialType / extension / tagIds / tagNames / folderIds / ownerUserId / createUserId) |\n\n**MATERIAL_METADATA_UPDATED materials[] by changeType**:\n\n| changeType | Fields in each materials entry (included when populated) |\n|-|-|\n| BASIC | materialId; name / description / score / link supplied in this update |\n| VALIDITY | materialId；validityStatus；validityStatusName；daysToExpire；startTime；endTime；isPermanent |\n| TAGS | materialId；tagIds；tagNames |\n| OWNER | materialId (new asset ID after transfer); ownerUserId |\n| METADATA | materialId; optional recordId; metadata containing only custom fields created or updated in this operation |\n| CUSTOM_FIELD | materialId；customFields：[{ \"templateId\": ... }] |\n\n**Callback examples**: Each example is a complete POST body. Missing fields indicate unavailable values; allow optional fields rather than enforcing a fixed set of required properties.\n\n**MATERIAL_INBOUND_COMPLETED** (upload successfully ingested):\n\n```json\n{\n  \"eventId\": \"evt_1753946835010_a1b2\",\n  \"eventType\": \"MATERIAL_INBOUND_COMPLETED\",\n  \"eventTime\": \"1753946835010\",\n  \"payload\": {\n    \"source\": \"UPLOAD_ASSETS\",\n    \"initiatorUserId\": 10001,\n    \"materialIds\": [20001, 20002],\n    \"uploadResults\": [\n      {\n        \"id\": 20001,\n        \"name\": \"spring-campaign.jpg\",\n        \"extension\": \"jpg\",\n        \"size\": 204800,\n        \"width\": 1920,\n        \"height\": 1080,\n        \"uploadStatus\": 1\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_ADDED_TO_FOLDER**：\n\n```json\n{\n  \"eventId\": \"evt_1753946900001_c3d4\",\n  \"eventType\": \"MATERIAL_ADDED_TO_FOLDER\",\n  \"eventTime\": \"1753946900001\",\n  \"payload\": {\n    \"materialIds\": [20001, 20002],\n    \"folderIds\": [30001]\n  }\n}\n```\n\n**MATERIAL_METADATA_UPDATED** (changeType = BASIC; name, description and rating):\n\n```json\n{\n  \"eventId\": \"evt_1753947000002_e5f6\",\n  \"eventType\": \"MATERIAL_METADATA_UPDATED\",\n  \"eventTime\": \"1753947000002\",\n  \"payload\": {\n    \"changeType\": \"BASIC\",\n    \"materialIds\": [20001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"name\": \"spring-campaign_v2.jpg\",\n        \"description\": \"Spring 2026 key visual\",\n        \"score\": 5\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_METADATA_UPDATED** (changeType = TAGS):\n\n```json\n{\n  \"eventId\": \"evt_1753947050003_g7h8\",\n  \"eventType\": \"MATERIAL_METADATA_UPDATED\",\n  \"eventTime\": \"1753947050003\",\n  \"payload\": {\n    \"changeType\": \"TAGS\",\n    \"materialIds\": [20001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"tagIds\": [10837, 10838],\n        \"tagNames\": [\"Product category\", \"Clothing and footwear\"]\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_VERSION_CHANGED** (new version):\n\n```json\n{\n  \"eventId\": \"evt_1753947100004_i9j0\",\n  \"eventType\": \"MATERIAL_VERSION_CHANGED\",\n  \"eventTime\": \"1753947100004\",\n  \"payload\": {\n    \"coverMaterialId\": 20001,\n    \"newMaterialId\": 20088,\n    \"action\": \"ADD\",\n    \"version\": 3\n  }\n}\n```\n\n**MATERIAL_DELETED** (moved to recycle bin):\n\n```json\n{\n  \"eventId\": \"evt_1753947200005_k1l2\",\n  \"eventType\": \"MATERIAL_DELETED\",\n  \"eventTime\": \"1753947200005\",\n  \"payload\": {\n    \"materialIds\": [20001],\n    \"deleteAction\": \"RECYCLE\",\n    \"folderIds\": [30001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"name\": \"spring-campaign_v2.jpg\",\n        \"materialType\": 1,\n        \"extension\": \"jpg\",\n        \"tagIds\": [10837, 10838],\n        \"tagNames\": [\"Product category\", \"Clothing and footwear\"],\n        \"folderIds\": [30001],\n        \"ownerUserId\": 10001,\n        \"createUserId\": 10001\n      }\n    ]\n  }\n}\n```\n\n**Notes**:\n\n- Events notify only; they do not intercept ingestion. Only the eventTypes listed above are available publicly.\n- The organization must have this subscription capability enabled; otherwise subscription fails.\n- Folder subscriptions can coexist with asset subscriptions. Subscribing to both may produce both notification types.\n- MATERIAL_DELETED may first report RECYCLE, then PERMANENT after permanent deletion of the same asset.\n\n## Receiver implementation guidance\n\nDeduplicate asset events using `eventId` and dispatch by `eventType`. Folder callbacks and asset events use separate protocols; do not mix their fields. Persist events before processing expensive tasks asynchronously. Agree on retry and signature verification behavior with the service provider.\n\n> The source specification contains differences between folder callback tables and examples for time formats, duration and size units. Confirm these with the service provider and handle nullable fields. Do not assume upload endpoints use the same units.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "errors",
+    "title": "Error handling",
+    "en": "Error handling",
+    "group": "api",
+    "description": "Understand error codes and troubleshoot API requests.",
+    "headings": [
+      {
+        "id": "common-errors-and-remedies",
+        "title": "Common errors and remedies",
+        "level": 2
+      },
+      {
+        "id": "api-authentication-errors",
+        "title": "API authentication errors",
+        "level": 3
+      },
+      {
+        "id": "request-parameter-errors",
+        "title": "Request parameter errors",
+        "level": 3
+      },
+      {
+        "id": "business-logic-errors",
+        "title": "Business logic errors",
+        "level": 3
+      },
+      {
+        "id": "system-errors",
+        "title": "System errors",
+        "level": 3
+      },
+      {
+        "id": "troubleshooting-sequence",
+        "title": "Troubleshooting sequence",
+        "level": 2
+      }
+    ],
+    "markdown": "## Common errors and remedies\n\n### API authentication errors\n\n| Error code | Description | Remedy |\n|-|-|-|\n| MB100002 | Access to this resource is denied | Verify the API key and its permissions for the resource |\n| 401 | Unauthorized | The API key is invalid or expired. Update the key |\n\n### Request parameter errors\n\n| Error code | Description | Remedy |\n|-|-|-|\n| MB100001 | Invalid request parameters | Check parameter formats and types against the API requirements |\n| MB100003 | Resource not found | Check whether the resource ID exists or has been deleted |\n\n### Business logic errors\n\n| Error code | Description | Remedy |\n|-|-|-|\n| MB100004 | Operation unsupported for this resource | Check whether the operation applies to this resource type |\n| MB100005 | Business operation failed | Adjust your logic based on the error message or retry |\n\n### System errors\n\n| Error code | Description | Remedy |\n|-|-|-|\n| MS100001 | System error | Retry later. Contact support if the error persists |\n| MS100003 | System busy | Rate-limit requests and retry after a delay |\n\n## Troubleshooting sequence\n\n1. Check the HTTP status, business `code`, and `message`. Save the `traceId`.\n2. Verify the hostname, HTTP method, request body type, and key permissions.\n3. Check that the resource belongs to the current organization and the required product capability is enabled.\n4. Use bounded retries for temporary system failures. Fix parameter or permission errors before retrying.\n\nOriginal examples use success codes such as `0`, `\"0\"`, and `\"200\"`. Confirm the success condition for each endpoint; HTTP 200 alone does not guarantee business success.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "applications",
+    "title": "App authentication",
+    "en": "App authentication",
+    "group": "apps",
+    "description": "Authorize third-party applications and manage enterprise API keys.",
+    "headings": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "level": 2
+      },
+      {
+        "id": "basics",
+        "title": "Basics",
+        "level": 2
+      },
+      {
+        "id": "base-urls",
+        "title": "Base URLs",
+        "level": 3
+      },
+      {
+        "id": "authentication",
+        "title": "Authentication",
+        "level": 3
+      },
+      {
+        "id": "get-an-api-key",
+        "title": "Get an API key",
+        "level": 3
+      },
+      {
+        "id": "refresh-an-api-key",
+        "title": "Refresh an API key",
+        "level": 3
+      },
+      {
+        "id": "revoke-an-api-key",
+        "title": "Revoke an API key",
+        "level": 3
+      },
+      {
+        "id": "query-installation-status",
+        "title": "Query installation status",
+        "level": 3
+      },
+      {
+        "id": "list-all-installations",
+        "title": "List all installations",
+        "level": 3
+      },
+      {
+        "id": "business-errors",
+        "title": "Business errors",
+        "level": 3
+      }
+    ],
+    "markdown": "## Overview\n\nThird-party applications can access enterprise Open APIs after an enterprise administrator enables and authorizes the application. Use appId and appSecretKey to manage API keys, then use those keys to call the core APIs.\n\n## Basics\n\n### Base URLs\n\n- **Mainland China**: https://open.musedam.cc/api/apps\n- **Overseas**: https://open.musedam.ai/api/apps\n\n### Authentication\n\nUse **HTTP Basic Authentication**:\n\n- Combine appId and appSecretKey as `appId:appSecretKey` and Base64-encode the string.\n- Add the HTTP header: `Authorization: Basic [Base64-encoded value]`.\n- All application management requests must include this authentication.\n\n**Authentication example:**\n\nGiven the following credentials:\n\n- appId: `test_app_123`\n- appSecretKey: `s3cr3t_k3y_456`\n\n**Steps:**\n\n1. Combine appId and appSecretKey: `test_app_123:s3cr3t_k3y_456`.\n2. Base64-encode the string: `dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`.\n3. Add the authentication header:\n\n   ```text\n   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS\n   ```\n\n> **Note**: Request appId and appSecretKey from your MuseDAM account representative.\n\n### Get an API key\n\n**Endpoint**: `/exchange-api-key`\n\n**Method**: POST\n\n**Request body:**\n\n```text\n{\n    \"orgId\":185\n}\n```\n\n**Response**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 16:13:25\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"Example team\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555988913681722512\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/apps/exchange-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"orgId\":185\n}'\n```\n\n---\n\n### Refresh an API key\n\n**Endpoint**: `/refresh-api-key`\n\n**Method**: POST\n\n**Request body:**\n\n```text\n{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**Response**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 18:22:18\"\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/apps/refresh-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### Revoke an API key\n\n**Endpoint**: `/revoke-api-key`\n\n**Method**: POST\n\n**Request body:**\n\n```text\n{\n    \"apiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**Response**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request POST 'https://open.musedam.ai/api/apps/revoke-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"apiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### Query installation status\n\n**Endpoint**: `/get-install-status?orgId=185`\n\n**Method**: GET\n\n**Response**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"appId\": \"app_4f8c6e9d2b7a\",\n        \"createAt\": \"2025-08-18 18:53:27\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"Example team\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/apps/get-install-status?orgId=185' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n---\n\n### List all installations\n\n**Endpoint**: `/list-all-install`\n\n**Method**: GET\n\n**Response**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"appId\": \"app_4f8c6e9d2b7a\",\n            \"createAt\": \"2025-08-18 18:53:27\",\n            \"org\": {\n                \"id\": 185,\n                \"name\": \"Example team\",\n                \"orgNo\": \"M000001\",\n                \"orgFeeType\": 4\n            }\n        }\n    ],\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\nRequest example:\n\n```bash\ncurl --location --request GET 'https://open.musedam.ai/api/apps/list-all-install' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n### Business errors\n\n```json\n{\n  \"code\": \"50049\",\n  \"message\": \"APP not installed\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50047\",\n  \"message\": \"APP does not exist\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50050\",\n  \"message\": \"APP KEY does not exist\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"20045\",\n  \"message\": \"Team does not exist or has expired\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"100007\",\n  \"message\": \"Invalid parameters\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n[Continue to frontend components](./components)\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "components",
+    "title": "Embedded apps & UI",
+    "en": "Embedded apps & UI",
+    "group": "apps",
+    "description": "Embed applications and integrate asset, folder, and member selectors.",
+    "headings": [
+      {
+        "id": "integration-flow",
+        "title": "Integration flow",
+        "level": 2
+      },
+      {
+        "id": "embedding-and-messaging",
+        "title": "Embedding and messaging",
+        "level": 2
+      },
+      {
+        "id": "message-protocol",
+        "title": "Message protocol",
+        "level": 2
+      },
+      {
+        "id": "basic-message-structure",
+        "title": "Basic message structure",
+        "level": 3
+      },
+      {
+        "id": "supported-actions",
+        "title": "Supported actions",
+        "level": 3
+      }
+    ],
+    "markdown": "## Integration flow\n\nThird-party applications are embedded in MuseDAM through an iframe. Register the app, obtain `MuseDAM_APP_ID` and `MuseDAM_APP_SECRET`, and provide an `/auth/${token}` route.\n\n1. MuseDAM generates a token and sends the user to the embedded app route.\n2. The app backend decrypts and validates the token, including user, team, and `expiresAt`.\n3. Map the MuseDAM user and team to your accounts and create an app session.\n4. Use `postMessage` in the frontend to open asset, folder, and member selectors.\n\n> The source documentation does not fully specify the encryption algorithm or IV constants. Obtain the complete authentication implementation from MuseDAM. Keep the app secret on the backend; decoding a token alone does not validate it.\n\n## Embedding and messaging\n\nConfigure CSP `frame-ancestors` to allow your actual MuseDAM domain and ensure X-Frame-Options does not conflict. Use the exact parent window origin for `postMessage`. Validate `event.origin`, `event.source`, `source`, `target`, `type`, and `dispatchId` on received messages.\n\n[Open the Mainland China production component test page](https://musedam.cc/apps/test-client-actions) (login required)\n\n## Message protocol\n\n### Basic message structure\n\n#### **Third-party app → MuseDAM (request)**\n\n```typescript\n{\n    source: \"musedam-app\",        // Child app identifier\n    target: \"musedam\",            // Parent window identifier\n    type: \"action\",               // Request type\n    timestamp: \"2024-12-19T10:30:00.000Z\", // ISO timestamp\n    dispatchId: \"dispatch_1234567890_abc123\", // Unique request ID\n    action: \"folder-selector-modal-open\",    // Action type\n    args: { /* Request parameters */ }\n}\n```\n\n#### **MuseDAM → Third-party app (response)**\n\n```typescript\n{\n    source: \"musedam\",            // Parent window identifier\n    target: \"musedam-app\",        // Child app identifier\n    type: \"action_result\",        // Response type\n    timestamp: \"2024-12-19T10:30:01.000Z\", // ISO timestamp\n    dispatchId: \"dispatch_1234567890_abc123\", // Matching request ID\n    action: \"folder-selector-modal-open\",     // Matching request action\n    args: { /* Original request parameters */ },\n    result: {                     // Response result\n        success: true,\n        data: { /* Result data */ }\n    }\n}\n```\n\n#### Fields\n\n| **Field** | **Description** | **Value** |\n|-|-|-|\n| source | Message sender | \"musedam-app\" |\n| target | Message recipient | \"musedam\" |\n| type | Message type | \"action\" \\| \"action_result\" |\n| action | Action name | \"folder-selector-modal-open\" \\| \"assets-selector-modal-open\" \\| \"goto\" \\| \"syncPath\" |\n| dispatchId | Unique request ID for matching requests and responses | string |\n| args | Request parameters | JSON |\n| result | Response result | { success: true, data:JSON} \\| { success: false, message:string, code: 'cancelled' \\| 'malformed_request' \\| 'forbidden' \\| 'internal_server_error' } |\n\n##### Error codes\n\nWhen `result.success` is `false`, `result.code` may be:\n\n| **CODE** | **Meaning** |\n|-|-|\n| cancelled | The user canceled the operation |\n| malformed_request | Invalid parameters or request format |\n| forbidden | The user lacks permission for this operation |\n| internal_server_error | Internal server error or other uncaught exception |\n\n### Supported actions\n\n#### Request and response types\n\n**IAssetLite fields**\n\n| **Field** | **Type** | **Description** |\n|-|-|-|\n| id | number | Primary ID |\n| assetId | number | Unique asset ID |\n| userId | string | Asset owner's user ID |\n| parentIds | number [] | Parent folder IDs |\n| folders | Array<{id:number; name:string}> \\| null | Associated folders |\n| name | string | Display name; may be empty |\n| downloadUrl | string | Original download URL |\n| link | string \\| null | Associated URL |\n| extension | string | File extension |\n| type | string \\| null | Resource type (image/video/audio/pdf/jsd/…) |\n| size | number | File size in bytes |\n| width | number \\| null | Image width |\n| height | number \\| null | Image height |\n| duration | number \\| null | Video duration |\n| description | string \\| null | Description |\n| tags | Array<{id: number; name: string}> \\| null | Tags |\n| previewUrls | string [] \\| null | Preview images; PDF/PPT files may have several |\n| thumbnail | { url: string; width?: number \\| null; height?: number \\| null; gifStaticUrl?: string \\| null; extension: string; } \\| null | Thumbnail information |\n| assertImageContentAnalysisVO | { aiDescription?: string; aiDetailedDescription?: Record<string, string>[]; aiTags?: string; aiTitle?: string; returnOption?: string; } | AI analysis: description, detailed attributes, tags, title, and return options |\n| score | number \\| null | Rating from 0 to 5 |\n| viewAuth | 0 \\| 1 | View permission: 0 denied, 1 granted |\n| customFieldVOList | { id: number; fieldValue: string; fieldId: number; color: string; }[] | Custom fields |\n| groupId | number \\| null | Group ID |\n| groupMaterialTotal | number \\| null | Total assets in the group |\n| createTime | number | Creation time |\n| createUser | string | Creator's user ID |\n| updateTime | number | Update time |\n| updateUser | string | Updater's user ID |\n\n#### Folder selector\n\n- **action**: `folder-selector-modal-open`\n- **args type**:\n\n  ```typescript\n  {\n      initialSelectedFolders?: Array<{ id: number; name: string }>;\n      // Whether to show all assets\n      allMaterials?: boolean;\n  }\n  ```\n- **result.data type**:\n\n  ```typescript\n  {\n      selectedFolders: Array<{ id: number; name: string }>;\n      allMaterials: boolean;\n  }\n  ```\n- **Example**:\n\n  ```typescript\n  // Request\n  {\n      action: \"folder-selector-modal-open\",\n      args: {\n          initialSelectedFolders: [{ id: 123, name: 'Design assets' }],\n          allMaterials: false\n      }\n  }\n  \n  // Successful response\n  {\n      result: {\n          success: true,\n          data: {\n              selectedFolders: [\n                  { id: 123, name: 'Design assets' },\n                  { id: 456, name: 'Product images' }\n              ],\n              allMaterials: false\n          }\n      }\n  }\n  \n  // Cancellation response\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"Operation canceled by user\"\n      }\n  }\n  ```\n\n#### Member and department selector\n\n- **action**: `member-selector-modal-open`\n- **args type**:\n\n  ```typescript\n  {\n      selectedItems?: {\n          members?: Array<{ id: string; name: string }>;\n          departments?: Array<{ id: string; name: string }>;\n          groups?: Array<{ id: string; name: string }>;\n      };\n  }\n  ```\n- **result.data type**:\n\n  ```typescript\n  {\n      members: Array<{ id: string; name: string;departmentsName?:string;avatarUrl?:string }>;\n      departments: Array<{ id: string; name: string }>;\n      groups: Array<{ id: string; name: string }>;\n  }\n  ```\n- **Example**:\n\n  ```typescript\n  // Request\n  {\n      action: \"member-selector-modal-open\",\n      args: {\n          // Selected items\n          selectedItems: {\n              members: [{ id: \"user_123\", name: \"Alex\", departmentsName:\"Muse, Design\", avatarUrl:\"https://\"}],\n              departments: [{ id: \"dept_001\", name: \"Design\" }]\n          }\n      }\n  }\n  \n  // Successful response\n  {\n      result: {\n          success: true,\n          data: {\n              members: [\n                  { id: \"user_123\", name: \"Alex\" },\n                  { id: \"user_456\", name: \"Sam\" }\n              ],\n              departments: [{ id: \"dept_001\", name: \"Design\" }],\n              groups: []\n          }\n      }\n  }\n  \n  // Cancellation response\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"Operation canceled by user\"\n      }\n  }\n  ```\n\n#### Asset selector\n\n- **action**: `assets-selector-modal-open`\n- **args type**:\n\n  ```typescript\n  enum EAssetType {\n      image = 'image',           // Images\n      video = 'video',           // Videos\n      audio = 'audio',           // Audio\n      js = 'js',                 // Design source files\n      document = 'document',     // Text documents\n      PDocument = 'PDocument',   // Presentations\n      excel = 'excel',           // Spreadsheets\n      font = 'font',             // Fonts\n      zip = 'zip',               // Archives\n      dll = 'dll',               // Applications\n      code = 'code',             // Code\n      model = 'model',           // Models\n      triD = 'triD',             // 3D\n      url = 'url',               // Webpages\n      unknown = 'unknown',       // Unknown files\n  }\n  {\n    initialSelectedAssetIds?: number[];\n    /**\n     * Allowed asset types. Omit to allow all types.\n     * Values follow the asset type field: image, video, audio, js, document, PDocument, excel, font, zip, dll, code, model, triD, url.\n     */\n    allowedTypes?: EAssetType[];\n    /**\n     * Per-type quantity limits. When provided, only listed types are selectable; omit limit for unlimited items of that type.\n     * When used with allowedTypes, allowedTypes is the allowlist and dataLimit only adds quantity limits.\n     */\n    dataLimit?: Array<{\n      type: EAssetType;\n      limit?: number;\n    }>;\n    /**\n     * Initial list filters, matching the homepage filter bar. Users can still change filters in the selector.\n     */\n    filters?: {\n      types?: EAssetType[];\n      extensions?: string[];\n      size?: {\n        min?: number;\n        max?: number;\n        unit?: 'KB' | 'MB' | 'GB';\n      };\n      dimension?: {\n        minWidth?: number;\n        maxWidth?: number;\n        minHeight?: number;\n        maxHeight?: number;\n      };\n    };\n  }\n  ```\n- **result.data type**:\n\n  ```typescript\n  \n  {\n      selectedAssets: IAssetLite[];\n  }\n  ```\n- **Example**:\n\n  ```typescript\n  // Request\n  {\n      action: \"assets-selector-modal-open\",\n      args: {\n          initialSelectedAssetIds: [123, 456],\n          allowedTypes: ['image'],\n          filters: {\n              types: ['image'],\n              size: { min: 100, max: 10240, unit: 'KB' },\n              dimension: { minWidth: 512, minHeight: 512 },\n          },\n      }\n  }\n  \n  // Successful response\n  {\n      result: {\n          success: true,\n          data: {\n              selectedAssets: [\n                  { id: 123, name: 'logo.png', type: 'image' },\n                  { id: 456, name: 'banner.png', type: 'image' }\n              ]\n          }\n      }\n  }\n  \n  // Cancellation response\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"Operation canceled by user\"\n      }\n  }\n  ```\n\n#### Navigate to a page\n\n- **action**: `goto`\n- **args type**:\n\n  ```typescript\n  {\n    url: string;\n  }\n  ```\n- **Description**: The parent app navigates when it receives this message. No response is required.\n- **Example**:\n\n  ```typescript\n  // Request\n  {\n      action: \"goto\",\n      args: {\n          url: \"https://example.com/target-page\",\n          target:\"_blank\"\n      }\n  }\n  ```\n\n#### Synchronize paths\n\n- **action**: `syncPath`\n- **args type**:\n\n  ```typescript\n  {\n    path: string;\n  }\n  ```\n- **Description**: The parent app updates the current page's hash path. No response is required. This synchronizes iframe routing state with the parent window URL.\n- **Example**:\n\n  ```typescript\n  // Request\n  {\n      action: \"syncPath\",\n      args: {\n          path: \"#path=/tagging/settings\"\n      }\n  }\n  ```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp",
+    "title": "MCP overview",
+    "en": "MCP overview",
+    "group": "mcp",
+    "description": "Connect AI clients to your asset library through Model Context Protocol.",
+    "headings": [
+      {
+        "id": "service-overview",
+        "title": "Service overview",
+        "level": 2
+      },
+      {
+        "id": "production-endpoint-and-regions",
+        "title": "Production endpoint and regions",
+        "level": 3
+      },
+      {
+        "id": "choose-a-connection-method",
+        "title": "Choose a connection method",
+        "level": 2
+      }
+    ],
+    "markdown": "This guide explains how MCP clients such as Cursor, Claude Desktop, and custom clients connect to the MuseDAM production MCP service using **Streamable HTTP**.\nMuseDAM MCP can also be used through a Skill. API documentation and downloads:\nhttps://github.com/kang-oy/musedam-open-api.git\n\n---\n\n## Service overview\n\n| Item | Description |\n|-|-|\n| Protocol | Model Context Protocol (MCP) |\n| Capabilities | MuseDAM Open APIs exposed as MCP tools: asset search, upload, editing, tags, folders, shared link search, team information, and more |\n| Authentication | A MuseDAM API key is required. See the API guide to obtain an `api_key` |\n\n### Production endpoint and regions\n\n| Environment | URL | Description |\n|-|-|-|\n| Production | `https://mcp-service.musedam.cc` | Defaults to Mainland China (`cn`); append `?region=overseas` for overseas accounts |\n\n---\n\n## Choose a connection method\n\nConnect to the remote MCP service using Streamable HTTP, without deploying a local process:\n\n| Method | Use case | API key delivery |\n|-|-|-|\n| **Streamable HTTP** | Client connects to a remote MCP service over HTTP | HTTP `Authorization` header, such as `Authorization: Bearer <api_key>` |\n\n---\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-connect",
+    "title": "Connect MCP",
+    "en": "Connect MCP",
+    "group": "mcp",
+    "description": "Configure production MCP connections using Streamable HTTP.",
+    "headings": [
+      {
+        "id": "streamable-http",
+        "title": "Streamable HTTP",
+        "level": 2
+      },
+      {
+        "id": "how-it-works",
+        "title": "How it works",
+        "level": 3
+      },
+      {
+        "id": "endpoint-and-authentication",
+        "title": "Endpoint and authentication",
+        "level": 3
+      },
+      {
+        "id": "production-connection-settings",
+        "title": "Production connection settings",
+        "level": 3
+      },
+      {
+        "id": "configuration-parameters",
+        "title": "Configuration parameters",
+        "level": 3
+      },
+      {
+        "id": "health-check",
+        "title": "Health check",
+        "level": 3
+      },
+      {
+        "id": "regions-and-apis",
+        "title": "Regions and APIs",
+        "level": 2
+      }
+    ],
+    "markdown": "## Streamable HTTP\n\n### How it works\n\n- The MCP server runs as an HTTP service and supports concurrent clients.\n- Clients communicate using standard HTTP requests and JSON-RPC.\n- Suitable for remote deployment and multiple clients, such as Cursor URL connections or custom web clients.\n\n### Endpoint and authentication\n\n- **Path**: `/` (root)\n- **Method**: `POST` (JSON-RPC requests)\n- **Authentication**: Include the API key in the HTTP `Authorization` header: `Authorization: Bearer <YOUR_MUSEDAM_API_KEY>`\n- **Region**: Set the optional URL query parameter `?region=<region>`; defaults to `cn`.\n\n### Production connection settings\n\n**Production:**\n\n```json\n{\n  \"mcpServers\": {\n    \"musedam\": {\n      \"url\": \"https://mcp-service.musedam.cc?region=overseas\",\n      \"headers\": {\n        \"Authorization\": \"Bearer YOUR_MUSEDAM_API_KEY\"\n      },\n      \"name\": \"MuseDAM\"\n    }\n  }\n}\n```\n\nMainland China defaults to `cn` and requires no query parameter. For overseas accounts, use `?region=overseas`, as shown in the English example.\n\n### Configuration parameters\n\n- **url**: Server address. Set the region with `?region=xxx` (optional; defaults to `cn`).\n\n  - Values: `cn` (Mainland China, default), `overseas` (Overseas).\n- **headers.Authorization**: Required authentication in `Bearer <api_key>` format.\n\nSome clients use `serverUrl` instead of `url`. Follow your client's configuration format.\n\n### Health check\n\nThe service provides a health check endpoint for operations and load balancer probes:\n\n- **Path**: `GET /health_check`\n- **Success**: HTTP 200; no response body is required.\n\nExample:\n\n- Production: `https://mcp-service.musedam.cc/health_check`\n\n---\n\n## Regions and APIs\n\n| region | Description | MuseDAM Open API Base URL |\n|-|-|-|\n| `cn` | Mainland China (default) | `https://open.musedam.cc/api/muse` |\n| `overseas` | Overseas | `https://open.musedam.ai/api/muse` |\n\nThese MCP tools access MuseDAM through the Open API. HTTP methods follow the corresponding API endpoints, using `Authorization: Bearer <api_key>`. For MCP, configure the key and region through connection settings.\n\n---\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-tools",
+    "title": "MCP tools",
+    "en": "MCP tools",
+    "group": "mcp",
+    "description": "Explore the MuseDAM MCP tools and their calling conventions.",
+    "headings": [
+      {
+        "id": "tool-catalog",
+        "title": "Tool catalog",
+        "level": 2
+      },
+      {
+        "id": "calling-conventions",
+        "title": "Calling conventions",
+        "level": 2
+      }
+    ],
+    "markdown": "## Tool catalog\n\nThe following tools follow MCP Tool definitions. Retrieve the current parameter schemas through MCP, or view tool descriptions and parameters in a client such as Cursor.\n\n| Tool | Description |\n|-|-|\n| `musedam_search_assets` | Search workspace assets by folder, type, keyword, tags, dimensions, and more |\n| `musedam_upload_assets` | Upload assets to DAM from downloadable URLs |\n| `musedam_modify_assets` | Update asset names, descriptions, ratings, links, and tags |\n| `musedam_assets_by_ids` | Get asset details by ID |\n| `musedam_folder_subscribe` | Subscribe to or unsubscribe from folder content callbacks |\n| `musedam_search_share` | Search assets and folders in a shared link |\n| `musedam_merge_tags` | Merge, create, update, or delete enterprise tags in bulk |\n| `musedam_set_assets_tags` | Set tags on assets in bulk |\n| `musedam_query_tag_tree` | Get the enterprise tag tree |\n| `musedam_folder_path` | Get the full path of a folder |\n| `musedam_get_sub_folder_ids` | Get all child folder IDs |\n| `musedam_get_asset_analysis_result` | Get AI analysis results for an asset |\n| `musedam_org_info` | Get team information |\n| `musedam_org_member_info` | Get team member information |\n| `musedam_search_folders` | Search folders by parent and keyword |\n| `musedam_create_folder` | Create a folder under a parent folder |\n| `musedam_processed_public_links` | Get processed public links for original assets; requires DAT |\n\n---\n\n## Calling conventions\n\nUse MCP `tools/list` to retrieve current parameter schemas, then call tools through `tools/call`. Configure the API key and region in connection settings, not individual tool arguments. Key permissions still apply.\n\n[Configure an MCP connection](./mcp-connect)\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-faq",
+    "title": "MCP troubleshooting",
+    "en": "MCP troubleshooting",
+    "group": "mcp",
+    "description": "Troubleshoot MCP authentication, connections, and tool calls.",
+    "headings": [
+      {
+        "id": "connection-and-tool-call-issues",
+        "title": "Connection and tool call issues",
+        "level": 2
+      }
+    ],
+    "markdown": "## Connection and tool call issues\n\n**Q: Streamable HTTP returns 401?**  \n\nA: Ensure the request includes `Authorization: Bearer <api_key>` and the key is correct and has not expired.\n\n**Q: Where do I get an API key?**  \n\nA: Request one from MuseDAM or your administrator. The MCP service does not provide a default key.\n\n**Q: Why are api_key and region no longer tool parameters?**  \n\nA: They are now managed through connection settings: headers and query parameters for HTTP. This keeps credentials out of individual tool arguments.\n\n**Q: A tool call fails with “Expected ',' or '}' after property value in JSON at position 16”, and the MCP server receives no request?**  \n\nA: The error occurs in **Cursor**, before `tools/call` is sent. Cursor may have generated invalid JSON when serializing tool `arguments`, for example for `musedam_search_assets`, or encountered a JSON parsing error while processing the call.\n\nSuggested steps:\n\n1. Retry in Cursor or start a new conversation. If needed, report the client-side JSON error to Cursor, noting that the server received no request.\n2. For custom MCP clients, ensure `arguments` uses **valid JSON with double quotes** and that the entire `tools/call` message is parseable.\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "use-cases",
+    "title": "Business use cases",
+    "en": "Business use cases",
+    "group": "examples",
+    "description": "Connect MuseDAM to CMS, commerce, and marketing workflows.",
+    "headings": [
+      {
+        "id": "cms-integration",
+        "title": "CMS integration",
+        "level": 2
+      },
+      {
+        "id": "scenario",
+        "title": "Scenario",
+        "level": 3
+      },
+      {
+        "id": "integration-approach",
+        "title": "Integration approach",
+        "level": 3
+      },
+      {
+        "id": "e-commerce-product-management",
+        "title": "E-commerce product management",
+        "level": 2
+      },
+      {
+        "id": "scenario-1",
+        "title": "Scenario",
+        "level": 3
+      },
+      {
+        "id": "integration-approach-1",
+        "title": "Integration approach",
+        "level": 3
+      },
+      {
+        "id": "marketing-asset-distribution",
+        "title": "Marketing asset distribution",
+        "level": 2
+      },
+      {
+        "id": "scenario-2",
+        "title": "Scenario",
+        "level": 3
+      },
+      {
+        "id": "integration-approach-2",
+        "title": "Integration approach",
+        "level": 3
+      }
+    ],
+    "markdown": "## CMS integration\n\n### Scenario\n\nLet editors find and use MuseDAM assets directly inside your CMS. Keep assets centrally managed while the CMS maintains the relationship between content and assets.\n\n### Integration approach\n\n> CMS editor → Backend → MuseDAM: search assets, return previews, store asset IDs, refresh links before publishing.\n\n**Implementation notes**\n\n- **Select assets**: Embed a custom picker in the editor and call `/search-assets` ([asset search](./search)) through your backend. Keep the API key on the server.\n- **Save references**: Store asset IDs in content records. Before publishing, use `/assets-by-ids` ([batch retrieval](./assets)) to refresh URLs or copy files to CMS storage. Do not treat temporary download links as permanent content URLs.\n- **Keep content current**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for metadata changes, version changes, and deletions. Subscriptions are team-wide; the CMS filters by linked asset IDs and decides whether to update or unpublish content.\n\n## E-commerce product management\n\n### Scenario\n\nManage product images and videos in MuseDAM. Your product system maps assets to SKUs and publishes content tailored to each storefront and channel.\n\n### Integration approach\n\n> Product system → MuseDAM → Product system → Storefronts: upload assets, link SKUs, search and process images, publish through channel APIs.\n\n**Implementation notes**\n\n- **Organize assets**: Optionally create a folder per SKU with `/create-folder` and upload product assets with `/upload-assets`. Store the mapping between SKUs, folder IDs, and asset IDs in your product system.\n- **Adapt to channels**: Use `/processed-public-links` ([image processing and delivery](./analysis)) to retrieve correctly sized images. DAT must be enabled and assets must already have public links; this endpoint does not create a public address for an asset without one.\n- **Update listings**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for completed ingestion, metadata changes, version changes, and deletions. Filter events by asset IDs linked to SKUs, fetch current content, and call channel APIs. Handle deletions according to your unpublishing rules and track publishing status and version references in your system.\n\n## Marketing asset distribution\n\n### Scenario\n\nMaintain campaign assets in MuseDAM. A distribution service receives changes or runs scheduled searches, then publishes assets according to channel rules and tracks each delivery.\n\n### Integration approach\n\n> Distribution service → MuseDAM → Distribution service → Channels: subscribe via /material-automation-subscribe, receive events, retrieve assets, publish and track results.\n\n**Implementation notes**\n\n- **Choose a trigger**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for timely updates, or scheduled `/search-assets` calls for batch delivery. After an event, fetch current details with `/assets-by-ids`; your system handles unpublishing deleted assets.\n- **Select events and scope**: Use `/material-automation-event-types` to discover available events. Subscribe to `MATERIAL_INBOUND_COMPLETED`, `MATERIAL_METADATA_UPDATED`, `MATERIAL_VERSION_CHANGED`, and `MATERIAL_DELETED`; add `MATERIAL_ADDED_TO_FOLDER` when entering a campaign folder should trigger delivery. Subscriptions are team-wide, so your distribution service filters by campaign, folder, or asset mapping.\n- **Deliver reliably**: Your service handles callback validation, event deduplication, queuing, and bounded retries to avoid duplicate publishing.\n- **Track results**: Save asset IDs, channel content IDs, publishing status, and timestamps. Retrieve performance data from each channel and aggregate it in your system.\n",
+    "updatedAt": "2026-09-29"
+  }
+]

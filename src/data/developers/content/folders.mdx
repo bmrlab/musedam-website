@@ -1,0 +1,326 @@
+## 文件夹管理接口
+
+### 获取文件夹路径
+
+**接口地址**: `/folder-path`
+
+**请求方式**：POST
+
+**接口描述**: 获取指定文件夹的完整路径信息
+
+**请求参数**:
+
+```json
+[123, 456, 789]
+```
+
+**参数说明**:
+
+- 文件夹ID列表
+
+**响应结果**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": {
+    "123": "根目录/子文件夹1/子文件夹2",
+    "456": "根目录/其他文件夹",
+    "789": "根目录/测试文件夹"
+  }
+}
+```
+
+**业务逻辑**:
+
+- 根据文件夹的treeCode构建完整路径
+- 返回文件夹ID到路径字符串的映射
+- 路径使用"/"分隔符连接
+
+---
+
+### 获取子文件夹ID列表
+
+**接口地址**: `/get-sub-folder-ids`
+
+**请求方式**：POST
+
+**接口描述**: 获取指定文件夹的所有子文件夹ID
+
+**请求参数**:
+
+```json
+[123, 456, 789]
+```
+
+**参数说明**:
+
+- 父文件夹ID列表
+
+**响应结果**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": {
+    "123": [123,124, 125, 126],
+    "456": [456,457, 458],
+    "789": [789]
+  }
+}
+```
+
+**业务逻辑**:
+
+- 递归查询所有层级的子文件夹
+- 返回父文件夹ID到子文件夹ID列表的映射
+- 支持批量查询多个文件夹的子文件夹
+
+---
+
+### 查询文件夹自动标签
+
+**接口路径**：`/folder-auto-tags`
+
+**请求方式**：POST
+
+**接口描述**：批量查询指定文件夹上配置的自动标签。仅返回文件夹自身绑定的标签（不含祖先文件夹标签）。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| folderIds | List&lt;Long> | 是 | 文件夹 ID 列表；单次最多 50 个；须为当前团队内存在的文件夹 |
+
+**响应**：Map&lt;Long, List>，key 为 folderId；无自动标签时对应空数组。
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | Long | 标签 ID |
+| name | String | 标签名称 |
+| parentId | Long | 父标签 ID |
+| parent | Object | 父标签（递归）；无父级时为 null |
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/folder-auto-tags' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "folderIds": [10001, 10002]
+}'
+```
+
+## 搜索文件夹
+
+**接口地址:** `/search-folders`
+
+**请求方式:** POST
+
+**请求参数:** 
+
+| 参数名 | 类型 | 必填 | 说明 | 默认值 |
+|-|-|-|-|-|
+| parentId | Long | 否 | 指定搜索目录，包括所有子孙。不传则搜索全部文件夹. 0表示根目录 | - |
+| needChildren | Boolean | 否 | 是否需要子级目录下的文件夹。当parentId存在时，true表示搜索该文件夹及其所有子文件夹，false表示只搜索该文件夹的直接子文件夹 | false |
+| keywords | List&lt;String> | 否 | 搜索关键字列表，支持多个关键字，parentId=0的时候，关键词搜索无效 | - |
+| sort | Object | 否 | 排序条件 | - |
+| sort.sortName | String | 是（当sort存在时） | 排序字段，可选值：CREATE_TIME(创建时间)、UPDATE_TIME(更新时间)、NAME(名称)、SIZE(大小)、SCORE(评分) | - |
+| sort.sortType | String | 否 | 排序类型，可选值：ASC(正序)、DESC(倒序) | DESC |
+| startPoint | Integer | 否 | 分页参数，开始索引 | 0 |
+| endPoint | Integer | 否 | 分页参数，结束索引 | 10 |
+| currentUserId | Long | 否 | 仅搜索该用户有权限的文件夹 |
+| folderIds | List&lt;Long> | 否 | 按指定文件夹 ID 列表查询；传入时走按 ID 查询分支，而非普通关键词和分页搜索 |
+
+请求示例：
+
+```json
+{
+    "parentId": 1234567890,
+    "needChildren": false,
+    "keywords": ["测试"],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 10
+}
+```
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/search-folders' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "parentId": 1234567890,
+    "needChildren": false,
+    "keywords": ["测试"],
+    "sort": {
+        "sortName": "CREATE_TIME",
+        "sortType": "DESC"
+    },
+    "startPoint": 0,
+    "endPoint": 10
+}'
+```
+
+返回结果：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| code | String | 响应码，"0"表示成功 |
+| message | String | 响应消息 |
+| result | Object | 返回结果对象 |
+| result.folders | Array | 文件夹列表 |
+| result.folders[].id | Long | 文件夹ID |
+| result.folders[].name | String | 文件夹名称 |
+| result.folders[].createUser | Long | 创建人userId |
+| result.folders[].userId | Long | 所有人userId |
+| result.total | Long | 符合条件的文件夹总数 |
+| traceId | String | 追踪ID |
+
+返回示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "folders": [
+            {
+                "id": 1234567890,
+                "name": "测试文件夹",
+                "createUser": 1765276754630496256,
+                "userId": 1765276754630496256
+            },
+            {
+                "id": 1234567891,
+                "name": "另一个文件夹",
+                "createUser": 1765276754630496257,
+                "userId": 1765276754630496257
+            }
+        ],
+        "total": 2
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+## 创建文件夹
+
+**接口地址:** `/create-folder`
+
+**请求方式:** POST
+
+**请求参数:** 
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| name | String | 是 | 文件夹名称，不能为空 |
+| parentFolderId | Long | 是 | 父文件夹ID，必须大于0。创建的文件夹将作为该父文件夹的子文件夹 |
+
+请求示例：
+
+```json
+{
+    "name": "新文件夹",
+    "parentFolderId": 1234567890
+}
+```
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/create-folder' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "新文件夹",
+    "parentFolderId": 1234567890
+}'
+```
+
+返回结果：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| code | String | 响应码，"0"表示成功 |
+| message | String | 响应消息 |
+| result | Object | 返回结果对象 |
+| result.folderId | Long | 创建的文件夹ID |
+| traceId | String | 追踪ID |
+
+返回示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "folderId": 1234567891
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+注意事项：
+
+- 父文件夹必须存在，否则会返回错误
+- 创建人默认为当前团队所有者用户ID
+- 文件夹状态默认为团队内协作
+
+### 批量创建文件夹树
+
+**接口路径**：`/create-folder-tree`
+
+**请求方式**：POST
+
+**接口描述**：在指定父文件夹下一次性创建完整子树。同级已存在同名文件夹时自动改名为 name (2)、name (3)…。创建人默认为团队所有者；协作者从父文件夹继承。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| parentFolderId | Long | 是 | 父文件夹 ID；>0 挂到该文件夹下，0 表示团队根目录 |
+| nodes | List&lt;Node> | 是 | 待创建子树根节点列表 |
+
+**Node**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| name | String | 是 | 文件夹名称 |
+| children | List&lt;Node> | 否 | 子文件夹，可嵌套 |
+
+**响应**：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| parentFolderId | Long | 父文件夹 ID |
+| createdCount | Integer | 实际新建文件夹数量 |
+| pathToFolderId | Map&lt;String, Long> | 相对路径 → 文件夹 ID。路径使用请求中的原始名称拼接（不含父目录），即使落库发生了同名改名 |
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/create-folder-tree' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "parentFolderId": 123,
+  "nodes": [
+    {
+      "name": "项目素材",
+      "children": [
+        { "name": "产品图", "children": [] },
+        { "name": "海报", "children": [] }
+      ]
+    }
+  ]
+}'
+```

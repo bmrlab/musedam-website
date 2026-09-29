@@ -1,0 +1,67 @@
+## Streamable HTTP
+
+### 機制說明
+
+- MCP 服務以 HTTP 服務形式運行，支持多客戶端併發連接。
+- 客戶端通過標準 HTTP 請求與 MCP 服務通信，使用 JSON-RPC 協議。
+- 適合遠程部署、多端接入（如 Cursor 通過 URL 連接、自建 Web 客戶端等）。
+
+### 端點與認證規範
+
+- **路徑**：`/`（根路徑）
+- **方法**：`POST`（發送 JSON-RPC 請求）
+- **認證**：必須在 HTTP `Authorization` header 中攜帶 API Key，格式：`Authorization: Bearer <你的MuseDAM_API密钥>`
+- **區域配置**：通過 URL query parameter 指定，格式：`?region=<区域>`（可選，默認 `cn`）
+
+### 生產環境連接配置
+
+**生產環境：**
+
+```json
+{
+  "mcpServers": {
+    "musedam": {
+      "url": "https://mcp-service.musedam.cc",
+      "headers": {
+        "Authorization": "Bearer 你的MuseDAM_API密钥"
+      },
+      "name": "MuseDAM"
+    }
+  }
+}
+```
+
+國內生產環境默認使用 `cn`，無需在 URL 中添加區域參數。
+
+### 配置參數說明
+
+- **url**：服務器地址，可通過 query parameter `?region=xxx` 指定區域（可選，默認 `cn`）
+
+  - 可選值：`cn`（國內，默認）、`overseas`（海外）
+- **headers.Authorization**：必須攜帶 `Bearer <api_key>` 格式的認證信息
+
+部分客戶端使用 `serverUrl` 而非 `url`，含義相同，按客戶端文檔填寫即可。
+
+### 健康檢查
+
+服務提供健康檢查端點，便於運維與負載均衡探測：
+
+- **路徑**：`GET /health_check`
+- **成功**：返回 HTTP 200，無 body 要求
+
+示例：
+
+- 生產：`https://mcp-service.musedam.cc/health_check`
+
+---
+
+## 區域與 API
+
+| region | 說明 | MuseDAM Open API Base URL |
+|-|-|-|
+| `cn` | 國內（默認） | `https://open.musedam.cc/api/muse` |
+| `overseas` | 海外 | `https://open.musedam.ai/api/muse` |
+
+本文列出的 MCP 工具通過開放 API 訪問 MuseDAM；HTTP 方法以對應開放接口為準，鑑權方式：`Authorization: Bearer <api_key>`。對接本 MCP 時只需在連接配置中提供 `api_key` 並在需要時指定 `region` 即可。
+
+---

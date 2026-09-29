@@ -1,0 +1,67 @@
+## Streamable HTTP
+
+### How it works
+
+- The MCP server runs as an HTTP service and supports concurrent clients.
+- Clients communicate using standard HTTP requests and JSON-RPC.
+- Suitable for remote deployment and multiple clients, such as Cursor URL connections or custom web clients.
+
+### Endpoint and authentication
+
+- **Path**: `/` (root)
+- **Method**: `POST` (JSON-RPC requests)
+- **Authentication**: Include the API key in the HTTP `Authorization` header: `Authorization: Bearer <YOUR_MUSEDAM_API_KEY>`
+- **Region**: Set the optional URL query parameter `?region=<region>`; defaults to `cn`.
+
+### Production connection settings
+
+**Production:**
+
+```json
+{
+  "mcpServers": {
+    "musedam": {
+      "url": "https://mcp-service.musedam.cc?region=overseas",
+      "headers": {
+        "Authorization": "Bearer YOUR_MUSEDAM_API_KEY"
+      },
+      "name": "MuseDAM"
+    }
+  }
+}
+```
+
+Mainland China defaults to `cn` and requires no query parameter. For overseas accounts, use `?region=overseas`, as shown in the English example.
+
+### Configuration parameters
+
+- **url**: Server address. Set the region with `?region=xxx` (optional; defaults to `cn`).
+
+  - Values: `cn` (Mainland China, default), `overseas` (Overseas).
+- **headers.Authorization**: Required authentication in `Bearer <api_key>` format.
+
+Some clients use `serverUrl` instead of `url`. Follow your client's configuration format.
+
+### Health check
+
+The service provides a health check endpoint for operations and load balancer probes:
+
+- **Path**: `GET /health_check`
+- **Success**: HTTP 200; no response body is required.
+
+Example:
+
+- Production: `https://mcp-service.musedam.cc/health_check`
+
+---
+
+## Regions and APIs
+
+| region | Description | MuseDAM Open API Base URL |
+|-|-|-|
+| `cn` | Mainland China (default) | `https://open.musedam.cc/api/muse` |
+| `overseas` | Overseas | `https://open.musedam.ai/api/muse` |
+
+These MCP tools access MuseDAM through the Open API. HTTP methods follow the corresponding API endpoints, using `Authorization: Bearer <api_key>`. For MCP, configure the key and region through connection settings.
+
+---

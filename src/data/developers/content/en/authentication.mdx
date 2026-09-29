@@ -1,0 +1,60 @@
+## Security best practices
+
+- **API Key protection**
+
+  - Never expose API Keys in frontend code.
+  - Store keys in environment variables.
+  - Rotate API Keys regularly.
+- **Access control**
+
+  - Apply least-privilege access.
+  - Use separate API Keys for different integrations.
+  - Monitor API usage.
+- **Network security**
+
+  - Access the API over HTTPS only.
+
+## API Key quotas and pricing
+
+#### Included quota
+
+- Each enterprise account includes **5 API Keys** at no additional charge.
+- Keys can have API permissions (specified folders) or Admin permissions (the entire library).
+
+#### Additional keys
+
+- Beyond 5 keys, each additional API Key costs **CNY 3,000 per year** in the referenced policy.
+- Additional keys can be purchased at any time and are billed annually.
+
+## API rate limits (QPS)
+
+Queries per second vary by endpoint and resource usage:
+
+| Endpoint category | QPS |
+|-|-|
+| **Read operations** | |
+| Batch asset retrieval | 5 |
+| Asset search | 10 |
+| **Write operations** | |
+| Asset upload | 5 |
+| Asset metadata update | 10 |
+| **Management operations** | |
+| Folder subscriptions | 5 |
+
+## Handling rate limits
+
+The source specification does not define the rate-limit response format or retry contract. Limit concurrency and use bounded backoff for retryable errors. Confirm the outcome of writes before retrying to avoid duplicates.
+
+## Permission scope
+
+| **Operation** | **API permissions** | **Admin permissions** |
+|-|-|-|
+| View folder assets | Specified folders only | All folders in the library |
+| View specific assets | Specified folders only | Any asset |
+| View all assets | Specified folders only | Entire library |
+| Upload assets | Specified folders with upload permission | All Assets or any folder |
+| Update basic metadata (name, description, source, rating) | Specified folders with edit permission | Entire library |
+| Search assets | Specified folders only | Entire library |
+| Subscribe to folders | Specified folders only | Any folder |
+
+> Quotas and prices come from API v1.5 (2026-02-06). Confirm current terms and regional pricing with MuseDAM before enabling the service.

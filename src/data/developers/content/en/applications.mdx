@@ -1,0 +1,282 @@
+## Overview
+
+Third-party applications can access enterprise Open APIs after an enterprise administrator enables and authorizes the application. Use appId and appSecretKey to manage API keys, then use those keys to call the core APIs.
+
+## Basics
+
+### Base URLs
+
+- **Mainland China**: https://open.musedam.cc/api/apps
+- **Overseas**: https://open.musedam.ai/api/apps
+
+### Authentication
+
+Use **HTTP Basic Authentication**:
+
+- Combine appId and appSecretKey as `appId:appSecretKey` and Base64-encode the string.
+- Add the HTTP header: `Authorization: Basic [Base64-encoded value]`.
+- All application management requests must include this authentication.
+
+**Authentication example:**
+
+Given the following credentials:
+
+- appId: `test_app_123`
+- appSecretKey: `s3cr3t_k3y_456`
+
+**Steps:**
+
+1. Combine appId and appSecretKey: `test_app_123:s3cr3t_k3y_456`.
+2. Base64-encode the string: `dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`.
+3. Add the authentication header:
+
+   ```text
+   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS
+   ```
+
+> **Note**: Request appId and appSecretKey from your MuseDAM account representative.
+
+### Get an API key
+
+**Endpoint**: `/exchange-api-key`
+
+**Method**: POST
+
+**Request body:**
+
+```text
+{
+    "orgId":185
+}
+```
+
+**Response**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "apiKey": "YOUR_API_KEY",
+        "expiresAt": "2055-08-19 16:13:25",
+        "org": {
+            "id": 185,
+            "name": "Example team",
+            "orgNo": "M000001",
+            "orgFeeType": 4
+        }
+    },
+    "traceId": "17555988913681722512"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/apps/exchange-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "orgId":185
+}'
+```
+
+---
+
+### Refresh an API key
+
+**Endpoint**: `/refresh-api-key`
+
+**Method**: POST
+
+**Request body:**
+
+```text
+{
+    "oldApiKey": "YOUR_API_KEY"
+}
+```
+
+**Response**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "apiKey": "YOUR_API_KEY",
+        "expiresAt": "2055-08-19 18:22:18"
+    },
+    "traceId": "17555989381206489704"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/apps/refresh-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "oldApiKey": "YOUR_API_KEY"
+}'
+```
+
+---
+
+### Revoke an API key
+
+**Endpoint**: `/revoke-api-key`
+
+**Method**: POST
+
+**Request body:**
+
+```text
+{
+    "apiKey": "YOUR_API_KEY"
+}
+```
+
+**Response**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": true,
+    "traceId": "17555989381206489704"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/apps/revoke-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "apiKey": "YOUR_API_KEY"
+}'
+```
+
+---
+
+### Query installation status
+
+**Endpoint**: `/get-install-status?orgId=185`
+
+**Method**: GET
+
+**Response**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "appId": "app_4f8c6e9d2b7a",
+        "createAt": "2025-08-18 18:53:27",
+        "org": {
+            "id": 185,
+            "name": "Example team",
+            "orgNo": "M000001",
+            "orgFeeType": 4
+        }
+    },
+    "traceId": "17555989381206489704"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/apps/get-install-status?orgId=185' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+```
+
+---
+
+### List all installations
+
+**Endpoint**: `/list-all-install`
+
+**Method**: GET
+
+**Response**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": [
+        {
+            "appId": "app_4f8c6e9d2b7a",
+            "createAt": "2025-08-18 18:53:27",
+            "org": {
+                "id": 185,
+                "name": "Example team",
+                "orgNo": "M000001",
+                "orgFeeType": 4
+            }
+        }
+    ],
+    "traceId": "17555989381206489704"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/apps/list-all-install' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+```
+
+### Business errors
+
+```json
+{
+  "code": "50049",
+  "message": "APP not installed",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "50047",
+  "message": "APP does not exist",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "50050",
+  "message": "APP KEY does not exist",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "20045",
+  "message": "Team does not exist or has expired",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "100007",
+  "message": "Invalid parameters",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+[Continue to frontend components](./components)

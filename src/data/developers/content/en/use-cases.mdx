@@ -1,0 +1,48 @@
+## CMS integration
+
+### Scenario
+
+Let editors find and use MuseDAM assets directly inside your CMS. Keep assets centrally managed while the CMS maintains the relationship between content and assets.
+
+### Integration approach
+
+<BusinessFlow kind="cms" />
+
+**Implementation notes**
+
+- **Select assets**: Embed a custom picker in the editor and call `/search-assets` ([asset search](./search)) through your backend. Keep the API key on the server.
+- **Save references**: Store asset IDs in content records. Before publishing, use `/assets-by-ids` ([batch retrieval](./assets)) to refresh URLs or copy files to CMS storage. Do not treat temporary download links as permanent content URLs.
+- **Keep content current**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for metadata changes, version changes, and deletions. Subscriptions are team-wide; the CMS filters by linked asset IDs and decides whether to update or unpublish content.
+
+## E-commerce product management
+
+### Scenario
+
+Manage product images and videos in MuseDAM. Your product system maps assets to SKUs and publishes content tailored to each storefront and channel.
+
+### Integration approach
+
+<BusinessFlow kind="commerce" />
+
+**Implementation notes**
+
+- **Organize assets**: Optionally create a folder per SKU with `/create-folder` and upload product assets with `/upload-assets`. Store the mapping between SKUs, folder IDs, and asset IDs in your product system.
+- **Adapt to channels**: Use `/processed-public-links` ([image processing and delivery](./analysis)) to retrieve correctly sized images. DAT must be enabled and assets must already have public links; this endpoint does not create a public address for an asset without one.
+- **Update listings**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for completed ingestion, metadata changes, version changes, and deletions. Filter events by asset IDs linked to SKUs, fetch current content, and call channel APIs. Handle deletions according to your unpublishing rules and track publishing status and version references in your system.
+
+## Marketing asset distribution
+
+### Scenario
+
+Maintain campaign assets in MuseDAM. A distribution service receives changes or runs scheduled searches, then publishes assets according to channel rules and tracks each delivery.
+
+### Integration approach
+
+<BusinessFlow kind="marketing" />
+
+**Implementation notes**
+
+- **Choose a trigger**: Use `/material-automation-subscribe` ([asset event subscriptions](./events)) for timely updates, or scheduled `/search-assets` calls for batch delivery. After an event, fetch current details with `/assets-by-ids`; your system handles unpublishing deleted assets.
+- **Select events and scope**: Use `/material-automation-event-types` to discover available events. Subscribe to `MATERIAL_INBOUND_COMPLETED`, `MATERIAL_METADATA_UPDATED`, `MATERIAL_VERSION_CHANGED`, and `MATERIAL_DELETED`; add `MATERIAL_ADDED_TO_FOLDER` when entering a campaign folder should trigger delivery. Subscriptions are team-wide, so your distribution service filters by campaign, folder, or asset mapping.
+- **Deliver reliably**: Your service handles callback validation, event deduplication, queuing, and bounded retries to avoid duplicate publishing.
+- **Track results**: Save asset IDs, channel content IDs, publishing status, and timestamps. Retrieve performance data from each channel and aggregate it in your system.

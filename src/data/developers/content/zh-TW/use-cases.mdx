@@ -1,0 +1,48 @@
+## 內容管理系統(CMS)集成
+
+### 場景描述
+
+讓編輯在 CMS 內直接找到並使用 MuseDAM 素材，減少下載、傳文件和重複上傳。素材集中管理，內容與素材的關聯由 CMS 維護。
+
+### 集成方案
+
+<BusinessFlow kind="cms" />
+
+**落地要點**
+
+- **選擇素材**：在編輯器中嵌入自定義素材選擇器，經業務後端調用 `/search-assets`（[素材檢索](./search)）；API Key 保存在服務端。
+- **保存關聯**：內容記錄保存素材 ID。發佈時通過 `/assets-by-ids`（[批量獲取素材](./assets)） 刷新鏈接，或將文件複製到 CMS 自己的存儲，避免把臨時下載鏈接當成永久內容地址。
+- **持續更新**：用 `/material-automation-subscribe`（[素材事件訂閱](./events)）接收元數據修改、版本變更及刪除等事件。訂閱範圍為團隊，CMS 按已關聯的素材 ID 篩選，再決定是否更新或下架已發佈內容。
+
+## 電商平臺產品管理
+
+### 場景描述
+
+將商品圖片、視頻統一維護在 MuseDAM，商品系統按 SKU 建立素材關聯，再向商城與渠道發佈適合各自規格的內容。
+
+### 集成方案
+
+<BusinessFlow kind="commerce" />
+
+**落地要點**
+
+- **組織資產**：可用 `/create-folder` 按 SKU 建立文件夾，通過 `/upload-assets` 上傳商品素材；商品系統保存 SKU、文件夾 ID 與素材 ID 的映射。
+- **適配渠道**：通過 `/processed-public-links`（[圖片處理與分發](./analysis)）獲取適配尺寸的圖片；需開通 DAT，且素材已有公開鏈接。沒有公開鏈接的素材不能僅靠該接口生成公開地址。
+- **更新商品**：通過 `/material-automation-subscribe`（[素材事件訂閱](./events)）訂閱素材入庫完成、元數據修改、版本變更及刪除等事件。商品系統按 SKU 關聯的素材 ID 篩選，讀取最新內容並調用渠道接口；刪除事件按業務規則下架，發佈狀態與版本關聯由業務系統記錄。
+
+## 營銷活動素材分發
+
+### 場景描述
+
+活動素材在 MuseDAM 中集中維護。分發服務接收變更或定時檢索，按渠道規則獲取素材併發布，形成可追蹤的分發記錄。
+
+### 集成方案
+
+<BusinessFlow kind="marketing" />
+
+**落地要點**
+
+- **選擇觸發方式**：需要及時同步時使用 `/material-automation-subscribe`（[素材事件訂閱](./events)）；批量活動分發也可由定時任務調用 `/search-assets`。接到事件後，再用 `/assets-by-ids` 獲取當前素材信息；素材已刪除時由業務系統處理下架。
+- **選擇事件與範圍**：先通過 `/material-automation-event-types` 查詢可訂閱事件。按需訂閱 `MATERIAL_INBOUND_COMPLETED`、`MATERIAL_METADATA_UPDATED`、`MATERIAL_VERSION_CHANGED`、`MATERIAL_DELETED`；需要在素材加入活動文件夾時分發，可加上 `MATERIAL_ADDED_TO_FOLDER`。訂閱範圍為團隊，由分發服務按活動、文件夾或素材關聯篩選處理。
+- **可靠交付**：分發服務負責回調校驗、事件去重、任務排隊和有上限的重試，防止重複發佈。
+- **跟蹤結果**：保存素材 ID、渠道內容 ID、發佈狀態與時間；效果數據從對應渠道獲取，由業務系統彙總。

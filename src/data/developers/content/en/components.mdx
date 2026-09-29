@@ -1,0 +1,384 @@
+## Integration flow
+
+Third-party applications are embedded in MuseDAM through an iframe. Register the app, obtain `MuseDAM_APP_ID` and `MuseDAM_APP_SECRET`, and provide an `/auth/${token}` route.
+
+1. MuseDAM generates a token and sends the user to the embedded app route.
+2. The app backend decrypts and validates the token, including user, team, and `expiresAt`.
+3. Map the MuseDAM user and team to your accounts and create an app session.
+4. Use `postMessage` in the frontend to open asset, folder, and member selectors.
+
+> The source documentation does not fully specify the encryption algorithm or IV constants. Obtain the complete authentication implementation from MuseDAM. Keep the app secret on the backend; decoding a token alone does not validate it.
+
+## Embedding and messaging
+
+Configure CSP `frame-ancestors` to allow your actual MuseDAM domain and ensure X-Frame-Options does not conflict. Use the exact parent window origin for `postMessage`. Validate `event.origin`, `event.source`, `source`, `target`, `type`, and `dispatchId` on received messages.
+
+[Open the Mainland China production component test page](https://musedam.cc/apps/test-client-actions) (login required)
+
+## Message protocol
+
+### Basic message structure
+
+#### **Third-party app → MuseDAM (request)**
+
+```typescript
+{
+    source: "musedam-app",        // Child app identifier
+    target: "musedam",            // Parent window identifier
+    type: "action",               // Request type
+    timestamp: "2024-12-19T10:30:00.000Z", // ISO timestamp
+    dispatchId: "dispatch_1234567890_abc123", // Unique request ID
+    action: "folder-selector-modal-open",    // Action type
+    args: { /* Request parameters */ }
+}
+```
+
+#### **MuseDAM → Third-party app (response)**
+
+```typescript
+{
+    source: "musedam",            // Parent window identifier
+    target: "musedam-app",        // Child app identifier
+    type: "action_result",        // Response type
+    timestamp: "2024-12-19T10:30:01.000Z", // ISO timestamp
+    dispatchId: "dispatch_1234567890_abc123", // Matching request ID
+    action: "folder-selector-modal-open",     // Matching request action
+    args: { /* Original request parameters */ },
+    result: {                     // Response result
+        success: true,
+        data: { /* Result data */ }
+    }
+}
+```
+
+#### Fields
+
+| **Field** | **Description** | **Value** |
+|-|-|-|
+| source | Message sender | "musedam-app" |
+| target | Message recipient | "musedam" |
+| type | Message type | "action" \| "action_result" |
+| action | Action name | "folder-selector-modal-open" \| "assets-selector-modal-open" \| "goto" \| "syncPath" |
+| dispatchId | Unique request ID for matching requests and responses | string |
+| args | Request parameters | JSON |
+| result | Response result | &#123; success: true, data:JSON&#125; \| &#123; success: false, message:string, code: 'cancelled' \| 'malformed_request' \| 'forbidden' \| 'internal_server_error' &#125; |
+
+##### Error codes
+
+When `result.success` is `false`, `result.code` may be:
+
+| **CODE** | **Meaning** |
+|-|-|
+| cancelled | The user canceled the operation |
+| malformed_request | Invalid parameters or request format |
+| forbidden | The user lacks permission for this operation |
+| internal_server_error | Internal server error or other uncaught exception |
+
+### Supported actions
+
+#### Request and response types
+
+**IAssetLite fields**
+
+| **Field** | **Type** | **Description** |
+|-|-|-|
+| id | number | Primary ID |
+| assetId | number | Unique asset ID |
+| userId | string | Asset owner's user ID |
+| parentIds | number [] | Parent folder IDs |
+| folders | Array&lt;&#123;id:number; name:string&#125;> \| null | Associated folders |
+| name | string | Display name; may be empty |
+| downloadUrl | string | Original download URL |
+| link | string \| null | Associated URL |
+| extension | string | File extension |
+| type | string \| null | Resource type (image/video/audio/pdf/jsd/…) |
+| size | number | File size in bytes |
+| width | number \| null | Image width |
+| height | number \| null | Image height |
+| duration | number \| null | Video duration |
+| description | string \| null | Description |
+| tags | Array&lt;&#123;id: number; name: string&#125;> \| null | Tags |
+| previewUrls | string [] \| null | Preview images; PDF/PPT files may have several |
+| thumbnail | &#123; url: string; width?: number \| null; height?: number \| null; gifStaticUrl?: string \| null; extension: string; &#125; \| null | Thumbnail information |
+| assertImageContentAnalysisVO | &#123; aiDescription?: string; aiDetailedDescription?: Record&lt;string, string>[]; aiTags?: string; aiTitle?: string; returnOption?: string; &#125; | AI analysis: description, detailed attributes, tags, title, and return options |
+| score | number \| null | Rating from 0 to 5 |
+| viewAuth | 0 \| 1 | View permission: 0 denied, 1 granted |
+| customFieldVOList | &#123; id: number; fieldValue: string; fieldId: number; color: string; &#125;[] | Custom fields |
+| groupId | number \| null | Group ID |
+| groupMaterialTotal | number \| null | Total assets in the group |
+| createTime | number | Creation time |
+| createUser | string | Creator's user ID |
+| updateTime | number | Update time |
+| updateUser | string | Updater's user ID |
+
+#### Folder selector
+
+- **action**: `folder-selector-modal-open`
+- **args type**:
+
+  ```typescript
+  {
+      initialSelectedFolders?: Array<{ id: number; name: string }>;
+      // Whether to show all assets
+      allMaterials?: boolean;
+  }
+  ```
+- **result.data type**:
+
+  ```typescript
+  {
+      selectedFolders: Array<{ id: number; name: string }>;
+      allMaterials: boolean;
+  }
+  ```
+- **Example**:
+
+  ```typescript
+  // Request
+  {
+      action: "folder-selector-modal-open",
+      args: {
+          initialSelectedFolders: [{ id: 123, name: 'Design assets' }],
+          allMaterials: false
+      }
+  }
+  
+  // Successful response
+  {
+      result: {
+          success: true,
+          data: {
+              selectedFolders: [
+                  { id: 123, name: 'Design assets' },
+                  { id: 456, name: 'Product images' }
+              ],
+              allMaterials: false
+          }
+      }
+  }
+  
+  // Cancellation response
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "Operation canceled by user"
+      }
+  }
+  ```
+
+#### Member and department selector
+
+- **action**: `member-selector-modal-open`
+- **args type**:
+
+  ```typescript
+  {
+      selectedItems?: {
+          members?: Array<{ id: string; name: string }>;
+          departments?: Array<{ id: string; name: string }>;
+          groups?: Array<{ id: string; name: string }>;
+      };
+  }
+  ```
+- **result.data type**:
+
+  ```typescript
+  {
+      members: Array<{ id: string; name: string;departmentsName?:string;avatarUrl?:string }>;
+      departments: Array<{ id: string; name: string }>;
+      groups: Array<{ id: string; name: string }>;
+  }
+  ```
+- **Example**:
+
+  ```typescript
+  // Request
+  {
+      action: "member-selector-modal-open",
+      args: {
+          // Selected items
+          selectedItems: {
+              members: [{ id: "user_123", name: "Alex", departmentsName:"Muse, Design", avatarUrl:"https://"}],
+              departments: [{ id: "dept_001", name: "Design" }]
+          }
+      }
+  }
+  
+  // Successful response
+  {
+      result: {
+          success: true,
+          data: {
+              members: [
+                  { id: "user_123", name: "Alex" },
+                  { id: "user_456", name: "Sam" }
+              ],
+              departments: [{ id: "dept_001", name: "Design" }],
+              groups: []
+          }
+      }
+  }
+  
+  // Cancellation response
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "Operation canceled by user"
+      }
+  }
+  ```
+
+#### Asset selector
+
+- **action**: `assets-selector-modal-open`
+- **args type**:
+
+  ```typescript
+  enum EAssetType {
+      image = 'image',           // Images
+      video = 'video',           // Videos
+      audio = 'audio',           // Audio
+      js = 'js',                 // Design source files
+      document = 'document',     // Text documents
+      PDocument = 'PDocument',   // Presentations
+      excel = 'excel',           // Spreadsheets
+      font = 'font',             // Fonts
+      zip = 'zip',               // Archives
+      dll = 'dll',               // Applications
+      code = 'code',             // Code
+      model = 'model',           // Models
+      triD = 'triD',             // 3D
+      url = 'url',               // Webpages
+      unknown = 'unknown',       // Unknown files
+  }
+  {
+    initialSelectedAssetIds?: number[];
+    /**
+     * Allowed asset types. Omit to allow all types.
+     * Values follow the asset type field: image, video, audio, js, document, PDocument, excel, font, zip, dll, code, model, triD, url.
+     */
+    allowedTypes?: EAssetType[];
+    /**
+     * Per-type quantity limits. When provided, only listed types are selectable; omit limit for unlimited items of that type.
+     * When used with allowedTypes, allowedTypes is the allowlist and dataLimit only adds quantity limits.
+     */
+    dataLimit?: Array<{
+      type: EAssetType;
+      limit?: number;
+    }>;
+    /**
+     * Initial list filters, matching the homepage filter bar. Users can still change filters in the selector.
+     */
+    filters?: {
+      types?: EAssetType[];
+      extensions?: string[];
+      size?: {
+        min?: number;
+        max?: number;
+        unit?: 'KB' | 'MB' | 'GB';
+      };
+      dimension?: {
+        minWidth?: number;
+        maxWidth?: number;
+        minHeight?: number;
+        maxHeight?: number;
+      };
+    };
+  }
+  ```
+- **result.data type**:
+
+  ```typescript
+  
+  {
+      selectedAssets: IAssetLite[];
+  }
+  ```
+- **Example**:
+
+  ```typescript
+  // Request
+  {
+      action: "assets-selector-modal-open",
+      args: {
+          initialSelectedAssetIds: [123, 456],
+          allowedTypes: ['image'],
+          filters: {
+              types: ['image'],
+              size: { min: 100, max: 10240, unit: 'KB' },
+              dimension: { minWidth: 512, minHeight: 512 },
+          },
+      }
+  }
+  
+  // Successful response
+  {
+      result: {
+          success: true,
+          data: {
+              selectedAssets: [
+                  { id: 123, name: 'logo.png', type: 'image' },
+                  { id: 456, name: 'banner.png', type: 'image' }
+              ]
+          }
+      }
+  }
+  
+  // Cancellation response
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "Operation canceled by user"
+      }
+  }
+  ```
+
+#### Navigate to a page
+
+- **action**: `goto`
+- **args type**:
+
+  ```typescript
+  {
+    url: string;
+  }
+  ```
+- **Description**: The parent app navigates when it receives this message. No response is required.
+- **Example**:
+
+  ```typescript
+  // Request
+  {
+      action: "goto",
+      args: {
+          url: "https://example.com/target-page",
+          target:"_blank"
+      }
+  }
+  ```
+
+#### Synchronize paths
+
+- **action**: `syncPath`
+- **args type**:
+
+  ```typescript
+  {
+    path: string;
+  }
+  ```
+- **Description**: The parent app updates the current page's hash path. No response is required. This synchronizes iframe routing state with the parent window URL.
+- **Example**:
+
+  ```typescript
+  // Request
+  {
+      action: "syncPath",
+      args: {
+          path: "#path=/tagging/settings"
+      }
+  }
+  ```

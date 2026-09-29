@@ -1,0 +1,535 @@
+## Upload assets
+
+**Endpoint**: /upload-assets
+
+**Method**: POST
+
+**Description**: Upload assets to the DAM system.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| - | List&lt;EnterpriseAssetSaveReq> | Yes | Asset save requests |
+
+This section describes uploading from a downloadable URL. The parameters below apply to this integration method.
+
+**EnterpriseAssetSaveReq fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| folderIds | List&lt;Long> | No | Target folder IDs. If empty, global upload permission such as upload to all assets is required. Otherwise, upload permission is required for every folder |
+| name | String | No | Display filename; if omitted, the server attempts to infer it from the `url` path |
+| url | String | Yes | **Directly downloadable** asset URL (GET returns 200). The server downloads the file and stores it under a new key. Avoid short links blocked by hotlink protection or regional restrictions |
+| extension | String | Yes | File extension, such as `jpg` or `mp4`, matching the resource type |
+| size | Long | No | Declared size in bytes. **The stored file size takes precedence after upload**. Use the local size to assist validation |
+| width | Integer | No | Image or video cover width in pixels. For **images**, the server attempts to read it from the downloaded file when omitted |
+| height | Integer | No | Image or video cover height in pixels. For **images**, the server attempts to read it from the downloaded file when omitted |
+| duration | Long | No | Video duration in **milliseconds** |
+| link | String | No | Associated webpage or source link |
+| description | String | No | Notes |
+| rating | Integer | No | Rating; written to the asset rating field, corresponding to internal `score` |
+| userId | Long | No | Asset owner user ID; defaults to the creator (the API key user). A specified user must belong to the current team |
+| oldAssetId | Long | No | Original asset ID (>0) when **uploading a new version**; used for cover/version association |
+| metadatas | List&lt;MetadataDTO> | No | Custom metadata; **only effective when enabled for the team**. `fieldId` must match an ID from the metadata fields endpoint. Field validity is checked |
+| skipDuplicateByEtag | Boolean | No | Skip duplicates. When true, the server checks the team's OSS ETags after downloading to the asset bucket but before adding to the library. Existing identical content is not added again; returned id, key, and accessUrl refer to the existing asset. Defaults to false |
+
+**MetadataDTO (`metadatas` item):**
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| fieldId | String | Conditional | Metadata field ID used **during upload**, matching the fields endpoint; paired with `value` |
+| value | Object | No | Field value; type must match the field definition |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| assets | List&lt;Item> | Successfully saved assets |
+
+**Item fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Asset ID |
+| key | String | File URL, OSS key, or downloadable file |
+| storePath | String | Asset OSS storage path; same as key |
+| skippedDuplicateByEtag | Boolean | true when an existing team asset is reused after an ETag match; id, key, and accessUrl refer to that asset |
+| name | String | Title |
+| accessUrl | String | Access URL |
+| uploadResult | String | NEW: newly uploaded and added to the library. DUPLICATE_BY_ETAG: duplicate found; no new asset added |
+
+**Example**:
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/upload-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "folderIds": [
+            23015
+        ],
+        "url": "https://example.com/assets/sample.jpg",
+        "name": "Sample image",
+        "extension": "jpeg"
+    }
+]'
+```
+
+Response example:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 6908936,
+                "key": "api_b9648d4570d2e08364a451b1eec88eea.jpeg",
+                "storePath": "api_b9648d4570d2e08364a451b1eec88eea.jpeg",
+                "uploadResult": "NEW",
+                "skippedDuplicateByEtag": false,
+                "name": "Sample image",
+                "accessUrl": "https://example.com/assets/sample.jpg"
+            }
+        ]
+    }}
+```
+
+## Download assets
+
+Asset downloads do not require a separate endpoint. Obtain a download link in either of these ways:
+
+1. Search assets: each asset returned by `/search-assets` includes a `downloadUrl` field.
+2. Retrieve assets in bulk: the batch asset retrieval response also includes download links.
+
+Use `downloadUrl` directly to download the asset. Links generally contain the required authentication and access information and can be opened in a browser or used with a download tool.
+
+**Notes:**
+
+- Download links may expire after 10 hours. Use them promptly.
+- Ensure a stable connection when downloading large files.
+- For batch downloads, consider server-side scripts to reduce client download failures.
+
+## Modify assets
+
+**Endpoint**: /modify-assets
+
+**Method**: POST
+
+**Description**: Update basic asset information such as name, description, and rating.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| - | AssetModifyReq | Yes | Asset modification request |
+
+**AssetModifyReq fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| id | Long | Yes | Asset ID |
+| name | String | No | Filename |
+| description | String | No | Description |
+| score | Integer | No | Rating (1–5) |
+| link | String | No | Webpage link |
+| tags | List&lt;Long> | No | Tag IDs |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| - | MiniDamAssetDTO | Updated asset information |
+
+**MiniDamAssetDTO fields**:
+
+[See MiniDamAssetDTO fields in asset search](./search)
+
+**Example**:
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/modify-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "id":6908914,
+    "name":"bottomTip45",
+    "description":"description 451",
+    "score":5,
+    "link":"wwww.baidu.com"
+}'
+```
+
+Response example:
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": {
+    "id": 6908914,
+    "parentIds": [],
+    "userId": "1673603133161799680",
+    "name": "bottomTip45",
+    "downloadUrl": "https://example.com/assets/sample.jpg",
+    "source": null,
+    "link": "wwww.baidu.com",
+    "extension": "png",
+    "duration": null,
+    "size": 111948,
+    "width": 290,
+    "height": 220,
+    "description": "description 451",
+    "score": 5,
+    "createTime": 1753428273000,
+    "createUser": "1673603133161799680",
+    "updateTime": 1753942888000,
+    "updateUser": 367024606,
+    "tags": [],
+    "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+  },
+  "traceId": "17539429013299310816"
+}
+```
+
+### Move assets to a folder
+
+**Endpoint**: `/move-assets-to-folder`
+
+**Method**: POST
+
+**Description**: Move or add a batch of assets from a source folder to a target folder.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | List&lt;Long> | Yes | Asset IDs; maximum 200 per request |
+| fromFolderId | Long | Conditional | Required and >0 when operationType=0 (move). The current folder association to remove |
+| toFolderId | Long | Yes | Target folder ID (>0) |
+| operationType | Integer | No | 0: move (remove from fromFolderId and add to toFolderId); 1: add (keep source association). Defaults to 0 |
+
+**Response**: Boolean
+
+**Example request** (move):
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/move-assets-to-folder' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "assetIds": [6908914, 6908820],
+  "fromFolderId": 10001,
+  "toFolderId": 10002,
+  "operationType": 0
+}'
+```
+
+**Notes**:
+
+- Assets and folders must exist and belong to the current team. Edit permission for the relevant folders is required.
+- operationType=0 moves assets; =1 adds them while keeping them in both folders.
+
+## Retrieve assets in bulk
+
+**Endpoint**: /assets-by-ids
+
+**Method**: POST
+
+**Description**: Retrieve asset details for a list of asset IDs.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+|-|-|-|-|
+| - | List&lt;Long> | Yes | Asset IDs |
+
+**Response fields**:
+
+| Parameter | Type | Description |
+|-|-|-|
+| - | List&lt;MiniDamAssetDTO> | Asset information |
+
+**MiniDamAssetDTO fields**:
+
+[See MiniDamAssetDTO fields in asset search](./search)
+
+**Example**:
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/assets-by-ids' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '[6908914,6908820]'
+```
+
+Response example:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": [
+        {
+            "id": 6908914,
+            "parentIds": [
+                28566
+            ],
+            "userId": "1673603133161799680",
+            "name": "bottomTip45",
+            "downloadUrl": "https://example.com/assets/sample.jpg",
+            "source": null,
+            "link": "wwww.baidu.com",
+            "extension": "png",
+            "duration": null,
+            "size": 111948,
+            "width": 290,
+            "height": 220,
+            "description": "description 451",
+            "score": 5,
+            "createTime": 1753428273000,
+            "createUser": "1673603133161799680",
+            "updateTime": 1753942901660,
+            "updateUser": 367024606,
+            "tags": [],
+            "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+        },
+        {
+            "id": 6908820,
+            "parentIds": [],
+            "userId": "1673603133161799680",
+            "name": "Full-Stack-Serverless",
+            "downloadUrl": "https://example.com/assets/sample.jpg",
+            "source": null,
+            "link": null,
+            "extension": "epub",
+            "duration": null,
+            "size": 4567444,
+            "width": null,
+            "height": null,
+            "description": null,
+            "score": null,
+            "createTime": 1753264933000,
+            "createUser": "1673603133161799680",
+            "updateTime": 1753264933000,
+            "updateUser": 1673603133161799680,
+            "tags": [
+                {
+                    "name": "Social media design",
+                    "id": 8223
+                },
+                {
+                    "name": "Platform customization",
+                    "id": 8247
+                },
+                {
+                    "name": "cadahsjdkhasdhasjkdhajshdasjkhdajskhdjakshdasjhdajshdjkashd",
+                    "id": 9084
+                },
+                {
+                    "name": "asdashdlajksdhjkashdjksahdjashdlasdj",
+                    "id": 9096
+                },
+                {
+                    "name": "ccc",
+                    "id": 9097
+                },
+                {
+                    "name": "Web design",
+                    "id": 8224
+                },
+                {
+                    "name": "Interactive elements",
+                    "id": 8270
+                }
+            ],
+            "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+        }
+    ],
+    "traceId": "1753943463848693869"
+}
+```
+
+### Query custom metadata by asset ID
+
+**Endpoint**: `/metadata-records-by-ids`
+
+**Method**: POST
+
+**Description**: Retrieve saved custom metadata values for asset IDs in bulk. IDs are omitted when custom metadata is disabled for the team or the asset has no metadata record.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| materialIds | List&lt;Long> | Yes | Asset IDs; maximum 50 per request |
+
+**Response**: Map&lt;Long, Object>. Keys are asset IDs; values are metadata objects mapping field names to values, including recordId, materialId, and other fields.
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/metadata-records-by-ids' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"materialIds":[6908914,6908820]}'
+```
+
+**Example response**:
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": {
+    "6908914": {
+      "materialId": 6908914,
+      "recordId": "rec_xxx",
+      "yourFieldName": "Custom value"
+    }
+  },
+  "traceId": "..."
+}
+```
+
+**Notes**:
+
+- Only assets with metadata records are returned. IDs without records are omitted from result.
+- Uploading metadata uses fieldId (see the upload endpoint); this read endpoint uses field names as keys.
+
+### Query team metadata fields
+
+**Endpoint**: `/metadata-fields`
+
+**Method**: GET
+
+**Description**: Query configured custom metadata field definitions for the current team. Use the returned field id as metadatas[].fieldId during upload. Returns an empty list if custom metadata is disabled.
+
+**Response**: List&lt;Object>; each item is a field definition:
+
+| Field | Type | Description |
+|-|-|-|
+| id | String | Field ID; use as fieldId during upload |
+| name | String | Field name; use as name when modifying asset metadata |
+| field_type / type | String | Field type, such as text, number, or select; refer to the actual response |
+
+**Request example**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/metadata-fields' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+**Note**: Built-in fields such as materialId also appear in the list. Filter them as needed.
+
+## Check transferred assets in bulk
+
+**Description:** Determine whether assets were created by a member resource transfer, such as resources transferred to another member when someone leaves or is removed.
+
+**Endpoint:** `/check-transferred-materials`
+
+**Method:** `POST`
+
+**Request parameters:** `enterpriseTransferMaterialCheckReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | List&lt;Long> | Yes | Asset IDs; equivalent to materialId and to `id` / `assetIds` elsewhere in the Open API |
+
+**Response:** `Map<Long, Boolean>;`
+
+- **Key:** An asset ID (assetId) from the request
+- **Value:** `true` for an asset created by a transfer; `false` otherwise, including nonexistent assets
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/check-transferred-materials' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "assetIds": [1234567890, 9876543210]
+}'
+```
+
+**Example response:**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "1234567890": true,
+        "9876543210": false
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+**Notes:**
+
+- The request parameter is named `assetIds`.
+- Nonexistent asset IDs are also returned, with a value of `false`.
+
+---
+
+## Query asset users
+
+**Description**: Query users who downloaded or shared an asset, with pagination. Operation logs are aggregated by user to return counts and most recent activity. The asset must exist in the current team.
+
+**Endpoint**: `/material-access-users-query`
+
+**Method**: POST
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetId | Long | Yes | Asset ID |
+| operationTypes | List&lt;Integer> | No | Operation types: 1 download, 2 share. Omit or leave empty to count both |
+| page | Integer | No | Page number; defaults to 1 |
+| pageSize | Integer | No | Page size; defaults to 20, maximum 100 |
+
+**Response**: Contains total and items. Each item has:
+
+| Field | Type | Description |
+|-|-|-|
+| userId | Long | User ID |
+| realName | String | Full name |
+| nickName | String | Nickname |
+| email | String | Email |
+| phone | String | Phone number |
+| avatarUrl | String | Avatar URL |
+| downloadCount | Long | Download count; 0 if operationTypes excludes 1 |
+| lastDownloadTime | Date | Most recent download time |
+| shareCount | Long | Share count; 0 if operationTypes excludes 2 |
+| lastShareTime | Date | Most recent share time |
+| lastOperationTime | Date | Most recent download or share time |
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/material-access-users-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "assetId": 123456789,
+  "operationTypes": [1, 2],
+  "page": 1,
+  "pageSize": 20
+}'
+```
+
+**Notes**:
+
+- Only operations by users in the current team are counted. Departed or deleted users are still returned if logs remain, including userId and counts; profile fields such as name may be empty.
+- One record is returned per userId, combining download and share statistics.

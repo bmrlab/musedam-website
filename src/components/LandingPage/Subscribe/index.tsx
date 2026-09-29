@@ -17,6 +17,14 @@ export default async function SubscribeBlock({
   lng: string
   className?: string
 }) {
+  // Allow local website previews without a configured CMS subscription form.
+  if (
+    process.env.NODE_ENV === 'development' &&
+    (!process.env.PAYLOAD_SECRET?.trim() || !process.env.DATABASE_URI?.trim())
+  ) {
+    return null
+  }
+
   const { t } = await ssTranslation(lng, 'landing-page')
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })

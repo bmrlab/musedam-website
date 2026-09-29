@@ -1,0 +1,38 @@
+## Common errors and remedies
+
+### API authentication errors
+
+| Error code | Description | Remedy |
+|-|-|-|
+| MB100002 | Access to this resource is denied | Verify the API key and its permissions for the resource |
+| 401 | Unauthorized | The API key is invalid or expired. Update the key |
+
+### Request parameter errors
+
+| Error code | Description | Remedy |
+|-|-|-|
+| MB100001 | Invalid request parameters | Check parameter formats and types against the API requirements |
+| MB100003 | Resource not found | Check whether the resource ID exists or has been deleted |
+
+### Business logic errors
+
+| Error code | Description | Remedy |
+|-|-|-|
+| MB100004 | Operation unsupported for this resource | Check whether the operation applies to this resource type |
+| MB100005 | Business operation failed | Adjust your logic based on the error message or retry |
+
+### System errors
+
+| Error code | Description | Remedy |
+|-|-|-|
+| MS100001 | System error | Retry later. Contact support if the error persists |
+| MS100003 | System busy | Rate-limit requests and retry after a delay |
+
+## Troubleshooting sequence
+
+1. Check the HTTP status, business `code`, and `message`. Save the `traceId`.
+2. Verify the hostname, HTTP method, request body type, and key permissions.
+3. Check that the resource belongs to the current organization and the required product capability is enabled.
+4. Use bounded retries for temporary system failures. Fix parameter or permission errors before retrying.
+
+Original examples use success codes such as `0`, `"0"`, and `"200"`. Confirm the success condition for each endpoint; HTTP 200 alone does not guarantee business success.

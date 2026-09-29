@@ -138,6 +138,11 @@ function MobileMenu({ onClose, user, isGlobal }: { onClose: () => void; user: Se
             </LocaleLink>
           </AccordionTriggerWrapper>
         </AccordionItemWrapper>
+        <AccordionItemWrapper value="developers">
+          <LocaleLink href="/developers/landing" onClick={onClose} className="flex h-[55px] items-center text-[24px] font-medium leading-[32px]">
+            {t('nav-bar.developers')}
+          </LocaleLink>
+        </AccordionItemWrapper>
         <AccordionItemWrapper value="about-us">
           <AccordionTriggerWrapper disabled>
             <LocaleLink href="/about-us" onClick={onClose}>

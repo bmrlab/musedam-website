@@ -1,0 +1,365 @@
+## 訂閱文件夾
+
+**接口路徑**：/folder-subscribe
+
+**請求方式**：POST
+
+**接口描述**：訂閱或取消訂閱文件夾內容更新事件
+
+**請求參數**：
+
+| 參數名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| - | OpenApiSubReq | 是 | 訂閱請求參數 |
+
+**OpenApiSubReq參數說明**：
+
+| 字段名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| folderIds | List&lt;Long> | 是 | 需要訂閱的文件夾ID列表 |
+| callbackUrl | String | 是 | 回調地址 |
+| eventType | String | 否 | 回調事件類型，默認為"FOLDER_CONTENT_UPDATE"（文件夾內容更新） |
+| operation | String | 否 | 操作類型，"ADD"表示新增訂閱，"DELETE"表示刪除訂閱，默認為"ADD" |
+
+**響應參數**：
+
+| 參數名 | 類型 | 描述 |
+|-|-|-|
+| - | Boolean | 操作是否成功 |
+
+**示例**：
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/folder-subscribe' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "folderIds": [100, 101, 102],
+  "callbackUrl": "https://example.com/api/callback",
+  "eventType": "FOLDER_CONTENT_UPDATE",
+  "operation": "ADD"
+}'
+```
+
+響應示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": true,
+    "traceId": "1753698709474457484"
+}
+```
+
+### 回調事件說明
+
+當訂閱的文件夾內容發生更新時，系統會向指定的回調地址發送POST請求，傳遞以下信息：
+
+| 字段名 | 類型 | 是否必填 | 說明 | 備註 / 示例 |
+|-|-|-|-|-|
+| eventType | String | 是 | 事件類型標識，表示這是一次文件夾內容變更事件。 | 默認值：`FOLDER_CONTENT_UPDATE` |
+| folderId | Long | 是 | 發生變更的文件夾 ID。 | 如：`123456789` |
+| eventTime | String | 是 | 事件發生時間。 | 建議使用 ISO8601：`2026-03-05T12:34:56+08:00` |
+| type | String | 是 | 變更類型。 | 可選值：`ADD`（新增）、`UPDATE`（更新）、`DELETE`（刪除） |
+| assets | List&lt;MaterialCallbackDTO> | 是 | 本次變更涉及的素材列表，每個元素為一個素材回調對象。 | `type = DELETE` 時可只攜帶必要標識字段，其它情況建議帶完整信息。 |
+| orgId | Long | 否 | 所屬團隊（組織）ID，用於區分事件來源團隊。 | 如：`10001`；部分場景可由上下文推斷時可選填。 |
+
+**MaterialCallbackDTO 字段說明**
+
+| 字段名 | 類型 | 是否必填 | 說明 | 備註 / 示例 |
+|-|-|-|-|-|
+| id | Long | 是 | 素材 ID。 | 如：`987654321` |
+| parentIds | List&lt;Long> | 是 | 所在父級文件夾 ID 列表（從根到當前父級的路徑）。 | 如：`[1, 23, 456]`，表示層級路徑上的各級文件夾 ID。 |
+| userId | String | 是 | 觸發本次變更的用戶 ID。 | 如：`"10001"` |
+| name | String | 是 | 文件原始名稱。 | 如：`"品牌海报_v1.psd"` |
+| downloadUrl | String | 是 | 素材下載地址（帶權限的直鏈或臨時下載鏈接）。 | 如：`https://example.com/download/xxx` |
+| source | Integer | 是 | 素材來源類型。 | `1`：網頁；`2`：上傳；`3`：複製 |
+| link | String | 否 | 關聯鏈接，通常為來源頁或外部引用地址。 | 如：落地頁 URL、原始網頁地址等。 |
+| extension | String | 是 | 文件後綴（不含點）。 | 如：`"jpg"`、`"mp4"`、`"psd"` |
+| duration | Long | 否 | 媒體時長，單位：秒（僅對視頻/音頻有意義）。 | 如：`120` 表示 120 秒；非音視頻可為空或 `0`。 |
+| size | Long | 是 | 文件大小，單位：KB。 | 如：`2048` 表示約 2MB。 |
+| width | Integer | 否 | 媒體寬度，單位：像素。 | 如：`1920`；非圖片/視頻可為空。 |
+| height | Integer | 否 | 媒體高度，單位：像素。 | 如：`1080`；非圖片/視頻可為空。 |
+| description | String | 否 | 素材描述或備註。 | 如：`"2026 春季新品 KV 用图"` |
+| score | Integer | 否 | 素材評分。 | 一般為 1–5 分，具體區間按業務約定。 |
+| createUser | String | 否 | 素材創建人標識（可能與當前觸發事件的用戶不同）。 | 如：最初上傳者的用戶 ID。 |
+
+回調示例：
+
+```json
+{
+  "eventType": "FOLDER_CONTENT_UPDATE",
+  "folderId": 23102,
+  "eventTime": "1753946835010",
+  "type": "UPDATE",
+  "assets": [
+    {
+      "id": 6906970,
+      "parentIds": [],
+      "userId": "1673603133161799680",
+      "name": "海洋猎食者：海豚与鱼群的壮观追逐",
+      "downloadUrl": null,
+      "source": 2,
+      "link": null,
+      "extension": "rm",
+      "duration": null,
+      "size": null,
+      "width": null,
+      "height": null,
+      "description": "11",
+      "score": null,
+      "createUser": "1673603133161799680"
+    }
+  ]
+}
+```
+
+## 訂閱素材事件
+
+**說明**：與第 6 節「訂閱文件夾」（folder-subscribe / FOLDER_CONTENT_UPDATE）相互獨立。本接口按團隊訂閱素材相關事件；業務發生後系統異步 POST 到 callbackUrl。只做通知，不攔截、不改寫入庫流程。
+
+### 查詢可訂閱事件類型
+
+**接口路徑**：`/material-automation-event-types`
+
+**請求方式**：GET
+
+**接口描述**：返回當前對外開放的事件類型，以及當前 API Key 是否已訂閱。
+
+**響應**：List，每項字段：
+
+| 字段名 | 類型 | 說明 |
+|-|-|-|
+| code | String | 事件 code，訂閱時寫入 eventTypes |
+| desc | String | 中文說明 |
+| needsConfig | Boolean | 是否需要傳 config（當前對外開放的事件均為 false） |
+| subscribed | Boolean | 當前 API Key 是否已對該事件有活躍訂閱 |
+
+**請求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/material-automation-event-types' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### 訂閱 / 取消訂閱
+
+**接口路徑**：`/material-automation-subscribe`
+
+**請求方式**：POST
+
+**請求參數**：
+
+| 字段名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| callbackUrl | String | 是 | Webhook 回調地址 |
+| eventTypes | List&lt;String> | 是 | 事件類型列表，取值見下表，可一次訂閱多種 |
+| operation | String | 否 | ADD 訂閱（默認），DELETE 取消訂閱 |
+
+**對外開放的 eventTypes**：
+
+| eventType | 描述 |
+|-|-|
+| MATERIAL_INBOUND_COMPLETED | 素材完成入庫時：真正入庫成功後再通知（不攔截） |
+| MATERIAL_ADDED_TO_FOLDER | 素材被添加到文件夾（上傳指定文件夾、站內/開放 API 添加或移入共享空間文件夾；已存在關係不重複推送） |
+| MATERIAL_METADATA_UPDATED | 素材元數據被修改（名稱、描述、標籤、所有者、自定義元數據等） |
+| MATERIAL_VERSION_CHANGED | 素材版本變更（新增版本、設為封面、移出版本等） |
+| MATERIAL_DELETED | 素材被刪除（進回收站 / 永久刪除） |
+
+**響應**：Boolean
+
+**請求示例**（訂閱）：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/material-automation-subscribe' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "callbackUrl": "https://your.app/webhook/material-events",
+    "eventTypes": [
+        "MATERIAL_INBOUND_COMPLETED",
+        "MATERIAL_ADDED_TO_FOLDER",
+        "MATERIAL_METADATA_UPDATED",
+        "MATERIAL_VERSION_CHANGED",
+        "MATERIAL_DELETED"
+    ],
+    "operation": "ADD"
+}'
+```
+
+**取消訂閱**：將 operation 設為 DELETE，按當前 API Key + callbackUrl + eventType 取消（無需 subscriptionId）。
+
+**Webhook 回調**：系統向 callbackUrl 發送 POST，請求體如下：
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| eventId | String | 冪等事件 ID |
+| eventType | String | 事件類型，見上表 |
+| eventTime | String | 事件時間戳（毫秒字符串） |
+| payload | Object | 事件業務載荷，按 eventType 不同，見下表 |
+
+**各事件 payload**：
+
+| eventType | payload 字段 |
+|-|-|
+| MATERIAL_INBOUND_COMPLETED | source（UPLOAD_ASSETS / PENDING_INBOUND_CONFIRM）、initiatorUserId。正式上傳成功：uploadResults、materialIds。待入庫確認成功：pendingInboundIdToMaterialId |
+| MATERIAL_ADDED_TO_FOLDER | materialIds：本次新建關係的封面素材 ID；folderIds：目標文件夾 ID |
+| MATERIAL_METADATA_UPDATED | changeType（BASIC / VALIDITY / TAGS / OWNER / METADATA / CUSTOM_FIELD）；materialIds；materials[]（僅含本類改後字段）。各類型字段見下表 |
+| MATERIAL_VERSION_CHANGED | coverMaterialId、newMaterialId、action（ADD / SET_COVER / REPLACE_COVER_ON_UPLOAD / REMOVE）；可選 version。REMOVE 時 coverMaterialId 為被移出版本素材 ID，newMaterialId 為移出後該版本線最新素材 ID；可選 removeType（ADD 移出並加入當前文件夾 / DELETE 移出並進回收站）、versionGroupDissolved |
+| MATERIAL_DELETED | materialIds；deleteAction（RECYCLE 進回收站 / PERMANENT 永久刪除）；可選頂層 folderIds（同批刪除的文件夾）；materials[] 刪除前快照（name / materialType / extension / tagIds / tagNames / folderIds / ownerUserId / createUserId） |
+
+**MATERIAL_METADATA_UPDATED materials[] 按 changeType**：
+
+| changeType | materials 單條字段（有值才帶） |
+|-|-|
+| BASIC | materialId；name / description / score / link（本次修改入參） |
+| VALIDITY | materialId；validityStatus；validityStatusName；daysToExpire；startTime；endTime；isPermanent |
+| TAGS | materialId；tagIds；tagNames |
+| OWNER | materialId（轉移後的新素材 ID）；ownerUserId |
+| METADATA | materialId；可選 recordId；metadata（僅本次創建/更新的自定義字段） |
+| CUSTOM_FIELD | materialId；customFields：[&#123; "templateId": ... &#125;] |
+
+**各事件回調示例**：以下均為 POST 到 callbackUrl 的完整請求體。未出現的字段表示本次沒有該值，不要按固定 schema 強校驗。
+
+**MATERIAL_INBOUND_COMPLETED**（正式上傳入庫成功）：
+
+```json
+{
+  "eventId": "evt_1753946835010_a1b2",
+  "eventType": "MATERIAL_INBOUND_COMPLETED",
+  "eventTime": "1753946835010",
+  "payload": {
+    "source": "UPLOAD_ASSETS",
+    "initiatorUserId": 10001,
+    "materialIds": [20001, 20002],
+    "uploadResults": [
+      {
+        "id": 20001,
+        "name": "春季KV.jpg",
+        "extension": "jpg",
+        "size": 204800,
+        "width": 1920,
+        "height": 1080,
+        "uploadStatus": 1
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_ADDED_TO_FOLDER**：
+
+```json
+{
+  "eventId": "evt_1753946900001_c3d4",
+  "eventType": "MATERIAL_ADDED_TO_FOLDER",
+  "eventTime": "1753946900001",
+  "payload": {
+    "materialIds": [20001, 20002],
+    "folderIds": [30001]
+  }
+}
+```
+
+**MATERIAL_METADATA_UPDATED**（changeType = BASIC，改名稱/描述/評分）：
+
+```json
+{
+  "eventId": "evt_1753947000002_e5f6",
+  "eventType": "MATERIAL_METADATA_UPDATED",
+  "eventTime": "1753947000002",
+  "payload": {
+    "changeType": "BASIC",
+    "materialIds": [20001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "name": "春季KV_v2.jpg",
+        "description": "2026 春季主视觉",
+        "score": 5
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_METADATA_UPDATED**（changeType = TAGS，改標籤）：
+
+```json
+{
+  "eventId": "evt_1753947050003_g7h8",
+  "eventType": "MATERIAL_METADATA_UPDATED",
+  "eventTime": "1753947050003",
+  "payload": {
+    "changeType": "TAGS",
+    "materialIds": [20001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "tagIds": [10837, 10838],
+        "tagNames": ["商品分类", "服装鞋包"]
+      }
+    ]
+  }
+}
+```
+
+**MATERIAL_VERSION_CHANGED**（新增版本）：
+
+```json
+{
+  "eventId": "evt_1753947100004_i9j0",
+  "eventType": "MATERIAL_VERSION_CHANGED",
+  "eventTime": "1753947100004",
+  "payload": {
+    "coverMaterialId": 20001,
+    "newMaterialId": 20088,
+    "action": "ADD",
+    "version": 3
+  }
+}
+```
+
+**MATERIAL_DELETED**（進回收站）：
+
+```json
+{
+  "eventId": "evt_1753947200005_k1l2",
+  "eventType": "MATERIAL_DELETED",
+  "eventTime": "1753947200005",
+  "payload": {
+    "materialIds": [20001],
+    "deleteAction": "RECYCLE",
+    "folderIds": [30001],
+    "materials": [
+      {
+        "materialId": 20001,
+        "name": "春季KV_v2.jpg",
+        "materialType": 1,
+        "extension": "jpg",
+        "tagIds": [10837, 10838],
+        "tagNames": ["商品分类", "服装鞋包"],
+        "folderIds": [30001],
+        "ownerUserId": 10001,
+        "createUserId": 10001
+      }
+    ]
+  }
+}
+```
+
+**注意事項**：
+
+- 只做通知，不攔截入庫。eventTypes 請只傳上表中的類型，其它事件類型暫不對外開放。
+- 團隊需已開通該訂閱能力；未開通時訂閱會失敗。
+- 可與第 6 節文件夾訂閱同時使用；兩者都訂時可能收到兩類通知。
+- MATERIAL_DELETED 可能對同一素材先推送 RECYCLE，永久清理後再推送 PERMANENT。
+
+## 接收端實現建議
+
+素材事件使用 `eventId` 去重，按 `eventType` 分發處理。文件夾回調與素材事件是兩套獨立協議，不要混用字段。先持久化事件再異步處理耗時任務；重試與驗籤機制需以雙方約定為準。
+
+> 原文的文件夾回調中，時間格式、時長和大小單位存在表格與示例差異。接入時請與服務方確認，併兼容可空字段；不要將其單位直接套用到上傳接口。

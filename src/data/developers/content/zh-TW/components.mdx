@@ -1,0 +1,384 @@
+## 接入流程
+
+第三方應用通過 iframe 嵌入 MuseDAM。註冊應用並取得 `MuseDAM_APP_ID` 和 `MuseDAM_APP_SECRET` 後，向 MuseDAM 提供 `/auth/${token}` 路由。
+
+1. MuseDAM 生成 token，並將用戶引導至應用的嵌入路由。
+2. 應用後端完成 token 解密與校驗，檢查用戶、團隊及 `expiresAt` 有效期。
+3. 建立 MuseDAM 用戶 / 團隊與自身賬號的映射，創建應用會話。
+4. 前端通過 `postMessage` 調用素材、文件夾及成員選擇器。
+
+> 解密協議中的算法和 IV 常量未在原始文檔完整定義，請向 MuseDAM 獲取完整鑑權實現。不要在前端存放應用 Secret，也不要僅解碼 token 就視為已驗證。
+
+## 嵌入與通信約定
+
+配置應用的 CSP `frame-ancestors` 允許實際使用的 MuseDAM 域名嵌入，並檢查 X-Frame-Options 不與之衝突。`postMessage` 指定確切的父窗口 origin；接收消息時校驗 `event.origin`、`event.source`、`source`、`target`、`type` 和 `dispatchId`。
+
+[打開生產環境組件測試頁](https://musedam.cc/apps/test-client-actions)（需登錄）
+
+## 消息協議
+
+### 基本消息結構
+
+#### **第三方應用→MuseDAM（請求）**
+
+```typescript
+{
+    source: "musedam-app",        // 子项目标识
+    target: "musedam",            // 父窗口标识
+    type: "action",               // 请求类型
+    timestamp: "2024-12-19T10:30:00.000Z", // ISO格式时间戳
+    dispatchId: "dispatch_1234567890_abc123", // 唯一请求ID
+    action: "folder-selector-modal-open",    // 操作类型
+    args: { /* 请求参数 */ }
+}
+```
+
+#### **MuseDAM→第三方應用（響應）**
+
+```typescript
+{
+    source: "musedam",            // 父窗口标识
+    target: "musedam-app",        // 子项目标识
+    type: "action_result",        // 响应类型
+    timestamp: "2024-12-19T10:30:01.000Z", // ISO格式时间戳
+    dispatchId: "dispatch_1234567890_abc123", // 对应请求的ID
+    action: "folder-selector-modal-open",     // 对应请求的操作
+    args: { /* 原始请求参数 */ },
+    result: {                     // 返回结果
+        success: true,
+        data: { /* 具体数据 */ }
+    }
+}
+```
+
+#### 字段說明
+
+| **字段** | **說明** | **字段值** |
+|-|-|-|
+| source | 消息發送方標識 | "musedam-app" |
+| target | 消息接收方標識 | "musedam" |
+| type | 消息類型 | "action" \| "action_result" |
+| action | 具體操作名稱 | "folder-selector-modal-open"\|   · "assets-selector-modal-open"\|    · "assets-selector-modal-open"\|   · "goto"\|   · "syncPath" |
+| dispatchId | 請求唯一標識，用於匹配請求和響應 | string |
+| args | 請求參數 | JSON |
+| result | 響應結果 | &#123; success: true, data:JSON&#125; \|   · &#123;   ·    success: false,   ·    message:string,   ·    code: 'cancelled' \| 'malformed_request' \| 'forbidden' \| 'internal_server_error'   ·  &#125; |
+
+##### 錯誤代碼
+
+當`result.success`為`false`時，`result.code`可能值：
+
+| **CODE** | **含義** |
+|-|-|
+| cancelled | 用戶主動取消操作 |
+| malformed_request | 請求參數錯誤或格式不正確 |
+| forbidden | 用戶沒有權限執行該操作 |
+| internal_server_error | 服務器內部錯誤或其他未捕獲的異常 |
+
+### 支持的操作(action)
+
+#### 請求體及響應類型
+
+**IAssetLite 參數說明**
+
+| **字段名** | **類型** | **描述** |
+|-|-|-|
+| id | number | 主鍵 ID |
+| assetId | number | 資產 ID（素材唯一標識） |
+| userId | string | 當前素材歸屬用戶ID |
+| parentIds | number [] | 所屬父文件夾 ID 列表 |
+| folders | Array&lt;&#123;id:number; name:string&#125;> \| null | 所屬文件夾 |
+| name | string | 展示名稱（可能為空字符串） |
+| downloadUrl | string | 原始下載地址 |
+| link | string \| null | 鏈接地址 |
+| extension | string | 文件擴展名 |
+| type | string \| null | 資源類型（image/video/audio/pdf/jsd/…） |
+| size | number | 文件大小（字節） |
+| width | number \| null | 圖片寬度 |
+| height | number \| null | 圖片高度 |
+| duration | number \| null | 視頻時長 |
+| description | string \| null | 描述 |
+| tags | Array&lt;&#123;id: number; name: string&#125;> \| null | 標籤集合 |
+| previewUrls | string [] \| null | 預覽圖（pdf/ppt等可能有多張） |
+| thumbnail | &#123;   ·     url: string;   ·     width?: number \| null;   ·     height?: number \| null;   ·     gifStaticUrl?: string \| null;   ·     extension: string;   ·   &#125; \| null | 縮略圖信息 |
+| assertImageContentAnalysisVO |  &#123;   ·   */\*\* AI智能解析描述 \*/*   ·   aiDescription?: string;   ·   */\*\* AI智能解析其他信息 \*/*   ·   aiDetailedDescription?: Record&lt;string, string>[];   ·   */\*\* AI解析標籤 \*/*   ·   aiTags?: string;   ·   */\*\* 標題 \*/*   ·   aiTitle?: string;   ·   */\*\* AI解析返回選項 \*/*   ·   returnOption?: string;   · &#125; | 智能解析結果 |
+| score | number \| null | 評分 0-5 |
+| viewAuth | 0 \| 1 | 是否有查看權限：0 無權限 1 有權限 |
+| customFieldVOList | &#123;   ·     id: number;   ·     fieldValue: string;   ·     fieldId: number;   ·     color: string;   ·   &#125;[] | 自定義字段列表 |
+| groupId | number \| null | 分組 ID |
+| groupMaterialTotal | number \| null | 分組素材總數 |
+| createTime | number | 創建時間 |
+| createUser | string | 創建用戶ID |
+| updateTime | number | 更新時間 |
+| updateUser | string | 更新用戶ID |
+
+#### 文件夾選擇器
+
+- **action**: `folder-selector-modal-open`
+- **args 類型**:
+
+  ```typescript
+  {
+      initialSelectedFolders?: Array<{ id: number; name: string }>;
+      // 是否显示“全部素材”
+      allMaterials?: boolean;
+  }
+  ```
+- **result.data 類型**:
+
+  ```typescript
+  {
+      selectedFolders: Array<{ id: number; name: string }>;
+      allMaterials: boolean;
+  }
+  ```
+- **示例**:
+
+  ```typescript
+  // 请求
+  {
+      action: "folder-selector-modal-open",
+      args: {
+          initialSelectedFolders: [{ id: 123, name: '设计素材' }],
+          allMaterials: false
+      }
+  }
+  
+  // 成功响应
+  {
+      result: {
+          success: true,
+          data: {
+              selectedFolders: [
+                  { id: 123, name: '设计素材' },
+                  { id: 456, name: '产品图片' }
+              ],
+              allMaterials: false
+          }
+      }
+  }
+  
+  // 取消响应
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "用户取消操作"
+      }
+  }
+  ```
+
+#### 成員/部門選擇器
+
+- **action**: `member-selector-modal-open`
+- **args 類型**:
+
+  ```typescript
+  {
+      selectedItems?: {
+          members?: Array<{ id: string; name: string }>;
+          departments?: Array<{ id: string; name: string }>;
+          groups?: Array<{ id: string; name: string }>;
+      };
+  }
+  ```
+- **result.data 類型**:
+
+  ```typescript
+  {
+      members: Array<{ id: string; name: string;departmentsName?:string;avatarUrl?:string }>;
+      departments: Array<{ id: string; name: string }>;
+      groups: Array<{ id: string; name: string }>;
+  }
+  ```
+- **示例**:
+
+  ```typescript
+  // 请求
+  {
+      action: "member-selector-modal-open",
+      args: {
+          // 已选中项
+          selectedItems: {
+              members: [{ id: "user_123", name: "张三" ,departmentsName:"Muse, 设计部", avatarUrl:"https://"}],
+              departments: [{ id: "dept_001", name: "设计部" }]
+          }
+      }
+  }
+  
+  // 成功响应
+  {
+      result: {
+          success: true,
+          data: {
+              members: [
+                  { id: "user_123", name: "张三" },
+                  { id: "user_456", name: "李四" }
+              ],
+              departments: [{ id: "dept_001", name: "设计部" }],
+              groups: []
+          }
+      }
+  }
+  
+  // 取消响应
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "用户取消操作"
+      }
+  }
+  ```
+
+#### 資產選擇器
+
+- **action**: `assets-selector-modal-open`
+- **args 類型**:
+
+  ```typescript
+  enum EAssetType {
+      image = 'image',           // 图片
+      video = 'video',           // 视频
+      audio = 'audio',           // 音频
+      js = 'js',                 // 设计源文件
+      document = 'document',     // 文本
+      PDocument = 'PDocument',   // 演示文档
+      excel = 'excel',           // 表格
+      font = 'font',             // 字体
+      zip = 'zip',               // 压缩包
+      dll = 'dll',               // 应用程序
+      code = 'code',             // 代码
+      model = 'model',           // 模型
+      triD = 'triD',             // 3D
+      url = 'url',               // 网页
+      unknown = 'unknown',       // 未知文件
+  }
+  {
+    initialSelectedAssetIds?: number[];
+    /**
+     * 可选择的素材类型。不传则不限制类型。
+     * 取值见素材 type 字段，例如：image、video、audio、js、document、PDocument、excel、font、zip、dll、code、model、triD、url
+     */
+    allowedTypes?: EAssetType[];
+    /**
+     * 各类型数量限制。传入后仅列出的类型可选；limit 不传表示该类型不限数量。
+     * 与 allowedTypes 同时传入时，以 allowedTypes 为白名单，dataLimit 只补充数量上限。
+     */
+    dataLimit?: Array<{
+      type: EAssetType;
+      limit?: number;
+    }>;
+    /**
+     * 打开时套用列表筛选（与首页筛选栏一致）。用户仍可在选择器内改筛选。
+     */
+    filters?: {
+      types?: EAssetType[];
+      extensions?: string[];
+      size?: {
+        min?: number;
+        max?: number;
+        unit?: 'KB' | 'MB' | 'GB';
+      };
+      dimension?: {
+        minWidth?: number;
+        maxWidth?: number;
+        minHeight?: number;
+        maxHeight?: number;
+      };
+    };
+  }
+  ```
+- **result.data 類型**:
+
+  ```typescript
+  
+  {
+      selectedAssets: IAssetLite[];
+  }
+  ```
+- **示例**:
+
+  ```typescript
+  // 请求
+  {
+      action: "assets-selector-modal-open",
+      args: {
+          initialSelectedAssetIds: [123, 456],
+          allowedTypes: ['image'],
+          filters: {
+              types: ['image'],
+              size: { min: 100, max: 10240, unit: 'KB' },
+              dimension: { minWidth: 512, minHeight: 512 },
+          },
+      }
+  }
+  
+  // 成功响应
+  {
+      result: {
+          success: true,
+          data: {
+              selectedAssets: [
+                  { id: 123, name: 'logo.png', type: 'image' },
+                  { id: 456, name: 'banner.png', type: 'image' }
+              ]
+          }
+      }
+  }
+  
+  // 取消响应
+  {
+      result: {
+          success: false,
+          code: "cancelled",
+          message: "用户取消操作"
+      }
+  }
+  ```
+
+#### 頁面跳轉
+
+- **action**: `goto`
+- **args 類型**:
+
+  ```typescript
+  {
+    url: string;
+  }
+  ```
+- **說明**: 父項目收到此消息後自動執行頁面跳轉，無需響應結果。
+- **示例**:
+
+  ```typescript
+  // 请求
+  {
+      action: "goto",
+      args: {
+          url: "https://example.com/target-page",
+          target:"_blank"
+      }
+  }
+  ```
+
+#### 路徑同步
+
+- **action**: `syncPath`
+- **args 類型**:
+
+  ```typescript
+  {
+    path: string;
+  }
+  ```
+- **說明**: 父項目收到此消息後自動更新當前頁面的 hash 路徑，無需響應結果。主要用於同步 iframe 內部的路由狀態到父窗口的 URL。
+- **示例**:
+
+  ```typescript
+  // 请求
+  {
+      action: "syncPath",
+      args: {
+          path: "#path=/tagging/settings"
+      }
+  }
+  ```

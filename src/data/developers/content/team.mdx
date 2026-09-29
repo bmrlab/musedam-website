@@ -1,0 +1,462 @@
+## 团队相关接口
+
+### 获取团队基本信息
+
+**接口地址**: `/org-info`
+
+**请求方式**:  GET
+
+**请求参数**:
+
+请求示例：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/org-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json'
+```
+
+返回结果：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "id": 185,
+        "name": "示例团队",
+        "orgNo": "M000001",
+        "orgFeeType": 4
+    },
+    "traceId": "17555160673301652392"
+}
+```
+
+### 获取团队积分信息
+
+**接口地址**：`/org-point-info`
+
+**请求方式**：GET
+
+**接口描述**：获取当前 API Key 所属团队的剩余积分余额。
+
+**请求参数**：无。团队由 API Key 确定，无需传入团队 ID。
+
+**返回参数**：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| result | Double | 团队剩余积分，数值类型，可包含小数 |
+
+**请求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/org-point-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json'
+```
+
+**返回示例**（积分数值仅用于演示）：
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": 1250.5,
+  "traceId": "example-trace-id"
+}
+```
+
+读取 `result` 即可获取剩余积分。
+
+### 获取团队成员信息
+
+**接口地址**: `/org-member-info`
+
+**请求方式**:  POST
+
+**请求参数**: 
+
+```text
+{
+    "userId": "1765276754630496256"
+}
+```
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/org-member-info' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "userId": "1765276754630496256"
+}'
+```
+
+返回结果：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "userId": "1765276754630496256",
+        "realName": "xxx",
+        "nickName": "xxxx",
+        "avatarUrl": "https://example.com/avatar.png",
+        "roleCode": "admin",
+        "departmentIds": [
+            0,
+            200
+        ],
+        "groupIds": [
+            20,
+            22
+        ]
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+### 查询团队成员列表
+
+**接口路径：** `/org-members-query`  
+
+**请求方式：** `POST`  
+
+**接口描述：** 分页查询当前团队下的成员列表，支持关键字、部门、状态等筛选。
+
+**请求参数：**
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| keyword | String | 否 | 查询关键字，匹配姓名 / 昵称 / 拼音 / 邮箱 / 手机号 |
+| page | Integer | 否 | 页码，默认 `1` |
+| pageSize | Integer | 否 | 每页数量，默认 `10` |
+| accountStatusEnumList | List&lt;String> | 否 | 成员状态筛选，可选：`PendingActivation`（待激活）、`normal`（正常）、`resigned`（已离职） |
+| departmentId | Long | 否 | 按部门筛选 |
+| needChildMember | Boolean | 否 | 是否包含子部门成员，默认 `false` |
+| needUserUseMemorySize | Boolean | 否 | 是否返回成员已用存储容量，默认 `false` |
+| addType | Integer | 否 | 添加类型：`0` 手动导入，`1` 飞书导入 |
+| isSale | Integer | 否 | 是否销售人员：`0` 否，`1` 是 |
+
+**响应结构：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| records | List&lt;Object> | 成员列表，见下表 |
+| total | Long | 总条数 |
+| current | Long | 当前页码 |
+| size | Long | 每页数量 |
+
+**records[] 字段：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| userId | Long | 用户 ID |
+| nickName | String | 昵称 |
+| realName | String | 真实姓名 |
+| avatarUrl | String | 头像 URL |
+| roleName | String | 角色名称 |
+| roleCode | String | 角色 code |
+| roleId | Long | 角色 ID |
+| orgRoleVO | Object | 企业版角色信息，见下表；非企业版可能为空 |
+| departmentList | List&lt;Object> | 所属部门列表，见下表 |
+| jobTitle | String | 职位 |
+| phone | String | 手机号 |
+| email | String | 企业邮箱 |
+| accountStatusEnum | String | 账号状态：`PendingActivation` / `normal` / `resigned` 等 |
+| joinTime | Date | 加入时间 |
+| toppingSort | Integer | 置顶排序，越大越靠前 |
+| userUseMemorySize | Long | 已用存储容量（字节）；仅当请求 `needUserUseMemorySize=true` 时返回 |
+| loginEmail | String | 登录邮箱 |
+| addType | Integer | 添加类型：`0` 手动导入，`1` 飞书导入 |
+| userStatus | Integer | 注册状态：`1` 已注册，`0` 未注册 |
+| isSale | Integer | 是否销售：`0` 否，`1` 是 |
+| language | String | 语言 |
+| region | String | 地区代码，多个用逗号分隔，如 `US,GB` |
+| storageRegionCode | String | 存储地区标识 |
+
+**orgRoleVO 字段：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| id | Long | 角色 ID |
+| name | String | 角色名称 |
+| code | String | 角色 code |
+| createUser | Long | 创建人用户 ID |
+| createUserRealName | String | 创建人真实姓名 |
+| createUserNickName | String | 创建人昵称 |
+| createUserAvatarUrl | String | 创建人头像 URL |
+
+**departmentList[] 字段：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| id | Long | 部门 ID |
+| name | String | 部门名称 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/org-members-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"page":1,"pageSize":10,"keyword":""}'
+```
+
+### 查询团队白名单成员列表
+
+**接口路径：** `/org-whitelist-query`  
+
+**请求方式：** `POST`  
+
+**接口描述：** 分页查询当前团队下的白名单成员列表，支持关键字、群组等筛选。
+
+**请求参数：**
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| keyword | String | 否 | 查询关键字，匹配姓名 / 手机号 / 联系邮箱 |
+| page | Integer | 否 | 页码，默认 `1` |
+| pageSize | Integer | 否 | 每页数量，默认 `10` |
+| groupId | Long | 否 | 按群组筛选 |
+| addType | Integer | 否 | 添加类型：`0` 手动导入，`1` 飞书导入 |
+
+**响应结构：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| records | List&lt;Object> | 白名单成员列表，见下表 |
+| total | Long | 总条数 |
+| current | Long | 当前页码 |
+| size | Long | 每页数量 |
+
+**records[] 字段：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| id | Long | 白名单记录 ID |
+| userId | Long | 用户 ID；未注册用户可能为空 |
+| userName | String | 用户姓名 |
+| userPhone | String | 用户手机号 |
+| loginEmail | String | 登录邮箱 |
+| userContactEmail | String | 联系邮箱 |
+| userAvatarUrl | String | 头像 URL |
+| toppingSort | Integer | 置顶排序，越大越靠前 |
+| remark | String | 备注 |
+| addType | Integer | 添加类型：`0` 手动导入，`1` 飞书导入 |
+| createTime | Date | 创建时间 |
+| groups | List&lt;Object> | 所属群组列表，见下表 |
+
+**groups[] 字段：**
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| id | Long | 群组 ID |
+| name | String | 群组名称 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/org-whitelist-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"page":1,"pageSize":10,"keyword":""}'
+```
+
+### 查询团队部门列表
+
+**接口路径**：`/org-departments-query`
+
+**请求方式**：GET
+
+**接口描述**：获取当前团队下某个父部门的直接子部门列表；parentId=0 表示根部门。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| parentId | Long | 否 | 父部门 ID，默认 0，表示查询根部门 |
+
+**响应**：List，包含 id、name。
+
+**请求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/org-departments-query?parentId=0' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### 查询团队群组列表
+
+**接口路径**：`/org-groups-query`
+
+**请求方式**：GET
+
+**接口描述**：获取当前团队成员群组下某个父群组的直接子群组列表；parentId=0 表示根群组。该接口仅返回企业团队成员群组，不包含企业白名单群组。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| parentId | Long | 否 | 父群组 ID，默认 0，表示查询根群组 |
+
+**响应**：List，包含 id、name。
+
+**请求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/org-groups-query?parentId=0' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### 通过部门 ID 查询成员列表
+
+**接口路径**：`/department-members-query`
+
+**请求方式**：GET
+
+**接口描述**：按部门查询成员列表，可选择是否包含子部门成员。字段结构与 /org-members-query 的 records[] 基本一致。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| departmentId | Long | 是 | 部门 ID |
+| needChildMember | Boolean | 否 | 是否包含子部门成员，默认 false |
+
+**请求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/department-members-query?departmentId=123&needChildMember=false' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+### 通过群组 ID 查询成员列表
+
+**接口路径**：`/group-members-query`
+
+**请求方式**：POST
+
+**接口描述**：分页查询企业团队成员群组下的成员。records[] 字段结构与 /org-members-query 的 records[] 基本一致（群组成员查询不返回企业 role 信息）。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| groupId | Long | 是 | 群组 ID |
+| keyWord | String | 否 | 关键字搜索 |
+| needChildMember | Boolean | 否 | 是否包含子成员，默认 false |
+| page | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页数量，默认 10 |
+
+**响应**：含 records / total / current / size。
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/group-members-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"groupId":1,"keyWord":"","needChildMember":false,"page":1,"pageSize":10}'
+```
+
+## 添加站内消息通知
+
+**接口路径：** `/add-in-app-notify`  
+
+**请求方式：** `POST`
+
+**接口描述：** 向企业空间内的用户发送一条**站内消息通知**（写入通知表并走与控制台一致的后处理，如飞书等）。通知既可关联文件夹、素材、素材组等资源，也可覆盖协作、删除、权限申请与结果、评论、团队变更等多种业务类型，由 `notificationType` 与资源字段共同表达。开放接口与控制台「添加站内消息」类能力对齐，供三方系统在自动化流程中代发通知。
+
+**请求体：** `req`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| notificationType | String | 是 | **须与素材服务** `notificationType` **的 code 完全一致**（见下表） |
+| receiverId | Long | 是 | 接收者用户 ID |
+| senderId | Long | 否 | 发送者用户 ID；不传则使用 API 上下文当前用户 |
+| resourceType | Integer | 否 | **须与** `resourceType` **一致**（见下表）；无关联资源时可不传 |
+| resourceName | String | 否 | 资源名称（展示用） |
+| content | String | 否 | 通知正文 |
+| resourceId | Long | 否 | 关联资源 ID |
+| permissionApprovedRoleId | Integer | 否 | 权限申请类通知中申请的目标角色 ID |
+
+**notificationType**
+
+| code | 说明 |
+|-|-|
+| collaboration | 协作 |
+| deletion | 删除 |
+| permission_approved | 权限申请 |
+| permission_success | 权限通过 |
+| permission_refuse | 权限拒绝 |
+| comment | 评论 |
+| comment_reply | 回复 |
+| share_comment | 分享评论 |
+| share_comment_reply | 分享评论回复 |
+| team_member_join | 新成员加入团队 |
+| team_member_quit | 成员已退出团队 |
+| team_member_leave | 飞书成员已离职 |
+| asset_upload | 素材上传 |
+| subfolder_asset_upload | 子文件夹素材上传 |
+| asset_version_upload | 素材版本上传 |
+| subfolder_asset_version_upload | 子文件夹素材版本上传 |
+| asset_version_change | 素材版本变更 |
+| subfolder_asset_version_change | 子文件夹素材版本变更 |
+| asset_version_remove | 素材版本移出 |
+| subfolder_asset_version_remove | 子文件夹素材版本移出 |
+| asset_version_delete | 素材版本删除 |
+| subfolder_asset_version_delete | 子文件夹素材版本删除 |
+| folder_and_material_delete | 文件夹和素材被删除 |
+| subfolder_and_material_delete | 子文件夹和素材被删除 |
+| folder_delete | 文件夹被删除 |
+| subfolder_delete | 子文件夹被删除 |
+| folder_material_delete | 文件夹下的素材被删除 |
+| subfolder_material_delete | 子文件夹下的素材被删除 |
+| folder_material_move | 文件夹下的素材移动 |
+| subfolder_material_move | 子文件夹下的素材移动 |
+| approval | 审批 |
+
+**resourceType**
+
+| resourceType | 说明 |
+|-|-|
+| 1 | 文件夹（FOLDER） |
+| 2 | 素材（MATERIAL） |
+| 3 | 素材组（MATERIAL_GROUP） |
+| 4 | 团队（TEAM） |
+
+与 `resourceId` 联用：`resourceId` 表示对应类型下的业务主键（如文件夹 ID、素材 ID、团队 ID 等）。
+
+**响应：** `result` 为 `Boolean`。
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/add-in-app-notify' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "notificationType": "permission_approved",
+    "receiverId": 1765276754630496256,
+    "resourceType": 1,
+    "resourceId": 1234567890,
+    "resourceName": "品牌素材库",
+    "content": "申请查看该协作文件夹的权限",
+    "permissionApprovedRoleId": 2
+}'
+```
+
+**响应示例：**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": true,
+    "traceId": "17561978534182325498"
+}
+```

@@ -1,0 +1,185 @@
+## Get AI analysis results
+
+**Endpoint**: `/get-asset-analysis-result`
+
+**Method**: POST
+
+**Description**: Retrieve AI analysis results for an asset.
+
+**Request parameters**:
+
+```text
+[6909122]
+```
+
+**Parameters**:
+
+- Asset ID
+
+**Response**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "6909122": {
+            "aiTags": "purple,calm,cartoon,elegant,anime,traditional clothing,pink,spring,landscape,woman,young woman",
+            "aiTitle": "Girl in traditional clothing",
+            "aiDescription": "An anime-style illustration of a girl wearing blue traditional clothing with white patterns. Her long silver-gray hair falls over her shoulders. Pink cherry blossom trees fill the background with soft, warm sunlight. Her calm, gentle expression conveys tranquility.",
+            "aiDetailedDescription": [
+                {
+                    "usage": "An anime-style character illustration."
+                },
+                {
+                    "mood": "A calm and gentle atmosphere."
+                },
+                {
+                    "culture_traits": "The character wears a traditional Japanese yukata, reflecting Japanese cultural and aesthetic elements."
+                },
+                {
+                    "industry_domain": "Animation or manga illustration, potentially related to games, film, or other visual arts."
+                },
+                {
+                    "seasonality": "Cherry blossoms suggest a spring setting."
+                },
+                {
+                    "holiday_theme": "No specific holiday is evident; the colors and elements suggest traditional spring celebrations."
+                },
+                {
+                    "color_scheme": "Predominantly blue with pink accents, creating a soft and harmonious palette."
+                }
+            ],
+            "taskStatus": 1,
+            "customContent": null,
+            "taskFail": null
+        }
+    },
+    "traceId": "17555971993244441621"
+}
+```
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/get-asset-analysis-result' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '[6909122]'
+```
+
+## Get processed public links for original assets
+
+**Prerequisite:** DAT must be enabled.
+
+**Endpoint:** `/processed-public-links`
+
+**Method:** POST
+
+**Request parameters:** `publicLinkProcessReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | List&lt;Long> | Yes | Asset IDs (assetId) |
+| w | Integer | No | Target width in pixels, 1–6000; values exceeding the original width have no effect |
+| h | Integer | No | Target height in pixels, 1–6000; values exceeding the original height have no effect |
+| mode | String | No | Resize mode; defaults to fit. fit: preserve aspect ratio; crop: center crop |
+| q | Integer | No | Output quality, 1–100; defaults to 80 |
+| f | String | No | Output format: jpg / png / webp; omit to retain the original format |
+| bg | String | No | Background fill color in HEX without #, such as FFFFFF |
+
+**mode values:**
+
+| Value | Description |
+|-|-|
+| fit | Scale by the longer edge, preserving aspect ratio and the full image |
+| crop | Center crop to the target dimensions |
+
+**Response:** `Map<Long, String>`
+
+- Key：assetId  
+- Value: The processed public URL for the original asset, or `""` if no public link exists or the asset is missing.
+
+## Retrieve asset derivatives in bulk
+
+**Prerequisite:** Asset derivatives must be enabled for the team; otherwise, the endpoint returns an error.
+
+**Endpoint:** `/asset-derivative-versions`
+
+**Method:** `POST`
+
+**Request parameters:** `assetDerivativeInfoReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | List&lt;Long> | Yes | Asset IDs, matching `id` / `assetIds` elsewhere in the Open API |
+
+**Response:** `Map<Long, List<EnterpriseAssetDerivativeVersionDTO>>`
+
+- **Key:** An asset ID from the request
+- **Value:** All derivative versions under **enabled** rules; `[]` if none exist or the asset is missing
+
+**`EnterpriseAssetDerivativeVersionDTO` fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| size | Long | File size in bytes |
+| width | Integer | File width in pixels |
+| height | Integer | File height in pixels |
+| accessUrl | String | Download URL; populated only when `generateStatus = 1` (success) |
+| publicUrl | String | Derivative public URL; available when public links are enabled for the rule and the link has been generated |
+| internalName | String | Internal derivative rule name |
+| displayName | String | Derivative rule display name |
+| generateStatus | Integer | Generation status; see below |
+| name | String | Asset name |
+
+**generateStatus values:**
+
+| Value | Description |
+|-|-|
+| 0 | Processing |
+| 1 | Success |
+| 2 | Failed |
+| 3 | Queued |
+
+**Example request:**
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/asset-derivative-versions' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "assetIds": [1234567890, 9876543210]
+}'
+```
+
+**Example response:**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "1234567890": [
+            {
+                "size": 204800,
+                "width": 1920,
+                "name":"xxx",
+                "height": 1080,
+                "accessUrl": "https://example.com/download/xxx.jpg?token=...",
+                "publicUrl": "https://example.com/public/xxx.jpg",
+                "internalName": "web_preview",
+                "displayName": "Web preview",
+                "generateStatus": 1
+            }
+        ],
+        "9876543210": []
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+**Notes:**
+
+- Returns derivatives under **enabled rules**, regardless of the display toggle on the asset details page.
+- `accessUrl` is a signed download URL with an expiry. `publicUrl` requires public link generation to be enabled for the rule and a public read address to have been generated for the derivative.

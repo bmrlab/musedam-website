@@ -1,0 +1,68 @@
+## 獲取 API 密鑰
+
+### **方式一：通過 MuseDAM 管理後臺獲取**
+
+1. 系統管理員登錄 MuseDAM "設置與成員"管理後臺
+2. 進入"安全管控" → "API 密鑰"頁面
+3. 點擊"創建新密鑰"
+
+<ApiKeyScreenshot step="entry" caption="進入「API 密鑰」頁面，點擊「創建新密鑰」。" />
+
+4. 設置密鑰名稱並選擇權限類型：
+
+   - API 權限：可訪問指定文件夾的素材
+   - Admin 權限：可訪問資產庫內所有素材
+
+<ApiKeyScreenshot step="create" caption="填寫名稱，按需選擇「API」或「管理員」權限。" />
+
+5. 保存並複製 API Key（注意：僅顯示一次）
+
+<ApiKeyScreenshot
+  step="detail"
+  caption="創建後可在密鑰詳情中查看類型與啟用狀態；圖中密鑰已掩碼。"
+/>
+
+> 重要提示：對於 API 權限的密鑰，系統管理員需在「共享文件夾」-「文件夾權限管理」中自定義權限範圍和訪問限制。
+
+### **方式二：通過第三方應用接口獲取**
+
+[查看第三方應用認證與安裝](./applications)
+
+> 概述：提供第三方應用使用企業開放API接口的能力。第三方應用需要企業管理員進行啟用授權後，可通過appId和appSecretKey管理API密鑰，並使用獲取到的API密鑰調用開放接口（詳見"核心API接口"章節）。
+
+## 認證方式說明
+
+所有API請求都需要在請求頭中包含認證信息：
+
+```text
+Authorization: Bearer your_api_key
+Content-Type: application/json
+```
+
+## 接口對接建議
+
+強烈建議使用服務端進行 API 對接，而非在前端直接調用 API，原因如下：
+
+- 保護 API 密鑰安全，避免在客戶端代碼中暴露 API KEY
+- 防止未授權訪問和潛在的安全風險
+- 可在服務端實現額外的訪問控制和請求限制
+- 便於集中管理和監控 API 調用情況
+
+服務端對接模式下，客戶端應通過您自己的服務器進行中轉請求，而非直接訪問 MuseDAM API。
+
+## 發起第一次請求
+
+先在服務端環境變量中設置 `MUSEDAM_API_KEY`，再運行以下命令。國內與海外賬戶使用各自的 API 域名。
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/search-assets' \
+  --header "Authorization: Bearer $MUSEDAM_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{"keywords": ["品牌"], "startPoint": 0, "endPoint": 10}'
+```
+
+## 處理響應
+
+讀取 `result.assets` 和 `result.total`。結果為空時，先檢查搜索條件和文件夾授權範圍。保存失敗響應中的 `traceId`，便於排查問題。
+
+[查看素材檢索參數](./search) · [查看錯誤處理](./errors)

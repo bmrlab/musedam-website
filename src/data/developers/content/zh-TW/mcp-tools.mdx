@@ -1,0 +1,31 @@
+## 工具列表
+
+以下工具均遵循 MCP 的 Tool 定義，名稱與用途如下。各工具的具體參數以 MCP 協議返回的 schema 為準（如通過 Cursor 等客戶端查看工具描述與參數列表）。
+
+| 工具名 | 說明 |
+|-|-|
+| `musedam_search_assets` | 按目錄、類型、關鍵詞、標籤、尺寸等檢索企業空間素材 |
+| `musedam_upload_assets` | 通過可下載鏈接將素材上傳到 DAM |
+| `musedam_modify_assets` | 修改素材名稱、描述、評分、鏈接、標籤 |
+| `musedam_assets_by_ids` | 根據素材 ID 列表獲取詳情 |
+| `musedam_folder_subscribe` | 訂閱/取消訂閱文件夾內容更新回調 |
+| `musedam_search_share` | 檢索分享鏈接內的素材與文件夾 |
+| `musedam_merge_tags` | 批量合併、創建、更新、刪除企業標籤 |
+| `musedam_set_assets_tags` | 批量為素材設置標籤 |
+| `musedam_query_tag_tree` | 獲取企業版標籤樹 |
+| `musedam_folder_path` | 獲取指定文件夾的完整路徑 |
+| `musedam_get_sub_folder_ids` | 獲取指定文件夾下所有子文件夾 ID |
+| `musedam_get_asset_analysis_result` | 獲取素材 AI 解析結果 |
+| `musedam_org_info` | 獲取團隊基本信息 |
+| `musedam_org_member_info` | 獲取團隊成員信息 |
+| `musedam_search_folders` | 按父目錄、關鍵詞搜索文件夾 |
+| `musedam_create_folder` | 在指定父目錄下創建文件夾 |
+| `musedam_processed_public_links` | 獲取素材原圖處理後的公開鏈接（需開通 DAT） |
+
+---
+
+## 調用約定
+
+通過 MCP `tools/list` 獲取當前服務返回的工具參數 schema，再使用 `tools/call` 調用。API Key 和 region 在連接配置中設置，不應作為工具參數重複傳入。工具能力仍受密鑰權限範圍約束。
+
+[配置 MCP 連接](./mcp-connect)

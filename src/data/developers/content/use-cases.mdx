@@ -1,0 +1,48 @@
+## 内容管理系统(CMS)集成
+
+### 场景描述
+
+让编辑在 CMS 内直接找到并使用 MuseDAM 素材，减少下载、传文件和重复上传。素材集中管理，内容与素材的关联由 CMS 维护。
+
+### 集成方案
+
+<BusinessFlow kind="cms" />
+
+**落地要点**
+
+- **选择素材**：在编辑器中嵌入自定义素材选择器，经业务后端调用 `/search-assets`（[素材检索](./search)）；API Key 保存在服务端。
+- **保存关联**：内容记录保存素材 ID。发布时通过 `/assets-by-ids`（[批量获取素材](./assets)） 刷新链接，或将文件复制到 CMS 自己的存储，避免把临时下载链接当成永久内容地址。
+- **持续更新**：用 `/material-automation-subscribe`（[素材事件订阅](./events)）接收元数据修改、版本变更及删除等事件。订阅范围为团队，CMS 按已关联的素材 ID 筛选，再决定是否更新或下架已发布内容。
+
+## 电商平台产品管理
+
+### 场景描述
+
+将商品图片、视频统一维护在 MuseDAM，商品系统按 SKU 建立素材关联，再向商城与渠道发布适合各自规格的内容。
+
+### 集成方案
+
+<BusinessFlow kind="commerce" />
+
+**落地要点**
+
+- **组织资产**：可用 `/create-folder` 按 SKU 建立文件夹，通过 `/upload-assets` 上传商品素材；商品系统保存 SKU、文件夹 ID 与素材 ID 的映射。
+- **适配渠道**：通过 `/processed-public-links`（[图片处理与分发](./analysis)）获取适配尺寸的图片；需开通 DAT，且素材已有公开链接。没有公开链接的素材不能仅靠该接口生成公开地址。
+- **更新商品**：通过 `/material-automation-subscribe`（[素材事件订阅](./events)）订阅素材入库完成、元数据修改、版本变更及删除等事件。商品系统按 SKU 关联的素材 ID 筛选，读取最新内容并调用渠道接口；删除事件按业务规则下架，发布状态与版本关联由业务系统记录。
+
+## 营销活动素材分发
+
+### 场景描述
+
+活动素材在 MuseDAM 中集中维护。分发服务接收变更或定时检索，按渠道规则获取素材并发布，形成可追踪的分发记录。
+
+### 集成方案
+
+<BusinessFlow kind="marketing" />
+
+**落地要点**
+
+- **选择触发方式**：需要及时同步时使用 `/material-automation-subscribe`（[素材事件订阅](./events)）；批量活动分发也可由定时任务调用 `/search-assets`。接到事件后，再用 `/assets-by-ids` 获取当前素材信息；素材已删除时由业务系统处理下架。
+- **选择事件与范围**：先通过 `/material-automation-event-types` 查询可订阅事件。按需订阅 `MATERIAL_INBOUND_COMPLETED`、`MATERIAL_METADATA_UPDATED`、`MATERIAL_VERSION_CHANGED`、`MATERIAL_DELETED`；需要在素材加入活动文件夹时分发，可加上 `MATERIAL_ADDED_TO_FOLDER`。订阅范围为团队，由分发服务按活动、文件夹或素材关联筛选处理。
+- **可靠交付**：分发服务负责回调校验、事件去重、任务排队和有上限的重试，防止重复发布。
+- **跟踪结果**：保存素材 ID、渠道内容 ID、发布状态与时间；效果数据从对应渠道获取，由业务系统汇总。

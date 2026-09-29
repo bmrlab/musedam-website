@@ -1,0 +1,22 @@
+## 連接與調用問題
+
+**Q：Streamable HTTP 連接返回 401？**  
+
+A：請確認已在請求 header 中攜帶 `Authorization: Bearer <api_key>`，且密鑰正確、未過期。
+
+**Q：API 密鑰從哪裡獲取？**  
+
+A：請向 MuseDAM 開放平臺或您的管理員申請，本 MCP 服務不提供默認密鑰。
+
+**Q：為什麼工具調用時不再需要傳 api_key 和 region 參數？**  
+
+A：新版本已將 API Key 和 Region 配置從工具參數中移除，統一通過連接配置管理（HTTP 模式使用 header 和 query parameter），使用更安全、更簡潔。
+
+**Q：調用工具時報錯「Expected ',' or '&#125;' after property value in JSON at position 16」，且 MCP 服務端沒有收到請求？**  
+
+A：說明錯誤發生在 **Cursor 端**（在組包或發送 `tools/call` 之前），請求從未到達本 MCP 服務。可能原因：Cursor 在序列化該工具的 `arguments`（如 `musedam_search_assets` 參數較多）時生成了非法 JSON，或 Cursor 的 MCP 客戶端在解析/轉發該工具調用時觸發了 JSON 解析錯誤。
+
+建議：
+
+1. 在 Cursor 中重試或新開會話再調用；必要時可向 Cursor 反饋該現象（某 MCP 工具調用時客戶端報 JSON 解析錯誤且服務端未收到請求）。
+2. 若使用自研 MCP 客戶端，請確保發出的 `tools/call` 請求體中 `arguments` 為**標準雙引號 JSON**，且整條消息合法可解析。

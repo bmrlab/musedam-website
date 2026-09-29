@@ -1,0 +1,265 @@
+## 標籤管理接口
+
+### 批量合併標籤
+
+**接口地址**: `/merge-tags`
+
+**請求方式**：POST
+
+**接口描述**: 批量合併企業標籤，支持清空現有標籤或合併新標籤
+
+**請求參數**:
+
+```json
+{
+    "tags": [
+        {
+            "id": 10837,
+            "name": "商品分类d",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 10838,
+                    "name": "服装鞋包",
+                    "operation": 1,
+                    "sort": 4,
+                    "children": [
+                        {
+                            "name": "add2",
+                            "operation": "2"
+                        }
+                    ]
+                },
+                {
+                    "id": 10839,
+                    "sort": 5,
+                    "operation": 1,
+                    "name":"数码"
+                }
+            ]
+        }
+    ]
+}
+```
+
+**參數說明**:
+
+- `tags`: 標籤層級結構列表
+
+  - `name`: 標籤名稱
+  - `id`: 標籤id
+  - `operation`: 對該標籤進行的操作  0 不操作 1更新 2創建 3 刪除  默認0
+  - `sort`:  排序字段，標籤信息從大到小排序
+  - `children`: 子標籤列表，支持多級嵌套
+
+注意：
+
+```text
+operation 等于 1 的时候 --- id ，name 不为空，标签已存在，并且name不能为当前层级其他的标签名称
+operation 等于 2 的时候 --- id 为空 ，name不能为当前层级其他的标签名称
+operation 等于 3 的时候 --- id 不为空，并且标签已存在
+```
+
+**響應結果**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "tags": [
+            {
+                "name": "商品分类d",
+                "id": 10837,
+                "operation": 1,
+                "sort": null,
+                "children": [
+                    {
+                        "name": "服装鞋包",
+                        "id": 10838,
+                        "operation": 1,
+                        "sort": 4,
+                        "children": [
+                            {
+                                "name": "add2",
+                                "id": 13945,
+                                "operation": 2,
+                                "sort": null,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "数码",
+                        "id": 10839,
+                        "operation": 1,
+                        "sort": 5,
+                        "children": null
+                    }
+                ]
+            }
+        ]
+    },
+    "traceId": "17582767681984319367"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/merge-tags' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "tags": [
+        {
+            "id": 8224,
+            "name": "网页设计",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 8269,
+                    "name": "界面设计",
+                    "operation": 0,
+                    "children": [
+                        {
+                            "name": "add",
+                            "operation": "2"
+                        },
+                        {
+                            "id": 10894,
+                            "operation": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'
+```
+
+---
+
+### 批量設置素材標籤
+
+**接口地址**: `/set-assets-tags`
+
+**請求方式**：POST
+
+**接口描述**: 為指定素材批量設置標籤
+
+**請求參數**:
+
+```json
+{
+  "assetIds": [123, 456, 789],
+  "tagIds": [1, 2, 3],
+  "remove": true
+}
+```
+
+**參數說明**:
+
+- `assetIds`: 素材ID列表（必填）
+- `tagIds`: 標籤ID列表（必填）
+- `remove`: 是否移除歷史標籤，默認true
+
+**響應結果**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": true
+}
+```
+
+**業務邏輯**:
+
+- 支持批量為多個素材設置多個標籤
+- 可選擇是否清除素材的歷史標籤
+- 自動建立素材與標籤的關聯關係
+- 記錄操作日誌
+
+---
+
+### 獲取企業版標籤數據
+
+**接口地址**: `/query-tag-tree`
+
+**請求方式**：GET
+
+**接口描述**: 獲取企業版標籤樹
+
+**請求示例**:
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/query-tag-tree' \
+--header 'Authorization: Bearer YOUR_API_KEY'
+```
+
+**響應結果**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": [
+        {
+            "id": 8221,
+            "name": "未分类",
+            "children": [
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                },
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                }
+            ]
+        },
+        {
+            "id": 10669,
+            "name": "b",
+            "children": null
+        }
+    ],
+    "traceId": "17555963042174156442"
+}
+```
+
+### 企業標籤列表（分頁）
+
+**接口路徑**：`/enterprise-tag-list`
+
+**請求方式**：POST
+
+**接口描述**：分頁查詢企業標籤列表，支持按父標籤、關鍵字、標籤類型篩選。
+
+**請求參數**：
+
+| 字段名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| pageNum | Integer | 否 | 頁碼，默認 1 |
+| pageSize | Integer | 否 | 每頁條數，默認 500 |
+| parentId | Long | 否 | 父標籤 ID，默認 0（根級） |
+| keyword | String | 否 | 標籤名稱關鍵字 |
+| type | Integer | 否 | 標籤類型：0 普通 / 1 智能 |
+
+**響應**：含 list（標籤列表）、total（總數）。
+
+**請求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/enterprise-tag-list' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "pageNum": 1,
+  "pageSize": 50,
+  "parentId": 0
+}'
+```

@@ -1,0 +1,31 @@
+本文檔面向需要對接 MuseDAM MCP 服務的客戶端（如 Cursor、Claude Desktop、自研 MCP 客戶端等），說明如何通過 **Streamable HTTP**連接生產環境。
+可通過 Skill 使用 MuseDAM MCP。開放接口說明與資源下載：
+https://github.com/kang-oy/musedam-open-api.git
+
+---
+
+## 服務概覽
+
+| 項目 | 說明 |
+|-|-|
+| 協議 | Model Context Protocol (MCP) |
+| 能力 | 以 MCP 工具形式暴露 MuseDAM 開放接口：素材檢索/上傳/修改、標籤與文件夾管理、分享搜索、團隊信息等 |
+| 認證 | 需提供 MuseDAM API 密鑰，參考 MuseDAM API 使用說明獲取 `api_key` |
+
+### 環境與端點
+
+| 環境 | 域名 | 說明 |
+|-|-|-|
+| 生產環境 | `https://mcp-service.musedam.cc` | 正式環境，對應國內 region |
+
+---
+
+## 選擇連接方式
+
+通過 Streamable HTTP 連接遠程 MCP 服務，無需在本地部署進程：
+
+| 方式 | 適用場景 | API 密鑰傳遞方式 |
+|-|-|-|
+| **Streamable HTTP** | 客戶端通過 HTTP 連接遠程 MCP 服務 | 通過 HTTP `Authorization` header 傳入（如 `Authorization: Bearer <api_key>`） |
+
+---

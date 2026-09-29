@@ -203,6 +203,13 @@ export default function HeaderDesktop({
         </LocaleLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
+        <LocaleLink href="/developers/landing" legacyBehavior passHref>
+          <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
+            {t('nav-bar.developers')}
+          </NavigationMenuLink>
+        </LocaleLink>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
         <LocaleLink href="/about-us" legacyBehavior passHref>
           <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'font-normal')}>
             {t('nav-bar.about-us')}

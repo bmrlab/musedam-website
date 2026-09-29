@@ -1,0 +1,679 @@
+[
+  {
+    "slug": "quick-start",
+    "title": "快速开始",
+    "en": "Quick start",
+    "group": "start",
+    "description": "从创建密钥到完成第一次素材检索。",
+    "headings": [
+      {
+        "id": "获取-api-密钥",
+        "title": "获取 API 密钥",
+        "level": 2
+      },
+      {
+        "id": "方式一-通过-musedam-管理后台获取",
+        "title": "方式一：通过 MuseDAM 管理后台获取",
+        "level": 3
+      },
+      {
+        "id": "方式二-通过第三方应用接口获取",
+        "title": "方式二：通过第三方应用接口获取",
+        "level": 3
+      },
+      {
+        "id": "认证方式说明",
+        "title": "认证方式说明",
+        "level": 2
+      },
+      {
+        "id": "接口对接建议",
+        "title": "接口对接建议",
+        "level": 2
+      },
+      {
+        "id": "发起第一次请求",
+        "title": "发起第一次请求",
+        "level": 2
+      },
+      {
+        "id": "处理响应",
+        "title": "处理响应",
+        "level": 2
+      }
+    ],
+    "markdown": "## 获取 API 密钥\n\n### **方式一：通过 MuseDAM 管理后台获取**\n\n1. 系统管理员登录 MuseDAM \"设置与成员\"管理后台\n2. 进入\"安全管控\" → \"API 密钥\"页面\n3. 点击\"创建新密钥\"\n\n![进入「API 密钥」页面，点击「创建新密钥」。](/assets/developers/api-key/entry.png)\n\n4. 设置密钥名称并选择权限类型：\n\n   - API 权限：可访问指定文件夹的素材\n   - Admin 权限：可访问资产库内所有素材\n\n![填写名称，按需选择「API」或「管理员」权限。](/assets/developers/api-key/create.png)\n\n5. 保存并复制 API Key（注意：仅显示一次）\n\n![创建后可在密钥详情中查看类型与启用状态；图中密钥已掩码。](/assets/developers/api-key/detail.png)\n\n> 重要提示：对于 API 权限的密钥，系统管理员需在「共享文件夹」-「文件夹权限管理」中自定义权限范围和访问限制。\n\n### **方式二：通过第三方应用接口获取**\n\n[查看第三方应用认证与安装](./applications)\n\n> 概述：提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 认证方式说明\n\n所有API请求都需要在请求头中包含认证信息：\n\n```text\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n## 接口对接建议\n\n强烈建议使用服务端进行 API 对接，而非在前端直接调用 API，原因如下：\n\n- 保护 API 密钥安全，避免在客户端代码中暴露 API KEY\n- 防止未授权访问和潜在的安全风险\n- 可在服务端实现额外的访问控制和请求限制\n- 便于集中管理和监控 API 调用情况\n\n服务端对接模式下，客户端应通过您自己的服务器进行中转请求，而非直接访问 MuseDAM API。\n\n## 发起第一次请求\n\n先在服务端环境变量中设置 `MUSEDAM_API_KEY`，再运行以下命令。国内与海外账户使用各自的 API 域名。\n\n```bash\ncurl --request POST 'https://open.musedam.cc/api/muse/search-assets' \\\n  --header \"Authorization: Bearer $MUSEDAM_API_KEY\" \\\n  --header 'Content-Type: application/json' \\\n  --data '{\"keywords\": [\"品牌\"], \"startPoint\": 0, \"endPoint\": 10}'\n```\n\n## 处理响应\n\n读取 `result.assets` 和 `result.total`。结果为空时，先检查搜索条件和文件夹授权范围。保存失败响应中的 `traceId`，便于排查问题。\n\n[查看素材检索参数](./search) · [查看错误处理](./errors)\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "authentication",
+    "title": "认证与权限",
+    "en": "Authentication",
+    "group": "start",
+    "description": "区分 API Key 与应用凭证，按业务分配访问范围。",
+    "headings": [
+      {
+        "id": "安全最佳实践",
+        "title": "安全最佳实践",
+        "level": 2
+      },
+      {
+        "id": "api-密钥配额与定价",
+        "title": "API 密钥配额与定价",
+        "level": 2
+      },
+      {
+        "id": "api-调用限制-qps",
+        "title": "API 调用限制（QPS）",
+        "level": 2
+      },
+      {
+        "id": "超限处理机制",
+        "title": "超限处理机制",
+        "level": 2
+      },
+      {
+        "id": "权限范围说明",
+        "title": "权限范围说明",
+        "level": 2
+      }
+    ],
+    "markdown": "## 安全最佳实践\n\n- **API 密钥保护**\n\n  - 不要在前端代码中暴露 API 密钥\n  - 使用环境变量存储密钥\n  - 定期轮换 API 密钥\n- **访问控制**\n\n  - 遵循最小权限原则\n  - 为不同业务创建专用 API 密钥\n  - 监控API使用情况\n- **网络安全**\n\n  - 仅通过 HTTPS 访问 API\n\n## API 密钥配额与定价\n\n#### 基础配额\n\n- 每个企业账户免费提供 **5个 API 密钥**\n- 支持创建 API 权限（指定文件夹访问）或 Admin 权限（全资产库资源访问）\n\n#### 扩展定价\n\n- 超出5个API 密钥后，每个额外的 API 密钥：**3000元/年**\n- 支持随时购买，按年计费\n\n## API 调用限制（QPS）\n\n根据不同接口的资源消耗和使用场景， QPS 限制如下：\n\n| 接口类型 | QPS |\n|-|-|\n| **查询类接口** |  |\n| 批量获取素材 | 5 |\n| 检索素材 | 10 |\n| **写入类接口** |  |\n| 上传素材 | 5 |\n| 修改素材基本数据 | 10 |\n| **管理类接口** |  |\n| 订阅文件夹 | 5 |\n\n## 超限处理机制\n\n限流响应格式与重试规则尚未在原始规范中明确。建议客户端限制并发，对可重试错误采用有上限的退避重试；写入操作须先确认结果，避免重复写入。\n\n## 权限范围说明  \n\n| **功能** | **API 权限** | **Admin 权限** |\n|-|-|-|\n| 查看文件夹素材 | 仅可查看**指定文件夹**素材 | 可查看**资产库内所有**文件夹素材 |\n| 查看指定素材 | 仅可查看**指定文件夹**素材 | ✅ 可查看指定素材 |\n| 查看全部素材 | 仅可查看**指定文件夹**素材 | ✅ 可查看**资产库内所有**素材 |\n| 上传素材 | 仅可在**指定文件夹**中，且具有**上传权限**时 | ✅ 可在**全部素材**中，或**任意文件夹**中上传素材 |\n| 修改素材基本数据   · （如名称、备注、来源、评分） | 仅可对**指定文件夹**中的素材，且具有**编辑权限**时 | ✅ 可修改**资产库内所有**素材的基本数据 |\n| 检索素材 | 仅可检索**指定文件夹**中的素材 | ✅ 可检索**资产库内所有**的素材 |\n| 订阅文件夹 | 仅可订阅**指定文件夹** | ✅ 可订阅**资产库内任意**文件夹 |\n\n> 密钥配额与价格来自 API v1.5 文档（2026-02-06），开通前请向 MuseDAM 确认当前商务政策。",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "search",
+    "title": "素材检索",
+    "en": "Asset search",
+    "group": "api",
+    "description": "按关键词、标签、颜色和尺寸检索企业资产。",
+    "headings": [
+      {
+        "id": "素材检索",
+        "title": "素材检索",
+        "level": 2
+      },
+      {
+        "id": "分享列表搜索",
+        "title": "分享列表搜索",
+        "level": 2
+      }
+    ],
+    "markdown": "## 素材检索\n\n**接口路径**：/search-assets\n\n**请求方式**：POST\n\n**接口描述**：检索企业空间内的素材\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| - | EnterpriseSearchReqVO | 是 | 素材检索参数 |\n\n**EnterpriseSearchReqVO 参数说明**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| parentId | Long | 否 | 指定搜索目录（不包括根目录），包含所有子孙 |\n| needChildren | Boolean | 否 | 是否需要子级目录下的素材，默认 false |\n| extensions | List<String> | 否 | 文件类型扩展名 |\n| color | String | 否 | 颜色 |\n| areaThreshold | Integer | 否 | 颜色占比，默认 20 |\n| colorThreshold | Integer | 否 | 颜色精准度，默认 20 |\n| minLength | Long | 否 | 最小时长（视频、音频），单位 ms |\n| maxLength | Long | 否 | 最大时长（视频、音频），单位 ms |\n| minSize | Long | 否 | 最小文件大小，单位 B |\n| maxSize | Long | 否 | 最大文件大小，单位 B |\n| minHeight | Long | 否 | 最小图片高度，单位 px |\n| maxHeight | Long | 否 | 最大图片高度，单位 px |\n| minWidth | Long | 否 | 最小图片宽度，单位 px |\n| maxWidth | Long | 否 | 最大图片宽度，单位 px |\n| startTime | Long | 否 | 开始时间（更新时间范围） |\n| endTime | Long | 否 | 结束时间（更新时间范围） |\n| keywords | List<String> | 否 | 搜索关键字 |\n| tags | List<Long> | 否 | 标签 ID 列表 |\n| tagOrAnd | Boolean | 否 | 标签筛选 or/and，true=and，默认 true |\n| createUsers | List<Long> | 否 | 创建人 ID 列表 |\n| ratings | List<Integer> | 否 | 评分列表（即 scores） |\n| hasLink | Boolean | 否 | 是否有链接 |\n| link | String | 否 | 输入链接 |\n| hasDesc | Boolean | 否 | 是否有备注 |\n| desc | String | 否 | 输入备注 |\n| sort | SortConditionVO | 否 | 排序条件 |\n| startPoint | Integer | 否 | 分页开始索引，默认 0 |\n| endPoint | Integer | 否 | 分页结束索引，默认 10 |\n| region | List<Float> | 否 | 区域 |\n| customFieldTemplateIds | List<Long> | 否 | 自定义字段模板 ID 列表 |\n| customFieldId | Long | 否 | 自定义字段 ID |\n| currentUserId | Long | 否 | 仅搜索该用户有权限的素材 |\n| w | Integer | 否 | 目标宽度（px），范围 1–6000；用于生成返回中的 publicUrl； 超过原图参数无效 |\n| h | Integer | 否 | 目标高度（px），范围 1–6000；用于生成返回中的 publicUrl； 超过原图参数无效 |\n| mode | String | 否 | 缩放模式：fit-等比缩放，crop-居中裁剪；用于生成 publicUrl，默认 fit |\n| q | Integer | 否 | 输出质量，范围 1–100；用于生成 publicUrl |\n| f | String | 否 | 输出格式：jpg / png / webp；用于生成 publicUrl |\n| bg | String | 否 | 背景填充色（HEX，不含 #）；用于生成 publicUrl |\n| keywordSearchType | String | 否 | 搜索类型：*DEEP(深度搜索 默认)，DEFAULT（站内默认搜索)，PRECISE（精准搜索） DEEP_AND_PRECISE(深度和精准)* |\n\n**SortConditionVO参数说明**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| sortName | SortConditionFieldEnum | 是 | 排序字段 |\n| sortType | SortTypeEnum | 否 | 排序方式 |\n\n**SortConditionFieldEnum枚举值**：\n\n| 枚举值 | 描述 |\n|-|-|\n| CREATE_TIME | 创建时间 |\n| UPDATE_TIME | 更新时间 |\n| NAME | 名称 |\n| DURATION | 时长 |\n| SIZE | 大小 |\n| SCORE | 评分 |\n\n**SortTypeEnum枚举值**：\n\n| 枚举值 | 描述 |\n|-|-|\n| ASC | 正序 |\n| DESC | 倒序 |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| assets | List<MiniDamAssetDTO> | 素材列表 |\n| total | Long | 总数量 |\n\n**MiniDamAssetDTO参数说明**：\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| id | Long | 素材ID |\n| parentIds | List<Long> | 父文件夹ID列表 |\n| userId | String | 用户ID |\n| name | String | 文件原始名称 |\n| downloadUrl | String | 下载路径 |\n| source | Integer | 素材来源(1:网页，2:上传，3:复制) |\n| link | String | 网页链接 |\n| extension | String | 文件后缀 |\n| duration | Long | 视频时长 |\n| size | Long | 文件大小(KB) |\n| width | Integer | 文件宽度 |\n| height | Integer | 文件高度 |\n| description | String | 描述 |\n| score | Integer | 评分 |\n| createTime | Date | 创建时间 |\n| createUser | String | 创建人 |\n| updateTime | Date | 更新时间 |\n| updateUser | Long | 更新人 |\n| tags | List<TagDTO> | 标签列表 |\n| thumbnailAccessUrl | String | 缩略图访问路径 |\n| imageContentAnalysis | ImageContentAnalysis | 智能解析内容 |\n| publicUrl | String | 原图公开链接（带 w/h/mode/q/f/bg 处理参数）；未传处理参数或无公开链接时为空字符串 |\n\n**TagDTO参数说明**：\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| id | Long | 标签ID |\n| name | String | 标签名称 |\n\n**ImageContentAnalysis参数说明**：\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| aiTags | String | 智能标签信息 |\n| aiTitle | String | 智能标签名称 |\n| aiDescription | String | 智能描述 |\n| aiDetailedDescription | JSONArray | 智能描述详情 |\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/search-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"parentId\": 100,\n    \"needChildren\": true,\n    \"extensions\": [\n        \"jpg\",\n        \"png\"\n    ],\n    \"minSize\": 1024,\n    \"maxSize\": 10485760,\n    \"keywords\": [\n        \"产品\",\n        \"宣传\"\n    ],\n    \"tags\": [\n        1,\n        2\n    ],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 20\n}'\n```\n\n响应示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 10001,\n                \"parentIds\": [\n                    100\n                ],\n                \"userId\": \"user123\",\n                \"name\": \"产品宣传图.jpg\",\n                \"downloadUrl\": \"https://example.com/download/10001\",\n                \"source\": 2,\n                \"extension\": \"jpg\",\n                \"size\": 1024,\n                \"width\": 1920,\n                \"height\": 1080,\n                \"description\": \"产品宣传图片\",\n                \"score\": 5,\n                \"createTime\": \"2023-04-03T10:00:00\",\n                \"createUser\": \"张三\",\n                \"tags\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"产品\"\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"宣传\"\n                    }\n                ],\n                \"thumbnailAccessUrl\": \"https://example.com/thumbnail/10001\",\n                \"imageContentAnalysis\": {\n                    \"aiTags\": \"未来主义,流线型设计,现代,黄色,城市街道,黑色,黄昏,智能交通系统,科幻,广告,自动驾驶,汽车,概念艺术\",\n                    \"aiTitle\": \"未来感十足的城市跑车\",\n                    \"aiDescription\": \"这是一辆设计前卫、充满科技元素的未来城市跑车。车身采用了流线型的设计，并且在侧面有明显的橙色装饰线条点缀其中，在夜晚灯光下显得格外醒目。车辆两侧的大灯呈三角形排列，与整体风格相得益彰；而尾部则有一个独特的扰流板造型突出于后方，增加了运动气息的同时也提升了空气动力学性能。\\n\\n背景是一个繁华都市夜景场景——高楼大厦林立其间灯火辉煌霓虹闪烁映衬出一幅现代城市的繁忙景象街道上还有其他模糊不清的小汽车穿梭来往增添了几分动感氛围营造出了浓厚科幻色彩\",\n                    \"aiDetailedDescription\": [\n                        {\n                            \"usage\": \"这是一辆未来感十足的概念车，设计用于科幻电影或电子游戏中的场景。\"\n                        },\n                        {\n                            \"mood\": \"充满活力和科技感的情绪氛围\"\n                        },\n                        {\n                            \"culture_traits\": \"体现了现代都市文化的创新和技术进步特点\"\n                        },\n                        {\n                            \"industry_domain\": \"汽车制造与高科技产业相关联\"\n                        },\n                        {\n                            \"seasonality\": \"\"\n                        },\n                        {\n                            \"holiday_theme\": \"\"\n                        },\n                        {\n                            \"color_scheme\": \"主要使用了黑色、黄色以及橙色调作为车辆的主要颜色搭配\"\n                        }\n                    ]\n                }\n            }\n        ],\n        \"total\": 150\n    }}\n```\n\n## 分享列表搜索\n\n**接口路径**：/search-share\n\n**请求方式**：POST\n\n**接口描述**：检索分享链接内的素材\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 默认值 | 描述 |\n|-|-|-|-|-|\n| linkToken | String | 是 | - | 分享链接的唯一标识token |\n| password | String | 否 | - | 分享链接的提取码，如果分享设置了提取码则必填 |\n| folderId | Long | 否 | - | 指定查询的文件夹ID，不传则默认查询根目录 |\n| needChildren | Boolean | 否 | false | 是否需要包含子目录下的素材 |\n| isRoot | Boolean | 否 | false | 是否是分享的根目录 |\n| keyword | String | 否 | - | 搜索关键词，用于过滤文件名包含该关键词的素材 |\n| startPoint | Integer | 否 | 0 | 分页参数，开始索引位置 |\n| endPoint | Integer | 否 | 40 | 分页参数，结束索引位置，每页默认40条数据 |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| assets | List<MiniDamAssetDTO> | 素材列表 |\n| totalCount | Long | 素材总数量 |\n| folders | List<FolderDTO> | 文件夹列表 |\n| folderCount | Long | 文件夹总数 |\n\n**FolderDTO参数说明**\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| id | Long | 文件夹id |\n| name | String | 文件夹名称 |\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/search-share' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"linkToken\":\"12534a263031407481ccac298e3568f7\",\n    \"isRoot\":false,\n    \"folderId\":23343,\n    \"needChildren\":true\n}'\n```\n\n响应示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 6905957,\n                \"parentIds\": [\n                    23046,\n                    23345\n                ],\n                \"userId\": \"1673603133161799680\",\n                \"name\": \"Wrigley's Doublemint香蕉味口香糖\",\n                \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n                \"source\": null,\n                \"link\": null,\n                \"extension\": \"png\",\n                \"duration\": null,\n                \"size\": 209769,\n                \"width\": 800,\n                \"height\": 800,\n                \"description\": null,\n                \"score\": null,\n                \"createTime\": 1741160880000,\n                \"createUser\": \"1673603133161799680\",\n                \"updateTime\": 1741160880000,\n                \"updateUser\": 1673603133161799680,\n                \"tags\": [],\n                \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n            }\n        ],\n        \"folders\": [\n            {\n                \"id\": 23345,\n                \"name\": \"访客测试2-1\"\n            }\n        ],\n        \"totalCount\": 1,\n        \"folderCount\": 1\n    },\n    \"traceId\": \"109456b3501142a4a015a0b53fe7bc7e\"\n}\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "assets",
+    "title": "素材管理",
+    "en": "Asset management",
+    "group": "api",
+    "description": "上传、下载、修改、移动与批量读取素材。",
+    "headings": [
+      {
+        "id": "素材上传",
+        "title": "素材上传",
+        "level": 2
+      },
+      {
+        "id": "素材下载",
+        "title": "素材下载",
+        "level": 2
+      },
+      {
+        "id": "素材修改",
+        "title": "素材修改",
+        "level": 2
+      },
+      {
+        "id": "素材移动到文件夹",
+        "title": "素材移动到文件夹",
+        "level": 3
+      },
+      {
+        "id": "批量获取素材",
+        "title": "批量获取素材",
+        "level": 2
+      },
+      {
+        "id": "按素材-id-查询自定义元数据",
+        "title": "按素材 ID 查询自定义元数据",
+        "level": 3
+      },
+      {
+        "id": "查询团队元数据字段列表",
+        "title": "查询团队元数据字段列表",
+        "level": 3
+      },
+      {
+        "id": "批量查询转移素材",
+        "title": "批量查询转移素材",
+        "level": 2
+      },
+      {
+        "id": "查询素材取用者",
+        "title": "查询素材取用者",
+        "level": 2
+      }
+    ],
+    "markdown": "## 素材上传\n\n**接口路径**：/upload-assets\n\n**请求方式**：POST\n\n**接口描述**：将素材上传到DAM系统\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| - | List<EnterpriseAssetSaveReq> | 是 | 素材保存请求列表 |\n\n本节介绍通过可下载 URL 上传素材的接入方式，以下参数要求适用于该方式。\n\n**EnterpriseAssetSaveReq参数说明**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| folderIds | List<Long> | 否 | 目标文件夹 ID 列表；为空时需具备「上传到全部资产」等全局上传能力；非空时需对每一文件夹有上传权限 |\n| name | String | 否 | 展示用文件名；不传时服务端会尽量从 `url` 路径推断 |\n| url | String | 是 | **可直链下载**的素材 URL（GET 可 200）；服务端下载后以新 key 落库，请勿使用会被防盗链/地域限制的短链 |\n| extension | String | 是 | 文件后缀（如 `jpg`、`mp4`），与资源类型一致 |\n| size | Long | 否 | 申报大小（字节）；**实际上传后会以存储侧文件大小为准**，可与客户端本地一致便于校验 |\n| width | Integer | 否 | 图片/视频封面宽度（px）；**图片**未传时会尝试从落地文件读取 |\n| height | Integer | 否 | 图片/视频封面高度（px）；**图片**未传时会尝试从落地文件读取 |\n| duration | Long | 否 | 视频时长（**毫秒**） |\n| link | String | 否 | 关联的网页/来源链接 |\n| description | String | 否 | 备注说明 |\n| rating | Integer | 否 | 评分（写入素材评分字段；与内部 `score` 对应） |\n| userId | Long | 否 | 素材所有者用户 ID；不传时默认为创建者（当前 API Key 对应用户）；指定的用户须属于当前团队 |\n| oldAssetId | Long | 否 | **上传新版本**时填原素材 ID（>0）；将作为封面/版本关联的素材 id |\n| metadatas | List<MetadataDTO> | 否 | 自定义元数据；**仅当团队开启自定义元数据时生效**；`fieldId` 须与「元数据 fields」接口返回的 id 一致，且会校验字段合法性 |\n| skipDuplicateByEtag | Boolean | 否 | 是否查重跳过，为 true 时：远端 URL 已拉取到素材 bucket 之后、写入素材库之前，按 OSS ETag 在团队内查重；若已存在相同内容，则不入库；开放接口返回项中的 id、key、accessUrl指向团队内已存在的素材。默认 false，与历史行为一致。 |\n\n**MetadataDTO（`metadatas` 元素）：**\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| fieldId | String | 条件 | 元数据字段 ID（**上传场景**使用，与 fields 接口 id 一致）；与 `value` 成对出现 |\n| value | Object | 否 | 字段值，类型需与该字段定义一致 |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| assets | List<Item> | 保存成功的素材列表 |\n\n**Item参数说明**：\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| id | Long | 素材ID |\n| key | String | 文件 URL，OSS 的 key 或可下载的文件 |\n| storePath | String | 素材 OSS 存储路径，与 key 相同 |\n| skippedDuplicateByEtag | Boolean | 团队内 ETag 查重命中并跳过上传时为 true；id、key、accessUrl 指向已有素材 |\n| name | String | 标题名称 |\n| accessUrl | String | 访问URL |\n| uploadResult | String | 返回值为 NEW 或者DUPLICATE_BY_ETAG   · NEW : 本条为本次新上传并已入库   · DUPLICATE_BY_ETAG : 未入库，有重复的 |\n\n**示例**：\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/upload-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[\n    {\n        \"folderIds\": [\n            23015\n        ],\n        \"url\": \"https://example.com/assets/sample.jpg\",\n        \"name\": \"测试图片\",\n        \"extension\": \"jpeg\"\n    }\n]'\n```\n\n响应示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"assets\": [\n            {\n                \"id\": 6908936,\n                \"key\": \"api_b9648d4570d2e08364a451b1eec88eea.jpeg\",\n                \"storePath\": \"api_b9648d4570d2e08364a451b1eec88eea.jpeg\",\n                \"uploadResult\": \"NEW\",\n                \"skippedDuplicateByEtag\": false,\n                \"name\": \"测试图片\",\n                \"accessUrl\": \"https://example.com/assets/sample.jpg\"\n            }\n        ]\n    }}\n```\n\n## 素材下载\n\n素材下载不需要单独的接口，可以通过以下两种方式获取素材下载链接：\n\n1. 通过素材检索接口：调用 `/search-assets` 接口返回的数据中，每个素材对象都包含 `downloadUrl` 字段，该字段为素材的下载链接。\n2. 通过批量获取素材接口：调用批量获取素材接口返回的数据中同样包含下载链接。\n\n获取到 `downloadUrl` 后，可以直接使用该 URL 进行素材下载。下载链接通常包含必要的认证信息和访问权限，可以直接在浏览器中打开或使用下载工具进行下载。\n\n**注意事项：**\n\n- 下载链接可能有10个小时的过期时间限制，建议在获取后尽快使用\n- 下载大文件时，请确保网络连接稳定\n- 如需批量下载，建议采用服务端脚本处理，避免客户端下载失败\n\n## 素材修改\n\n**接口路径**：/modify-assets\n\n**请求方式**：POST\n\n**接口描述**：修改素材的基本信息，如名称、描述、评分等\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| - | AssetModifyReq | 是 | 素材修改请求参数 |\n\n**AssetModifyReq参数说明**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| id | Long | 是 | 素材ID |\n| name | String | 否 | 文件名称 |\n| description | String | 否 | 描述信息 |\n| score | Integer | 否 | 评分（1-5） |\n| link | String | 否 | 网页链接 |\n| tags | List<Long> | 否 | 标签ID列表 |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| - | MiniDamAssetDTO | 修改后的素材信息 |\n\n**MiniDamAssetDTO参数说明**：\n\n[查看素材检索中的 MiniDamAssetDTO 参数说明](./search)\n\n**示例**：\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/modify-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"id\":6908914,\n    \"name\":\"bottomTip45\",\n    \"description\":\"description 451\",\n    \"score\":5,\n    \"link\":\"wwww.baidu.com\"\n}'\n```\n\n响应示例：\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"id\": 6908914,\n    \"parentIds\": [],\n    \"userId\": \"1673603133161799680\",\n    \"name\": \"bottomTip45\",\n    \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n    \"source\": null,\n    \"link\": \"wwww.baidu.com\",\n    \"extension\": \"png\",\n    \"duration\": null,\n    \"size\": 111948,\n    \"width\": 290,\n    \"height\": 220,\n    \"description\": \"description 451\",\n    \"score\": 5,\n    \"createTime\": 1753428273000,\n    \"createUser\": \"1673603133161799680\",\n    \"updateTime\": 1753942888000,\n    \"updateUser\": 367024606,\n    \"tags\": [],\n    \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n  },\n  \"traceId\": \"17539429013299310816\"\n}\n```\n\n### 素材移动到文件夹\n\n**接口路径**：`/move-assets-to-folder`\n\n**请求方式**：POST\n\n**接口描述**：将一批素材从指定源文件夹移动或添加到目标文件夹。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| assetIds | List<Long> | 是 | 素材 ID 列表；单次最多 200 条 |\n| fromFolderId | Long | 条件 | operationType=0（移动）时必填且 >0；素材当前所在、需解除关联的文件夹 ID |\n| toFolderId | Long | 是 | 目标文件夹 ID（>0） |\n| operationType | Integer | 否 | 0：移动（从 fromFolderId 解除后加入 toFolderId）；1：添加（保留源关系并加入目标）。默认 0 |\n\n**响应**：Boolean\n\n**请求示例**（移动）：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/move-assets-to-folder' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"assetIds\": [6908914, 6908820],\n  \"fromFolderId\": 10001,\n  \"toFolderId\": 10002,\n  \"operationType\": 0\n}'\n```\n\n**注意事项**：\n\n- 素材、文件夹须存在且属于当前团队；需具备对应文件夹的编辑权限。\n- operationType=0 为移动，=1 为添加（素材同时存在于源文件夹和目标文件夹）。\n\n## 批量获取素材\n\n**接口路径**：/assets-by-ids\n\n**请求方式**：POST\n\n**接口描述**：根据素材ID列表批量获取素材详细信息\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| - | List<Long> | 是 | 素材ID列表 |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| - | List<MiniDamAssetDTO> | 素材信息列表 |\n\n**MiniDamAssetDTO参数说明**：\n\n[查看素材检索中的 MiniDamAssetDTO 参数说明](./search)\n\n**示例**：\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/assets-by-ids' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[6908914,6908820]'\n```\n\n响应示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 6908914,\n            \"parentIds\": [\n                28566\n            ],\n            \"userId\": \"1673603133161799680\",\n            \"name\": \"bottomTip45\",\n            \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n            \"source\": null,\n            \"link\": \"wwww.baidu.com\",\n            \"extension\": \"png\",\n            \"duration\": null,\n            \"size\": 111948,\n            \"width\": 290,\n            \"height\": 220,\n            \"description\": \"description 451\",\n            \"score\": 5,\n            \"createTime\": 1753428273000,\n            \"createUser\": \"1673603133161799680\",\n            \"updateTime\": 1753942901660,\n            \"updateUser\": 367024606,\n            \"tags\": [],\n            \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n        },\n        {\n            \"id\": 6908820,\n            \"parentIds\": [],\n            \"userId\": \"1673603133161799680\",\n            \"name\": \"Full-Stack-Serverless\",\n            \"downloadUrl\": \"https://example.com/assets/sample.jpg\",\n            \"source\": null,\n            \"link\": null,\n            \"extension\": \"epub\",\n            \"duration\": null,\n            \"size\": 4567444,\n            \"width\": null,\n            \"height\": null,\n            \"description\": null,\n            \"score\": null,\n            \"createTime\": 1753264933000,\n            \"createUser\": \"1673603133161799680\",\n            \"updateTime\": 1753264933000,\n            \"updateUser\": 1673603133161799680,\n            \"tags\": [\n                {\n                    \"name\": \"社交媒体设计\",\n                    \"id\": 8223\n                },\n                {\n                    \"name\": \"平台定制\",\n                    \"id\": 8247\n                },\n                {\n                    \"name\": \"cadahsjdkhasdhasjkdhajshdasjkhdajskhdjakshdasjhdajshdjkashd\",\n                    \"id\": 9084\n                },\n                {\n                    \"name\": \"asdashdlajksdhjkashdjksahdjashdlasdj\",\n                    \"id\": 9096\n                },\n                {\n                    \"name\": \"ccc\",\n                    \"id\": 9097\n                },\n                {\n                    \"name\": \"网页设计\",\n                    \"id\": 8224\n                },\n                {\n                    \"name\": \"交互元素\",\n                    \"id\": 8270\n                }\n            ],\n            \"thumbnailAccessUrl\": \"https://example.com/assets/sample.jpg\"\n        }\n    ],\n    \"traceId\": \"1753943463848693869\"\n}\n```\n\n### 按素材 ID 查询自定义元数据\n\n**接口路径**：`/metadata-records-by-ids`\n\n**请求方式**：POST\n\n**接口描述**：按素材 ID 批量查询已写入的自定义元数据字段值。团队未开启自定义元数据、或某素材尚无元数据记录时，该 ID 不会出现在结果中。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| materialIds | List<Long> | 是 | 素材 ID 列表；单次最多 50 |\n\n**响应**：Map<Long, Object>，key 为素材 ID；value 为元数据对象（字段 name → value，并含 recordId、materialId 等）。\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/metadata-records-by-ids' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"materialIds\":[6908914,6908820]}'\n```\n\n**响应示例**：\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"6908914\": {\n      \"materialId\": 6908914,\n      \"recordId\": \"rec_xxx\",\n      \"你的字段名\": \"自定义值\"\n    }\n  },\n  \"traceId\": \"...\"\n}\n```\n\n**注意事项**：\n\n- 仅返回有元数据记录的素材；无记录的 ID 不会出现在 result 中。\n- 上传时写元数据需使用字段 fieldId（见上传接口）；本接口读出的自定义字段以字段 name 为 key。\n\n### 查询团队元数据字段列表\n\n**接口路径**：`/metadata-fields`\n\n**请求方式**：GET\n\n**接口描述**：查询当前团队已配置的自定义元数据字段定义。上传素材时 metadatas[].fieldId 须取自本接口返回的字段 id。团队未开启自定义元数据时返回空列表。\n\n**响应**：List<Object>，每项为字段定义对象：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| id | String | 字段 ID（上传时作为 fieldId） |\n| name | String | 字段名（修改素材元数据时作为 name） |\n| field_type / type | String | 字段类型（如 text、number、select 等，以实际返回为准） |\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/metadata-fields' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n**注意事项**：系统内置字段（如 materialId）也会出现在列表中，业务侧可按需过滤。\n\n## 批量查询转移素材\n\n**说明：** 根据素材 ID 列表，判断各素材是否为「成员资源转移」产生的素材（例如成员退出/移出时，资源被转给其他成员后生成的新素材记录）。\n\n**接口路径：** `/check-transferred-materials`\n\n**请求方式：** `POST`\n\n**请求参数：** `enterpriseTransferMaterialCheckReq`\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| assetIds | List<Long> | 是 | 素材 ID 列表（与开放接口其它处 `id` / `assetIds` 含义一致，即 materialId） |\n\n**响应：** `Map<Long, Boolean>;`\n\n- **Key：** 请求中的素材 ID（assetId）\n- **Value：** `true` 表示为转移产生的素材；`false` 表示不是，或素材不存在\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/check-transferred-materials' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"assetIds\": [1234567890, 9876543210]\n}'\n```\n\n**响应示例：**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"1234567890\": true,\n        \"9876543210\": false\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n**注意事项：**\n\n- 请求参数字段名为 `assetIds`\n- 请求中不存在的素材 ID 也会出现在响应中，对应值为 `false`。\n\n---\n\n## 查询素材取用者\n\n**说明**：分页查询对指定素材有过下载或分享行为的用户（取用者）。数据来源于操作日志，按用户聚合统计次数与最近操作时间。素材须存在于当前团队。\n\n**接口路径**：`/material-access-users-query`\n\n**请求方式**：POST\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| assetId | Long | 是 | 素材 ID |\n| operationTypes | List<Integer> | 否 | 操作类型：1 下载，2 分享；不传或空则同时统计下载与分享 |\n| page | Integer | 否 | 页码，默认 1 |\n| pageSize | Integer | 否 | 每页条数，默认 20，最大 100 |\n\n**响应**：含 total、items。items 元素：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| userId | Long | 用户 ID |\n| realName | String | 真实姓名 |\n| nickName | String | 昵称 |\n| email | String | 邮箱 |\n| phone | String | 手机 |\n| avatarUrl | String | 头像 URL |\n| downloadCount | Long | 下载次数（operationTypes 不含 1 时为 0） |\n| lastDownloadTime | Date | 最近下载时间 |\n| shareCount | Long | 分享次数（operationTypes 不含 2 时为 0） |\n| lastShareTime | Date | 最近分享时间 |\n| lastOperationTime | Date | 最近取用时间（下载或分享中较晚者） |\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/material-access-users-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"assetId\": 123456789,\n  \"operationTypes\": [1, 2],\n  \"page\": 1,\n  \"pageSize\": 20\n}'\n```\n\n**注意事项**：\n\n- 仅统计当前团队内用户对目标素材的操作记录；已离职或已删除用户若日志中仍有记录，仍会返回其 userId 及统计字段，姓名等资料可能为空。\n- 同一 userId 仅返回一条记录（按 userId 去重并合并下载/分享统计）。\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "tags",
+    "title": "标签管理",
+    "en": "Tags",
+    "group": "api",
+    "description": "维护标签树、批量打标和分页查询标签。",
+    "headings": [
+      {
+        "id": "标签管理接口",
+        "title": "标签管理接口",
+        "level": 2
+      },
+      {
+        "id": "批量合并标签",
+        "title": "批量合并标签",
+        "level": 3
+      },
+      {
+        "id": "批量设置素材标签",
+        "title": "批量设置素材标签",
+        "level": 3
+      },
+      {
+        "id": "获取企业版标签数据",
+        "title": "获取企业版标签数据",
+        "level": 3
+      },
+      {
+        "id": "企业标签列表-分页",
+        "title": "企业标签列表（分页）",
+        "level": 3
+      }
+    ],
+    "markdown": "## 标签管理接口\n\n### 批量合并标签\n\n**接口地址**: `/merge-tags`\n\n**请求方式**：POST\n\n**接口描述**: 批量合并企业标签，支持清空现有标签或合并新标签\n\n**请求参数**:\n\n```json\n{\n    \"tags\": [\n        {\n            \"id\": 10837,\n            \"name\": \"商品分类d\",\n            \"operation\": 1,\n            \"children\": [\n                {\n                    \"id\": 10838,\n                    \"name\": \"服装鞋包\",\n                    \"operation\": 1,\n                    \"sort\": 4,\n                    \"children\": [\n                        {\n                            \"name\": \"add2\",\n                            \"operation\": \"2\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": 10839,\n                    \"sort\": 5,\n                    \"operation\": 1,\n                    \"name\":\"数码\"\n                }\n            ]\n        }\n    ]\n}\n```\n\n**参数说明**:\n\n- `tags`: 标签层级结构列表\n\n  - `name`: 标签名称\n  - `id`: 标签id\n  - `operation`: 对该标签进行的操作  0 不操作 1更新 2创建 3 删除  默认0\n  - `sort`:  排序字段，标签信息从大到小排序\n  - `children`: 子标签列表，支持多级嵌套\n\n注意：\n\n```text\noperation 等于 1 的时候 --- id ，name 不为空，标签已存在，并且name不能为当前层级其他的标签名称\noperation 等于 2 的时候 --- id 为空 ，name不能为当前层级其他的标签名称\noperation 等于 3 的时候 --- id 不为空，并且标签已存在\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"tags\": [\n            {\n                \"name\": \"商品分类d\",\n                \"id\": 10837,\n                \"operation\": 1,\n                \"sort\": null,\n                \"children\": [\n                    {\n                        \"name\": \"服装鞋包\",\n                        \"id\": 10838,\n                        \"operation\": 1,\n                        \"sort\": 4,\n                        \"children\": [\n                            {\n                                \"name\": \"add2\",\n                                \"id\": 13945,\n                                \"operation\": 2,\n                                \"sort\": null,\n                                \"children\": null\n                            }\n                        ]\n                    },\n                    {\n                        \"name\": \"数码\",\n                        \"id\": 10839,\n                        \"operation\": 1,\n                        \"sort\": 5,\n                        \"children\": null\n                    }\n                ]\n            }\n        ]\n    },\n    \"traceId\": \"17582767681984319367\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/merge-tags' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"tags\": [\n        {\n            \"id\": 8224,\n            \"name\": \"网页设计\",\n            \"operation\": 1,\n            \"children\": [\n                {\n                    \"id\": 8269,\n                    \"name\": \"界面设计\",\n                    \"operation\": 0,\n                    \"children\": [\n                        {\n                            \"name\": \"add\",\n                            \"operation\": \"2\"\n                        },\n                        {\n                            \"id\": 10894,\n                            \"operation\": 3\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}'\n```\n\n---\n\n### 批量设置素材标签\n\n**接口地址**: `/set-assets-tags`\n\n**请求方式**：POST\n\n**接口描述**: 为指定素材批量设置标签\n\n**请求参数**:\n\n```json\n{\n  \"assetIds\": [123, 456, 789],\n  \"tagIds\": [1, 2, 3],\n  \"remove\": true\n}\n```\n\n**参数说明**:\n\n- `assetIds`: 素材ID列表（必填）\n- `tagIds`: 标签ID列表（必填）\n- `remove`: 是否移除历史标签，默认true\n\n**响应结果**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": true\n}\n```\n\n**业务逻辑**:\n\n- 支持批量为多个素材设置多个标签\n- 可选择是否清除素材的历史标签\n- 自动建立素材与标签的关联关系\n- 记录操作日志\n\n---\n\n### 获取企业版标签数据\n\n**接口地址**: `/query-tag-tree`\n\n**请求方式**：GET\n\n**接口描述**: 获取企业版标签树\n\n**请求示例**:\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/query-tag-tree' \\\n--header 'Authorization: Bearer YOUR_API_KEY'\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 8221,\n            \"name\": \"未分类\",\n            \"children\": [\n                {\n                    \"id\": 10634,\n                    \"name\": \"hh\",\n                    \"children\": null\n                },\n                {\n                    \"id\": 10634,\n                    \"name\": \"hh\",\n                    \"children\": null\n                }\n            ]\n        },\n        {\n            \"id\": 10669,\n            \"name\": \"b\",\n            \"children\": null\n        }\n    ],\n    \"traceId\": \"17555963042174156442\"\n}\n```\n\n### 企业标签列表（分页）\n\n**接口路径**：`/enterprise-tag-list`\n\n**请求方式**：POST\n\n**接口描述**：分页查询企业标签列表，支持按父标签、关键字、标签类型筛选。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| pageNum | Integer | 否 | 页码，默认 1 |\n| pageSize | Integer | 否 | 每页条数，默认 500 |\n| parentId | Long | 否 | 父标签 ID，默认 0（根级） |\n| keyword | String | 否 | 标签名称关键字 |\n| type | Integer | 否 | 标签类型：0 普通 / 1 智能 |\n\n**响应**：含 list（标签列表）、total（总数）。\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/enterprise-tag-list' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"pageNum\": 1,\n  \"pageSize\": 50,\n  \"parentId\": 0\n}'\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "folders",
+    "title": "文件夹管理",
+    "en": "Folders",
+    "group": "api",
+    "description": "搜索目录、创建文件夹树并读取路径与自动标签。",
+    "headings": [
+      {
+        "id": "文件夹管理接口",
+        "title": "文件夹管理接口",
+        "level": 2
+      },
+      {
+        "id": "获取文件夹路径",
+        "title": "获取文件夹路径",
+        "level": 3
+      },
+      {
+        "id": "获取子文件夹id列表",
+        "title": "获取子文件夹ID列表",
+        "level": 3
+      },
+      {
+        "id": "查询文件夹自动标签",
+        "title": "查询文件夹自动标签",
+        "level": 3
+      },
+      {
+        "id": "搜索文件夹",
+        "title": "搜索文件夹",
+        "level": 2
+      },
+      {
+        "id": "创建文件夹",
+        "title": "创建文件夹",
+        "level": 2
+      },
+      {
+        "id": "批量创建文件夹树",
+        "title": "批量创建文件夹树",
+        "level": 3
+      }
+    ],
+    "markdown": "## 文件夹管理接口\n\n### 获取文件夹路径\n\n**接口地址**: `/folder-path`\n\n**请求方式**：POST\n\n**接口描述**: 获取指定文件夹的完整路径信息\n\n**请求参数**:\n\n```json\n[123, 456, 789]\n```\n\n**参数说明**:\n\n- 文件夹ID列表\n\n**响应结果**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"123\": \"根目录/子文件夹1/子文件夹2\",\n    \"456\": \"根目录/其他文件夹\",\n    \"789\": \"根目录/测试文件夹\"\n  }\n}\n```\n\n**业务逻辑**:\n\n- 根据文件夹的treeCode构建完整路径\n- 返回文件夹ID到路径字符串的映射\n- 路径使用\"/\"分隔符连接\n\n---\n\n### 获取子文件夹ID列表\n\n**接口地址**: `/get-sub-folder-ids`\n\n**请求方式**：POST\n\n**接口描述**: 获取指定文件夹的所有子文件夹ID\n\n**请求参数**:\n\n```json\n[123, 456, 789]\n```\n\n**参数说明**:\n\n- 父文件夹ID列表\n\n**响应结果**:\n\n```json\n{\n  \"code\": \"200\",\n  \"message\": \"OK\",\n  \"result\": {\n    \"123\": [123,124, 125, 126],\n    \"456\": [456,457, 458],\n    \"789\": [789]\n  }\n}\n```\n\n**业务逻辑**:\n\n- 递归查询所有层级的子文件夹\n- 返回父文件夹ID到子文件夹ID列表的映射\n- 支持批量查询多个文件夹的子文件夹\n\n---\n\n### 查询文件夹自动标签\n\n**接口路径**：`/folder-auto-tags`\n\n**请求方式**：POST\n\n**接口描述**：批量查询指定文件夹上配置的自动标签。仅返回文件夹自身绑定的标签（不含祖先文件夹标签）。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| folderIds | List<Long> | 是 | 文件夹 ID 列表；单次最多 50 个；须为当前团队内存在的文件夹 |\n\n**响应**：Map<Long, List>，key 为 folderId；无自动标签时对应空数组。\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| id | Long | 标签 ID |\n| name | String | 标签名称 |\n| parentId | Long | 父标签 ID |\n| parent | Object | 父标签（递归）；无父级时为 null |\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/folder-auto-tags' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"folderIds\": [10001, 10002]\n}'\n```\n\n## 搜索文件夹\n\n**接口地址:** `/search-folders`\n\n**请求方式:** POST\n\n**请求参数:** \n\n| 参数名 | 类型 | 必填 | 说明 | 默认值 |\n|-|-|-|-|-|\n| parentId | Long | 否 | 指定搜索目录，包括所有子孙。不传则搜索全部文件夹. 0表示根目录 | - |\n| needChildren | Boolean | 否 | 是否需要子级目录下的文件夹。当parentId存在时，true表示搜索该文件夹及其所有子文件夹，false表示只搜索该文件夹的直接子文件夹 | false |\n| keywords | List<String> | 否 | 搜索关键字列表，支持多个关键字，parentId=0的时候，关键词搜索无效 | - |\n| sort | Object | 否 | 排序条件 | - |\n| sort.sortName | String | 是（当sort存在时） | 排序字段，可选值：CREATE_TIME(创建时间)、UPDATE_TIME(更新时间)、NAME(名称)、SIZE(大小)、SCORE(评分) | - |\n| sort.sortType | String | 否 | 排序类型，可选值：ASC(正序)、DESC(倒序) | DESC |\n| startPoint | Integer | 否 | 分页参数，开始索引 | 0 |\n| endPoint | Integer | 否 | 分页参数，结束索引 | 10 |\n| currentUserId | Long | 否 | 仅搜索该用户有权限的文件夹 |\n| folderIds | List<Long> | 否 | 按指定文件夹 ID 列表查询；传入时走按 ID 查询分支，而非普通关键词和分页搜索 |\n\n请求示例：\n\n```json\n{\n    \"parentId\": 1234567890,\n    \"needChildren\": false,\n    \"keywords\": [\"测试\"],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 10\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/search-folders' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"parentId\": 1234567890,\n    \"needChildren\": false,\n    \"keywords\": [\"测试\"],\n    \"sort\": {\n        \"sortName\": \"CREATE_TIME\",\n        \"sortType\": \"DESC\"\n    },\n    \"startPoint\": 0,\n    \"endPoint\": 10\n}'\n```\n\n返回结果：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| code | String | 响应码，\"0\"表示成功 |\n| message | String | 响应消息 |\n| result | Object | 返回结果对象 |\n| result.folders | Array | 文件夹列表 |\n| result.folders[].id | Long | 文件夹ID |\n| result.folders[].name | String | 文件夹名称 |\n| result.folders[].createUser | Long | 创建人userId |\n| result.folders[].userId | Long | 所有人userId |\n| result.total | Long | 符合条件的文件夹总数 |\n| traceId | String | 追踪ID |\n\n返回示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"folders\": [\n            {\n                \"id\": 1234567890,\n                \"name\": \"测试文件夹\",\n                \"createUser\": 1765276754630496256,\n                \"userId\": 1765276754630496256\n            },\n            {\n                \"id\": 1234567891,\n                \"name\": \"另一个文件夹\",\n                \"createUser\": 1765276754630496257,\n                \"userId\": 1765276754630496257\n            }\n        ],\n        \"total\": 2\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n## 创建文件夹\n\n**接口地址:** `/create-folder`\n\n**请求方式:** POST\n\n**请求参数:** \n\n| 参数名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| name | String | 是 | 文件夹名称，不能为空 |\n| parentFolderId | Long | 是 | 父文件夹ID，必须大于0。创建的文件夹将作为该父文件夹的子文件夹 |\n\n请求示例：\n\n```json\n{\n    \"name\": \"新文件夹\",\n    \"parentFolderId\": 1234567890\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/create-folder' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"name\": \"新文件夹\",\n    \"parentFolderId\": 1234567890\n}'\n```\n\n返回结果：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| code | String | 响应码，\"0\"表示成功 |\n| message | String | 响应消息 |\n| result | Object | 返回结果对象 |\n| result.folderId | Long | 创建的文件夹ID |\n| traceId | String | 追踪ID |\n\n返回示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"folderId\": 1234567891\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n注意事项：\n\n- 父文件夹必须存在，否则会返回错误\n- 创建人默认为当前团队所有者用户ID\n- 文件夹状态默认为团队内协作\n\n### 批量创建文件夹树\n\n**接口路径**：`/create-folder-tree`\n\n**请求方式**：POST\n\n**接口描述**：在指定父文件夹下一次性创建完整子树。同级已存在同名文件夹时自动改名为 name (2)、name (3)…。创建人默认为团队所有者；协作者从父文件夹继承。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| parentFolderId | Long | 是 | 父文件夹 ID；>0 挂到该文件夹下，0 表示团队根目录 |\n| nodes | List<Node> | 是 | 待创建子树根节点列表 |\n\n**Node**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| name | String | 是 | 文件夹名称 |\n| children | List<Node> | 否 | 子文件夹，可嵌套 |\n\n**响应**：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| parentFolderId | Long | 父文件夹 ID |\n| createdCount | Integer | 实际新建文件夹数量 |\n| pathToFolderId | Map<String, Long> | 相对路径 → 文件夹 ID。路径使用请求中的原始名称拼接（不含父目录），即使落库发生了同名改名 |\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/create-folder-tree' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"parentFolderId\": 123,\n  \"nodes\": [\n    {\n      \"name\": \"项目素材\",\n      \"children\": [\n        { \"name\": \"产品图\", \"children\": [] },\n        { \"name\": \"海报\", \"children\": [] }\n      ]\n    }\n  ]\n}'\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "analysis",
+    "title": "智能解析与分发",
+    "en": "Analysis & delivery",
+    "group": "api",
+    "description": "获取 AI 解析结果、DAT 处理链接及素材衍生版本。",
+    "headings": [
+      {
+        "id": "获取素材智能解析结果",
+        "title": "获取素材智能解析结果",
+        "level": 2
+      },
+      {
+        "id": "获取素材原图处理后的公开链接",
+        "title": "获取素材原图处理后的公开链接",
+        "level": 2
+      },
+      {
+        "id": "批量获取素材衍生版本",
+        "title": "批量获取素材衍生版本",
+        "level": 2
+      }
+    ],
+    "markdown": "## 获取素材智能解析结果\n\n**接口地址**: `/get-asset-analysis-result`\n\n**请求方式**：POST\n\n**接口描述**:  获取素材智能解析结果\n\n**请求参数**:\n\n```text\n[6909122]\n```\n\n**参数说明**:\n\n- 素材id\n\n**响应结果**:\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"6909122\": {\n            \"aiTags\": \"紫色,平静,卡通,优雅,动漫,传统服饰,粉色,春季,自然风光,女性,年轻女子\",\n            \"aiTitle\": \"身穿传统服饰的女孩\",\n            \"aiDescription\": \"这是一幅动漫风格的画面，描绘了一位穿着蓝色带有白色花纹的传统服装的女孩。她的头发是长长的银灰色，并且垂在肩上。背景是一个充满粉色樱花树的场景，在阳光下显得非常柔和温暖。女孩的表情平静而温柔，给人一种宁静的感觉。\",\n            \"aiDetailedDescription\": [\n                {\n                    \"usage\": \"这幅图像是用于展示动漫风格的角色插画。\"\n                },\n                {\n                    \"mood\": \"这张图片传达出一种宁静和温柔的情绪氛围。\"\n                },\n                {\n                    \"culture_traits\": \"角色穿着传统的日本服饰（浴衣），体现了日式文化和审美特点。\"\n                },\n                {\n                    \"industry_domain\": \"该作品属于动画或漫画创作领域，可能与游戏、电影或其他视觉艺术相关。\"\n                },\n                {\n                    \"seasonality\": \"背景中的樱花树表明这是春季场景。\"\n                },\n                {\n                    \"holiday_theme\": \"虽然具体节日不明显，但整体色调和元素暗示了春天的传统庆祝活动。\"\n                },\n                {\n                    \"color_scheme\": \"主要颜色是蓝色调，并带有粉色点缀，在色彩搭配上显得柔和而和谐\"\n                }\n            ],\n            \"taskStatus\": 1,\n            \"customContent\": null,\n            \"taskFail\": null\n        }\n    },\n    \"traceId\": \"17555971993244441621\"\n}\n```\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/get-asset-analysis-result' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '[6909122]'\n```\n\n## 获取素材原图处理后的公开链接\n\n**说明：**需要开通DAT能力\n\n**接口路径：** `/processed-public-links`\n\n**请求方式：** POST\n\n**请求参数：** `publicLinkProcessReq`\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| assetIds | List<Long> | 是 | 素材 ID 列表（assetId） |\n| w | Integer | 否 | 目标宽度（px），1–6000，超过原图参数无效 |\n| h | Integer | 否 | 目标高度（px），1–6000，超过原图参数无效 |\n| mode | String | 否 | 缩放模式，默认 fit。fit：等比缩放；crop：居中裁剪 |\n| q | Integer | 否 | 输出质量，1–100，默认 80 |\n| f | String | 否 | 输出格式：jpg / png / webp，不传则保持原格式 |\n| bg | String | 否 | 背景填充色（HEX，不含 #），如 FFFFFF |\n\n**mode 取值：**\n\n| 值 | 说明 |\n|-|-|\n| fit | 等比缩放，按长边缩放，保持宽高比，完整显示 |\n| crop | 居中裁剪到目标宽高 |\n\n**响应：** `Map<Long, String>`\n\n- Key：assetId  \n- Value：该素材原图公开链接的处理后 URL；无公开链接或素材不存在时为 `\"\"`。\n\n## 批量获取素材衍生版本\n\n**说明：** 需团队已开启素材衍生能力；未开启时接口返回错误。\n\n**接口路径：** `/asset-derivative-versions`\n\n**请求方式：** `POST`\n\n**请求参数：** `assetDerivativeInfoReq`\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| assetIds | List<Long> | 是 | 素材 ID 列表（与开放接口其它处 `id` / `assetIds` 含义一致） |\n\n**响应：** `Map<Long, List<EnterpriseAssetDerivativeVersionDTO>>`\n\n- **Key：** 请求中的素材ID\n- **Value：** 该素材在**已开启**衍生规则下的全部衍生版本列表；无衍生版本或素材不存在时为 `[]`\n\n**`EnterpriseAssetDerivativeVersionDTO` 字段：**\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| size | Long | 文件大小（字节） |\n| width | Integer | 文件宽度（px） |\n| height | Integer | 文件高度（px） |\n| accessUrl | String | 可访问的下载链接；仅 `generateStatus = 1`（生成成功）时有值 |\n| publicUrl | String | 衍生版本公开链接；对应衍生规则已开启公开链接且已生成时有值 |\n| internalName | String | 衍生规则内部名称 |\n| displayName | String | 衍生规则显示名称 |\n| generateStatus | Integer | 生成状态（见下表） |\n| name | String | 素材名称 |\n\n**generateStatus 取值：**\n\n| 值 | 说明 |\n|-|-|\n| 0 | 处理中 |\n| 1 | 成功 |\n| 2 | 失败 |\n| 3 | 排队中 |\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/asset-derivative-versions' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"assetIds\": [1234567890, 9876543210]\n}'\n```\n\n**响应示例：**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"1234567890\": [\n            {\n                \"size\": 204800,\n                \"width\": 1920,\n                \"name\":\"xxx\",\n                \"height\": 1080,\n                \"accessUrl\": \"https://example.com/download/xxx.jpg?token=...\",\n                \"publicUrl\": \"https://example.com/public/xxx.jpg\",\n                \"internalName\": \"web_preview\",\n                \"displayName\": \"Web 预览图\",\n                \"generateStatus\": 1\n            }\n        ],\n        \"9876543210\": []\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n**注意事项：**\n\n- 仅返回**规则状态为已开启**的衍生版本；不按素材详情页「显示开关」过滤，返回该素材下全部符合条件的衍生版本。\n- `accessUrl` 为带有效期的签名下载链接；`publicUrl` 依赖团队在衍生规则中开启「生成公开链接」且对应衍生文件已生成公开读地址。\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "team",
+    "title": "团队与成员",
+    "en": "Teams & members",
+    "group": "api",
+    "description": "查询企业、成员、部门和群组信息。",
+    "headings": [
+      {
+        "id": "团队相关接口",
+        "title": "团队相关接口",
+        "level": 2
+      },
+      {
+        "id": "获取团队基本信息",
+        "title": "获取团队基本信息",
+        "level": 3
+      },
+      {
+        "id": "获取团队积分信息",
+        "title": "获取团队积分信息",
+        "level": 3
+      },
+      {
+        "id": "获取团队成员信息",
+        "title": "获取团队成员信息",
+        "level": 3
+      },
+      {
+        "id": "查询团队成员列表",
+        "title": "查询团队成员列表",
+        "level": 3
+      },
+      {
+        "id": "查询团队白名单成员列表",
+        "title": "查询团队白名单成员列表",
+        "level": 3
+      },
+      {
+        "id": "查询团队部门列表",
+        "title": "查询团队部门列表",
+        "level": 3
+      },
+      {
+        "id": "查询团队群组列表",
+        "title": "查询团队群组列表",
+        "level": 3
+      },
+      {
+        "id": "通过部门-id-查询成员列表",
+        "title": "通过部门 ID 查询成员列表",
+        "level": 3
+      },
+      {
+        "id": "通过群组-id-查询成员列表",
+        "title": "通过群组 ID 查询成员列表",
+        "level": 3
+      },
+      {
+        "id": "添加站内消息通知",
+        "title": "添加站内消息通知",
+        "level": 2
+      }
+    ],
+    "markdown": "## 团队相关接口\n\n### 获取团队基本信息\n\n**接口地址**: `/org-info`\n\n**请求方式**:  GET\n\n**请求参数**:\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/org-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json'\n```\n\n返回结果：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"id\": 185,\n        \"name\": \"示例团队\",\n        \"orgNo\": \"M000001\",\n        \"orgFeeType\": 4\n    },\n    \"traceId\": \"17555160673301652392\"\n}\n```\n\n### 获取团队积分信息\n\n**接口地址**：`/org-point-info`\n\n**请求方式**：GET\n\n**接口描述**：获取当前 API Key 所属团队的剩余积分余额。\n\n**请求参数**：无。团队由 API Key 确定，无需传入团队 ID。\n\n**返回参数**：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| result | Double | 团队剩余积分，数值类型，可包含小数 |\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/org-point-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json'\n```\n\n**返回示例**（积分数值仅用于演示）：\n\n```json\n{\n  \"code\": \"0\",\n  \"message\": \"OK\",\n  \"result\": 1250.5,\n  \"traceId\": \"example-trace-id\"\n}\n```\n\n读取 `result` 即可获取剩余积分。\n\n### 获取团队成员信息\n\n**接口地址**: `/org-member-info`\n\n**请求方式**:  POST\n\n**请求参数**: \n\n```text\n{\n    \"userId\": \"1765276754630496256\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/org-member-info' \\\n--header 'Authorization: Bearer YOUR_API_KEY' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"userId\": \"1765276754630496256\"\n}'\n```\n\n返回结果：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": {\n        \"userId\": \"1765276754630496256\",\n        \"realName\": \"xxx\",\n        \"nickName\": \"xxxx\",\n        \"avatarUrl\": \"https://example.com/avatar.png\",\n        \"roleCode\": \"admin\",\n        \"departmentIds\": [\n            0,\n            200\n        ],\n        \"groupIds\": [\n            20,\n            22\n        ]\n    },\n    \"traceId\": \"17561978534182325498\"\n}\n```\n\n### 查询团队成员列表\n\n**接口路径：** `/org-members-query`  \n\n**请求方式：** `POST`  \n\n**接口描述：** 分页查询当前团队下的成员列表，支持关键字、部门、状态等筛选。\n\n**请求参数：**\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| keyword | String | 否 | 查询关键字，匹配姓名 / 昵称 / 拼音 / 邮箱 / 手机号 |\n| page | Integer | 否 | 页码，默认 `1` |\n| pageSize | Integer | 否 | 每页数量，默认 `10` |\n| accountStatusEnumList | List<String> | 否 | 成员状态筛选，可选：`PendingActivation`（待激活）、`normal`（正常）、`resigned`（已离职） |\n| departmentId | Long | 否 | 按部门筛选 |\n| needChildMember | Boolean | 否 | 是否包含子部门成员，默认 `false` |\n| needUserUseMemorySize | Boolean | 否 | 是否返回成员已用存储容量，默认 `false` |\n| addType | Integer | 否 | 添加类型：`0` 手动导入，`1` 飞书导入 |\n| isSale | Integer | 否 | 是否销售人员：`0` 否，`1` 是 |\n\n**响应结构：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| records | List<Object> | 成员列表，见下表 |\n| total | Long | 总条数 |\n| current | Long | 当前页码 |\n| size | Long | 每页数量 |\n\n**records[] 字段：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| userId | Long | 用户 ID |\n| nickName | String | 昵称 |\n| realName | String | 真实姓名 |\n| avatarUrl | String | 头像 URL |\n| roleName | String | 角色名称 |\n| roleCode | String | 角色 code |\n| roleId | Long | 角色 ID |\n| orgRoleVO | Object | 企业版角色信息，见下表；非企业版可能为空 |\n| departmentList | List<Object> | 所属部门列表，见下表 |\n| jobTitle | String | 职位 |\n| phone | String | 手机号 |\n| email | String | 企业邮箱 |\n| accountStatusEnum | String | 账号状态：`PendingActivation` / `normal` / `resigned` 等 |\n| joinTime | Date | 加入时间 |\n| toppingSort | Integer | 置顶排序，越大越靠前 |\n| userUseMemorySize | Long | 已用存储容量（字节）；仅当请求 `needUserUseMemorySize=true` 时返回 |\n| loginEmail | String | 登录邮箱 |\n| addType | Integer | 添加类型：`0` 手动导入，`1` 飞书导入 |\n| userStatus | Integer | 注册状态：`1` 已注册，`0` 未注册 |\n| isSale | Integer | 是否销售：`0` 否，`1` 是 |\n| language | String | 语言 |\n| region | String | 地区代码，多个用逗号分隔，如 `US,GB` |\n| storageRegionCode | String | 存储地区标识 |\n\n**orgRoleVO 字段：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| id | Long | 角色 ID |\n| name | String | 角色名称 |\n| code | String | 角色 code |\n| createUser | Long | 创建人用户 ID |\n| createUserRealName | String | 创建人真实姓名 |\n| createUserNickName | String | 创建人昵称 |\n| createUserAvatarUrl | String | 创建人头像 URL |\n\n**departmentList[] 字段：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| id | Long | 部门 ID |\n| name | String | 部门名称 |\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/org-members-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"page\":1,\"pageSize\":10,\"keyword\":\"\"}'\n```\n\n### 查询团队白名单成员列表\n\n**接口路径：** `/org-whitelist-query`  \n\n**请求方式：** `POST`  \n\n**接口描述：** 分页查询当前团队下的白名单成员列表，支持关键字、群组等筛选。\n\n**请求参数：**\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| keyword | String | 否 | 查询关键字，匹配姓名 / 手机号 / 联系邮箱 |\n| page | Integer | 否 | 页码，默认 `1` |\n| pageSize | Integer | 否 | 每页数量，默认 `10` |\n| groupId | Long | 否 | 按群组筛选 |\n| addType | Integer | 否 | 添加类型：`0` 手动导入，`1` 飞书导入 |\n\n**响应结构：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| records | List<Object> | 白名单成员列表，见下表 |\n| total | Long | 总条数 |\n| current | Long | 当前页码 |\n| size | Long | 每页数量 |\n\n**records[] 字段：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| id | Long | 白名单记录 ID |\n| userId | Long | 用户 ID；未注册用户可能为空 |\n| userName | String | 用户姓名 |\n| userPhone | String | 用户手机号 |\n| loginEmail | String | 登录邮箱 |\n| userContactEmail | String | 联系邮箱 |\n| userAvatarUrl | String | 头像 URL |\n| toppingSort | Integer | 置顶排序，越大越靠前 |\n| remark | String | 备注 |\n| addType | Integer | 添加类型：`0` 手动导入，`1` 飞书导入 |\n| createTime | Date | 创建时间 |\n| groups | List<Object> | 所属群组列表，见下表 |\n\n**groups[] 字段：**\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| id | Long | 群组 ID |\n| name | String | 群组名称 |\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/org-whitelist-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"page\":1,\"pageSize\":10,\"keyword\":\"\"}'\n```\n\n### 查询团队部门列表\n\n**接口路径**：`/org-departments-query`\n\n**请求方式**：GET\n\n**接口描述**：获取当前团队下某个父部门的直接子部门列表；parentId=0 表示根部门。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| parentId | Long | 否 | 父部门 ID，默认 0，表示查询根部门 |\n\n**响应**：List，包含 id、name。\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/org-departments-query?parentId=0' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### 查询团队群组列表\n\n**接口路径**：`/org-groups-query`\n\n**请求方式**：GET\n\n**接口描述**：获取当前团队成员群组下某个父群组的直接子群组列表；parentId=0 表示根群组。该接口仅返回企业团队成员群组，不包含企业白名单群组。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| parentId | Long | 否 | 父群组 ID，默认 0，表示查询根群组 |\n\n**响应**：List，包含 id、name。\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/org-groups-query?parentId=0' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### 通过部门 ID 查询成员列表\n\n**接口路径**：`/department-members-query`\n\n**请求方式**：GET\n\n**接口描述**：按部门查询成员列表，可选择是否包含子部门成员。字段结构与 /org-members-query 的 records[] 基本一致。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| departmentId | Long | 是 | 部门 ID |\n| needChildMember | Boolean | 否 | 是否包含子部门成员，默认 false |\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/department-members-query?departmentId=123&needChildMember=false' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### 通过群组 ID 查询成员列表\n\n**接口路径**：`/group-members-query`\n\n**请求方式**：POST\n\n**接口描述**：分页查询企业团队成员群组下的成员。records[] 字段结构与 /org-members-query 的 records[] 基本一致（群组成员查询不返回企业 role 信息）。\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| groupId | Long | 是 | 群组 ID |\n| keyWord | String | 否 | 关键字搜索 |\n| needChildMember | Boolean | 否 | 是否包含子成员，默认 false |\n| page | Integer | 否 | 页码，默认 1 |\n| pageSize | Integer | 否 | 每页数量，默认 10 |\n\n**响应**：含 records / total / current / size。\n\n**请求示例**：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/group-members-query' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"groupId\":1,\"keyWord\":\"\",\"needChildMember\":false,\"page\":1,\"pageSize\":10}'\n```\n\n## 添加站内消息通知\n\n**接口路径：** `/add-in-app-notify`  \n\n**请求方式：** `POST`\n\n**接口描述：** 向企业空间内的用户发送一条**站内消息通知**（写入通知表并走与控制台一致的后处理，如飞书等）。通知既可关联文件夹、素材、素材组等资源，也可覆盖协作、删除、权限申请与结果、评论、团队变更等多种业务类型，由 `notificationType` 与资源字段共同表达。开放接口与控制台「添加站内消息」类能力对齐，供三方系统在自动化流程中代发通知。\n\n**请求体：** `req`\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| notificationType | String | 是 | **须与素材服务** `notificationType` **的 code 完全一致**（见下表） |\n| receiverId | Long | 是 | 接收者用户 ID |\n| senderId | Long | 否 | 发送者用户 ID；不传则使用 API 上下文当前用户 |\n| resourceType | Integer | 否 | **须与** `resourceType` **一致**（见下表）；无关联资源时可不传 |\n| resourceName | String | 否 | 资源名称（展示用） |\n| content | String | 否 | 通知正文 |\n| resourceId | Long | 否 | 关联资源 ID |\n| permissionApprovedRoleId | Integer | 否 | 权限申请类通知中申请的目标角色 ID |\n\n**notificationType**\n\n| code | 说明 |\n|-|-|\n| collaboration | 协作 |\n| deletion | 删除 |\n| permission_approved | 权限申请 |\n| permission_success | 权限通过 |\n| permission_refuse | 权限拒绝 |\n| comment | 评论 |\n| comment_reply | 回复 |\n| share_comment | 分享评论 |\n| share_comment_reply | 分享评论回复 |\n| team_member_join | 新成员加入团队 |\n| team_member_quit | 成员已退出团队 |\n| team_member_leave | 飞书成员已离职 |\n| asset_upload | 素材上传 |\n| subfolder_asset_upload | 子文件夹素材上传 |\n| asset_version_upload | 素材版本上传 |\n| subfolder_asset_version_upload | 子文件夹素材版本上传 |\n| asset_version_change | 素材版本变更 |\n| subfolder_asset_version_change | 子文件夹素材版本变更 |\n| asset_version_remove | 素材版本移出 |\n| subfolder_asset_version_remove | 子文件夹素材版本移出 |\n| asset_version_delete | 素材版本删除 |\n| subfolder_asset_version_delete | 子文件夹素材版本删除 |\n| folder_and_material_delete | 文件夹和素材被删除 |\n| subfolder_and_material_delete | 子文件夹和素材被删除 |\n| folder_delete | 文件夹被删除 |\n| subfolder_delete | 子文件夹被删除 |\n| folder_material_delete | 文件夹下的素材被删除 |\n| subfolder_material_delete | 子文件夹下的素材被删除 |\n| folder_material_move | 文件夹下的素材移动 |\n| subfolder_material_move | 子文件夹下的素材移动 |\n| approval | 审批 |\n\n**resourceType**\n\n| resourceType | 说明 |\n|-|-|\n| 1 | 文件夹（FOLDER） |\n| 2 | 素材（MATERIAL） |\n| 3 | 素材组（MATERIAL_GROUP） |\n| 4 | 团队（TEAM） |\n\n与 `resourceId` 联用：`resourceId` 表示对应类型下的业务主键（如文件夹 ID、素材 ID、团队 ID 等）。\n\n**响应：** `result` 为 `Boolean`。\n\n**请求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/add-in-app-notify' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"notificationType\": \"permission_approved\",\n    \"receiverId\": 1765276754630496256,\n    \"resourceType\": 1,\n    \"resourceId\": 1234567890,\n    \"resourceName\": \"品牌素材库\",\n    \"content\": \"申请查看该协作文件夹的权限\",\n    \"permissionApprovedRoleId\": 2\n}'\n```\n\n**响应示例：**\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17561978534182325498\"\n}\n```\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "events",
+    "title": "事件与 Webhook",
+    "en": "Events & webhooks",
+    "group": "api",
+    "description": "订阅文件夹变更和团队素材事件，连接自动化流程。",
+    "headings": [
+      {
+        "id": "订阅文件夹",
+        "title": "订阅文件夹",
+        "level": 2
+      },
+      {
+        "id": "回调事件说明",
+        "title": "回调事件说明",
+        "level": 3
+      },
+      {
+        "id": "订阅素材事件",
+        "title": "订阅素材事件",
+        "level": 2
+      },
+      {
+        "id": "查询可订阅事件类型",
+        "title": "查询可订阅事件类型",
+        "level": 3
+      },
+      {
+        "id": "订阅-取消订阅",
+        "title": "订阅 / 取消订阅",
+        "level": 3
+      },
+      {
+        "id": "接收端实现建议",
+        "title": "接收端实现建议",
+        "level": 2
+      }
+    ],
+    "markdown": "## 订阅文件夹\n\n**接口路径**：/folder-subscribe\n\n**请求方式**：POST\n\n**接口描述**：订阅或取消订阅文件夹内容更新事件\n\n**请求参数**：\n\n| 参数名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| - | OpenApiSubReq | 是 | 订阅请求参数 |\n\n**OpenApiSubReq参数说明**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| folderIds | List<Long> | 是 | 需要订阅的文件夹ID列表 |\n| callbackUrl | String | 是 | 回调地址 |\n| eventType | String | 否 | 回调事件类型，默认为\"FOLDER_CONTENT_UPDATE\"（文件夹内容更新） |\n| operation | String | 否 | 操作类型，\"ADD\"表示新增订阅，\"DELETE\"表示删除订阅，默认为\"ADD\" |\n\n**响应参数**：\n\n| 参数名 | 类型 | 描述 |\n|-|-|-|\n| - | Boolean | 操作是否成功 |\n\n**示例**：\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/folder-subscribe' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"folderIds\": [100, 101, 102],\n  \"callbackUrl\": \"https://example.com/api/callback\",\n  \"eventType\": \"FOLDER_CONTENT_UPDATE\",\n  \"operation\": \"ADD\"\n}'\n```\n\n响应示例：\n\n```json\n{\n    \"code\": \"0\",\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"1753698709474457484\"\n}\n```\n\n### 回调事件说明\n\n当订阅的文件夹内容发生更新时，系统会向指定的回调地址发送POST请求，传递以下信息：\n\n| 字段名 | 类型 | 是否必填 | 说明 | 备注 / 示例 |\n|-|-|-|-|-|\n| eventType | String | 是 | 事件类型标识，表示这是一次文件夹内容变更事件。 | 默认值：`FOLDER_CONTENT_UPDATE` |\n| folderId | Long | 是 | 发生变更的文件夹 ID。 | 如：`123456789` |\n| eventTime | String | 是 | 事件发生时间。 | 建议使用 ISO8601：`2026-03-05T12:34:56+08:00` |\n| type | String | 是 | 变更类型。 | 可选值：`ADD`（新增）、`UPDATE`（更新）、`DELETE`（删除） |\n| assets | List<MaterialCallbackDTO> | 是 | 本次变更涉及的素材列表，每个元素为一个素材回调对象。 | `type = DELETE` 时可只携带必要标识字段，其它情况建议带完整信息。 |\n| orgId | Long | 否 | 所属团队（组织）ID，用于区分事件来源团队。 | 如：`10001`；部分场景可由上下文推断时可选填。 |\n\n**MaterialCallbackDTO 字段说明**\n\n| 字段名 | 类型 | 是否必填 | 说明 | 备注 / 示例 |\n|-|-|-|-|-|\n| id | Long | 是 | 素材 ID。 | 如：`987654321` |\n| parentIds | List<Long> | 是 | 所在父级文件夹 ID 列表（从根到当前父级的路径）。 | 如：`[1, 23, 456]`，表示层级路径上的各级文件夹 ID。 |\n| userId | String | 是 | 触发本次变更的用户 ID。 | 如：`\"10001\"` |\n| name | String | 是 | 文件原始名称。 | 如：`\"品牌海报_v1.psd\"` |\n| downloadUrl | String | 是 | 素材下载地址（带权限的直链或临时下载链接）。 | 如：`https://example.com/download/xxx` |\n| source | Integer | 是 | 素材来源类型。 | `1`：网页；`2`：上传；`3`：复制 |\n| link | String | 否 | 关联链接，通常为来源页或外部引用地址。 | 如：落地页 URL、原始网页地址等。 |\n| extension | String | 是 | 文件后缀（不含点）。 | 如：`\"jpg\"`、`\"mp4\"`、`\"psd\"` |\n| duration | Long | 否 | 媒体时长，单位：秒（仅对视频/音频有意义）。 | 如：`120` 表示 120 秒；非音视频可为空或 `0`。 |\n| size | Long | 是 | 文件大小，单位：KB。 | 如：`2048` 表示约 2MB。 |\n| width | Integer | 否 | 媒体宽度，单位：像素。 | 如：`1920`；非图片/视频可为空。 |\n| height | Integer | 否 | 媒体高度，单位：像素。 | 如：`1080`；非图片/视频可为空。 |\n| description | String | 否 | 素材描述或备注。 | 如：`\"2026 春季新品 KV 用图\"` |\n| score | Integer | 否 | 素材评分。 | 一般为 1–5 分，具体区间按业务约定。 |\n| createUser | String | 否 | 素材创建人标识（可能与当前触发事件的用户不同）。 | 如：最初上传者的用户 ID。 |\n\n回调示例：\n\n```json\n{\n  \"eventType\": \"FOLDER_CONTENT_UPDATE\",\n  \"folderId\": 23102,\n  \"eventTime\": \"1753946835010\",\n  \"type\": \"UPDATE\",\n  \"assets\": [\n    {\n      \"id\": 6906970,\n      \"parentIds\": [],\n      \"userId\": \"1673603133161799680\",\n      \"name\": \"海洋猎食者：海豚与鱼群的壮观追逐\",\n      \"downloadUrl\": null,\n      \"source\": 2,\n      \"link\": null,\n      \"extension\": \"rm\",\n      \"duration\": null,\n      \"size\": null,\n      \"width\": null,\n      \"height\": null,\n      \"description\": \"11\",\n      \"score\": null,\n      \"createUser\": \"1673603133161799680\"\n    }\n  ]\n}\n```\n\n## 订阅素材事件\n\n**说明**：与第 6 节「订阅文件夹」（folder-subscribe / FOLDER_CONTENT_UPDATE）相互独立。本接口按团队订阅素材相关事件；业务发生后系统异步 POST 到 callbackUrl。只做通知，不拦截、不改写入库流程。\n\n### 查询可订阅事件类型\n\n**接口路径**：`/material-automation-event-types`\n\n**请求方式**：GET\n\n**接口描述**：返回当前对外开放的事件类型，以及当前 API Key 是否已订阅。\n\n**响应**：List，每项字段：\n\n| 字段名 | 类型 | 说明 |\n|-|-|-|\n| code | String | 事件 code，订阅时写入 eventTypes |\n| desc | String | 中文说明 |\n| needsConfig | Boolean | 是否需要传 config（当前对外开放的事件均为 false） |\n| subscribed | Boolean | 当前 API Key 是否已对该事件有活跃订阅 |\n\n**请求示例**：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/muse/material-automation-event-types' \\\n--header 'Authorization: Bearer your_api_key'\n```\n\n### 订阅 / 取消订阅\n\n**接口路径**：`/material-automation-subscribe`\n\n**请求方式**：POST\n\n**请求参数**：\n\n| 字段名 | 类型 | 必填 | 描述 |\n|-|-|-|-|\n| callbackUrl | String | 是 | Webhook 回调地址 |\n| eventTypes | List<String> | 是 | 事件类型列表，取值见下表，可一次订阅多种 |\n| operation | String | 否 | ADD 订阅（默认），DELETE 取消订阅 |\n\n**对外开放的 eventTypes**：\n\n| eventType | 描述 |\n|-|-|\n| MATERIAL_INBOUND_COMPLETED | 素材完成入库时：真正入库成功后再通知（不拦截） |\n| MATERIAL_ADDED_TO_FOLDER | 素材被添加到文件夹（上传指定文件夹、站内/开放 API 添加或移入共享空间文件夹；已存在关系不重复推送） |\n| MATERIAL_METADATA_UPDATED | 素材元数据被修改（名称、描述、标签、所有者、自定义元数据等） |\n| MATERIAL_VERSION_CHANGED | 素材版本变更（新增版本、设为封面、移出版本等） |\n| MATERIAL_DELETED | 素材被删除（进回收站 / 永久删除） |\n\n**响应**：Boolean\n\n**请求示例**（订阅）：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/material-automation-subscribe' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"callbackUrl\": \"https://your.app/webhook/material-events\",\n    \"eventTypes\": [\n        \"MATERIAL_INBOUND_COMPLETED\",\n        \"MATERIAL_ADDED_TO_FOLDER\",\n        \"MATERIAL_METADATA_UPDATED\",\n        \"MATERIAL_VERSION_CHANGED\",\n        \"MATERIAL_DELETED\"\n    ],\n    \"operation\": \"ADD\"\n}'\n```\n\n**取消订阅**：将 operation 设为 DELETE，按当前 API Key + callbackUrl + eventType 取消（无需 subscriptionId）。\n\n**Webhook 回调**：系统向 callbackUrl 发送 POST，请求体如下：\n\n| 字段名 | 类型 | 描述 |\n|-|-|-|\n| eventId | String | 幂等事件 ID |\n| eventType | String | 事件类型，见上表 |\n| eventTime | String | 事件时间戳（毫秒字符串） |\n| payload | Object | 事件业务载荷，按 eventType 不同，见下表 |\n\n**各事件 payload**：\n\n| eventType | payload 字段 |\n|-|-|\n| MATERIAL_INBOUND_COMPLETED | source（UPLOAD_ASSETS / PENDING_INBOUND_CONFIRM）、initiatorUserId。正式上传成功：uploadResults、materialIds。待入库确认成功：pendingInboundIdToMaterialId |\n| MATERIAL_ADDED_TO_FOLDER | materialIds：本次新建关系的封面素材 ID；folderIds：目标文件夹 ID |\n| MATERIAL_METADATA_UPDATED | changeType（BASIC / VALIDITY / TAGS / OWNER / METADATA / CUSTOM_FIELD）；materialIds；materials[]（仅含本类改后字段）。各类型字段见下表 |\n| MATERIAL_VERSION_CHANGED | coverMaterialId、newMaterialId、action（ADD / SET_COVER / REPLACE_COVER_ON_UPLOAD / REMOVE）；可选 version。REMOVE 时 coverMaterialId 为被移出版本素材 ID，newMaterialId 为移出后该版本线最新素材 ID；可选 removeType（ADD 移出并加入当前文件夹 / DELETE 移出并进回收站）、versionGroupDissolved |\n| MATERIAL_DELETED | materialIds；deleteAction（RECYCLE 进回收站 / PERMANENT 永久删除）；可选顶层 folderIds（同批删除的文件夹）；materials[] 删除前快照（name / materialType / extension / tagIds / tagNames / folderIds / ownerUserId / createUserId） |\n\n**MATERIAL_METADATA_UPDATED materials[] 按 changeType**：\n\n| changeType | materials 单条字段（有值才带） |\n|-|-|\n| BASIC | materialId；name / description / score / link（本次修改入参） |\n| VALIDITY | materialId；validityStatus；validityStatusName；daysToExpire；startTime；endTime；isPermanent |\n| TAGS | materialId；tagIds；tagNames |\n| OWNER | materialId（转移后的新素材 ID）；ownerUserId |\n| METADATA | materialId；可选 recordId；metadata（仅本次创建/更新的自定义字段） |\n| CUSTOM_FIELD | materialId；customFields：[{ \"templateId\": ... }] |\n\n**各事件回调示例**：以下均为 POST 到 callbackUrl 的完整请求体。未出现的字段表示本次没有该值，不要按固定 schema 强校验。\n\n**MATERIAL_INBOUND_COMPLETED**（正式上传入库成功）：\n\n```json\n{\n  \"eventId\": \"evt_1753946835010_a1b2\",\n  \"eventType\": \"MATERIAL_INBOUND_COMPLETED\",\n  \"eventTime\": \"1753946835010\",\n  \"payload\": {\n    \"source\": \"UPLOAD_ASSETS\",\n    \"initiatorUserId\": 10001,\n    \"materialIds\": [20001, 20002],\n    \"uploadResults\": [\n      {\n        \"id\": 20001,\n        \"name\": \"春季KV.jpg\",\n        \"extension\": \"jpg\",\n        \"size\": 204800,\n        \"width\": 1920,\n        \"height\": 1080,\n        \"uploadStatus\": 1\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_ADDED_TO_FOLDER**：\n\n```json\n{\n  \"eventId\": \"evt_1753946900001_c3d4\",\n  \"eventType\": \"MATERIAL_ADDED_TO_FOLDER\",\n  \"eventTime\": \"1753946900001\",\n  \"payload\": {\n    \"materialIds\": [20001, 20002],\n    \"folderIds\": [30001]\n  }\n}\n```\n\n**MATERIAL_METADATA_UPDATED**（changeType = BASIC，改名称/描述/评分）：\n\n```json\n{\n  \"eventId\": \"evt_1753947000002_e5f6\",\n  \"eventType\": \"MATERIAL_METADATA_UPDATED\",\n  \"eventTime\": \"1753947000002\",\n  \"payload\": {\n    \"changeType\": \"BASIC\",\n    \"materialIds\": [20001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"name\": \"春季KV_v2.jpg\",\n        \"description\": \"2026 春季主视觉\",\n        \"score\": 5\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_METADATA_UPDATED**（changeType = TAGS，改标签）：\n\n```json\n{\n  \"eventId\": \"evt_1753947050003_g7h8\",\n  \"eventType\": \"MATERIAL_METADATA_UPDATED\",\n  \"eventTime\": \"1753947050003\",\n  \"payload\": {\n    \"changeType\": \"TAGS\",\n    \"materialIds\": [20001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"tagIds\": [10837, 10838],\n        \"tagNames\": [\"商品分类\", \"服装鞋包\"]\n      }\n    ]\n  }\n}\n```\n\n**MATERIAL_VERSION_CHANGED**（新增版本）：\n\n```json\n{\n  \"eventId\": \"evt_1753947100004_i9j0\",\n  \"eventType\": \"MATERIAL_VERSION_CHANGED\",\n  \"eventTime\": \"1753947100004\",\n  \"payload\": {\n    \"coverMaterialId\": 20001,\n    \"newMaterialId\": 20088,\n    \"action\": \"ADD\",\n    \"version\": 3\n  }\n}\n```\n\n**MATERIAL_DELETED**（进回收站）：\n\n```json\n{\n  \"eventId\": \"evt_1753947200005_k1l2\",\n  \"eventType\": \"MATERIAL_DELETED\",\n  \"eventTime\": \"1753947200005\",\n  \"payload\": {\n    \"materialIds\": [20001],\n    \"deleteAction\": \"RECYCLE\",\n    \"folderIds\": [30001],\n    \"materials\": [\n      {\n        \"materialId\": 20001,\n        \"name\": \"春季KV_v2.jpg\",\n        \"materialType\": 1,\n        \"extension\": \"jpg\",\n        \"tagIds\": [10837, 10838],\n        \"tagNames\": [\"商品分类\", \"服装鞋包\"],\n        \"folderIds\": [30001],\n        \"ownerUserId\": 10001,\n        \"createUserId\": 10001\n      }\n    ]\n  }\n}\n```\n\n**注意事项**：\n\n- 只做通知，不拦截入库。eventTypes 请只传上表中的类型，其它事件类型暂不对外开放。\n- 团队需已开通该订阅能力；未开通时订阅会失败。\n- 可与第 6 节文件夹订阅同时使用；两者都订时可能收到两类通知。\n- MATERIAL_DELETED 可能对同一素材先推送 RECYCLE，永久清理后再推送 PERMANENT。\n\n## 接收端实现建议\n\n素材事件使用 `eventId` 去重，按 `eventType` 分发处理。文件夹回调与素材事件是两套独立协议，不要混用字段。先持久化事件再异步处理耗时任务；重试与验签机制需以双方约定为准。\n\n> 原文的文件夹回调中，时间格式、时长和大小单位存在表格与示例差异。接入时请与服务方确认，并兼容可空字段；不要将其单位直接套用到上传接口。",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "errors",
+    "title": "错误处理",
+    "en": "Error handling",
+    "group": "api",
+    "description": "定位鉴权、参数、业务与系统错误。",
+    "headings": [
+      {
+        "id": "常见错误及处理方法",
+        "title": "常见错误及处理方法",
+        "level": 2
+      },
+      {
+        "id": "api-认证错误",
+        "title": "API 认证错误",
+        "level": 3
+      },
+      {
+        "id": "请求参数错误",
+        "title": "请求参数错误",
+        "level": 3
+      },
+      {
+        "id": "业务逻辑错误",
+        "title": "业务逻辑错误",
+        "level": 3
+      },
+      {
+        "id": "系统级错误",
+        "title": "系统级错误",
+        "level": 3
+      },
+      {
+        "id": "排查顺序",
+        "title": "排查顺序",
+        "level": 2
+      }
+    ],
+    "markdown": "## 常见错误及处理方法\n\n### API 认证错误\n\n| 错误码 | 错误描述 | 处理方法 |\n|-|-|-|\n| MB100002 | 没有权限访问该资源 | 检查 API Key 是否正确，是否具有访问该资源的权限 |\n| 401 | Unauthorized | API Key 无效或已过期，需要更新 API Key |\n\n### 请求参数错误\n\n| 错误码 | 错误描述 | 处理方法 |\n|-|-|-|\n| MB100001 | 请求参数不正确 | 检查请求参数格式、类型是否符合API要求 |\n| MB100003 | 资源不存在 | 检查请求的资源ID是否存在或已被删除 |\n\n### 业务逻辑错误\n\n| 错误码 | 错误描述 | 处理方法 |\n|-|-|-|\n| MB100004 | 资源不支持该操作 | 检查操作是否适用于当前资源类型 |\n| MB100005 | 业务处理失败 | 根据错误信息调整业务逻辑或重试 |\n\n### 系统级错误\n\n| 错误码 | 错误描述 | 处理方法 |\n|-|-|-|\n| MS100001 | 系统异常 | 稍后重试，如持续出现请联系技术支持 |\n| MS100003 | 系统繁忙 | 实施请求限流，延迟重试 |\n\n## 排查顺序\n\n1. 检查 HTTP 状态、业务 `code` 与 `message`，保存 `traceId`。\n2. 验证域名、请求方法、请求体类型和密钥授权范围。\n3. 检查资源是否属于当前企业，及相应产品能力是否已开通。\n4. 对临时系统故障使用有上限的重试；参数或权限错误修复后再请求。\n\n原始示例中的成功业务码存在 `0`、`\"0\"` 与 `\"200\"` 等写法。请按具体接口确认成功判断逻辑，不要仅凭 HTTP 200 判定业务成功。",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "applications",
+    "title": "应用认证与安装",
+    "en": "App authentication",
+    "group": "apps",
+    "description": "企业管理员授权后，使用应用凭证管理企业 API Key。",
+    "headings": [
+      {
+        "id": "概述",
+        "title": "概述",
+        "level": 2
+      },
+      {
+        "id": "基础信息",
+        "title": "基础信息",
+        "level": 2
+      },
+      {
+        "id": "请求路径",
+        "title": "请求路径",
+        "level": 3
+      },
+      {
+        "id": "认证方式",
+        "title": "认证方式",
+        "level": 3
+      },
+      {
+        "id": "获取api-key",
+        "title": "获取API key",
+        "level": 3
+      },
+      {
+        "id": "刷新-api-key",
+        "title": "刷新 API Key",
+        "level": 3
+      },
+      {
+        "id": "撤销-api-key",
+        "title": "撤销 API Key",
+        "level": 3
+      },
+      {
+        "id": "查询安装状态",
+        "title": "查询安装状态",
+        "level": 3
+      },
+      {
+        "id": "列出所有安装",
+        "title": "列出所有安装",
+        "level": 3
+      },
+      {
+        "id": "相关业务异常信息",
+        "title": "相关业务异常信息",
+        "level": 3
+      }
+    ],
+    "markdown": "## 概述\n\n提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 基础信息\n\n### 请求路径\n\n- **生产环境**：https://open.musedam.cc/api/apps\n- **海外环境**：https://open.musedam.ai/api/apps\n\n### 认证方式\n\n采用 **HTTP Basic Authentication**认证机制：\n\n- 将appId和appSecretKey以`appId:appSecretKey`格式组合并进行base64编码\n- 在HTTP请求头中添加：`Authorization: Basic [base64编码结果]`\n- 所有应用相关请求必须包含此认证信息\n\n**认证示例:**\n\n假设您获取到的凭证为：\n\n- appId: `test_app_123`\n- appSecretKey: `s3cr3t_k3y_456`\n\n**认证步骤：**\n\n1. 组合appId和appSecretKey：`test_app_123:s3cr3t_k3y_456`\n2. 对组合字符串进行base64编码：`dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`\n3. 在HTTP请求头中添加认证信息：\n\n   ```text\n   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS\n   ```\n\n> **重要提示**：appId和appSecretKey需向museDAM申请获取。请联系您的museDAM客户代表获取访问凭证。\n\n### 获取API key\n\n**接口地址**: `/exchange-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"orgId\":185\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 16:13:25\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555988913681722512\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/exchange-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"orgId\":185\n}'\n```\n\n---\n\n### 刷新 API Key\n\n**接口地址**: `/refresh-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 18:22:18\"\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/refresh-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 撤销 API Key\n\n**接口地址**: `/revoke-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"apiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/revoke-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"apiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 查询安装状态\n\n**接口地址**: `/get-install-status?orgId=185`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"appId\": \"app_4f8c6e9d2b7a\",\n        \"createAt\": \"2025-08-18 18:53:27\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/get-install-status?orgId=185' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n---\n\n### 列出所有安装\n\n**接口地址**: `/list-all-install`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"appId\": \"app_4f8c6e9d2b7a\",\n            \"createAt\": \"2025-08-18 18:53:27\",\n            \"org\": {\n                \"id\": 185,\n                \"name\": \"示例团队\",\n                \"orgNo\": \"M000001\",\n                \"orgFeeType\": 4\n            }\n        }\n    ],\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/list-all-install' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n### 相关业务异常信息\n\n```json\n{\n  \"code\": \"50049\",\n  \"message\": \"APP未安装\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50047\",\n  \"message\": \"APP不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50050\",\n  \"message\": \"APP KEY不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"20045\",\n  \"message\": \"团队不存在或已到期！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"100007\",\n  \"message\": \"参数错误！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n[继续接入前端组件](./components)",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "components",
+    "title": "嵌入应用与组件",
+    "en": "Embedded apps & UI",
+    "group": "apps",
+    "description": "通过 iframe 和 postMessage 复用 MuseDAM 原生选择器。",
+    "headings": [
+      {
+        "id": "接入流程",
+        "title": "接入流程",
+        "level": 2
+      },
+      {
+        "id": "嵌入与通信约定",
+        "title": "嵌入与通信约定",
+        "level": 2
+      },
+      {
+        "id": "消息协议",
+        "title": "消息协议",
+        "level": 2
+      },
+      {
+        "id": "基本消息结构",
+        "title": "基本消息结构",
+        "level": 3
+      },
+      {
+        "id": "支持的操作-action",
+        "title": "支持的操作(action)",
+        "level": 3
+      }
+    ],
+    "markdown": "## 接入流程\n\n第三方应用通过 iframe 嵌入 MuseDAM。注册应用并取得 `MuseDAM_APP_ID` 和 `MuseDAM_APP_SECRET` 后，向 MuseDAM 提供 `/auth/${token}` 路由。\n\n1. MuseDAM 生成 token，并将用户引导至应用的嵌入路由。\n2. 应用后端完成 token 解密与校验，检查用户、团队及 `expiresAt` 有效期。\n3. 建立 MuseDAM 用户 / 团队与自身账号的映射，创建应用会话。\n4. 前端通过 `postMessage` 调用素材、文件夹及成员选择器。\n\n> 解密协议中的算法和 IV 常量未在原始文档完整定义，请向 MuseDAM 获取完整鉴权实现。不要在前端存放应用 Secret，也不要仅解码 token 就视为已验证。\n\n## 嵌入与通信约定\n\n配置应用的 CSP `frame-ancestors` 允许实际使用的 MuseDAM 域名嵌入，并检查 X-Frame-Options 不与之冲突。`postMessage` 指定确切的父窗口 origin；接收消息时校验 `event.origin`、`event.source`、`source`、`target`、`type` 和 `dispatchId`。\n\n[打开生产环境组件测试页](https://musedam.cc/apps/test-client-actions)（需登录）\n\n## 消息协议\n\n### 基本消息结构\n\n#### **第三方应用→MuseDAM（请求）**\n\n```typescript\n{\n    source: \"musedam-app\",        // 子项目标识\n    target: \"musedam\",            // 父窗口标识\n    type: \"action\",               // 请求类型\n    timestamp: \"2024-12-19T10:30:00.000Z\", // ISO格式时间戳\n    dispatchId: \"dispatch_1234567890_abc123\", // 唯一请求ID\n    action: \"folder-selector-modal-open\",    // 操作类型\n    args: { /* 请求参数 */ }\n}\n```\n\n#### **MuseDAM→第三方应用（响应）**\n\n```typescript\n{\n    source: \"musedam\",            // 父窗口标识\n    target: \"musedam-app\",        // 子项目标识\n    type: \"action_result\",        // 响应类型\n    timestamp: \"2024-12-19T10:30:01.000Z\", // ISO格式时间戳\n    dispatchId: \"dispatch_1234567890_abc123\", // 对应请求的ID\n    action: \"folder-selector-modal-open\",     // 对应请求的操作\n    args: { /* 原始请求参数 */ },\n    result: {                     // 返回结果\n        success: true,\n        data: { /* 具体数据 */ }\n    }\n}\n```\n\n#### 字段说明\n\n| **字段** | **说明** | **字段值** |\n|-|-|-|\n| source | 消息发送方标识 | \"musedam-app\" |\n| target | 消息接收方标识 | \"musedam\" |\n| type | 消息类型 | \"action\" \\| \"action_result\" |\n| action | 具体操作名称 | \"folder-selector-modal-open\"\\|   · \"assets-selector-modal-open\"\\|    · \"assets-selector-modal-open\"\\|   · \"goto\"\\|   · \"syncPath\" |\n| dispatchId | 请求唯一标识，用于匹配请求和响应 | string |\n| args | 请求参数 | JSON |\n| result | 响应结果 | { success: true, data:JSON} \\|   · {   ·    success: false,   ·    message:string,   ·    code: 'cancelled' \\| 'malformed_request' \\| 'forbidden' \\| 'internal_server_error'   ·  } |\n\n##### 错误代码\n\n当`result.success`为`false`时，`result.code`可能值：\n\n| **CODE** | **含义** |\n|-|-|\n| cancelled | 用户主动取消操作 |\n| malformed_request | 请求参数错误或格式不正确 |\n| forbidden | 用户没有权限执行该操作 |\n| internal_server_error | 服务器内部错误或其他未捕获的异常 |\n\n### 支持的操作(action)\n\n#### 请求体及响应类型\n\n**IAssetLite 参数说明**\n\n| **字段名** | **类型** | **描述** |\n|-|-|-|\n| id | number | 主键 ID |\n| assetId | number | 资产 ID（素材唯一标识） |\n| userId | string | 当前素材归属用户ID |\n| parentIds | number [] | 所属父文件夹 ID 列表 |\n| folders | Array<{id:number; name:string}> \\| null | 所属文件夹 |\n| name | string | 展示名称（可能为空字符串） |\n| downloadUrl | string | 原始下载地址 |\n| link | string \\| null | 链接地址 |\n| extension | string | 文件扩展名 |\n| type | string \\| null | 资源类型（image/video/audio/pdf/jsd/…） |\n| size | number | 文件大小（字节） |\n| width | number \\| null | 图片宽度 |\n| height | number \\| null | 图片高度 |\n| duration | number \\| null | 视频时长 |\n| description | string \\| null | 描述 |\n| tags | Array<{id: number; name: string}> \\| null | 标签集合 |\n| previewUrls | string [] \\| null | 预览图（pdf/ppt等可能有多张） |\n| thumbnail | {   ·     url: string;   ·     width?: number \\| null;   ·     height?: number \\| null;   ·     gifStaticUrl?: string \\| null;   ·     extension: string;   ·   } \\| null | 缩略图信息 |\n| assertImageContentAnalysisVO |  {   ·   */\\*\\* AI智能解析描述 \\*/*   ·   aiDescription?: string;   ·   */\\*\\* AI智能解析其他信息 \\*/*   ·   aiDetailedDescription?: Record<string, string>[];   ·   */\\*\\* AI解析标签 \\*/*   ·   aiTags?: string;   ·   */\\*\\* 标题 \\*/*   ·   aiTitle?: string;   ·   */\\*\\* AI解析返回选项 \\*/*   ·   returnOption?: string;   · } | 智能解析结果 |\n| score | number \\| null | 评分 0-5 |\n| viewAuth | 0 \\| 1 | 是否有查看权限：0 无权限 1 有权限 |\n| customFieldVOList | {   ·     id: number;   ·     fieldValue: string;   ·     fieldId: number;   ·     color: string;   ·   }[] | 自定义字段列表 |\n| groupId | number \\| null | 分组 ID |\n| groupMaterialTotal | number \\| null | 分组素材总数 |\n| createTime | number | 创建时间 |\n| createUser | string | 创建用户ID |\n| updateTime | number | 更新时间 |\n| updateUser | string | 更新用户ID |\n\n#### 文件夹选择器\n\n- **action**: `folder-selector-modal-open`\n- **args 类型**:\n\n  ```typescript\n  {\n      initialSelectedFolders?: Array<{ id: number; name: string }>;\n      // 是否显示“全部素材”\n      allMaterials?: boolean;\n  }\n  ```\n- **result.data 类型**:\n\n  ```typescript\n  {\n      selectedFolders: Array<{ id: number; name: string }>;\n      allMaterials: boolean;\n  }\n  ```\n- **示例**:\n\n  ```typescript\n  // 请求\n  {\n      action: \"folder-selector-modal-open\",\n      args: {\n          initialSelectedFolders: [{ id: 123, name: '设计素材' }],\n          allMaterials: false\n      }\n  }\n  \n  // 成功响应\n  {\n      result: {\n          success: true,\n          data: {\n              selectedFolders: [\n                  { id: 123, name: '设计素材' },\n                  { id: 456, name: '产品图片' }\n              ],\n              allMaterials: false\n          }\n      }\n  }\n  \n  // 取消响应\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"用户取消操作\"\n      }\n  }\n  ```\n\n#### 成员/部门选择器\n\n- **action**: `member-selector-modal-open`\n- **args 类型**:\n\n  ```typescript\n  {\n      selectedItems?: {\n          members?: Array<{ id: string; name: string }>;\n          departments?: Array<{ id: string; name: string }>;\n          groups?: Array<{ id: string; name: string }>;\n      };\n  }\n  ```\n- **result.data 类型**:\n\n  ```typescript\n  {\n      members: Array<{ id: string; name: string;departmentsName?:string;avatarUrl?:string }>;\n      departments: Array<{ id: string; name: string }>;\n      groups: Array<{ id: string; name: string }>;\n  }\n  ```\n- **示例**:\n\n  ```typescript\n  // 请求\n  {\n      action: \"member-selector-modal-open\",\n      args: {\n          // 已选中项\n          selectedItems: {\n              members: [{ id: \"user_123\", name: \"张三\" ,departmentsName:\"Muse, 设计部\", avatarUrl:\"https://\"}],\n              departments: [{ id: \"dept_001\", name: \"设计部\" }]\n          }\n      }\n  }\n  \n  // 成功响应\n  {\n      result: {\n          success: true,\n          data: {\n              members: [\n                  { id: \"user_123\", name: \"张三\" },\n                  { id: \"user_456\", name: \"李四\" }\n              ],\n              departments: [{ id: \"dept_001\", name: \"设计部\" }],\n              groups: []\n          }\n      }\n  }\n  \n  // 取消响应\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"用户取消操作\"\n      }\n  }\n  ```\n\n#### 资产选择器\n\n- **action**: `assets-selector-modal-open`\n- **args 类型**:\n\n  ```typescript\n  enum EAssetType {\n      image = 'image',           // 图片\n      video = 'video',           // 视频\n      audio = 'audio',           // 音频\n      js = 'js',                 // 设计源文件\n      document = 'document',     // 文本\n      PDocument = 'PDocument',   // 演示文档\n      excel = 'excel',           // 表格\n      font = 'font',             // 字体\n      zip = 'zip',               // 压缩包\n      dll = 'dll',               // 应用程序\n      code = 'code',             // 代码\n      model = 'model',           // 模型\n      triD = 'triD',             // 3D\n      url = 'url',               // 网页\n      unknown = 'unknown',       // 未知文件\n  }\n  {\n    initialSelectedAssetIds?: number[];\n    /**\n     * 可选择的素材类型。不传则不限制类型。\n     * 取值见素材 type 字段，例如：image、video、audio、js、document、PDocument、excel、font、zip、dll、code、model、triD、url\n     */\n    allowedTypes?: EAssetType[];\n    /**\n     * 各类型数量限制。传入后仅列出的类型可选；limit 不传表示该类型不限数量。\n     * 与 allowedTypes 同时传入时，以 allowedTypes 为白名单，dataLimit 只补充数量上限。\n     */\n    dataLimit?: Array<{\n      type: EAssetType;\n      limit?: number;\n    }>;\n    /**\n     * 打开时套用列表筛选（与首页筛选栏一致）。用户仍可在选择器内改筛选。\n     */\n    filters?: {\n      types?: EAssetType[];\n      extensions?: string[];\n      size?: {\n        min?: number;\n        max?: number;\n        unit?: 'KB' | 'MB' | 'GB';\n      };\n      dimension?: {\n        minWidth?: number;\n        maxWidth?: number;\n        minHeight?: number;\n        maxHeight?: number;\n      };\n    };\n  }\n  ```\n- **result.data 类型**:\n\n  ```typescript\n  \n  {\n      selectedAssets: IAssetLite[];\n  }\n  ```\n- **示例**:\n\n  ```typescript\n  // 请求\n  {\n      action: \"assets-selector-modal-open\",\n      args: {\n          initialSelectedAssetIds: [123, 456],\n          allowedTypes: ['image'],\n          filters: {\n              types: ['image'],\n              size: { min: 100, max: 10240, unit: 'KB' },\n              dimension: { minWidth: 512, minHeight: 512 },\n          },\n      }\n  }\n  \n  // 成功响应\n  {\n      result: {\n          success: true,\n          data: {\n              selectedAssets: [\n                  { id: 123, name: 'logo.png', type: 'image' },\n                  { id: 456, name: 'banner.png', type: 'image' }\n              ]\n          }\n      }\n  }\n  \n  // 取消响应\n  {\n      result: {\n          success: false,\n          code: \"cancelled\",\n          message: \"用户取消操作\"\n      }\n  }\n  ```\n\n#### 页面跳转\n\n- **action**: `goto`\n- **args 类型**:\n\n  ```typescript\n  {\n    url: string;\n  }\n  ```\n- **说明**: 父项目收到此消息后自动执行页面跳转，无需响应结果。\n- **示例**:\n\n  ```typescript\n  // 请求\n  {\n      action: \"goto\",\n      args: {\n          url: \"https://example.com/target-page\",\n          target:\"_blank\"\n      }\n  }\n  ```\n\n#### 路径同步\n\n- **action**: `syncPath`\n- **args 类型**:\n\n  ```typescript\n  {\n    path: string;\n  }\n  ```\n- **说明**: 父项目收到此消息后自动更新当前页面的 hash 路径，无需响应结果。主要用于同步 iframe 内部的路由状态到父窗口的 URL。\n- **示例**:\n\n  ```typescript\n  // 请求\n  {\n      action: \"syncPath\",\n      args: {\n          path: \"#path=/tagging/settings\"\n      }\n  }\n  ```",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp",
+    "title": "MCP 概览",
+    "en": "MCP overview",
+    "group": "mcp",
+    "description": "让 Cursor、Claude 等 AI 客户端直接使用企业资产。",
+    "headings": [
+      {
+        "id": "服务概览",
+        "title": "服务概览",
+        "level": 2
+      },
+      {
+        "id": "环境与端点",
+        "title": "环境与端点",
+        "level": 3
+      },
+      {
+        "id": "选择连接方式",
+        "title": "选择连接方式",
+        "level": 2
+      }
+    ],
+    "markdown": "本文档面向需要对接 MuseDAM MCP 服务的客户端（如 Cursor、Claude Desktop、自研 MCP 客户端等），说明如何通过 **Streamable HTTP**连接生产环境。\n可通过 Skill 使用 MuseDAM MCP。开放接口说明与资源下载：\nhttps://github.com/kang-oy/musedam-open-api.git\n\n---\n\n## 服务概览\n\n| 项目 | 说明 |\n|-|-|\n| 协议 | Model Context Protocol (MCP) |\n| 能力 | 以 MCP 工具形式暴露 MuseDAM 开放接口：素材检索/上传/修改、标签与文件夹管理、分享搜索、团队信息等 |\n| 认证 | 需提供 MuseDAM API 密钥，参考 MuseDAM API 使用说明获取 `api_key` |\n\n### 环境与端点\n\n| 环境 | 域名 | 说明 |\n|-|-|-|\n| 生产环境 | `https://mcp-service.musedam.cc` | 正式环境，对应国内 region |\n\n---\n\n## 选择连接方式\n\n通过 Streamable HTTP 连接远程 MCP 服务，无需在本地部署进程：\n\n| 方式 | 适用场景 | API 密钥传递方式 |\n|-|-|-|\n| **Streamable HTTP** | 客户端通过 HTTP 连接远程 MCP 服务 | 通过 HTTP `Authorization` header 传入（如 `Authorization: Bearer <api_key>`） |\n\n---\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-connect",
+    "title": "连接与配置",
+    "en": "Connect MCP",
+    "group": "mcp",
+    "description": "Streamable HTTP 的配置、认证和区域选择。",
+    "headings": [
+      {
+        "id": "streamable-http",
+        "title": "Streamable HTTP",
+        "level": 2
+      },
+      {
+        "id": "机制说明",
+        "title": "机制说明",
+        "level": 3
+      },
+      {
+        "id": "端点与认证规范",
+        "title": "端点与认证规范",
+        "level": 3
+      },
+      {
+        "id": "生产环境连接配置",
+        "title": "生产环境连接配置",
+        "level": 3
+      },
+      {
+        "id": "配置参数说明",
+        "title": "配置参数说明",
+        "level": 3
+      },
+      {
+        "id": "健康检查",
+        "title": "健康检查",
+        "level": 3
+      },
+      {
+        "id": "区域与-api",
+        "title": "区域与 API",
+        "level": 2
+      }
+    ],
+    "markdown": "## Streamable HTTP\n\n### 机制说明\n\n- MCP 服务以 HTTP 服务形式运行，支持多客户端并发连接。\n- 客户端通过标准 HTTP 请求与 MCP 服务通信，使用 JSON-RPC 协议。\n- 适合远程部署、多端接入（如 Cursor 通过 URL 连接、自建 Web 客户端等）。\n\n### 端点与认证规范\n\n- **路径**：`/`（根路径）\n- **方法**：`POST`（发送 JSON-RPC 请求）\n- **认证**：必须在 HTTP `Authorization` header 中携带 API Key，格式：`Authorization: Bearer <你的MuseDAM_API密钥>`\n- **区域配置**：通过 URL query parameter 指定，格式：`?region=<区域>`（可选，默认 `cn`）\n\n### 生产环境连接配置\n\n**生产环境：**\n\n```json\n{\n  \"mcpServers\": {\n    \"musedam\": {\n      \"url\": \"https://mcp-service.musedam.cc\",\n      \"headers\": {\n        \"Authorization\": \"Bearer 你的MuseDAM_API密钥\"\n      },\n      \"name\": \"MuseDAM\"\n    }\n  }\n}\n```\n\n国内生产环境默认使用 `cn`，无需在 URL 中添加区域参数。\n\n### 配置参数说明\n\n- **url**：服务器地址，可通过 query parameter `?region=xxx` 指定区域（可选，默认 `cn`）\n\n  - 可选值：`cn`（国内，默认）、`overseas`（海外）\n- **headers.Authorization**：必须携带 `Bearer <api_key>` 格式的认证信息\n\n部分客户端使用 `serverUrl` 而非 `url`，含义相同，按客户端文档填写即可。\n\n### 健康检查\n\n服务提供健康检查端点，便于运维与负载均衡探测：\n\n- **路径**：`GET /health_check`\n- **成功**：返回 HTTP 200，无 body 要求\n\n示例：\n\n- 生产：`https://mcp-service.musedam.cc/health_check`\n\n---\n\n## 区域与 API\n\n| region | 说明 | MuseDAM Open API Base URL |\n|-|-|-|\n| `cn` | 国内（默认） | `https://open.musedam.cc/api/muse` |\n| `overseas` | 海外 | `https://open.musedam.ai/api/muse` |\n\n本文列出的 MCP 工具通过开放 API 访问 MuseDAM；HTTP 方法以对应开放接口为准，鉴权方式：`Authorization: Bearer <api_key>`。对接本 MCP 时只需在连接配置中提供 `api_key` 并在需要时指定 `region` 即可。\n\n---\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-tools",
+    "title": "工具参考",
+    "en": "MCP tools",
+    "group": "mcp",
+    "description": "素材、标签、文件夹、分享与团队工具一览。",
+    "headings": [
+      {
+        "id": "工具列表",
+        "title": "工具列表",
+        "level": 2
+      },
+      {
+        "id": "调用约定",
+        "title": "调用约定",
+        "level": 2
+      }
+    ],
+    "markdown": "## 工具列表\n\n以下工具均遵循 MCP 的 Tool 定义，名称与用途如下。各工具的具体参数以 MCP 协议返回的 schema 为准（如通过 Cursor 等客户端查看工具描述与参数列表）。\n\n| 工具名 | 说明 |\n|-|-|\n| `musedam_search_assets` | 按目录、类型、关键词、标签、尺寸等检索企业空间素材 |\n| `musedam_upload_assets` | 通过可下载链接将素材上传到 DAM |\n| `musedam_modify_assets` | 修改素材名称、描述、评分、链接、标签 |\n| `musedam_assets_by_ids` | 根据素材 ID 列表获取详情 |\n| `musedam_folder_subscribe` | 订阅/取消订阅文件夹内容更新回调 |\n| `musedam_search_share` | 检索分享链接内的素材与文件夹 |\n| `musedam_merge_tags` | 批量合并、创建、更新、删除企业标签 |\n| `musedam_set_assets_tags` | 批量为素材设置标签 |\n| `musedam_query_tag_tree` | 获取企业版标签树 |\n| `musedam_folder_path` | 获取指定文件夹的完整路径 |\n| `musedam_get_sub_folder_ids` | 获取指定文件夹下所有子文件夹 ID |\n| `musedam_get_asset_analysis_result` | 获取素材 AI 解析结果 |\n| `musedam_org_info` | 获取团队基本信息 |\n| `musedam_org_member_info` | 获取团队成员信息 |\n| `musedam_search_folders` | 按父目录、关键词搜索文件夹 |\n| `musedam_create_folder` | 在指定父目录下创建文件夹 |\n| `musedam_processed_public_links` | 获取素材原图处理后的公开链接（需开通 DAT） |\n\n---\n\n## 调用约定\n\n通过 MCP `tools/list` 获取当前服务返回的工具参数 schema，再使用 `tools/call` 调用。API Key 和 region 在连接配置中设置，不应作为工具参数重复传入。工具能力仍受密钥权限范围约束。\n\n[配置 MCP 连接](./mcp-connect)",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "mcp-faq",
+    "title": "MCP 常见问题",
+    "en": "MCP troubleshooting",
+    "group": "mcp",
+    "description": "排查连接认证、区域配置和客户端 JSON 错误。",
+    "headings": [
+      {
+        "id": "连接与调用问题",
+        "title": "连接与调用问题",
+        "level": 2
+      }
+    ],
+    "markdown": "## 连接与调用问题\n\n**Q：Streamable HTTP 连接返回 401？**  \n\nA：请确认已在请求 header 中携带 `Authorization: Bearer <api_key>`，且密钥正确、未过期。\n\n**Q：API 密钥从哪里获取？**  \n\nA：请向 MuseDAM 开放平台或您的管理员申请，本 MCP 服务不提供默认密钥。\n\n**Q：为什么工具调用时不再需要传 api_key 和 region 参数？**  \n\nA：新版本已将 API Key 和 Region 配置从工具参数中移除，统一通过连接配置管理（HTTP 模式使用 header 和 query parameter），使用更安全、更简洁。\n\n**Q：调用工具时报错「Expected ',' or '}' after property value in JSON at position 16」，且 MCP 服务端没有收到请求？**  \n\nA：说明错误发生在 **Cursor 端**（在组包或发送 `tools/call` 之前），请求从未到达本 MCP 服务。可能原因：Cursor 在序列化该工具的 `arguments`（如 `musedam_search_assets` 参数较多）时生成了非法 JSON，或 Cursor 的 MCP 客户端在解析/转发该工具调用时触发了 JSON 解析错误。\n\n建议：\n\n1. 在 Cursor 中重试或新开会话再调用；必要时可向 Cursor 反馈该现象（某 MCP 工具调用时客户端报 JSON 解析错误且服务端未收到请求）。\n2. 若使用自研 MCP 客户端，请确保发出的 `tools/call` 请求体中 `arguments` 为**标准双引号 JSON**，且整条消息合法可解析。\n",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "slug": "use-cases",
+    "title": "业务场景示例",
+    "en": "Business use cases",
+    "group": "examples",
+    "description": "把资产库接入 CMS、电商和营销分发流程。",
+    "headings": [
+      {
+        "id": "内容管理系统-cms-集成",
+        "title": "内容管理系统(CMS)集成",
+        "level": 2
+      },
+      {
+        "id": "场景描述",
+        "title": "场景描述",
+        "level": 3
+      },
+      {
+        "id": "集成方案",
+        "title": "集成方案",
+        "level": 3
+      },
+      {
+        "id": "电商平台产品管理",
+        "title": "电商平台产品管理",
+        "level": 2
+      },
+      {
+        "id": "场景描述-1",
+        "title": "场景描述",
+        "level": 3
+      },
+      {
+        "id": "集成方案-1",
+        "title": "集成方案",
+        "level": 3
+      },
+      {
+        "id": "营销活动素材分发",
+        "title": "营销活动素材分发",
+        "level": 2
+      },
+      {
+        "id": "场景描述-2",
+        "title": "场景描述",
+        "level": 3
+      },
+      {
+        "id": "集成方案-2",
+        "title": "集成方案",
+        "level": 3
+      }
+    ],
+    "markdown": "## 内容管理系统(CMS)集成\n\n### 场景描述\n\n让编辑在 CMS 内直接找到并使用 MuseDAM 素材，减少下载、传文件和重复上传。素材集中管理，内容与素材的关联由 CMS 维护。\n\n### 集成方案\n\n> CMS 编辑器 → 业务后端 → MuseDAM：检索素材、返回预览、保存素材 ID，发布前刷新链接。\n\n**落地要点**\n\n- **选择素材**：在编辑器中嵌入自定义素材选择器，经业务后端调用 `/search-assets`（[素材检索](./search)）；API Key 保存在服务端。\n- **保存关联**：内容记录保存素材 ID。发布时通过 `/assets-by-ids`（[批量获取素材](./assets)） 刷新链接，或将文件复制到 CMS 自己的存储，避免把临时下载链接当成永久内容地址。\n- **持续更新**：用 `/material-automation-subscribe`（[素材事件订阅](./events)）接收元数据修改、版本变更及删除等事件。订阅范围为团队，CMS 按已关联的素材 ID 筛选，再决定是否更新或下架已发布内容。\n\n## 电商平台产品管理\n\n### 场景描述\n\n将商品图片、视频统一维护在 MuseDAM，商品系统按 SKU 建立素材关联，再向商城与渠道发布适合各自规格的内容。\n\n### 集成方案\n\n> 商品系统 → MuseDAM → 商品系统 → 商城渠道：上传素材、关联 SKU、检索与处理图片，由业务系统发布。\n\n**落地要点**\n\n- **组织资产**：可用 `/create-folder` 按 SKU 建立文件夹，通过 `/upload-assets` 上传商品素材；商品系统保存 SKU、文件夹 ID 与素材 ID 的映射。\n- **适配渠道**：通过 `/processed-public-links`（[图片处理与分发](./analysis)）获取适配尺寸的图片；需开通 DAT，且素材已有公开链接。没有公开链接的素材不能仅靠该接口生成公开地址。\n- **更新商品**：通过 `/material-automation-subscribe`（[素材事件订阅](./events)）订阅素材入库完成、元数据修改、版本变更及删除等事件。商品系统按 SKU 关联的素材 ID 筛选，读取最新内容并调用渠道接口；删除事件按业务规则下架，发布状态与版本关联由业务系统记录。\n\n## 营销活动素材分发\n\n### 场景描述\n\n活动素材在 MuseDAM 中集中维护。分发服务接收变更或定时检索，按渠道规则获取素材并发布，形成可追踪的分发记录。\n\n### 集成方案\n\n> 分发服务 → MuseDAM → 分发服务 → 营销渠道：通过 /material-automation-subscribe 订阅变更、接收事件、读取素材，发布并记录结果。\n\n**落地要点**\n\n- **选择触发方式**：需要及时同步时使用 `/material-automation-subscribe`（[素材事件订阅](./events)）；批量活动分发也可由定时任务调用 `/search-assets`。接到事件后，再用 `/assets-by-ids` 获取当前素材信息；素材已删除时由业务系统处理下架。\n- **选择事件与范围**：先通过 `/material-automation-event-types` 查询可订阅事件。按需订阅 `MATERIAL_INBOUND_COMPLETED`、`MATERIAL_METADATA_UPDATED`、`MATERIAL_VERSION_CHANGED`、`MATERIAL_DELETED`；需要在素材加入活动文件夹时分发，可加上 `MATERIAL_ADDED_TO_FOLDER`。订阅范围为团队，由分发服务按活动、文件夹或素材关联筛选处理。\n- **可靠交付**：分发服务负责回调校验、事件去重、任务排队和有上限的重试，防止重复发布。\n- **跟踪结果**：保存素材 ID、渠道内容 ID、发布状态与时间；效果数据从对应渠道获取，由业务系统汇总。\n",
+    "updatedAt": "2026-09-29"
+  }
+]

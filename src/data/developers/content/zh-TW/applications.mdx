@@ -1,0 +1,282 @@
+## 概述
+
+提供第三方應用使用企業開放API接口的能力。第三方應用需要企業管理員進行啟用授權後，可通過appId和appSecretKey管理API密鑰，並使用獲取到的API密鑰調用開放接口（詳見"核心API接口"章節）。
+
+## 基礎信息
+
+### 請求路徑
+
+- **生產環境**：https://open.musedam.cc/api/apps
+- **海外環境**：https://open.musedam.ai/api/apps
+
+### 認證方式
+
+採用 **HTTP Basic Authentication**認證機制：
+
+- 將appId和appSecretKey以`appId:appSecretKey`格式組合並進行base64編碼
+- 在HTTP請求頭中添加：`Authorization: Basic [base64编码结果]`
+- 所有應用相關請求必須包含此認證信息
+
+**認證示例:**
+
+假設您獲取到的憑證為：
+
+- appId: `test_app_123`
+- appSecretKey: `s3cr3t_k3y_456`
+
+**認證步驟：**
+
+1. 組合appId和appSecretKey：`test_app_123:s3cr3t_k3y_456`
+2. 對組合字符串進行base64編碼：`dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`
+3. 在HTTP請求頭中添加認證信息：
+
+   ```text
+   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS
+   ```
+
+> **重要提示**：appId和appSecretKey需向museDAM申請獲取。請聯繫您的museDAM客戶代表獲取訪問憑證。
+
+### 獲取API key
+
+**接口地址**: `/exchange-api-key`
+
+**請求方式**: POST
+
+**請求體:**
+
+```text
+{
+    "orgId":185
+}
+```
+
+**響應結果**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "apiKey": "YOUR_API_KEY",
+        "expiresAt": "2055-08-19 16:13:25",
+        "org": {
+            "id": 185,
+            "name": "示例团队",
+            "orgNo": "M000001",
+            "orgFeeType": 4
+        }
+    },
+    "traceId": "17555988913681722512"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/apps/exchange-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "orgId":185
+}'
+```
+
+---
+
+### 刷新 API Key
+
+**接口地址**: `/refresh-api-key`
+
+**請求方式**: POST
+
+**請求體:**
+
+```text
+{
+    "oldApiKey": "YOUR_API_KEY"
+}
+```
+
+**響應結果**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "apiKey": "YOUR_API_KEY",
+        "expiresAt": "2055-08-19 18:22:18"
+    },
+    "traceId": "17555989381206489704"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/apps/refresh-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "oldApiKey": "YOUR_API_KEY"
+}'
+```
+
+---
+
+### 撤銷 API Key
+
+**接口地址**: `/revoke-api-key`
+
+**請求方式**: POST
+
+**請求體:**
+
+```text
+{
+    "apiKey": "YOUR_API_KEY"
+}
+```
+
+**響應結果**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": true,
+    "traceId": "17555989381206489704"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/apps/revoke-api-key' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "apiKey": "YOUR_API_KEY"
+}'
+```
+
+---
+
+### 查詢安裝狀態
+
+**接口地址**: `/get-install-status?orgId=185`
+
+**請求方式**: GET
+
+**響應結果**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": {
+        "appId": "app_4f8c6e9d2b7a",
+        "createAt": "2025-08-18 18:53:27",
+        "org": {
+            "id": 185,
+            "name": "示例团队",
+            "orgNo": "M000001",
+            "orgFeeType": 4
+        }
+    },
+    "traceId": "17555989381206489704"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/apps/get-install-status?orgId=185' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+```
+
+---
+
+### 列出所有安裝
+
+**接口地址**: `/list-all-install`
+
+**請求方式**: GET
+
+**響應結果**:
+
+```json
+{
+    "code": 0,
+    "message": "OK",
+    "result": [
+        {
+            "appId": "app_4f8c6e9d2b7a",
+            "createAt": "2025-08-18 18:53:27",
+            "org": {
+                "id": 185,
+                "name": "示例团队",
+                "orgNo": "M000001",
+                "orgFeeType": 4
+            }
+        }
+    ],
+    "traceId": "17555989381206489704"
+}
+```
+
+請求示例：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/apps/list-all-install' \
+--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \
+```
+
+### 相關業務異常信息
+
+```json
+{
+  "code": "50049",
+  "message": "APP未安装",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "50047",
+  "message": "APP不存在",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "50050",
+  "message": "APP KEY不存在",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "20045",
+  "message": "团队不存在或已到期！",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+```json
+{
+  "code": "100007",
+  "message": "参数错误！",
+  "result": null,
+  "traceId": "17555973911012754965"
+}
+```
+
+[繼續接入前端組件](./components)

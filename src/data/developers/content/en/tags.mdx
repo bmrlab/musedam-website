@@ -1,0 +1,265 @@
+## Tag management APIs
+
+### Merge tags in bulk
+
+**Endpoint**: `/merge-tags`
+
+**Method**: POST
+
+**Description**: Merge enterprise tags in bulk, optionally clearing existing tags or merging new ones.
+
+**Request parameters**:
+
+```json
+{
+    "tags": [
+        {
+            "id": 10837,
+            "name": "Product categories",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 10838,
+                    "name": "Clothing and accessories",
+                    "operation": 1,
+                    "sort": 4,
+                    "children": [
+                        {
+                            "name": "add2",
+                            "operation": "2"
+                        }
+                    ]
+                },
+                {
+                    "id": 10839,
+                    "sort": 5,
+                    "operation": 1,
+                    "name":"Electronics"
+                }
+            ]
+        }
+    ]
+}
+```
+
+**Parameters**:
+
+- `tags`: Hierarchical tag list
+
+  - `name`: Tag name
+  - `id`: Tag ID
+  - `operation`: 0 no change, 1 update, 2 create, 3 delete; defaults to 0
+  - `sort`: Sort value; tags are ordered from highest to lowest
+  - `children`: Child tags; multiple nesting levels are supported
+
+Notes:
+
+```text
+For operation 1, id and name are required, the tag must exist, and name must be unique among sibling tags.
+For operation 2, id must be empty and name must be unique among sibling tags.
+For operation 3, id is required and the tag must exist.
+```
+
+**Response**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "tags": [
+            {
+                "name": "Product categories",
+                "id": 10837,
+                "operation": 1,
+                "sort": null,
+                "children": [
+                    {
+                        "name": "Clothing and accessories",
+                        "id": 10838,
+                        "operation": 1,
+                        "sort": 4,
+                        "children": [
+                            {
+                                "name": "add2",
+                                "id": 13945,
+                                "operation": 2,
+                                "sort": null,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Electronics",
+                        "id": 10839,
+                        "operation": 1,
+                        "sort": 5,
+                        "children": null
+                    }
+                ]
+            }
+        ]
+    },
+    "traceId": "17582767681984319367"
+}
+```
+
+Request example:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/merge-tags' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "tags": [
+        {
+            "id": 8224,
+            "name": "Web design",
+            "operation": 1,
+            "children": [
+                {
+                    "id": 8269,
+                    "name": "Interface design",
+                    "operation": 0,
+                    "children": [
+                        {
+                            "name": "add",
+                            "operation": "2"
+                        },
+                        {
+                            "id": 10894,
+                            "operation": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'
+```
+
+---
+
+### Set asset tags in bulk
+
+**Endpoint**: `/set-assets-tags`
+
+**Method**: POST
+
+**Description**: Set tags on specified assets in bulk.
+
+**Request parameters**:
+
+```json
+{
+  "assetIds": [123, 456, 789],
+  "tagIds": [1, 2, 3],
+  "remove": true
+}
+```
+
+**Parameters**:
+
+- `assetIds`: Asset IDs (required)
+- `tagIds`: Tag IDs (required)
+- `remove`: Whether to remove existing tags; defaults to true
+
+**Response**:
+
+```json
+{
+  "code": "200",
+  "message": "OK",
+  "result": true
+}
+```
+
+**Behavior**:
+
+- Apply multiple tags to multiple assets in one request.
+- Choose whether to clear existing asset tags.
+- Asset-to-tag associations are created automatically.
+- Operations are logged.
+
+---
+
+### Get enterprise tags
+
+**Endpoint**: `/query-tag-tree`
+
+**Method**: GET
+
+**Description**: Get the enterprise tag tree.
+
+**Example request**:
+
+```bash
+curl --location --request GET 'https://open.musedam.ai/api/muse/query-tag-tree' \
+--header 'Authorization: Bearer YOUR_API_KEY'
+```
+
+**Response**:
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": [
+        {
+            "id": 8221,
+            "name": "Uncategorized",
+            "children": [
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                },
+                {
+                    "id": 10634,
+                    "name": "hh",
+                    "children": null
+                }
+            ]
+        },
+        {
+            "id": 10669,
+            "name": "b",
+            "children": null
+        }
+    ],
+    "traceId": "17555963042174156442"
+}
+```
+
+### List enterprise tags with pagination
+
+**Endpoint**: `/enterprise-tag-list`
+
+**Method**: POST
+
+**Description**: Query enterprise tags with pagination and parent tag, keyword, or tag type filters.
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| pageNum | Integer | No | Page number; defaults to 1 |
+| pageSize | Integer | No | Page size; defaults to 500 |
+| parentId | Long | No | Parent tag ID; defaults to 0 (root) |
+| keyword | String | No | Tag name keyword |
+| type | Integer | No | Tag type: 0 standard, 1 smart |
+
+**Response**: Contains list (tags) and total (record count).
+
+**Request example**:
+
+```bash
+curl --location --request POST 'https://open.musedam.ai/api/muse/enterprise-tag-list' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "pageNum": 1,
+  "pageSize": 50,
+  "parentId": 0
+}'
+```

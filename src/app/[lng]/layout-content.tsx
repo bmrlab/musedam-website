@@ -25,6 +25,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
   const pathname = usePathname()
   const { hideFooterFromGate } = useHelpEnterpriseGateUi()
   const isQuotationPage = pathname?.includes('/quotation')
+  const isDeveloperPage = stripLocalePrefix(pathname || '').startsWith('/developers')
   const isDemoPage = stripLocalePrefix(pathname || '').startsWith('/demos/')
   const hideIntercomPage = isQuotationPage || isDemoPage
   // const { changeLocale } = useLanguage()
@@ -39,7 +40,7 @@ export function LayoutContent({ children, isGlobal, user }: LayoutContentProps) 
     return ENTERPRISE_ONLY_HELP_TOPIC_SLUGS.some((slug) => p === `/help/${slug}`)
   }, [pathname, user?.isEnterpriseUser])
 
-  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath
+  const hideFooter = hideFooterFromGate || hideFooterForEnterpriseTopicPath || isDeveloperPage
 
   // 初始化 Intercom - 只在首次挂载时初始化（quotation 页面不初始化）
   useEffect(() => {

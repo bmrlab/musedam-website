@@ -1,0 +1,31 @@
+## Tool catalog
+
+The following tools follow MCP Tool definitions. Retrieve the current parameter schemas through MCP, or view tool descriptions and parameters in a client such as Cursor.
+
+| Tool | Description |
+|-|-|
+| `musedam_search_assets` | Search workspace assets by folder, type, keyword, tags, dimensions, and more |
+| `musedam_upload_assets` | Upload assets to DAM from downloadable URLs |
+| `musedam_modify_assets` | Update asset names, descriptions, ratings, links, and tags |
+| `musedam_assets_by_ids` | Get asset details by ID |
+| `musedam_folder_subscribe` | Subscribe to or unsubscribe from folder content callbacks |
+| `musedam_search_share` | Search assets and folders in a shared link |
+| `musedam_merge_tags` | Merge, create, update, or delete enterprise tags in bulk |
+| `musedam_set_assets_tags` | Set tags on assets in bulk |
+| `musedam_query_tag_tree` | Get the enterprise tag tree |
+| `musedam_folder_path` | Get the full path of a folder |
+| `musedam_get_sub_folder_ids` | Get all child folder IDs |
+| `musedam_get_asset_analysis_result` | Get AI analysis results for an asset |
+| `musedam_org_info` | Get team information |
+| `musedam_org_member_info` | Get team member information |
+| `musedam_search_folders` | Search folders by parent and keyword |
+| `musedam_create_folder` | Create a folder under a parent folder |
+| `musedam_processed_public_links` | Get processed public links for original assets; requires DAT |
+
+---
+
+## Calling conventions
+
+Use MCP `tools/list` to retrieve current parameter schemas, then call tools through `tools/call`. Configure the API key and region in connection settings, not individual tool arguments. Key permissions still apply.
+
+[Configure an MCP connection](./mcp-connect)

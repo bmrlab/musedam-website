@@ -1,0 +1,535 @@
+## 素材上传
+
+**接口路径**：/upload-assets
+
+**请求方式**：POST
+
+**接口描述**：将素材上传到DAM系统
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| - | List&lt;EnterpriseAssetSaveReq> | 是 | 素材保存请求列表 |
+
+本节介绍通过可下载 URL 上传素材的接入方式，以下参数要求适用于该方式。
+
+**EnterpriseAssetSaveReq参数说明**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| folderIds | List&lt;Long> | 否 | 目标文件夹 ID 列表；为空时需具备「上传到全部资产」等全局上传能力；非空时需对每一文件夹有上传权限 |
+| name | String | 否 | 展示用文件名；不传时服务端会尽量从 `url` 路径推断 |
+| url | String | 是 | **可直链下载**的素材 URL（GET 可 200）；服务端下载后以新 key 落库，请勿使用会被防盗链/地域限制的短链 |
+| extension | String | 是 | 文件后缀（如 `jpg`、`mp4`），与资源类型一致 |
+| size | Long | 否 | 申报大小（字节）；**实际上传后会以存储侧文件大小为准**，可与客户端本地一致便于校验 |
+| width | Integer | 否 | 图片/视频封面宽度（px）；**图片**未传时会尝试从落地文件读取 |
+| height | Integer | 否 | 图片/视频封面高度（px）；**图片**未传时会尝试从落地文件读取 |
+| duration | Long | 否 | 视频时长（**毫秒**） |
+| link | String | 否 | 关联的网页/来源链接 |
+| description | String | 否 | 备注说明 |
+| rating | Integer | 否 | 评分（写入素材评分字段；与内部 `score` 对应） |
+| userId | Long | 否 | 素材所有者用户 ID；不传时默认为创建者（当前 API Key 对应用户）；指定的用户须属于当前团队 |
+| oldAssetId | Long | 否 | **上传新版本**时填原素材 ID（>0）；将作为封面/版本关联的素材 id |
+| metadatas | List&lt;MetadataDTO> | 否 | 自定义元数据；**仅当团队开启自定义元数据时生效**；`fieldId` 须与「元数据 fields」接口返回的 id 一致，且会校验字段合法性 |
+| skipDuplicateByEtag | Boolean | 否 | 是否查重跳过，为 true 时：远端 URL 已拉取到素材 bucket 之后、写入素材库之前，按 OSS ETag 在团队内查重；若已存在相同内容，则不入库；开放接口返回项中的 id、key、accessUrl指向团队内已存在的素材。默认 false，与历史行为一致。 |
+
+**MetadataDTO（`metadatas` 元素）：**
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| fieldId | String | 条件 | 元数据字段 ID（**上传场景**使用，与 fields 接口 id 一致）；与 `value` 成对出现 |
+| value | Object | 否 | 字段值，类型需与该字段定义一致 |
+
+**响应参数**：
+
+| 参数名 | 类型 | 描述 |
+|-|-|-|
+| assets | List&lt;Item> | 保存成功的素材列表 |
+
+**Item参数说明**：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | Long | 素材ID |
+| key | String | 文件 URL，OSS 的 key 或可下载的文件 |
+| storePath | String | 素材 OSS 存储路径，与 key 相同 |
+| skippedDuplicateByEtag | Boolean | 团队内 ETag 查重命中并跳过上传时为 true；id、key、accessUrl 指向已有素材 |
+| name | String | 标题名称 |
+| accessUrl | String | 访问URL |
+| uploadResult | String | 返回值为 NEW 或者DUPLICATE_BY_ETAG   · NEW : 本条为本次新上传并已入库   · DUPLICATE_BY_ETAG : 未入库，有重复的 |
+
+**示例**：
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/upload-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "folderIds": [
+            23015
+        ],
+        "url": "https://example.com/assets/sample.jpg",
+        "name": "测试图片",
+        "extension": "jpeg"
+    }
+]'
+```
+
+响应示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "assets": [
+            {
+                "id": 6908936,
+                "key": "api_b9648d4570d2e08364a451b1eec88eea.jpeg",
+                "storePath": "api_b9648d4570d2e08364a451b1eec88eea.jpeg",
+                "uploadResult": "NEW",
+                "skippedDuplicateByEtag": false,
+                "name": "测试图片",
+                "accessUrl": "https://example.com/assets/sample.jpg"
+            }
+        ]
+    }}
+```
+
+## 素材下载
+
+素材下载不需要单独的接口，可以通过以下两种方式获取素材下载链接：
+
+1. 通过素材检索接口：调用 `/search-assets` 接口返回的数据中，每个素材对象都包含 `downloadUrl` 字段，该字段为素材的下载链接。
+2. 通过批量获取素材接口：调用批量获取素材接口返回的数据中同样包含下载链接。
+
+获取到 `downloadUrl` 后，可以直接使用该 URL 进行素材下载。下载链接通常包含必要的认证信息和访问权限，可以直接在浏览器中打开或使用下载工具进行下载。
+
+**注意事项：**
+
+- 下载链接可能有10个小时的过期时间限制，建议在获取后尽快使用
+- 下载大文件时，请确保网络连接稳定
+- 如需批量下载，建议采用服务端脚本处理，避免客户端下载失败
+
+## 素材修改
+
+**接口路径**：/modify-assets
+
+**请求方式**：POST
+
+**接口描述**：修改素材的基本信息，如名称、描述、评分等
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| - | AssetModifyReq | 是 | 素材修改请求参数 |
+
+**AssetModifyReq参数说明**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| id | Long | 是 | 素材ID |
+| name | String | 否 | 文件名称 |
+| description | String | 否 | 描述信息 |
+| score | Integer | 否 | 评分（1-5） |
+| link | String | 否 | 网页链接 |
+| tags | List&lt;Long> | 否 | 标签ID列表 |
+
+**响应参数**：
+
+| 参数名 | 类型 | 描述 |
+|-|-|-|
+| - | MiniDamAssetDTO | 修改后的素材信息 |
+
+**MiniDamAssetDTO参数说明**：
+
+[查看素材检索中的 MiniDamAssetDTO 参数说明](./search)
+
+**示例**：
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/modify-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "id":6908914,
+    "name":"bottomTip45",
+    "description":"description 451",
+    "score":5,
+    "link":"wwww.baidu.com"
+}'
+```
+
+响应示例：
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": {
+    "id": 6908914,
+    "parentIds": [],
+    "userId": "1673603133161799680",
+    "name": "bottomTip45",
+    "downloadUrl": "https://example.com/assets/sample.jpg",
+    "source": null,
+    "link": "wwww.baidu.com",
+    "extension": "png",
+    "duration": null,
+    "size": 111948,
+    "width": 290,
+    "height": 220,
+    "description": "description 451",
+    "score": 5,
+    "createTime": 1753428273000,
+    "createUser": "1673603133161799680",
+    "updateTime": 1753942888000,
+    "updateUser": 367024606,
+    "tags": [],
+    "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+  },
+  "traceId": "17539429013299310816"
+}
+```
+
+### 素材移动到文件夹
+
+**接口路径**：`/move-assets-to-folder`
+
+**请求方式**：POST
+
+**接口描述**：将一批素材从指定源文件夹移动或添加到目标文件夹。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| assetIds | List&lt;Long> | 是 | 素材 ID 列表；单次最多 200 条 |
+| fromFolderId | Long | 条件 | operationType=0（移动）时必填且 >0；素材当前所在、需解除关联的文件夹 ID |
+| toFolderId | Long | 是 | 目标文件夹 ID（>0） |
+| operationType | Integer | 否 | 0：移动（从 fromFolderId 解除后加入 toFolderId）；1：添加（保留源关系并加入目标）。默认 0 |
+
+**响应**：Boolean
+
+**请求示例**（移动）：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/move-assets-to-folder' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "assetIds": [6908914, 6908820],
+  "fromFolderId": 10001,
+  "toFolderId": 10002,
+  "operationType": 0
+}'
+```
+
+**注意事项**：
+
+- 素材、文件夹须存在且属于当前团队；需具备对应文件夹的编辑权限。
+- operationType=0 为移动，=1 为添加（素材同时存在于源文件夹和目标文件夹）。
+
+## 批量获取素材
+
+**接口路径**：/assets-by-ids
+
+**请求方式**：POST
+
+**接口描述**：根据素材ID列表批量获取素材详细信息
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| - | List&lt;Long> | 是 | 素材ID列表 |
+
+**响应参数**：
+
+| 参数名 | 类型 | 描述 |
+|-|-|-|
+| - | List&lt;MiniDamAssetDTO> | 素材信息列表 |
+
+**MiniDamAssetDTO参数说明**：
+
+[查看素材检索中的 MiniDamAssetDTO 参数说明](./search)
+
+**示例**：
+
+请求示例：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/assets-by-ids' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '[6908914,6908820]'
+```
+
+响应示例：
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": [
+        {
+            "id": 6908914,
+            "parentIds": [
+                28566
+            ],
+            "userId": "1673603133161799680",
+            "name": "bottomTip45",
+            "downloadUrl": "https://example.com/assets/sample.jpg",
+            "source": null,
+            "link": "wwww.baidu.com",
+            "extension": "png",
+            "duration": null,
+            "size": 111948,
+            "width": 290,
+            "height": 220,
+            "description": "description 451",
+            "score": 5,
+            "createTime": 1753428273000,
+            "createUser": "1673603133161799680",
+            "updateTime": 1753942901660,
+            "updateUser": 367024606,
+            "tags": [],
+            "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+        },
+        {
+            "id": 6908820,
+            "parentIds": [],
+            "userId": "1673603133161799680",
+            "name": "Full-Stack-Serverless",
+            "downloadUrl": "https://example.com/assets/sample.jpg",
+            "source": null,
+            "link": null,
+            "extension": "epub",
+            "duration": null,
+            "size": 4567444,
+            "width": null,
+            "height": null,
+            "description": null,
+            "score": null,
+            "createTime": 1753264933000,
+            "createUser": "1673603133161799680",
+            "updateTime": 1753264933000,
+            "updateUser": 1673603133161799680,
+            "tags": [
+                {
+                    "name": "社交媒体设计",
+                    "id": 8223
+                },
+                {
+                    "name": "平台定制",
+                    "id": 8247
+                },
+                {
+                    "name": "cadahsjdkhasdhasjkdhajshdasjkhdajskhdjakshdasjhdajshdjkashd",
+                    "id": 9084
+                },
+                {
+                    "name": "asdashdlajksdhjkashdjksahdjashdlasdj",
+                    "id": 9096
+                },
+                {
+                    "name": "ccc",
+                    "id": 9097
+                },
+                {
+                    "name": "网页设计",
+                    "id": 8224
+                },
+                {
+                    "name": "交互元素",
+                    "id": 8270
+                }
+            ],
+            "thumbnailAccessUrl": "https://example.com/assets/sample.jpg"
+        }
+    ],
+    "traceId": "1753943463848693869"
+}
+```
+
+### 按素材 ID 查询自定义元数据
+
+**接口路径**：`/metadata-records-by-ids`
+
+**请求方式**：POST
+
+**接口描述**：按素材 ID 批量查询已写入的自定义元数据字段值。团队未开启自定义元数据、或某素材尚无元数据记录时，该 ID 不会出现在结果中。
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| materialIds | List&lt;Long> | 是 | 素材 ID 列表；单次最多 50 |
+
+**响应**：Map&lt;Long, Object>，key 为素材 ID；value 为元数据对象（字段 name → value，并含 recordId、materialId 等）。
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/metadata-records-by-ids' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{"materialIds":[6908914,6908820]}'
+```
+
+**响应示例**：
+
+```json
+{
+  "code": "0",
+  "message": "OK",
+  "result": {
+    "6908914": {
+      "materialId": 6908914,
+      "recordId": "rec_xxx",
+      "你的字段名": "自定义值"
+    }
+  },
+  "traceId": "..."
+}
+```
+
+**注意事项**：
+
+- 仅返回有元数据记录的素材；无记录的 ID 不会出现在 result 中。
+- 上传时写元数据需使用字段 fieldId（见上传接口）；本接口读出的自定义字段以字段 name 为 key。
+
+### 查询团队元数据字段列表
+
+**接口路径**：`/metadata-fields`
+
+**请求方式**：GET
+
+**接口描述**：查询当前团队已配置的自定义元数据字段定义。上传素材时 metadatas[].fieldId 须取自本接口返回的字段 id。团队未开启自定义元数据时返回空列表。
+
+**响应**：List&lt;Object>，每项为字段定义对象：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| id | String | 字段 ID（上传时作为 fieldId） |
+| name | String | 字段名（修改素材元数据时作为 name） |
+| field_type / type | String | 字段类型（如 text、number、select 等，以实际返回为准） |
+
+**请求示例**：
+
+```bash
+curl --location --request GET 'https://open.musedam.cc/api/muse/metadata-fields' \
+--header 'Authorization: Bearer your_api_key'
+```
+
+**注意事项**：系统内置字段（如 materialId）也会出现在列表中，业务侧可按需过滤。
+
+## 批量查询转移素材
+
+**说明：** 根据素材 ID 列表，判断各素材是否为「成员资源转移」产生的素材（例如成员退出/移出时，资源被转给其他成员后生成的新素材记录）。
+
+**接口路径：** `/check-transferred-materials`
+
+**请求方式：** `POST`
+
+**请求参数：** `enterpriseTransferMaterialCheckReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| assetIds | List&lt;Long> | 是 | 素材 ID 列表（与开放接口其它处 `id` / `assetIds` 含义一致，即 materialId） |
+
+**响应：** `Map<Long, Boolean>;`
+
+- **Key：** 请求中的素材 ID（assetId）
+- **Value：** `true` 表示为转移产生的素材；`false` 表示不是，或素材不存在
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/check-transferred-materials' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "assetIds": [1234567890, 9876543210]
+}'
+```
+
+**响应示例：**
+
+```json
+{
+    "code": "0",
+    "message": "OK",
+    "result": {
+        "1234567890": true,
+        "9876543210": false
+    },
+    "traceId": "17561978534182325498"
+}
+```
+
+**注意事项：**
+
+- 请求参数字段名为 `assetIds`
+- 请求中不存在的素材 ID 也会出现在响应中，对应值为 `false`。
+
+---
+
+## 查询素材取用者
+
+**说明**：分页查询对指定素材有过下载或分享行为的用户（取用者）。数据来源于操作日志，按用户聚合统计次数与最近操作时间。素材须存在于当前团队。
+
+**接口路径**：`/material-access-users-query`
+
+**请求方式**：POST
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| assetId | Long | 是 | 素材 ID |
+| operationTypes | List&lt;Integer> | 否 | 操作类型：1 下载，2 分享；不传或空则同时统计下载与分享 |
+| page | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页条数，默认 20，最大 100 |
+
+**响应**：含 total、items。items 元素：
+
+| 字段名 | 类型 | 说明 |
+|-|-|-|
+| userId | Long | 用户 ID |
+| realName | String | 真实姓名 |
+| nickName | String | 昵称 |
+| email | String | 邮箱 |
+| phone | String | 手机 |
+| avatarUrl | String | 头像 URL |
+| downloadCount | Long | 下载次数（operationTypes 不含 1 时为 0） |
+| lastDownloadTime | Date | 最近下载时间 |
+| shareCount | Long | 分享次数（operationTypes 不含 2 时为 0） |
+| lastShareTime | Date | 最近分享时间 |
+| lastOperationTime | Date | 最近取用时间（下载或分享中较晚者） |
+
+**请求示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/material-access-users-query' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "assetId": 123456789,
+  "operationTypes": [1, 2],
+  "page": 1,
+  "pageSize": 20
+}'
+```
+
+**注意事项**：
+
+- 仅统计当前团队内用户对目标素材的操作记录；已离职或已删除用户若日志中仍有记录，仍会返回其 userId 及统计字段，姓名等资料可能为空。
+- 同一 userId 仅返回一条记录（按 userId 去重并合并下载/分享统计）。
