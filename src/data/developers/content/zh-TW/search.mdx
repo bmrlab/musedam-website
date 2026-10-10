@@ -115,6 +115,47 @@
 | imageContentAnalysis | ImageContentAnalysis | 智能解析內容 |
 | publicUrl | String | 原圖公開鏈接（帶 w/h/mode/q/f/bg 處理參數）；未傳處理參數或無公開鏈接時為空字符串 |
 
+### 版權管理與授權有效期
+
+`/search-assets` 與 `/assets-by-ids` 返回的素材使用相同的版權與有效期規則，由團隊 `licenseManagement` 開關決定：
+
+- **開啟版權管理**：讀取 `licenseAgreements[].scopes[]` 中的授權有效期及狀態。每份協議可以包含多個授權範圍，應分別查看地區、渠道與有效期；不要用素材頂層有效期替代協議有效期。
+- **關閉版權管理**：讀取素材頂層 `validStartTime`、`validEndTime`、`isPermanent`、`validityStatus` 和 `daysToExpire`。`licenseAgreements` 為 `null` 或不返回。
+
+以下為素材返回對象的補充字段，**不是搜索篩選參數**。搜索請求原有 `startTime` / `endTime` 表示更新時間範圍，與素材有效期不同。
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| licenseAgreements | List&lt;MaterialLicenseAgreementDTO> | 開啟版權管理時的授權協議列表 |
+| validStartTime | Date | 關閉版權管理時的素材有效開始時間 |
+| validEndTime | Date | 關閉版權管理時的素材有效結束時間 |
+| isPermanent | Boolean | 關閉版權管理時，素材是否永久有效 |
+| validityStatus | Integer | 素材有效期狀態：1=待生效，2=有效，3=即將過期，4=已過期，5=永久有效 |
+| daysToExpire | Integer | 距離結束的剩餘天數，向上取整；永久有效為 99999，未知為 -1 |
+
+**MaterialLicenseAgreementDTO（`licenseAgreements` 元素）：**
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| agreementId | Long | 協議 ID |
+| agreementName | String | 協議名稱 |
+| rightHolder | String | 權利主體 |
+| scopes | List&lt;AgreementScopeDTO> | 授權範圍列表 |
+
+**AgreementScopeDTO（`licenseAgreements[].scopes` 元素）：**
+
+| 字段名 | 類型 | 描述 |
+|-|-|-|
+| authorizedRegion | String | 授權地區 |
+| authorizedChannel | String | 授權渠道 |
+| effectiveDate | Date | 授權有效期開始時間 |
+| expireDate | Date | 授權有效期結束時間 |
+| isPermanent | Integer | 協議範圍是否永久有效：0=否，1=是；與素材頂層 Boolean 類型不同 |
+| licenseStatus | String | 授權狀態 |
+| licenseStatusText | String | 授權狀態顯示文案 |
+
+> 日期字段按接口實際序列化格式讀取；未配置或未知的有效期不要自行解釋為永久有效。
+
 **TagDTO參數說明**：
 
 | 字段名 | 類型 | 描述 |

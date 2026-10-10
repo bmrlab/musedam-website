@@ -33,6 +33,12 @@
 | oldAssetId | Long | 否 | **上傳新版本**時填原素材 ID（>0）；將作為封面/版本關聯的素材 id |
 | metadatas | List&lt;MetadataDTO> | 否 | 自定義元數據；**僅當團隊開啟自定義元數據時生效**；`fieldId` 須與「元數據 fields」接口返回的 id 一致，且會校驗字段合法性 |
 | skipDuplicateByEtag | Boolean | 否 | 是否查重跳過，為 true 時：遠端 URL 已拉取到素材 bucket 之後、寫入素材庫之前，按 OSS ETag 在團隊內查重；若已存在相同內容，則不入庫；開放接口返回項中的 id、key、accessUrl指向團隊內已存在的素材。默認 false，與歷史行為一致。 |
+| licenseAgreementIds | List&lt;Long> | 否 | 關聯版權協議 ID；僅開啟版權管理時生效，關閉時忽略 |
+| startTime | Date | 否 | 素材有效期開始；僅關閉版權管理時生效，開啟時忽略 |
+| endTime | Date | 否 | 素材有效期結束；僅關閉版權管理時生效，開啟時忽略 |
+| isPermanent | Boolean | 否 | 素材是否永久有效；僅關閉版權管理時生效，開啟時忽略 |
+
+上傳請求使用 `startTime` / `endTime` 寫入素材有效期，搜索和批量獲取響應對應 `validStartTime` / `validEndTime`。開啟版權管理時，通過 `licenseAgreementIds` 關聯協議，授權有效期以協議範圍為準。
 
 **MetadataDTO（`metadatas` 元素）：**
 

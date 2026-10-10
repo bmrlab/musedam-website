@@ -33,6 +33,12 @@ This section describes uploading from a downloadable URL. The parameters below a
 | oldAssetId | Long | No | Original asset ID (>0) when **uploading a new version**; used for cover/version association |
 | metadatas | List&lt;MetadataDTO> | No | Custom metadata; **only effective when enabled for the team**. `fieldId` must match an ID from the metadata fields endpoint. Field validity is checked |
 | skipDuplicateByEtag | Boolean | No | Skip duplicates. When true, the server checks the team's OSS ETags after downloading to the asset bucket but before adding to the library. Existing identical content is not added again; returned id, key, and accessUrl refer to the existing asset. Defaults to false |
+| licenseAgreementIds | List&lt;Long> | No | Linked license agreement IDs; only effective when copyright management is enabled, otherwise ignored |
+| startTime | Date | No | Asset validity start; only effective when copyright management is disabled, otherwise ignored |
+| endTime | Date | No | Asset validity end; only effective when copyright management is disabled, otherwise ignored |
+| isPermanent | Boolean | No | Whether the asset is permanently valid; only effective when copyright management is disabled, otherwise ignored |
+
+Upload requests use `startTime` / `endTime` to set asset validity; search and batch retrieval return `validStartTime` / `validEndTime`. With copyright management enabled, link agreements using `licenseAgreementIds`; validity comes from the agreement scopes.
 
 **MetadataDTO (`metadatas` item):**
 

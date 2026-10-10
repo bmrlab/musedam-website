@@ -115,6 +115,47 @@
 | imageContentAnalysis | ImageContentAnalysis | 智能解析内容 |
 | publicUrl | String | 原图公开链接（带 w/h/mode/q/f/bg 处理参数）；未传处理参数或无公开链接时为空字符串 |
 
+### 版权管理与授权有效期
+
+`/search-assets` 与 `/assets-by-ids` 返回的素材使用相同的版权与有效期规则，由团队 `licenseManagement` 开关决定：
+
+- **开启版权管理**：读取 `licenseAgreements[].scopes[]` 中的授权有效期及状态。每份协议可以包含多个授权范围，应分别查看地区、渠道与有效期；不要用素材顶层有效期替代协议有效期。
+- **关闭版权管理**：读取素材顶层 `validStartTime`、`validEndTime`、`isPermanent`、`validityStatus` 和 `daysToExpire`。`licenseAgreements` 为 `null` 或不返回。
+
+以下为素材返回对象的补充字段，**不是搜索筛选参数**。搜索请求原有 `startTime` / `endTime` 表示更新时间范围，与素材有效期不同。
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| licenseAgreements | List&lt;MaterialLicenseAgreementDTO> | 开启版权管理时的授权协议列表 |
+| validStartTime | Date | 关闭版权管理时的素材有效开始时间 |
+| validEndTime | Date | 关闭版权管理时的素材有效结束时间 |
+| isPermanent | Boolean | 关闭版权管理时，素材是否永久有效 |
+| validityStatus | Integer | 素材有效期状态：1=待生效，2=有效，3=即将过期，4=已过期，5=永久有效 |
+| daysToExpire | Integer | 距离结束的剩余天数，向上取整；永久有效为 99999，未知为 -1 |
+
+**MaterialLicenseAgreementDTO（`licenseAgreements` 元素）：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| agreementId | Long | 协议 ID |
+| agreementName | String | 协议名称 |
+| rightHolder | String | 权利主体 |
+| scopes | List&lt;AgreementScopeDTO> | 授权范围列表 |
+
+**AgreementScopeDTO（`licenseAgreements[].scopes` 元素）：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| authorizedRegion | String | 授权地区 |
+| authorizedChannel | String | 授权渠道 |
+| effectiveDate | Date | 授权有效期开始时间 |
+| expireDate | Date | 授权有效期结束时间 |
+| isPermanent | Integer | 协议范围是否永久有效：0=否，1=是；与素材顶层 Boolean 类型不同 |
+| licenseStatus | String | 授权状态 |
+| licenseStatusText | String | 授权状态显示文案 |
+
+> 日期字段按接口实际序列化格式读取；未配置或未知的有效期不要自行解释为永久有效。
+
 **TagDTO参数说明**：
 
 | 字段名 | 类型 | 描述 |

@@ -115,6 +115,47 @@
 | imageContentAnalysis | ImageContentAnalysis | AI analysis |
 | publicUrl | String | Processed public link using w/h/mode/q/f/bg; empty if no processing parameters or public link are available |
 
+### Copyright management and license validity
+
+Assets returned by `/search-assets` and `/assets-by-ids` follow the same rules, controlled by the team's `licenseManagement` setting:
+
+- **Copyright management enabled**: read validity dates and status from `licenseAgreements[].scopes[]`. An agreement can contain multiple scopes; check each scope's region, channel and validity separately. Do not substitute asset-level validity for agreement validity.
+- **Copyright management disabled**: read the asset-level `validStartTime`, `validEndTime`, `isPermanent`, `validityStatus` and `daysToExpire`. `licenseAgreements` is null or omitted.
+
+These are additional **response fields, not search filters**. The existing search request fields `startTime` / `endTime` filter update timestamps, not asset validity.
+
+| Field | Type | Description |
+|-|-|-|
+| licenseAgreements | List&lt;MaterialLicenseAgreementDTO> | License agreements when copyright management is enabled |
+| validStartTime | Date | Asset validity start when copyright management is disabled |
+| validEndTime | Date | Asset validity end when copyright management is disabled |
+| isPermanent | Boolean | Whether the asset is permanently valid when copyright management is disabled |
+| validityStatus | Integer | Asset validity: 1=pending, 2=valid, 3=expiring soon, 4=expired, 5=permanent |
+| daysToExpire | Integer | Days remaining until expiry, rounded up; 99999 for permanent validity, -1 when unknown |
+
+**MaterialLicenseAgreementDTO (`licenseAgreements` item):**
+
+| Field | Type | Description |
+|-|-|-|
+| agreementId | Long | Agreement ID |
+| agreementName | String | Agreement name |
+| rightHolder | String | Rights holder |
+| scopes | List&lt;AgreementScopeDTO> | License scopes |
+
+**AgreementScopeDTO (`licenseAgreements[].scopes` item):**
+
+| Field | Type | Description |
+|-|-|-|
+| authorizedRegion | String | Licensed region |
+| authorizedChannel | String | Licensed channel |
+| effectiveDate | Date | License validity start |
+| expireDate | Date | License validity end |
+| isPermanent | Integer | Whether this scope is permanently valid: 0=no, 1=yes; unlike the asset-level Boolean |
+| licenseStatus | String | License status |
+| licenseStatusText | String | License status display text |
+
+> Read date fields using the API's actual serialization format. Missing or unknown validity does not imply permanent validity.
+
 **TagDTO fields**:
 
 | Field | Type | Description |
