@@ -58,6 +58,41 @@ export function markdownComponents(
         </figure>
       )
     },
+    EmbedScreenshot: ({
+      name,
+      caption,
+    }: {
+      name: 'assets' | 'folders' | 'members'
+      caption: string
+    }) => {
+      const dimensions = { assets: [1283, 669], folders: [886, 577], members: [943, 650] }
+      const src = `/assets/developers/embed/${name}.png`
+      return (
+        <figure className={`dev-api-screenshot dev-embed-screenshot-${name}`}>
+          <a
+            href={src}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={localizeDeveloperText(
+              `${caption} — ${english ? 'View full image' : '查看大图'}`,
+              lng,
+            )}
+          >
+            <Image
+              src={src}
+              alt={caption}
+              width={dimensions[name][0]}
+              height={dimensions[name][1]}
+              sizes="(max-width: 768px) 100vw, 800px"
+            />
+          </a>
+          <figcaption>
+            {caption}
+            <span>{english ? 'Click to enlarge' : localizeDeveloperText('点击查看大图', lng)}</span>
+          </figcaption>
+        </figure>
+      )
+    },
     BusinessFlow: ({ kind }: { kind: 'cms' | 'commerce' | 'marketing' }) => (
       <BusinessFlow kind={kind} english={english} lng={lng} />
     ),

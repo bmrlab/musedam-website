@@ -517,6 +517,137 @@
     "updatedAt": "2026-09-29"
   },
   {
+    "slug": "embed",
+    "title": "外部系統嵌入組件",
+    "en": "Embed components",
+    "group": "apps",
+    "description": "在自有業務系統中通過 iframe 免登錄調用 MuseDAM 素材、文件夾、成員選擇與上傳組件。",
+    "headings": [
+      {
+        "id": "適用場景",
+        "title": "適用場景",
+        "level": 2
+      },
+      {
+        "id": "接入流程",
+        "title": "接入流程",
+        "level": 2
+      },
+      {
+        "id": "開啟嵌入組件",
+        "title": "開啟嵌入組件",
+        "level": 2
+      },
+      {
+        "id": "管理員開啟嵌入",
+        "title": "管理員開啟嵌入",
+        "level": 3
+      },
+      {
+        "id": "配置允許嵌入的域名",
+        "title": "配置允許嵌入的域名",
+        "level": 3
+      },
+      {
+        "id": "簽發嵌入憑證",
+        "title": "簽發嵌入憑證",
+        "level": 2
+      },
+      {
+        "id": "簽發請求",
+        "title": "簽發請求",
+        "level": 3
+      },
+      {
+        "id": "簽發響應",
+        "title": "簽發響應",
+        "level": 3
+      },
+      {
+        "id": "簽發失敗原因",
+        "title": "簽發失敗原因",
+        "level": 3
+      },
+      {
+        "id": "加載嵌入頁",
+        "title": "加載嵌入頁",
+        "level": 2
+      },
+      {
+        "id": "生命週期事件",
+        "title": "生命週期事件",
+        "level": 3
+      },
+      {
+        "id": "調用組件",
+        "title": "調用組件",
+        "level": 2
+      },
+      {
+        "id": "消息格式",
+        "title": "消息格式",
+        "level": 3
+      },
+      {
+        "id": "可調用的-action",
+        "title": "可調用的 action",
+        "level": 3
+      },
+      {
+        "id": "素材選擇器",
+        "title": "素材選擇器",
+        "level": 3
+      },
+      {
+        "id": "文件夾選擇器",
+        "title": "文件夾選擇器",
+        "level": 3
+      },
+      {
+        "id": "成員選擇器",
+        "title": "成員選擇器",
+        "level": 3
+      },
+      {
+        "id": "文件上傳",
+        "title": "文件上傳",
+        "level": 3
+      },
+      {
+        "id": "標籤選擇器",
+        "title": "標籤選擇器",
+        "level": 3
+      },
+      {
+        "id": "完整示例",
+        "title": "完整示例",
+        "level": 2
+      },
+      {
+        "id": "服務端簽發-code",
+        "title": "服務端簽發 code",
+        "level": 3
+      },
+      {
+        "id": "前端打開組件",
+        "title": "前端打開組件",
+        "level": 3
+      },
+      {
+        "id": "安全建議",
+        "title": "安全建議",
+        "level": 2
+      },
+      {
+        "id": "常見問題",
+        "title": "常見問題",
+        "level": 2
+      }
+    ],
+    "markdown": "## 適用場景\n\n企業員工已經登錄了你的業務系統（OA、CMS、電商後臺等），需要在其中直接使用 MuseDAM 的素材選擇、文件夾選擇、成員選擇、上傳和標籤選擇組件。\n\n- 員工打開組件時**免登錄**，不會跳轉 MuseDAM 登錄頁，也不需要逐個員工授權。\n- 是否開放由**團隊管理員**統一決定，可隨時開啟、關閉或撤銷。\n- 憑證只能代表本團隊的正常成員，組件內的操作沿用該成員在 MuseDAM 中的權限。\n\n> 本文適用於「在你的系統中嵌入 MuseDAM 組件」。如果是將你的應用嵌入 MuseDAM 內部運行，請參閱[嵌入應用與組件](./components)。\n\n## 接入流程\n\n1. 團隊管理員為一個團隊 API Key 開啟嵌入組件，並配置允許嵌入的域名。\n2. 員工在你的系統中觸發操作時，你的**後端**使用該 API Key 調用簽發接口，為該員工獲取一次性 `code`。\n3. 你的前端用 iframe 打開 `https://{MuseDAM 域名}/outer/embed?code=...`。\n4. 嵌入頁完成鑑權後，向父頁面發送 `musedam-embed-ready` 事件。\n5. 前端通過 `postMessage` 發送 `action` 打開組件，並按 `dispatchId` 接收 `action_result` 結果。\n\n```text\n你的后端 ──(Bearer 团队 API Key + 员工标识)──► POST /api/muse/embed-code ──► { code, expiresIn }\n    │\n    ▼ 把 code 交给前端\n你的前端 ──► <iframe src=\"https://musedam.cc/outer/embed?code=...\">\n    ◄── musedam-embed-ready\n    ──► action: assets-selector-modal-open\n    ◄── action_result: { success: true, data: { selectedAssets } }\n```\n\n## 開啟嵌入組件\n\n### 管理員開啟嵌入\n\n1. 系統管理員登錄 MuseDAM，進入「團隊設置」→「API 賬號」。\n2. 選擇一個團隊 API Key（如果還沒有，請先按[快速開始](./quick-start)創建）。\n3. 在 API Key 詳情的「嵌入組件」區域打開開關，填寫允許嵌入的域名並保存。\n4. 開啟後，API Key 列表會顯示「已開啟嵌入」標識。\n\n> 只有**團隊 API Key** 能簽發嵌入憑證；個人 API Key、第三方應用憑證均會被拒絕。關閉開關或撤銷 API Key 後，立即無法再簽發新的 `code`。\n\n### 配置允許嵌入的域名\n\n「允許嵌入的域名」用於限制哪些父頁面可以加載嵌入頁。配置後，嵌入頁只在父頁面 origin 匹配時進入可用狀態，並且只接收、只發送給該 origin 的消息。\n\n| 規則 | 說明 |\n|-|-|\n| 格式 | `http(s)://host[:port]`，只填寫 origin，不能帶路徑，例如 `https://oa.example.com` |\n| 通配符 | 支持一級子域名通配，例如 `https://*.example.com` |\n| 數量 | 最多 20 條 |\n| 留空 | 不限制父頁面來源（不建議在生產環境使用） |\n\n## 簽發嵌入憑證\n\n由你的**後端**調用，使用開啟了嵌入的團隊 API Key 認證。每次打開組件前簽發一個新的 `code`。\n\n### 簽發請求\n\n```text\nPOST https://open.musedam.cc/api/muse/embed-code\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n請求體用於指定員工，三個字段任選其一；同時傳入時優先級為 `userId` > `loginEmail` > `loginPhone`。\n\n| 字段 | 類型 | 必填 | 說明 |\n|-|-|-|-|\n| userId | string | 否 | MuseDAM 用戶 ID，可通過[團隊與成員](./team)接口查詢 |\n| loginEmail | string | 否 | 員工的 MuseDAM 登錄郵箱 |\n| loginPhone | string | 否 | 員工的 MuseDAM 登錄手機號 |\n\n請求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/embed-code' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"loginEmail\": \"zhangsan@example.com\"\n}'\n```\n\n### 簽發響應\n\n```json\n{\n    \"code\": \"0\",\n    \"result\": {\n        \"code\": \"c3f1a9...\",\n        \"expiresIn\": 300,\n        \"userId\": \"1538720494056386560\",\n        \"orgId\": \"123\"\n    }\n}\n```\n\n| 字段 | 類型 | 說明 |\n|-|-|-|\n| result.code | string | 一次性嵌入憑證，用於拼接嵌入頁地址 |\n| result.expiresIn | number | 有效期（秒），默認 300 |\n| result.userId | string | 憑證對應的 MuseDAM 用戶 ID |\n| result.orgId | string | 憑證對應的團隊 ID |\n\n> `code` 5 分鐘內有效，且只能使用一次，兌換後立即作廢。請在打開組件時實時簽發，不要緩存或複用。\n\n### 簽發失敗原因\n\n| 錯誤 | 說明 | 處理方法 |\n|-|-|-|\n| EMBED_API_KEY_NOT_ALLOWED | 調用方不是團隊 API Key | 改用團隊 API Key，不要使用個人 API Key 或應用憑證 |\n| EMBED_NOT_ENABLED | 該 API Key 未開啟嵌入組件 | 請管理員在 API Key 詳情中開啟嵌入組件 |\n| EMBED_MEMBER_NOT_FOUND | 指定的員工不是本團隊的正常成員 | 確認員工已加入團隊且賬號未停用；簽發接口不會自動創建賬號 |\n\nAPI Key 無效或已撤銷時，按[錯誤處理](./errors)中的認證錯誤處理。\n\n## 加載嵌入頁\n\n將簽發得到的 `code` 拼接到嵌入頁地址，用 iframe 打開：\n\n```text\nhttps://musedam.cc/outer/embed?code={code}&theme=light\n```\n\n| 參數 | 必填 | 說明 |\n|-|-|-|\n| code | 是 | 簽發接口返回的一次性 `code`，請使用 `encodeURIComponent` 編碼 |\n| theme | 否 | `light` 或 `dark`，只作用於本次嵌入，不寫入用戶偏好 |\n\n嵌入頁域名與團隊成員登錄 MuseDAM 使用的域名一致，國內為 `https://musedam.cc`。簽發接口請按團隊所在區域選擇上方的 Open API 地址。\n\n嵌入頁本身是透明的空白頁，只承載組件彈窗。建議 iframe 全屏覆蓋，在組件返回結果後由你的頁面隱藏或移除 iframe。`code` 兌換後會從嵌入頁地址欄中移除。\n\n### 生命週期事件\n\n嵌入頁通過 `postMessage` 向父頁面發送以下事件，消息結構為 `{ source: 'musedam', type, timestamp, payload }`：\n\n| type | 時機 | payload |\n|-|-|-|\n| musedam-embed-ready | 鑑權與初始化完成，可以開始發送 action | `{}` |\n| musedam-embed-auth-failed | `code` 缺失、無效、過期、已使用，或父頁面域名不在允許列表中 | `{ message }` |\n| musedam-embed-auth-expired | 使用過程中登錄態失效 | `{ code? }` |\n\n收到 `musedam-embed-auth-failed` 或 `musedam-embed-auth-expired` 時，請讓後端重新簽發 `code` 並刷新 iframe 地址。嵌入頁不會跳轉到登錄頁。\n\n## 調用組件\n\n收到 `musedam-embed-ready` 後，通過 `iframe.contentWindow.postMessage` 發送 action。\n\n### 消息格式\n\n**你的頁面 → 嵌入頁（請求）**\n\n```typescript\n{\n    source: \"musedam-app\",\n    target: \"musedam\",\n    type: \"action\",\n    timestamp: \"2026-10-12T10:30:00.000Z\",\n    dispatchId: \"dispatch_1728700000000_abc123\", // 唯一 ID，用于匹配结果\n    action: \"assets-selector-modal-open\",\n    args: { /* 各组件参数 */ }\n}\n```\n\n**嵌入頁 → 你的頁面（結果）**\n\n```typescript\n// 成功\n{ type: \"action_result\", dispatchId, action, result: { success: true, data: { /* 结果 */ } } }\n\n// 失败或取消\n{\n    type: \"action_result\",\n    dispatchId,\n    action,\n    result: {\n        success: false,\n        code: \"cancelled\" | \"forbidden\" | \"malformed_request\" | \"internal_server_error\",\n        message: \"...\"\n    }\n}\n```\n\n| result.code | 含義 |\n|-|-|\n| cancelled | 用戶主動取消或關閉了組件 |\n| malformed_request | 請求參數錯誤或格式不正確 |\n| forbidden | action 不在可調用列表中，或用戶沒有該操作權限 |\n| internal_server_error | 服務器內部錯誤或其他未捕獲的異常 |\n\n### 可調用的 action\n\n| 組件 | action |\n|-|-|\n| 素材選擇器 | `assets-selector-modal-open` / `assets-selector-modal-close` |\n| 文件夾選擇器（多選） | `folder-selector-modal-open` / `folder-selector-modal-close` |\n| 文件夾選擇器（單選） | `single-folder-selector-modal-open` / `single-folder-selector-modal-close` |\n| 成員選擇器 | `member-selector-modal-open` / `member-selector-modal-close` |\n| 上傳 | `upload-files` / `sub-project-upload-complete` |\n| 標籤選擇 | `openTagSelecter` / `closeTagSelecter` / `removeTag` |\n\n以上之外的 action 會直接返回 `result.code = \"forbidden\"`。`*-close` 用於由你的頁面主動關閉已打開的組件。嵌入會話鎖定在 `code` 對應的團隊，組件內不能切換團隊。\n\n### 素材選擇器\n\n![素材選擇器：瀏覽、篩選並選擇資產庫中的素材。](/assets/developers/embed/assets.png)\n\n- **action**：`assets-selector-modal-open`\n- **args**：\n\n```typescript\n{\n    initialSelectedAssetIds?: number[];\n    // 可选择的素材类型，不传则不限制\n    // 取值：image、video、audio、js、document、PDocument、excel、font、zip、dll、code、model、triD、url\n    allowedTypes?: string[];\n    // 各类型数量上限；limit 不传表示该类型不限数量\n    dataLimit?: Array<{ type: string; limit?: number }>;\n    // 打开时预置的筛选条件，用户仍可在组件内修改\n    filters?: {\n        types?: string[];\n        extensions?: string[];\n        size?: { min?: number; max?: number; unit?: 'KB' | 'MB' | 'GB' };\n        dimension?: { minWidth?: number; maxWidth?: number; minHeight?: number; maxHeight?: number };\n    };\n}\n```\n\n- **result.data**：`{ selectedAssets: IAssetLite[] }`。`IAssetLite` 包含 `id`、`assetId`、`name`、`type`、`extension`、`size`、`width`、`height`、`downloadUrl`、`thumbnail`、`tags`、`folders` 等字段，完整定義見[嵌入應用與組件](./components)。\n\n> `downloadUrl` 等鏈接可能有時效。業務系統中請保存素材 ID，需要展示或下載時再通過[素材管理](./assets)接口獲取有效鏈接。\n\n### 文件夾選擇器\n\n![文件夾選擇器：選擇一個或多個共享文件夾。](/assets/developers/embed/folders.png)\n\n多選：\n\n- **action**：`folder-selector-modal-open`\n- **args**：`{ initialSelectedFolders?: Array<{ id: number; name: string }>; allMaterials?: boolean }`，`allMaterials` 控制是否顯示「全部素材」快速選項\n- **result.data**：`{ selectedFolders: Array<{ id: number; name: string }>; allMaterials: boolean }`\n\n單選：\n\n- **action**：`single-folder-selector-modal-open`\n- **args**：`{ initialSelectedFolder?: number | { id: number; name?: string } }`\n- **result.data**：`{ id: number; name: string }`\n\n### 成員選擇器\n\n![成員選擇器：按成員、部門或群組選擇。](/assets/developers/embed/members.png)\n\n- **action**：`member-selector-modal-open`\n- **args**：\n\n```typescript\n{\n    selectedItems?: {\n        members?: Array<{ id: string; name: string }>;\n        departments?: Array<{ id: string; name: string }>;\n        groups?: Array<{ id: string; name: string }>;\n    };\n}\n```\n\n- **result.data**：\n\n```typescript\n{\n    members: Array<{ id: string; name: string; departmentsName?: string; avatarUrl?: string }>;\n    departments: Array<{ id: string; name: string }>;\n    groups: Array<{ id: string; name: string }>;\n}\n```\n\n### 文件上傳\n\n上傳分兩步：先用 `upload-files` 上傳文件，業務處理完成後再用 `sub-project-upload-complete` 通知 MuseDAM 正式入庫。\n\n**第一步：`upload-files`**\n\n```typescript\n// args\n{\n    files: File[];          // 必填，可通过 <input type=\"file\"> 获取\n    folderId?: number;      // 目标文件夹 ID，可先用单选文件夹选择器获取\n    uploadSource?: string;  // 上传来源标识\n    subProjectId?: string;  // 推荐填写，用于区分不同业务的上传\n}\n\n// result.data\n{\n    uploadedFiles: Array<{\n        key: string;        // 文件唯一标识，第二步需要使用\n        fileName: string;\n        fileSize: number;\n        fileType: string;\n        uploadTime: string;\n        url?: string;\n    }>;\n    failedFiles?: Array<{ fileName: string; error: string }>;\n}\n```\n\n**第二步：`sub-project-upload-complete`**\n\n```typescript\n// args\n{\n    subProjectId: string;   // 与上传时一致\n    uploadKeys: Array<{ key: string; fileName: string; fileSize: number; fileType: string; uploadTime: string; url?: string }>;\n}\n\n// result.data\n{\n    processedFiles: Array<{ key: string; fileName: string; status: 'success' | 'failed'; error?: string }>;\n}\n```\n\n部分文件失敗時 `result.success` 仍為 `true`，請逐個檢查 `failedFiles` 和 `processedFiles[].status`。\n\n### 標籤選擇器\n\n標籤選擇器以浮層形式顯示在指定位置，適合在你的頁面中為內容打 MuseDAM 標籤。\n\n| action | args | 說明 |\n|-|-|-|\n| openTagSelecter | `{ rect: { left: number; top: number; width?: number; height?: number } }` | 在視口座標 `rect` 旁打開標籤浮層 |\n| closeTagSelecter | 無 | 關閉標籤浮層 |\n| removeTag | `{ tagId: number }` | 從當前已選標籤中移除一個標籤 |\n\n標籤選擇器不返回 `action_result`。用戶每次修改標籤，嵌入頁都會發送 `{ source: 'musedam', type: 'action', action: 'updateTags', args: { tags } }`，請以最後一次收到的 `tags` 為準。\n\n## 完整示例\n\n### 服務端簽發 code\n\n以 Node.js 為例，API Key 只保存在服務端環境變量中：\n\n```javascript\n// POST /api/musedam/embed-code —— 你自己的后端接口，需校验当前登录用户\napp.post('/api/musedam/embed-code', requireLogin, async (req, res) => {\n  const response = await fetch('https://open.musedam.cc/api/muse/embed-code', {\n    method: 'POST',\n    headers: {\n      Authorization: `Bearer ${process.env.MUSEDAM_API_KEY}`,\n      'Content-Type': 'application/json',\n    },\n    // 只为当前登录员工签发，不要直接使用前端传入的邮箱\n    body: JSON.stringify({ loginEmail: req.user.email }),\n  })\n  const body = await response.json()\n  if (String(body.code) !== '0') {\n    return res.status(400).json({ message: body.message })\n  }\n  res.json({ code: body.result.code })\n})\n```\n\n### 前端打開組件\n\n```javascript\nconst MUSEDAM_ORIGIN = 'https://musedam.cc'\n\nasync function openMuseDAM(action, args) {\n  // 1. 每次打开都向自己的后端获取新的 code\n  const { code } = await fetch('/api/musedam/embed-code', { method: 'POST' }).then((r) => r.json())\n\n  // 2. 创建全屏 iframe\n  const iframe = document.createElement('iframe')\n  iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999'\n  iframe.src = `${MUSEDAM_ORIGIN}/outer/embed?code=${encodeURIComponent(code)}&theme=light`\n  document.body.appendChild(iframe)\n\n  const dispatchId = `dispatch_${Date.now()}_${Math.random().toString(36).slice(2)}`\n\n  return new Promise((resolve, reject) => {\n    function cleanup() {\n      window.removeEventListener('message', onMessage)\n      iframe.remove()\n    }\n\n    function onMessage(event) {\n      // 3. 只处理来自 MuseDAM 嵌入页的消息\n      if (event.origin !== MUSEDAM_ORIGIN || event.source !== iframe.contentWindow) return\n      const data = event.data || {}\n\n      switch (data.type) {\n        case 'musedam-embed-ready':\n          // 4. 初始化完成后发送 action\n          iframe.contentWindow.postMessage(\n            {\n              source: 'musedam-app',\n              target: 'musedam',\n              type: 'action',\n              timestamp: new Date().toISOString(),\n              dispatchId,\n              action,\n              args,\n            },\n            MUSEDAM_ORIGIN,\n          )\n          break\n        case 'musedam-embed-auth-failed':\n        case 'musedam-embed-auth-expired':\n          cleanup()\n          reject(new Error(data.payload?.message || data.type))\n          break\n        case 'action_result':\n          // 5. 按 dispatchId 匹配结果\n          if (data.dispatchId !== dispatchId) return\n          cleanup()\n          data.result?.success\n            ? resolve(data.result.data)\n            : reject(Object.assign(new Error(data.result?.message), { code: data.result?.code }))\n          break\n      }\n    }\n\n    window.addEventListener('message', onMessage)\n  })\n}\n\n// 使用：最多选择 5 张图片\nopenMuseDAM('assets-selector-modal-open', { allowedTypes: ['image'], dataLimit: [{ type: 'image', limit: 5 }] })\n  .then(({ selectedAssets }) => console.log('已选择', selectedAssets))\n  .catch((error) => error.code !== 'cancelled' && console.error(error))\n```\n\n## 安全建議\n\n- **API Key 只能保存在後端**，不能出現在 iframe 地址、前端代碼或瀏覽器存儲中。\n- 後端只為當前已登錄的員工簽發 `code`，員工標識應取自你的登錄會話，不要信任前端傳入的郵箱或手機號。\n- `code` 5 分鐘內有效且只能使用一次。不要記錄到日誌、埋點或分享鏈接中。\n- 在生產環境中配置「允許嵌入的域名」，只填寫實際承載 iframe 的頁面 origin。\n- 接收消息時校驗 `event.origin` 和 `event.source`；發送消息時指定 MuseDAM 的 origin，不要使用 `'*'`。\n- 員工離職或被移出團隊後，將無法再為其簽發或兌換 `code`。不再需要嵌入時，請關閉開關或撤銷 API Key。\n\n## 常見問題\n\n**收到 musedam-embed-auth-failed 怎麼辦？**\n\n依次檢查：`code` 是否超過 5 分鐘、是否已被使用過（例如頁面刷新後重複使用了同一個地址）、父頁面 origin 是否在「允許嵌入的域名」中（注意協議和端口）。\n\n**可以把 iframe 預加載以加快打開速度嗎？**\n\n可以在用戶即將操作時提前簽發 `code` 並加載 iframe，收到 `musedam-embed-ready` 後再顯示。注意 `code` 5 分鐘有效，過期後需要重新簽發。\n\n**組件中能看到哪些素材和成員？**\n\n與員工本人登錄 MuseDAM 時一致，按該員工的團隊成員權限展示。嵌入會話固定在簽發 `code` 的團隊內。",
+    "updatedAt": "2026-10-12"
+  },
+  {
     "slug": "mcp",
     "title": "MCP 概覽",
     "en": "MCP overview",

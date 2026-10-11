@@ -96,7 +96,13 @@ export default async function DeveloperPage({ params }: Props) {
           <RegionEndpoints
             lng={lng}
             english={english}
-            kind={page.group === 'mcp' ? 'mcp' : page.group === 'apps' ? 'apps' : 'api'}
+            kind={
+              page.group === 'mcp'
+                ? 'mcp'
+                : page.group === 'apps' && slug !== 'embed'
+                  ? 'apps'
+                  : 'api'
+            }
           />
         )}
         <IntegrationFlow slug={slug} english={english} lng={lng} />

@@ -2,11 +2,11 @@
 
 入口：`/{lng}/developers/landing`。`/{lng}/developers` 重定向到概览。
 
-沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 17 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
+沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 18 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
 
 ## 内容维护
 
-- `src/data/developers/content/*.mdx`：17 篇技术文档，服务端渲染。
+- `src/data/developers/content/*.mdx`：18 篇技术文档，服务端渲染。
 - `src/data/developers/pages.json`：标题、分组、描述、目录与用于复制的 Markdown；改动正文后同步更新对应条目。
 - `src/data/developers/content/en/*.mdx`、`pages.en.json` 和 `content.en.ts`：完整英文正文、元数据与注册表，修改文档时需同步维护。
 - `src/data/developers/content.ts`：中文 MDX 组件注册表。
@@ -53,6 +53,16 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 - GET/POST 转发约定本次不调整。
 
 机器可读文档：`/{lng}/developers/llms.txt` 提供索引，`/{lng}/developers/markdown/{slug}.md` 提供纯 Markdown。两者均从公开文档数据生成，不依赖登录；不存在的文档返回 404。Markdown 文档中的文档链接指向对应的 Markdown 版本。
+
+## 2026-10-12 外部系统嵌入组件
+
+新增 `embed`（外部系统嵌入组件）文档，位于「第三方集成」分组，与 `components`（第三方应用嵌入 MuseDAM）方向相反：客户在自有系统中通过 iframe 打开 `/outer/embed` 调用 MuseDAM 组件。
+
+- 来源：后端仓库 `docs/外部系统嵌入组件-接口需求.md`，前端仓库 `components-outer/README.md` 的 OuterEmbed 一节及 `components-app/README.md`。鉴权以接口需求文档为准（团队 API Key 签发一次性 code），不使用 README 中旧的 `/auth/code` 说明。
+- 签发接口对外写作 `https://open.musedam.cc/api/muse/embed-code`（公网 `/api/muse/{method}` 经网关进入 open-service），嵌入页写作 `https://musedam.cc/outer/embed?code=...`。
+- 未公开内部实现：表结构、Redis key、open_service 登记、兑换接口和 settings 内部路由。
+- 组件截图来自飞书「第三方应用及组件对接」原图，存放于 `public/assets/developers/embed/`；成员截图已打码。管理员开启嵌入的设置页尚无截图。
+- 接口仍在开发中，字段或错误码变化时需同步三种语言的 MDX 和 `pages*.json`。
 
 ## 文档视觉规范
 
