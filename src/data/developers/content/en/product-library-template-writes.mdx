@@ -55,7 +55,7 @@ template is currently the default. Omission preserves the existing default.
 
 Each successful create or update writes an immutable version snapshot using
 `newOnly`. Existing products retain their pinned version and values. `syncAll`
-returns `422 validation_failed`. 
+returns `422 validation_failed`.
 
 Creation returns `201`; updates return `200`, both with the projected template
 and an opaque `ETag`. `POST` accepts `Idempotency-Key`: a retry replays the original
@@ -68,7 +68,7 @@ the current key; no signed media URLs are stored in replay records.
 `PATCH` and `DELETE` accept optional `If-Match`. The API locks the library row,
 then the template row, then computes the complete structural fingerprint. A stale
 value returns `412 precondition_failed` without modifying the template. Omission
-retains last-writer-wins behavior. 
+retains last-writer-wins behavior.
 
 `DELETE /product-info-templates/{id}` soft-deletes the template and removes its
 direct brand and category bindings. Historical versions and product pins remain.
