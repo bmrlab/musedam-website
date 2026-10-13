@@ -2,11 +2,11 @@
 
 入口：`/{lng}/developers/landing`。`/{lng}/developers` 重定向到概览。
 
-沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 26 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
+沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 25 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
 
 ## 内容维护
 
-- `src/data/developers/content/*.mdx`：26 篇技术文档，服务端渲染。
+- `src/data/developers/content/*.mdx`：25 篇技术文档，服务端渲染。
 - `src/data/developers/pages.json`：标题、分组、描述、目录与用于复制的 Markdown；改动正文后同步更新对应条目。
 - `src/data/developers/content/en/*.mdx`、`pages.en.json` 和 `content.en.ts`：完整英文正文、元数据与注册表，修改文档时需同步维护。
 - `src/data/developers/content.ts`：中文 MDX 组件注册表。
@@ -66,7 +66,7 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 
 ## Product Library API documentation (2026-10-13)
 
-The `product-library` navigation group adds nine documents in Simplified Chinese,
+The `product-library` navigation group adds eight documents in Simplified Chinese,
 English and Traditional Chinese. Its entry is `/{lng}/developers/product-library`,
 linked from the developer landing page. Quick start contains only the service
 address, authorization steps and a first request. API documentation groups
@@ -74,7 +74,7 @@ operations by resource, with brief permission, response and pagination notes.
 Link to the relevant guides for writing, errors, media, sharing and synchronization
 rather than combining those topics in a shared rules section. Use short steps and
 tables; put uncommon edge cases in clearly named expandable sections. The remaining
-pages cover AI assistant integration, examples, writes and errors, categories,
+pages cover examples, writes and errors, categories,
 information templates, product operations and synchronization. Keep the
 existing page routes when changing these titles or their navigation labels.
 
@@ -125,8 +125,8 @@ When refreshing these documents:
    added as an API Key Collaborator, with permissions derived from its role.
    Product Library does not issue keys or offer per-key operation selection.
 4. Exclude internal rollout notes, database maintenance procedures and unpublished
-   backend proposals. The AI guide points to public Markdown and OpenAPI resources;
-   it does not infer an API server from a website-hosted Skill URL.
+   backend proposals. Use the confirmed API service URL in examples and keep
+   document URLs separate from API request URLs.
 5. Validate MDX compilation, registry and heading consistency, document links,
    localized page rendering, search, Markdown routes and the downloadable contract.
    Run scoped `pnpm lint --file ...` and `pnpm exec tsc --noEmit --incremental false`.

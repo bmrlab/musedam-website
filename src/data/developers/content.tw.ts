@@ -10,7 +10,6 @@ import Page14 from './content/zh-TW/mcp-connect.mdx'
 import Page16 from './content/zh-TW/mcp-faq.mdx'
 import Page15 from './content/zh-TW/mcp-tools.mdx'
 import Page13 from './content/zh-TW/mcp.mdx'
-import ProductLibrary2 from './content/zh-TW/product-library-agent-skill.mdx'
 import ProductLibrary5 from './content/zh-TW/product-library-categories.mdx'
 import ProductLibrary3 from './content/zh-TW/product-library-examples.mdx'
 import ProductLibrary7 from './content/zh-TW/product-library-product-writes.mdx'
@@ -45,7 +44,6 @@ export const traditionalContent = {
   'mcp-faq': Page16,
   'product-library': ProductLibrary0,
   'product-library-reference': ProductLibrary1,
-  'product-library-agent-skill': ProductLibrary2,
   'product-library-examples': ProductLibrary3,
   'product-library-write-conventions': ProductLibrary4,
   'product-library-categories': ProductLibrary5,
