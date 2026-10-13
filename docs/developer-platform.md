@@ -93,6 +93,13 @@ the source snapshot; only the server URL and description are adapted for the pub
 gateway. The reference includes all operations and shared definitions without
 adding a browser request console or a new dependency.
 
+Match the existing Open API articles (`search.mdx` and `assets.mdx`) when editing
+the reference: endpoint, method, description, request parameters, response fields,
+then visible curl and response examples. Keep the Product Library response shape;
+do not substitute the asset API envelope. Put shared technical definitions in the
+appendix and link to common error handling instead of repeating a status-code
+catalog for every operation.
+
 When refreshing these documents:
 
 1. Compare source routes and the OpenAPI contract, then refresh the public JSON and

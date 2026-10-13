@@ -1,92 +1,82 @@
 ## 使用本参考
 
-本参考覆盖 17 条路径上的全部 31 个操作。将下方接口路径添加到 Base URL（`https://open.musedam.cc/api/product`） 后即可调用。
+在 Base URL（`https://open.musedam.cc/api/product`）后添加下方接口路径即可调用。
 
-[下载 OpenAPI JSON](/assets/developers/product-library/openapi.json) · [商品库接口概览](./product-library) · [集成示例](./product-library-examples)
+[认证与权限](./product-library#authentication-and-scope) · [下载 OpenAPI JSON](/assets/developers/product-library/openapi.json) · [响应格式与限制](./product-library#wire-format-and-identifiers)
 
-请从服务端通过 HTTPS 发送 `Authorization: Bearer <key>`。密钥须先添加为商品库的 API Key 协作者，访问能力由其当前角色决定。详见[认证与作用范围](./product-library#authentication-and-scope)。
-
-JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列表另含 `pagination`。下载和导出成功时返回附件。
-
-所有请求体（包括 GET）上限为 1 MiB。v1 不提供批量写入、multipart 上传、webhook，也不约定浏览器 CORS 或速率限制。并发、重试及错误处理见[写入约定](./product-library-write-conventions)。
-
-**接口索引**
-
-| 方法 | 路径 | 操作 |
-| --- | --- | --- |
-| `GET` | `/brands` | [获取品牌列表](#operation-listBrands) |
-| `POST` | `/brands` | [创建品牌](#operation-createBrand) |
-| `GET` | `/brands/{id}` | [获取品牌详情](#operation-getBrand) |
-| `PATCH` | `/brands/{id}` | [更新品牌](#operation-updateBrand) |
-| `DELETE` | `/brands/{id}` | [删除品牌](#operation-deleteBrand) |
-| `GET` | `/categories` | [获取分类列表](#operation-listCategorys) |
-| `POST` | `/categories` | [创建分类](#operation-createCategory) |
-| `GET` | `/categories/{id}` | [获取分类详情](#operation-getCategory) |
-| `PATCH` | `/categories/{id}` | [更新分类](#operation-updateCategory) |
-| `DELETE` | `/categories/{id}` | [删除分类](#operation-deleteCategory) |
-| `GET` | `/product-info-templates` | [获取模板列表](#operation-listTemplates) |
-| `POST` | `/product-info-templates` | [创建模板](#operation-createTemplate) |
-| `GET` | `/product-info-templates/{id}` | [获取模板详情](#operation-getTemplate) |
-| `PATCH` | `/product-info-templates/{id}` | [更新模板](#operation-updateTemplate) |
-| `DELETE` | `/product-info-templates/{id}` | [删除模板](#operation-deleteTemplate) |
-| `GET` | `/products` | [获取或同步商品列表](#operation-listProducts) |
-| `POST` | `/products` | [创建草稿商品](#operation-createProduct) |
-| `GET` | `/products/{id}` | [获取商品及其固定版本定义](#operation-getProduct) |
-| `PATCH` | `/products/{id}` | [部分更新商品](#operation-updateProduct) |
-| `DELETE` | `/products/{id}` | [软删除商品](#operation-deleteProduct) |
-| `PATCH` | `/products/{id}/status` | [发布商品或将商品退回草稿](#operation-setProductStatus) |
-| `POST` | `/products/visibility` | [核对已知商品 ID](#operation-checkProductVisibility) |
-| `GET` | `/assets` | [查找现有素材库素材](#operation-listAssets) |
-| `GET` | `/assets/{id}` | [获取现有素材库素材详情](#operation-getAsset) |
-| `GET` | `/product-shares` | [查询团队分享记录](#operation-listProductShares) |
-| `POST` | `/product-shares` | [创建商品分享](#operation-createProductShare) |
-| `DELETE` | `/product-shares/{id}` | [撤销商品分享](#operation-revokeProductShare) |
-| `GET` | `/product-downloads` | [查询团队下载记录](#operation-listProductDownloads) |
-| `POST` | `/product-downloads` | [下载原文件或导出商品](#operation-downloadProducts) |
-| `GET` | `/products/{id}/download-assets` | [查询商品下载候选素材](#operation-listProductDownloadAssets) |
-| `GET` | `/products/{id}/download-assets/{assetKey}` | [下载一个商品原文件](#operation-downloadProductAsset) |
+示例从服务端安全配置中读取 PRODUCT_LIBRARY_API_KEY。运行前，请设置示例中使用的资源 ID、幂等键或 ETag。请求体中的资源 ID 和业务数据仅用于说明格式，须替换为当前商品库中的有效值。
 
 ## 获取品牌列表
 
-**接口路径**： `/brands`
+**接口路径**：/brands
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回公开元数据，按 sortOrder 再按 id 排序。不包含原始 logo URL。
+**接口描述**：返回公开元数据，按 sortOrder 再按 id 排序。不包含原始 logo URL。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `brands:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
+**响应参数**：
 
-完整参数定义: [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;Brand&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**Brand参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| code | String | 编码。 |
+| description | String | 说明。可为 null |
+| website | String | 网站地址。可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-BrandListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[BrandListResponse](#schema-BrandListResponse)
 
-<details id="response-example-1">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/brands?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-1">
+
+响应示例：
 
 ```json
 {
@@ -116,69 +106,87 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 创建品牌
 
-**接口路径**： `/brands`
+**接口路径**：/brands
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 创建品牌；允许名称重复，code 由服务端生成。logo 主机限制请参阅 BrandCreate。
+**接口描述**：创建品牌；允许名称重复，code 由服务端生成。logo 主机限制请参阅 BrandCreate。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `brands:create`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
+| - | BrandCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`IdempotencyKey`](#parameter-IdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`BrandCreate`](#schema-BrandCreate)
+**BrandCreate参数说明**：
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 是 | 校验前会去除首尾空白。最短 1 个字符；最长 128 个字符 |
-| `description` | `string` | 否 | 最长 512 个字符；可为 null |
-| `logoUrl` | `string` | 否 | null/空值表示清除。仅支持 HTTP(S)，不得包含凭据，且须为允许列表中的 MuseDAM CDN 或已配置的存储主机；存储前会移除 query 和 fragment。不支持上传；读取时不会返回。最长 512 个字符；可为 null |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 是 | 校验前会去除首尾空白。最短 1 个字符；最长 128 个字符 |
+| description | String | 否 | 最长 512 个字符；可为 null |
+| logoUrl | String | 否 | null/空值表示清除。仅支持 HTTP(S)，不得包含凭据，且须为允许列表中的 MuseDAM CDN 或已配置的存储主机；存储前会移除 query 和 fragment。不支持上传；读取时不会返回。最长 512 个字符；可为 null |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Brand | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Brand参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| code | String | 编码。 |
+| description | String | 说明。可为 null |
+| website | String | 网站地址。可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+
+成功响应：201。 完整定义：[BrandResponse](#schema-BrandResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：品牌 code 冲突、幂等键被复用，或变更已提交但响应不可用。 [错误详情](#response-Error409_code_in_use_idempotency_key_reused)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/brands" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "name": "Example brand"
-}
+}'
 ```
 
-</details>
+<div id="response-example-2">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 201 | 请求成功。| [JSON 响应](#schema-BrandResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | code_in_use：生成的品牌 code 冲突；请发起新的创建请求重试；idempotency_key_reused：此 key 和操作已使用该幂等键提交过不同的规范化请求；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_code_in_use_idempotency_key_reused) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`201`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-2">
-<summary>响应示例（201）</summary>
+响应示例：
 
 ```json
 {
@@ -200,155 +208,248 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 获取品牌详情
 
-**接口路径**： `/brands/{id}`
+**接口路径**：/brands/&#123;id&#125;
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回公开元数据，按 sortOrder 再按 id 排序。不包含原始 logo URL。返回当前的强 ETag。
+**接口描述**：返回公开元数据，按 sortOrder 再按 id 排序。不包含原始 logo URL。返回当前的强 ETag。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `brands:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Brand | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**Brand参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| code | String | 编码。 |
+| description | String | 说明。可为 null |
+| website | String | 网站地址。可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
 
-**响应**
+成功响应：200。 完整定义：[BrandResponse](#schema-BrandResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-BrandResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-响应示例（200）：[查看共享示例](#response-example-2)
+**示例**：
 
-## 更新品牌
+请求示例：
 
-**接口路径**： `/brands/{id}`
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
 
-**请求方式**： PATCH
-
-**接口说明**： 更新所提供的元数据字段；未提供的属性保持不变。不支持文件上传或通用素材替换。
-
-**所需角色**： `manage`
-
-**权限说明**： 全部满足： `brands:update`
-
-**参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`BrandPatch`](#schema-BrandPatch)
-
-不接受未定义字段；至少提供字段数：1。
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 否 | 校验前会去除首尾空白。最短 1 个字符；最长 128 个字符 |
-| `description` | `string` | 否 | 最长 512 个字符；可为 null |
-| `logoUrl` | `string` | 否 | null/空值表示清除。仅支持 HTTP(S)，不得包含凭据，且须为允许列表中的 MuseDAM CDN 或已配置的存储主机；存储前会移除 query 和 fragment。不支持上传；读取时不会返回。最长 512 个字符；可为 null |
-
-<details>
-<summary>请求示例</summary>
+响应示例：
 
 ```json
 {
-  "description": "Updated by API"
+  "success": true,
+  "data": {
+    "id": 10,
+    "name": "Example brand",
+    "code": "example-code",
+    "description": null,
+    "website": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-</details>
+## 更新品牌
 
-**响应**
+**接口路径**：/brands/&#123;id&#125;
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-BrandResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | 变更已提交或已被重放，但无法提供经授权的表示。请在执行下一次变更前先进行协调。| [错误详情](#response-Error409_mutation_response_unavailable) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+**请求方式**：PATCH
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+**接口描述**：更新所提供的元数据字段；未提供的属性保持不变。不支持文件上传或通用素材替换。
 
-响应示例（200）：[查看共享示例](#response-example-2)
+所需角色：manage。
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | BrandPatch | 是 | JSON 请求体：application/json |
+
+**BrandPatch参数说明**：
+
+不接受未定义字段；至少提供字段数：1。
+
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 否 | 校验前会去除首尾空白。最短 1 个字符；最长 128 个字符 |
+| description | String | 否 | 最长 512 个字符；可为 null |
+| logoUrl | String | 否 | null/空值表示清除。仅支持 HTTP(S)，不得包含凭据，且须为允许列表中的 MuseDAM CDN 或已配置的存储主机；存储前会移除 query 和 fragment。不支持上传；读取时不会返回。最长 512 个字符；可为 null |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Brand | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Brand参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| code | String | 编码。 |
+| description | String | 说明。可为 null |
+| website | String | 网站地址。可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+
+成功响应：200。 完整定义：[BrandResponse](#schema-BrandResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request PATCH \
+  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 10,
+    "name": "Example brand",
+    "code": "example-code",
+    "description": null,
+    "website": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
 
 ## 删除品牌
 
-**接口路径**： `/brands/{id}`
+**接口路径**：/brands/&#123;id&#125;
 
-**请求方式**： DELETE
+**请求方式**：DELETE
 
-**接口说明**： 仅可删除没有有效分类或商品的品牌，否则返回 409；绝不会级联删除商品。
+**接口描述**：仅可删除没有有效分类或商品的品牌，否则返回 409；绝不会级联删除商品。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `brands:delete`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | DeletedId | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**DeletedId参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
 
-**响应**
+成功响应：200。 完整定义：[DeletedIdResponse](#schema-DeletedIdResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-DeletedIdResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | brand_has_dependents：该品牌仍有有效的分类或商品；不会级联删除；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_brand_has_dependents) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-<details id="response-example-3">
-<summary>响应示例（200）</summary>
+409：品牌下仍有有效分类或商品，或变更已提交但响应不可用。 [错误详情](#response-Error409_brand_has_dependents)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request DELETE \
+  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+```
+
+<div id="response-example-3">
+
+响应示例：
 
 ```json
 {
@@ -362,50 +463,83 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 获取分类列表
 
-**接口路径**： `/categories`
+**接口路径**：/categories
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回扁平的有效分类树，按 brandId、parentId、sortOrder 和 id 排序。可选按品牌筛选；不会隐式展开子树。
+**接口描述**：返回扁平的有效分类树，按 brandId、parentId、sortOrder 和 id 排序。可选按品牌筛选；不会隐式展开子树。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `categories:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
+| brandId | Integer | 否 | 查询参数。按本商品库内的品牌 ID 筛选。最小值：1；最大值：2,147,483,647 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
-| `brandId` | `integer` | 否 | 查询参数。按本商品库内的品牌 ID 筛选。最小值：1；最大值：2,147,483,647 |
+**响应参数**：
 
-完整参数定义: [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize), [`BrandId`](#parameter-BrandId)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;Category&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**Category参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647 |
+| parentId | Integer | 父分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| name | String | 名称。 |
+| pathKey | String | 分类路径。 |
+| description | String | 说明。可为 null |
+| iconEmoji | String | 分类表情图标。可为 null |
+| iconAssetId | Integer | 分类图标 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-CategoryListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[CategoryListResponse](#schema-CategoryListResponse)
 
-<details id="response-example-4">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/categories?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-4">
+
+响应示例：
 
 ```json
 {
@@ -438,75 +572,96 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 创建分类
 
-**接口路径**： `/categories`
+**接口路径**：/categories
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 在指定品牌下创建有效节点。父节点必须是同一品牌/商品库中的有效节点。最大深度为 10，每个品牌最多 5000 个有效节点。同级名称必须唯一。仅当商品库默认模板未绑定任何品牌或已绑定该品牌时，才会添加显式模板绑定；否则分类仍创建成功，不添加显式绑定，并保留依次查找祖先分类、品牌和商品库默认模板的解析顺序。
+**接口描述**：在指定品牌下创建有效节点。父节点必须是同一品牌/商品库中的有效节点。最大深度为 10，每个品牌最多 5000 个有效节点。同级名称必须唯一。仅当商品库默认模板未绑定任何品牌或已绑定该品牌时，才会添加显式模板绑定；否则分类仍创建成功，不添加显式绑定，并保留依次查找祖先分类、品牌和商品库默认模板的解析顺序。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `categories:create`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
+| - | CategoryCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`IdempotencyKey`](#parameter-IdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`CategoryCreate`](#schema-CategoryCreate)
+**CategoryCreate参数说明**：
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `brandId` | `integer` | 是 | 最小值：1；最大值：2,147,483,647 |
-| `name` | `string` | 是 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
-| `parentId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `sortOrder` | `integer` | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
-| `description` | `string` | 否 | 可为 null |
-| `iconEmoji` | `string` | 否 | 最长 16 个字符；可为 null |
-| `iconAssetId` | `integer` | 否 | 同一商品库中现有的 CategoryIconAsset ID，而非 FilePath ID。最小值：1；最大值：2,147,483,647；可为 null |
-| `isEnabled` | `boolean` | 否 | — |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| brandId | Integer | 是 | 最小值：1；最大值：2,147,483,647 |
+| name | String | 是 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
+| parentId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
+| description | String | 否 | 可为 null |
+| iconEmoji | String | 否 | 最长 16 个字符；可为 null |
+| iconAssetId | Integer | 否 | 同一商品库中现有的 CategoryIconAsset ID，而非 FilePath ID。最小值：1；最大值：2,147,483,647；可为 null |
+| isEnabled | Boolean | 否 | — |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Category | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Category参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647 |
+| parentId | Integer | 父分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| name | String | 名称。 |
+| pathKey | String | 分类路径。 |
+| description | String | 说明。可为 null |
+| iconEmoji | String | 分类表情图标。可为 null |
+| iconAssetId | Integer | 分类图标 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+
+成功响应：201。 完整定义：[CategoryResponse](#schema-CategoryResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：模板名称或同级分类名称冲突、幂等键被复用，或变更已提交但响应不可用。 [错误详情](#response-Error409_name_in_use_idempotency_key_reused)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/categories" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "name": "Catalog",
   "brandId": 10
-}
+}'
 ```
 
-</details>
+<div id="response-example-5">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 201 | 请求成功。| [JSON 响应](#schema-CategoryResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | name_in_use：唯一的模板名称或分类同级名称冲突；idempotency_key_reused：此 key 和操作已使用该幂等键提交过不同的规范化请求；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_name_in_use_idempotency_key_reused) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`201`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-5">
-<summary>响应示例（201）</summary>
+响应示例：
 
 ```json
 {
@@ -531,159 +686,266 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 获取分类详情
 
-**接口路径**： `/categories/{id}`
+**接口路径**：/categories/&#123;id&#125;
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回扁平的有效分类树，按 brandId、parentId、sortOrder 和 id 排序。可选按品牌筛选；不会隐式展开子树。返回当前的强 ETag。
+**接口描述**：返回扁平的有效分类树，按 brandId、parentId、sortOrder 和 id 排序。可选按品牌筛选；不会隐式展开子树。返回当前的强 ETag。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `categories:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Category | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**Category参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647 |
+| parentId | Integer | 父分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| name | String | 名称。 |
+| pathKey | String | 分类路径。 |
+| description | String | 说明。可为 null |
+| iconEmoji | String | 分类表情图标。可为 null |
+| iconAssetId | Integer | 分类图标 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
 
-**响应**
+成功响应：200。 完整定义：[CategoryResponse](#schema-CategoryResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-CategoryResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-响应示例（200）：[查看共享示例](#response-example-5)
+**示例**：
 
-## 更新分类
+请求示例：
 
-**接口路径**： `/categories/{id}`
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
 
-**请求方式**： PATCH
-
-**接口说明**： 在其现有品牌内更新或移动节点；brandId 不可变更。会拒绝循环引用、超出深度/节点数限制以及无效的排序索引。以原子方式更新后代路径。
-
-**所需角色**： `manage`
-
-**权限说明**： 全部满足： `categories:update`
-
-**参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`CategoryPatch`](#schema-CategoryPatch)
-
-不接受未定义字段；至少提供字段数：1。
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 否 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
-| `parentId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `sortOrder` | `integer` | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
-| `description` | `string` | 否 | 可为 null |
-| `iconEmoji` | `string` | 否 | 最长 16 个字符；可为 null |
-| `iconAssetId` | `integer` | 否 | 同一商品库中现有的 CategoryIconAsset ID，而非 FilePath ID。最小值：1；最大值：2,147,483,647；可为 null |
-| `isEnabled` | `boolean` | 否 | — |
-
-<details>
-<summary>请求示例</summary>
+响应示例：
 
 ```json
 {
-  "description": "Updated by API"
+  "success": true,
+  "data": {
+    "id": 20,
+    "brandId": 10,
+    "parentId": null,
+    "name": "Catalog",
+    "pathKey": "20",
+    "description": null,
+    "iconEmoji": null,
+    "iconAssetId": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-</details>
+## 更新分类
 
-**响应**
+**接口路径**：/categories/&#123;id&#125;
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-CategoryResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | name_in_use：唯一的模板名称或分类同级名称冲突；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_name_in_use) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+**请求方式**：PATCH
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+**接口描述**：在其现有品牌内更新或移动节点；brandId 不可变更。会拒绝循环引用、超出深度/节点数限制以及无效的排序索引。以原子方式更新后代路径。
 
-响应示例（200）：[查看共享示例](#response-example-5)
+所需角色：manage。
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | CategoryPatch | 是 | JSON 请求体：application/json |
+
+**CategoryPatch参数说明**：
+
+不接受未定义字段；至少提供字段数：1。
+
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 否 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
+| parentId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
+| description | String | 否 | 可为 null |
+| iconEmoji | String | 否 | 最长 16 个字符；可为 null |
+| iconAssetId | Integer | 否 | 同一商品库中现有的 CategoryIconAsset ID，而非 FilePath ID。最小值：1；最大值：2,147,483,647；可为 null |
+| isEnabled | Boolean | 否 | — |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Category | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Category参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647 |
+| parentId | Integer | 父分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| name | String | 名称。 |
+| pathKey | String | 分类路径。 |
+| description | String | 说明。可为 null |
+| iconEmoji | String | 分类表情图标。可为 null |
+| iconAssetId | Integer | 分类图标 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| sortOrder | Integer | 排序值。 |
+| isEnabled | Boolean | 是否启用。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+
+成功响应：200。 完整定义：[CategoryResponse](#schema-CategoryResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：模板名称或同级分类名称冲突，或变更已提交但响应不可用。 [错误详情](#response-Error409_name_in_use)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request PATCH \
+  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 20,
+    "brandId": 10,
+    "parentId": null,
+    "name": "Catalog",
+    "pathKey": "20",
+    "description": null,
+    "iconEmoji": null,
+    "iconAssetId": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
 
 ## 删除分类
 
-**接口路径**： `/categories/{id}`
+**接口路径**：/categories/&#123;id&#125;
 
-**请求方式**： DELETE
+**请求方式**：DELETE
 
-**接口说明**： 仅当没有有效商品引用任何后代分类时，才软删除整个分类子树。不会删除或降级商品。
+**接口描述**：仅当没有有效商品引用任何后代分类时，才软删除整个分类子树。不会删除或降级商品。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `categories:delete`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | DeletedId | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**DeletedId参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
 
-**响应**
+成功响应：200。 完整定义：[DeletedIdResponse](#schema-DeletedIdResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-DeletedIdResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | category_has_products：分类子树中仍包含有效商品；不会级联删除商品；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_category_has_products) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-<details id="response-example-6">
-<summary>响应示例（200）</summary>
+409：仍有商品引用此分类子树，或变更已提交但响应不可用。 [错误详情](#response-Error409_category_has_products)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request DELETE \
+  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+```
+
+<div id="response-example-6">
+
+响应示例：
 
 ```json
 {
@@ -697,49 +959,81 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 获取模板列表
 
-**接口路径**： `/product-info-templates`
+**接口路径**：/product-info-templates
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回有效模板的元数据、绑定以及有序的分组/字段，包括仅预览配置。按 createdAt 降序再按 id 排序。
+**接口描述**：返回有效模板的元数据、绑定以及有序的分组/字段，包括仅预览配置。按 createdAt 降序再按 id 排序。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `templates:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
+**响应参数**：
 
-完整参数定义: [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;Template&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**Template参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。最短 1 个字符；最长 128 个字符 |
+| name | String | 名称。 |
+| description | String | 说明。可为 null |
+| enabled | Boolean | 是否启用模板。 |
+| isSystemDefault | Boolean | 是否为系统默认模板。 |
+| isLibraryDefault | Boolean | 是否为商品库默认模板。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| boundBrandIds | List&lt;Integer&gt; | 绑定的品牌 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| boundCategoryIds | List&lt;Integer&gt; | 绑定的分类 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| groups | List&lt;VersionGroup&gt; | 模板分组。嵌套字段：[VersionGroup](#schema-VersionGroup) |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-TemplateListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[TemplateListResponse](#schema-TemplateListResponse)
 
-<details id="response-example-7">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-7">
+
+响应示例：
 
 ```json
 {
@@ -792,52 +1086,89 @@ JSON 响应包含 `success`、`data`、`code`、`message` 和 `requestId`，列�
 }
 ```
 
-</details>
+</div>
 
 ## 创建模板
 
-**接口路径**： `/product-info-templates`
+**接口路径**：/product-info-templates
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 通过与浏览器端相同的批量业务操作创建模板及不可变版本。newOnly 为必填；最多 200 个字段。不会更改任何现有商品。
+**接口描述**：通过与浏览器端相同的批量业务操作创建模板及不可变版本。newOnly 为必填；最多 200 个字段。不会更改任何现有商品。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `templates:create`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
+| - | TemplateCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`IdempotencyKey`](#parameter-IdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`TemplateCreate`](#schema-TemplateCreate)
+**TemplateCreate参数说明**：
 
 name/description 会去除首尾空白。所有分组合计最多 200 个字段。绑定必须属于同一商品库，会替换所提供的绑定集合，并可将绑定从其他模板移过来。当所选品牌非空时，所选分类必须属于这些品牌。仅支持 newOnly；绝不批量重新固定现有商品的版本。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 是 | 最短 1 个字符；最长 30 个字符 |
-| `description` | `string` | 否 | 最长 50 个字符；可为 null |
-| `enabled` | `boolean` | 否 | — |
-| `groups` | `array` ([`TemplateGroupInput`](#schema-TemplateGroupInput)) | 是 | 最少 1 项；最多 200 项 |
-| `boundBrandIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
-| `boundCategoryIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
-| `isLibraryDefault` | `boolean` | 否 | — |
-| `syncStrategy` | `string` | 否 | 允许值：`newOnly`；默认值：`"newOnly"` |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 是 | 最短 1 个字符；最长 30 个字符 |
+| description | String | 否 | 最长 50 个字符；可为 null |
+| enabled | Boolean | 否 | — |
+| groups | List&lt;TemplateGroupInput&gt; | 是 | 最少 1 项；最多 200 项嵌套字段：[TemplateGroupInput](#schema-TemplateGroupInput) |
+| boundBrandIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
+| boundCategoryIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
+| isLibraryDefault | Boolean | 否 | — |
+| syncStrategy | String | 否 | 允许值：newOnly；默认值："newOnly" |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Template | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Template参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。最短 1 个字符；最长 128 个字符 |
+| name | String | 名称。 |
+| description | String | 说明。可为 null |
+| enabled | Boolean | 是否启用模板。 |
+| isSystemDefault | Boolean | 是否为系统默认模板。 |
+| isLibraryDefault | Boolean | 是否为商品库默认模板。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| boundBrandIds | List&lt;Integer&gt; | 绑定的品牌 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| boundCategoryIds | List&lt;Integer&gt; | 绑定的分类 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| groups | List&lt;VersionGroup&gt; | 模板分组。嵌套字段：[VersionGroup](#schema-VersionGroup) |
+
+成功响应：201。 完整定义：[TemplateResponse](#schema-TemplateResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：模板名称或同级分类名称冲突、幂等键被复用，或变更已提交但响应不可用。 [错误详情](#response-Error409_name_in_use_idempotency_key_reused)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/product-info-templates" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "name": "Example template",
   "groups": [
     {
@@ -852,29 +1183,12 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
       ]
     }
   ]
-}
+}'
 ```
 
-</details>
+<div id="response-example-8">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 201 | 请求成功。| [JSON 响应](#schema-TemplateResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | name_in_use：唯一的模板名称或分类同级名称冲突；idempotency_key_reused：此 key 和操作已使用该幂等键提交过不同的规范化请求；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_name_in_use_idempotency_key_reused) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`201`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-8">
-<summary>响应示例（201）</summary>
+响应示例：
 
 ```json
 {
@@ -919,181 +1233,322 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 获取模板详情
 
-**接口路径**： `/product-info-templates/{id}`
+**接口路径**：/product-info-templates/&#123;id&#125;
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回有效模板的元数据、绑定以及有序的分组/字段，包括仅预览配置。按 createdAt 降序再按 id 排序。ETag 代表当前条目。模板 ETag 涵盖完整的有效字段/分组/绑定集合以及默认模板标记。
+**接口描述**：返回有效模板的元数据、绑定以及有序的分组/字段，包括仅预览配置。按 createdAt 降序再按 id 排序。ETag 代表当前条目。模板 ETag 涵盖完整的有效字段/分组/绑定集合以及默认模板标记。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `templates:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | String | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `string` | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
+**响应参数**：
 
-完整参数定义: [`TemplateId`](#parameter-TemplateId)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Template | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**Template参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。最短 1 个字符；最长 128 个字符 |
+| name | String | 名称。 |
+| description | String | 说明。可为 null |
+| enabled | Boolean | 是否启用模板。 |
+| isSystemDefault | Boolean | 是否为系统默认模板。 |
+| isLibraryDefault | Boolean | 是否为商品库默认模板。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| boundBrandIds | List&lt;Integer&gt; | 绑定的品牌 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| boundCategoryIds | List&lt;Integer&gt; | 绑定的分类 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| groups | List&lt;VersionGroup&gt; | 模板分组。嵌套字段：[VersionGroup](#schema-VersionGroup) |
 
-**响应**
+成功响应：200。 完整定义：[TemplateResponse](#schema-TemplateResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-TemplateResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-响应示例（200）：[查看共享示例](#response-example-8)
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "template_example",
+    "name": "Example template",
+    "description": null,
+    "enabled": true,
+    "isSystemDefault": false,
+    "isLibraryDefault": false,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "boundBrandIds": [],
+    "boundCategoryIds": [],
+    "groups": [
+      {
+        "id": "group_details",
+        "name": "Details",
+        "isDefault": true,
+        "sortOrder": 0,
+        "fields": [
+          {
+            "id": "field_color",
+            "key": "color",
+            "name": "Color",
+            "type": "text",
+            "required": false,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": false,
+            "systemKey": null,
+            "config": {}
+          }
+        ]
+      }
+    ]
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
 
 ## 更新模板
 
-**接口路径**： `/product-info-templates/{id}`
+**接口路径**：/product-info-templates/&#123;id&#125;
 
-**请求方式**： PATCH
+**请求方式**：PATCH
 
-**接口说明**： 使用与浏览器端共享的批量操作。提供的 groups/fields 为完整替换；未提供的分组会被保留。会校验稳定 ID 以及受保护的系统/默认字段。创建新的不可变版本，但不会迁移现有商品的固定版本或字段值；绑定/默认设置的变更会影响后续的模板解析。
+**接口描述**：使用与浏览器端共享的批量操作。提供的 groups/fields 为完整替换；未提供的分组会被保留。会校验稳定 ID 以及受保护的系统/默认字段。创建新的不可变版本，但不会迁移现有商品的固定版本或字段值；绑定/默认设置的变更会影响后续的模板解析。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `templates:update`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | String | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | TemplatePatch | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `string` | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`TemplateId`](#parameter-TemplateId), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`TemplatePatch`](#schema-TemplatePatch)
+**TemplatePatch参数说明**：
 
 未提供的分组会被保留；提供的分组会替换整个有效集合。请保留稳定的分组/字段 ID。被省略的分组/字段会被删除，但受默认/系统字段保护规则约束。每次成功写入都会创建新的不可变版本，包括仅更新元数据的情况。
 
 不接受未定义字段；至少提供字段数：1。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 否 | 最短 1 个字符；最长 30 个字符 |
-| `description` | `string` | 否 | 最长 50 个字符；可为 null |
-| `enabled` | `boolean` | 否 | — |
-| `groups` | `array` ([`TemplateGroupInput`](#schema-TemplateGroupInput)) | 否 | 最少 1 项；最多 200 项 |
-| `boundBrandIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
-| `boundCategoryIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
-| `isLibraryDefault` | `boolean` | 否 | — |
-| `syncStrategy` | `string` | 否 | 允许值：`newOnly`；默认值：`"newOnly"` |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 否 | 最短 1 个字符；最长 30 个字符 |
+| description | String | 否 | 最长 50 个字符；可为 null |
+| enabled | Boolean | 否 | — |
+| groups | List&lt;TemplateGroupInput&gt; | 否 | 最少 1 项；最多 200 项嵌套字段：[TemplateGroupInput](#schema-TemplateGroupInput) |
+| boundBrandIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
+| boundCategoryIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 10,000 项 |
+| isLibraryDefault | Boolean | 否 | — |
+| syncStrategy | String | 否 | 允许值：newOnly；默认值："newOnly" |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | Template | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Template参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。最短 1 个字符；最长 128 个字符 |
+| name | String | 名称。 |
+| description | String | 说明。可为 null |
+| enabled | Boolean | 是否启用模板。 |
+| isSystemDefault | Boolean | 是否为系统默认模板。 |
+| isLibraryDefault | Boolean | 是否为商品库默认模板。 |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| boundBrandIds | List&lt;Integer&gt; | 绑定的品牌 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| boundCategoryIds | List&lt;Integer&gt; | 绑定的分类 ID。每个元素：最小值：1；最大值：2,147,483,647 |
+| groups | List&lt;VersionGroup&gt; | 模板分组。嵌套字段：[VersionGroup](#schema-VersionGroup) |
+
+成功响应：200。 完整定义：[TemplateResponse](#schema-TemplateResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：模板名称或同级分类名称冲突，或变更已提交但响应不可用。 [错误详情](#response-Error409_name_in_use)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request PATCH \
+  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+响应示例：
 
 ```json
 {
-  "description": "Updated by API"
+  "success": true,
+  "data": {
+    "id": "template_example",
+    "name": "Example template",
+    "description": null,
+    "enabled": true,
+    "isSystemDefault": false,
+    "isLibraryDefault": false,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "boundBrandIds": [],
+    "boundCategoryIds": [],
+    "groups": [
+      {
+        "id": "group_details",
+        "name": "Details",
+        "isDefault": true,
+        "sortOrder": 0,
+        "fields": [
+          {
+            "id": "field_color",
+            "key": "color",
+            "name": "Color",
+            "type": "text",
+            "required": false,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": false,
+            "systemKey": null,
+            "config": {}
+          }
+        ]
+      }
+    ]
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-</details>
-
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-TemplateResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | name_in_use：唯一的模板名称或分类同级名称冲突；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_name_in_use) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-响应示例（200）：[查看共享示例](#response-example-8)
-
 ## 删除模板
 
-**接口路径**： `/product-info-templates/{id}`
+**接口路径**：/product-info-templates/&#123;id&#125;
 
-**请求方式**： DELETE
+**请求方式**：DELETE
 
-**接口说明**： 软删除有效模板，同时保留现有商品所使用的不可变版本。删除当前商品库默认模板时，必须显式指定替代模板或 null；默认/系统保护规则仍然适用。会移除绑定，但不会改写现有商品的固定版本。
+**接口描述**：软删除有效模板，同时保留现有商品所使用的不可变版本。删除当前商品库默认模板时，必须显式指定替代模板或 null；默认/系统保护规则仍然适用。会移除绑定，但不会改写现有商品的固定版本。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `templates:delete`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | String | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | TemplateDelete | 否 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `string` | 是 | 路径参数。不透明的模板 ID；请勿假定其为 UUID 格式。最短 1 个字符；最长 128 个字符 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`TemplateId`](#parameter-TemplateId), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-可选请求体: `application/json` · 请求结构: [`TemplateDelete`](#schema-TemplateDelete)
+**TemplateDelete参数说明**：
 
 可选请求体。若删除的是当前商品库默认模板，则此属性必填：取值为同一商品库中另一个有效模板的 ID，或显式 null 以清除默认模板。历史版本对固定了该版本的商品仍然可用。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `replacementForLibraryDefault` | `string` | 否 | 最短 1 个字符；最长 128 个字符；可为 null |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| replacementForLibraryDefault | String | 否 | 最短 1 个字符；最长 128 个字符；可为 null |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | DeletedTemplateId | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**DeletedTemplateId参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。最短 1 个字符；最长 128 个字符 |
+
+成功响应：200。 完整定义：[DeletedTemplateIdResponse](#schema-DeletedTemplateIdResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：删除商品库默认模板时须明确指定替代模板或 null；也可能已提交变更但响应不可用。 [错误详情](#response-Error409_default_template_replacement_required)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request DELETE \
+  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "replacementForLibraryDefault": null
-}
+}'
 ```
 
-</details>
+<div id="response-example-9">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-DeletedTemplateIdResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | default_template_replacement_required：删除商品库默认模板需要提供 replacementForLibraryDefault，可显式传入 null 以清除；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_default_template_replacement_required) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-9">
-<summary>响应示例（200）</summary>
+响应示例：
 
 ```json
 {
@@ -1107,56 +1562,104 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 获取或同步商品列表
 
-**接口路径**： `/products`
+**接口路径**：/products
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 普通分页按 updatedAt/id 降序排序。sync=true 时按 (updatedAt,id) 升序排序，使用包含的下界和不包含的固定上界（PostgreSQL 时钟减 30 秒）。全量扫描时省略 updatedAfter；请持续跟随每个 nextCursor，即使 data 页为空。游标绑定 key/角色/商品库/筛选条件/pageSize/边界。仅在遍历完毕后原样保存 syncedUntil；按 id 和 updatedAt 进行重放/去重。持续时间超过 30 秒安全窗口的事务属于 v1 已接受的限制。请参阅 product-synchronization.md。view_only/usable 仅可见已发布商品。
+**接口描述**：普通分页按 updatedAt/id 降序排序。sync=true 时按 (updatedAt,id) 升序排序，使用包含的下界和不包含的固定上界（PostgreSQL 时钟减 30 秒）。全量扫描时省略 updatedAfter；请持续跟随每个 nextCursor，即使 data 页为空。游标绑定 key/角色/商品库/筛选条件/pageSize/边界。仅在遍历完毕后原样保存 syncedUntil；按 id 和 updatedAt 进行重放/去重。持续时间超过 30 秒安全窗口的事务属于 v1 已接受的限制。请参阅 product-synchronization.md。view_only/usable 仅可见已发布商品。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `products:read` · 适用时的附加检查： `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
+| search | String | 否 | 查询参数。去除首尾空白、不区分大小写的子串匹配：商品名称/spu，或素材库素材名称。 |
+| brandId | Integer | 否 | 查询参数。按本商品库内的品牌 ID 筛选。最小值：1；最大值：2,147,483,647 |
+| categoryId | Integer | 否 | 查询参数。按精确的分类 ID 筛选，不包含其后代分类。最小值：1；最大值：2,147,483,647 |
+| status | String | 否 | 查询参数。请求的商品状态；不会扩大角色可见范围。允许值：draft、published |
+| sync | String | 否 | 查询参数。true 表示使用有界的键集同步；false 表示普通分页。请参阅 product-synchronization.md。允许值：true、false；默认值："false" |
+| updatedAfter | String | 否 | 查询参数。仅在 sync=true 时使用。包含的下界；RFC3339 格式，使用 Z 或时区偏移，0..6 位小数，日历日期/偏移须有效。请将 syncedUntil 作为字符串保存并复用。全量扫描时省略。格式：date-time |
+| cursor | String | 否 | 查询参数。不透明的续页令牌，仅在 sync=true 时使用。绑定 key、角色、商品库、边界、筛选条件和每页条数。续页时省略其他参数，或重复传入等价的值。重复的同步参数会被拒绝。最短 1 个字符；最长 8,192 个字符 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
-| `search` | `string` | 否 | 查询参数。去除首尾空白、不区分大小写的子串匹配：商品名称/spu，或素材库素材名称。|
-| `brandId` | `integer` | 否 | 查询参数。按本商品库内的品牌 ID 筛选。最小值：1；最大值：2,147,483,647 |
-| `categoryId` | `integer` | 否 | 查询参数。按精确的分类 ID 筛选，不包含其后代分类。最小值：1；最大值：2,147,483,647 |
-| `status` | `string` | 否 | 查询参数。请求的商品状态；不会扩大角色可见范围。允许值：`draft`、`published` |
-| `sync` | `string` | 否 | 查询参数。true 表示使用有界的键集同步；false 表示普通分页。请参阅 product-synchronization.md。允许值：`true`、`false`；默认值：`"false"` |
-| `updatedAfter` | `string` | 否 | 查询参数。仅在 sync=true 时使用。包含的下界；RFC3339 格式，使用 Z 或时区偏移，0..6 位小数，日历日期/偏移须有效。请将 syncedUntil 作为字符串保存并复用。全量扫描时省略。格式：`date-time` |
-| `cursor` | `string` | 否 | 查询参数。不透明的续页令牌，仅在 sync=true 时使用。绑定 key、角色、商品库、边界、筛选条件和每页条数。续页时省略其他参数，或重复传入等价的值。重复的同步参数会被拒绝。最短 1 个字符；最长 8,192 个字符 |
+**响应参数**：
 
-完整参数定义: [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize), [`Search`](#parameter-Search), [`BrandId`](#parameter-BrandId), [`CategoryId`](#parameter-CategoryId), [`Status`](#parameter-Status), [`Sync`](#parameter-Sync), [`UpdatedAfter`](#parameter-UpdatedAfter), [`Cursor`](#parameter-Cursor)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;ProductSummary&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page / SyncPage | 分页信息，字段见下表。 |
 
-**请求体**
+**ProductSummary参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| spu | String | 商品 SKU。可为 null |
+| description | String | 说明。可为 null |
+| status | String | 当前状态。允许值：draft、published |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 所有者用户 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| publishedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time；可为 null |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| draftReason | String | 商品处于草稿状态的原因。可为 null |
+| templateId | String | 模板 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateVersionId | String | 固定的模板版本 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 以稳定模板字段 ID 为键的字段值。 |
+| cover | Object | 商品封面。不接受未定义字段；可为 null嵌套字段：[ProductSummary](#schema-ProductSummary) |
+| images | List&lt;PublicAsset&gt; | 商品图片。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| relatedAssets | List&lt;PublicAsset&gt; | 相关素材。嵌套字段：[PublicAsset](#schema-PublicAsset) |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+**SyncPage参数说明**：
 
-<details id="response-example-10">
-<summary>响应示例（200）</summary>
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| syncedUntil | String | PostgreSQL 时钟减 30 秒，在整个周期内固定。仅在 nextCursor 为 null 后原样保存此字符串。格式：date-time；须匹配 `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
+| nextCursor | String | 下一页游标，扫描结束后为 null。最长 8,192 个字符；可为 null |
+| hasMore | Boolean | 是否还有下一页同步数据。 |
+
+成功响应：200。 完整定义：[ProductListResponse](#schema-ProductListResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/products?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-10">
+
+响应示例：
 
 ```json
 {
@@ -1217,10 +1720,11 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
-<details id="response-example-11">
-<summary>响应示例（200，同步）</summary>
+<div id="response-example-11">
+
+响应示例（同步）：
 
 ```json
 {
@@ -1281,10 +1785,11 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
-<details id="response-example-12">
-<summary>响应示例（200，空页续传）</summary>
+<div id="response-example-12">
+
+响应示例（空页续传）：
 
 ```json
 {
@@ -1302,55 +1807,100 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 创建草稿商品
 
-**接口路径**： `/products`
+**接口路径**：/products
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 仅创建草稿。创建时解析并固定一个模板版本；模板字段依据该不可变定义进行校验。可关联同一商品库中现有的 FilePath ID；不支持上传、远程导入或回写到提供方。幂等重放会保留原始标量结果/ETag，并且仅对在当前同一槽位中仍然有效的原始媒体按当前权限重新投影。
+**接口描述**：仅创建草稿。创建时解析并固定一个模板版本；模板字段依据该不可变定义进行校验。可关联同一商品库中现有的 FilePath ID；不支持上传、远程导入或回写到提供方。幂等重放会保留原始标量结果/ETag，并且仅对在当前同一槽位中仍然有效的原始媒体按当前权限重新投影。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 全部满足： `products:create` · 适用时的附加检查： `products:read`, `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
+| - | ProductCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选，非空白且不含 ASCII 控制字符。作用域为团队、key 和创建操作，有效期 24 小时。相同的规范化载荷会重放 201 及原始标量结果/ETag；载荷变更则返回 409。商品媒体会依据当前授权和有效的原始同槽位关联重新投影。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`IdempotencyKey`](#parameter-IdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`ProductCreate`](#schema-ProductCreate)
+**ProductCreate参数说明**：
 
 始终创建草稿。显式指定的 templateId 必须是同一商品库中的有效模板，且优先使用。当 templateId 省略/为 null 且提供了非 null 的 categoryId 时，解析顺序为：分类或其祖先分类的绑定，然后是该分类所属品牌的绑定，最后是商品库默认模板。当 categoryId 省略或为 null 时，即使提供了 brandId，也仅考虑商品库默认模板。若未解析出任何模板，则商品没有模板。分类必须与最终品牌匹配；owner 必须是同一团队成员，默认为 null，而非 key 创建者。cover/images/related/自定义媒体合计最多 100 个引用。图片槽位要求使用图片；自定义媒体必须满足固定版本的数量/大小/类型限制。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 否 | 会去除首尾空白；草稿可省略或为空。最长 255 个字符 |
-| `spu` | `string` | 否 | 会去除首尾空白；null/空白表示清除。在商品库有效商品中唯一。最长 64 个字符；可为 null |
-| `description` | `string` | 否 | 可为 null |
-| `brandId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `categoryId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `ownerUserId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `templateId` | `string` | 否 | 最短 1 个字符；最长 128 个字符；可为 null |
-| `templateFields` | `object` | 否 | 按稳定的自定义字段 ID 浅合并；null 清除单个字段。未知/系统 ID 会被拒绝。即使是草稿也会校验类型/选项。image/file 的值为 FilePath ID 数组或 null，而非 URL/对象快照。PATCH 依据固定版本进行校验，即使其有效模板已被删除。|
-| `coverAssetId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `imageAssetIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
-| `relatedAssetIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 否 | 会去除首尾空白；草稿可省略或为空。最长 255 个字符 |
+| spu | String | 否 | 会去除首尾空白；null/空白表示清除。在商品库有效商品中唯一。最长 64 个字符；可为 null |
+| description | String | 否 | 可为 null |
+| brandId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| templateId | String | 否 | 最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 否 | 按稳定的自定义字段 ID 浅合并；null 清除单个字段。未知/系统 ID 会被拒绝。即使是草稿也会校验类型/选项。image/file 的值为 FilePath ID 数组或 null，而非 URL/对象快照。PATCH 依据固定版本进行校验，即使其有效模板已被删除。 |
+| coverAssetId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| imageAssetIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
+| relatedAssetIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | ProductDetail | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**ProductDetail参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| spu | String | 商品 SKU。可为 null |
+| description | String | 说明。可为 null |
+| status | String | 当前状态。允许值：draft、published |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 所有者用户 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| publishedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time；可为 null |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| draftReason | String | 商品处于草稿状态的原因。可为 null |
+| templateId | String | 模板 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateVersionId | String | 固定的模板版本 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 以稳定模板字段 ID 为键的字段值。 |
+| cover | Object | 商品封面。不接受未定义字段；可为 null嵌套字段：[ProductDetail](#schema-ProductDetail) |
+| images | List&lt;PublicAsset&gt; | 商品图片。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| relatedAssets | List&lt;PublicAsset&gt; | 相关素材。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| templateDefinition | NullableTemplateDefinition | 固定版本的模板定义。嵌套字段：[NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+
+成功响应：201。 完整定义：[ProductDetailResponse](#schema-ProductDetailResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：商品 SKU 冲突、幂等键被复用，或变更已提交但响应不可用。 [错误详情](#response-Error409_sku_in_use_idempotency_key_reused)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/products" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "name": "Example product",
   "spu": "EXAMPLE-001",
   "brandId": 10,
@@ -1359,29 +1909,12 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
   "imageAssetIds": [
     30
   ]
-}
+}'
 ```
 
-</details>
+<div id="response-example-13">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 201 | 请求成功。| [JSON 响应](#schema-ProductDetailResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | sku_in_use：最终得到的非空商品 spu 与本商品库中的有效商品冲突；idempotency_key_reused：此 key 和操作已使用该幂等键提交过不同的规范化请求；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_sku_in_use_idempotency_key_reused) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`201`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-13">
-<summary>响应示例（201）</summary>
+响应示例：
 
 ```json
 {
@@ -1458,50 +1991,156 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 获取商品及其固定版本定义
 
-**接口路径**： `/products/{id}`
+**接口路径**：/products/&#123;id&#125;
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回可访问的有效商品及其固定的不可变模板定义，即使有效模板已变更或被删除。不需要 templates:read。每次响应都会对媒体预览/下载进行授权；下载需要 products:read 加 products:download，且角色为 usable 或更高。草稿对 view_only/usable 不可见。
+**接口描述**：返回可访问的有效商品及其固定的不可变模板定义，即使有效模板已变更或被删除。不需要 templates:read。每次响应都会对媒体预览/下载进行授权；下载需要 products:read 加 products:download，且角色为 usable 或更高。草稿对 view_only/usable 不可见。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `products:read` · 适用时的附加检查： `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | ProductDetail | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**ProductDetail参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| spu | String | 商品 SKU。可为 null |
+| description | String | 说明。可为 null |
+| status | String | 当前状态。允许值：draft、published |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 所有者用户 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| publishedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time；可为 null |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| draftReason | String | 商品处于草稿状态的原因。可为 null |
+| templateId | String | 模板 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateVersionId | String | 固定的模板版本 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 以稳定模板字段 ID 为键的字段值。 |
+| cover | Object | 商品封面。不接受未定义字段；可为 null嵌套字段：[ProductDetail](#schema-ProductDetail) |
+| images | List&lt;PublicAsset&gt; | 商品图片。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| relatedAssets | List&lt;PublicAsset&gt; | 相关素材。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| templateDefinition | NullableTemplateDefinition | 固定版本的模板定义。嵌套字段：[NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
 
-**响应**
+成功响应：200。 完整定义：[ProductDetailResponse](#schema-ProductDetailResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductDetailResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-响应示例（200）：[查看共享示例](#response-example-13)
+**示例**：
 
-<details id="response-example-14">
-<summary>响应示例（200，无模板或媒体）</summary>
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+<div id="response-example-14">
+
+响应示例（无模板或媒体）：
 
 ```json
 {
@@ -1533,10 +2172,11 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
-<details id="response-example-15">
-<summary>响应示例（200，含授权下载）</summary>
+<div id="response-example-15">
+
+响应示例（含授权下载）：
 
 ```json
 {
@@ -1615,127 +2255,245 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 部分更新商品
 
-**接口路径**： `/products/{id}`
+**接口路径**：/products/&#123;id&#125;
 
-**请求方式**： PATCH
+**请求方式**：PATCH
 
-**接口说明**： 合并标量/自定义字段，并替换所提交的媒体列表。使用不可变的固定版本定义，包括有效模板已被删除的情况。已发布商品还需要 products:publish 权限，并保持已发布状态；必须以原子方式通过对最终状态的完整校验。此处不接受切换状态/模板。
+**接口描述**：合并标量/自定义字段，并替换所提交的媒体列表。使用不可变的固定版本定义，包括有效模板已被删除的情况。已发布商品还需要 products:publish 权限，并保持已发布状态；必须以原子方式通过对最终状态的完整校验。此处不接受切换状态/模板。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 全部满足： `products:update` · 适用时的附加检查： `products:publish`, `products:read`, `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | ProductPatch | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`ProductPatch`](#schema-ProductPatch)
+**ProductPatch参数说明**：
 
 省略的字段保持不变；显式 null 清除可为 null 的字段，[] 清除列表。templateFields 采用合并；媒体数组替换其所在槽位。若提供 imageAssetIds 但未提供 coverAssetId，则第一张图片成为封面。已发布商品需要 products:publish 权限并保持已发布状态，且须通过对最终状态的完整校验。templateId、templateVersionId 和 status 会被拒绝。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | 否 | 会去除首尾空白；草稿可省略或为空。最长 255 个字符 |
-| `spu` | `string` | 否 | 会去除首尾空白；null/空白表示清除。在商品库有效商品中唯一。最长 64 个字符；可为 null |
-| `description` | `string` | 否 | 可为 null |
-| `brandId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `categoryId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `ownerUserId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `templateFields` | `object` | 否 | 按稳定的自定义字段 ID 浅合并；null 清除单个字段。未知/系统 ID 会被拒绝。即使是草稿也会校验类型/选项。image/file 的值为 FilePath ID 数组或 null，而非 URL/对象快照。PATCH 依据固定版本进行校验，即使其有效模板已被删除。|
-| `coverAssetId` | `integer` | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
-| `imageAssetIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
-| `relatedAssetIds` | `array` (`integer`) | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 否 | 会去除首尾空白；草稿可省略或为空。最长 255 个字符 |
+| spu | String | 否 | 会去除首尾空白；null/空白表示清除。在商品库有效商品中唯一。最长 64 个字符；可为 null |
+| description | String | 否 | 可为 null |
+| brandId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| templateFields | Object | 否 | 按稳定的自定义字段 ID 浅合并；null 清除单个字段。未知/系统 ID 会被拒绝。即使是草稿也会校验类型/选项。image/file 的值为 FilePath ID 数组或 null，而非 URL/对象快照。PATCH 依据固定版本进行校验，即使其有效模板已被删除。 |
+| coverAssetId | Integer | 否 | 最小值：1；最大值：2,147,483,647；可为 null |
+| imageAssetIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
+| relatedAssetIds | List&lt;Integer&gt; | 否 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | ProductDetail | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**ProductDetail参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| spu | String | 商品 SKU。可为 null |
+| description | String | 说明。可为 null |
+| status | String | 当前状态。允许值：draft、published |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 所有者用户 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| publishedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time；可为 null |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| draftReason | String | 商品处于草稿状态的原因。可为 null |
+| templateId | String | 模板 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateVersionId | String | 固定的模板版本 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 以稳定模板字段 ID 为键的字段值。 |
+| cover | Object | 商品封面。不接受未定义字段；可为 null嵌套字段：[ProductDetail](#schema-ProductDetail) |
+| images | List&lt;PublicAsset&gt; | 商品图片。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| relatedAssets | List&lt;PublicAsset&gt; | 相关素材。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| templateDefinition | NullableTemplateDefinition | 固定版本的模板定义。嵌套字段：[NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+
+成功响应：200。 完整定义：[ProductDetailResponse](#schema-ProductDetailResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：商品 SKU 冲突，或变更已提交但响应不可用。 [错误详情](#response-Error409_sku_in_use)
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request PATCH \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "description": null,
   "templateFields": {
     "field_color": "Blue"
   }
+}'
+```
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-</details>
-
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductDetailResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | sku_in_use：最终得到的非空商品 spu 与本商品库中的有效商品冲突；mutation_response_unavailable：变更已完成，但表示不可用；mutationOutcome 为必需字段，data 为 null。请勿盲目重复。| [错误详情](#response-Error409_sku_in_use) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-响应示例（200）：[查看共享示例](#response-example-13)
-
 ## 软删除商品
 
-**接口路径**： `/products/{id}`
+**接口路径**：/products/&#123;id&#125;
 
-**请求方式**： DELETE
+**请求方式**：DELETE
 
-**接口说明**： 软删除一个可见的有效商品。草稿需要 delete 权限；已发布商品需要 delete 和 publish 权限。历史模板版本保持不变。不与提供方同步。重复删除返回 404。
+**接口描述**：软删除一个可见的有效商品。草稿需要 delete 权限；已发布商品需要 delete 和 publish 权限。历史模板版本保持不变。不与提供方同步。重复删除返回 404。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 全部满足： `products:delete` · 适用时的附加检查： `products:publish`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | DeletedId | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**DeletedId参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
 
-**响应**
+成功响应：200。 完整定义：[DeletedIdResponse](#schema-DeletedIdResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-DeletedIdResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | 变更已提交或已被重放，但无法提供经授权的表示。请在执行下一次变更前先进行协调。| [错误详情](#response-Error409_mutation_response_unavailable) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-<details id="response-example-16">
-<summary>响应示例（200）</summary>
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request DELETE \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+```
+
+<div id="response-example-16">
+
+响应示例：
 
 ```json
 {
@@ -1749,71 +2507,99 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 发布商品或将商品退回草稿
 
-**接口路径**： `/products/{id}/status`
+**接口路径**：/products/&#123;id&#125;/status
 
-**请求方式**： PATCH
+**请求方式**：PATCH
 
-**接口说明**： 始终同时需要 update 和 publish 权限。发布时会校验固定版本的所有必填/类型/选项/媒体规则；状态无效时返回 422 及字段详情，且不做任何更改。重复发布会保留 publishedAt，退回草稿会清除该值。不会启动审批流程。
+**接口描述**：始终同时需要 update 和 publish 权限。发布时会校验固定版本的所有必填/类型/选项/媒体规则；状态无效时返回 422 及字段详情，且不做任何更改。重复发布会保留 publishedAt，退回草稿会清除该值。不会启动审批流程。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 全部满足： `products:update`, `products:publish` · 适用时的附加检查： `products:read`, `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| If-Match | String | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。 |
+| - | ProductStatus | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `If-Match` | `string` | 否 | 请求头参数。可选，带引号的强 ETag、* 或以逗号分隔的候选标签。弱标签不会匹配。获取行锁后若因过期而不匹配，则返回 412 且不执行写入；省略时采用最后写入者获胜。协调前请重新获取当前数据。不支持 If-None-Match/304。|
-
-完整参数定义: [`Id`](#parameter-Id), [`IfMatch`](#parameter-IfMatch)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`ProductStatus`](#schema-ProductStatus)
+**ProductStatus参数说明**：
 
 任一状态转换（包括状态相同的请求）都同时需要 products:update 和 products:publish。发布会校验固定版本的所有必填字段以及当前媒体；失败时为原子操作。publishedAt 在首次发布时设置，重复发布时保留，退回草稿时清除。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `status` | `string` | 是 | 允许值：`draft`、`published` |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| status | String | 是 | 允许值：draft、published |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | ProductDetail | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**ProductDetail参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。 |
+| spu | String | 商品 SKU。可为 null |
+| description | String | 说明。可为 null |
+| status | String | 当前状态。允许值：draft、published |
+| brandId | Integer | 品牌 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| categoryId | Integer | 分类 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| ownerUserId | Integer | 所有者用户 ID。最小值：1；最大值：2,147,483,647；可为 null |
+| publishedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time；可为 null |
+| createdAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| updatedAt | String | RFC 3339 UTC 时间戳字符串。请保留全部小数位；同步中商品的 updatedAt 使用六位小数。格式：date-time |
+| draftReason | String | 商品处于草稿状态的原因。可为 null |
+| templateId | String | 模板 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateVersionId | String | 固定的模板版本 ID。最短 1 个字符；最长 128 个字符；可为 null |
+| templateFields | Object | 以稳定模板字段 ID 为键的字段值。 |
+| cover | Object | 商品封面。不接受未定义字段；可为 null嵌套字段：[ProductDetail](#schema-ProductDetail) |
+| images | List&lt;PublicAsset&gt; | 商品图片。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| relatedAssets | List&lt;PublicAsset&gt; | 相关素材。嵌套字段：[PublicAsset](#schema-PublicAsset) |
+| templateDefinition | NullableTemplateDefinition | 固定版本的模板定义。嵌套字段：[NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+
+成功响应：200。 完整定义：[ProductDetailResponse](#schema-ProductDetailResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
+
+[查看错误处理](./product-library#error-catalog)。
+
+412：ETag 不匹配，未执行写入。 [错误详情](#response-Error412_precondition_failed)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request PATCH \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/status" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "status": "published"
-}
+}'
 ```
 
-</details>
+<div id="response-example-17">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductDetailResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | 变更已提交或已被重放，但无法提供经授权的表示。请在执行下一次变更前先进行协调。| [错误详情](#response-Error409_mutation_response_unavailable) |
-| 412 | precondition_failed：If-Match 与已锁定的当前资源不匹配；请重新获取并协调后再重试。| [错误详情](#response-Error412_precondition_failed) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
-
-<details id="response-example-17">
-<summary>响应示例（200）</summary>
+响应示例：
 
 ```json
 {
@@ -1890,66 +2676,78 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 核对已知商品 ID
 
-**接口路径**： `/products/visibility`
+**接口路径**：/products/visibility
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 在当前 key 的可见性下检查最多 100 个已知 ID。保留顺序和重复项，接受空数组。not_visible 不区分已删除、不存在、属于其他商品库以及因角色而隐藏的条目。由于同步不提供删除墓碑记录，请定期调用以清理本地的过期条目。此读操作不支持 Idempotency-Key 或 ETag。
+**接口描述**：在当前 key 的可见性下检查最多 100 个已知 ID。保留顺序和重复项，接受空数组。not_visible 不区分已删除、不存在、属于其他商品库以及因角色而隐藏的条目。由于同步不提供删除墓碑记录，请定期调用以清理本地的过期条目。此读操作不支持 Idempotency-Key 或 ETag。
 
-**所需角色**： `view_only`、`usable`、`editable`、`manage`
+所需角色：view_only、usable、editable 或 manage。
 
-**权限说明**： 全部满足： `products:read`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| - | VisibilityInput | 是 | JSON 请求体：application/json |
 
-无路径、查询或操作专属请求头参数，仍须传入 Authorization 请求头。
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`VisibilityInput`](#schema-VisibilityInput)
+**VisibilityInput参数说明**：
 
 0..100 个 ID。输出保留输入顺序和重复项；[] 返回 []。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `ids` | `array` (`integer`) | 是 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| ids | List&lt;Integer&gt; | 是 | 每个元素：最小值：1；最大值：2,147,483,647；最多 100 项 |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;Visibility&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**Visibility参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| visibility | String | 所提交商品 ID 的可见性。允许值：visible、not_visible |
+
+成功响应：200。 完整定义：[VisibilityResponse](#schema-VisibilityResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/products/visibility" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "ids": [
     40,
     41
   ]
-}
+}'
 ```
 
-</details>
+<div id="response-example-18">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-VisibilityResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
-
-<details id="response-example-18">
-<summary>响应示例（200）</summary>
+响应示例：
 
 ```json
 {
@@ -1970,51 +2768,80 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 查找现有素材库素材
 
-**接口路径**： `/assets`
+**接口路径**：/assets
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 列出 key 所属商品库中有效的非目录 FilePath 素材，按 id 排序。需要在 editable/manage 角色下具有 products:create 或 products:update 权限，而非 products:read。仅返回预览，绝不返回原始文件下载字段。在商品写入中使用 FilePath id；上传不在 v1 范围内。
+**接口描述**：列出 key 所属商品库中有效的非目录 FilePath 素材，按 id 排序。需要在 editable/manage 角色下具有 products:create 或 products:update 权限，而非 products:read。仅返回预览，绝不返回原始文件下载字段。在商品写入中使用 FilePath id；上传不在 v1 范围内。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 至少满足一个： `products:create`, `products:update`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
+| search | String | 否 | 查询参数。去除首尾空白、不区分大小写的子串匹配：商品名称/spu，或素材库素材名称。 |
+| mimeType | String | 否 | 查询参数。去除首尾空白、不区分大小写的 MIME 前缀，例如 image/ 或 application/pdf。 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
-| `search` | `string` | 否 | 查询参数。去除首尾空白、不区分大小写的子串匹配：商品名称/spu，或素材库素材名称。|
-| `mimeType` | `string` | 否 | 查询参数。去除首尾空白、不区分大小写的 MIME 前缀，例如 image/ 或 application/pdf。|
+**响应参数**：
 
-完整参数定义: [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize), [`Search`](#parameter-Search), [`MimeType`](#parameter-MimeType)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;LibraryAsset&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**LibraryAsset参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。可为 null |
+| mimeType | String | MIME 类型。可为 null |
+| size | String | 十进制字节数字符串；绝不是 JSON 数字。须匹配 `^\d+$`；可为 null |
+| width | Number | 宽度。可为 null |
+| height | Number | 高度。可为 null |
+| duration | Number | 时长。可为 null |
+| previewUrl | String | 预览地址。格式：uri；可为 null |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-LibraryAssetListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[LibraryAssetListResponse](#schema-LibraryAssetListResponse)
 
-<details id="response-example-19">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/assets?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-19">
+
+响应示例：
 
 ```json
 {
@@ -2043,48 +2870,68 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 获取现有素材库素材详情
 
-**接口路径**： `/assets/{id}`
+**接口路径**：/assets/&#123;id&#125;
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 返回同一商品库中有效的 FilePath 及仅预览的媒体元数据。与列表接口使用相同的 create 或 update 权限门槛。返回不透明的强 ETag，该 ETag 基于 FilePath 和关联 AssetObject 的标识以及所维护的更新时间戳；临时签名的变化不会改变此标签。
+**接口描述**：返回同一商品库中有效的 FilePath 及仅预览的媒体元数据。与列表接口使用相同的 create 或 update 权限门槛。返回不透明的强 ETag，该 ETag 基于 FilePath 和关联 AssetObject 的标识以及所维护的更新时间戳；临时签名的变化不会改变此标签。
 
-**所需角色**： `editable`、`manage`
+所需角色：editable 或 manage。
 
-**权限说明**： 至少满足一个： `products:create`, `products:update`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+**响应参数**：
 
-完整参数定义: [`Id`](#parameter-Id)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | LibraryAsset | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**LibraryAsset参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | Integer | 资源 ID。最小值：1；最大值：2,147,483,647 |
+| name | String | 名称。可为 null |
+| mimeType | String | MIME 类型。可为 null |
+| size | String | 十进制字节数字符串；绝不是 JSON 数字。须匹配 `^\d+$`；可为 null |
+| width | Number | 宽度。可为 null |
+| height | Number | 高度。可为 null |
+| duration | Number | 时长。可为 null |
+| previewUrl | String | 预览地址。格式：uri；可为 null |
 
-**响应**
+成功响应：200。 完整定义：[LibraryAssetResponse](#schema-LibraryAssetResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-LibraryAssetResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`ETag`](#header-ETag)
+[查看错误处理](./product-library#error-catalog)。
 
-<details id="response-example-20">
-<summary>响应示例（200）</summary>
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_ASSET_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/assets/${PRODUCT_LIBRARY_ASSET_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-20">
+
+响应示例：
 
 ```json
 {
@@ -2105,50 +2952,84 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 查询团队分享记录
 
-**接口路径**： `/product-shares`
+**接口路径**：/product-shares
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 按 createdAt 和 id 倒序列出当前团队所有浏览器操作者及 API key 的记录。可选 productId 返回完整的匹配操作；省略则查询全团队。仅接受 productId、page 和 pageSize，未知或重复参数返回 422。不会隐式限制为当前 API key 或创建者的记录。需要 manage 和 products:history，无需 products:read。
+**接口描述**：按 createdAt 和 id 倒序列出当前团队所有浏览器操作者及 API key 的记录。可选 productId 返回完整的匹配操作；省略则查询全团队。仅接受 productId、page 和 pageSize，未知或重复参数返回 422。不会隐式限制为当前 API key 或创建者的记录。需要 manage 和 products:history，无需 products:read。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `products:history`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| productId | PositiveId | 否 | 查询参数。按一个商品 ID 筛选记录，仍返回包含其他商品和文件的完整操作。省略时查询当前团队全部记录。[PositiveId](#schema-PositiveId) |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `productId` | [`PositiveId`](#schema-PositiveId) | 否 | 查询参数。按一个商品 ID 筛选记录，仍返回包含其他商品和文件的完整操作。省略时查询当前团队全部记录。|
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
+**响应参数**：
 
-完整参数定义: [`ProductId`](#parameter-ProductId), [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;ProductShare&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**ProductShare参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。 |
+| url | String | 分享地址。格式：uri |
+| products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
+| createdById | Integer | 创建者用户 ID。可为 null |
+| createdByApiKeyId | String | 创建者 API key ID。可为 null |
+| createdByName | String | 创建者名称。 |
+| createdAt | String | 创建时间。格式：date-time |
+| expiresAt | String | 过期时间。可为 null；格式：date-time |
+| revokedAt | String | 撤销时间。可为 null；格式：date-time |
+| allowDownload | Boolean | 是否允许下载。 |
+| hasAccessCode | Boolean | 分享是否设置访问码。 |
+| status | String | 当前状态。允许值：active、expired、revoked |
+| canRevoke | Boolean | 当前调用方是否可撤销此分享。 |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductShareListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[ProductShareListResponse](#schema-ProductShareListResponse)
 
-<details id="response-example-21">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-21">
+
+响应示例：
 
 ```json
 {
@@ -2188,74 +3069,96 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 创建商品分享
 
-**接口路径**： `/product-shares`
+**接口路径**：/product-shares
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 为固定的已发布商品集合创建有效期为 7/30/90 天或永久的分享。accessCode 可选且必须为四位数字。allowDownload 另需 products:download。访问者无需登录或 API key；未发布/已删除商品会从实时分享中隐藏。创建 key 的变化不会撤销独立的团队分享。可选的 24 小时幂等机制复用同一分享。
+**接口描述**：为固定的已发布商品集合创建有效期为 7/30/90 天或永久的分享。accessCode 可选且必须为四位数字。allowDownload 另需 products:download。访问者无需登录或 API key；未发布/已删除商品会从实时分享中隐藏。创建 key 的变化不会撤销独立的团队分享。可选的 24 小时幂等机制复用同一分享。
 
-**所需角色**： `usable`、`editable`、`manage`
+所需角色：usable、editable 或 manage。
 
-**权限说明**： 全部满足： `products:read`, `products:share` · 适用时的附加检查： `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和分享创建操作，保留 24 小时。相同输入复用分享；输入变化返回 409。无请求头或超过保留期视为新操作。重放时检查当前权限。最短 1 个字符；最长 255 个字符 |
+| - | ProductShareCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和分享创建操作，保留 24 小时。相同输入复用分享；输入变化返回 409。无请求头或超过保留期视为新操作。重放时检查当前权限。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`ShareIdempotencyKey`](#parameter-ShareIdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`ProductShareCreate`](#schema-ProductShareCreate)
+**ProductShareCreate参数说明**：
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `productIds` | `array` ([`PositiveId`](#schema-PositiveId)) | 是 | 最少 1 项；最多 100 项 |
-| `expiresInDays` | `integer` | 是 | 可为 null；允许值：`7`、`30`、`90`、`null` |
-| `accessCode` | `string` | 否 | 须匹配 `^[0-9]{4}$` |
-| `allowDownload` | `boolean` | 是 | — |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| productIds | List&lt;PositiveId&gt; | 是 | 最少 1 项；最多 100 项嵌套字段：[PositiveId](#schema-PositiveId) |
+| expiresInDays | Integer | 是 | 可为 null；允许值：7、30、90、null |
+| accessCode | String | 否 | 须匹配 `^[0-9]{4}$` |
+| allowDownload | Boolean | 是 | — |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | ProductShare | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**ProductShare参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。 |
+| url | String | 分享地址。格式：uri |
+| products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
+| createdById | Integer | 创建者用户 ID。可为 null |
+| createdByApiKeyId | String | 创建者 API key ID。可为 null |
+| createdByName | String | 创建者名称。 |
+| createdAt | String | 创建时间。格式：date-time |
+| expiresAt | String | 过期时间。可为 null；格式：date-time |
+| revokedAt | String | 撤销时间。可为 null；格式：date-time |
+| allowDownload | Boolean | 是否允许下载。 |
+| hasAccessCode | Boolean | 分享是否设置访问码。 |
+| status | String | 当前状态。允许值：active、expired、revoked |
+| canRevoke | Boolean | 当前调用方是否可撤销此分享。 |
+
+成功响应：201。 完整定义：[ProductShareResponse](#schema-ProductShareResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：分享创建输入与保留的幂等操作不同。 [错误详情](#response-Error409ShareReplay)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/product-shares" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "productIds": [
     40
   ],
   "expiresInDays": 7,
   "allowDownload": false
-}
+}'
 ```
 
-</details>
+<div id="response-example-22">
 
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 201 | 请求成功。| [JSON 响应](#schema-ProductShareResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 409 | 分享创建输入与保留的幂等操作不同。| [错误详情](#response-Error409ShareReplay) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
-
-响应头 (`201`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
-
-<details id="response-example-22">
-<summary>响应示例（201）</summary>
+响应示例：
 
 ```json
 {
@@ -2287,49 +3190,62 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 撤销商品分享
 
-**接口路径**： `/product-shares/{id}`
+**接口路径**：/product-shares/&#123;id&#125;
 
-**请求方式**： DELETE
+**请求方式**：DELETE
 
-**接口说明**： 撤销当前团队任意分享。需要 manage 和 products:share，无需 products:read。重复撤销返回原 revokedAt。未知或其他团队的 ID 返回 404。不使用 ETag 或 If-Match。
+**接口描述**：撤销当前团队任意分享。需要 manage 和 products:share，无需 products:read。重复撤销返回原 revokedAt。未知或其他团队的 ID 返回 404。不使用 ETag 或 If-Match。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `products:share`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | String | 是 | 路径参数。不透明的分享标识符。最短 1 个字符；最长 128 个字符 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `string` | 是 | 路径参数。不透明的分享标识符。最短 1 个字符；最长 128 个字符 |
+**响应参数**：
 
-完整参数定义: [`ShareId`](#parameter-ShareId)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | RevokedProductShare | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
 
-**请求体**
+**RevokedProductShare参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。 |
+| revokedAt | String | 撤销时间。格式：date-time |
 
-**响应**
+成功响应：200。 完整定义：[RevokedProductShareResponse](#schema-RevokedProductShareResponse)
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-RevokedProductShareResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflict) |
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+[查看错误处理](./product-library#error-catalog)。
 
-<details id="response-example-23">
-<summary>响应示例（200）</summary>
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_SHARE_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request DELETE \
+  "https://open.musedam.cc/api/product/product-shares/${PRODUCT_LIBRARY_SHARE_ID}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-23">
+
+响应示例：
 
 ```json
 {
@@ -2344,50 +3260,82 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 查询团队下载记录
 
-**接口路径**： `/product-downloads`
+**接口路径**：/product-downloads
 
-**请求方式**： GET
+**请求方式**：GET
 
-**接口说明**： 按 createdAt 和 id 倒序列出当前团队所有浏览器操作者及 API key 的记录。可选 productId 返回完整的匹配操作；省略则查询全团队。仅接受 productId、page 和 pageSize，未知或重复参数返回 422。不会隐式限制为当前 API key 或创建者的记录。需要 manage 和 products:history，无需 products:read。
+**接口描述**：按 createdAt 和 id 倒序列出当前团队所有浏览器操作者及 API key 的记录。可选 productId 返回完整的匹配操作；省略则查询全团队。仅接受 productId、page 和 pageSize，未知或重复参数返回 422。不会隐式限制为当前 API key 或创建者的记录。需要 manage 和 products:history，无需 products:read。
 
-**所需角色**： `manage`
+所需角色：manage。
 
-**权限说明**： 全部满足： `products:history`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| productId | PositiveId | 否 | 查询参数。按一个商品 ID 筛选记录，仍返回包含其他商品和文件的完整操作。省略时查询当前团队全部记录。[PositiveId](#schema-PositiveId) |
+| page | Integer | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：1 |
+| pageSize | Integer | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：20 |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `productId` | [`PositiveId`](#schema-PositiveId) | 否 | 查询参数。按一个商品 ID 筛选记录，仍返回包含其他商品和文件的完整操作。省略时查询当前团队全部记录。|
-| `page` | `integer` | 否 | 查询参数。普通分页页码。sync=true 时不允许使用。偏移量过大导致整数溢出时会被拒绝。最小值：1；默认值：`1` |
-| `pageSize` | `integer` | 否 | 查询参数。每页条数；超过 100 的值会被限制为 100。非正数/非整数值会被拒绝。最小值：1；默认值：`20` |
+**响应参数**：
 
-完整参数定义: [`ProductId`](#parameter-ProductId), [`Page`](#parameter-Page), [`PageSize`](#parameter-PageSize)
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;ProductDownloadRecord&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+| pagination | Page | 分页信息，字段见下表。 |
 
-**请求体**
+**ProductDownloadRecord参数说明**：
 
-此操作未定义请求体。
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| id | String | 资源 ID。 |
+| kind | String | 操作类型。允许值：product_export、asset_download |
+| status | String | 当前状态。允许值：requested、failed |
+| actorType | String | 操作者类型。允许值：member、external、api_key |
+| actorId | Integer | 操作者 ID。可为 null |
+| apiKeyId | String | API key ID。可为 null |
+| actorName | String | 操作者名称。 |
+| shareId | String | 分享 ID。可为 null |
+| products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
+| files | List&lt;FileLabelSnapshot&gt; | 文件快照。嵌套字段：[FileLabelSnapshot](#schema-FileLabelSnapshot) |
+| createdAt | String | 创建时间。格式：date-time |
 
-**响应**
+**Page参数说明**：
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductDownloadListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| page | Integer | 当前页码。最小值：1 |
+| pageSize | Integer | 每页数量。最小值：1；最大值：100 |
+| totalCount | Integer | 总数量。最小值：0 |
+| totalPages | Integer | 总页数。最小值：0 |
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
+成功响应：200。 完整定义：[ProductDownloadListResponse](#schema-ProductDownloadListResponse)
 
-<details id="response-example-24">
-<summary>响应示例（200）</summary>
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-24">
+
+响应示例：
 
 ```json
 {
@@ -2431,50 +3379,74 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 }
 ```
 
-</details>
+</div>
 
 ## 下载原文件或导出商品
 
-**接口路径**： `/product-downloads`
+**接口路径**：/product-downloads
 
-**请求方式**： POST
+**请求方式**：POST
 
-**接口说明**： 返回一个原文件、所选原文件的 ZIP，或 XLSX/CSV/JSON 业务表格导出。需要 usable 及以上角色的当前读取和下载权限；usable 只能访问已发布商品。已接受的操作在交付前记入记录。导出链接默认指向需认证的单文件 GET URL；每次接受的提取有自己的业务记录。可选 Idempotency-Key 在 24 小时内保留一条记录，每次重试仍重新鉴权并传输当前内容。商品读取、预览和旧存储 downloadUrl 的访问不会由此操作记入记录。
+**接口描述**：返回一个原文件、所选原文件的 ZIP，或 XLSX/CSV/JSON 业务表格导出。需要 usable 及以上角色的当前读取和下载权限；usable 只能访问已发布商品。已接受的操作在交付前记入记录。导出链接默认指向需认证的单文件 GET URL；每次接受的提取有自己的业务记录。可选 Idempotency-Key 在 24 小时内保留一条记录，每次重试仍重新鉴权并传输当前内容。商品读取、预览和旧存储 downloadUrl 的访问不会由此操作记入记录。
 
-**所需角色**： `usable`、`editable`、`manage`
+所需角色：usable、editable 或 manage。
 
-**权限说明**： 全部满足： `products:read`, `products:download`
+**请求参数**：
 
-**参数**
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| Idempotency-Key | String | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和下载操作，保留 24 小时。相同输入复用业务记录，但会重新鉴权、读取当前内容并再次传输，不缓存文件字节。POST 与单文件 GET 的操作作用域不同。输入变化返回 409。省略、使用新 key 或过期后产生新记录；去重并非永久有效。最短 1 个字符；最长 255 个字符 |
+| - | ProductDownloadCreate | 是 | JSON 请求体：application/json |
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和下载操作，保留 24 小时。相同输入复用业务记录，但会重新鉴权、读取当前内容并再次传输，不缓存文件字节。POST 与单文件 GET 的操作作用域不同。输入变化返回 409。省略、使用新 key 或过期后产生新记录；去重并非永久有效。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`DownloadIdempotencyKey`](#parameter-DownloadIdempotencyKey)
-
-**请求体**
-
-必填请求体: `application/json` · 请求结构: [`ProductDownloadCreate`](#schema-ProductDownloadCreate)
+**ProductDownloadCreate参数说明**：
 
 assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当前 key。export 不接受 assetKeys，并生成本地化业务表格。format、includeAssetUrls 和 locale 仅影响导出；素材下载接受这些选项但不据此改变交付内容。导出默认包含需要 Bearer 认证的链接，绝不包含 API key 密钥。locale 影响系统标签和状态，不改变用户自定义标签或内容。
 
 不接受未定义字段。
 
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `kind` | `string` | 是 | 允许值：`assets`、`export` |
-| `productIds` | `array` ([`PositiveId`](#schema-PositiveId)) | 是 | 最少 1 项；最多 100 项 |
-| `assetKeys` | `array` (`string`) | 否 | 每个元素：最短 1 个字符；最长 256 个字符；最少 1 项；最多 200 项 |
-| `format` | `string` | 否 | 允许值：`xlsx`、`csv`、`json`；默认值：`"xlsx"` |
-| `includeAssetUrls` | `boolean` | 否 | 默认值：`true` |
-| `locale` | `string` | 否 | 允许值：`zh-CN`、`en-US`、`zh-TW`、`ja-JP`、`ko-KR`、`pt-BR`、`ru-RU`、`id-ID`、`fr-FR`、`it-IT`、`pl-PL`、`vi-VN`、`tr-TR`、`th-TH`、`de-DE`、`es-ES`、`hi-IN`；默认值：`"zh-CN"` |
+| 字段名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| kind | String | 是 | 允许值：assets、export |
+| productIds | List&lt;PositiveId&gt; | 是 | 最少 1 项；最多 100 项嵌套字段：[PositiveId](#schema-PositiveId) |
+| assetKeys | List&lt;String&gt; | 否 | 每个元素：最短 1 个字符；最长 256 个字符；最少 1 项；最多 200 项 |
+| format | String | 否 | 允许值：xlsx、csv、json；默认值："xlsx" |
+| includeAssetUrls | Boolean | 否 | 默认值：true |
+| locale | String | 否 | 允许值：zh-CN、en-US、zh-TW、ja-JP、ko-KR、pt-BR、ru-RU、id-ID、fr-FR、it-IT、pl-PL、vi-VN、tr-TR、th-TH、de-DE、es-ES、hi-IN；默认值："zh-CN" |
 
-<details>
-<summary>请求示例</summary>
+**响应参数**：
 
-```json
-{
+成功时返回附件，不使用 JSON 成功响应结构。示例将响应保存为本地文件；附件开始交付前的错误仍使用统一 JSON 错误结构。
+
+| 参数名 | 类型 | 描述 |
+| - | - | - |
+| HTTP 状态码 | Integer | 200 |
+| - | application/octet-stream | 响应体为文件字节。 |
+| - | application/zip | 响应体为文件字节。 |
+| - | application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | 响应体为文件字节。 |
+| - | text/csv | 响应体为文件字节。 |
+| - | application/json | 响应体为文件字节。 |
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[Content-Disposition](#header-Content-Disposition)、[X-Download-Record-Id](#header-X-Download-Record-Id)、[X-Idempotency-Replayed](#header-X-Idempotency-Replayed)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：原文件不可用，或幂等键被用于不同的输入。 [错误详情](#response-Error409ProductDownloadAttachment)
+
+413：请求体、所选文件数量或下载总大小超出限制。 [错误详情](#response-Error413ProductDownloadAttachment)
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request POST \
+  "https://open.musedam.cc/api/product/product-downloads" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
   "kind": "export",
   "productIds": [
     40
@@ -2482,26 +3454,176 @@ assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当�
   "format": "xlsx",
   "includeAssetUrls": true,
   "locale": "zh-CN"
+}' \
+  --output products.xlsx
+```
+
+响应示例：
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+Content-Disposition: attachment
+X-Download-Record-Id: <record-id>
+```
+
+响应体为文件字节。
+
+## 查询商品下载候选素材
+
+**接口路径**：/products/&#123;id&#125;/download-assets
+
+**请求方式**：GET
+
+**接口描述**：在读取和下载授权下返回当前候选素材的选择 key 和 downloadable 可用性。不产生业务下载记录，也不返回原文件或预览 URL。使用单文件路由或 POST product-downloads 获取文件字节。
+
+所需角色：usable、editable 或 manage。
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| success | Boolean | 请求成功时为 true。 |
+| data | List&lt;ProductDownloadCandidate&gt; | 返回的数据，字段见下表。 |
+| code | String | 请求成功时为 null。 |
+| message | String | 请求成功时为 null。 |
+| requestId | String | 请求标识符，UUID 格式。 |
+
+**ProductDownloadCandidate参数说明**：
+
+| 字段名 | 类型 | 描述 |
+| - | - | - |
+| key | String | 下载选择标识。 |
+| name | String | 名称。 |
+| productId | PositiveId | 商品 ID。嵌套字段：[PositiveId](#schema-PositiveId) |
+| productName | String | 商品名称。 |
+| category | String | 媒体类别。允许值：main、related、field |
+| mimeType | String | MIME 类型。可为 null |
+| size | String | 文件字节数，以十进制字符串表示。可为 null；须匹配 `^[0-9]+$` |
+| downloadable | Boolean | 当前是否可下载此文件。 |
+
+成功响应：200。 完整定义：[ProductDownloadCandidateListResponse](#schema-ProductDownloadCandidateListResponse)
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
+
+[查看错误处理](./product-library#error-catalog)。
+
+**示例**：
+
+请求示例：
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/download-assets" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+```
+
+<div id="response-example-25">
+
+响应示例：
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "key": "p40:a2",
+      "name": "example.png",
+      "productId": 40,
+      "productName": "Example product",
+      "category": "main",
+      "mimeType": "image/png",
+      "size": "1024",
+      "downloadable": true
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-</details>
+</div>
 
-**响应**
+## 下载一个商品原文件
 
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 附件字节，不是成功响应结构。JSON 导出包含本地化业务表格行数组。流开始后的失败可能终止响应体并将记录标记为失败；无法再用 JSON 错误替换已经开始的响应。| 原文件、ZIP 压缩包、Excel 表格、CSV 导出、JSON 导出 |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactiveAttachment) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbiddenAttachment) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_foundAttachment) |
-| 409 | 原文件不可用，或幂等 key 被用于不同的输入。| [错误详情](#response-Error409ProductDownloadAttachment) |
-| 413 | 请求体、文件数量或原文件总大小超过限制。| [错误详情](#response-Error413ProductDownloadAttachment) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failedAttachment) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_errorAttachment) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflictAttachment) |
+**接口路径**：/products/&#123;id&#125;/download-assets/&#123;assetKey&#125;
 
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Content-Disposition`](#header-Content-Disposition), [`X-Download-Record-Id`](#header-X-Download-Record-Id), [`X-Idempotency-Replayed`](#header-X-Idempotency-Replayed)
+**请求方式**：GET
+
+**接口描述**：通过编码后的候选 key 获取当前商品的一个原文件。需要 Bearer 请求头以及当前读取/下载授权；URL 不含 API key 密钥。交付前创建业务记录。可选的 24 小时幂等机制与 POST 下载使用不同作用域，复用记录时仍重新鉴权并传输当前字节。
+
+所需角色：usable、editable 或 manage。
+
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+| - | - | - | - |
+| id | Integer | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
+| assetKey | String | 是 | 路径参数。对商品下载候选列表返回的选择 key 进行 URL 编码；它不是 FilePath 或 AssetObject ID。最短 1 个字符；最长 256 个字符 |
+| Idempotency-Key | String | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和下载操作，保留 24 小时。相同输入复用业务记录，但会重新鉴权、读取当前内容并再次传输，不缓存文件字节。POST 与单文件 GET 的操作作用域不同。输入变化返回 409。省略、使用新 key 或过期后产生新记录；去重并非永久有效。最短 1 个字符；最长 255 个字符 |
+
+**响应参数**：
+
+成功时返回附件，不使用 JSON 成功响应结构。示例将响应保存为本地文件；附件开始交付前的错误仍使用统一 JSON 错误结构。
+
+| 参数名 | 类型 | 描述 |
+| - | - | - |
+| HTTP 状态码 | Integer | 200 |
+| - | application/octet-stream | 响应体为文件字节。 |
+
+响应头：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[Content-Disposition](#header-Content-Disposition)、[X-Download-Record-Id](#header-X-Download-Record-Id)、[X-Idempotency-Replayed](#header-X-Idempotency-Replayed)
+
+[查看错误处理](./product-library#error-catalog)。
+
+409：原文件不可用，或幂等键被用于不同的输入。 [错误详情](#response-Error409ProductDownloadAttachment)
+
+413：请求体、所选文件数量或下载总大小超出限制。 [错误详情](#response-Error413ProductDownloadAttachment)
+
+**示例**：
+
+请求示例：
+
+PRODUCT_LIBRARY_ASSET_KEY_ENCODED 须为下载候选列表返回的 key 经 URL 编码后的值，不能替换为 FilePath 或 AssetObject ID。
+
+```bash
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_ASSET_KEY_ENCODED:?Set the resource identifier before running this example}"
+: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
+curl --silent --show-error --fail-with-body --request GET \
+  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/download-assets/${PRODUCT_LIBRARY_ASSET_KEY_ENCODED}" \
+  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+  --output product-asset.bin
+```
+
+响应示例：
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment
+X-Download-Record-Id: <record-id>
+```
+
+响应体为文件字节。
+
+## 数据结构附录
+
+以下保留已发布契约中的完整数据结构定义，名称和 JSON 键在各语言中一致。展开定义可查看必填字段、可空值、格式、数量限制和 additionalProperties；嵌套结构可通过引用链接继续查询。
+
+以 #/components/schemas/ 开头的数据结构引用，对应本页的数据结构附录。
+
+**内联响应结构**：
 
 <details>
 <summary>响应结构（200，原文件）</summary>
@@ -2568,112 +3690,6 @@ assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当�
 
 </details>
 
-## 查询商品下载候选素材
-
-**接口路径**： `/products/{id}/download-assets`
-
-**请求方式**： GET
-
-**接口说明**： 在读取和下载授权下返回当前候选素材的选择 key 和 downloadable 可用性。不产生业务下载记录，也不返回原文件或预览 URL。使用单文件路由或 POST product-downloads 获取文件字节。
-
-**所需角色**： `usable`、`editable`、`manage`
-
-**权限说明**： 全部满足： `products:read`, `products:download`
-
-**参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-
-完整参数定义: [`Id`](#parameter-Id)
-
-**请求体**
-
-此操作未定义请求体。
-
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 请求成功。| [JSON 响应](#schema-ProductDownloadCandidateListResponse) |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactive) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbidden) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_found) |
-| 413 | payload_too_large：请求体超过 1048576 字节（1 MiB）。| [错误详情](#response-Error413_payload_too_large) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failed) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_error) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id)
-
-<details id="response-example-25">
-<summary>响应示例（200）</summary>
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "key": "p40:a2",
-      "name": "example.png",
-      "productId": 40,
-      "productName": "Example product",
-      "category": "main",
-      "mimeType": "image/png",
-      "size": "1024",
-      "downloadable": true
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
-}
-```
-
-</details>
-
-## 下载一个商品原文件
-
-**接口路径**： `/products/{id}/download-assets/{assetKey}`
-
-**请求方式**： GET
-
-**接口说明**： 通过编码后的候选 key 获取当前商品的一个原文件。需要 Bearer 请求头以及当前读取/下载授权；URL 不含 API key 密钥。交付前创建业务记录。可选的 24 小时幂等机制与 POST 下载使用不同作用域，复用记录时仍重新鉴权并传输当前字节。
-
-**所需角色**： `usable`、`editable`、`manage`
-
-**权限说明**： 全部满足： `products:read`, `products:download`
-
-**参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `integer` | 是 | 路径参数。正的有符号 32 位资源 ID。最小值：1；最大值：2,147,483,647 |
-| `assetKey` | `string` | 是 | 路径参数。对商品下载候选列表返回的选择 key 进行 URL 编码；它不是 FilePath 或 AssetObject ID。最短 1 个字符；最长 256 个字符 |
-| `Idempotency-Key` | `string` | 否 | 请求头参数。可选非空白值，不含 ASCII 控制字符，最多 255 个字符。作用域为团队、API key 和下载操作，保留 24 小时。相同输入复用业务记录，但会重新鉴权、读取当前内容并再次传输，不缓存文件字节。POST 与单文件 GET 的操作作用域不同。输入变化返回 409。省略、使用新 key 或过期后产生新记录；去重并非永久有效。最短 1 个字符；最长 255 个字符 |
-
-完整参数定义: [`Id`](#parameter-Id), [`AssetKey`](#parameter-AssetKey), [`DownloadIdempotencyKey`](#parameter-DownloadIdempotencyKey)
-
-**请求体**
-
-此操作未定义请求体。
-
-**响应**
-
-| 状态码 | 说明 | 响应结构 |
-| --- | --- | --- |
-| 200 | 附件字节，不是成功响应结构。JSON 导出包含本地化业务表格行数组。流开始后的失败可能终止响应体并将记录标记为失败；无法再用 JSON 错误替换已经开始的响应。| 原文件 |
-| 401 | invalid_credentials：bearer 凭据缺失、格式错误或未知。绝不透露 key 是否存在；key_inactive：已验证的 key 已被禁用、吊销或过期。| [错误详情](#response-Error401_invalid_credentials_key_inactiveAttachment) |
-| 403 | forbidden：当前 key 的角色/权限不允许执行该操作；对已发布商品的变更可能需要 products:publish。| [错误详情](#response-Error403_forbiddenAttachment) |
-| 404 | not_found：资源不存在、已删除、不属于本商品库或对该 key 不可见。| [错误详情](#response-Error404_not_foundAttachment) |
-| 409 | 原文件不可用，或幂等 key 被用于不同的输入。| [错误详情](#response-Error409ProductDownloadAttachment) |
-| 413 | 请求体、文件数量或原文件总大小超过限制。| [错误详情](#response-Error413ProductDownloadAttachment) |
-| 422 | validation_failed：JSON/ID/查询参数/请求体格式错误、关联关系无效，或违反固定版本字段/配置/发布规则。可选的 details 会标识相关字段。| [错误详情](#response-Error422_validation_failedAttachment) |
-| 500 | internal_server_error：服务器意外故障；请上报 requestId，但不要附带凭据。公开消息不会暴露内部细节。| [错误详情](#response-Error500_internal_server_errorAttachment) |
-| 503 | 由于死锁、序列化失败或锁超时，写入已回滚。请在一秒后使用相同的创建幂等键重试。| [错误详情](#response-Error503_write_conflictAttachment) |
-
-响应头 (`200`): [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Content-Disposition`](#header-Content-Disposition), [`X-Download-Record-Id`](#header-X-Download-Record-Id), [`X-Idempotency-Replayed`](#header-X-Idempotency-Replayed)
-
 <details>
 <summary>响应结构（200，原文件）</summary>
 
@@ -2685,12 +3701,6 @@ assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当�
 ```
 
 </details>
-
-## 数据结构附录
-
-以下保留已发布契约中的完整数据结构定义，名称和 JSON 键在各语言中一致。展开定义可查看必填字段、可空值、格式、数量限制和 additionalProperties；嵌套结构可通过引用链接继续查询。
-
-以 #/components/schemas/ 开头的数据结构引用，对应本页的数据结构附录。
 
 <details id="schema-PositiveId">
 <summary>PositiveId</summary>
