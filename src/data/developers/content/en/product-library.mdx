@@ -1273,7 +1273,7 @@ curl --request GET \
 
 **Method**: PATCH
 
-**Description**: Uses the shared browser batch operation. Supplied groups/fields are a complete replacement; omitted groups are preserved. Stable IDs and protected system/default fields are validated. Creates a new immutable version without migrating existing product pins or values; bindings/default changes affect future template resolution.
+**Description**: Uses the shared browser batch operation. Omitting the `groups` property preserves the existing definition; supplying `groups` replaces the groups and fields in full. Stable IDs and protected system/default fields are validated. Creates a new immutable version without migrating existing product pins or values; bindings/default changes affect future template resolution.
 
 Required role: manage.
 
@@ -1287,7 +1287,7 @@ Required role: manage.
 
 **TemplatePatch fields**:
 
-Omitted groups are preserved; supplied groups replace the entire live set. Preserve stable group/field IDs. Omitted groups/fields are deleted, subject to protected default/system fields. Every successful write creates a new immutable version, including metadata-only updates.
+Omitting the `groups` property preserves the existing definition. Supplying `groups` replaces it in full: existing groups and fields omitted from the array are deleted, subject to protected default/system fields. Retain the IDs of groups and fields you want to keep. Every successful write creates a new immutable version, including metadata-only updates.
 
 Unknown fields are rejected; Minimum number of fields: 1.
 
@@ -1559,7 +1559,7 @@ Every service-issued link is also bounded by the API key's expiry. Fetch product
 | brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647.; May be null |
 | categoryId | Integer | Category ID. Positive integer ID, maximum 2147483647.; May be null |
 | ownerUserId | Integer | Owner user ID. Positive integer ID, maximum 2147483647.; May be null |
-| publishedAt | String | RFC 3339 timestamp; preserve full precision.|
+| publishedAt | String | RFC 3339 timestamp; preserve full precision. `null` for drafts. |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
 | updatedAt | String | RFC 3339 timestamp; preserve full precision.|
 | draftReason | String | Reason for draft status. May be null |
