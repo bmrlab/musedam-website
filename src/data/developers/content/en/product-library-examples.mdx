@@ -164,7 +164,7 @@ Remove products reported as `not_visible` from your local copy. This status can 
 | --- | --- |
 | 401 / 403 | Check the API key status and collaborator role. |
 | 412 | Read the product again, review the changes and retry with the new ETag. |
-| 422 | Fix the parameters identified by `details[].field` and `details[].message`. |
+| 422 | Check the request parameters. If the response includes `details`, use `details[].field` and `details[].message` to correct them. |
 | 409 | Handle the conflict using `code`. For `mutation_response_unavailable`, read and verify the result first. |
 
 Keep the response `requestId` for troubleshooting. See the complete [error codes](./product-library-write-conventions#error-catalog).

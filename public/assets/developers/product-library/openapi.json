@@ -246,7 +246,7 @@
           "brands"
         ],
         "summary": "Read brand",
-        "description": "Returns public metadata ordered by sortOrder then id. Raw logo URLs are excluded. Returns the current strong ETag.",
+        "description": "Returns the specified brand’s public metadata and current strong ETag. Raw logo URLs are excluded.",
         "x-permissions": {
           "allOf": [
             "brands:read"
@@ -376,12 +376,12 @@
                         "id": 10,
                         "name": "Example brand",
                         "code": "example-code",
-                        "description": null,
+                        "description": "Updated by API",
                         "website": null,
                         "sortOrder": 0,
                         "isEnabled": true,
                         "createdAt": "2026-10-08T10:00:00.000Z",
-                        "updatedAt": "2026-10-08T10:00:00.000Z"
+                        "updatedAt": "2026-10-08T10:05:00.000Z"
                       },
                       "code": null,
                       "message": null,
@@ -582,7 +582,7 @@
                           "brandId": 10,
                           "parentId": null,
                           "name": "Catalog",
-                          "pathKey": "20",
+                          "pathKey": "/Catalog",
                           "description": null,
                           "iconEmoji": null,
                           "iconAssetId": null,
@@ -675,7 +675,7 @@
                         "brandId": 10,
                         "parentId": null,
                         "name": "Catalog",
-                        "pathKey": "20",
+                        "pathKey": "/Catalog",
                         "description": null,
                         "iconEmoji": null,
                         "iconAssetId": null,
@@ -745,7 +745,7 @@
           "categories"
         ],
         "summary": "Read category",
-        "description": "Returns a flat live tree ordered by brandId, parentId, sortOrder and id. Optional brand filter; no implicit subtree expansion. Returns the current strong ETag.",
+        "description": "Returns the specified nondeleted category and current strong ETag. A missing category or one outside the current library returns 404.",
         "x-permissions": {
           "allOf": [
             "categories:read"
@@ -790,7 +790,7 @@
                         "brandId": 10,
                         "parentId": null,
                         "name": "Catalog",
-                        "pathKey": "20",
+                        "pathKey": "/Catalog",
                         "description": null,
                         "iconEmoji": null,
                         "iconAssetId": null,
@@ -879,14 +879,14 @@
                         "brandId": 10,
                         "parentId": null,
                         "name": "Catalog",
-                        "pathKey": "20",
-                        "description": null,
+                        "pathKey": "/Catalog",
+                        "description": "Updated by API",
                         "iconEmoji": null,
                         "iconAssetId": null,
                         "sortOrder": 0,
                         "isEnabled": true,
                         "createdAt": "2026-10-08T10:00:00.000Z",
-                        "updatedAt": "2026-10-08T10:00:00.000Z"
+                        "updatedAt": "2026-10-08T10:05:00.000Z"
                       },
                       "code": null,
                       "message": null,
@@ -1098,13 +1098,49 @@
                               "sortOrder": 0,
                               "fields": [
                                 {
+                                  "id": "field_name",
+                                  "key": "name",
+                                  "name": "商品名称",
+                                  "type": "text",
+                                  "required": true,
+                                  "placeholder": null,
+                                  "sortOrder": 0,
+                                  "isSystemField": true,
+                                  "systemKey": "name",
+                                  "config": {}
+                                },
+                                {
+                                  "id": "field_sku",
+                                  "key": "sku",
+                                  "name": "SKU",
+                                  "type": "text",
+                                  "required": true,
+                                  "placeholder": null,
+                                  "sortOrder": 1,
+                                  "isSystemField": true,
+                                  "systemKey": "sku",
+                                  "config": {}
+                                },
+                                {
+                                  "id": "field_main_image",
+                                  "key": "mainImage",
+                                  "name": "商品主图",
+                                  "type": "image",
+                                  "required": true,
+                                  "placeholder": null,
+                                  "sortOrder": 2,
+                                  "isSystemField": true,
+                                  "systemKey": "mainImage",
+                                  "config": {}
+                                },
+                                {
                                   "id": "field_color",
                                   "key": "color",
                                   "name": "Color",
                                   "type": "text",
                                   "required": false,
                                   "placeholder": null,
-                                  "sortOrder": 0,
+                                  "sortOrder": 3,
                                   "isSystemField": false,
                                   "systemKey": null,
                                   "config": {}
@@ -1155,7 +1191,7 @@
           "product-info-templates"
         ],
         "summary": "Create template",
-        "description": "Creates a template and immutable version through the same batch business operation as the browser. newOnly is mandatory; at most 200 fields. No existing products are changed.",
+        "description": "Creates a template and an immutable version. syncStrategy is optional and only newOnly is supported. Allows at most 200 fields and leaves existing products unchanged.",
         "x-permissions": {
           "allOf": [
             "templates:create"
@@ -1211,13 +1247,49 @@
                             "sortOrder": 0,
                             "fields": [
                               {
+                                "id": "field_name",
+                                "key": "name",
+                                "name": "商品名称",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 0,
+                                "isSystemField": true,
+                                "systemKey": "name",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_sku",
+                                "key": "sku",
+                                "name": "SKU",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 1,
+                                "isSystemField": true,
+                                "systemKey": "sku",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_main_image",
+                                "key": "mainImage",
+                                "name": "商品主图",
+                                "type": "image",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 2,
+                                "isSystemField": true,
+                                "systemKey": "mainImage",
+                                "config": {}
+                              },
+                              {
                                 "id": "field_color",
                                 "key": "color",
                                 "name": "Color",
                                 "type": "text",
                                 "required": false,
                                 "placeholder": null,
-                                "sortOrder": 0,
+                                "sortOrder": 3,
                                 "isSystemField": false,
                                 "systemKey": null,
                                 "config": {}
@@ -1299,7 +1371,7 @@
           "product-info-templates"
         ],
         "summary": "Read template",
-        "description": "Returns live template metadata, bindings and ordered groups/fields, including preview-only configuration. Ordered by createdAt descending then id. ETag represents the current item. Template ETags include the full live field/group/binding set and default designation.",
+        "description": "Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending. The current strong ETag covers live fields, groups, bindings, and the default designation.",
         "x-permissions": {
           "allOf": [
             "templates:read"
@@ -1358,13 +1430,49 @@
                             "sortOrder": 0,
                             "fields": [
                               {
+                                "id": "field_name",
+                                "key": "name",
+                                "name": "商品名称",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 0,
+                                "isSystemField": true,
+                                "systemKey": "name",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_sku",
+                                "key": "sku",
+                                "name": "SKU",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 1,
+                                "isSystemField": true,
+                                "systemKey": "sku",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_main_image",
+                                "key": "mainImage",
+                                "name": "商品主图",
+                                "type": "image",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 2,
+                                "isSystemField": true,
+                                "systemKey": "mainImage",
+                                "config": {}
+                              },
+                              {
                                 "id": "field_color",
                                 "key": "color",
                                 "name": "Color",
                                 "type": "text",
                                 "required": false,
                                 "placeholder": null,
-                                "sortOrder": 0,
+                                "sortOrder": 3,
                                 "isSystemField": false,
                                 "systemKey": null,
                                 "config": {}
@@ -1451,12 +1559,12 @@
                       "data": {
                         "id": "template_example",
                         "name": "Example template",
-                        "description": null,
+                        "description": "Updated by API",
                         "enabled": true,
                         "isSystemDefault": false,
                         "isLibraryDefault": false,
                         "createdAt": "2026-10-08T10:00:00.000Z",
-                        "updatedAt": "2026-10-08T10:00:00.000Z",
+                        "updatedAt": "2026-10-08T10:05:00.000Z",
                         "boundBrandIds": [],
                         "boundCategoryIds": [],
                         "groups": [
@@ -1467,13 +1575,49 @@
                             "sortOrder": 0,
                             "fields": [
                               {
+                                "id": "field_name",
+                                "key": "name",
+                                "name": "商品名称",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 0,
+                                "isSystemField": true,
+                                "systemKey": "name",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_sku",
+                                "key": "sku",
+                                "name": "SKU",
+                                "type": "text",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 1,
+                                "isSystemField": true,
+                                "systemKey": "sku",
+                                "config": {}
+                              },
+                              {
+                                "id": "field_main_image",
+                                "key": "mainImage",
+                                "name": "商品主图",
+                                "type": "image",
+                                "required": true,
+                                "placeholder": null,
+                                "sortOrder": 2,
+                                "isSystemField": true,
+                                "systemKey": "mainImage",
+                                "config": {}
+                              },
+                              {
                                 "id": "field_color",
                                 "key": "color",
                                 "name": "Color",
                                 "type": "text",
                                 "required": false,
                                 "placeholder": null,
-                                "sortOrder": 0,
+                                "sortOrder": 3,
                                 "isSystemField": false,
                                 "systemKey": null,
                                 "config": {}
@@ -4856,7 +5000,7 @@
           "templateFields": {
             "type": "object",
             "additionalProperties": {},
-            "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Media values are projected PublicAsset arrays; scalars retain their JSON types."
+            "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Custom image/file values are projected PublicAsset arrays when populated; an empty value may be null, and a field with no stored value may be omitted. Scalars retain their JSON types."
           },
           "cover": {
             "type": "object",
@@ -5039,7 +5183,7 @@
           "templateFields": {
             "type": "object",
             "additionalProperties": {},
-            "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Media values are projected PublicAsset arrays; scalars retain their JSON types."
+            "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Custom image/file values are projected PublicAsset arrays when populated; an empty value may be null, and a field with no stored value may be omitted. Scalars retain their JSON types."
           },
           "cover": {
             "type": "object",
@@ -5421,7 +5565,7 @@
           }
         },
         "additionalProperties": false,
-        "description": "New fields require key/name/type. Existing IDs must belong to this group; preserve their key and system identity. System fields cannot be created. Type changes need typeChangeConfirmed where the existing batch rules require it. Omitted new-field defaults: required=false, placeholder=null, config={}, sortOrder=array index."
+        "description": "New fields require key/name/type. Existing IDs must belong to this group; preserve their key and system identity. System fields cannot be created. Type changes need typeChangeConfirmed where the existing batch rules require it and migrate config for the target type, even when config is omitted. Supply target configuration when required. Omitted new-field defaults: required=false, placeholder=null, config={}, sortOrder=array index. On template creation, custom fields in the first group follow the three protected fields, so their supplied sortOrder or array index is increased by 3. sortOrder values must be unique within each group."
       },
       "TemplateGroupInput": {
         "type": "object",

@@ -47,7 +47,7 @@ Existing groups keep their stored order; new groups append in the supplied order
 
 ## Fields
 
-New fields require `key`, `name`, and `type`. Existing fields require `id`; omitted properties retain their values, except for `sortOrder`.
+New fields require `key`, `name`, and `type`. Existing fields require `id`. When the type is unchanged, omitted properties retain their values, except for `sortOrder`. Changing `type` migrates `config` for the target type; provide new configuration when required.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -57,14 +57,14 @@ New fields require `key`, `name`, and `type`. Existing fields require `id`; omit
 | `type` | string | Required for a new field. Supported types appear in the configuration table below. |
 | `required` | boolean | Optional. Defaults to `false` for a new field. |
 | `placeholder` | string or null | Optional, up to 255 characters. Defaults to `null` for a new field. |
-| `sortOrder` | integer | Optional, nonnegative. If omitted, uses the field's array position. |
+| `sortOrder` | integer | Optional, nonnegative, and unique within the group. If omitted, uses the field's array position. |
 | `config` | object | Depends on the field type; see below. Defaults to `{}` for a new field, but must still meet that type's configuration requirements. |
 | `typeChangeConfirmed` | boolean | Optional. Set to `true` for an allowed type change that requires confirmation. |
 
 <details>
 <summary>System fields and update restrictions</summary>
 
-Creation seeds three protected fields: name, SKU, and main image. This leaves room for up to 197 custom fields. Replacement definitions must keep these field IDs, types, required flags, and configurations. Fields cannot move between groups.
+Creation seeds three protected fields: name, SKU, and main image. This leaves room for up to 197 custom fields. Custom fields in the first group follow those three fields: their supplied `sortOrder` (or array position when omitted) is increased by 3. Replacement definitions must keep these field IDs, types, required flags, and configurations. Fields cannot move between groups.
 
 New fields must be custom fields and cannot use reserved system keys. `isSystemField` and `systemKey` cannot create or reassign system identities; preserve their values on update. Unknown group or field properties are rejected.
 

@@ -164,7 +164,7 @@ curl --request POST 'https://open.musedam.cc/api/product/products/visibility' \
 | --- | --- |
 | 401 / 403 | 檢查 API Key 狀態與協作者角色。 |
 | 412 | 重新讀取商品，核對變更後使用新的 ETag 重試。 |
-| 422 | 按 `details[].field` 和 `details[].message` 修正參數。 |
+| 422 | 檢查請求參數；若回應含 `details`，依 `details[].field` 和 `details[].message` 修正。 |
 | 409 | 根據 `code` 處理衝突；若為 `mutation_response_unavailable`，先讀取並核對結果。 |
 
 保留響應中的 `requestId` 便於排查。完整說明見[錯誤碼](./product-library-write-conventions#error-catalog)。

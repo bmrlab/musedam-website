@@ -95,7 +95,7 @@
 ## 排查请求失败
 
 1. 根据 HTTP 状态码和 `code` 查找下方处理方式，不要依赖 `message` 文案判断错误类型。
-2. 参数校验失败时，检查返回的 `details[].field` 并修正输入。
+2. 参数校验失败时，检查输入；若响应包含 `details`，按 `details[].field` 和 `details[].message` 的提示修正。
 3. 需要协助时提供 `X-Request-Id` 或 JSON 中的 `requestId`。不要记录密钥和签名媒体 URL。
 
 ## 按错误码查处理方式

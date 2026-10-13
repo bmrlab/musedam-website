@@ -53,7 +53,7 @@
 | --- | --- | --- |
 | `groups` | 对象数组 | 分组及其字段定义，见[模板定义字段](./product-library-template-writes#template-definition) |
 
-`templateFields` 以定义中的字段 ID 为键，不使用字段名称或 key。普通值保留 JSON 类型；图片和文件值返回[媒体对象](#product-media-fields)数组。
+`templateFields` 以定义中的字段 ID 为键，不使用字段名称或 key。普通值保留 JSON 类型；图片和文件值为[媒体对象](#product-media-fields)数组或 null，未填写的字段可能省略。
 
 </details>
 
@@ -79,8 +79,8 @@
 | `richtext` | HTML 模式为字符串；delta 模式为 `{ "ops": [...] }` |
 
 - `templateFields` 按固定版本中的字段 ID 校验。更新时浅合并，值为 null 时清空对应字段。
-- 草稿允许缺少必填字段，但已提交及合并后的值仍须满足类型、枚举和素材限制。日期必须是真实日历日期，包括有效闰日；日期范围须有序，现有 datetime 和时区格式仍受支持。
-- 图片/文件字段遵守该版本的数量、大小和可接受类型配置；图片槽位只能引用图片素材。
+- 草稿允许缺少必填字段，但提交及合并后的普通字段仍须满足类型和选项限制。日期必须是真实日历日期，包括有效闰日；日期范围须有序，现有 datetime 和时区格式仍受支持。
+- 本次提交的图片/文件值须满足该版本的数量、大小和可接受类型配置；图片槽位只能引用图片素材。
 - 单次请求的封面、图片、关联素材和自定义字段合计最多引用 100 个素材。此处只关联已有素材，不上传、下载或同步素材。
 
 </details>
@@ -91,7 +91,7 @@
 
 | 当前状态 | 更新要求 |
 | --- | --- |
-| 草稿 | 可缺少必填值，已填写的值仍须合法 |
+| 草稿 | 可缺少必填值；校验合并后的普通字段及本次提交的媒体 |
 | 已发布 | 额外需要 `products:publish`；校验完整商品，成功后保持发布状态 |
 
 需要避免覆盖他人的修改时，先读取商品，再将响应的 `ETag` 原样放入 `If-Match`。值已过期时返回 `412 precondition_failed`，商品保持不变；详见[并发更新与重试](./product-library-write-conventions)。
@@ -99,8 +99,8 @@
 <details>
 <summary>只改一个字段，为什么仍可能校验失败？</summary>
 
-- PATCH 和发布会按商品保存的模板版本校验整个结果，包括未修改的已存储值。
-- 旧数据中的无效 URL、邮箱或素材也可能导致 `422 validation_failed`。查看 `details[].field`，在同一次 PATCH 中或通过浏览器修正后重试。
+- 草稿 PATCH 校验合并后的普通字段和本次提交的媒体；发布和更新已发布商品还会检查必填项和已存储的自定义媒体。
+- 返回 `422 validation_failed` 时，若包含 `details`，按字段提示修正；否则检查错误信息和请求参数。
 - 校验或事务在提交前失败时，字段和素材关联一起回滚，不会部分修改或丢弃其他字段。
 - 已提交的修改仍可能无法返回响应，按[写入结果与恢复](./product-library-write-conventions#write-outcomes-and-audit-durability)核对，不能仅凭响应失败判断回滚。
 
@@ -145,7 +145,7 @@
 <details id="product-media-fields">
 <summary>封面、图片和关联素材返回哪些字段？</summary>
 
-`cover` 是一个媒体对象，无封面时为 null；`images`、`relatedAssets` 和自定义图片/文件值为媒体对象数组。
+`cover` 是一个媒体对象，无封面时为 null；`images`、`relatedAssets` 为媒体对象数组。自定义图片/文件值可为数组或 null，未填写的字段可能省略。
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -195,11 +195,11 @@
 
 ### 下载原文件
 
-1. 调用 `GET /products/{id}/download-assets`，获取候选项的 `assetKey` 和 `downloadable`。此步骤不返回媒体 URL，也不创建下载记录。
-2. 调用 `POST /product-downloads`，设置 `kind: "assets"` 和 `productIds`。可用 `assetKeys` 选择文件，省略时选择全部原文件。
+1. 调用 `GET /products/{id}/download-assets`，获取候选项的 `key` 和 `downloadable`。此步骤不返回媒体 URL，也不创建下载记录。
+2. 调用 `POST /product-downloads`，设置 `kind: "assets"` 和 `productIds`。将候选 `key` 放入 `assetKeys` 选择文件，省略时选择全部原文件。
 3. 单个文件返回原附件，多个文件返回 ZIP。缺失的原文件不可下载。
 
-只取单个文件也可调用 `GET /products/{id}/download-assets/{assetKey}`，将候选 key 编码为路径片段；它不是素材 ID。每次提取都会重新检查权限。
+只取单个文件也可调用 `GET /products/{id}/download-assets/{assetKey}`，将候选 `key` 编码后用作路径参数 `assetKey`；它不是素材 ID。每次提取都会重新检查权限。
 
 ### 导出商品表格
 

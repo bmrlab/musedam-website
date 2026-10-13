@@ -95,7 +95,7 @@
 ## 排查請求失敗
 
 1. 根據 HTTP 狀態碼和 `code` 查找下方處理方式，不要依賴 `message` 文案判斷錯誤類型。
-2. 參數驗證失敗時，檢查回傳的 `details[].field` 並修正輸入。
+2. 參數驗證失敗時，檢查輸入；若回應包含 `details`，依 `details[].field` 和 `details[].message` 的提示修正。
 3. 需要協助時提供 `X-Request-Id` 或 JSON 中的 `requestId`。不要記錄密鑰和簽名媒體 URL。
 
 ## 依錯誤碼查處理方式

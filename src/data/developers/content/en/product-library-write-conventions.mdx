@@ -95,7 +95,7 @@ Downloads and exports retain their specific preparation or delivery error code. 
 ## Investigate a failed request
 
 1. Look up the HTTP status and `code` below. Do not identify error types by the `message` text.
-2. For validation failures, inspect `details[].field` and correct the input.
+2. For validation failures, check the input. If the response includes `details`, use `details[].field` and `details[].message` to correct it.
 3. Provide `X-Request-Id` or the JSON `requestId` when seeking help. Do not log credentials or signed media URLs.
 
 ## Find an error and its next step

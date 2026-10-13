@@ -53,7 +53,7 @@ Ordinary PATCH cannot switch a product's template. See [template management](./p
 | --- | --- | --- |
 | `groups` | Object array | Groups and their field definitions; see [template definition fields](./product-library-template-writes#template-definition) |
 
-`templateFields` is keyed by field ID from this definition, not by field name or key. Scalar values retain their JSON types; image and file values return arrays of [media objects](#product-media-fields).
+`templateFields` is keyed by field ID from this definition, not by field name or key. Scalar values retain their JSON types; image and file values are arrays of [media objects](#product-media-fields) or null. Unset fields may be omitted.
 
 </details>
 
@@ -79,8 +79,8 @@ Ordinary PATCH cannot switch a product's template. See [template management](./p
 | `richtext` | String in HTML mode; `{ "ops": [...] }` in delta mode |
 
 - `templateFields` uses field IDs from the pinned version. Updates shallow-merge values; null clears the corresponding field.
-- Drafts may omit required fields, but submitted and merged values must satisfy type, option, and media constraints. Dates must be real calendar dates, including valid leap days; ranges must be ordered. Existing datetime and timezone forms remain supported.
-- Image/file fields follow the pinned count, size, and accepted-type settings. Image slots require image assets.
+- Drafts may omit required fields, but submitted and merged non-media values must satisfy type and option constraints. Dates must be real calendar dates, including valid leap days; ranges must be ordered. Existing datetime and timezone forms remain supported.
+- Submitted image/file values must satisfy the pinned count, size, and accepted-type settings. Image slots require image assets.
 - One request may reference at most 100 assets across the cover, images, related assets, and custom fields. These operations associate existing assets; they do not upload, download, or synchronize them.
 
 </details>
@@ -91,7 +91,7 @@ Call `PATCH /products/{id}` with `products:update` permission. Send only the fie
 
 | Current state | Update requirements |
 | --- | --- |
-| Draft | Required values may be absent; supplied values must remain valid |
+| Draft | Required values may be absent; merged non-media values and submitted media are validated |
 | Published | Also requires `products:publish`; validates the complete product and preserves its published state |
 
 To avoid overwriting another update, first read the product and send its `ETag` unchanged in `If-Match`. A stale value returns `412 precondition_failed` without changing the product; see [concurrent updates and retries](./product-library-write-conventions).
@@ -99,8 +99,8 @@ To avoid overwriting another update, first read the product and send its `ETag` 
 <details>
 <summary>Why can changing one field fail validation elsewhere?</summary>
 
-- PATCH and publication validate the entire result against the pinned template, including stored values you did not change.
-- A legacy invalid URL, email, or asset can cause `422 validation_failed`. Check `details[].field`, then correct that value in the same PATCH or through the browser before retrying.
+- Draft PATCH validates merged non-media values and submitted media. Publishing or updating a published product also checks required fields and stored custom media.
+- For `422 validation_failed`, follow field hints in `details` when present; otherwise check the error message and request parameters.
 - Validation or transaction failure before commit rolls back fields and asset associations together. There is no partial update or removal of unrelated fields.
 - A committed update can still fail to return its response. Follow [write outcomes and recovery](./product-library-write-conventions#write-outcomes-and-audit-durability); a failed response alone does not establish a rollback.
 
@@ -145,7 +145,7 @@ Every service-issued link is also bounded by the API key's expiry. Fetch product
 <details id="product-media-fields">
 <summary>Which fields do covers, images, and related assets return?</summary>
 
-`cover` is one media object, or null when there is no cover. `images`, `relatedAssets`, and custom image/file values are arrays of media objects.
+`cover` is one media object, or null when there is no cover. `images` and `relatedAssets` are arrays of media objects. Custom image/file values may be arrays or null; unset fields may be omitted.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -195,11 +195,11 @@ Shares show current product content; unpublished or deleted products are hidden.
 
 ### Download originals
 
-1. Call `GET /products/{id}/download-assets` for candidate `assetKey` and `downloadable` values. This step returns no media URLs and creates no download record.
-2. Call `POST /product-downloads` with `kind: "assets"` and `productIds`. Select files with `assetKeys`, or omit it to select all originals.
+1. Call `GET /products/{id}/download-assets` for candidate `key` and `downloadable` values. This step returns no media URLs and creates no download record.
+2. Call `POST /product-downloads` with `kind: "assets"` and `productIds`. Pass candidate `key` values in `assetKeys` to select files, or omit it to select all originals.
 3. One file returns the original attachment; multiple files return a ZIP. Missing originals remain unavailable.
 
-For one file, you can also call `GET /products/{id}/download-assets/{assetKey}`. Encode the candidate key as a path segment; it is not an asset ID. Every retrieval checks current permission.
+For one file, you can also call `GET /products/{id}/download-assets/{assetKey}`. Encode the candidate `key` as the `assetKey` path parameter; it is not an asset ID. Every retrieval checks current permission.
 
 ### Export product tables
 

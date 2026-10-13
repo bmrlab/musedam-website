@@ -216,7 +216,7 @@ Response example:
 
 **Method**: GET
 
-**Description**: Returns public metadata ordered by sortOrder then id. Raw logo URLs are excluded. Returns the current strong ETag.
+**Description**: Returns the specified brand’s public metadata and current strong ETag. Raw logo URLs are excluded.
 
 Required role: view_only, usable, editable or manage.
 
@@ -371,12 +371,12 @@ Response example:
     "id": 10,
     "name": "Example brand",
     "code": "example-code",
-    "description": null,
+    "description": "Updated by API",
     "website": null,
     "sortOrder": 0,
     "isEnabled": true,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+    "updatedAt": "2026-10-08T10:05:00.000Z"
   },
   "code": null,
   "message": null,
@@ -543,7 +543,7 @@ Response example:
       "brandId": 10,
       "parentId": null,
       "name": "Catalog",
-      "pathKey": "20",
+      "pathKey": "/Catalog",
       "description": null,
       "iconEmoji": null,
       "iconAssetId": null,
@@ -661,7 +661,7 @@ Response example:
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
+    "pathKey": "/Catalog",
     "description": null,
     "iconEmoji": null,
     "iconAssetId": null,
@@ -684,7 +684,7 @@ Response example:
 
 **Method**: GET
 
-**Description**: Returns a flat live tree ordered by brandId, parentId, sortOrder and id. Optional brand filter; no implicit subtree expansion. Returns the current strong ETag.
+**Description**: Returns the specified nondeleted category and current strong ETag. A missing category or one outside the current library returns 404.
 
 Required role: view_only, usable, editable or manage.
 
@@ -747,7 +747,7 @@ Response example:
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
+    "pathKey": "/Catalog",
     "description": null,
     "iconEmoji": null,
     "iconAssetId": null,
@@ -855,14 +855,14 @@ Response example:
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
-    "description": null,
+    "pathKey": "/Catalog",
+    "description": "Updated by API",
     "iconEmoji": null,
     "iconAssetId": null,
     "sortOrder": 0,
     "isEnabled": true,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+    "updatedAt": "2026-10-08T10:05:00.000Z"
   },
   "code": null,
   "message": null,
@@ -1041,13 +1041,49 @@ Response example:
           "sortOrder": 0,
           "fields": [
             {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
               "id": "field_color",
               "key": "color",
               "name": "Color",
               "type": "text",
               "required": false,
               "placeholder": null,
-              "sortOrder": 0,
+              "sortOrder": 3,
               "isSystemField": false,
               "systemKey": null,
               "config": {}
@@ -1077,7 +1113,7 @@ Response example:
 
 **Method**: POST
 
-**Description**: Creates a template and immutable version through the same batch business operation as the browser. newOnly is mandatory; at most 200 fields. No existing products are changed.
+**Description**: Creates a template and an immutable version. syncStrategy is optional and only newOnly is supported. Allows at most 200 fields and leaves existing products unchanged.
 
 Required role: manage.
 
@@ -1192,13 +1228,49 @@ Response example:
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1221,7 +1293,7 @@ Response example:
 
 **Method**: GET
 
-**Description**: Returns live template metadata, bindings and ordered groups/fields, including preview-only configuration. Ordered by createdAt descending then id. ETag represents the current item. Template ETags include the full live field/group/binding set and default designation.
+**Description**: Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending. The current strong ETag covers live fields, groups, bindings, and the default designation.
 
 Required role: view_only, usable, editable or manage.
 
@@ -1269,7 +1341,7 @@ Request example:
 
 ```bash
 curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key'
 ```
 
@@ -1297,13 +1369,49 @@ Response example:
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1395,7 +1503,7 @@ Request example:
 
 ```bash
 curl --request PATCH \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -1411,12 +1519,12 @@ Response example:
   "data": {
     "id": "template_example",
     "name": "Example template",
-    "description": null,
+    "description": "Updated by API",
     "enabled": true,
     "isSystemDefault": false,
     "isLibraryDefault": false,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:05:00.000Z",
     "boundBrandIds": [],
     "boundCategoryIds": [],
     "groups": [
@@ -1427,13 +1535,49 @@ Response example:
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1508,7 +1652,7 @@ Request example:
 
 ```bash
 curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -3626,7 +3770,7 @@ JSON endpoints use the following structure. Successful downloads and exports ret
 | --- | --- |
 | Success | `success: true`; read the result from `data`. `code` and `message` are `null`. |
 | Failure | `success: false` and `data: null`. Handle the HTTP status and `code`; do not depend on the wording of `message`. |
-| Validation failure | Check `details[].field` and `details[].message` for the fields to correct. |
+| Validation failure | If the response includes `details`, use `details[].field` and `details[].message` to correct the fields. |
 | Request tracing | Keep `requestId` or the `X-Request-Id` response header for troubleshooting. |
 
 Ordinary lists accept `page` and `pageSize` and return a top-level `pagination` object:

@@ -33,9 +33,18 @@ omit filters, page size, and `updatedAfter`; the saved values apply. If repeated
 they must match the original cycle (equivalent RFC 3339 offsets are accepted for
 the lower bound). Changing any of them, using a cursor with another API key or
 role, malformed cursor data, duplicate sync parameters, or supplying `page`
-returns `422 validation_failed`. Restart the cycle after changing keys or roles.
+returns `422 validation_failed`.
 `cursor` and `updatedAfter` require `sync=true`; unsupported sync values are also
 rejected. `sync=false` uses the ordinary browsing list.
+
+<details>
+<summary>What changes when a key, role, or filter changes?</summary>
+
+- Discard the old `cursor` and start a new cycle.
+- If permissions or filters expand the synchronization scope, or the library changes, omit `updatedAfter` and perform a full synchronization. Reconcile the local copy so older products that were previously excluded are not missed.
+- When only replacing a key with equivalent access to the same library, role, and filters, reuse the last completed cycle's `syncedUntil`; a full synchronization is not required.
+
+</details>
 
 `updatedAfter` accepts RFC 3339 timestamps with a timezone (`Z` or numeric offset)
 and zero to six fractional digits. Invalid calendar dates, invalid offsets,
@@ -48,7 +57,9 @@ storage; JavaScript Date cannot retain their full precision.
 
 Each cycle reads `[updatedAfter, syncedUntil)`, ordered by `updatedAt` and then `id`, both ascending. The lower bound is inclusive and the upper bound exclusive. An update exactly at `syncedUntil` belongs to the next cycle. The first page sets the upper bound to the server time minus 30 seconds; every later page uses the same bound.
 
-The 30-second window excludes recent updates that have not yet committed. Transactions lasting longer than this window can still affect synchronization completeness. Synchronization uses at-least-once delivery: products updated again during a cycle may appear on later pages more than once. Merge by ID and update time, and retry a failed page with its original cursor.
+The 30-second window excludes recent updates that have not yet committed. Transactions lasting longer than this window can still affect synchronization completeness.
+
+Synchronization reads the current product state; it does not provide a record of every historical change. Products may be returned more than once. Merge by ID and update time, and retry a failed page with its original cursor.
 
 Sync timestamps retain microsecond precision. Each response rechecks key permissions and current product visibility. Deleted or newly invisible products are omitted without failing the whole page, and the cursor still advances. Deleting products from earlier pages does not cause later products to be skipped.
 
@@ -78,3 +89,12 @@ after each completed cycle. Invalid bodies, noninteger IDs, unknown body fields,
 and batches over 100 return `422 validation_failed`.
 
 When an ID is `not_visible`, remove the corresponding product from local storage.
+
+<details>
+<summary>How do I reconcile a copy filtered by brand or category?</summary>
+
+`visibility` checks whether a product is still accessible, not whether it matches `search`, `brandId`, `categoryId`, or `status`. A product that leaves the filtered result can still be `visible`.
+
+To maintain a filtered copy, synchronize all products visible to the key and filter them locally. Alternatively, periodically read the complete filtered result and reconcile it with the local copy, removing products that no longer match.
+
+</details>

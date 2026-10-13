@@ -216,7 +216,7 @@ curl --request POST \
 
 **請求方式**：GET
 
-**接口描述**：返回公開元數據，按 sortOrder 再按 id 排序。不包含原始 logo URL。返回當前的強 ETag。
+**接口描述**：回傳指定品牌的公開元資料及目前的強 ETag，不包含原始 logo URL。
 
 所需角色：view_only、usable、editable 或 manage。
 
@@ -371,12 +371,12 @@ curl --request PATCH \
     "id": 10,
     "name": "Example brand",
     "code": "example-code",
-    "description": null,
+    "description": "Updated by API",
     "website": null,
     "sortOrder": 0,
     "isEnabled": true,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+    "updatedAt": "2026-10-08T10:05:00.000Z"
   },
   "code": null,
   "message": null,
@@ -543,7 +543,7 @@ curl --request GET \
       "brandId": 10,
       "parentId": null,
       "name": "Catalog",
-      "pathKey": "20",
+      "pathKey": "/Catalog",
       "description": null,
       "iconEmoji": null,
       "iconAssetId": null,
@@ -661,7 +661,7 @@ curl --request POST \
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
+    "pathKey": "/Catalog",
     "description": null,
     "iconEmoji": null,
     "iconAssetId": null,
@@ -684,7 +684,7 @@ curl --request POST \
 
 **請求方式**：GET
 
-**接口描述**：返回扁平的有效分類樹，按 brandId、parentId、sortOrder 和 id 排序。可選按品牌篩選；不會隱式展開子樹。返回當前的強 ETag。
+**接口描述**：回傳指定未刪除分類及目前的強 ETag；分類不存在或不屬於目前商品庫時回傳 404。
 
 所需角色：view_only、usable、editable 或 manage。
 
@@ -747,7 +747,7 @@ curl --request GET \
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
+    "pathKey": "/Catalog",
     "description": null,
     "iconEmoji": null,
     "iconAssetId": null,
@@ -855,14 +855,14 @@ curl --request PATCH \
     "brandId": 10,
     "parentId": null,
     "name": "Catalog",
-    "pathKey": "20",
-    "description": null,
+    "pathKey": "/Catalog",
+    "description": "Updated by API",
     "iconEmoji": null,
     "iconAssetId": null,
     "sortOrder": 0,
     "isEnabled": true,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+    "updatedAt": "2026-10-08T10:05:00.000Z"
   },
   "code": null,
   "message": null,
@@ -1041,13 +1041,49 @@ curl --request GET \
           "sortOrder": 0,
           "fields": [
             {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
               "id": "field_color",
               "key": "color",
               "name": "Color",
               "type": "text",
               "required": false,
               "placeholder": null,
-              "sortOrder": 0,
+              "sortOrder": 3,
               "isSystemField": false,
               "systemKey": null,
               "config": {}
@@ -1077,7 +1113,7 @@ curl --request GET \
 
 **請求方式**：POST
 
-**接口描述**：通過與瀏覽器端相同的批量業務操作創建模板及不可變版本。newOnly 為必填；最多 200 個字段。不會更改任何現有商品。
+**接口描述**：建立模板及不可變版本。syncStrategy 可省略，目前僅支援 newOnly；最多 200 個欄位，不會變更任何既有商品。
 
 所需角色：manage。
 
@@ -1192,13 +1228,49 @@ curl --request POST \
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1221,7 +1293,7 @@ curl --request POST \
 
 **請求方式**：GET
 
-**接口描述**：返回有效模板的元數據、綁定以及有序的分組/字段，包括僅預覽配置。按 createdAt 降序再按 id 排序。ETag 代表當前條目。模板 ETag 涵蓋完整的有效字段/分組/綁定集合以及默認模板標記。
+**接口描述**：回傳指定未刪除模板的元資料、綁定及分組／欄位，包括僅供預覽的設定。分組和欄位按 sortOrder、id 升序排列。回應包含目前的強 ETag，涵蓋有效欄位、分組、綁定集合及預設模板標記。
 
 所需角色：view_only、usable、editable 或 manage。
 
@@ -1269,7 +1341,7 @@ curl --request POST \
 
 ```bash
 curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key'
 ```
 
@@ -1297,13 +1369,49 @@ curl --request GET \
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1395,7 +1503,7 @@ curl --request GET \
 
 ```bash
 curl --request PATCH \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -1411,12 +1519,12 @@ curl --request PATCH \
   "data": {
     "id": "template_example",
     "name": "Example template",
-    "description": null,
+    "description": "Updated by API",
     "enabled": true,
     "isSystemDefault": false,
     "isLibraryDefault": false,
     "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:05:00.000Z",
     "boundBrandIds": [],
     "boundCategoryIds": [],
     "groups": [
@@ -1427,13 +1535,49 @@ curl --request PATCH \
         "sortOrder": 0,
         "fields": [
           {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
             "id": "field_color",
             "key": "color",
             "name": "Color",
             "type": "text",
             "required": false,
             "placeholder": null,
-            "sortOrder": 0,
+            "sortOrder": 3,
             "isSystemField": false,
             "systemKey": null,
             "config": {}
@@ -1508,7 +1652,7 @@ curl --request PATCH \
 
 ```bash
 curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -3626,7 +3770,7 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 | --- | --- |
 | 操作成功 | `success: true`，從 `data` 讀取結果；`code`、`message` 為 `null`。 |
 | 操作失敗 | `success: false`，`data: null`；依 HTTP 狀態碼和 `code` 處理，不依賴 `message` 的文案。 |
-| 參數驗證失敗 | 從 `details[].field` 和 `details[].message` 找到需要修正的欄位。 |
+| 參數驗證失敗 | 若回應包含 `details`，可依 `details[].field` 和 `details[].message` 修正欄位。 |
 | 請求追蹤 | 保留 `requestId` 或回應標頭 `X-Request-Id`，用於排查問題。 |
 
 一般列表使用 `page` 和 `pageSize`，在回應頂層回傳 `pagination`：

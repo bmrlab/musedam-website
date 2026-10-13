@@ -95,8 +95,11 @@ banner, rate-limit policy or credential instructions to these pages.
 
 The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
-the source snapshot; only the server URL and description are adapted for the public
-gateway. The reference includes all operations and links to concise field tables
+the source implementation. Descriptions and examples from the source contract have
+been corrected against that implementation, including item reads, template system
+fields, category paths, nullable custom media and mutation results. The API shapes
+are unchanged, and the server URL is adapted for the public gateway. The reference
+includes all operations and links to concise field tables
 in the relevant guides. Full schemas and shared response, header and parameter
 definitions remain in the downloadable contract; do not render these raw OpenAPI
 components or appendices on the documentation page.
@@ -115,9 +118,11 @@ temporary files, command-line JSON processors, or test assertions to read an exa
 
 When refreshing these documents:
 
-1. Compare source routes and the OpenAPI contract, then refresh the public JSON and
-   all three reference pages. Keep schema identifiers, fields, enums and code
-   samples unchanged across locales.
+1. Compare source routes, validators and response serializers with the OpenAPI
+   contract, then refresh the public JSON and all three reference pages. Resolve
+   conflicting descriptions and examples against the implementation; do not
+   reintroduce the source contract's known documentation errors. Keep schema
+   identifiers, fields, enums and code samples unchanged across locales.
 2. Update the localized MDX, matching `pages*.json` Markdown and heading metadata,
    and `updatedAt` together. Preserve the explicit anchors in copied Markdown so
    cross-document links keep working outside the rendered site.
