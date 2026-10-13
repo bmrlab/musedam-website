@@ -554,6 +554,9 @@
   border: 1px solid var(--dev-line);
   border-radius: 8px;
 }
+.dev-prose details + details {
+  margin-top: 12px;
+}
 .dev-prose summary {
   cursor: pointer;
   font-weight: 500;
