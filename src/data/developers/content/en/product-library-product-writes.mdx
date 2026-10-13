@@ -1,0 +1,89 @@
+`POST /api/product/products` requires `products:create` and returns `201`.
+`PATCH /api/product/products/{id}` requires `products:update` and returns `200`.
+Both return the product detail DTO in the standard envelope and a strong `ETag`.
+PATCH accepts optional `If-Match`; stale validators return `412 precondition_failed`.
+POST accepts optional `Idempotency-Key` with the shared 24-hour, team/key/operation scope.
+
+The body accepts these properties only:
+
+| Property                | Value                                 | Create default / PATCH behavior                                                                           |
+| ----------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `name`                  | String, at most 255 characters        | Empty draft name / preserve omitted                                                                       |
+| `spu`                   | String up to 64 characters, or null   | Null; whitespace trims to null / preserve omitted                                                         |
+| `description`           | String or null                        | Null / explicit null clears                                                                               |
+| `brandId`, `categoryId` | Positive integer or null              | Null / preserve omitted; resulting category must belong to resulting brand                                |
+| `ownerUserId`           | Same-team member ID or null           | No owner / preserve omitted; explicit null clears                                                         |
+| `templateId`            | Live same-library template ID or null | Select this template; null/omitted uses the resolution rules below. Rejected in PATCH    |
+| `templateFields`        | Object keyed by custom field ID       | Empty / shallow merge; null values clear individual fields                                                |
+| `coverAssetId`          | Library Asset ID or null              | No explicit cover / null clears the cover                                                                 |
+| `imageAssetIds`         | Array of Library Asset IDs            | Empty / omitted preserves images; empty clears; first image becomes cover unless coverAssetId is supplied |
+| `relatedAssetIds`       | Array of Library Asset IDs            | Empty / omitted preserves associations, including legacy links; empty clears                              |
+
+An explicit live `templateId` takes precedence on creation. When it is omitted
+or null, supplying a non-null `categoryId` enables the category/ancestor
+binding, then that category's brand binding, then the library default. When
+`categoryId` is omitted or null, only the library default is considered, even if
+`brandId` is supplied. If no template resolves, the product has no template.
+
+Creation always produces a draft. Status and templateVersionId are not body properties.
+PATCH on a published product additionally requires `products:publish`, preserves
+publication, and validates the complete resulting product. Validation or transaction failure before commit rolls back scalar changes and media associations together. A committed mutation may still fail to return its response; follow [write recovery](./product-library-write-conventions#write-outcomes-and-audit-durability).
+
+Required fields may be absent in drafts. Submitted and merged values must still
+have valid types and enum options. Date and date-range values must contain real
+calendar dates, including valid leap days; date ranges must be ordered. Existing
+datetime and timezone forms remain supported. Image/file custom fields accept arrays of
+Library Asset IDs or null and respect the pinned field's count, size, and accepted
+type configuration. A request can contain at most 100 total asset references,
+including cover, images, related assets, and custom fields. It cannot upload,
+download, or synchronize assets. Image slots require image assets.
+
+Custom values use the existing product's pinned immutable definition, including
+after template edits or soft deletion. Missing or mismatched pins fail with a
+generic internal error. New products pin the newest version of the selected or
+resolved template. PATCH cannot migrate templates.
+
+`PATCH /api/product/products/{id}/status` accepts only
+`{"status":"draft"}` or `{"status":"published"}` and always requires both
+`products:update` and `products:publish`, even when the requested status equals
+the current status. It returns the product detail DTO and a new strong ETag.
+`If-Match` is optional; a stale validator returns `412` without changing the row.
+Publishing validates the complete pinned definition, including required system
+and custom fields, custom types/options, and stored image/file availability and
+configuration limits. Missing fields return `422` with field details. By default,
+name, SKU, and cover are required; the pinned template can override system-field
+requirements. First publication sets `publishedAt`; repeated publication preserves
+it. Returning to draft clears `publishedAt` and allows later incomplete draft edits.
+
+`DELETE /api/product/products/{id}` requires `products:delete`; published products
+additionally require `products:publish`. It soft-deletes the row and returns `200`
+with `data: {"id": 123}` and a new strong ETag. Optional `If-Match` uses the same
+validator rules. A repeated deletion returns `404`.
+
+Validation failures return `422 validation_failed` with optional `details` entries
+containing `field` and `message`. Foreign/deleted/invalid references are validation
+errors. Duplicate SKUs, including soft-deleted products, return `409 sku_in_use`.
+Foreign, deleted, or missing product IDs return `404`. API creator/updater
+attribution is independent of human ownership; the key's creator is never made
+the Product Owner automatically.
+
+An idempotency replay preserves the original non-media fields and original ETag.
+It stores original media IDs, never storage URLs or signatures. Replay media is
+restricted to those original IDs still present in the same current association
+slots; newer associations do not enter the original result. Current key grants,
+product visibility, and file validity are checked again. Download properties still
+require both product-read and product-download grants. Deleted/invisible products
+cannot be resurrected through a stored result.
+
+Nested media in structured custom values follows the same projection rules.
+Snapshots capture authorized file/object IDs and omit asset snapshots and storage
+credentials; responses project those references again. Replay preserves original
+business text and link values, while removing nested media no longer associated
+with that custom field. Scalar text and URL fields remain ordinary business data.
+
+PATCH and publication validate the entire resulting product against its pinned
+definition. A legacy browser value such as an invalid URL or email can therefore
+reject an unrelated API edit with `422 validation_failed`; `details[].field`
+identifies the stored field ID. No partial edit or publication occurs. Correct
+that value in the same PATCH (or through the browser) before retrying. The API
+does not silently grandfather invalid stored values or discard unrelated fields.

@@ -1,0 +1,35 @@
+## 寫入前置條件
+
+所有路徑使用 Base URL `https://open.musedam.cc/api/product`。每個操作的權限由當前 API Key 協作者角色決定。在請求中提供團隊、商品庫、操作者或操作白名單，不能增加權限。
+
+更新前先讀取資源並保存強 `ETag`，在 PATCH、狀態變更或 DELETE 時通過 `If-Match` 原樣發送。過期或弱標籤返回 `412 precondition_failed`，不會修改資源。`*` 或包含當前強標籤的逗號分隔列表同樣視為匹配。省略該請求頭時，後一次寫入覆蓋前一次。分享、歷史和有記錄的下載不使用 ETag 或 If-Match。
+
+## 原子創建重放
+
+資源創建接受可選的 `Idempotency-Key`，按團隊、API key 和操作划定作用域，保留 24 小時。值不能為空白，最多 255 個字符，不得包含 ASCII 控制字符。創建結果不確定時，請使用相同冪等鍵和輸入重試。同一鍵對應的規範化輸入不同，返回 `409 idempotency_key_reused`。
+
+重放保留首次成功的非媒體結果和 ETag，即使資源之後已被修改。媒體 URL 會在重新檢查當前權限、可見性和關聯關係後簽發。不能通過重放恢復已刪除或不可見的商品，新增的素材關聯也不會進入首次結果。新的邏輯操作才使用新的冪等鍵。
+
+## 部分更新
+
+省略的字段保留原值，顯式 `null` 僅清空允許為空的字段。商品 `templateFields` 按自定義字段 ID 淺合併，null 清空對應值。模板 `groups` 一旦提供即替換完整定義，必須保留現有分組和字段 ID，包括受保護的系統字段。未知 JSON 屬性會被拒絕。
+
+## 品牌
+
+品牌寫入需要 `manage` API Key 協作者。創建接受 `name`、`description` 和 `logoUrl`，PATCH 接受其中的非空子集。名稱去除首尾空白後不能為空，最多 128 個字符；描述可為 null，最多 512 個字符。Logo 引用必須使用允許的存儲/CDN 主機及不含內嵌憑據的 HTTP(S) 地址，查詢簽名在存儲前移除。寫入不會上傳或遠程導入素材。
+
+品牌響應省略 `logoUrl`，返回 `id`、`name`、`code`、`description`、`website`、`sortOrder`、`isEnabled`、`createdAt` 和 `updatedAt`。名稱不要求唯一；商品庫內唯一的編碼由服務端生成，客戶端不能設置。編碼衝突重試耗盡時返回 `409 code_in_use`。
+
+仍有未刪除的分類或商品引用品牌時，刪除返回 `409 brand_has_dependents`。請先調整或移除依賴。
+
+## 寫入結果與恢復
+
+已回滾的鎖衝突返回 `503 write_conflict` 和 `Retry-After: 1`。等待後重試，創建操作保留相同冪等鍵，並按需刷新過期的前置條件。
+
+變更已提交但響應無法準備時，返回 `409 mutation_response_unavailable`、`success: false`、`data: null`，以及 `mutationOutcome: committed`（重放時為 `replayed`）。不會返回 ETag 或媒體 URL。此時變更沒有回滾，請通過有權限的讀取或原始冪等鍵核對，避免盲目重復操作。
+
+已接受的下載和導出可能返回具體的準備或交付錯誤，並附帶 `mutationOutcome`。重試該操作時保留原始冪等鍵。`requested` 只表示已接受，不表示傳輸完成或本地文件已保存。
+
+## 排查錯誤
+
+`401` 或 `403` 應修正 API key 或協作者角色；`422` 應檢查 `details[].field` 並修正輸入。保留 `X-Request-Id` 或 JSON 中的 `requestId` 以便排查，不記錄密鑰和簽名媒體 URL。參見[錯誤目錄](./product-library#error-catalog)和[接口參考](./product-library-reference)。

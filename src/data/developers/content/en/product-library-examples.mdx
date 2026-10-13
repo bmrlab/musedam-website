@@ -1,0 +1,361 @@
+These Bash examples require `curl` and `jq`. Use a test product library or test data and an appropriately scoped key. Requests to the public Base URL affect the real library authorized for that key. The setup workflow creates real resources in that
+key's library; the later lifecycle examples update/delete those resources.
+Endpoint names, bodies and output paths match [openapi.json](/assets/developers/product-library/openapi.json).
+The examples are schema-validated documentation, not evidence of live HTTP runs.
+
+## Configure credentials
+
+Set these variables in your shell, using your deployment origin and a key from
+MuseDAM with an explicit API Key Collaborator grant. Never commit or print the secret. Do not enable shell
+tracing while running requests.
+
+```bash
+export BASE_URL='https://open.musedam.cc/api/product'
+# PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+
+api() {
+  curl --silent --show-error --fail-with-body \
+    -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+    -H 'Content-Type: application/json' "$@"
+}
+header_etag() {
+  awk 'tolower($1) == "etag:" {sub(/\r$/, ""); print $2}' "$1"
+}
+RUN_ID="$(date +%s)-$$"
+WORK_DIR="$(mktemp -d)"
+```
+
+The full setup below uses a `manage` API Key Collaborator. All operation
+capabilities derive from the assigned role, without an editable allowlist.
+A production integration should receive the least privileged suitable role.
+All responses include `X-Request-Id` and private,
+no-store caching headers, including failures. JSON envelopes also include `requestId`.
+
+## Create a brand, category, and template
+
+Requires `brands:create`, `categories:create`, and `templates:create` under
+`manage`. The idempotency keys below are stable for retries within this run.
+
+```bash
+jq -n --arg name "API brand $RUN_ID" '{name:$name}' > "$WORK_DIR/brand.json"
+api -X POST "$BASE_URL/brands" -H "Idempotency-Key: brand-$RUN_ID" \
+  --data-binary @"$WORK_DIR/brand.json" > "$WORK_DIR/brand-response.json"
+BRAND_ID="$(jq -er '.data.id' "$WORK_DIR/brand-response.json")"
+
+jq -n --argjson brand "$BRAND_ID" '{brandId:$brand,name:"Catalog"}' \
+  > "$WORK_DIR/category.json"
+api -X POST "$BASE_URL/categories" -H "Idempotency-Key: category-$RUN_ID" \
+  --data-binary @"$WORK_DIR/category.json" > "$WORK_DIR/category-response.json"
+CATEGORY_ID="$(jq -er '.data.id' "$WORK_DIR/category-response.json")"
+
+jq -n --arg name "API $RUN_ID" '{name:$name,groups:[{name:"Details",fields:[
+  {key:"color",name:"Color",type:"text",required:false,config:{}}
+]}],syncStrategy:"newOnly"}' > "$WORK_DIR/template.json"
+api -X POST "$BASE_URL/product-info-templates" \
+  -H "Idempotency-Key: template-$RUN_ID" --data-binary @"$WORK_DIR/template.json" \
+  > "$WORK_DIR/template-response.json"
+TEMPLATE_ID="$(jq -er '.data.id' "$WORK_DIR/template-response.json")"
+FIELD_ID="$(jq -er '.data.groups[].fields[] | select(.key == "color") | .id' \
+  "$WORK_DIR/template-response.json")"
+```
+
+Brand responses omit `logoUrl`, even if submitted. Category `iconAssetId` is a
+CategoryIconAsset identifier and cannot be populated with a FilePath ID.
+Template/group/field IDs are opaque strings. Use `FIELD_ID`, not the key `color`,
+when writing a product value.
+
+## Find and reference an existing asset
+
+Asset lookup requires `products:create` **or** `products:update`, with an
+`editable`/`manage` role. It always returns preview-only media, regardless of a
+download grant. This example requires an existing image uploaded through the
+normal library UI; v1 does not upload files.
+
+```bash
+api --get "$BASE_URL/assets" --data-urlencode 'mimeType=image/' \
+  --data-urlencode 'pageSize=20' > "$WORK_DIR/assets.json"
+ASSET_ID="$(jq -er '.data[0].id // error("Upload an image in the library first")' \
+  "$WORK_DIR/assets.json")"
+api "$BASE_URL/assets/$ASSET_ID" | jq '.data'
+```
+
+Use the returned `id` (FilePath ID). `size` is a decimal string or null; preserve
+it as a string if your numeric type cannot represent the value exactly. A null
+`previewUrl` is a valid unavailable-preview response. Asset detail includes a
+strong `ETag` for persistent file/object metadata; temporary signature changes
+do not change the tag.
+
+## Create and safely retry a product
+
+Requires `products:create`. Creation always returns draft and pins a version
+when a template resolves. An explicit live template takes precedence. When
+`templateId` is omitted or null, supplying a non-null `categoryId` enables the
+category/ancestor binding, then its brand binding, then the library default.
+When `categoryId` is omitted or null, only the library default is considered,
+even when `brandId` is supplied. If no template resolves, the product has no
+template. No owner is inferred from the key creator.
+
+```bash
+jq -n --arg name "API product $RUN_ID" --arg spu "API-$RUN_ID" \
+  --arg template "$TEMPLATE_ID" --arg field "$FIELD_ID" \
+  --argjson brand "$BRAND_ID" --argjson category "$CATEGORY_ID" \
+  --argjson asset "$ASSET_ID" \
+  '{name:$name,spu:$spu,brandId:$brand,categoryId:$category,
+    templateId:$template,templateFields:{($field):"Blue"},
+    coverAssetId:$asset,imageAssetIds:[$asset],relatedAssetIds:[]}' \
+  > "$WORK_DIR/product.json"
+api -D "$WORK_DIR/product.headers" -X POST "$BASE_URL/products" \
+  -H "Idempotency-Key: product-$RUN_ID" --data-binary @"$WORK_DIR/product.json" \
+  > "$WORK_DIR/product-response.json"
+PRODUCT_ID="$(jq -er '.data.id' "$WORK_DIR/product-response.json")"
+PINNED_VERSION="$(jq -er '.data.templateVersionId' "$WORK_DIR/product-response.json")"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+
+# Retrying the same payload/key within 24 hours returns 201 with the same ID.
+api -X POST "$BASE_URL/products" -H "Idempotency-Key: product-$RUN_ID" \
+  --data-binary @"$WORK_DIR/product.json" | jq '.data.id'
+```
+
+The replay preserves original scalar data and ETag. Media is reprojected under
+current grants using only original IDs still valid in the same current slots.
+Do not expect old URLs or removed attachments to reappear. Reusing the key with
+a different canonical body returns `409 idempotency_key_reused`.
+
+## Partially update, clear fields, and publish
+
+Requires `products:update`; published products additionally need
+`products:publish`. Omitted scalar fields remain unchanged, `templateFields`
+shallow-merges, explicit null clears one custom/nullable field, and `[]` clears
+a media list. Do not send `templateId`, `templateVersionId`, or `status` to PATCH.
+
+```bash
+jq -n --arg field "$FIELD_ID" \
+  '{description:null,templateFields:{($field):"Navy"},relatedAssetIds:[]}' \
+  > "$WORK_DIR/patch.json"
+api -D "$WORK_DIR/product.headers" -X PATCH "$BASE_URL/products/$PRODUCT_ID" \
+  -H "If-Match: $ETAG" --data-binary @"$WORK_DIR/patch.json" \
+  > "$WORK_DIR/updated.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+
+# Both update AND publish are required, including when changing back to draft.
+api -D "$WORK_DIR/product.headers" -X PATCH \
+  "$BASE_URL/products/$PRODUCT_ID/status" -H "If-Match: $ETAG" \
+  --data '{"status":"published"}' > "$WORK_DIR/published.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+jq '.data | {status,publishedAt,templateVersionId}' "$WORK_DIR/published.json"
+```
+
+Publishing validates all required pinned fields and current media. A 422 leaves
+the product untouched. Repeated publication keeps `publishedAt`; changing to
+`draft` clears it. The normal PATCH route keeps a published product published
+and validates the complete resulting state. It never implicitly demotes it.
+
+## Render previews and optionally download
+
+Requires `products:read`. The published product is accessible to `view_only` and
+`usable` keys as well; those roles cannot read drafts. Pin data requires no
+`templates:read` grant.
+
+```bash
+api "$BASE_URL/products/$PRODUCT_ID" > "$WORK_DIR/detail.json"
+jq '.data | {cover,images,relatedAssets,templateDefinition,templateFields}' \
+  "$WORK_DIR/detail.json"
+
+# Download only if the authorized property exists and contains a URL.
+DOWNLOAD_URL="$(jq -r '.data.cover.downloadUrl // empty' "$WORK_DIR/detail.json")"
+if [ -n "$DOWNLOAD_URL" ]; then
+  curl --silent --show-error --fail --output "$WORK_DIR/original" "$DOWNLOAD_URL"
+fi
+```
+
+An image preview may use a short-lived original fallback without granting
+original downloads. Non-image previews never fall back to their original.
+Without read+download permission, the `downloadUrl` and `downloadUrlExpiresAt`
+properties are absent; authorized unavailable originals may have null values.
+Do not assume these optional properties exist. Stored external previews with
+unverifiable expiry return null for a finite-expiry key. Eligible third-party
+previews for keys without expiry remain provider-controlled; their lifetime is
+not guaranteed by this service. Direct storage downloads shown above do not
+create business download records; use the recorded operations below when needed.
+
+## Share, export, and download with records
+
+Share creation needs `products:read` and `products:share`; enabling share downloads
+also needs `products:download`. Download metadata and attachments need read and
+download under `usable` or higher. The last three calls additionally require
+`manage`: the lists need `products:history`, and revocation needs `products:share`.
+The product must be published when creating its share.
+
+```bash
+jq -n --argjson id "$PRODUCT_ID" \
+  '{productIds:[$id],expiresInDays:7,allowDownload:false}' \
+  > "$WORK_DIR/share.json"
+api -X POST "$BASE_URL/product-shares" -H "Idempotency-Key: share-$RUN_ID" \
+  --data-binary @"$WORK_DIR/share.json" > "$WORK_DIR/share-response.json"
+SHARE_ID="$(jq -er '.data.id' "$WORK_DIR/share-response.json")"
+jq '.data | {id,url,expiresAt,allowDownload}' "$WORK_DIR/share-response.json"
+
+api "$BASE_URL/products/$PRODUCT_ID/download-assets" > "$WORK_DIR/candidates.json"
+ASSET_KEY="$(jq -r '[.data[] | select(.downloadable)][0].key // empty' "$WORK_DIR/candidates.json")"
+if [ -n "$ASSET_KEY" ]; then
+  ENCODED_ASSET_KEY="$(jq -rn --arg key "$ASSET_KEY" '$key | @uri')"
+  api -D "$WORK_DIR/download.headers" \
+    -H "Idempotency-Key: original-$RUN_ID" \
+    --output "$WORK_DIR/original" \
+    "$BASE_URL/products/$PRODUCT_ID/download-assets/$ENCODED_ASSET_KEY"
+fi
+
+jq -n --argjson id "$PRODUCT_ID" \
+  '{kind:"export",productIds:[$id],format:"xlsx",includeAssetUrls:true,locale:"en-US"}' \
+  > "$WORK_DIR/export.json"
+api -D "$WORK_DIR/export.headers" -X POST "$BASE_URL/product-downloads" \
+  -H "Idempotency-Key: export-$RUN_ID" --data-binary @"$WORK_DIR/export.json" \
+  --output "$WORK_DIR/products.xlsx"
+
+api "$BASE_URL/product-shares?productId=$PRODUCT_ID&page=1&pageSize=20" | jq '{data,pagination}'
+api "$BASE_URL/product-downloads?productId=$PRODUCT_ID&page=1&pageSize=20" | jq '{data,pagination}'
+api -X DELETE "$BASE_URL/product-shares/$SHARE_ID" | jq '.data'
+```
+
+Retain each operation's body and `Idempotency-Key` for retries within 24 hours;
+matching download retries reuse `X-Download-Record-Id` but transfer current content
+after current authorization. New keys, omitted keys, or expired retention create
+new operations. `X-Idempotency-Replayed: true` identifies record reuse. A record
+proves acceptance, not local-save completion; failed status is not reset by retry.
+
+For multiple originals, POST `kind: "assets"`, `productIds` and optional
+`assetKeys` to `/product-downloads`; omitting keys selects all originals. The
+candidate list returns selection metadata only, not URLs or a download record.
+Exports default to `xlsx`, `includeAssetUrls: true` and `locale: "zh-CN"`.
+Exported links require Bearer authentication on the configured API origin;
+a spreadsheet click alone cannot send it. No API secret is included in the link.
+Read `Content-Disposition` and save the attachment instead of parsing a success
+envelope. Even a JSON export is an attachment of business-table rows.
+
+History includes all actors and keys in the current team. A product filter
+returns each complete operation, including other products/files; omit it to list
+all team records. Share key attribution survives key lifecycle changes, which do
+not revoke issued shares. Explicit share expiry/revocation governs recipient access.
+
+## Keep using a pinned version after template changes
+
+Requires template update/delete under `manage`, plus product update/read. This
+example first changes the live template, then deletes it; the existing product
+still accepts values against its original pinned version.
+
+```bash
+api -D "$WORK_DIR/template.headers" "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  > "$WORK_DIR/template-head.json"
+TEMPLATE_ETAG="$(header_etag "$WORK_DIR/template.headers")"
+api -D "$WORK_DIR/template.headers" -X PATCH \
+  "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  -H "If-Match: $TEMPLATE_ETAG" --data '{"description":"Version two","syncStrategy":"newOnly"}' \
+  > "$WORK_DIR/template-v2.json"
+TEMPLATE_ETAG="$(header_etag "$WORK_DIR/template.headers")"
+api -X DELETE "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  -H "If-Match: $TEMPLATE_ETAG" --data '{"replacementForLibraryDefault":null}' \
+  > "$WORK_DIR/template-deleted.json"
+
+api -D "$WORK_DIR/product.headers" "$BASE_URL/products/$PRODUCT_ID" \
+  > "$WORK_DIR/product-before-patch.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+jq -n --arg field "$FIELD_ID" '{templateFields:{($field):"Blue"}}' > "$WORK_DIR/pinned-patch.json"
+api -X PATCH "$BASE_URL/products/$PRODUCT_ID" -H "If-Match: $ETAG" \
+  --data-binary @"$WORK_DIR/pinned-patch.json" > "$WORK_DIR/pinned-result.json"
+test "$(jq -er '.data.templateVersionId' "$WORK_DIR/pinned-result.json")" = "$PINNED_VERSION"
+jq '.data.templateDefinition' "$WORK_DIR/pinned-result.json"
+```
+
+Providing `groups` on template PATCH replaces the full group/field set; retrieve
+it first and retain IDs. Omission preserves that set. Never send a partial field
+list intending it to merge. Deleting a current library default requires a
+replacement template ID or explicit null, as shown. Historical pins remain.
+
+## Synchronize and save a checkpoint
+
+Requires `products:read`. This loop emits each page's products as newline-delimited
+JSON. Replace the marked sink with a durable idempotent merge before using it for
+production checkpoints. An initial run omits `updatedAfter`; later runs reuse the
+exact saved six-digit checkpoint. Do not pass it through JavaScript Date.
+
+```bash
+CHECKPOINT_FILE="$WORK_DIR/checkpoint.txt"
+CURSOR=''
+while :; do
+  if [ -n "$CURSOR" ]; then
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode "cursor=$CURSOR" > "$WORK_DIR/sync-page.json" || break
+  elif [ -s "$CHECKPOINT_FILE" ]; then
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode "updatedAfter=$(cat "$CHECKPOINT_FILE")" \
+      --data-urlencode 'pageSize=100' > "$WORK_DIR/sync-page.json" || break
+  else
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode 'pageSize=100' > "$WORK_DIR/sync-page.json" || break
+  fi
+  jq -e '.success == true' "$WORK_DIR/sync-page.json" >/dev/null || break
+  # Durable sink for this runnable example; a real consumer merges by id/updatedAt.
+  jq -c '.data[]' "$WORK_DIR/sync-page.json" >> "$WORK_DIR/synced-products.ndjson" || break
+  CURSOR="$(jq -r '.pagination.nextCursor // empty' "$WORK_DIR/sync-page.json")"
+  if [ -z "$CURSOR" ]; then
+    jq -r '.pagination.syncedUntil' "$WORK_DIR/sync-page.json" > "$CHECKPOINT_FILE.tmp"
+    mv "$CHECKPOINT_FILE.tmp" "$CHECKPOINT_FILE"
+    break
+  fi
+  # An empty data array does not end the loop if nextCursor is non-null.
+done
+```
+
+A page error leaves the old checkpoint untouched. Keep the original cursor to
+retry that page, or restart from the old completed checkpoint and deduplicate.
+The fixed 30-second safety window avoids recent transactions; transactions open
+longer than that window remain a limitation. `page` cannot be combined with sync.
+Changing key/role/filters/bounds/page size requires a new cycle. See
+[the full sync protocol](./product-library-synchronization).
+
+## Reconcile visibility and delete
+
+Requires `products:read` for visibility. The caller supplies IDs already stored
+locally, up to 100 per request. Results retain duplicates and order; no reason is
+revealed for `not_visible`.
+
+```bash
+jq -n --argjson id "$PRODUCT_ID" '{ids:[$id,$id]}' > "$WORK_DIR/visibility.json"
+api -X POST "$BASE_URL/products/visibility" --data-binary @"$WORK_DIR/visibility.json" \
+  | jq '.data'
+
+# Delete requires products:delete and, while published, products:publish.
+api -D "$WORK_DIR/product.headers" "$BASE_URL/products/$PRODUCT_ID" \
+  > "$WORK_DIR/product-before-delete.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+api -X DELETE "$BASE_URL/products/$PRODUCT_ID" -H "If-Match: $ETAG" | jq '.data.id'
+api -X POST "$BASE_URL/products/visibility" --data-binary @"$WORK_DIR/visibility.json" \
+  | jq '.data' # Both occurrences now report not_visible.
+```
+
+After resolving product dependencies, categories can be deleted before their
+brand. Category deletion covers its subtree but refuses if any live product
+still references a descendant. Brand deletion refuses live category/product
+dependencies. The API does not invoke browser cascading delete behavior.
+
+## Handle errors without hiding them
+
+Use HTTP status and `code`, not `message` text. This stale-tag example uses an
+existing product ID; run it before the deletion example if you want a 412.
+A deleted/missing product instead returns 404.
+
+```bash
+HTTP_STATUS="$(curl --silent --show-error --output "$WORK_DIR/error.json" \
+  --write-out '%{http_code}' -X PATCH "$BASE_URL/products/$PRODUCT_ID" \
+  -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" -H 'Content-Type: application/json' \
+  -H 'If-Match: "stale-example"' --data '{"description":"Changed"}')"
+jq --arg status "$HTTP_STATUS" \
+  '{httpStatus:$status,code,message,requestId,details:(.details // [])}' "$WORK_DIR/error.json"
+```
+
+For 412, refetch the current item/ETag and reconcile before retrying. For 422,
+correct the indicated field/query/body; e.g. `{"status":"archived"}` on the status
+route is invalid. For 401/403, correct the key/role/grants rather than retrying the
+same unauthorized request. Keep requestId for investigation; never log bearer
+secrets or signed URLs. The complete error catalog is in [README](./product-library#error-catalog).

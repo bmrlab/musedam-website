@@ -540,6 +540,20 @@
   white-space: pre;
   tab-size: 2;
 }
+.dev-prose details {
+  padding: 16px;
+  border: 1px solid var(--dev-line);
+  border-radius: 8px;
+}
+.dev-prose summary {
+  cursor: pointer;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.dev-prose summary:focus-visible {
+  outline: 2px solid var(--dev-accent);
+  outline-offset: 4px;
+}
 .dev-example {
   border: 1px solid var(--dev-line);
   border-radius: 7px;

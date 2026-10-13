@@ -1,0 +1,276 @@
+以下 Bash 示例需要 `curl` 和 `jq`。请使用测试商品库或测试数据，并选择权限适当的 key。公开 Base URL 的请求会作用于该 key 授权的真实商品库。初始化流程会在该 key 所属的商品库中创建真实资源；后续的生命周期示例会更新/删除这些资源。端点名称、请求体和输出路径与 [openapi.json](/assets/developers/product-library/openapi.json) 一致。这些示例是经过 schema 校验的文档，并不代表已进行过实际 HTTP 调用。
+
+## 配置凭据
+
+在 shell 中设置以下变量，使用你的部署源地址和已获得显式 API Key 协作者授权的 MuseDAM key。切勿提交或打印 secret。运行请求时不要开启 shell 跟踪（tracing）。
+
+```bash
+export BASE_URL='https://open.musedam.cc/api/product'
+# PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
+: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
+
+api() {
+  curl --silent --show-error --fail-with-body \
+    -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+    -H 'Content-Type: application/json' "$@"
+}
+header_etag() {
+  awk 'tolower($1) == "etag:" {sub(/\r$/, ""); print $2}' "$1"
+}
+RUN_ID="$(date +%s)-$$"
+WORK_DIR="$(mktemp -d)"
+```
+
+下面的完整初始化流程使用一个 `manage` API Key 协作者。全部操作能力由所分配的角色派生，不提供可编辑的操作白名单。生产集成应分配满足需求的最低权限角色。所有响应（包括失败响应）都包含 `X-Request-Id` 以及 private、no-store 缓存头；JSON 响应结构还包含 `requestId`。
+
+## 创建品牌、分类和模板
+
+需要 `manage` 角色下的 `brands:create`、`categories:create` 和 `templates:create`。下面的幂等键在本次运行内的重试中保持不变。
+
+```bash
+jq -n --arg name "API brand $RUN_ID" '{name:$name}' > "$WORK_DIR/brand.json"
+api -X POST "$BASE_URL/brands" -H "Idempotency-Key: brand-$RUN_ID" \
+  --data-binary @"$WORK_DIR/brand.json" > "$WORK_DIR/brand-response.json"
+BRAND_ID="$(jq -er '.data.id' "$WORK_DIR/brand-response.json")"
+
+jq -n --argjson brand "$BRAND_ID" '{brandId:$brand,name:"Catalog"}' \
+  > "$WORK_DIR/category.json"
+api -X POST "$BASE_URL/categories" -H "Idempotency-Key: category-$RUN_ID" \
+  --data-binary @"$WORK_DIR/category.json" > "$WORK_DIR/category-response.json"
+CATEGORY_ID="$(jq -er '.data.id' "$WORK_DIR/category-response.json")"
+
+jq -n --arg name "API $RUN_ID" '{name:$name,groups:[{name:"Details",fields:[
+  {key:"color",name:"Color",type:"text",required:false,config:{}}
+]}],syncStrategy:"newOnly"}' > "$WORK_DIR/template.json"
+api -X POST "$BASE_URL/product-info-templates" \
+  -H "Idempotency-Key: template-$RUN_ID" --data-binary @"$WORK_DIR/template.json" \
+  > "$WORK_DIR/template-response.json"
+TEMPLATE_ID="$(jq -er '.data.id' "$WORK_DIR/template-response.json")"
+FIELD_ID="$(jq -er '.data.groups[].fields[] | select(.key == "color") | .id' \
+  "$WORK_DIR/template-response.json")"
+```
+
+品牌响应中不包含 `logoUrl`，即使请求中提交了该字段。分类的 `iconAssetId` 是 CategoryIconAsset 标识符，不能填入 FilePath ID。模板/分组/字段 ID 是不透明字符串。写入商品值时请使用 `FIELD_ID`，而不是 key `color`。
+
+## 查找并引用现有素材
+
+素材查询需要 `products:create` **或** `products:update`，且角色为 `editable`/`manage`。无论是否具备下载权限，它始终只返回预览媒体。本示例需要一张已通过常规素材库界面上传的图片；v1 不支持上传文件。
+
+```bash
+api --get "$BASE_URL/assets" --data-urlencode 'mimeType=image/' \
+  --data-urlencode 'pageSize=20' > "$WORK_DIR/assets.json"
+ASSET_ID="$(jq -er '.data[0].id // error("Upload an image in the library first")' \
+  "$WORK_DIR/assets.json")"
+api "$BASE_URL/assets/$ASSET_ID" | jq '.data'
+```
+
+请使用返回的 `id`（FilePath ID）。`size` 为十进制字符串或 null；如果你的数值类型无法精确表示该值，请将其保留为字符串。`previewUrl` 为 null 是合法的“预览不可用”响应。素材详情包含基于持久化文件/对象元数据的强 `ETag`；临时签名的变化不会改变该标签。
+
+## 创建商品并安全重试
+
+需要 `products:create`。创建始终返回草稿，并在解析到模板时固定一个版本。显式指定的有效模板优先。当 `templateId` 省略或为 null 时，提供非 null 的 `categoryId` 会启用分类/祖先分类绑定，其次是其品牌绑定，最后是商品库默认模板。当 `categoryId` 省略或为 null 时，即使提供了 `brandId`，也只会考虑商品库默认模板。如果未解析到任何模板，商品将没有模板。不会根据 key 的创建者推断负责人（owner）。
+
+```bash
+jq -n --arg name "API product $RUN_ID" --arg spu "API-$RUN_ID" \
+  --arg template "$TEMPLATE_ID" --arg field "$FIELD_ID" \
+  --argjson brand "$BRAND_ID" --argjson category "$CATEGORY_ID" \
+  --argjson asset "$ASSET_ID" \
+  '{name:$name,spu:$spu,brandId:$brand,categoryId:$category,
+    templateId:$template,templateFields:{($field):"Blue"},
+    coverAssetId:$asset,imageAssetIds:[$asset],relatedAssetIds:[]}' \
+  > "$WORK_DIR/product.json"
+api -D "$WORK_DIR/product.headers" -X POST "$BASE_URL/products" \
+  -H "Idempotency-Key: product-$RUN_ID" --data-binary @"$WORK_DIR/product.json" \
+  > "$WORK_DIR/product-response.json"
+PRODUCT_ID="$(jq -er '.data.id' "$WORK_DIR/product-response.json")"
+PINNED_VERSION="$(jq -er '.data.templateVersionId' "$WORK_DIR/product-response.json")"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+
+# Retrying the same payload/key within 24 hours returns 201 with the same ID.
+api -X POST "$BASE_URL/products" -H "Idempotency-Key: product-$RUN_ID" \
+  --data-binary @"$WORK_DIR/product.json" | jq '.data.id'
+```
+
+重放会保留原始的标量数据和 ETag。媒体会依据当前权限重新投影，且仅使用在相同当前槽位中仍然有效的原始 ID。不要期望旧 URL 或已移除的附件重新出现。使用同一个键但规范化后的请求体不同时，返回 `409 idempotency_key_reused`。
+
+## 部分更新、清空字段并发布
+
+需要 `products:update`；已发布商品还额外需要 `products:publish`。省略的标量字段保持不变，`templateFields` 进行浅合并，显式 null 会清空单个自定义/可为空字段，`[]` 会清空媒体列表。不要向 PATCH 发送 `templateId`、`templateVersionId` 或 `status`。
+
+```bash
+jq -n --arg field "$FIELD_ID" \
+  '{description:null,templateFields:{($field):"Navy"},relatedAssetIds:[]}' \
+  > "$WORK_DIR/patch.json"
+api -D "$WORK_DIR/product.headers" -X PATCH "$BASE_URL/products/$PRODUCT_ID" \
+  -H "If-Match: $ETAG" --data-binary @"$WORK_DIR/patch.json" \
+  > "$WORK_DIR/updated.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+
+# Both update AND publish are required, including when changing back to draft.
+api -D "$WORK_DIR/product.headers" -X PATCH \
+  "$BASE_URL/products/$PRODUCT_ID/status" -H "If-Match: $ETAG" \
+  --data '{"status":"published"}' > "$WORK_DIR/published.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+jq '.data | {status,publishedAt,templateVersionId}' "$WORK_DIR/published.json"
+```
+
+发布会校验所有固定版本中的必填字段以及当前媒体。返回 422 时商品保持不变。重复发布会保留 `publishedAt`；改为 `draft` 会将其清空。常规 PATCH 路由会使已发布商品保持已发布状态，并校验完整的结果状态。它绝不会隐式将其降级。
+
+## 渲染预览并按需下载
+
+需要 `products:read`。`view_only` 和 `usable` key 同样可以访问已发布商品；这些角色无法读取草稿。固定版本数据不需要 `templates:read` 权限。
+
+```bash
+api "$BASE_URL/products/$PRODUCT_ID" > "$WORK_DIR/detail.json"
+jq '.data | {cover,images,relatedAssets,templateDefinition,templateFields}' \
+  "$WORK_DIR/detail.json"
+
+# Download only if the authorized property exists and contains a URL.
+DOWNLOAD_URL="$(jq -r '.data.cover.downloadUrl // empty' "$WORK_DIR/detail.json")"
+if [ -n "$DOWNLOAD_URL" ]; then
+  curl --silent --show-error --fail --output "$WORK_DIR/original" "$DOWNLOAD_URL"
+fi
+```
+
+图片预览可能会使用短时有效的原图作为回退，但这并不授予原图下载权限。非图片预览绝不会回退到原文件。没有读取+下载权限时，`downloadUrl` 和 `downloadUrlExpiresAt` 属性不存在；对于已授权但原文件不可用的情况，其值可能为 null。不要假定这些可选属性一定存在。对于设置了有限有效期的 key，存储的外部预览若无法验证过期时间则返回 null。对于未设置过期时间的 key，符合条件的第三方预览仍由提供方控制；其有效期不由本服务保证。
+
+上述直接存储下载不会创建业务下载记录；需要记录时使用下面的接口。
+
+## 分享、导出及有记录的下载
+
+创建分享需要 `products:read` 和 `products:share`，启用分享下载还需 `products:download`。下载元数据和附件需要 `usable` 及以上角色的读取和下载权限。最后三个调用还需 `manage`：列表需要 `products:history`，撤销需要 `products:share`。创建分享时商品必须已发布。
+
+```bash
+jq -n --argjson id "$PRODUCT_ID" \
+  '{productIds:[$id],expiresInDays:7,allowDownload:false}' \
+  > "$WORK_DIR/share.json"
+api -X POST "$BASE_URL/product-shares" -H "Idempotency-Key: share-$RUN_ID" \
+  --data-binary @"$WORK_DIR/share.json" > "$WORK_DIR/share-response.json"
+SHARE_ID="$(jq -er '.data.id' "$WORK_DIR/share-response.json")"
+jq '.data | {id,url,expiresAt,allowDownload}' "$WORK_DIR/share-response.json"
+
+api "$BASE_URL/products/$PRODUCT_ID/download-assets" > "$WORK_DIR/candidates.json"
+ASSET_KEY="$(jq -r '[.data[] | select(.downloadable)][0].key // empty' "$WORK_DIR/candidates.json")"
+if [ -n "$ASSET_KEY" ]; then
+  ENCODED_ASSET_KEY="$(jq -rn --arg key "$ASSET_KEY" '$key | @uri')"
+  api -D "$WORK_DIR/download.headers" \
+    -H "Idempotency-Key: original-$RUN_ID" \
+    --output "$WORK_DIR/original" \
+    "$BASE_URL/products/$PRODUCT_ID/download-assets/$ENCODED_ASSET_KEY"
+fi
+
+jq -n --argjson id "$PRODUCT_ID" \
+  '{kind:"export",productIds:[$id],format:"xlsx",includeAssetUrls:true,locale:"en-US"}' \
+  > "$WORK_DIR/export.json"
+api -D "$WORK_DIR/export.headers" -X POST "$BASE_URL/product-downloads" \
+  -H "Idempotency-Key: export-$RUN_ID" --data-binary @"$WORK_DIR/export.json" \
+  --output "$WORK_DIR/products.xlsx"
+
+api "$BASE_URL/product-shares?productId=$PRODUCT_ID&page=1&pageSize=20" | jq '{data,pagination}'
+api "$BASE_URL/product-downloads?productId=$PRODUCT_ID&page=1&pageSize=20" | jq '{data,pagination}'
+api -X DELETE "$BASE_URL/product-shares/$SHARE_ID" | jq '.data'
+```
+
+保留每次操作的请求体和 `Idempotency-Key`，用于 24 小时内重试。匹配的下载重试复用 `X-Download-Record-Id`，但仍检查当前权限并传输当前内容。新 key、省略 key 或超出保留期都会创建新操作。`X-Idempotency-Replayed: true` 表示记录被复用。记录证明请求被接受，不证明本地保存完成；重试不会重置失败状态。
+
+多个原文件可向 `/product-downloads` POST `kind: "assets"`、`productIds` 和可选的 `assetKeys`；省略 key 则选择全部原文件。候选列表仅返回选择元数据，不返回 URL 或创建下载记录。导出默认值为 `xlsx`、`includeAssetUrls: true` 和 `locale: "zh-CN"`。导出链接需要在配置的 API 来源发送 Bearer 认证；仅点击电子表格链接无法发送该请求头。链接中不包含 API 密钥。读取 `Content-Disposition` 并保存附件，不应解析为成功响应结构。JSON 导出同样是业务表格行的附件。
+
+历史包含当前团队的所有操作者和 key。按商品筛选返回完整操作，保留其中的其他商品和文件；省略筛选则查询团队全部记录。key 生命周期变化后仍保留分享归因，也不会撤销已签发的分享。访问者的权限由分享自身的到期和撤销控制。
+
+## 模板变更后继续使用固定版本
+
+需要 `manage` 角色下的模板更新/删除权限，以及商品更新/读取权限。本示例先修改当前模板，然后将其删除；现有商品仍然按照其原始固定版本接受字段值。
+
+```bash
+api -D "$WORK_DIR/template.headers" "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  > "$WORK_DIR/template-head.json"
+TEMPLATE_ETAG="$(header_etag "$WORK_DIR/template.headers")"
+api -D "$WORK_DIR/template.headers" -X PATCH \
+  "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  -H "If-Match: $TEMPLATE_ETAG" --data '{"description":"Version two","syncStrategy":"newOnly"}' \
+  > "$WORK_DIR/template-v2.json"
+TEMPLATE_ETAG="$(header_etag "$WORK_DIR/template.headers")"
+api -X DELETE "$BASE_URL/product-info-templates/$TEMPLATE_ID" \
+  -H "If-Match: $TEMPLATE_ETAG" --data '{"replacementForLibraryDefault":null}' \
+  > "$WORK_DIR/template-deleted.json"
+
+api -D "$WORK_DIR/product.headers" "$BASE_URL/products/$PRODUCT_ID" \
+  > "$WORK_DIR/product-before-patch.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+jq -n --arg field "$FIELD_ID" '{templateFields:{($field):"Blue"}}' > "$WORK_DIR/pinned-patch.json"
+api -X PATCH "$BASE_URL/products/$PRODUCT_ID" -H "If-Match: $ETAG" \
+  --data-binary @"$WORK_DIR/pinned-patch.json" > "$WORK_DIR/pinned-result.json"
+test "$(jq -er '.data.templateVersionId' "$WORK_DIR/pinned-result.json")" = "$PINNED_VERSION"
+jq '.data.templateDefinition' "$WORK_DIR/pinned-result.json"
+```
+
+在模板 PATCH 中提供 `groups` 会替换完整的分组/字段集合；请先获取该集合并保留 ID。省略则保留该集合。切勿发送部分字段列表并期望其被合并。删除当前的商品库默认模板时，需要提供替代模板 ID 或显式 null，如上所示。历史固定版本仍然保留。
+
+## 同步并保存检查点
+
+需要 `products:read`。此循环将每一页的商品输出为换行分隔的 JSON。在将其用于生产检查点之前，请将标记处的输出目标替换为持久化的幂等合并逻辑。首次运行省略 `updatedAfter`；后续运行原样复用已保存的六位精度检查点。不要让它经过 JavaScript Date 处理。
+
+```bash
+CHECKPOINT_FILE="$WORK_DIR/checkpoint.txt"
+CURSOR=''
+while :; do
+  if [ -n "$CURSOR" ]; then
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode "cursor=$CURSOR" > "$WORK_DIR/sync-page.json" || break
+  elif [ -s "$CHECKPOINT_FILE" ]; then
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode "updatedAfter=$(cat "$CHECKPOINT_FILE")" \
+      --data-urlencode 'pageSize=100' > "$WORK_DIR/sync-page.json" || break
+  else
+    api --get "$BASE_URL/products" --data-urlencode 'sync=true' \
+      --data-urlencode 'pageSize=100' > "$WORK_DIR/sync-page.json" || break
+  fi
+  jq -e '.success == true' "$WORK_DIR/sync-page.json" >/dev/null || break
+  # Durable sink for this runnable example; a real consumer merges by id/updatedAt.
+  jq -c '.data[]' "$WORK_DIR/sync-page.json" >> "$WORK_DIR/synced-products.ndjson" || break
+  CURSOR="$(jq -r '.pagination.nextCursor // empty' "$WORK_DIR/sync-page.json")"
+  if [ -z "$CURSOR" ]; then
+    jq -r '.pagination.syncedUntil' "$WORK_DIR/sync-page.json" > "$CHECKPOINT_FILE.tmp"
+    mv "$CHECKPOINT_FILE.tmp" "$CHECKPOINT_FILE"
+    break
+  fi
+  # An empty data array does not end the loop if nextCursor is non-null.
+done
+```
+
+某一页出错时，旧检查点保持不变。可保留原始游标以重试该页，或从旧的已完成检查点重新开始并去重。固定的 30 秒安全窗口可避开最近的事务；打开时间超过该窗口的事务仍是一项限制。`page` 不能与 sync 同时使用。更改 key/角色/筛选条件/边界/每页大小需要开始新的周期。参见[完整同步协议](./product-library-synchronization)。
+
+## 核对可见性并删除
+
+可见性查询需要 `products:read`。调用方提供本地已存储的 ID，每个请求最多 100 个。结果保留重复项和顺序；对于 `not_visible` 不会透露原因。
+
+```bash
+jq -n --argjson id "$PRODUCT_ID" '{ids:[$id,$id]}' > "$WORK_DIR/visibility.json"
+api -X POST "$BASE_URL/products/visibility" --data-binary @"$WORK_DIR/visibility.json" \
+  | jq '.data'
+
+# Delete requires products:delete and, while published, products:publish.
+api -D "$WORK_DIR/product.headers" "$BASE_URL/products/$PRODUCT_ID" \
+  > "$WORK_DIR/product-before-delete.json"
+ETAG="$(header_etag "$WORK_DIR/product.headers")"
+api -X DELETE "$BASE_URL/products/$PRODUCT_ID" -H "If-Match: $ETAG" | jq '.data.id'
+api -X POST "$BASE_URL/products/visibility" --data-binary @"$WORK_DIR/visibility.json" \
+  | jq '.data' # Both occurrences now report not_visible.
+```
+
+处理完商品依赖后，可以先于其品牌删除分类。删除分类会涵盖其子树，但只要仍有任何有效商品引用其下级分类，就会拒绝删除。存在有效的分类/商品依赖时，品牌删除会被拒绝。API 不会触发浏览器端的级联删除行为。
+
+## 处理错误而不掩盖错误
+
+请依据 HTTP 状态码和 `code` 判断，而不是 `message` 文本。这个过期标签示例使用现有的商品 ID；如果你希望得到 412，请在删除示例之前运行它。已删除/不存在的商品则会返回 404。
+
+```bash
+HTTP_STATUS="$(curl --silent --show-error --output "$WORK_DIR/error.json" \
+  --write-out '%{http_code}' -X PATCH "$BASE_URL/products/$PRODUCT_ID" \
+  -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" -H 'Content-Type: application/json' \
+  -H 'If-Match: "stale-example"' --data '{"description":"Changed"}')"
+jq --arg status "$HTTP_STATUS" \
+  '{httpStatus:$status,code,message,requestId,details:(.details // [])}' "$WORK_DIR/error.json"
+```
+
+对于 412，请重新获取当前条目/ETag 并完成核对后再重试。对于 422，请修正所指出的字段/查询参数/请求体；例如，在 status 路由上发送 `{"status":"archived"}` 是无效的。对于 401/403，请修正 key/角色/权限，而不是重试同一个未授权的请求。请保留 requestId 以便排查；切勿记录 bearer secret 或签名 URL。完整错误码目录见 [README](./product-library#error-catalog)。

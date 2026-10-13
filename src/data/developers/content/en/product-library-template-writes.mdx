@@ -1,0 +1,83 @@
+All paths below use `/api/product`. Writes require a `manage` API Key Collaborator;
+the role grants `templates:create`, `templates:update`, and `templates:delete`.
+The key determines the product library. Requests cannot override that library.
+
+## Creating and updating
+
+`POST /product-info-templates` requires `name` and `groups`. `PATCH
+/product-info-templates/{id}` accepts the same fields as partial metadata changes.
+Omitting `groups` keeps the definition. Providing `groups` replaces the complete
+live definition: retain existing group and field `id` values, omit IDs for new
+rows, and omit existing rows to soft-delete them. Existing field keys cannot
+change. Field IDs cannot be moved between groups. The initial group's default
+status is assigned by the server and the default group cannot be removed.
+Reordering existing group entries does not reorder groups: existing groups retain
+their stored order and new groups append in supplied order. Fields support
+`sortOrder`. Creation always seeds protected name, SKU, and main-image fields
+before the initial version; at most 197 additional custom fields fit the
+200-field total. Include protected field IDs in replacement definitions.
+New fields are custom fields; system identities cannot be created or reassigned.
+Existing protected system fields keep their type, required flag, and configuration.
+
+```json
+{
+  "name": "Catalog",
+  "description": "Product information",
+  "enabled": true,
+  "groups": [
+    {
+      "name": "Basics",
+      "fields": [
+        { "key": "color", "name": "Color", "type": "text", "required": false, "config": {} }
+      ]
+    }
+  ],
+  "boundBrandIds": [],
+  "boundCategoryIds": [],
+  "isLibraryDefault": true,
+  "syncStrategy": "newOnly"
+}
+```
+
+Existing field entries require their `id`; omitted field properties retain their
+values, except that an omitted field `sortOrder` uses its array position. A field
+may also provide `placeholder` and `typeChangeConfirmed` for an allowed type change
+that requires confirmation. Field configurations use the browser's type-specific
+validation. Names allow 30 characters, descriptions 50, and a definition at most
+200 fields. Unknown request properties are rejected.
+
+Binding arrays replace only the supplied dimension; omitted arrays retain their
+bindings. All binding IDs must be valid in the same library. When selected brands
+are nonempty, selected categories must belong to those brands. Binding an ID that
+currently belongs to another template moves that binding. `isLibraryDefault: true`
+selects this template as the library default; `false` clears it only if this
+template is currently the default. Omission preserves the existing default.
+
+Each successful create or update writes an immutable version snapshot using
+`newOnly`. Existing products retain their pinned version and values. `syncAll`
+returns `422 validation_failed`. 
+
+Creation returns `201`; updates return `200`, both with the projected template
+and an opaque `ETag`. `POST` accepts `Idempotency-Key`: a retry replays the original
+successful representation, even after later edits, and a changed payload under
+the same key returns `409 idempotency_key_reused`. Media is projected again using
+the current key; no signed media URLs are stored in replay records.
+
+## Preconditions and deletion
+
+`PATCH` and `DELETE` accept optional `If-Match`. The API locks the library row,
+then the template row, then computes the complete structural fingerprint. A stale
+value returns `412 precondition_failed` without modifying the template. Omission
+retains last-writer-wins behavior. 
+
+`DELETE /product-info-templates/{id}` soft-deletes the template and removes its
+direct brand and category bindings. Historical versions and product pins remain.
+Deleting the library default requires a JSON body with
+`replacementForLibraryDefault`, either another live same-library template ID or
+explicit `null`. Omitting it returns
+`409 default_template_replacement_required`. A nondefault template can be deleted
+without a body. Success returns `200` with the deleted ID and `ETag`.
+
+Invalid definitions, references, protected system-field changes, and conflicting
+field keys return `422 validation_failed`; a duplicate live template name returns
+`409 name_in_use`. Missing or foreign target templates return `404 not_found`.

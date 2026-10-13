@@ -1,0 +1,50 @@
+以下所有路徑均使用 `/api/product`。寫入需要 `manage` API key 以及相應的
+`templates:create`、`templates:update` 或 `templates:delete` 權限。
+API key 決定所屬商品庫，請求無法覆蓋該商品庫。
+
+## 創建與更新
+
+`POST /product-info-templates` 需要 `name` 和 `groups`。`PATCH
+/product-info-templates/{id}` 接受相同的字段，作為部分元數據變更。省略 `groups` 會保留原有定義。提供 `groups` 會替換完整的當前定義：保留現有分組和字段的 `id` 值，新行省略 ID，省略現有行則會將其軟刪除。現有字段的 key 不能更改。字段 ID 不能在分組之間移動。初始分組的默認狀態由服務器分配，默認分組不能被移除。調整現有分組條目的順序不會改變分組順序：現有分組保留其已存儲的順序，新分組按提供的順序追加到末尾。字段支持
+`sortOrder`。創建時總會在初始版本之前預置受保護的名稱、SKU 和主圖字段；在總計 200 個字段的上限內，最多還可容納
+197 個自定義字段。替換定義時請包含受保護字段的 ID。新字段均為自定義字段；系統標識不能被創建或重新分配。現有受保護的系統字段保留其類型、必填標記和配置。
+
+```json
+{
+  "name": "Catalog",
+  "description": "Product information",
+  "enabled": true,
+  "groups": [
+    {
+      "name": "Basics",
+      "fields": [
+        { "key": "color", "name": "Color", "type": "text", "required": false, "config": {} }
+      ]
+    }
+  ],
+  "boundBrandIds": [],
+  "boundCategoryIds": [],
+  "isLibraryDefault": true,
+  "syncStrategy": "newOnly"
+}
+```
+
+現有字段條目必須提供其 `id`；省略的字段屬性保留原值，但省略字段的 `sortOrder` 時會使用其在數組中的位置。對於需要確認的允許的類型變更，字段還可以提供 `placeholder` 和 `typeChangeConfirmed`。字段配置使用瀏覽器端按類型區分的校驗規則。名稱最多 30 個字符，描述最多 50 個字符，一個定義最多 200 個字段。未知的請求屬性會被拒絕。
+
+綁定數組只替換所提供的維度；省略的數組保留其原有綁定。所有綁定 ID 都必須在同一商品庫中有效。當所選品牌非空時，所選分類必須屬於這些品牌。綁定一個當前屬於其他模板的 ID 會將該綁定移到本模板。`isLibraryDefault: true`
+將此模板設為商品庫默認模板；`false` 僅在此模板當前為默認模板時清除默認設置。省略則保留現有的默認模板。
+
+每次成功的創建或更新都會使用 `newOnly` 寫入一個不可變的版本快照。現有商品保留其固定版本和值。`syncAll`
+返回 `422 validation_failed`。
+
+創建返回 `201`；更新返回 `200`，兩者都包含投影後的模板和不透明的 `ETag`。`POST` 接受 `Idempotency-Key`：重試會重放原始的成功表示，即使之後有過編輯也是如此；在同一 key 下更改負載會返回 `409 idempotency_key_reused`。媒體會使用當前 key 重新投影；重放記錄中不會存儲簽名媒體 URL。
+
+## 前置條件與刪除
+
+`PATCH` 和 `DELETE` 接受可選的 `If-Match`。API 先鎖定商品庫行，再鎖定模板行，然後計算完整的結構指紋。過期的值返回 `412 precondition_failed`，且不會修改模板。省略時保留最後寫入者勝出（last-writer-wins）的行為。
+
+`DELETE /product-info-templates/{id}` 會軟刪除模板，並移除其直接的品牌和分類綁定。歷史版本和商品的固定版本保持不變。刪除商品庫默認模板時，需要提供包含 `replacementForLibraryDefault` 的 JSON 請求體，其值為同一商品庫中另一個未刪除模板的 ID，或顯式的 `null`。省略該字段會返回
+`409 default_template_replacement_required`。刪除非默認模板時無需請求體。成功時返回 `200`，包含已刪除的 ID 和 `ETag`。
+
+無效的定義、引用、對受保護系統字段的更改以及衝突的字段 key 返回 `422 validation_failed`；重復的未刪除模板名稱返回
+`409 name_in_use`。不存在或屬於其他商品庫的目標模板返回 `404 not_found`。

@@ -8,10 +8,12 @@ export function CodeBlock({
   code,
   language = 'text',
   english = false,
+  highlight = true,
 }: {
   code: string
   language?: string
   english?: boolean
+  highlight?: boolean
 }) {
   const supported = ['json', 'javascript', 'typescript', 'bash', 'html', 'css', 'python']
   return (
@@ -20,23 +22,27 @@ export function CodeBlock({
         <span>{language}</span>
         <CopyButton text={code} english={english} />
       </div>
-      <Highlight
-        theme={themes.github}
-        code={code.trimEnd()}
-        language={(supported.includes(language) ? language : 'plain') as Language}
-      >
-        {({ tokens, getLineProps, getTokenProps }) => (
-          <pre tabIndex={0}>
-            {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line })}>
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token })} />
-                ))}
-              </div>
-            ))}
-          </pre>
-        )}
-      </Highlight>
+      {highlight ? (
+        <Highlight
+          theme={themes.github}
+          code={code.trimEnd()}
+          language={(supported.includes(language) ? language : 'plain') as Language}
+        >
+          {({ tokens, getLineProps, getTokenProps }) => (
+            <pre tabIndex={0}>
+              {tokens.map((line, i) => (
+                <div key={i} {...getLineProps({ line })}>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
+          )}
+        </Highlight>
+      ) : (
+        <pre tabIndex={0}>{code.trimEnd()}</pre>
+      )}
     </div>
   )
 }

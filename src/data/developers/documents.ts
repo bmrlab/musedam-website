@@ -9,12 +9,22 @@ export function getDeveloperDocument(lng: string, slug: string) {
   return {
     slug,
     title: english ? 'MuseDAM Developer Platform' : localizeDeveloperText('MuseDAM 开放平台', lng),
-    updatedAt: '2026-09-29',
+    updatedAt: '2026-10-13',
     markdown: [
       english
-        ? 'Connect your MuseDAM library using Open API, app integrations and MCP.'
-        : localizeDeveloperText('通过 Open API、第三方集成与 MCP 连接 MuseDAM 资产库。', lng),
+        ? 'Connect your MuseDAM asset and product libraries using Open API, app integrations and MCP.'
+        : localizeDeveloperText(
+            '通过 Open API、第三方集成与 MCP 连接 MuseDAM 资产库与商品库。',
+            lng,
+          ),
       'Open API: https://open.musedam.cc/api/muse (cn) / https://open.musedam.ai/api/muse (overseas)',
+      'Product Library API: https://open.musedam.cc/api/product',
+      english
+        ? 'For Product Library, use an existing MuseDAM API key with Authorization: Bearer <key>; a Product Library Manager must first add it as an API Key Collaborator. Access follows the collaborator role. Start with the Product Library guide.'
+        : localizeDeveloperText(
+            '商品库接入时，使用现有 MuseDAM API Key，通过 Authorization: Bearer <key> 认证；商品库管理员须先将密钥添加为 API Key Collaborator，访问权限由协作者角色决定。请先阅读商品库接入指南。',
+            lng,
+          ),
       'App API: https://open.musedam.cc/api/apps (cn) / https://open.musedam.ai/api/apps (overseas)',
       'MCP: https://mcp-service.musedam.cc (cn) / https://mcp-service.musedam.cc?region=overseas (overseas)',
       english

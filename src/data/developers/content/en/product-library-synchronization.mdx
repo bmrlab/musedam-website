@@ -1,0 +1,91 @@
+Ordinary `GET /api/product/products?page=...` listings are for browsing, not
+synchronization. Use `GET /api/product/products?sync=true` for both the first full
+copy and every incremental cycle. All requests require `products:read` and use
+the same role and library visibility rules as ordinary product reads.
+
+## Cycle protocol
+
+1. Start with `sync=true`, optional `pageSize` (default 20, capped at 100), and
+   optional product filters `search`, `brandId`, `categoryId`, and `status`.
+   Omit `updatedAfter` for a full sync. For an incremental cycle, set it to the
+   previous completed cycle's `syncedUntil` string without changing its precision.
+2. Merge returned products by `id` and `updatedAt`, keeping the newer version.
+3. Follow `pagination.nextCursor` with `sync=true&cursor=...` until it is null.
+   An empty data page can still have a next cursor when selected products became
+   invisible during projection. Continue following that cursor.
+4. Save the completed cycle's `syncedUntil` unchanged as the next checkpoint.
+   Do not substitute the final product's timestamp.
+
+Sync pagination has this shape:
+
+```json
+{
+  "pageSize": 20,
+  "syncedUntil": "2026-10-08T12:00:00.123456Z",
+  "nextCursor": null,
+  "hasMore": false
+}
+```
+
+The cursor is opaque and versioned. It retains the exact lower bound, upper bound,
+last `(updatedAt, id)` position, page size, and filters. A subsequent request may
+omit filters, page size, and `updatedAfter`; the saved values apply. If repeated,
+they must match the original cycle (equivalent RFC 3339 offsets are accepted for
+the lower bound). Changing any of them, using a cursor with another API key or
+role, malformed cursor data, duplicate sync parameters, or supplying `page`
+returns `422 validation_failed`. Restart the cycle after changing keys or roles.
+`cursor` and `updatedAfter` require `sync=true`; unsupported sync values are also
+rejected. `sync=false` uses the ordinary browsing list.
+
+`updatedAfter` accepts RFC 3339 timestamps with a timezone (`Z` or numeric offset)
+and zero to six fractional digits. Invalid calendar dates, invalid offsets,
+precision beyond six digits, and a lower bound later than the safe upper bound
+return `422 validation_failed`. Returned checkpoints and sync product `updatedAt`
+values use UTC with exactly six fractional digits. Preserve those strings in
+storage; JavaScript Date cannot retain their full precision.
+
+## Delivery and concurrent changes
+
+Each cycle reads `[updatedAfter, syncedUntil)`, ordered by `updatedAt` and then
+`id`, both ascending. The lower bound is inclusive and the upper bound exclusive.
+A row exactly at `syncedUntil` belongs to the next cycle. The first page computes
+the upper bound from the PostgreSQL clock minus the named 30-second safety
+window. Every later page retains that exact upper bound.
+
+The window exceeds the API's 15-second write transaction budget and keeps recent
+uncommitted updates out of the current cycle. Transactions that remain open longer
+than the safety window remain a limitation. Sync is at-least-once: an update that
+moves a product past the current cursor can cause another delivery. Merge by ID
+and update time, and retry a failed page with its original cursor.
+
+Pagination uses raw PostgreSQL microsecond values. A short repeatable-read
+transaction pairs each selected timestamp with its product snapshot, then closes
+before media projection. The response rechecks key permissions and current product
+visibility. Deleted or newly invisible selected products are omitted without
+failing the whole page, and the cursor still advances over the selected rows.
+Deletions of earlier pages cannot shift later rows out of the result.
+
+## Reconciling removals
+
+`POST /api/product/products/visibility` accepts only this body:
+
+```json
+{ "ids": [42, 43] }
+```
+
+It accepts zero to 100 positive integer product IDs (maximum 2147483647), retaining
+input order and duplicate occurrences. Its `data` contains no product content:
+
+```json
+[
+  { "id": 42, "visibility": "visible" },
+  { "id": 43, "visibility": "not_visible" }
+]
+```
+
+For published-only roles, draft, deleted, foreign, and missing IDs all receive the
+same `not_visible` value. Editable and manageable roles may also see drafts. Only
+submitted IDs are returned; there is no removal feed or draft discovery endpoint.
+Call this periodically for IDs already stored by the integration, for example
+after each completed cycle. Invalid bodies, noninteger IDs, unknown body fields,
+and batches over 100 return `422 validation_failed`.

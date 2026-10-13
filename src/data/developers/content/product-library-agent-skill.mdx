@@ -1,0 +1,18 @@
+## 读取接口文档
+
+将[开发者文档索引](https://www.musedam.cc/zh-CN/developers/llms.txt)、[商品库概览 Markdown](https://www.musedam.cc/zh-CN/developers/markdown/product-library.md)和 [OpenAPI 契约](/assets/developers/product-library/openapi.json)提供给 AI 助手。页面工具栏支持复制可直接使用的提示词和当前文档 Markdown。这些内容公开可读，无需代码仓库权限。
+
+&#62; 实现前先阅读商品库概览和接口参考。使用 https://open.musedam.cc/api/product 作为 Base URL，根据目标操作确定所需协作者角色，只使用文档中的端点和字段。同步商品时遵循游标协议，并核对可见性。将凭据保存在安全的本地或服务端配置中。
+
+## 配置凭据与权限
+
+通过 MuseDAM 凭据管理获取现有 key，由商品库管理员在**成员设置 → 添加成员**中将其添加为 API Key 协作者，初始角色为 `view_only`。能力由分配的角色决定；商品库不签发密钥，也不提供逐 key 勾选操作权限的白名单。
+
+通过 `PRODUCT_LIBRARY_API_KEY` 私下提供密钥，不要粘贴到文档或提交到仓库。请求使用 `Authorization: Bearer <key>`，详见[认证与作用范围](./product-library#authentication-and-scope)。
+
+## 选择对应指南
+
+- 在[接口参考](./product-library-reference)中查找参数和响应结构。
+- 按[写入约定](./product-library-write-conventions)处理幂等与并发修改。
+- 按[商品同步](./product-library-synchronization)建立商品副本与检查点。
+- 结合目标操作调整 [curl 示例](./product-library-examples)。创建、发布、分享和删除会影响团队真实数据。

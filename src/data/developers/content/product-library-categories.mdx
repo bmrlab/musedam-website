@@ -1,0 +1,38 @@
+`GET /api/product/categories` 列出未删除的分类，支持可选的 `brandId`、
+`page` 和 `pageSize` 筛选参数。结果为扁平结构，客户端可以根据 `id`、`parentId` 和 `brandId`
+自行构建层级。排序按品牌、父级、同级位置和 ID 保持稳定。`GET /categories/{id}` 返回一个未删除的分类及其强
+`ETag`。两个端点都需要 `categories:read`。商品库范围始终由 API key 决定；调用方提供的租户 ID 不会改变它。不存在、属于其他商品库或已删除的单项 ID 返回 `404 not_found`。
+
+`POST /categories`、`PATCH /categories/{id}` 和 `DELETE /categories/{id}`
+需要可管理角色以及对应的创建、更新或删除权限。它们遵循共享的[写入约定](./product-library-write-conventions)，包括可选的 `If-Match`、API 操作者归属，以及通过 `Idempotency-Key`
+实现的 24 小时原子创建重放。
+
+## 字段与树规则
+
+创建接受必填的 `brandId` 和 `name`，以及可选的 `parentId`、
+`sortOrder`、`description`、`iconEmoji`、`iconAssetId` 和 `isEnabled`。
+PATCH 接受上述可选字段与 `name` 的非空子集。
+`brandId` 不可变，与浏览器端按品牌划分的树编辑器一致。未知字段（包括调用方提供的路径或操作者 ID）会被拒绝。
+
+- 名称保留其原样拼写，必须包含非空白文本，最多 64 个字符，且不能包含 `/`。完全相同的同级名称返回
+  `409 name_in_use`；不同父级或不同品牌下可以重复使用名称。
+- 父级必须是同一品牌、同一商品库中未删除的分类。品牌也必须属于该 key 的商品库。循环引用、无效引用、超过
+  10 级分类，以及每个品牌超过 5000 个未删除节点，均返回
+  `422 validation_failed`。
+- `sortOrder` 是目标同级分组中从零开始的位置。省略时，新建或移动的分类会追加到末尾；在同一父级内更新则保留其位置。插入和移动会对受影响的同级重新编号。超出同级数量的位置返回 `422 validation_failed`。
+- 名称和父级的变更会重新计算后代路径，但不改变 ID。每个受影响的行都会记录 API 更新者归属和新的时间戳。
+- `description`、`iconEmoji` 和 `iconAssetId` 可以用 `null` 清除。
+  Emoji 文本最多 16 个字符。图标素材必须属于当前商品库。创建时 `isEnabled` 默认为 true。
+
+创建分类时，仅当商品库的默认模板未绑定任何品牌，或已绑定该分类所属品牌时，才会为新分类添加该模板的显式绑定。否则分类仍会创建成功，但不会添加显式分类绑定；模板解析仍依次查找祖先分类、品牌和商品库默认模板。
+
+响应包含 `id`、`brandId`、`parentId`、`name`、`pathKey`、`description`、
+`iconEmoji`、`iconAssetId`、`sortOrder`、`isEnabled`、`createdAt` 和 `updatedAt`。
+`pathKey` 由服务器管理，以 `/` 开头。图标存储 URL、内部操作者关联和商品库 ID 均不会暴露，也不会保存在重放快照中。
+
+## 子树删除
+
+事务在计算路径或检查依赖之前，按确定的 ID 顺序锁定商品库、品牌以及该品牌下的所有分类行。这包括在统计未删除商品引用之前锁定每个后代行。子树中任意位置存在未删除的商品，都会返回
+`409 category_has_products`，且所有分类保持不变。
+
+否则，整个子树会被软删除。名称、父级 ID、品牌 ID 和历史商品关联保持不变；内部路径会变为按 ID 保留的墓碑值，以便新分类可以重新使用旧路径。保留下来的同级位置会被规范化。商品既不会被降级，也不会被改写，且不会级联影响任何素材、模板或品牌。已删除的分类不会出现在读取结果中，也不能成为 API 商品分配的目标。

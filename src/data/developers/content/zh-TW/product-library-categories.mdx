@@ -1,0 +1,38 @@
+`GET /api/product/categories` 列出未刪除的分類，支持可選的 `brandId`、
+`page` 和 `pageSize` 篩選參數。結果為扁平結構，客戶端可以根據 `id`、`parentId` 和 `brandId`
+自行構建層級。排序按品牌、父級、同級位置和 ID 保持穩定。`GET /categories/{id}` 返回一個未刪除的分類及其強
+`ETag`。兩個端點都需要 `categories:read`。商品庫範圍始終由 API key 決定；調用方提供的租戶 ID 不會改變它。不存在、屬於其他商品庫或已刪除的單項 ID 返回 `404 not_found`。
+
+`POST /categories`、`PATCH /categories/{id}` 和 `DELETE /categories/{id}`
+需要可管理角色以及對應的創建、更新或刪除權限。它們遵循共享的[寫入約定](./product-library-write-conventions)，包括可選的 `If-Match`、API 操作者歸屬，以及通過 `Idempotency-Key`
+實現的 24 小時原子創建重放。
+
+## 字段與樹規則
+
+創建接受必填的 `brandId` 和 `name`，以及可選的 `parentId`、
+`sortOrder`、`description`、`iconEmoji`、`iconAssetId` 和 `isEnabled`。
+PATCH 接受上述可選字段與 `name` 的非空子集。
+`brandId` 不可變，與瀏覽器端按品牌劃分的樹編輯器一致。未知字段（包括調用方提供的路徑或操作者 ID）會被拒絕。
+
+- 名稱保留其原樣拼寫，必須包含非空白文本，最多 64 個字符，且不能包含 `/`。完全相同的同級名稱返回
+  `409 name_in_use`；不同父級或不同品牌下可以重復使用名稱。
+- 父級必須是同一品牌、同一商品庫中未刪除的分類。品牌也必須屬於該 key 的商品庫。循環引用、無效引用、超過
+  10 級分類，以及每個品牌超過 5000 個未刪除節點，均返回
+  `422 validation_failed`。
+- `sortOrder` 是目標同級分組中從零開始的位置。省略時，新建或移動的分類會追加到末尾；在同一父級內更新則保留其位置。插入和移動會對受影響的同級重新編號。超出同級數量的位置返回 `422 validation_failed`。
+- 名稱和父級的變更會重新計算後代路徑，但不改變 ID。每個受影響的行都會記錄 API 更新者歸屬和新的時間戳。
+- `description`、`iconEmoji` 和 `iconAssetId` 可以用 `null` 清除。
+  Emoji 文本最多 16 個字符。圖標素材必須屬於當前商品庫。創建時 `isEnabled` 默認為 true。
+
+創建分類時，僅當商品庫的默認模板未綁定任何品牌，或已綁定該分類所屬品牌時，才會為新分類添加該模板的顯式綁定。否則分類仍會創建成功，但不會添加顯式分類綁定；模板解析仍依次查找祖先分類、品牌和商品庫默認模板。
+
+響應包含 `id`、`brandId`、`parentId`、`name`、`pathKey`、`description`、
+`iconEmoji`、`iconAssetId`、`sortOrder`、`isEnabled`、`createdAt` 和 `updatedAt`。
+`pathKey` 由服務器管理，以 `/` 開頭。圖標存儲 URL、內部操作者關聯和商品庫 ID 均不會暴露，也不會保存在重放快照中。
+
+## 子樹刪除
+
+事務在計算路徑或檢查依賴之前，按確定的 ID 順序鎖定商品庫、品牌以及該品牌下的所有分類行。這包括在統計未刪除商品引用之前鎖定每個後代行。子樹中任意位置存在未刪除的商品，都會返回
+`409 category_has_products`，且所有分類保持不變。
+
+否則，整個子樹會被軟刪除。名稱、父級 ID、品牌 ID 和歷史商品關聯保持不變；內部路徑會變為按 ID 保留的墓碑值，以便新分類可以重新使用舊路徑。保留下來的同級位置會被規範化。商品既不會被降級，也不會被改寫，且不會級聯影響任何素材、模板或品牌。已刪除的分類不會出現在讀取結果中，也不能成為 API 商品分配的目標。

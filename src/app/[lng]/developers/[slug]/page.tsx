@@ -101,7 +101,14 @@ export default async function DeveloperPage({ params }: Props) {
         )}
         <IntegrationFlow slug={slug} english={english} lng={lng} />
         <div className="dev-prose">
-          <Content components={markdownComponents(page.headings, english, lng)} />
+          <Content
+            components={markdownComponents(
+              page.headings,
+              english,
+              lng,
+              slug !== 'product-library-reference',
+            )}
+          />
         </div>
         <nav
           className="dev-pagination"

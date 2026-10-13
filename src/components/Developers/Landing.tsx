@@ -141,6 +141,22 @@ export function DeveloperLanding({ lng }: { lng: string }) {
               </Link>
             ))}
           </div>
+          <div className="dev-example-note">
+            <Layers size={16} />
+            <span>
+              {text(
+                localizeDeveloperText(
+                  '商品库 API：管理商品、类目与模板，读取素材并同步商品数据。',
+                  lng,
+                ),
+                'Product Library API: manage products, categories and templates, read media and synchronize product data.',
+              )}{' '}
+              <Link className="dev-text-link" href={`${base}/product-library`}>
+                {text(localizeDeveloperText('查看商品库文档', lng), 'Explore Product Library docs')}
+                <ArrowUpRight size={14} />
+              </Link>
+            </span>
+          </div>
         </section>
         <section id="architecture" className="dev-landing-section">
           <div className="dev-section-heading">
