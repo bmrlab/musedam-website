@@ -53,22 +53,13 @@ currently belongs to another template moves that binding. `isLibraryDefault: tru
 selects this template as the library default; `false` clears it only if this
 template is currently the default. Omission preserves the existing default.
 
-Each successful create or update writes an immutable version snapshot using
-`newOnly`. Existing products retain their pinned version and values. `syncAll`
-returns `422 validation_failed`.
+Each successful create or update saves a new template version with `newOnly`. A product saves the template version used at creation; later template changes do not alter existing products’ field definitions or values. `syncAll` returns `422 validation_failed`.
 
-Creation returns `201`; updates return `200`, both with the projected template
-and an opaque `ETag`. `POST` accepts `Idempotency-Key`: a retry replays the original
-successful representation, even after later edits, and a changed payload under
-the same key returns `409 idempotency_key_reused`. Media is projected again using
-the current key; no signed media URLs are stored in replay records.
+Creation returns `201` and updates return `200`, with template details and an `ETag`. `POST` accepts `Idempotency-Key`: retrying with the same key and body returns the first successful result, even if the template has since changed. Using the same key with a different body returns `409 idempotency_key_reused`. Media information is generated again using the current key’s permissions; signed URLs are not stored in idempotency records.
 
 ## Preconditions and deletion
 
-`PATCH` and `DELETE` accept optional `If-Match`. The API locks the library row,
-then the template row, then computes the complete structural fingerprint. A stale
-value returns `412 precondition_failed` without modifying the template. Omission
-retains last-writer-wins behavior.
+`PATCH` and `DELETE` accept optional `If-Match`. Send the exact `ETag` returned when reading the template. A stale value returns `412 precondition_failed` without changing the template. When the header is omitted, the later write takes precedence.
 
 `DELETE /product-info-templates/{id}` soft-deletes the template and removes its
 direct brand and category bindings. Historical versions and product pins remain.

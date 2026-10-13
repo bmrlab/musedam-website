@@ -1,6 +1,6 @@
-## 接口地址与首次请求
+## 发起第一次请求
 
-公开 Base URL 为 `https://open.musedam.cc/api/product`，在其后添加 `/products` 等操作路径。它与资产库接口 `/api/muse`、官网文档地址相互独立。请从服务端调用；本接口没有浏览器 CORS 支持约定。接入前请向商品库管理员确认接口访问权限。
+将已获授权的 API Key 保存到服务端环境变量 `PRODUCT_LIBRARY_API_KEY`，然后运行以下命令获取商品列表。接入前请完成下方的认证配置。
 
 ```bash
 # PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
@@ -10,14 +10,17 @@ curl --silent --show-error --fail-with-body \
   -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
 ```
 
-[openapi.json](/assets/developers/product-library/openapi.json) 是机器可读的 OpenAPI 3.0.3 契约，涵盖 `/api/product`
-下全部公开路径和操作。[examples.md](./product-library-examples) 包含可执行的 curl/jq 工作流。该 JSON 文件包含请求与响应示例、严格的输入对象、可为 null 的输出字段、参数、响应头、各端点所需权限以及完整的错误目录。可将其导入兼容 OpenAPI 的客户端或文档查看器。
+完整的参数、请求与响应结构见 [OpenAPI 3.0.3 规范](/assets/developers/product-library/openapi.json)，可导入兼容 OpenAPI 的客户端。更多操作见[调用示例](./product-library-examples)。
 
 如需让 AI 助手调用这些接口，请阅读 [AI 助手接入指南](./product-library-agent-skill)。
 
-## 认证与作用范围
+## 认证与权限
 
-使用现有的 MuseDAM API key。商品库管理员通过「成员设置 → 添加成员」将其添加为 API Key 协作者，初始角色为只读。通过 HTTPS 发送 `Authorization: Bearer <key>`。凭据的签发和生命周期由 MuseDAM 管理；本应用不签发或展示密钥。访问必须同时具备匹配的本地显式授权，并通过实时的上游组织校验。任何请求都无法覆盖团队、商品库或操作者。创建者的角色不会赋予 key 权限。未添加、已移除、已过期或被拒绝的 key 均无法访问；上游不可用时拒绝访问并返回 `503 authentication_unavailable`。不提供用于管理 API key 或协作者的公开端点。
+1. 获取现有的 MuseDAM API Key，凭据由 MuseDAM 管理。
+2. 请商品库管理员进入「成员设置 → 添加成员」，将该密钥添加为 API Key 协作者，初始角色为 `view_only`。按接入需求分配下表中的角色。
+3. 从服务端通过 HTTPS 发起请求，并携带 `Authorization: Bearer <key>` 请求头。
+
+每次请求都会校验密钥状态及其所属团队。未添加、已移除、已过期或被拒绝的密钥无法访问；认证服务不可用时返回 `503 authentication_unavailable`。权限由协作者当前角色决定，不继承密钥创建者的权限，也不能通过请求参数切换团队、商品库或操作者。商品库不提供密钥或协作者管理接口。
 
 授权仅由协作者的当前角色决定：
 
@@ -28,7 +31,7 @@ curl --silent --show-error --fail-with-body \
 | `editable`  | 读取资源、访问草稿及已发布商品、商品创建/更新/删除/发布/下载/分享。 |
 | `manage`    | 全部 20 项权限，包括活动历史及品牌/分类/模板写入。                       |
 
-下表的操作标识符描述由角色派生的权限检查，不是可单独编辑的权限。不再提供逐 key 的操作白名单。移除协作者访问权限仍保留审计、幂等记录、历史和团队分享；需要撤销分享时请单独操作。
+下表列出各角色对应的操作权限，不能为单个密钥另行勾选。移除协作者后，审计、幂等记录、历史和团队分享仍会保留；如需停止分享，请单独撤销。
 
 | 路径                           | 方法   | 所需权限                                 | 最低角色 / 附加条件                                                  |
 | ------------------------------ | ------ | ---------------------------------------- | -------------------------------------------------------------------- |
@@ -64,8 +67,8 @@ curl --silent --show-error --fail-with-body \
 | `/products/{id}/download-assets` | GET | `products:read` AND `products:download` | `usable` 及以上；仅元数据 |
 | `/products/{id}/download-assets/{assetKey}` | GET | `products:read` AND `products:download` | `usable` 及以上；经认证的附件并记入业务记录 |
 
-即使没有读取权限，商品写入响应也会包含标准的详情 DTO。但其中的原文件下载属性仍需同时具备
-`products:read` 和 `products:download`。`products:publish` 与相应的变更权限组合使用时，还授权编辑和删除已发布的商品。状态变更不会启动审批流程或外部同步。现有浏览器端的操作者显示保持不变；v1 不新增操作者列，也不保证 API key 名称会显示在浏览器中。
+即使没有读取权限，商品写入响应也会包含商品详情。但其中的原文件下载属性仍需同时具备
+`products:read` 和 `products:download`。`products:publish` 与相应的变更权限组合使用时，还授权编辑和删除已发布的商品。状态变更不会启动审批流程或外部同步。
 
 ## 传输格式与标识符
 
@@ -79,8 +82,7 @@ curl --silent --show-error --fail-with-body \
 `updatedAt` 和 `syncedUntil` 使用六位小数秒；请原样保留。
 SKU 在传输格式中为 `spu`。品牌 `logoUrl` 在受限的写入中可被接受，但在所有品牌读写 DTO 中均会被省略；不会暴露任何原始图标/logo URL。
 
-普通列表接受 `page`（默认 1）和 `pageSize`（默认 20，上限 100），返回 `pagination: { page, pageSize, totalCount, totalPages }`。商品和素材分页会省略在投影过程中失去可见性的行，因此某一页的条数可能少于 `pageSize`，而原始计数保持不变。单项读取对不可见的行仍返回 404。媒体投影会对引用查找进行批处理，每个请求最多并发执行八个数据库/签名操作；有效的媒体引用不会被截断。派生预览历史按每页
-20 个任务读取，直至找到最新的可用输出。分类还接受 `brandId`；商品接受 `search`、`brandId`、`categoryId` 和 `status`；素材接受 `search` 以及按 MIME 前缀匹配的 `mimeType`。品牌和模板列表没有搜索筛选。未知的普通查询参数会被忽略，但严格的 JSON 请求体会拒绝未知属性。同步有其独立的校验规则和元数据；见下文。
+普通列表接受 `page`（默认 1）和 `pageSize`（默认 20，上限 100），返回 `pagination: { page, pageSize, totalCount, totalPages }`。商品和素材分页会省略在生成响应时变为不可见的记录，因此某一页的条数可能少于 `pageSize`，而原始计数保持不变。单项读取对不可见的记录仍返回 404。有效的媒体引用不会被截断。分类还接受 `brandId`；商品接受 `search`、`brandId`、`categoryId` 和 `status`；素材接受 `search` 以及按 MIME 前缀匹配的 `mimeType`。品牌和模板列表没有搜索筛选。未知的普通查询参数会被忽略，但严格的 JSON 请求体会拒绝未知属性。同步有其独立的校验规则和元数据；见下文。
 
 ## 写入、并发与限制
 
@@ -114,7 +116,9 @@ multipart 上传、远程素材导入、通用提供方同步、webhook 或批�
 有关详细校验规则，请阅读 [写入约定](./product-library-write-conventions)、[分类规则](./product-library-categories)、
 [模板写入](./product-library-template-writes) 和 [商品写入](./product-library-product-writes)。
 
-## 模板固定版本与字段值
+## 模板版本与字段值
+
+商品创建时会保存所用模板的版本，后续的模板修改或删除不会改变已有商品的字段定义和值。读取商品的 `templateDefinition` 可获取这一版本的字段定义。
 
 创建时，显式指定的未删除模板优先。当省略 `templateId` 或其为 null，且提供了非 null 的
 `categoryId` 时，解析顺序为：该分类或其祖先分类的绑定，然后是该分类所属品牌的绑定，最后是商品库默认模板。当省略 `categoryId` 或其为 null 时，即使提供了 `brandId`，也仅使用商品库默认模板进行解析。若未解析出任何模板，则该商品没有模板。已解析出模板的商品会固定一个不可变的版本。模板变更始终使用 `newOnly`；API 会拒绝
@@ -158,7 +162,7 @@ PostgreSQL 时间减去 30 秒。仅在所有分页都已持久合并后再保�
 
 不透明游标绑定了 API key、角色、商品库、筛选条件、分页大小和边界。后续请求可以仅包含 `sync=true&cursor=...`；重复提供的参数必须一致。重复的同步参数、`page`、变更的绑定或格式错误的时间边界会返回 422。时间戳输入接受时区，且小数秒最多六位。耗时超过安全窗口的事务属于已接受的限制。
 
-同步不提供删除墓碑记录。请定期将本地已知的 ID 发送至
+同步结果不包含已删除商品的记录。请定期将本地已知的 ID 发送至
 `POST /products/visibility`；移除被报告为 `not_visible` 的条目。该状态统一涵盖不存在、已删除、不属于本商品库以及因角色而隐藏的记录，不会泄露记录是否存在。完整协议请参阅 [商品同步](./product-library-synchronization)，同步循环请参阅
 [示例](./product-library-examples#synchronize-and-save-a-checkpoint)。
 

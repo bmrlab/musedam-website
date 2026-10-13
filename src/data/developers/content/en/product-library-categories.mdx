@@ -7,17 +7,14 @@ Library scope always comes from the API key; caller-supplied tenant IDs do not
 change it. Missing, foreign, and deleted item IDs return `404 not_found`.
 
 `POST /categories`, `PATCH /categories/{id}`, and `DELETE /categories/{id}`
-require the manageable role and the matching create, update, or delete grant.
-They follow the shared [write conventions](./product-library-write-conventions), including
-optional `If-Match`, API actor attribution,
-and atomic 24-hour create replay through `Idempotency-Key`.
+require the `manage` role and the matching create, update or delete permission. Follow [writes and error handling](./product-library-write-conventions): use `If-Match` to check for concurrent changes and `Idempotency-Key` to retry creation safely within 24 hours.
 
 ## Fields and tree rules
 
 Create accepts required `brandId` and `name`, plus optional `parentId`,
 `sortOrder`, `description`, `iconEmoji`, `iconAssetId`, and `isEnabled`.
 PATCH accepts a nonempty subset of those optional fields and `name`.
-`brandId` is immutable, matching the browser's brand-scoped tree editor.
+`brandId` cannot be changed after creation.
 Unknown fields, including caller-supplied paths or actor IDs, are rejected.
 
 - Names retain their exact spelling, must contain non-whitespace text, are
@@ -32,7 +29,7 @@ Unknown fields, including caller-supplied paths or actor IDs, are rejected.
   preserves its position. Insertion and movement renumber affected siblings.
   Positions beyond the sibling count return `422 validation_failed`.
 - Names and parent changes recompute descendant paths without changing IDs.
-  Every affected row receives API updater attribution and a new timestamp.
+  Affected categories record the API operator and an updated timestamp.
 - `description`, `iconEmoji`, and `iconAssetId` may be cleared with `null`.
   Emoji text is limited to 16 characters. An icon asset must belong to the
   current library. `isEnabled` defaults to true on create.
@@ -48,17 +45,8 @@ Responses contain `id`, `brandId`, `parentId`, `name`, `pathKey`, `description`,
 `pathKey` is server-owned and starts with `/`. No icon storage URLs, internal
 actor relations, or library IDs are exposed or saved in replay snapshots.
 
-## Subtree deletion
+## Delete a category and its children
 
-The transaction locks the library, brand, and all category rows in that brand
-in deterministic ID order before computing paths or checking dependencies.
-This includes every descendant row before the live-product reference count.
-A live product anywhere in the subtree yields `409 category_has_products` and
-leaves every category unchanged.
+Deleting a category also deletes its child categories. If any category in that subtree contains a nondeleted product, the API returns `409 category_has_products` and leaves every category unchanged.
 
-Otherwise the complete subtree is soft-deleted. Names, parent IDs, brand IDs,
-and historical product relationships remain; internal paths become reserved
-per-ID tombstones so a new category may reuse the old path. Surviving sibling
-positions are normalized. Products are neither demoted nor rewritten, and
-no asset, template, or brand is cascaded. Deleted categories are excluded from
-reads and cannot become API product-assignment targets.
+Deletion is a soft delete: names, parent IDs, brand IDs and historical product relationships are preserved. New categories can reuse the original paths, and the remaining sibling categories are reordered. Product content and status do not change; assets, templates and brands are not deleted. Deleted categories no longer appear in reads and cannot be assigned to products.

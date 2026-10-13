@@ -1,8 +1,8 @@
-以下 Bash 示例需要 `curl` 和 `jq`。请使用测试商品库或测试数据，并选择权限适当的 key。公开 Base URL 的请求会作用于该 key 授权的真实商品库。初始化流程会在该 key 所属的商品库中创建真实资源；后续的生命周期示例会更新/删除这些资源。端点名称、请求体和输出路径与 [openapi.json](/assets/developers/product-library/openapi.json) 一致。这些示例是经过 schema 校验的文档，并不代表已进行过实际 HTTP 调用。
+以下示例使用 Bash、`curl` 和 `jq`，涵盖商品创建、发布、下载和同步。部分操作会创建、更新或删除数据，请使用测试商品库或测试数据。参数与响应结构见 [OpenAPI 规范](/assets/developers/product-library/openapi.json)。
 
 ## 配置凭据
 
-在 shell 中设置以下变量，使用你的部署源地址和已获得显式 API Key 协作者授权的 MuseDAM key。切勿提交或打印 secret。运行请求时不要开启 shell 跟踪（tracing）。
+在 shell 中设置以下变量，并使用已添加为 API Key 协作者的 MuseDAM 密钥。密钥应从安全存储中读取，不要提交到仓库、打印到日志或开启 shell 跟踪。
 
 ```bash
 export BASE_URL='https://open.musedam.cc/api/product'
@@ -21,7 +21,7 @@ RUN_ID="$(date +%s)-$$"
 WORK_DIR="$(mktemp -d)"
 ```
 
-下面的完整初始化流程使用一个 `manage` API Key 协作者。全部操作能力由所分配的角色派生，不提供可编辑的操作白名单。生产集成应分配满足需求的最低权限角色。所有响应（包括失败响应）都包含 `X-Request-Id` 以及 private、no-store 缓存头；JSON 响应结构还包含 `requestId`。
+下面的完整流程需要 `manage` 角色。实际接入时，请根据所需操作选择角色。所有响应（包括失败响应）都包含 `X-Request-Id` 和 `Cache-Control: private, no-store`；JSON 响应还包含 `requestId`。
 
 ## 创建品牌、分类和模板
 
@@ -273,4 +273,4 @@ jq --arg status "$HTTP_STATUS" \
   '{httpStatus:$status,code,message,requestId,details:(.details // [])}' "$WORK_DIR/error.json"
 ```
 
-对于 412，请重新获取当前条目/ETag 并完成核对后再重试。对于 422，请修正所指出的字段/查询参数/请求体；例如，在 status 路由上发送 `{"status":"archived"}` 是无效的。对于 401/403，请修正 key/角色/权限，而不是重试同一个未授权的请求。请保留 requestId 以便排查；切勿记录 bearer secret 或签名 URL。完整错误码目录见 [README](./product-library#error-catalog)。
+对于 412，请重新获取当前条目/ETag 并完成核对后再重试。对于 422，请修正所指出的字段/查询参数/请求体；例如，在 status 路由上发送 `{"status":"archived"}` 是无效的。对于 401/403，请修正 key/角色/权限，而不是重试同一个未授权的请求。请保留 requestId 以便排查；切勿记录 bearer secret 或签名 URL。完整错误码目录见 [错误码](./product-library#error-catalog)。

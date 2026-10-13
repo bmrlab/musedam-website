@@ -3,7 +3,7 @@ synchronization. Use `GET /api/product/products?sync=true` for both the first fu
 copy and every incremental cycle. All requests require `products:read` and use
 the same role and library visibility rules as ordinary product reads.
 
-## Cycle protocol
+## Synchronization steps
 
 1. Start with `sync=true`, optional `pageSize` (default 20, capped at 100), and
    optional product filters `search`, `brandId`, `categoryId`, and `status`.
@@ -12,7 +12,7 @@ the same role and library visibility rules as ordinary product reads.
 2. Merge returned products by `id` and `updatedAt`, keeping the newer version.
 3. Follow `pagination.nextCursor` with `sync=true&cursor=...` until it is null.
    An empty data page can still have a next cursor when selected products became
-   invisible during projection. Continue following that cursor.
+   invisible while preparing the response. Continue following that cursor.
 4. Save the completed cycle's `syncedUntil` unchanged as the next checkpoint.
    Do not substitute the final product's timestamp.
 
@@ -44,28 +44,15 @@ return `422 validation_failed`. Returned checkpoints and sync product `updatedAt
 values use UTC with exactly six fractional digits. Preserve those strings in
 storage; JavaScript Date cannot retain their full precision.
 
-## Delivery and concurrent changes
+## Handle updates during synchronization
 
-Each cycle reads `[updatedAfter, syncedUntil)`, ordered by `updatedAt` and then
-`id`, both ascending. The lower bound is inclusive and the upper bound exclusive.
-A row exactly at `syncedUntil` belongs to the next cycle. The first page computes
-the upper bound from the PostgreSQL clock minus the named 30-second safety
-window. Every later page retains that exact upper bound.
+Each cycle reads `[updatedAfter, syncedUntil)`, ordered by `updatedAt` and then `id`, both ascending. The lower bound is inclusive and the upper bound exclusive. An update exactly at `syncedUntil` belongs to the next cycle. The first page sets the upper bound to the server time minus 30 seconds; every later page uses the same bound.
 
-The window exceeds the API's 15-second write transaction budget and keeps recent
-uncommitted updates out of the current cycle. Transactions that remain open longer
-than the safety window remain a limitation. Sync is at-least-once: an update that
-moves a product past the current cursor can cause another delivery. Merge by ID
-and update time, and retry a failed page with its original cursor.
+The 30-second window excludes recent updates that have not yet committed. Transactions lasting longer than this window can still affect synchronization completeness. Synchronization uses at-least-once delivery: products updated again during a cycle may appear on later pages more than once. Merge by ID and update time, and retry a failed page with its original cursor.
 
-Pagination uses raw PostgreSQL microsecond values. A short repeatable-read
-transaction pairs each selected timestamp with its product snapshot, then closes
-before media projection. The response rechecks key permissions and current product
-visibility. Deleted or newly invisible selected products are omitted without
-failing the whole page, and the cursor still advances over the selected rows.
-Deletions of earlier pages cannot shift later rows out of the result.
+Sync timestamps retain microsecond precision. Each response rechecks key permissions and current product visibility. Deleted or newly invisible products are omitted without failing the whole page, and the cursor still advances. Deleting products from earlier pages does not cause later products to be skipped.
 
-## Reconciling removals
+## Handle deleted or invisible products
 
 `POST /api/product/products/visibility` accepts only this body:
 

@@ -1,8 +1,8 @@
-以下 Bash 示例需要 `curl` 和 `jq`。請使用測試商品庫或測試資料，並選擇權限適當的 key。公開 Base URL 的請求會作用於該 key 授權的真實商品庫。初始化流程會在該 key 所屬的商品庫中創建真實資源；後續的生命週期示例會更新/刪除這些資源。端點名稱、請求體和輸出路徑與 [openapi.json](/assets/developers/product-library/openapi.json) 一致。這些示例是經過 schema 校驗的文檔，並不代表已進行過實際 HTTP 調用。
+以下示例使用 Bash、`curl` 和 `jq`，涵蓋商品創建、發佈、下載和同步。部分操作會創建、更新或刪除數據，請使用測試商品庫或測試資料。參數與響應結構見 [OpenAPI 規範](/assets/developers/product-library/openapi.json)。
 
 ## 配置憑據
 
-在 shell 中設置以下變量，使用你的部署源地址和已獲得顯式 API Key 協作者授權的 MuseDAM key。切勿提交或打印 secret。運行請求時不要開啓 shell 跟蹤（tracing）。
+在 shell 中設置以下變量，並使用已添加為 API Key 協作者的 MuseDAM 密鑰。密鑰應從安全存儲中讀取，不要提交到倉庫、打印到日誌或開啟 shell 跟蹤。
 
 ```bash
 export BASE_URL='https://open.musedam.cc/api/product'
@@ -21,7 +21,7 @@ RUN_ID="$(date +%s)-$$"
 WORK_DIR="$(mktemp -d)"
 ```
 
-下面的完整初始化流程使用一個 `manage` API Key 協作者。全部操作能力由所分配的角色派生，不提供可編輯的操作白名單。生產集成應分配滿足需求的最低權限角色。所有響應（包括失敗響應）都包含 `X-Request-Id` 以及 private、no-store 緩存頭；JSON 響應結構還包含 `requestId`。
+下面的完整流程需要 `manage` 角色。實際接入時，請根據所需操作選擇角色。所有響應（包括失敗響應）都包含 `X-Request-Id` 和 `Cache-Control: private, no-store`；JSON 響應還包含 `requestId`。
 
 ## 創建品牌、分類和模板
 
@@ -273,4 +273,4 @@ jq --arg status "$HTTP_STATUS" \
   '{httpStatus:$status,code,message,requestId,details:(.details // [])}' "$WORK_DIR/error.json"
 ```
 
-對於 412，請重新獲取當前條目/ETag 並完成核對後再重試。對於 422，請修正所指出的字段/查詢參數/請求體；例如，在 status 路由上發送 `{"status":"archived"}` 是無效的。對於 401/403，請修正 key/角色/權限，而不是重試同一個未授權的請求。請保留 requestId 以便排查；切勿記錄 bearer secret 或簽名 URL。完整錯誤碼目錄見 [README](./product-library#error-catalog)。
+對於 412，請重新獲取當前條目/ETag 並完成核對後再重試。對於 422，請修正所指出的字段/查詢參數/請求體；例如，在 status 路由上發送 `{"status":"archived"}` 是無效的。對於 401/403，請修正 key/角色/權限，而不是重試同一個未授權的請求。請保留 requestId 以便排查；切勿記錄 bearer secret 或簽名 URL。完整錯誤碼目錄見 [錯誤碼](./product-library#error-catalog)。

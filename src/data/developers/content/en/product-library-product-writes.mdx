@@ -1,6 +1,6 @@
 `POST /api/product/products` requires `products:create` and returns `201`.
 `PATCH /api/product/products/{id}` requires `products:update` and returns `200`.
-Both return the product detail DTO in the standard envelope and a strong `ETag`.
+Both return product details in `data` and a strong `ETag`.
 PATCH accepts optional `If-Match`; stale validators return `412 precondition_failed`.
 POST accepts optional `Idempotency-Key` with the shared 24-hour, team/key/operation scope.
 
@@ -38,16 +38,13 @@ type configuration. A request can contain at most 100 total asset references,
 including cover, images, related assets, and custom fields. It cannot upload,
 download, or synchronize assets. Image slots require image assets.
 
-Custom values use the existing product's pinned immutable definition, including
-after template edits or soft deletion. Missing or mismatched pins fail with a
-generic internal error. New products pin the newest version of the selected or
-resolved template. PATCH cannot migrate templates.
+A new product saves the latest version of the selected or automatically resolved template. Custom fields are validated against that saved version, even after the template is edited or deleted. A missing or mismatched version returns an internal error. PATCH cannot change the template used by a product.
 
 `PATCH /api/product/products/{id}/status` accepts only
 `{"status":"draft"}` or `{"status":"published"}` and always requires both
 `products:update` and `products:publish`, even when the requested status equals
-the current status. It returns the product detail DTO and a new strong ETag.
-`If-Match` is optional; a stale validator returns `412` without changing the row.
+the current status. It returns product details and a new strong ETag.
+`If-Match` is optional; a stale validator returns `412` without changing the product.
 Publishing validates the complete pinned definition, including required system
 and custom fields, custom types/options, and stored image/file availability and
 configuration limits. Missing fields return `422` with field details. By default,
@@ -56,7 +53,7 @@ requirements. First publication sets `publishedAt`; repeated publication preserv
 it. Returning to draft clears `publishedAt` and allows later incomplete draft edits.
 
 `DELETE /api/product/products/{id}` requires `products:delete`; published products
-additionally require `products:publish`. It soft-deletes the row and returns `200`
+additionally require `products:publish`. It soft-deletes the product and returns `200`
 with `data: {"id": 123}` and a new strong ETag. Optional `If-Match` uses the same
 validator rules. A repeated deletion returns `404`.
 
@@ -75,11 +72,7 @@ product visibility, and file validity are checked again. Download properties sti
 require both product-read and product-download grants. Deleted/invisible products
 cannot be resurrected through a stored result.
 
-Nested media in structured custom values follows the same projection rules.
-Snapshots capture authorized file/object IDs and omit asset snapshots and storage
-credentials; responses project those references again. Replay preserves original
-business text and link values, while removing nested media no longer associated
-with that custom field. Scalar text and URL fields remain ordinary business data.
+Media nested in structured custom values is also checked against current permissions and associations. Retries preserve the original business text and links, but omit media that is no longer associated with that field. Text and URL fields are still returned as ordinary business data.
 
 PATCH and publication validate the entire resulting product against its pinned
 definition. A legacy browser value such as an invalid URL or email can therefore

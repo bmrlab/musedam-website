@@ -6,9 +6,9 @@ Give your AI assistant the [documentation index](https://www.musedam.cc/en-US/de
 
 ## Configure credentials and permissions
 
-Obtain an existing key through MuseDAM credential management. A Product Library Manager adds it through **Member Settings → Add Members** as an API Key Collaborator, initially `view_only`. The assigned role determines capabilities. Product Library does not issue secrets or provide a per-key operation allowlist.
+Use an existing MuseDAM API key. Ask a Product Library Manager to add it as an API Key Collaborator through **Member Settings → Add Members**. Its initial role is `view_only`; choose a role for the intended operations. Product Library does not issue keys, and each role defines its operation permissions.
 
-Provide the secret privately as `PRODUCT_LIBRARY_API_KEY`; never paste it into the documentation or commit it. Requests use `Authorization: Bearer <key>`. See [authentication and scope](./product-library#authentication-and-scope).
+Store the key in the `PRODUCT_LIBRARY_API_KEY` environment variable. Do not paste it into documentation or commit it. Requests use `Authorization: Bearer <key>`. See [authentication and permissions](./product-library#authentication-and-scope).
 
 ## Choose the relevant guide
 

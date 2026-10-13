@@ -4,7 +4,7 @@ All paths use the Base URL `https://open.musedam.cc/api/product`. The current AP
 
 Read the resource before updating it and preserve its strong `ETag`. Send that exact value in `If-Match` with PATCH, status changes or DELETE. A stale or weak tag returns `412 precondition_failed` without changing the resource. `*` or a comma-separated list containing the current strong tag also matches. Omitting the header uses last-writer-wins behavior. Sharing, history and recorded downloads do not use ETag or If-Match.
 
-## Atomic create replay
+## Creation and idempotent retries
 
 Resource creates accept an optional `Idempotency-Key`, scoped to the team, API key and operation for 24 hours. Use a nonblank value of at most 255 characters without ASCII control characters. Retry an uncertain create with the same key and input. Different canonical input under the same key returns `409 idempotency_key_reused`.
 

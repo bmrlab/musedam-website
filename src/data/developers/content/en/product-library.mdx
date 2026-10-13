@@ -1,6 +1,6 @@
-## Base URL and first request
+## Make your first request
 
-The public Base URL is `https://open.musedam.cc/api/product`. Append an operation path such as `/products`. This is separate from the asset API at `/api/muse` and from the documentation website. Use a server-side client; this API does not define browser CORS support. Confirm API access with your Product Library administrator before integration.
+Store an authorized API key in the server-side environment variable `PRODUCT_LIBRARY_API_KEY`, then run the following command to list products. Complete the authentication setup below before making requests.
 
 ```bash
 # PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
@@ -10,26 +10,17 @@ curl --silent --show-error --fail-with-body \
   -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
 ```
 
-[openapi.json](/assets/developers/product-library/openapi.json) is the machine-readable OpenAPI 3.0.3 contract for
-all public paths and operations under `/api/product`.
-[examples.md](./product-library-examples) contains executable curl/jq workflows. The JSON file
-includes request and response examples, strict input objects, nullable output
-fields, parameters, response headers, endpoint grants, and the complete error
-catalog. Import it into an OpenAPI-compatible client or documentation viewer.
+Download the [OpenAPI 3.0.3 specification](/assets/developers/product-library/openapi.json) for complete parameters and request and response schemas. You can import it into an OpenAPI-compatible client. See the [API examples](./product-library-examples) for more operations.
 
 To use these endpoints with an AI assistant, read the [AI assistant guide](./product-library-agent-skill).
 
-## Authentication and scope
+## Authentication and permissions
 
-Use an existing MuseDAM API key. A Product Library Manager adds it through
-Member Settings → Add Members as an API Key Collaborator, initially view-only.
-Send `Authorization: Bearer <key>` over HTTPS. MuseDAM owns credential issuance
-and lifecycle; this application never issues or reveals the secret. A matching
-explicit local grant and fresh upstream organization validation are required.
-No request can override the team, library or actor. The creator's role does not
-confer authority. Unadded, removed, expired, or rejected keys have no access;
-upstream unavailability fails closed with `503 authentication_unavailable`.
-There are no public endpoints for key or collaborator management.
+1. Obtain an existing MuseDAM API key. MuseDAM manages its credentials and lifecycle.
+2. Ask a Product Library Manager to open **Member Settings → Add Members** and add the key as an API Key Collaborator. Its initial role is `view_only`; choose a role below for the required operations.
+3. Send requests from your server over HTTPS with the `Authorization: Bearer <key>` header.
+
+Each request checks the key status and its team. Unadded, removed, expired or rejected keys cannot access the API. If authentication is unavailable, the API returns `503 authentication_unavailable`. Permissions come from the collaborator’s current role, not the key creator’s role. Requests cannot change the team, library or actor. Product Library provides no key or collaborator management endpoints.
 
 Authorization derives solely from the current collaborator role:
 
@@ -40,10 +31,7 @@ Authorization derives solely from the current collaborator role:
 | `editable`  | Resource reads, draft access, product create/update/delete/publish/download/share.    |
 | `manage`    | All 20 grants, including activity history and brand/category/template writes.         |
 
-Operation identifiers below describe role-derived checks, not separately editable
-permissions. No per-key operation allowlist remains. Removing collaborator access
-preserves audit, idempotency, history, and team-owned shares; revoke shares
-separately when required.
+The table lists the operation permissions included in each role; they cannot be selected separately for an individual key. Removing a collaborator preserves audit records, idempotency records, history and team-owned shares. Revoke shares separately when needed.
 
 | Path                                        | Method | Required grants                          | Minimum role / additional condition                                                  |
 | ------------------------------------------- | ------ | ---------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -79,13 +67,12 @@ separately when required.
 | `/products/{id}/download-assets`            | GET    | `products:read` AND `products:download`  | `usable` or higher; metadata only                                                    |
 | `/products/{id}/download-assets/{assetKey}` | GET    | `products:read` AND `products:download`  | `usable` or higher; authenticated attachment and business record                     |
 
-Product write responses include the standard detail DTO even without a read
+Product write responses include product details even without a read
 grant. Their original-download properties still require `products:read` AND
 `products:download`. `products:publish` also authorizes editing and deleting an
 already published product, in combination with the relevant mutation grant.
 A status change does not start an approval workflow or external synchronization.
-The existing browser actor display remains unchanged; v1 does not add an actor
-column or promise that a key name appears in the browser.
+
 
 ## Wire format and identifiers
 
@@ -112,12 +99,9 @@ but is omitted from all brand read/write DTOs; no raw icon/logo URL is exposed.
 
 Ordinary lists accept `page` (default 1) and `pageSize` (default 20, capped at
 100). They return `pagination: { page, pageSize, totalCount, totalPages }`.
-Product and asset pages omit rows that lose visibility during projection, so a
+Product and asset pages omit records that become invisible while preparing the response, so a
 page can be shorter than `pageSize` while the original count remains unchanged.
-Single-item reads still return 404 for invisible rows. Media projection batches
-reference lookups and runs at most eight database/signing operations concurrently
-per request; valid media references are not truncated. Derived preview history is read in
-20-job pages until the newest usable output is found.
+Single-item reads still return 404 for invisible records. Valid media references are not truncated.
 Categories additionally accept `brandId`; products accept `search`, `brandId`,
 `categoryId`, and `status`; assets accept `search` and MIME-prefix `mimeType`.
 Brand and template lists have no search filter. Unknown ordinary query
@@ -170,7 +154,9 @@ Read [write conventions](./product-library-write-conventions), [category rules](
 [template writes](./product-library-template-writes), and [product writes](./product-library-product-writes)
 for detailed validation rules.
 
-## Template pins and field values
+## Template versions and field values
+
+A product saves the template version used at creation. Later template edits or deletion do not change that product’s field definitions or values. Read the product’s `templateDefinition` for those field definitions.
 
 An explicit live template takes precedence on creation. When `templateId` is
 omitted or null and a non-null `categoryId` is supplied, resolution follows the
@@ -292,7 +278,7 @@ match. Duplicate sync parameters, `page`, changed bindings or malformed time
 bounds produce 422. Timestamp input accepts a timezone and at most six fraction
 digits. Transactions longer than the safety window are an accepted limitation.
 
-Sync has no removal tombstones. Periodically send locally known IDs to
+Synchronization does not include records for deleted products. Periodically send locally known IDs to
 `POST /products/visibility`; remove entries reported `not_visible`. This combines
 missing, deleted, foreign and role-hidden records without leaking existence.
 See [product synchronization](./product-library-synchronization) for the complete

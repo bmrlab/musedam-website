@@ -34,14 +34,13 @@ API key 决定所属商品库，请求无法覆盖该商品库。
 绑定数组只替换所提供的维度；省略的数组保留其原有绑定。所有绑定 ID 都必须在同一商品库中有效。当所选品牌非空时，所选分类必须属于这些品牌。绑定一个当前属于其他模板的 ID 会将该绑定移到本模板。`isLibraryDefault: true`
 将此模板设为商品库默认模板；`false` 仅在此模板当前为默认模板时清除默认设置。省略则保留现有的默认模板。
 
-每次成功的创建或更新都会使用 `newOnly` 写入一个不可变的版本快照。现有商品保留其固定版本和值。`syncAll`
-返回 `422 validation_failed`。
+每次成功的创建或更新都会使用 `newOnly` 保存一个新的模板版本。商品创建时会保存所用模板的版本；后续模板变更不会改变已有商品的字段定义和值。`syncAll` 返回 `422 validation_failed`。
 
-创建返回 `201`；更新返回 `200`，两者都包含投影后的模板和不透明的 `ETag`。`POST` 接受 `Idempotency-Key`：重试会重放原始的成功表示，即使之后有过编辑也是如此；在同一 key 下更改负载会返回 `409 idempotency_key_reused`。媒体会使用当前 key 重新投影；重放记录中不会存储签名媒体 URL。
+创建返回 `201`，更新返回 `200`，响应包含模板详情和 `ETag`。`POST` 接受 `Idempotency-Key`：使用相同的键和请求体重试，会返回首次成功的结果，即使模板之后已被修改。同一键用于不同请求体时返回 `409 idempotency_key_reused`。媒体信息会按当前密钥权限重新生成，签名 URL 不会保存在幂等记录中。
 
 ## 前置条件与删除
 
-`PATCH` 和 `DELETE` 接受可选的 `If-Match`。API 先锁定商品库行，再锁定模板行，然后计算完整的结构指纹。过期的值返回 `412 precondition_failed`，且不会修改模板。省略时保留最后写入者胜出（last-writer-wins）的行为。
+`PATCH` 和 `DELETE` 接受可选的 `If-Match`。请原样传入读取模板时返回的 `ETag`。值已过期时返回 `412 precondition_failed`，模板保持不变；省略时，后一次写入覆盖前一次。
 
 `DELETE /product-info-templates/{id}` 会软删除模板，并移除其直接的品牌和分类绑定。历史版本和商品的固定版本保持不变。删除商品库默认模板时，需要提供包含 `replacementForLibraryDefault` 的 JSON 请求体，其值为同一商品库中另一个未删除模板的 ID，或显式的 `null`。省略该字段会返回
 `409 default_template_replacement_required`。删除非默认模板时无需请求体。成功时返回 `200`，包含已删除的 ID 和 `ETag`。

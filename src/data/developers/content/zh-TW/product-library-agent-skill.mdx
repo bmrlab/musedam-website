@@ -6,9 +6,9 @@
 
 ## 配置憑據與權限
 
-通過 MuseDAM 憑據管理獲取現有 key，由商品庫管理員在**成員設置 → 添加成員**中將其添加為 API Key 協作者，初始角色為 `view_only`。能力由分配的角色決定；商品庫不簽發密鑰，也不提供逐 key 勾選操作權限的白名單。
+使用現有 MuseDAM API Key，並由商品庫管理員在「成員設置 → 添加成員」中將其添加為 API Key 協作者。初始角色為 `view_only`，請按目標操作分配角色。商品庫不簽發密鑰，各項操作權限由角色統一決定。
 
-通過 `PRODUCT_LIBRARY_API_KEY` 私下提供密鑰，不要粘貼到文檔或提交到倉庫。請求使用 `Authorization: Bearer <key>`，詳見[認證與作用範圍](./product-library#authentication-and-scope)。
+將密鑰保存在環境變量 `PRODUCT_LIBRARY_API_KEY` 中，不要粘貼到文檔或提交到倉庫。請求使用 `Authorization: Bearer <key>`，詳見[認證與權限](./product-library#authentication-and-scope)。
 
 ## 選擇對應指南
 

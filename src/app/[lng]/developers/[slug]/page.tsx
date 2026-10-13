@@ -68,7 +68,7 @@ export default async function DeveloperPage({ params }: Props) {
   const next = developerNavigation[index + 1]
   return (
     <div className="dev-page-grid">
-      <article className="dev-article">
+      <article className="dev-article" data-document-group={page.group}>
         <header className="dev-doc-header">
           <div className="dev-breadcrumb">
             <Link href={`/${lng}/developers/landing`}>
@@ -90,13 +90,22 @@ export default async function DeveloperPage({ params }: Props) {
         {(page.group === 'api' ||
           page.group === 'apps' ||
           page.group === 'mcp' ||
+          page.group === 'product-library' ||
           page.group === 'examples' ||
           slug === 'quick-start' ||
           slug === 'authentication') && (
           <RegionEndpoints
             lng={lng}
             english={english}
-            kind={page.group === 'mcp' ? 'mcp' : page.group === 'apps' ? 'apps' : 'api'}
+            kind={
+              page.group === 'product-library'
+                ? 'product-library'
+                : page.group === 'mcp'
+                  ? 'mcp'
+                  : page.group === 'apps'
+                    ? 'apps'
+                    : 'api'
+            }
           />
         )}
         <IntegrationFlow slug={slug} english={english} lng={lng} />
@@ -106,7 +115,7 @@ export default async function DeveloperPage({ params }: Props) {
               page.headings,
               english,
               lng,
-              slug !== 'product-library-reference',
+              slug === 'product-library-reference',
             )}
           />
         </div>

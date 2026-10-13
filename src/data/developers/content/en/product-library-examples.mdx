@@ -1,13 +1,8 @@
-These Bash examples require `curl` and `jq`. Use a test product library or test data and an appropriately scoped key. Requests to the public Base URL affect the real library authorized for that key. The setup workflow creates real resources in that
-key's library; the later lifecycle examples update/delete those resources.
-Endpoint names, bodies and output paths match [openapi.json](/assets/developers/product-library/openapi.json).
-The examples are schema-validated documentation, not evidence of live HTTP runs.
+These examples use Bash, `curl` and `jq` to create, publish, download and synchronize products. Some operations create, update or delete data. Use a test library or test data. See the [OpenAPI specification](/assets/developers/product-library/openapi.json) for parameters and response schemas.
 
 ## Configure credentials
 
-Set these variables in your shell, using your deployment origin and a key from
-MuseDAM with an explicit API Key Collaborator grant. Never commit or print the secret. Do not enable shell
-tracing while running requests.
+Set the following shell variables and use a MuseDAM key that has been added as an API Key Collaborator. Read the key from secure storage. Do not commit it, print it to logs or enable shell tracing.
 
 ```bash
 export BASE_URL='https://open.musedam.cc/api/product'
@@ -26,11 +21,7 @@ RUN_ID="$(date +%s)-$$"
 WORK_DIR="$(mktemp -d)"
 ```
 
-The full setup below uses a `manage` API Key Collaborator. All operation
-capabilities derive from the assigned role, without an editable allowlist.
-A production integration should receive the least privileged suitable role.
-All responses include `X-Request-Id` and private,
-no-store caching headers, including failures. JSON envelopes also include `requestId`.
+The complete workflow below requires the `manage` role. For your integration, choose the role required by your operations. All responses, including failures, contain `X-Request-Id` and `Cache-Control: private, no-store`. JSON responses also contain `requestId`.
 
 ## Create a brand, category, and template
 
@@ -358,4 +349,4 @@ For 412, refetch the current item/ETag and reconcile before retrying. For 422,
 correct the indicated field/query/body; e.g. `{"status":"archived"}` on the status
 route is invalid. For 401/403, correct the key/role/grants rather than retrying the
 same unauthorized request. Keep requestId for investigation; never log bearer
-secrets or signed URLs. The complete error catalog is in [README](./product-library#error-catalog).
+secrets or signed URLs. The complete error catalog is in [error codes](./product-library#error-catalog).
