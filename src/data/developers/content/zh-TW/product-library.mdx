@@ -1,13 +1,10 @@
 ## 發起第一次請求
 
-將已獲授權的 API Key 保存到服務端環境變量 `PRODUCT_LIBRARY_API_KEY`，然後運行以下命令取得商品列表。接入前請完成下方的認證配置。
+將範例中的 `your_api_key` 替換為已新增為商品庫協作者的 API Key，即可取得商品列表。認證步驟見下方說明。
 
 ```bash
-# PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body \
-  "https://open.musedam.cc/api/product/products?page=1&pageSize=20" \
-  -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 完整的參數、請求與響應結構見 [OpenAPI 3.0.3 規範](/assets/developers/product-library/openapi.json)，可導入兼容 OpenAPI 的客戶端。更多操作見[調用示例](./product-library-examples)。

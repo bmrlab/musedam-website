@@ -100,6 +100,11 @@ do not substitute the asset API envelope. Put shared technical definitions in th
 appendix and link to common error handling instead of repeating a status-code
 catalog for every operation.
 
+Keep public examples short and independent: a complete URL, an explicit
+`your_api_key` placeholder, representative resource IDs, and the request body.
+Explain placeholders in prose. Do not require shell setup, helper functions,
+temporary files, command-line JSON processors, or test assertions to read an example.
+
 When refreshing these documents:
 
 1. Compare source routes and the OpenAPI contract, then refresh the public JSON and

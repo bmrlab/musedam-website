@@ -1,13 +1,10 @@
 ## Make your first request
 
-Store an authorized API key in the server-side environment variable `PRODUCT_LIBRARY_API_KEY`, then run the following command to list products. Complete the authentication setup below before making requests.
+Replace `your_api_key` with an API key that has been added as a Product Library collaborator to list products. See the authentication steps below.
 
 ```bash
-# PRODUCT_LIBRARY_API_KEY must already contain your secret from secure storage.
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body \
-  "https://open.musedam.cc/api/product/products?page=1&pageSize=20" \
-  -H "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 Download the [OpenAPI 3.0.3 specification](/assets/developers/product-library/openapi.json) for complete parameters and request and response schemas. You can import it into an OpenAPI-compatible client. See the [API examples](./product-library-examples) for more operations.

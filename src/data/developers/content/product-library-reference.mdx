@@ -4,7 +4,7 @@
 
 [认证与权限](./product-library#authentication-and-scope) · [下载 OpenAPI JSON](/assets/developers/product-library/openapi.json) · [响应格式与限制](./product-library#wire-format-and-identifiers)
 
-示例从服务端安全配置中读取 PRODUCT_LIBRARY_API_KEY。运行前，请设置示例中使用的资源 ID、幂等键或 ETag。请求体中的资源 ID 和业务数据仅用于说明格式，须替换为当前商品库中的有效值。
+请将 your_api_key 和示例资源 ID 替换为您的商品库中的实际值。
 
 ## 获取品牌列表
 
@@ -68,10 +68,9 @@
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/brands?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/brands?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-1">
@@ -172,12 +171,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/brands" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/brands' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "name": "Example brand"
@@ -261,11 +257,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 响应示例：
@@ -355,13 +349,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request PATCH \
-  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "description": "Updated by API"
@@ -438,13 +428,9 @@ curl --silent --show-error --fail-with-body --request PATCH \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_BRAND_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request DELETE \
-  "https://open.musedam.cc/api/product/brands/${PRODUCT_LIBRARY_BRAND_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-3">
@@ -531,10 +517,9 @@ curl --silent --show-error --fail-with-body --request DELETE \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/categories?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/categories?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-4">
@@ -646,12 +631,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/categories" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/categories' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "name": "Catalog",
@@ -742,11 +724,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 响应示例：
@@ -848,13 +828,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request PATCH \
-  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "description": "Updated by API"
@@ -934,13 +910,9 @@ curl --silent --show-error --fail-with-body --request PATCH \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_CATEGORY_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request DELETE \
-  "https://open.musedam.cc/api/product/categories/${PRODUCT_LIBRARY_CATEGORY_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-6">
@@ -1025,10 +997,9 @@ curl --silent --show-error --fail-with-body --request DELETE \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-7">
@@ -1161,12 +1132,9 @@ name/description 会去除首尾空白。所有分组合计最多 200 个字段�
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/product-info-templates" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-info-templates' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "name": "Example template",
@@ -1288,11 +1256,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 响应示例：
@@ -1416,13 +1382,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request PATCH \
-  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "description": "Updated by API"
@@ -1533,13 +1495,9 @@ curl --silent --show-error --fail-with-body --request PATCH \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_TEMPLATE_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request DELETE \
-  "https://open.musedam.cc/api/product/product-info-templates/${PRODUCT_LIBRARY_TEMPLATE_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/product-info-templates/template-example' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "replacementForLibraryDefault": null
@@ -1651,10 +1609,9 @@ curl --silent --show-error --fail-with-body --request DELETE \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/products?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-10">
@@ -1893,12 +1850,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/products" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/products' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "name": "Example product",
@@ -2054,11 +2008,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 响应示例：
@@ -2343,13 +2295,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request PATCH \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "description": null,
@@ -2482,13 +2430,9 @@ curl --silent --show-error --fail-with-body --request PATCH \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request DELETE \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG"
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-16">
@@ -2584,13 +2528,9 @@ curl --silent --show-error --fail-with-body --request DELETE \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ETAG:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request PATCH \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/status" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "If-Match: $PRODUCT_LIBRARY_ETAG" \
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/products/40/status' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "status": "published"
@@ -2732,10 +2672,9 @@ curl --silent --show-error --fail-with-body --request PATCH \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/products/visibility" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/products/visibility' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "ids": [
@@ -2833,10 +2772,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/assets?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/assets?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-19">
@@ -2922,11 +2860,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_ASSET_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/assets/${PRODUCT_LIBRARY_ASSET_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/assets/30' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-20">
@@ -3021,10 +2957,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-21">
@@ -3140,12 +3075,9 @@ curl --silent --show-error --fail-with-body --request GET \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/product-shares" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-shares' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "productIds": [
@@ -3236,11 +3168,9 @@ curl --silent --show-error --fail-with-body --request POST \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_SHARE_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request DELETE \
-  "https://open.musedam.cc/api/product/product-shares/${PRODUCT_LIBRARY_SHARE_ID}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/product-shares/share-example' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-23">
@@ -3327,10 +3257,9 @@ curl --silent --show-error --fail-with-body --request DELETE \
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-24">
@@ -3439,12 +3368,9 @@ assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当�
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request POST \
-  "https://open.musedam.cc/api/product/product-downloads" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-downloads' \
+  --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "kind": "export",
@@ -3519,11 +3445,9 @@ X-Download-Record-Id: <record-id>
 请求示例：
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/download-assets" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY"
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40/download-assets' \
+  --header 'Authorization: Bearer your_api_key'
 ```
 
 <div id="response-example-25">
@@ -3592,17 +3516,12 @@ curl --silent --show-error --fail-with-body --request GET \
 
 请求示例：
 
-PRODUCT_LIBRARY_ASSET_KEY_ENCODED 须为下载候选列表返回的 key 经 URL 编码后的值，不能替换为 FilePath 或 AssetObject ID。
+示例使用下载候选 key p40:a2，URL 编码后为 p40%3Aa2。请使用您的下载候选列表返回的 key，它不是 FilePath 或 AssetObject ID。
 
 ```bash
-: "${PRODUCT_LIBRARY_API_KEY:?Set the API key from secure storage}"
-: "${PRODUCT_LIBRARY_PRODUCT_ID:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_ASSET_KEY_ENCODED:?Set the resource identifier before running this example}"
-: "${PRODUCT_LIBRARY_IDEMPOTENCY_KEY:?Set the value for this request before running this example}"
-curl --silent --show-error --fail-with-body --request GET \
-  "https://open.musedam.cc/api/product/products/${PRODUCT_LIBRARY_PRODUCT_ID}/download-assets/${PRODUCT_LIBRARY_ASSET_KEY_ENCODED}" \
-  --header "Authorization: Bearer $PRODUCT_LIBRARY_API_KEY" \
-  --header "Idempotency-Key: $PRODUCT_LIBRARY_IDEMPOTENCY_KEY" \
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40/download-assets/p40%3Aa2' \
+  --header 'Authorization: Bearer your_api_key' \
   --output product-asset.bin
 ```
 

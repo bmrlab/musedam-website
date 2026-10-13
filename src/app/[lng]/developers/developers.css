@@ -540,6 +540,9 @@
   white-space: pre;
   tab-size: 2;
 }
+.dev-code pre * {
+  font-family: inherit;
+}
 .dev-prose details {
   padding: 16px;
   border: 1px solid var(--dev-line);

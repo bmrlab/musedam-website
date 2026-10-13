@@ -8,7 +8,7 @@
 
 使用现有 MuseDAM API Key，并由商品库管理员在「成员设置 → 添加成员」中将其添加为 API Key 协作者。初始角色为 `view_only`，请按目标操作分配角色。商品库不签发密钥，各项操作权限由角色统一决定。
 
-将密钥保存在环境变量 `PRODUCT_LIBRARY_API_KEY` 中，不要粘贴到文档或提交到仓库。请求使用 `Authorization: Bearer <key>`，详见[认证与权限](./product-library#authentication-and-scope)。
+请求通过 `Authorization: Bearer <key>` 携带 API Key，请在服务端调用。详见[认证与权限](./product-library#authentication-and-scope)。
 
 ## 选择对应指南
 

@@ -8,7 +8,7 @@ Give your AI assistant the [documentation index](https://www.musedam.cc/en-US/de
 
 Use an existing MuseDAM API key. Ask a Product Library Manager to add it as an API Key Collaborator through **Member Settings → Add Members**. Its initial role is `view_only`; choose a role for the intended operations. Product Library does not issue keys, and each role defines its operation permissions.
 
-Store the key in the `PRODUCT_LIBRARY_API_KEY` environment variable. Do not paste it into documentation or commit it. Requests use `Authorization: Bearer <key>`. See [authentication and permissions](./product-library#authentication-and-scope).
+Send the API key in the `Authorization: Bearer <key>` header from your server. See [authentication and permissions](./product-library#authentication-and-scope).
 
 ## Choose the relevant guide
 
