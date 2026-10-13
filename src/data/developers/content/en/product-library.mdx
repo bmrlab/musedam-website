@@ -1,12 +1,12 @@
-## Service address
+## Quick start
 
 The Product Library API is available at `https://open.musedam.cc/api/product`. Append an endpoint path, such as `/products`, to this address.
-
-## Get access
 
 1. Obtain a MuseDAM API Key.
 2. Ask a Product Library manager to add the key as an API Key Collaborator in **Member settings → Add member** and assign the required role.
 3. Call the API from your server with an `Authorization: Bearer <key>` header.
+
+Authorization uses the key’s team and the collaborator’s current role. Request parameters cannot switch product libraries.
 
 New collaborators have the `view_only` role by default. Choose a role for the operations you need:
 
@@ -17,9 +17,7 @@ New collaborators have the `view_only` role by default. Choose a role for the op
 | `editable` | Create and edit products, access drafts, publish and delete products. |
 | `manage` | Manage all resources, including brands, categories, information templates and activity records. |
 
-Each role includes the operations of the role above it. See the [API documentation](./product-library-reference) for each endpoint's requirements.
-
-## Make your first request
+Each role includes the preceding role’s permissions. Replace resource IDs in the examples with actual IDs.
 
 Replace `your_api_key` with your authorized API Key to query the product list:
 
@@ -30,51 +28,3163 @@ curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize
 
 A successful response has `success: true`, a product list in `data`, and paging information in `pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
-## Next steps
+## Requests and responses
 
-- [API documentation](./product-library-reference): find parameters, responses and examples by resource, including brands, categories and products.
-- [Request examples](./product-library-examples): create, publish, share, download and synchronize products.
-- [Download OpenAPI JSON](/assets/developers/product-library/openapi.json): import the specification into a compatible API tool.
+Every request uses `Authorization: Bearer <key>`. JSON requests use `Content-Type: application/json`. Endpoint paths below are relative to the service address.
 
-<div id="wire-format-and-identifiers" className="dev-moved-section">
+JSON endpoints use the following structure. Successful downloads and exports return files directly.
 
-This section is now in [Wire format and identifiers](./product-library-reference#wire-format-and-identifiers).
+| Result | How to read it |
+| --- | --- |
+| Success | `success: true`; read the result from `data`. `code` and `message` are `null`. |
+| Failure | `success: false` and `data: null`. Handle the HTTP status and `code`; do not depend on the wording of `message`. |
+| Validation failure | If the response includes `details`, use `details[].field` and `details[].message` to correct the fields. |
+| Request tracing | Keep `requestId` or the `X-Request-Id` response header for troubleshooting. |
 
-</div>
-<div id="writes-concurrency-and-limits" className="dev-moved-section">
+Ordinary lists accept `page` and `pageSize` and return a top-level `pagination` object. `totalCount` is the total record count; `totalPages` is the total page count:
 
-This section is now in [Writes, concurrency, and limits](./product-library-write-conventions#write-preconditions).
+| Parameter | Default | Range |
+| --- | --- | --- |
+| `page` | `1` | Integer starting at `1`. |
+| `pageSize` | `20` | Positive integer; values above `100` are capped at `100`. |
 
-</div>
-<div id="template-pins-and-field-values" className="dev-moved-section">
+```json
+{
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 42,
+  "totalPages": 3
+}
+```
 
-This section is now in [Template versions and field values](./product-library-product-writes#template-pins-and-field-values).
+Products and assets can become invisible during a request. A page may therefore contain fewer than `pageSize` records while retaining its original counts. Reading an invisible individual resource returns `404`.
 
-</div>
-<div id="media-and-expiry" className="dev-moved-section">
+Use [cursor synchronization](#cycle-protocol) to maintain a product copy; ordinary page numbers are for browsing. See each endpoint for filters. Ordinary queries ignore unknown parameters; JSON request bodies reject unknown fields.
 
-This section is now in [Media and expiry](./product-library-product-writes#media-and-expiry).
+<details id="field-formats">
+<summary>Field formats</summary>
 
-</div>
-<div id="sharing-recorded-downloads-and-history" className="dev-moved-section">
+| Field | Usage |
+| --- | --- |
+| Numeric resource IDs | Positive integers up to `2147483647`. |
+| Template, group, field and version IDs | Strings; preserve them as received and do not assume UUID format. |
+| Asset IDs | Use `id` from asset lookup (FilePath ID), not an AssetObject ID or product association ID. |
+| Category `iconAssetId` | A category icon identifier (CategoryIconAsset). |
+| `size` | Decimal string or `null`, preserving large byte counts. |
+| Dates | RFC 3339 strings or `null`; preserve all six fractional digits in synchronization timestamps. |
+| Product SKU | The API field is named `spu`. |
 
-This section is now in [Sharing, recorded downloads, and history](./product-library-product-writes#sharing-recorded-downloads-and-history).
+Legacy or unresolved product media can have `id: null`. Valid media references are not truncated. See [Media links](#media-and-expiry) for previews and downloads.
 
-</div>
-<div id="synchronization-and-removals" className="dev-moved-section">
+</details>
 
-This section is now in [Synchronization and removals](./product-library-synchronization#cycle-protocol).
+<details id="write-preconditions">
+<summary>Concurrent updates</summary>
 
-</div>
-<div id="error-catalog" className="dev-moved-section">
+Save the strong `ETag` (including quotes) when reading a brand, category, template, or product. Supply it as `If-Match` for an update, status change, or deletion. On `412 precondition_failed`, read and reconcile again. If omitted, the later write takes precedence. Shares, history, and download records do not use ETag.
 
-This section is now in [Error catalog](./product-library-write-conventions#error-catalog).
+</details>
 
-</div>
-<div id="protected-template-fields-and-category-defaults" className="dev-moved-section">
+<details id="atomic-create-replay">
+<summary>Creation and download retries</summary>
 
-This section is now in [Protected template fields and category defaults](./product-library-template-writes#creating-and-updating).
+Resource creation accepts `Idempotency-Key`, scoped to the team, API key, and operation. Keys allow up to 255 characters and cannot be blank or contain control characters. Retry with the same key and input within 24 hours; changed input returns `409 idempotency_key_reused`. Resource creation replays the initial non-media result and rebuilds media using current permissions. Download retries reuse the record but authorize and transfer current files again.
 
-</div>
+</details>
 
-See [Responses and pagination](./product-library-reference#wire-format-and-identifiers) for paging and returned fields, or [Error codes](./product-library-write-conventions#error-catalog) when a request fails.
+<details id="error-catalog">
+<summary>Request limits and errors</summary>
+
+Request bodies are limited to 1 MiB. Unknown JSON properties are rejected. Ordinary queries ignore unknown parameters; history and sync queries use stricter validation.
+
+| Result | Action |
+| --- | --- |
+| 401 / 403 | Check the key, collaborator role, and resource visibility. |
+| 404 | The resource is missing, deleted, or inaccessible; check its ID. |
+| 422 `validation_failed` | Correct the input. If `details` is present, read `field` and `message`. |
+| 409 `sku_in_use` / `name_in_use` | Change the conflicting SKU or name. Soft-deleted products still reserve their SKU. |
+| 409 `mutation_response_unavailable` | The mutation committed or replayed. Check `mutationOutcome`; do not blindly create again. |
+| 503 `write_conflict` | The mutation rolled back. Wait according to `Retry-After: 1`, then retry. |
+| 413 | Reduce the body or download count/size. |
+
+Use `X-Request-Id` or the JSON `requestId` for troubleshooting. A download error with `mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+
+</details>
+
+[Download OpenAPI JSON](/assets/developers/product-library/openapi.json)
+
+## Brands
+
+<details id="fields-Brand">
+<summary>Brand response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
+| name | String | Name. |
+| code | String | Code. |
+| description | String | Description. May be null |
+| website | String | Website URL. May be null |
+| sortOrder | Integer | Sort order. |
+| isEnabled | Boolean | Whether enabled. |
+| createdAt | String | RFC 3339 timestamp; preserve full precision.|
+| updatedAt | String | RFC 3339 timestamp; preserve full precision.|
+
+</details>
+
+### List brands
+
+**Endpoint**: /brands
+
+**Method**: GET
+
+**Description**: Returns public metadata ordered by sortOrder then id. Raw logo URLs are excluded.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+
+**Response fields**: `200`; `data`: List&lt;Brand&gt;. [field details](#fields-Brand) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/brands?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listBrands">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": null,
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Create brand
+
+**Endpoint**: /brands
+
+**Method**: POST
+
+**Description**: Creates a brand; duplicate names are allowed and code is generated by the server. Logo URL restrictions are listed in the parameter table below.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | BrandCreate | Yes | JSON request body: application/json |
+
+**BrandCreate fields**:
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | Yes | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
+| description | String | No | Maximum length 512 characters; May be null |
+| logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
+
+**Response fields**: `201`; `data`: Brand. [field details](#fields-Brand)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/brands' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "name": "Example brand"
+}'
+```
+
+<details id="response-createBrand">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 10,
+    "name": "Example brand",
+    "code": "example-code",
+    "description": null,
+    "website": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Read brand
+
+**Endpoint**: /brands/&#123;id&#125;
+
+**Method**: GET
+
+**Description**: Returns the specified brand’s public metadata and current strong ETag. Raw logo URLs are excluded.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: Brand. [field details](#fields-Brand)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-getBrand">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 10,
+    "name": "Example brand",
+    "code": "example-code",
+    "description": null,
+    "website": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Update brand
+
+**Endpoint**: /brands/&#123;id&#125;
+
+**Method**: PATCH
+
+**Description**: Updates the provided metadata fields; omitted properties remain unchanged. No file upload or generic asset replacement.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | BrandPatch | Yes | JSON request body: application/json |
+
+**BrandPatch fields**:
+
+Unknown fields are rejected; Minimum number of fields: 1.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | No | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
+| description | String | No | Maximum length 512 characters; May be null |
+| logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
+
+**Response fields**: `200`; `data`: Brand. [field details](#fields-Brand)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+<details id="response-updateBrand">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 10,
+    "name": "Example brand",
+    "code": "example-code",
+    "description": "Updated by API",
+    "website": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:05:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Delete brand
+
+**Endpoint**: /brands/&#123;id&#125;
+
+**Method**: DELETE
+
+**Description**: Deletes only a brand with no live categories or products. Returns 409 otherwise; never cascades into products.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+
+**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/brands/10' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-deleteBrand">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 10
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Categories
+
+<details id="category-rules">
+<summary>Category trees and deletion</summary>
+
+Sibling names must be unique, and parents must belong to the same brand. A brand allows at most 10 levels and 5000 nondeleted nodes. `sortOrder` is a zero-based sibling position: omission appends new or moved categories and preserves position for same-parent updates. Renaming or moving updates descendant paths.
+
+Creation adds a direct library-default template binding only when that template has no brand bindings or includes this brand. Otherwise creation still succeeds, with ancestor, brand, then library-default resolution. Deletion soft-deletes the entire subtree; any nondeleted product in it causes `409 category_has_products` without deleting anything.
+
+</details>
+
+<details id="fields-Category">
+<summary>Category response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
+| brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647. |
+| parentId | Integer | Parent category ID. Positive integer ID, maximum 2147483647.; May be null |
+| name | String | Name. |
+| pathKey | String | Category path. |
+| description | String | Description. May be null |
+| iconEmoji | String | Category emoji. May be null |
+| iconAssetId | Integer | Category icon ID. Positive integer ID, maximum 2147483647.; May be null |
+| sortOrder | Integer | Sort order. |
+| isEnabled | Boolean | Whether enabled. |
+| createdAt | String | RFC 3339 timestamp; preserve full precision.|
+| updatedAt | String | RFC 3339 timestamp; preserve full precision.|
+
+</details>
+
+### List categories
+
+**Endpoint**: /categories
+
+**Method**: GET
+
+**Description**: Returns a flat live tree ordered by brandId, parentId, sortOrder and id. Optional brand filter; no implicit subtree expansion.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+| brandId | Integer | No | Query parameter. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: List&lt;Category&gt;. [field details](#fields-Category) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/categories?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listCategorys">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": null,
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Create category
+
+**Endpoint**: /categories
+
+**Method**: POST
+
+**Description**: Creates a live node in the specified brand. Parent must be live in the same brand/library. Max depth 10 and max 5000 live nodes per brand. Sibling names must be unique. The library default template is explicitly bound only when it has no brand bindings or includes this brand; otherwise creation succeeds without an explicit binding, preserving ancestor, brand, then library-default template resolution.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | CategoryCreate | Yes | JSON request body: application/json |
+
+**CategoryCreate fields**:
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| brandId | Integer | Yes | Positive integer ID, maximum 2147483647. |
+| name | String | Yes | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
+| parentId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| sortOrder | Integer | No | Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent. Minimum: 0; Maximum: 5,000 |
+| description | String | No | May be null |
+| iconEmoji | String | No | Maximum length 16 characters; May be null |
+| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
+| isEnabled | Boolean | No | — |
+
+**Response fields**: `201`; `data`: Category. [field details](#fields-Category)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/categories' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "name": "Catalog",
+  "brandId": 10
+}'
+```
+
+<details id="response-createCategory">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 20,
+    "brandId": 10,
+    "parentId": null,
+    "name": "Catalog",
+    "pathKey": "/Catalog",
+    "description": null,
+    "iconEmoji": null,
+    "iconAssetId": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Read category
+
+**Endpoint**: /categories/&#123;id&#125;
+
+**Method**: GET
+
+**Description**: Returns the specified nondeleted category and current strong ETag. A missing category or one outside the current library returns 404.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: Category. [field details](#fields-Category)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-getCategory">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 20,
+    "brandId": 10,
+    "parentId": null,
+    "name": "Catalog",
+    "pathKey": "/Catalog",
+    "description": null,
+    "iconEmoji": null,
+    "iconAssetId": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Update category
+
+**Endpoint**: /categories/&#123;id&#125;
+
+**Method**: PATCH
+
+**Description**: Updates or moves a node within its existing brand; brandId is immutable. Rejects cycles/depth/node limits and invalid sort index. Updates descendant paths atomically.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | CategoryPatch | Yes | JSON request body: application/json |
+
+**CategoryPatch fields**:
+
+Unknown fields are rejected; Minimum number of fields: 1.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | No | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
+| parentId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| sortOrder | Integer | No | Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent. Minimum: 0; Maximum: 5,000 |
+| description | String | No | May be null |
+| iconEmoji | String | No | Maximum length 16 characters; May be null |
+| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
+| isEnabled | Boolean | No | — |
+
+**Response fields**: `200`; `data`: Category. [field details](#fields-Category)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+<details id="response-updateCategory">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 20,
+    "brandId": 10,
+    "parentId": null,
+    "name": "Catalog",
+    "pathKey": "/Catalog",
+    "description": "Updated by API",
+    "iconEmoji": null,
+    "iconAssetId": null,
+    "sortOrder": 0,
+    "isEnabled": true,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:05:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Delete category
+
+**Endpoint**: /categories/&#123;id&#125;
+
+**Method**: DELETE
+
+**Description**: Soft-deletes the entire category subtree only if no live products reference any descendant. Does not delete or demote products.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+
+**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/categories/20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-deleteCategory">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 20
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Information templates
+
+<details id="template-groups">
+<summary>Groups</summary>
+
+`groups` contains 1–200 groups. A template may have at most 200 fields in total.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | string | Required for an existing group, 1–128 characters, belonging to this template. Omit for a new group. |
+| `name` | string | Required, 1–128 characters. Leading and trailing whitespace is trimmed. |
+| `fields` | array | Required. Fields in the group, described below. |
+
+Existing groups keep their stored order; new groups append in the supplied order. Groups do not accept `sortOrder` or `isDefault`. The server assigns the default group, which cannot be deleted.
+
+</details>
+
+<details id="template-fields">
+<summary>Fields</summary>
+
+New fields require `key`, `name`, and `type`. Existing fields require `id`. When the type is unchanged, omitted properties retain their values, except for `sortOrder`. Changing `type` migrates `config` for the target type; provide new configuration when required.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | string | Required for an existing field, 1–128 characters, belonging to this group. Omit for a new field. |
+| `key` | string | Required for a new field, 1–64 characters. A unique, valid identifier; cannot change for existing fields. |
+| `name` | string | Required for a new field, 1–128 characters. |
+| `type` | string | Required for a new field. Supported types appear in the configuration table below. |
+| `required` | boolean | Optional. Defaults to `false` for a new field. |
+| `placeholder` | string or null | Optional, up to 255 characters. Defaults to `null` for a new field. |
+| `sortOrder` | integer | Optional, nonnegative, and unique within the group. If omitted, uses the field's array position. |
+| `config` | object | Depends on the field type; see below. Defaults to `{}` for a new field, but must still meet that type's configuration requirements. |
+| `typeChangeConfirmed` | boolean | Optional. Set to `true` for an allowed type change that requires confirmation. |
+
+Creation seeds three protected fields: name, SKU, and main image. This leaves room for up to 197 custom fields. Custom fields in the first group follow those three fields: their supplied `sortOrder` (or array position when omitted) is increased by 3. Replacement definitions must keep these field IDs, types, required flags, and configurations. Fields cannot move between groups.
+
+New fields must be custom fields and cannot use reserved system keys. `isSystemField` and `systemKey` cannot create or reassign system identities; preserve their values on update. Unknown group or field properties are rejected.
+
+</details>
+
+<details id="field-configuration">
+<summary>Field configuration</summary>
+
+`config` depends on the field's `type`. For example, text fields use `{}`, while currency and choice fields need additional configuration.
+
+| Field type | Configuration |
+| --- | --- |
+| `text`, `textarea`, `email`, `phone`, `url`, `color`, `date`, `dateRange` | Use `{}`. Other configuration properties are not accepted. |
+| `number` | Optional `unit`, a string. |
+| `currency` | Required `code` and `symbol` (nonempty strings), and `decimals` (an integer from 0 to 4). |
+| `richtext` | Required `mode`, either `html` or `delta`. |
+| `select`, `radio`, `checkbox` | Required, nonempty `options` array. Entries follow the table below; `value` must be unique. |
+| `image`, `file` | Optional `maxCount` (an integer of at least 1), `maxSizeMB` (a number greater than 0), and `accept` (an array of strings). |
+
+Each `options` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `value` | string | Required, nonempty. The option's unique value. |
+| `label` | string | Required, nonempty. The display label. |
+| `sortOrder` | integer | Required, nonnegative. |
+| `archived` | boolean | Optional. Whether the option is archived. |
+
+System fields support `customPlaceholder`, an optional string of up to 255 characters. System brand and category fields do not accept custom options. Protected system fields cannot change their configuration.
+
+Empty and system configurations reject unknown properties. Other configuration and option validators strip unknown properties. Download the [OpenAPI JSON](/assets/developers/product-library/openapi.json) for the full machine-readable definition.
+
+</details>
+
+<details id="template-definition">
+<summary>Returned template definition</summary>
+
+Template details use `groups`; products use `templateDefinition.groups`. Both contain groups and fields. Products return the version pinned at creation, unchanged by later template edits or deletion. `templateDefinition` may be `null` when no template is assigned.
+
+Each group always returns `id`, `name`, `fields`, and these read-only properties:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `isDefault` | boolean | Whether this is the default group. |
+| `sortOrder` | integer | The group's order. |
+
+Each field always returns `id`, `key`, `name`, `type`, `required`, `placeholder`, `sortOrder`, `config`, and the following properties. The write-only parameter `typeChangeConfirmed` is not returned.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `isSystemField` | boolean | Whether this is a system field. |
+| `systemKey` | string or null | System identity: `name`, `sku`, `brand`, `category`, `description`, or `mainImage`. `null` for custom fields. |
+
+`placeholder` may be `null`. Media references in configuration return safe preview information without storage paths or credentials. Reading a product's pinned template definition does not require `templates:read`.
+
+</details>
+
+<details id="fields-Template">
+<summary>Template response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | String | Resource ID. Minimum length 1 characters; Maximum length 128 characters |
+| name | String | Name. |
+| description | String | Description. May be null |
+| enabled | Boolean | Whether the template is enabled. |
+| isSystemDefault | Boolean | Whether this is the system default template. |
+| isLibraryDefault | Boolean | Whether this is the library default template. |
+| createdAt | String | RFC 3339 timestamp; preserve full precision.|
+| updatedAt | String | RFC 3339 timestamp; preserve full precision.|
+| boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Positive integer ID, maximum 2147483647. |
+| boundCategoryIds | List&lt;Integer&gt; | Bound category IDs. Each item: Positive integer ID, maximum 2147483647. |
+| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [Template groups and fields](#template-definition) |
+
+</details>
+
+### List templates
+
+**Endpoint**: /product-info-templates
+
+**Method**: GET
+
+**Description**: Returns live template metadata, bindings and ordered groups/fields, including preview-only configuration. Ordered by createdAt descending then id.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+
+**Response fields**: `200`; `data`: List&lt;Template&gt;. [field details](#fields-Template) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listTemplates">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "template_example",
+      "name": "Example template",
+      "description": null,
+      "enabled": true,
+      "isSystemDefault": false,
+      "isLibraryDefault": false,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "boundBrandIds": [],
+      "boundCategoryIds": [],
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 3,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Create template
+
+**Endpoint**: /product-info-templates
+
+**Method**: POST
+
+**Description**: Creates a template and an immutable version. syncStrategy is optional and only newOnly is supported. Allows at most 200 fields and leaves existing products unchanged.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | TemplateCreate | Yes | JSON request body: application/json |
+
+**TemplateCreate fields**:
+
+Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
+| description | String | No | Maximum length 50 characters; May be null |
+| enabled | Boolean | No | — |
+| groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
+| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| isLibraryDefault | Boolean | No | — |
+| syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
+
+**Response fields**: `201`; `data`: Template. [field details](#fields-Template)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-info-templates' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "name": "Example template",
+  "groups": [
+    {
+      "name": "Details",
+      "fields": [
+        {
+          "key": "color",
+          "name": "Color",
+          "type": "text",
+          "config": {}
+        }
+      ]
+    }
+  ]
+}'
+```
+
+<details id="response-createTemplate">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "template_example",
+    "name": "Example template",
+    "description": null,
+    "enabled": true,
+    "isSystemDefault": false,
+    "isLibraryDefault": false,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "boundBrandIds": [],
+    "boundCategoryIds": [],
+    "groups": [
+      {
+        "id": "group_details",
+        "name": "Details",
+        "isDefault": true,
+        "sortOrder": 0,
+        "fields": [
+          {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
+            "id": "field_color",
+            "key": "color",
+            "name": "Color",
+            "type": "text",
+            "required": false,
+            "placeholder": null,
+            "sortOrder": 3,
+            "isSystemField": false,
+            "systemKey": null,
+            "config": {}
+          }
+        ]
+      }
+    ]
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Read template
+
+**Endpoint**: /product-info-templates/&#123;id&#125;
+
+**Method**: GET
+
+**Description**: Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending. The current strong ETag covers live fields, groups, bindings, and the default designation.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+
+**Response fields**: `200`; `data`: Template. [field details](#fields-Template)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-getTemplate">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "template_example",
+    "name": "Example template",
+    "description": null,
+    "enabled": true,
+    "isSystemDefault": false,
+    "isLibraryDefault": false,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "boundBrandIds": [],
+    "boundCategoryIds": [],
+    "groups": [
+      {
+        "id": "group_details",
+        "name": "Details",
+        "isDefault": true,
+        "sortOrder": 0,
+        "fields": [
+          {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
+            "id": "field_color",
+            "key": "color",
+            "name": "Color",
+            "type": "text",
+            "required": false,
+            "placeholder": null,
+            "sortOrder": 3,
+            "isSystemField": false,
+            "systemKey": null,
+            "config": {}
+          }
+        ]
+      }
+    ]
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Update template
+
+**Endpoint**: /product-info-templates/&#123;id&#125;
+
+**Method**: PATCH
+
+**Description**: Uses the shared browser batch operation. Supplied groups/fields are a complete replacement; omitted groups are preserved. Stable IDs and protected system/default fields are validated. Creates a new immutable version without migrating existing product pins or values; bindings/default changes affect future template resolution.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | TemplatePatch | Yes | JSON request body: application/json |
+
+**TemplatePatch fields**:
+
+Omitted groups are preserved; supplied groups replace the entire live set. Preserve stable group/field IDs. Omitted groups/fields are deleted, subject to protected default/system fields. Every successful write creates a new immutable version, including metadata-only updates.
+
+Unknown fields are rejected; Minimum number of fields: 1.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | No | Minimum length 1 characters; Maximum length 30 characters |
+| description | String | No | Maximum length 50 characters; May be null |
+| enabled | Boolean | No | — |
+| groups | List&lt;TemplateGroupInput&gt; | No | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
+| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| isLibraryDefault | Boolean | No | — |
+| syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
+
+**Response fields**: `200`; `data`: Template. [field details](#fields-Template)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": "Updated by API"
+}'
+```
+
+<details id="response-updateTemplate">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "template_example",
+    "name": "Example template",
+    "description": "Updated by API",
+    "enabled": true,
+    "isSystemDefault": false,
+    "isLibraryDefault": false,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:05:00.000Z",
+    "boundBrandIds": [],
+    "boundCategoryIds": [],
+    "groups": [
+      {
+        "id": "group_details",
+        "name": "Details",
+        "isDefault": true,
+        "sortOrder": 0,
+        "fields": [
+          {
+            "id": "field_name",
+            "key": "name",
+            "name": "商品名称",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 0,
+            "isSystemField": true,
+            "systemKey": "name",
+            "config": {}
+          },
+          {
+            "id": "field_sku",
+            "key": "sku",
+            "name": "SKU",
+            "type": "text",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 1,
+            "isSystemField": true,
+            "systemKey": "sku",
+            "config": {}
+          },
+          {
+            "id": "field_main_image",
+            "key": "mainImage",
+            "name": "商品主图",
+            "type": "image",
+            "required": true,
+            "placeholder": null,
+            "sortOrder": 2,
+            "isSystemField": true,
+            "systemKey": "mainImage",
+            "config": {}
+          },
+          {
+            "id": "field_color",
+            "key": "color",
+            "name": "Color",
+            "type": "text",
+            "required": false,
+            "placeholder": null,
+            "sortOrder": 3,
+            "isSystemField": false,
+            "systemKey": null,
+            "config": {}
+          }
+        ]
+      }
+    ]
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Delete template
+
+**Endpoint**: /product-info-templates/&#123;id&#125;
+
+**Method**: DELETE
+
+**Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Current library default requires an explicit replacement or null; default/system protections still apply. Removes bindings without rewriting existing product pins.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | TemplateDelete | No | JSON request body: application/json |
+
+**TemplateDelete fields**:
+
+Optional body. If deleting the current library default, this property is required: a different live same-library template ID, or explicit null to clear the default. Historical versions remain available to pinned products.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| replacementForLibraryDefault | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
+
+**Response fields**: `200`; `data`: DeletedTemplateId. Returns `data.id`, the deleted resource ID.
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "replacementForLibraryDefault": null
+}'
+```
+
+<details id="response-deleteTemplate">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "template_example"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Products
+
+<details id="template-pins-and-field-values">
+<summary>Pinned templates and custom fields</summary>
+
+Products save a template version at creation. Interpret `templateFields` using `templateDefinition`; later template edits or deletion do not change that version. Ordinary PATCH cannot change the template. `templateFields` uses pinned field IDs as keys and shallow-merges on update; `null` clears an individual value.
+
+An explicit `templateId` takes priority. Otherwise a supplied `categoryId` resolves the category, ancestors, brand, then library default. Without a category, only the library default is considered, even when a brand is supplied.
+
+| Field type | Input format |
+| --- | --- |
+| `number`, `currency` | JSON number |
+| `dateRange` | Ordered pair of date strings |
+| `checkbox` | Array of option values |
+| `image`, `file` | Array of FilePath IDs, or null |
+| `richtext` | String in HTML mode; `{ "ops": [...] }` in delta mode |
+
+Drafts may omit required values, but supplied and merged fields must meet type and option rules. Publishing or editing a published product validates the complete product. A write may reference at most 100 media items across all fields, using existing same-library FilePath IDs. Omitted media lists stay unchanged; `[]` clears them. Without `coverAssetId`, the first `imageAssetIds` image becomes the cover.
+
+</details>
+
+<details id="cycle-protocol">
+<summary>Synchronization and checkpoints</summary>
+
+1. Start with `sync=true`, omitting `updatedAfter` for a full scan. For an incremental cycle, use the previous completed `syncedUntil`.
+2. Merge by product `id` and `updatedAt`, retaining the newer version.
+3. Follow `nextCursor` with `sync=true&cursor=...` until null, including when `data` is empty.
+4. Save the completed `syncedUntil` unchanged, not the last product timestamp.
+
+Cursors bind the key, role, library, filters, and page size; keep them unchanged while paging. Start a new cycle after authorization or filter changes, and scan fully when the scope expands. Preserve all six fractional digits in checkpoints and sync `updatedAt`; JavaScript Date loses precision. Each cycle reads current state in `[updatedAfter, syncedUntil)`, with the first request’s server time minus 30 seconds as its upper bound. Longer transactions may still affect completeness; this is not an event stream of every change.
+
+</details>
+
+<details id="reconciling-removals">
+<summary>Removing deleted or invisible products</summary>
+
+Sync does not return deletion events. Periodically send local product IDs to [visibility checking](#operation-checkProductVisibility), removing local copies marked `not_visible`. Visibility does not check business filters such as brand, category, or search. For a filtered replica, periodically reconcile the full filtered result or sync all visible products and filter locally.
+
+</details>
+
+<details id="media-and-expiry">
+<summary>Preview and download links</summary>
+
+Use `previewUrl` to display product media. For originals, check `downloadUrl` or use the download operations below; preview access does not establish download permission.
+
+| Link | Availability | Maximum service-issued lifetime |
+| --- | --- | --- |
+| Derived preview | Appropriate viewing permission | 3600 seconds |
+| Original-image preview fallback | Images only; may also be returned to `view_only` | 300 seconds |
+| `downloadUrl` | Resolvable, visible association; `usable` or higher plus `products:read` and `products:download` | 300 seconds |
+
+Every service-issued link is also bounded by the API key's expiry. Fetch product data again after a link expires; do not persist signed URLs as asset identifiers.
+
+<details id="product-media-fields">
+<summary>Which fields do covers, images, and related assets return?</summary>
+
+`cover` is one media object, or null when there is no cover. `images` and `relatedAssets` are arrays of media objects. Custom image/file values may be arrays or null; unset fields may be omitted.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | Integer or null | ID returned by asset lookup (FilePath ID), not an AssetObject ID or product-asset association ID |
+| `name`, `mimeType` | String or null | File name and MIME type |
+| `size` | String or null | Decimal byte count, such as `"2048"`; never a JSON number |
+| `width`, `height`, `duration` | Number or null | Media dimensions and duration |
+| `previewUrl` | URL or null | Preview for display; null when unavailable |
+| `downloadUrl` | URL or null; may be omitted | Original file URL; availability is described above |
+| `downloadUrlExpiresAt` | Timestamp or null; may be omitted | Download URL expiry in RFC 3339 format |
+
+</details>
+
+<details>
+<summary>How do missing links, legacy media, and external previews behave?</summary>
+
+- Non-image assets only return derived previews. Original PDFs, archives, and documents never serve as preview fallbacks. Library asset lookup and template configuration contain previews only.
+- Missing download permission or an unresolved association omits `downloadUrl` and `downloadUrlExpiresAt`. With permission but an unavailable original, those values may be null.
+- Stored external DAM thumbnails or previews are returned only to API keys without expiry, after excluding known original URLs. The provider controls their lifetime; short expiry and provider-signature validation are not guaranteed.
+- For an API key with `expiresAt`, an external preview whose expiry cannot be verified is null. Signature-like query parameters are not a trusted expiry source.
+- Service-issued URLs keep the limits above. Signing failure never falls back to a raw storage URL.
+
+</details>
+
+</details>
+
+<details id="fields-ProductSummary">
+<summary>ProductSummary response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
+| name | String | Name. |
+| spu | String | Product SKU. May be null |
+| description | String | Description. May be null |
+| status | String | Current status. Allowed values: draft, published |
+| brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647.; May be null |
+| categoryId | Integer | Category ID. Positive integer ID, maximum 2147483647.; May be null |
+| ownerUserId | Integer | Owner user ID. Positive integer ID, maximum 2147483647.; May be null |
+| publishedAt | String | RFC 3339 timestamp; preserve full precision.|
+| createdAt | String | RFC 3339 timestamp; preserve full precision.|
+| updatedAt | String | RFC 3339 timestamp; preserve full precision.|
+| draftReason | String | Reason for draft status. May be null |
+| templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
+| templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
+| templateFields | Object | Values keyed by stable template field IDs. |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](#product-media-fields) |
+
+</details>
+
+<details id="fields-ProductDetail">
+<summary>ProductDetail response fields</summary>
+
+Other fields match the [product list response fields](#fields-ProductSummary).
+
+| Field | Type | Description |
+| - | - | - |
+| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [Product template definition](#template-definition) |
+
+</details>
+
+### List or synchronize products
+
+**Endpoint**: /products
+
+**Method**: GET
+
+**Description**: Ordinary pagination orders updatedAt/id descending. sync=true uses ascending (updatedAt,id), inclusive lower and exclusive fixed upper bound (PostgreSQL clock minus 30 seconds). A full scan omits updatedAfter; continue every nextCursor, even with an empty data page. Cursor binds key/role/library/filters/pageSize/bounds. Save syncedUntil verbatim only after exhaustion; replay/deduplicate by id and updatedAt. Transactions longer than the 30-second safety window are an accepted v1 limitation. view_only/usable see only published products.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| page | Integer | No | Positive page number, default 1. Not available with sync=true. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+| search | String | No | Query parameter. Trimmed case-insensitive substring: product name/spu, or library asset name. |
+| brandId | Integer | No | Query parameter. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| categoryId | Integer | No | Query parameter. Filter by exact category ID, not its descendants. Positive integer ID, maximum 2147483647. |
+| status | String | No | Query parameter. Requested product status; does not widen role visibility. Allowed values: draft, published |
+| sync | String | No | Query parameter. true selects bounded keyset synchronization; false is ordinary pagination. Allowed values: true, false; Default: "false" |
+| updatedAfter | String | No | Query parameter. Only with sync=true. Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
+| cursor | String | No | Query parameter. Opaque continuation token, only with sync=true. Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Duplicate sync parameters are rejected. Minimum length 1 characters; Maximum length 8,192 characters |
+
+**Response fields**: `200`; `data`: List&lt;ProductSummary&gt;. [field details](#fields-ProductSummary) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+**SyncPage**
+
+| Field | Type | Description |
+| - | - | - |
+| pageSize | Integer | Number of items per page. Minimum: 1; Maximum: 100 |
+| syncedUntil | String | PostgreSQL clock minus 30 seconds, fixed for the cycle. Save this exact string only after nextCursor is null. Format: date-time; Must match `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
+| nextCursor | String | Cursor for the next page; null after the scan is exhausted. Maximum length 8,192 characters; May be null |
+| hasMore | Boolean | Whether another synchronization page is available. |
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listProducts">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      },
+      "images": [
+        {
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
+        }
+      ],
+      "relatedAssets": []
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+Response example (Synchronization):
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.123456Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      },
+      "images": [
+        {
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
+        }
+      ],
+      "relatedAssets": []
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "pageSize": 20,
+    "syncedUntil": "2026-10-08T10:01:00.123456Z",
+    "nextCursor": null,
+    "hasMore": false
+  }
+}
+```
+
+Response example (Empty continuation page):
+
+```json
+{
+  "success": true,
+  "data": [],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "pageSize": 20,
+    "syncedUntil": "2026-10-08T10:01:00.123456Z",
+    "nextCursor": "opaque-continuation-token",
+    "hasMore": true
+  }
+}
+```
+
+</details>
+
+### Create a draft product
+
+**Endpoint**: /products
+
+**Method**: POST
+
+**Description**: Creates draft only. Resolves and pins a template version at creation; template fields validate against that immutable definition. Attach existing same-library FilePath IDs; no upload, remote import or provider write-back. Idempotent replay preserves original scalar result/ETag and reprojects only original media still valid in the same current slot under current grants.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | ProductCreate | Yes | JSON request body: application/json |
+
+**ProductCreate fields**:
+
+Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted/null and a non-null categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted or null, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
+| spu | String | No | Trimmed; null/blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters; May be null |
+| description | String | No | May be null |
+| brandId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| templateId | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
+| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted. |
+| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+
+**Response fields**: `201`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/products' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "name": "Example product",
+  "spu": "EXAMPLE-001",
+  "brandId": 10,
+  "categoryId": 20,
+  "coverAssetId": 30,
+  "imageAssetIds": [
+    30
+  ]
+}'
+```
+
+<details id="response-createProduct">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Read a product and its pinned definition
+
+**Endpoint**: /products/&#123;id&#125;
+
+**Method**: GET
+
+**Description**: Returns an accessible live product with its pinned immutable template definition, even after the live template changes or is deleted. Does not require templates:read. Media preview/download is authorized on every response; download requires products:read plus products:download and role usable or higher. Drafts are invisible to view_only/usable.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-getProduct">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+Response example (No template or media):
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templateFields": {},
+    "cover": null,
+    "images": [],
+    "relatedAssets": [],
+    "templateDefinition": null
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+Response example (Authorized download):
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example",
+      "downloadUrl": "https://media.example.test/original?signature=example",
+      "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Partially update a product
+
+**Endpoint**: /products/&#123;id&#125;
+
+**Method**: PATCH
+
+**Description**: Merges scalar/custom fields and replaces submitted media lists. Uses the immutable pinned definition, including when the live template is deleted. Published products additionally require products:publish and stay published; full resulting-state validation must pass atomically. Status/template switching is not accepted here.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | ProductPatch | Yes | JSON request body: application/json |
+
+**ProductPatch fields**:
+
+Omitted fields remain unchanged; explicit null clears nullable fields and [] clears lists. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
+| spu | String | No | Trimmed; null/blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters; May be null |
+| description | String | No | May be null |
+| brandId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted. |
+| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+
+**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "description": null,
+  "templateFields": {
+    "field_color": "Blue"
+  }
+}'
+```
+
+<details id="response-updateProduct">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "draft",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": null,
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Soft-delete a product
+
+**Endpoint**: /products/&#123;id&#125;
+
+**Method**: DELETE
+
+**Description**: Soft-deletes a visible live product. Draft requires delete; published requires delete and publish. Leaves historical template versions intact. No provider synchronization. A repeated delete returns 404.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+
+**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/products/40' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-deleteProduct">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Publish or return a product to draft
+
+**Endpoint**: /products/&#123;id&#125;/status
+
+**Method**: PATCH
+
+**Description**: Always requires both update and publish grants. Publishing validates all pinned required/type/option/media rules; invalid state returns 422 with field details and makes no changes. Repeated published keeps publishedAt, returning to draft clears it. No approval workflow is started.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
+| - | ProductStatus | Yes | JSON request body: application/json |
+
+**ProductStatus fields**:
+
+Both products:update and products:publish required for either transition, including same-status requests. Publish validates all required pinned fields and current media; failure is atomic. publishedAt is set on first publication, retained on repeated publication and cleared on draft.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| status | String | Yes | Allowed values: draft, published |
+
+**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request PATCH \
+  'https://open.musedam.cc/api/product/products/40/status' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "status": "published"
+}'
+```
+
+<details id="response-setProductStatus">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 40,
+    "name": "Example product",
+    "spu": "EXAMPLE-001",
+    "description": null,
+    "status": "published",
+    "brandId": 10,
+    "categoryId": 20,
+    "ownerUserId": null,
+    "publishedAt": "2026-10-08T10:00:00.000Z",
+    "createdAt": "2026-10-08T10:00:00.000Z",
+    "updatedAt": "2026-10-08T10:00:00.000Z",
+    "draftReason": null,
+    "templateId": "template_example",
+    "templateVersionId": "version_one",
+    "templateFields": {
+      "field_color": "Blue"
+    },
+    "cover": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "images": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "relatedAssets": [],
+    "templateDefinition": {
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Reconcile known product IDs
+
+**Endpoint**: /products/visibility
+
+**Method**: POST
+
+**Description**: Checks up to 100 known IDs under current key visibility. Keeps order and duplicates, accepts an empty array. not_visible does not distinguish deleted, missing, foreign-library and role-hidden items. Use periodically to remove stale local entries because sync has no deletion tombstones. This read operation has no Idempotency-Key or ETag.
+
+Required role: any collaborator role.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| - | VisibilityInput | Yes | JSON request body: application/json |
+
+**VisibilityInput fields**:
+
+0..100 IDs. Output preserves input order and duplicates; [] returns [].
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| ids | List&lt;Integer&gt; | Yes | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+
+**Response fields**: `200`; `data`: List&lt;Visibility&gt;.
+
+**Visibility**
+
+| Field | Type | Description |
+| - | - | - |
+| id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
+| visibility | String | Visibility of the submitted product ID. Allowed values: visible, not_visible |
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/products/visibility' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "ids": [
+    40,
+    41
+  ]
+}'
+```
+
+<details id="response-checkProductVisibility">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 40,
+      "visibility": "visible"
+    },
+    {
+      "id": 41,
+      "visibility": "not_visible"
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Assets
+
+<details id="fields-LibraryAsset">
+<summary>LibraryAsset response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
+| name | String | Name. May be null |
+| mimeType | String | MIME type. May be null |
+| size | String | Decimal byte count string; never a JSON number. Must match `^\d+$`; May be null |
+| width | Number | Width. May be null |
+| height | Number | Height. May be null |
+| duration | Number | Duration. May be null |
+| previewUrl | String | Preview URL. Format: uri; May be null |
+
+</details>
+
+### Find existing library assets
+
+**Endpoint**: /assets
+
+**Method**: GET
+
+**Description**: Lists live non-directory FilePath assets in the key library, ordered by id. Requires either products:create or products:update under editable/manage role, not products:read. Returns previews only, never original download fields. Use FilePath id in product writes; uploads are outside v1.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+| search | String | No | Query parameter. Trimmed case-insensitive substring: product name/spu, or library asset name. |
+| mimeType | String | No | Query parameter. Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
+
+**Response fields**: `200`; `data`: List&lt;LibraryAsset&gt;. [field details](#fields-LibraryAsset) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/assets?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listAssets">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Read an existing library asset
+
+**Endpoint**: /assets/&#123;id&#125;
+
+**Method**: GET
+
+**Description**: Returns a live same-library FilePath with preview-only media metadata. Same create-or-update gate as listing. Returns an opaque strong ETag based on the FilePath and linked AssetObject identities and maintained update timestamps; temporary signature changes do not change this tag.
+
+Required role: editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: LibraryAsset. [field details](#fields-LibraryAsset)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/assets/30' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-getAsset">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 30,
+    "name": "cover.jpg",
+    "mimeType": "image/jpeg",
+    "size": "9007199254740993",
+    "width": 1200,
+    "height": 900,
+    "duration": null,
+    "previewUrl": "https://media.example.test/preview?signature=example"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Sharing
+
+<details id="share-access">
+<summary>Share access</summary>
+
+Shares select 1–100 published products but display their current content. Products moved to draft or deleted are hidden. Visitors need no login or API key. Key expiry, deactivation, or collaborator removal does not revoke existing shares; call [Revoke share](#operation-revokeProductShare) to stop access.
+
+</details>
+
+<details id="product-snapshot-fields">
+<summary>Which fields are in a record's product snapshots?</summary>
+
+The `products` array in share and download records preserves product details at the time of the operation. Later product edits do not update it.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | Positive integer | Product ID |
+| `name` | String | Product name at the time of the operation |
+| `spu` | String or null | SKU at the time of the operation |
+
+</details>
+
+<details id="fields-ProductShare">
+<summary>ProductShare response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | String | Resource ID. |
+| url | String | Share URL. Format: uri |
+| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](#product-snapshot-fields) |
+| createdById | Integer | Creator user ID. May be null |
+| createdByApiKeyId | String | Creator API key ID. May be null |
+| createdByName | String | Creator name. |
+| createdAt | String | Creation time. Format: date-time |
+| expiresAt | String | Expiry time. May be null; Format: date-time |
+| revokedAt | String | Revocation time. May be null; Format: date-time |
+| allowDownload | Boolean | Whether downloads are allowed. |
+| hasAccessCode | Boolean | Whether the share requires an access code. |
+| status | String | Current status. Allowed values: active, expired, revoked |
+| canRevoke | Boolean | Whether the current caller may revoke the share. |
+
+</details>
+
+### List team share history
+
+**Endpoint**: /product-shares
+
+**Method**: GET
+
+**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only productId, page and pageSize are accepted; unknown or repeated parameters return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+
+**Response fields**: `200`; `data`: List&lt;ProductShare&gt;. [field details](#fields-ProductShare) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listProductShares">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "share-example",
+      "url": "https://your-deployment.example/share/products/example-recipient-token",
+      "products": [
+        {
+          "id": 40,
+          "name": "Example product",
+          "spu": "SKU-40"
+        }
+      ],
+      "createdById": null,
+      "createdByApiKeyId": "integration-key-id",
+      "createdByName": "Catalog integration",
+      "createdAt": "2026-10-09T10:00:00.000Z",
+      "expiresAt": "2026-10-16T10:00:00.000Z",
+      "revokedAt": null,
+      "allowDownload": false,
+      "hasAccessCode": false,
+      "status": "active",
+      "canRevoke": true
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Create product share
+
+**Endpoint**: /product-shares
+
+**Method**: POST
+
+**Description**: Creates a fixed selection of published products with a 7/30/90-day or unlimited lifetime. accessCode is optional and exactly four digits. allowDownload additionally requires products:download. The recipient needs no login or API key; unpublished/deleted products disappear from the live share. Creator-key changes do not revoke the independent team share. Optional 24-hour idempotency reuses the same share.
+
+Required role: usable, editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | ProductShareCreate | Yes | JSON request body: application/json |
+
+**ProductShareCreate fields**:
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
+| expiresInDays | Integer | Yes | May be null; Allowed values: 7, 30, 90, null |
+| accessCode | String | No | Must match `^[0-9]{4}$` |
+| allowDownload | Boolean | Yes | — |
+
+**Response fields**: `201`; `data`: ProductShare. [field details](#fields-ProductShare)
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-shares' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "productIds": [
+    40
+  ],
+  "expiresInDays": 7,
+  "allowDownload": false
+}'
+```
+
+<details id="response-createProductShare">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "share-example",
+    "url": "https://your-deployment.example/share/products/example-recipient-token",
+    "products": [
+      {
+        "id": 40,
+        "name": "Example product",
+        "spu": "SKU-40"
+      }
+    ],
+    "createdById": null,
+    "createdByApiKeyId": "integration-key-id",
+    "createdByName": "Catalog integration",
+    "createdAt": "2026-10-09T10:00:00.000Z",
+    "expiresAt": "2026-10-16T10:00:00.000Z",
+    "revokedAt": null,
+    "allowDownload": false,
+    "hasAccessCode": false,
+    "status": "active",
+    "canRevoke": false
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Revoke product share
+
+**Endpoint**: /product-shares/&#123;id&#125;
+
+**Method**: DELETE
+
+**Description**: Revokes any share in the current team. Requires manage and products:share, without products:read. Repeating a revocation returns the original revokedAt. Unknown or foreign-team IDs return 404. No ETag or If-Match is used.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | String | Yes | Path parameter. Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
+
+**Response fields**: `200`; `data`: RevokedProductShare.
+
+**RevokedProductShare**
+
+| Field | Type | Description |
+| - | - | - |
+| id | String | Resource ID. |
+| revokedAt | String | Revocation time. Format: date-time |
+
+Request example:
+
+```bash
+curl --request DELETE \
+  'https://open.musedam.cc/api/product/product-shares/share-example' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-revokeProductShare">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "share-example",
+    "revokedAt": "2026-10-09T11:00:00.000Z"
+  },
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+## Downloads
+
+<details id="download-usage">
+<summary>File selection, exports, and records</summary>
+
+List product download candidates first. Put the returned `key` in `assetKeys`, or URL-encode it as the single-file path parameter `assetKey`; it is not a FilePath ID. One original returns that file; multiple originals return a ZIP. A request selects 1–100 products, at most 200 files, and no more than 500 MiB.
+
+Exports use `kind: "export"`, with xlsx (default), csv, or json. Do not send `assetKeys`. `includeAssetUrls` defaults to true; exported links still require a Bearer header. Create a share for visitors without credentials. `locale` affects system labels and status only.
+
+`X-Download-Record-Id` identifies the business record. `requested` means accepted, not transferred or saved locally. History includes browser and other API key operations across the team. Ordinary reads, previews, and direct access to storage download URLs do not create history records.
+
+</details>
+
+<details id="file-snapshot-fields">
+<summary>Which fields are in a download record's file snapshots?</summary>
+
+A download record's `files` array preserves file details when the operation is first accepted.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | String | File snapshot identifier |
+| `productId` | Positive integer | Associated product ID |
+| `name` | String | File name at the time of the operation |
+
+</details>
+
+<details id="fields-ProductDownloadRecord">
+<summary>ProductDownloadRecord response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| id | String | Resource ID. |
+| kind | String | Operation kind. Allowed values: product_export, asset_download |
+| status | String | Current status. Allowed values: requested, failed |
+| actorType | String | Actor type. Allowed values: member, external, api_key |
+| actorId | Integer | Actor ID. May be null |
+| apiKeyId | String | API key ID. May be null |
+| actorName | String | Actor name. |
+| shareId | String | Share ID. May be null |
+| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](#product-snapshot-fields) |
+| files | List&lt;FileLabelSnapshot&gt; | File snapshots. Nested fields: [File snapshot fields](#file-snapshot-fields) |
+| createdAt | String | Creation time. Format: date-time |
+
+</details>
+
+<details id="fields-ProductDownloadCandidate">
+<summary>ProductDownloadCandidate response fields</summary>
+
+| Field | Type | Description |
+| - | - | - |
+| key | String | Download selection key. |
+| name | String | Name. |
+| productId | Integer | Product ID. Positive integer ID, up to 2147483647. |
+| productName | String | Product name. |
+| category | String | Media category. Allowed values: main, related, field |
+| mimeType | String | MIME type. May be null |
+| size | String | Size in bytes, represented as a decimal string. May be null; Must match `^[0-9]+$` |
+| downloadable | Boolean | Whether this file can currently be downloaded. |
+
+</details>
+
+### List team download history
+
+**Endpoint**: /product-downloads
+
+**Method**: GET
+
+**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only productId, page and pageSize are accepted; unknown or repeated parameters return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
+
+Required role: manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| page | Integer | No | Positive page number, default 1. |
+| pageSize | Integer | No | Positive page size, default 20, capped at 100. |
+
+**Response fields**: `200`; `data`: List&lt;ProductDownloadRecord&gt;. [field details](#fields-ProductDownloadRecord) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listProductDownloads">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "download-example",
+      "kind": "product_export",
+      "status": "requested",
+      "actorType": "api_key",
+      "actorId": null,
+      "apiKeyId": "integration-key-id",
+      "actorName": "Catalog integration",
+      "shareId": null,
+      "products": [
+        {
+          "id": 40,
+          "name": "Example product",
+          "spu": "SKU-40"
+        }
+      ],
+      "files": [
+        {
+          "id": "export:xlsx",
+          "productId": 40,
+          "name": "products.xlsx"
+        }
+      ],
+      "createdAt": "2026-10-09T10:00:00.000Z"
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "totalCount": 1,
+    "totalPages": 1
+  }
+}
+```
+
+</details>
+
+### Download originals or export products
+
+**Endpoint**: /product-downloads
+
+**Method**: POST
+
+**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Export links default to authenticated single-file GET URLs; each accepted retrieval has its own business record. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
+
+Required role: usable, editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+| - | ProductDownloadCreate | Yes | JSON request body: application/json |
+
+**ProductDownloadCreate fields**:
+
+assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. Export links default on, require Bearer authentication, and never contain API-key secrets. locale changes system labels/status, not user-authored labels or values.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| kind | String | Yes | Allowed values: assets, export |
+| productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
+| assetKeys | List&lt;String&gt; | No | Each item: Minimum length 1 characters; Maximum length 256 characters; Minimum items 1; Maximum items 200 |
+| format | String | No | Allowed values: xlsx, csv, json; Default: "xlsx" |
+| includeAssetUrls | Boolean | No | Default: true |
+| locale | String | No | Allowed values: zh-CN, en-US, zh-TW, ja-JP, ko-KR, pt-BR, ru-RU, id-ID, fr-FR, it-IT, pl-PL, vi-VN, tr-TR, th-TH, de-DE, es-ES, hi-IN; Default: "zh-CN" |
+
+**Response fields**: `200`. Success returns an attachment containing file bytes. Errors before delivery use JSON.
+
+Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-Replayed`
+
+Request example:
+
+```bash
+curl --request POST \
+  'https://open.musedam.cc/api/product/product-downloads' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "kind": "export",
+  "productIds": [
+    40
+  ],
+  "format": "xlsx",
+  "includeAssetUrls": true,
+  "locale": "zh-CN"
+}' \
+  --output products.xlsx
+```
+
+<details id="response-downloadProducts">
+<summary>Response example</summary>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+Content-Disposition: attachment
+X-Download-Record-Id: <record-id>
+```
+
+The response body contains the file bytes.
+
+</details>
+
+### List product download candidates
+
+**Endpoint**: /products/&#123;id&#125;/download-assets
+
+**Method**: GET
+
+**Description**: Returns current candidate selection keys and downloadable availability under read and download authorization. No business download record is created, and no original or preview URLs are returned. Use the single-file route or POST product-downloads to retrieve bytes.
+
+Required role: usable, editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+
+**Response fields**: `200`; `data`: List&lt;ProductDownloadCandidate&gt;. [field details](#fields-ProductDownloadCandidate)
+
+Request example:
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40/download-assets' \
+  --header 'Authorization: Bearer your_api_key'
+```
+
+<details id="response-listProductDownloadAssets">
+<summary>Response example</summary>
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "key": "p40:a2",
+      "name": "example.png",
+      "productId": 40,
+      "productName": "Example product",
+      "category": "main",
+      "mimeType": "image/png",
+      "size": "1024",
+      "downloadable": true
+    }
+  ],
+  "code": null,
+  "message": null,
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+</details>
+
+### Download one product original
+
+**Endpoint**: /products/&#123;id&#125;/download-assets/&#123;assetKey&#125;
+
+**Method**: GET
+
+**Description**: Fetches one current product original identified by an encoded candidate key. Requires a Bearer header and current read/download authorization; the URL contains no API-key secret. Creates a business record before delivery. Optional 24-hour idempotency is scoped separately from POST downloads, reuses the record, and still reauthorizes and transfers current bytes.
+
+Required role: usable, editable or manage.
+
+**Request parameters**:
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| assetKey | String | Yes | Path parameter. URL-encoded selection key returned by the product download-candidate list. Not a FilePath or AssetObject ID. Minimum length 1 characters; Maximum length 256 characters |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+
+**Response fields**: `200`. Success returns an attachment containing file bytes. Errors before delivery use JSON.
+
+Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-Replayed`
+
+Request example:
+
+The example uses the download-candidate key p40:a2, encoded as p40%3Aa2 in the URL. Use the key returned by your download-candidate list; it is not a FilePath or AssetObject ID.
+
+```bash
+curl --request GET \
+  'https://open.musedam.cc/api/product/products/40/download-assets/p40%3Aa2' \
+  --header 'Authorization: Bearer your_api_key' \
+  --output product-asset.bin
+```
+
+<details id="response-downloadProductAsset">
+<summary>Response example</summary>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment
+X-Download-Record-Id: <record-id>
+```
+
+The response body contains the file bytes.
+
+</details>

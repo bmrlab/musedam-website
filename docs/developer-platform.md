@@ -2,11 +2,11 @@
 
 入口：`/{lng}/developers/landing`。`/{lng}/developers` 重定向到概览。
 
-沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 25 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
+沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 18 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
 
 ## 内容维护
 
-- `src/data/developers/content/*.mdx`：25 篇技术文档，服务端渲染。
+- `src/data/developers/content/*.mdx`：18 篇技术文档，服务端渲染。
 - `src/data/developers/pages.json`：标题、分组、描述、目录与用于复制的 Markdown；改动正文后同步更新对应条目。
 - `src/data/developers/content/en/*.mdx`、`pages.en.json` 和 `content.en.ts`：完整英文正文、元数据与注册表，修改文档时需同步维护。
 - `src/data/developers/content.ts`：中文 MDX 组件注册表。
@@ -66,17 +66,18 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 
 ## Product Library API documentation (2026-10-13)
 
-The `product-library` navigation group adds eight documents in Simplified Chinese,
-English and Traditional Chinese. Its entry is `/{lng}/developers/product-library`,
-linked from the developer landing page. Quick start contains only the service
-address, authorization steps and a first request. API documentation groups
-operations by resource, with brief permission, response and pagination notes.
-Link to the relevant guides for writing, errors, media, sharing and synchronization
-rather than combining those topics in a shared rules section. Use short steps and
-tables; put uncommon edge cases in clearly named expandable sections. The remaining
-pages cover examples, writes and errors, categories,
-information templates, product operations and synchronization. Keep the
-existing page routes when changing these titles or their navigation labels.
+Product Library API is one article in the existing Open API navigation group,
+at `/{lng}/developers/product-library`, in Simplified Chinese, English and
+Traditional Chinese. It combines authorization, shared request conventions and
+all 31 operations, organized by resource. Keep endpoint parameters and independent
+curl examples visible. Reuse shared field tables and put response examples and
+less common details in labeled disclosures. Do not recreate separate overview,
+reference, examples or guide pages for this API.
+
+The seven retired article routes and their Markdown routes redirect to this
+single document. Navigation, search, the document index and sitemap contain only
+the canonical article. Product Library endpoint banners and table formatting are
+selected by document slug, independently of the navigation group.
 
 The source snapshot is `bmrlab/musedam-product-library` commit
 `01574a8aeede7682e4e172526367703d05c0e14c`:
@@ -89,9 +90,9 @@ The source snapshot is `bmrlab/musedam-product-library` commit
 
 The public Base URL confirmed for this documentation is
 `https://open.musedam.cc/api/product`. The source application's internal
-`/api/open/v1` prefix is not the public gateway path. Keep Product Library separate
-from the existing asset API at `/api/muse`; do not apply the asset API region
-banner, rate-limit policy or credential instructions to these pages.
+`/api/open/v1` prefix is not the public gateway path. The asset API at `/api/muse`
+has different service and authorization rules. Do not apply its region banner,
+rate-limit policy or credential instructions to the Product Library article.
 
 The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
@@ -99,17 +100,18 @@ the source implementation. Descriptions and examples from the source contract ha
 been corrected against that implementation, including item reads, template system
 fields, category paths, nullable custom media and mutation results. The API shapes
 are unchanged, and the server URL is adapted for the public gateway. The reference
-includes all operations and links to concise field tables
-in the relevant guides. Full schemas and shared response, header and parameter
-definitions remain in the downloadable contract; do not render these raw OpenAPI
-components or appendices on the documentation page.
+includes all operations and links to concise field tables in the same article.
+Full schemas and shared response, header and parameter definitions remain in the
+downloadable contract; do not render these raw OpenAPI components or appendices
+on the documentation page.
 
 Match the existing Open API articles (`search.mdx` and `assets.mdx`) when editing
 the reference: endpoint, method, description, request parameters, response fields,
-then visible curl and response examples. Keep the Product Library response shape;
+then curl and expandable response examples. Keep the Product Library response shape;
 do not substitute the asset API envelope. Explain necessary nested fields in
-short tables and link directly to those sections. Link to error handling for
-status codes and to the OpenAPI download for complete machine-readable definitions.
+short tables and link directly to those sections. Link to the same article's error
+handling section for status codes and to the OpenAPI download for complete
+machine-readable definitions.
 
 Keep public examples short and independent: a complete URL, an explicit
 `your_api_key` placeholder, representative resource IDs, and the request body.
@@ -119,7 +121,7 @@ temporary files, command-line JSON processors, or test assertions to read an exa
 When refreshing these documents:
 
 1. Compare source routes, validators and response serializers with the OpenAPI
-   contract, then refresh the public JSON and all three reference pages. Resolve
+   contract, then refresh the public JSON and all three localized articles. Resolve
    conflicting descriptions and examples against the implementation; do not
    reintroduce the source contract's known documentation errors. Keep schema
    identifiers, fields, enums and code samples unchanged across locales.

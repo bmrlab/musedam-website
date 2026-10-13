@@ -10,14 +10,7 @@ import Page14 from './content/zh-TW/mcp-connect.mdx'
 import Page16 from './content/zh-TW/mcp-faq.mdx'
 import Page15 from './content/zh-TW/mcp-tools.mdx'
 import Page13 from './content/zh-TW/mcp.mdx'
-import ProductLibrary5 from './content/zh-TW/product-library-categories.mdx'
-import ProductLibrary3 from './content/zh-TW/product-library-examples.mdx'
-import ProductLibrary7 from './content/zh-TW/product-library-product-writes.mdx'
-import ProductLibrary1 from './content/zh-TW/product-library-reference.mdx'
-import ProductLibrary8 from './content/zh-TW/product-library-synchronization.mdx'
-import ProductLibrary6 from './content/zh-TW/product-library-template-writes.mdx'
-import ProductLibrary4 from './content/zh-TW/product-library-write-conventions.mdx'
-import ProductLibrary0 from './content/zh-TW/product-library.mdx'
+import ProductLibrary from './content/zh-TW/product-library.mdx'
 import Page0 from './content/zh-TW/quick-start.mdx'
 import Page2 from './content/zh-TW/search.mdx'
 import Page4 from './content/zh-TW/tags.mdx'
@@ -42,12 +35,5 @@ export const traditionalContent = {
   'mcp-connect': Page14,
   'mcp-tools': Page15,
   'mcp-faq': Page16,
-  'product-library': ProductLibrary0,
-  'product-library-reference': ProductLibrary1,
-  'product-library-examples': ProductLibrary3,
-  'product-library-write-conventions': ProductLibrary4,
-  'product-library-categories': ProductLibrary5,
-  'product-library-template-writes': ProductLibrary6,
-  'product-library-product-writes': ProductLibrary7,
-  'product-library-synchronization': ProductLibrary8,
+  'product-library': ProductLibrary,
 }

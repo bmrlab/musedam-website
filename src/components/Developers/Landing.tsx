@@ -152,7 +152,7 @@ export function DeveloperLanding({ lng }: { lng: string }) {
                 'Product Library API: manage products, categories and templates, read media and synchronize product data.',
               )}{' '}
               <Link className="dev-text-link" href={`${base}/product-library`}>
-                {text(localizeDeveloperText('快速接入', lng), 'Quick start')}
+                {text(localizeDeveloperText('查看 API 文档', lng), 'View API documentation')}
                 <ArrowUpRight size={14} />
               </Link>
             </span>

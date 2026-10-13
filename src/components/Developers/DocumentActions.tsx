@@ -32,12 +32,12 @@ export function DocumentActions({
         lng,
       )
   const productLibraryGuidance = english
-    ? `For Product Library, read Quick start for the service address, authorization and your first request. Use API documentation to find resource parameters and examples. Use https://open.musedam.cc/api/product as the Product Library API base URL. Use an existing MuseDAM API key in Authorization: Bearer <key>. A Product Library Manager must first add the key as an API Key Collaborator; access follows the collaborator role. Follow the authorization rules documented for Product Library. Keep credentials out of browser code, use only documented endpoints and fields, and ask for missing configuration instead of guessing.`
+    ? `Read Product Library API under Open API for authorization, endpoint parameters and examples. Use https://open.musedam.cc/api/product as the Product Library API base URL. Use an existing MuseDAM API key in Authorization: Bearer <key>. A Product Library Manager must first add the key as an API Key Collaborator; access follows the collaborator role. Follow the authorization rules documented for Product Library. Keep credentials out of browser code, use only documented endpoints and fields, and ask for missing configuration instead of guessing.`
     : localizeDeveloperText(
-        '商品库接入时，请先阅读快速接入，了解服务地址、授权和首次请求；按资源查找接口参数与示例，请阅读接口文档。商品库 API 的基础地址为 https://open.musedam.cc/api/product。使用现有 MuseDAM API Key，通过 Authorization: Bearer <key> 认证。商品库管理员须先将密钥添加为 API Key Collaborator，访问权限由协作者角色决定。请遵循商品库文档中的授权规则。密钥只保存在服务端，只使用已记录的接口和字段；缺少配置时请先获取所需信息。',
+        '商品库接入请阅读「开放 API → 商品库 API」，查看授权步骤、接口参数与示例。商品库 API 的基础地址为 https://open.musedam.cc/api/product。使用现有 MuseDAM API Key，通过 Authorization: Bearer <key> 认证。商品库管理员须先将密钥添加为 API Key Collaborator，访问权限由协作者角色决定。请遵循商品库文档中的授权规则。密钥只保存在服务端，只使用已记录的接口和字段；缺少配置时请先获取所需信息。',
         lng,
       )
-  const productLibrary = slug === 'product-library' || slug.startsWith('product-library-')
+  const productLibrary = slug === 'product-library'
   const prompt = productLibrary
     ? [
         english

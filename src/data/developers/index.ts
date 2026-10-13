@@ -7,7 +7,6 @@ export const developerPages = pages
 export const developerGroups = [
   { id: 'start', title: '开始', en: 'GET STARTED' },
   { id: 'api', title: '开放 API', en: 'OPEN API' },
-  { id: 'product-library', title: '商品库 API', en: 'PRODUCT LIBRARY API' },
   { id: 'apps', title: '第三方集成', en: 'INTEGRATIONS' },
   { id: 'mcp', title: 'MCP 与 AI 工具', en: 'MCP & AI TOOLS' },
   { id: 'examples', title: '场景与示例', en: 'USE CASES & EXAMPLES' },

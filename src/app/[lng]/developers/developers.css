@@ -543,12 +543,6 @@
 .dev-code pre * {
   font-family: inherit;
 }
-.dev-moved-section {
-  display: none;
-}
-.dev-moved-section:target {
-  display: block;
-}
 .dev-prose details {
   padding: 16px;
   border: 1px solid var(--dev-line);
@@ -948,13 +942,13 @@
 .dev-prose table:has(th:nth-child(2)[data-type-column]) td:nth-child(2) {
   white-space: nowrap;
 }
-.dev-article[data-document-group='product-library'] .dev-prose td:first-child,
-.dev-article[data-document-group='product-library'] .dev-prose td:first-child code,
-.dev-article[data-document-group='product-library']
+.dev-article[data-document-slug='product-library'] .dev-prose td:first-child,
+.dev-article[data-document-slug='product-library'] .dev-prose td:first-child code,
+.dev-article[data-document-slug='product-library']
   .dev-prose table:has(th:nth-child(2)[data-type-column]) td:nth-child(2) code {
   white-space: nowrap;
 }
-.dev-article[data-document-group='product-library']
+.dev-article[data-document-slug='product-library']
   .dev-prose table:not(:has(th:nth-child(2)[data-type-column])) td:nth-child(2) {
   min-width: 240px;
 }
