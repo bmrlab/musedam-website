@@ -2,11 +2,11 @@
 
 入口：`/{lng}/developers/landing`。`/{lng}/developers` 重定向到概览。
 
-沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 17 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
+沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 19 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
 
 ## 内容维护
 
-- `src/data/developers/content/*.mdx`：17 篇技术文档，服务端渲染。
+- `src/data/developers/content/*.mdx`：19 篇技术文档，服务端渲染。
 - `src/data/developers/pages.json`：标题、分组、描述、目录与用于复制的 Markdown；改动正文后同步更新对应条目。
 - `src/data/developers/content/en/*.mdx`、`pages.en.json` 和 `content.en.ts`：完整英文正文、元数据与注册表，修改文档时需同步维护。
 - `src/data/developers/content.ts`：中文 MDX 组件注册表。
@@ -63,3 +63,81 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 `zh-TW` 使用 `content/zh-TW/*.mdx`、`content.tw.ts` 和 `pages.tw.json`，不再复用简体正文。修改接口文档时同步维护三种语言及对应 JSON 的 Markdown/目录。繁体代码块与简体版本保持一致；后台操作截图保留原始界面语言。
 
 公共界面文案通过 `localizeDeveloperText` 与 `ui.tw.json` 转换，新增简体文案时需补齐对应繁体词组。提示词、流程图、侧栏、目录及 `llms.txt` / Markdown 输出均随路由语言切换。繁体页面优先使用 PingFang TC / Microsoft JhengHei。
+
+## Product Library API documentation (2026-10-13)
+
+Product Library API is one article in the existing Open API navigation group,
+at `/{lng}/developers/product-library`, in Simplified Chinese, English and
+Traditional Chinese. It combines authorization, shared request conventions and
+all 31 operations, organized by resource. Keep endpoint parameters and independent
+curl examples visible. Reuse shared field tables and put response examples and
+less common details in labeled disclosures. Do not recreate separate overview,
+reference, examples or guide pages for this API.
+
+The seven retired article routes and their Markdown routes redirect to this
+single document. Navigation, search, the document index and sitemap contain only
+the canonical article. Product Library endpoint banners and table formatting are
+selected by document slug, independently of the navigation group.
+
+The source snapshot is `bmrlab/musedam-product-library` commit
+`01574a8aeede7682e4e172526367703d05c0e14c`:
+
+- `docs/open-api/openapi.json`: the English contract, including 17 paths,
+  31 operations and 71 schemas.
+- `docs/open-api/*.md`: English guides.
+- `src/app/developers/open-api/content/zh-CN/`: Chinese guides and the
+  description-only OpenAPI localization overlay.
+
+The public Base URL confirmed for this documentation is
+`https://open.musedam.cc/api/product`. The source application's internal
+`/api/open/v1` prefix is not the public gateway path. The asset API at `/api/muse`
+has different service and authorization rules. Do not apply its region banner,
+rate-limit policy or credential instructions to the Product Library article.
+
+The downloadable contract is served at
+`/assets/developers/product-library/openapi.json`. Its API shapes and examples match
+the source implementation. Descriptions and examples from the source contract have
+been corrected against that implementation, including item reads, template system
+fields, category paths, nullable custom media and mutation results. The API shapes
+are unchanged, and the server URL is adapted for the public gateway. The reference
+includes all operations and links to concise field tables in the same article.
+Full schemas and shared response, header and parameter definitions remain in the
+downloadable contract; do not render these raw OpenAPI components or appendices
+on the documentation page.
+
+Match the existing Open API articles (`search.mdx` and `assets.mdx`) when editing
+the reference: endpoint, method, description, request parameters, response fields,
+then curl and expandable response examples. Keep the Product Library response shape;
+do not substitute the asset API envelope. Explain necessary nested fields in
+short tables and link directly to those sections. Link to the same article's error
+handling section for status codes and to the OpenAPI download for complete
+machine-readable definitions.
+
+Keep public examples short and independent: a complete URL, an explicit
+`your_api_key` placeholder, representative resource IDs, and the request body.
+Explain placeholders in prose. Do not require shell setup, helper functions,
+temporary files, command-line JSON processors, or test assertions to read an example.
+
+When refreshing these documents:
+
+1. Compare source routes, validators and response serializers with the OpenAPI
+   contract, then refresh the public JSON and all three localized articles. Resolve
+   conflicting descriptions and examples against the implementation; do not
+   reintroduce the source contract's known documentation errors. Keep schema
+   identifiers, fields, enums and code samples unchanged across locales.
+2. Update the localized MDX, matching `pages*.json` Markdown and heading metadata,
+   and `updatedAt` together. Preserve the explicit anchors in copied Markdown so
+   cross-document links keep working outside the rendered site.
+3. Keep the current authentication model: an existing MuseDAM API key, explicitly
+   added as an API Key Collaborator, with permissions derived from its role.
+   Product Library does not issue keys or offer per-key operation selection.
+4. Exclude internal rollout notes, database maintenance procedures and unpublished
+   backend proposals. Use the confirmed API service URL in examples and keep
+   document URLs separate from API request URLs.
+5. Validate MDX compilation, registry and heading consistency, document links,
+   localized page rendering, search, Markdown routes and the downloadable contract.
+   Run scoped `pnpm lint --file ...` and `pnpm exec tsc --noEmit --incremental false`.
+
+Documentation verification does not establish that the public gateway forwards to
+this source snapshot. No authenticated production API requests or database
+operations are needed to build or read these pages.

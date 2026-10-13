@@ -36,6 +36,26 @@ const redirects = async () => {
     internetExplorerRedirect,
     // redirectToApp,
     ...restRedirects,
+    ...[
+      'reference',
+      'examples',
+      'write-conventions',
+      'categories',
+      'template-writes',
+      'product-writes',
+      'synchronization',
+    ].flatMap((section) => [
+      {
+        source: `/:lng/developers/product-library-${section}`,
+        destination: '/:lng/developers/product-library',
+        permanent: true,
+      },
+      {
+        source: `/:lng/developers/markdown/product-library-${section}.md`,
+        destination: '/:lng/developers/markdown/product-library.md',
+        permanent: true,
+      },
+    ]),
   ]
 
   return redirects

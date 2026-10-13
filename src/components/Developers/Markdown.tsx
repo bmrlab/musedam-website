@@ -20,6 +20,7 @@ export function markdownComponents(
   headings: { id: string; title: string; level: number }[],
   english = false,
   lng = 'zh-CN',
+  deferCodeHighlight = false,
 ): MDXComponents {
   let headingIndex = 0
   return {
@@ -87,6 +88,7 @@ export function markdownComponents(
       return (
         <CodeBlock
           english={english}
+          deferHighlight={deferCodeHighlight}
           code={plainText(child.props.children)}
           language={child.props.className?.replace('language-', '') || 'text'}
         />

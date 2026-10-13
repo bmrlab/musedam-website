@@ -11,6 +11,7 @@ import Page14 from './content/zh-TW/mcp-connect.mdx'
 import Page16 from './content/zh-TW/mcp-faq.mdx'
 import Page15 from './content/zh-TW/mcp-tools.mdx'
 import Page13 from './content/zh-TW/mcp.mdx'
+import ProductLibrary from './content/zh-TW/product-library.mdx'
 import Page0 from './content/zh-TW/quick-start.mdx'
 import Page2 from './content/zh-TW/search.mdx'
 import Page4 from './content/zh-TW/tags.mdx'
@@ -36,4 +37,5 @@ export const traditionalContent = {
   'mcp-connect': Page14,
   'mcp-tools': Page15,
   'mcp-faq': Page16,
+  'product-library': ProductLibrary,
 }

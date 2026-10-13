@@ -540,6 +540,26 @@
   white-space: pre;
   tab-size: 2;
 }
+.dev-code pre * {
+  font-family: inherit;
+}
+.dev-prose details {
+  padding: 16px;
+  border: 1px solid var(--dev-line);
+  border-radius: 8px;
+}
+.dev-prose details + details {
+  margin-top: 12px;
+}
+.dev-prose summary {
+  cursor: pointer;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.dev-prose summary:focus-visible {
+  outline: 2px solid var(--dev-accent);
+  outline-offset: 4px;
+}
 .dev-example {
   border: 1px solid var(--dev-line);
   border-radius: 7px;
@@ -921,6 +941,16 @@
 }
 .dev-prose table:has(th:nth-child(2)[data-type-column]) td:nth-child(2) {
   white-space: nowrap;
+}
+.dev-article[data-document-slug='product-library'] .dev-prose td:first-child,
+.dev-article[data-document-slug='product-library'] .dev-prose td:first-child code,
+.dev-article[data-document-slug='product-library']
+  .dev-prose table:has(th:nth-child(2)[data-type-column]) td:nth-child(2) code {
+  white-space: nowrap;
+}
+.dev-article[data-document-slug='product-library']
+  .dev-prose table:not(:has(th:nth-child(2)[data-type-column])) td:nth-child(2) {
+  min-width: 240px;
 }
 .dev-prose td:last-child {
   min-width: 200px;

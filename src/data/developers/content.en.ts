@@ -11,6 +11,7 @@ import Page14 from './content/en/mcp-connect.mdx'
 import Page16 from './content/en/mcp-faq.mdx'
 import Page15 from './content/en/mcp-tools.mdx'
 import Page13 from './content/en/mcp.mdx'
+import ProductLibrary from './content/en/product-library.mdx'
 import Page0 from './content/en/quick-start.mdx'
 import Page2 from './content/en/search.mdx'
 import Page4 from './content/en/tags.mdx'
@@ -36,4 +37,5 @@ export const englishContent = {
   'mcp-connect': Page14,
   'mcp-tools': Page15,
   'mcp-faq': Page16,
+  'product-library': ProductLibrary,
 }
