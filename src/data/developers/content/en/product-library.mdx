@@ -1,320 +1,81 @@
+## Service address
+
+The Product Library API is available at `https://open.musedam.cc/api/product`. Append an endpoint path, such as `/products`, to this address.
+
+## Get access
+
+1. Obtain a MuseDAM API Key.
+2. Ask a Product Library manager to add the key as an API Key Collaborator in **Member settings → Add member** and assign the required role.
+3. Call the API from your server with an `Authorization: Bearer <key>` header.
+
+New collaborators have the `view_only` role by default. Choose a role for the operations you need:
+
+| Role | Available operations |
+| --- | --- |
+| `view_only` | View published products. |
+| `usable` | View, share and download published products. |
+| `editable` | Create and edit products, access drafts, publish and delete products. |
+| `manage` | Manage all resources, including brands, categories, information templates and activity records. |
+
+Each role includes the operations of the role above it. See the [API documentation](./product-library-reference) for each endpoint's requirements.
+
 ## Make your first request
 
-Replace `your_api_key` with an API key that has been added as a Product Library collaborator to list products. See the authentication steps below.
+Replace `your_api_key` with your authorized API Key to query the product list:
 
 ```bash
 curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
   --header 'Authorization: Bearer your_api_key'
 ```
 
-Download the [OpenAPI 3.0.3 specification](/assets/developers/product-library/openapi.json) for complete parameters and request and response schemas. You can import it into an OpenAPI-compatible client. See the [API examples](./product-library-examples) for more operations.
+A successful response has `success: true`, a product list in `data`, and paging information in `pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
-To use these endpoints with an AI assistant, read the [AI assistant guide](./product-library-agent-skill).
+## Next steps
 
-## Authentication and permissions
+- [API documentation](./product-library-reference): find parameters, responses and examples by resource, including brands, categories and products.
+- [Request examples](./product-library-examples): create, publish, share, download and synchronize products.
+- [AI assistant integration](./product-library-agent-skill): give an AI assistant the documentation it needs to use the API.
+- [Download OpenAPI JSON](/assets/developers/product-library/openapi.json): import the specification into a compatible API tool.
 
-1. Obtain an existing MuseDAM API key. MuseDAM manages its credentials and lifecycle.
-2. Ask a Product Library Manager to open **Member Settings → Add Members** and add the key as an API Key Collaborator. Its initial role is `view_only`; choose a role below for the required operations.
-3. Send requests from your server over HTTPS with the `Authorization: Bearer <key>` header.
+<div id="wire-format-and-identifiers" className="dev-moved-section">
 
-Each request checks the key status and its team. Unadded, removed, expired or rejected keys cannot access the API. If authentication is unavailable, the API returns `503 authentication_unavailable`. Permissions come from the collaborator’s current role, not the key creator’s role. Requests cannot change the team, library or actor. Product Library provides no key or collaborator management endpoints.
+This section is now in [Wire format and identifiers](./product-library-reference#wire-format-and-identifiers).
 
-Authorization derives solely from the current collaborator role:
+</div>
+<div id="writes-concurrency-and-limits" className="dev-moved-section">
 
-| Role        | Ceiling                                                                               |
-| ----------- | ------------------------------------------------------------------------------------- |
-| `view_only` | Resource reads; products must be published. No original downloads.                    |
-| `usable`    | Resource reads, sharing and authorized product downloads; products must be published. |
-| `editable`  | Resource reads, draft access, product create/update/delete/publish/download/share.    |
-| `manage`    | All 20 grants, including activity history and brand/category/template writes.         |
+This section is now in [Writes, concurrency, and limits](./product-library-reference#writes-concurrency-and-limits).
 
-The table lists the operation permissions included in each role; they cannot be selected separately for an individual key. Removing a collaborator preserves audit records, idempotency records, history and team-owned shares. Revoke shares separately when needed.
+</div>
+<div id="template-pins-and-field-values" className="dev-moved-section">
 
-| Path                                        | Method | Required grants                          | Minimum role / additional condition                                                  |
-| ------------------------------------------- | ------ | ---------------------------------------- | ------------------------------------------------------------------------------------ |
-| `/brands`                                   | GET    | `brands:read`                            | Any role                                                                             |
-| `/brands`                                   | POST   | `brands:create`                          | `manage`                                                                             |
-| `/brands/{id}`                              | GET    | `brands:read`                            | Any role                                                                             |
-| `/brands/{id}`                              | PATCH  | `brands:update`                          | `manage`                                                                             |
-| `/brands/{id}`                              | DELETE | `brands:delete`                          | `manage`; no live dependents                                                         |
-| `/categories`                               | GET    | `categories:read`                        | Any role                                                                             |
-| `/categories`                               | POST   | `categories:create`                      | `manage`                                                                             |
-| `/categories/{id}`                          | GET    | `categories:read`                        | Any role                                                                             |
-| `/categories/{id}`                          | PATCH  | `categories:update`                      | `manage`                                                                             |
-| `/categories/{id}`                          | DELETE | `categories:delete`                      | `manage`; no live products in subtree                                                |
-| `/product-info-templates`                   | GET    | `templates:read`                         | Any role                                                                             |
-| `/product-info-templates`                   | POST   | `templates:create`                       | `manage`                                                                             |
-| `/product-info-templates/{id}`              | GET    | `templates:read`                         | Any role                                                                             |
-| `/product-info-templates/{id}`              | PATCH  | `templates:update`                       | `manage`                                                                             |
-| `/product-info-templates/{id}`              | DELETE | `templates:delete`                       | `manage`; explicit default replacement when applicable                               |
-| `/products`                                 | GET    | `products:read`                          | Role visibility applies to ordinary and sync lists                                   |
-| `/products`                                 | POST   | `products:create`                        | `editable` or `manage`; creates draft                                                |
-| `/products/{id}`                            | GET    | `products:read`                          | Role visibility; pinned definition needs no `templates:read`                         |
-| `/products/{id}`                            | PATCH  | `products:update`                        | `editable` or `manage`; published additionally needs `products:publish`              |
-| `/products/{id}`                            | DELETE | `products:delete`                        | `editable` or `manage`; published additionally needs `products:publish`              |
-| `/products/{id}/status`                     | PATCH  | `products:update` AND `products:publish` | `editable` or `manage`; both grants for either target status, even if unchanged      |
-| `/products/visibility`                      | POST   | `products:read`                          | Any role; submitted IDs only                                                         |
-| `/assets`                                   | GET    | `products:create` OR `products:update`   | `editable` or `manage`; no `products:read` needed                                    |
-| `/assets/{id}`                              | GET    | `products:create` OR `products:update`   | `editable` or `manage`; no `products:read` needed                                    |
-| `/product-shares`                           | POST   | `products:read` AND `products:share`     | `usable` or higher; published products only; downloads also need `products:download` |
-| `/product-shares`                           | GET    | `products:history`                       | `manage`; all creators in the current team                                           |
-| `/product-shares/{id}`                      | DELETE | `products:share`                         | `manage`; any share in the current team; no read grant needed                        |
-| `/product-downloads`                        | GET    | `products:history`                       | `manage`; all actors in the current team                                             |
-| `/product-downloads`                        | POST   | `products:read` AND `products:download`  | `usable` or higher; current product visibility applies                               |
-| `/products/{id}/download-assets`            | GET    | `products:read` AND `products:download`  | `usable` or higher; metadata only                                                    |
-| `/products/{id}/download-assets/{assetKey}` | GET    | `products:read` AND `products:download`  | `usable` or higher; authenticated attachment and business record                     |
+This section is now in [Template versions and field values](./product-library-reference#template-pins-and-field-values).
 
-Product write responses include product details even without a read
-grant. Their original-download properties still require `products:read` AND
-`products:download`. `products:publish` also authorizes editing and deleting an
-already published product, in combination with the relevant mutation grant.
-A status change does not start an approval workflow or external synchronization.
+</div>
+<div id="media-and-expiry" className="dev-moved-section">
 
+This section is now in [Media and expiry](./product-library-reference#media-and-expiry).
 
-## Wire format and identifiers
+</div>
+<div id="sharing-recorded-downloads-and-history" className="dev-moved-section">
 
-Success: `{ "success": true, "data": ..., "code": null, "message": null,
-"requestId": "..." }`. Lists add top-level `pagination`. Errors use
-`success: false`, `data: null`, a stable `code`, a safe human-readable `message`,
-and the same `requestId`. A validation error may include
-`details: [{ "field": "templateFields.<id>", "message": "..." }]`.
-Messages are contextual and are not stable identifiers; branch on code/status.
-JSON operations and errors use `application/json`. Successful file downloads and
-exports return attachments, including JSON exports, rather than a success envelope.
-All responses use `Cache-Control: private, no-store` and `X-Request-Id`.
+This section is now in [Sharing, recorded downloads, and history](./product-library-reference#sharing-recorded-downloads-and-history).
 
-Numeric resource IDs are positive integers no larger than 2147483647.
-Template/group/field/version IDs are opaque strings, not necessarily UUIDs.
-Media IDs are **FilePath IDs**, not AssetObject IDs or product association IDs.
-Category `iconAssetId` is a different identifier, from `CategoryIconAsset`.
-A legacy/unresolved product media projection may have `id: null`.
-`size` is a decimal **string** (or null) so large byte counts remain exact.
-Dates are RFC 3339 strings or explicit null, never integer timestamps. Sync
-`updatedAt` and `syncedUntil` use six fractional digits; preserve them verbatim.
-SKU is `spu` on the wire. Brand `logoUrl` is accepted under constrained writes
-but is omitted from all brand read/write DTOs; no raw icon/logo URL is exposed.
+</div>
+<div id="synchronization-and-removals" className="dev-moved-section">
 
-Ordinary lists accept `page` (default 1) and `pageSize` (default 20, capped at
-100). They return `pagination: { page, pageSize, totalCount, totalPages }`.
-Product and asset pages omit records that become invisible while preparing the response, so a
-page can be shorter than `pageSize` while the original count remains unchanged.
-Single-item reads still return 404 for invisible records. Valid media references are not truncated.
-Categories additionally accept `brandId`; products accept `search`, `brandId`,
-`categoryId`, and `status`; assets accept `search` and MIME-prefix `mimeType`.
-Brand and template lists have no search filter. Unknown ordinary query
-parameters are ignored, but strict JSON bodies reject unknown properties.
-Synchronization has its own validation and metadata; see below.
+This section is now in [Synchronization and removals](./product-library-reference#synchronization-and-removals).
 
-## Writes, concurrency, and limits
+</div>
+<div id="error-catalog" className="dev-moved-section">
 
-Resource creates return 201 and accept optional `Idempotency-Key` (nonblank,
-maximum 255 characters, no ASCII controls). The key is scoped to team, API key,
-and create operation for 24 hours. Same canonical input replays the original
-scalar result and ETag; changed input returns 409. Signed URLs are reprojected
-at response time, never saved as replay credentials. Product replay intersects
-original media IDs with currently valid associations in their original slots;
-it cannot resurrect deleted/invisible products or retain removed downloads.
+This section is now in [Error catalog](./product-library-reference#error-catalog).
 
-Catalog item reads and successful catalog mutations return a strong quoted `ETag`.
-`PATCH`, status changes, and `DELETE` accept optional
-`If-Match`. Pass the received string unchanged. `*` or a comma-separated list
-containing the current strong tag also matches; weak tags do not. A stale tag
-returns 412 before writes; omission means last-writer-wins. There is no
-`If-None-Match`/304 support. Template fingerprints include the full live group,
-field, binding and library-default set, so removal/movement invalidates the tag.
-Asset detail tags use the FilePath and linked AssetObject identities and maintained
-update timestamps. Changes to persistent metadata change the tag; issuing a fresh
-temporary preview signature alone does not.
-Sharing, activity history and recorded downloads do not use ETag or If-Match.
+</div>
+<div id="protected-template-fields-and-category-defaults" className="dev-moved-section">
 
-| Limit                                    | Value                                          |
-| ---------------------------------------- | ---------------------------------------------- |
-| Body on every route, including reads     | 1 MiB (1048576 bytes); 413 if exceeded         |
-| Ordinary or sync page size               | Default 20, maximum 100 (larger values capped) |
-| Total product media references per write | 100, across cover/images/related/custom fields |
-| Template definition                      | 200 fields total, 1–200 groups                 |
-| Template binding arrays                  | At most 10000 IDs per dimension                |
-| Category tree                            | Depth 10, 5000 live nodes per brand            |
-| Visibility check                         | 0–100 IDs, duplicates and order retained       |
-| Sync cursor                              | Opaque string, maximum 8192 characters         |
-| Idempotency retention                    | 24 hours                                       |
-| Products per share, download or export   | 1–100                                          |
-| Files per original download              | 200                                            |
-| Original download size                   | 500 MiB combined                               |
+This section is now in [Protected template fields and category defaults](./product-library-reference#protected-template-fields-and-category-defaults).
 
-There is no v1 429/rate-limit contract. Known rolled-back write contention returns
-`503 write_conflict` with `Retry-After: 1`; see [write conventions](./product-library-write-conventions). No multipart upload, remote
-asset import, generic provider synchronization, webhooks or bulk writes are
-included. Existing UI behavior remains governed by its own workflow.
+</div>
 
-Read [write conventions](./product-library-write-conventions), [category rules](./product-library-categories),
-[template writes](./product-library-template-writes), and [product writes](./product-library-product-writes)
-for detailed validation rules.
-
-## Template versions and field values
-
-A product saves the template version used at creation. Later template edits or deletion do not change that product’s field definitions or values. Read the product’s `templateDefinition` for those field definitions.
-
-An explicit live template takes precedence on creation. When `templateId` is
-omitted or null and a non-null `categoryId` is supplied, resolution follows the
-category or ancestor binding, then the category's brand binding, then the
-library default. When `categoryId` is omitted or null, resolution uses only the
-library default, even if `brandId` is supplied. If no template resolves, the
-product has no template.
-A product with a resolved template pins one immutable version. Template mutations always use `newOnly`; `syncAll` is rejected by the
-API. Existing products keep their version and values after edits or soft delete.
-Read the product's `templateDefinition` to interpret `templateFields`; current
-template-head fields can differ. Ordinary product PATCH cannot switch templates.
-
-Template `groups` is a complete replacement when supplied. Preserve group and
-field IDs; fields cannot move between groups. Omitted groups/fields are removed
-subject to default/system protections. Omitted `groups` preserves the set.
-New fields require key/name/type, and keys must be unique valid identifiers.
-Binding arrays replace only their own dimension. When selected brands are
-nonempty, selected categories must belong to those brands. Moving bindings or
-changing the default affects future resolution, not existing product pins.
-
-`templateFields` PATCH shallow-merges by stable custom field ID; null clears a
-field. Drafts skip required-value checks, but still validate types, choices,
-and media constraints. Number/currency values are JSON numbers; dateRange is
-an ordered pair of date strings; checkbox is an option-value array; image/file
-input is a FilePath ID array. Richtext is a string in HTML mode or
-`{ "ops": [...] }` in delta mode. Published results must pass full validation.
-Field configuration shapes and all input lengths are specified in
-[openapi.json](/assets/developers/product-library/openapi.json) and [template writes](./product-library-template-writes).
-
-## Media and expiry
-
-Use `previewUrl` to render media. For images, a short-lived original may be used
-as a fallback preview even by `view_only` keys. This does not grant general
-original-download access. For non-image assets, only derived previews may be
-returned; the original PDF/archive/document is never a preview fallback.
-Library asset lookup and template configuration contain previews only.
-
-Product media includes `downloadUrl` and `downloadUrlExpiresAt` only when the
-current association is resolvable, visible, and authorized by read+download
-under `usable` or higher. Missing permission/unresolved references **omit** the
-properties; an authorized but unavailable original may produce null. Do not
-infer download authorization from an image preview. Signed derived previews
-are capped at 3600 seconds, image-original fallbacks and downloads at 300
-seconds, all additionally bounded by key expiry. Fetch fresh product data when
-URLs expire; do not persist signed URLs as asset identity.
-
-Stored external DAM thumbnails/previews are returned only for keys without
-expiry, after excluding known original URLs. Their lifetime remains controlled
-by the third-party provider; no short expiry or provider-signature validation is
-promised. For a key with `expiresAt`, an external preview with unverifiable
-expiry is `null`. URL query parameters, including signature-shaped parameters,
-do not establish a trusted expiry. Service-issued derived previews, original
-image fallbacks and downloads retain the caps above and never fall back to raw
-storage URLs when signing fails.
-
-## Sharing, recorded downloads, and history
-
-`POST /product-shares` creates a fixed selection of 1–100 published products.
-Set `expiresInDays` to 7, 30, 90 or null, provide `allowDownload`, and optionally
-set a four-digit `accessCode`. The response includes an absolute recipient URL.
-Recipients need no login or API key. Content stays live; unpublished or deleted
-products are hidden. Shares belong to the team: creator-key expiry, disablement,
-removal or role changes do not revoke them. Managers revoke team shares using
-`DELETE /product-shares/{id}`.
-
-`GET /products/{id}/download-assets` returns a flat candidate list with opaque
-selection keys and `downloadable`, without raw or preview URLs or business
-records. `POST /product-downloads` accepts `kind: "assets"` and optional
-`assetKeys` (omission selects all originals). One file returns its original
-attachment; multiple files return ZIP. Missing originals remain unavailable.
-Use `GET /products/{id}/download-assets/{assetKey}` for a single file, encoding
-the key as a path segment. Current authorization applies to every retrieval.
-
-For a business-table export, set `kind: "export"` and `format` to `xlsx`
-(default), `csv` or `json`; `assetKeys` is not accepted. `locale` defaults to
-`zh-CN` and changes system labels/status, not user-authored labels or values.
-`includeAssetUrls` defaults to true. Links target the authenticated single-file
-route and require a Bearer header; clicking a spreadsheet link alone cannot send
-that header. Keys are never embedded in URLs. Use an explicit product share when
-recipients need browser access without API credentials. Product read DTOs remain
-the stable machine-field interface for synchronization.
-
-Downloads and exports return `X-Download-Record-Id`; `requested` means accepted,
-not completed transfer or local save. Detected preparation/stream failures after
-acceptance set `failed`; retries do not reset that status. Keep the optional
-`Idempotency-Key` for the same logical request within 24 hours, scoped to team,
-API key and operation. Matching retries reuse the first record and snapshots,
-but reauthorize and transfer current content; bytes are not cached. POST and
-single-file GET have separate scopes. Changed input returns 409. Omission, a new
-key, or expiry starts a new operation. This is not permanent deduplication.
-Before attachment delivery starts, errors retain their specific code and include
-`mutationOutcome` when the business record was committed or replayed. Keep the
-original idempotency key when retrying that accepted operation. Product reads,
-previews and legacy storage `downloadUrl` consumption remain outside business
-download history.
-
-Managers with `products:history` query `GET /product-shares` and
-`GET /product-downloads`. Omit `productId` for all team records, or provide one
-product ID. Both lists accept `page` and `pageSize`, reject unknown/duplicate
-parameters, and return newest-first complete operations with pagination. A
-product filter preserves the other products/files in each matching operation.
-Browser records and records from other team keys are included; creator/key is
-not an implicit filter. Key ID and name snapshots preserve attribution after
-key lifecycle changes.
-
-## Synchronization and removals
-
-Use `GET /products?sync=true` for a first full sync and incremental cycles.
-Supply the previous completed `syncedUntil` as `updatedAfter`. Read every
-`nextCursor`, including when the current data page is empty. The fixed interval
-is `[updatedAfter, syncedUntil)`, ordered by `(updatedAt, id)` ascending; the
-upper bound is PostgreSQL time minus 30 seconds. Save the checkpoint only after
-all pages are durably merged. Deduplicate by ID and full-precision update time.
-Do not use page-number browsing as a synchronization protocol.
-
-The opaque cursor binds key, role, library, filters, page size and bounds.
-Continuation may contain only `sync=true&cursor=...`; repeated parameters must
-match. Duplicate sync parameters, `page`, changed bindings or malformed time
-bounds produce 422. Timestamp input accepts a timezone and at most six fraction
-digits. Transactions longer than the safety window are an accepted limitation.
-
-Synchronization does not include records for deleted products. Periodically send locally known IDs to
-`POST /products/visibility`; remove entries reported `not_visible`. This combines
-missing, deleted, foreign and role-hidden records without leaking existence.
-See [product synchronization](./product-library-synchronization) for the complete
-protocol and [examples](./product-library-examples#synchronize-and-save-a-checkpoint) for a loop.
-
-## Error catalog
-
-| Status | Code                                    | Meaning / caller response                                                   |
-| ------ | --------------------------------------- | --------------------------------------------------------------------------- |
-| 401    | `invalid_credentials`                   | Missing, malformed or unknown bearer key; correct credentials.              |
-| 503    | `authentication_unavailable`            | Fresh MuseDAM validation unavailable; no protected operation executes.      |
-| 401    | `key_inactive`                          | Verified key disabled/revoked/expired; obtain an active key.                |
-| 403    | `forbidden`                             | Role/grants do not authorize this operation or current published state.     |
-| 404    | `not_found`                             | Absent, deleted, outside library or invisible item; do not infer existence. |
-| 409    | `download_unavailable`                  | Original download cannot be prepared; inspect candidate availability.       |
-| 413    | `download_too_large`                    | Select at most 200 files and 500 MiB combined.                              |
-| 409    | `sku_in_use`                            | Nonempty product `spu` conflicts in the library.                            |
-| 409    | `code_in_use`                           | Generated brand code conflict.                                              |
-| 409    | `name_in_use`                           | Template name or category sibling name conflict.                            |
-| 409    | `brand_has_dependents`                  | Remove/reassign live categories/products before deleting brand.             |
-| 409    | `category_has_products`                 | Subtree contains live products; resolve dependencies first.                 |
-| 409    | `default_template_replacement_required` | Provide replacement ID or explicit null.                                    |
-| 409    | `idempotency_key_reused`                | Same key used for different canonical create input.                         |
-| 412    | `precondition_failed`                   | Refetch, reconcile and retry with current ETag.                             |
-| 413    | `payload_too_large`                     | Reduce body below 1 MiB.                                                    |
-| 422    | `validation_failed`                     | Correct query/body/reference/field state; inspect optional details.         |
-| 500    | `internal_server_error`                 | Retain requestId for investigation; no internal details are exposed.        |
-| 503 | `write_conflict` | Write rolled back; wait for `Retry-After` and retry with the same idempotency key. |
-| 409 | `mutation_response_unavailable` | Mutation committed or replayed; reconcile before retrying. |
-
-### Protected template fields and category defaults
-
-Template creation automatically adds protected product name, SKU, and main image
-fields to the first group before taking the first version snapshot. These three
-fields count toward the 200-field limit, so creation accepts at most 197 custom
-fields. Their keys are reserved, and updates must retain their IDs and protected
-settings. New categories receive a direct binding to the current library default
-template only when it has no brand bindings or includes the category's brand;
-this direct binding takes precedence over ancestor bindings. Otherwise, creation
-succeeds without a direct binding, and template resolution checks ancestors, then
-the brand, then the library default. Deleting a category subtree removes its
-direct template bindings atomically.
+See [Common rules](./product-library-reference#common-rules) in the API documentation for response formats, request limits, media links and error codes.

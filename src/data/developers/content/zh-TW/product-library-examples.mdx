@@ -2,7 +2,7 @@
 
 ## 查詢商品列表
 
-密鑰需要先添加為 API Key 協作者，詳見[認證與權限](./product-library#authentication-and-scope)。以下請求返回當前角色可見的商品列表。
+密鑰需要先添加為 API Key 協作者，詳見[取得授權](./product-library#authentication-and-scope)。以下請求返回當前角色可見的商品列表。
 
 ```bash
 curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
@@ -167,4 +167,4 @@ curl --request POST 'https://open.musedam.cc/api/product/products/visibility' \
 | 422 | 按 `details[].field` 和 `details[].message` 修正參數。 |
 | 409 | 根據 `code` 處理衝突；若為 `mutation_response_unavailable`，先讀取並核對結果。 |
 
-保留響應中的 `requestId` 便於排查。完整說明見[錯誤碼](./product-library#error-catalog)。
+保留響應中的 `requestId` 便於排查。完整說明見[錯誤碼](./product-library-reference#error-catalog)。

@@ -68,9 +68,12 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 
 The `product-library` navigation group adds nine documents in Simplified Chinese,
 English and Traditional Chinese. Its entry is `/{lng}/developers/product-library`,
-linked from the developer landing page. It covers the overview, API reference,
-AI assistant integration, examples, write recovery, categories, information
-templates, product writes and synchronization.
+linked from the developer landing page. Quick start contains only the service
+address, authorization steps and a first request. API documentation groups
+operations by resource and centralizes shared request and response rules. The
+remaining pages cover AI assistant integration, examples, write recovery,
+categories, information templates, product writes and synchronization. Keep the
+existing page routes when changing these titles or their navigation labels.
 
 The source snapshot is `bmrlab/musedam-product-library` commit
 `01574a8aeede7682e4e172526367703d05c0e14c`:

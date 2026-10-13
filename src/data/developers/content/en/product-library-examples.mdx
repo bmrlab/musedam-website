@@ -2,7 +2,7 @@ Use each example independently. Replace `your_api_key` with your API key and the
 
 ## List products
 
-Add the key as an API Key Collaborator first. See [authentication and permissions](./product-library#authentication-and-scope). This request lists products visible to the current role.
+Add the key as an API Key Collaborator first. See [getting access](./product-library#authentication-and-scope). This request lists products visible to the current role.
 
 ```bash
 curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
@@ -167,4 +167,4 @@ Remove products reported as `not_visible` from your local copy. This status can 
 | 422 | Fix the parameters identified by `details[].field` and `details[].message`. |
 | 409 | Handle the conflict using `code`. For `mutation_response_unavailable`, read and verify the result first. |
 
-Keep the response `requestId` for troubleshooting. See the complete [error codes](./product-library#error-catalog).
+Keep the response `requestId` for troubleshooting. See the complete [error codes](./product-library-reference#error-catalog).

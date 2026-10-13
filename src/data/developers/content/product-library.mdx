@@ -1,194 +1,81 @@
+## 服务地址
+
+商品库 API 的服务地址为 `https://open.musedam.cc/api/product`。在此地址后添加接口路径，例如 `/products`。
+
+## 获取授权
+
+1. 获取 MuseDAM API Key。
+2. 请商品库管理员在「成员设置 → 添加成员」中，将该密钥添加为 API Key 协作者，并分配所需角色。
+3. 从服务端调用接口，在请求头中携带 `Authorization: Bearer <key>`。
+
+新添加的协作者默认为 `view_only`。按需要选择角色：
+
+| 角色 | 可执行的操作 |
+| --- | --- |
+| `view_only` | 查看已发布商品。 |
+| `usable` | 查看、分享和下载已发布商品。 |
+| `editable` | 创建和编辑商品、访问草稿、发布及删除商品。 |
+| `manage` | 管理全部资源，包括品牌、分类、信息模板及活动记录。 |
+
+每个角色包含上一级角色的操作权限。具体接口的权限要求见[接口文档](./product-library-reference)。
+
 ## 发起第一次请求
 
-将示例中的 `your_api_key` 替换为已添加为商品库协作者的 API Key，即可获取商品列表。认证步骤见下方说明。
+将 `your_api_key` 替换为已授权的 API Key，查询商品列表：
 
 ```bash
 curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
   --header 'Authorization: Bearer your_api_key'
 ```
 
-完整的参数、请求与响应结构见 [OpenAPI 3.0.3 规范](/assets/developers/product-library/openapi.json)，可导入兼容 OpenAPI 的客户端。更多操作见[调用示例](./product-library-examples)。
+请求成功时，`success` 为 `true`，`data` 为商品列表，`pagination` 为分页信息。列表为空时，先确认商品库中是否有当前角色可见的商品；`view_only` 和 `usable` 只能查看已发布商品。
 
-如需让 AI 助手调用这些接口，请阅读 [AI 助手接入指南](./product-library-agent-skill)。
+## 继续阅读
 
-## 认证与权限
+- [接口文档](./product-library-reference)：按品牌、分类、商品等资源查询参数、响应和示例。
+- [调用示例](./product-library-examples)：创建、发布、分享、下载和同步商品。
+- [AI 助手接入](./product-library-agent-skill)：让 AI 助手读取文档并使用接口。
+- [下载 OpenAPI JSON](/assets/developers/product-library/openapi.json)：导入支持 OpenAPI 的接口工具。
 
-1. 获取现有的 MuseDAM API Key，凭据由 MuseDAM 管理。
-2. 请商品库管理员进入「成员设置 → 添加成员」，将该密钥添加为 API Key 协作者，初始角色为 `view_only`。按接入需求分配下表中的角色。
-3. 从服务端通过 HTTPS 发起请求，并携带 `Authorization: Bearer <key>` 请求头。
+<div id="wire-format-and-identifiers" className="dev-moved-section">
 
-每次请求都会校验密钥状态及其所属团队。未添加、已移除、已过期或被拒绝的密钥无法访问；认证服务不可用时返回 `503 authentication_unavailable`。权限由协作者当前角色决定，不继承密钥创建者的权限，也不能通过请求参数切换团队、商品库或操作者。商品库不提供密钥或协作者管理接口。
+相关说明已移至[传输格式与标识符](./product-library-reference#wire-format-and-identifiers)。
 
-授权仅由协作者的当前角色决定：
+</div>
+<div id="writes-concurrency-and-limits" className="dev-moved-section">
 
-| 角色        | 上限                                                           |
-| ----------- | -------------------------------------------------------------- |
-| `view_only` | 读取资源；商品必须为已发布状态。不可下载原文件。               |
-| `usable`    | 读取资源、分享及经授权的商品下载；商品必须为已发布状态。             |
-| `editable`  | 读取资源、访问草稿及已发布商品、商品创建/更新/删除/发布/下载/分享。 |
-| `manage`    | 全部 20 项权限，包括活动历史及品牌/分类/模板写入。                       |
+相关说明已移至[写入、并发与限制](./product-library-reference#writes-concurrency-and-limits)。
 
-下表列出各角色对应的操作权限，不能为单个密钥另行勾选。移除协作者后，审计、幂等记录、历史和团队分享仍会保留；如需停止分享，请单独撤销。
+</div>
+<div id="template-pins-and-field-values" className="dev-moved-section">
 
-| 路径                           | 方法   | 所需权限                                 | 最低角色 / 附加条件                                                  |
-| ------------------------------ | ------ | ---------------------------------------- | -------------------------------------------------------------------- |
-| `/brands`                      | GET    | `brands:read`                            | 任意角色                                                             |
-| `/brands`                      | POST   | `brands:create`                          | `manage`                                                             |
-| `/brands/{id}`                 | GET    | `brands:read`                            | 任意角色                                                             |
-| `/brands/{id}`                 | PATCH  | `brands:update`                          | `manage`                                                             |
-| `/brands/{id}`                 | DELETE | `brands:delete`                          | `manage`；不存在未删除的依赖资源                                     |
-| `/categories`                  | GET    | `categories:read`                        | 任意角色                                                             |
-| `/categories`                  | POST   | `categories:create`                      | `manage`                                                             |
-| `/categories/{id}`             | GET    | `categories:read`                        | 任意角色                                                             |
-| `/categories/{id}`             | PATCH  | `categories:update`                      | `manage`                                                             |
-| `/categories/{id}`             | DELETE | `categories:delete`                      | `manage`；子树中不存在未删除的商品                                   |
-| `/product-info-templates`      | GET    | `templates:read`                         | 任意角色                                                             |
-| `/product-info-templates`      | POST   | `templates:create`                       | `manage`                                                             |
-| `/product-info-templates/{id}` | GET    | `templates:read`                         | 任意角色                                                             |
-| `/product-info-templates/{id}` | PATCH  | `templates:update`                       | `manage`                                                             |
-| `/product-info-templates/{id}` | DELETE | `templates:delete`                       | `manage`；适用时须显式指定默认模板的替换项                           |
-| `/products`                    | GET    | `products:read`                          | 普通列表和同步列表均受角色可见性约束                                 |
-| `/products`                    | POST   | `products:create`                        | `editable` 或 `manage`；创建草稿                                     |
-| `/products/{id}`               | GET    | `products:read`                          | 受角色可见性约束；读取固定版本定义无需 `templates:read`              |
-| `/products/{id}`               | PATCH  | `products:update`                        | `editable` 或 `manage`；已发布商品还需 `products:publish`            |
-| `/products/{id}`               | DELETE | `products:delete`                        | `editable` 或 `manage`；已发布商品还需 `products:publish`            |
-| `/products/{id}/status`        | PATCH  | `products:update` AND `products:publish` | `editable` 或 `manage`；无论目标状态为何（即使未变化），均需两项权限 |
-| `/products/visibility`         | POST   | `products:read`                          | 任意角色；仅限所提交的 ID                                            |
-| `/assets`                      | GET    | `products:create` OR `products:update`   | `editable` 或 `manage`；无需 `products:read`                         |
-| `/assets/{id}`                 | GET    | `products:create` OR `products:update`   | `editable` 或 `manage`；无需 `products:read`                         |
-| `/product-shares` | POST | `products:read` AND `products:share` | `usable` 及以上；仅已发布商品；启用下载还需 `products:download` |
-| `/product-shares` | GET | `products:history` | `manage`；当前团队全部创建者 |
-| `/product-shares/{id}` | DELETE | `products:share` | `manage`；当前团队任意分享；无需读取权限 |
-| `/product-downloads` | GET | `products:history` | `manage`；当前团队全部操作者 |
-| `/product-downloads` | POST | `products:read` AND `products:download` | `usable` 及以上；受当前商品可见性约束 |
-| `/products/{id}/download-assets` | GET | `products:read` AND `products:download` | `usable` 及以上；仅元数据 |
-| `/products/{id}/download-assets/{assetKey}` | GET | `products:read` AND `products:download` | `usable` 及以上；经认证的附件并记入业务记录 |
+相关说明已移至[模板版本与字段值](./product-library-reference#template-pins-and-field-values)。
 
-即使没有读取权限，商品写入响应也会包含商品详情。但其中的原文件下载属性仍需同时具备
-`products:read` 和 `products:download`。`products:publish` 与相应的变更权限组合使用时，还授权编辑和删除已发布的商品。状态变更不会启动审批流程或外部同步。
+</div>
+<div id="media-and-expiry" className="dev-moved-section">
 
-## 传输格式与标识符
+相关说明已移至[媒体与过期](./product-library-reference#media-and-expiry)。
 
-成功：`{ "success": true, "data": ..., "code": null, "message": null,
-"requestId": "..." }`。列表会额外包含顶层 `pagination`。错误使用
-`success: false`、`data: null`、稳定的 `code`、安全且可读的 `message`，以及相同的 `requestId`。校验错误可能包含
-`details: [{ "field": "templateFields.<id>", "message": "..." }]`。消息内容随上下文变化，不是稳定标识符；请根据 code/status 进行分支处理。JSON 操作和错误使用 `application/json`。成功的下载和导出返回附件（包括 JSON 导出），而非成功响应结构。所有响应均携带 `Cache-Control: private, no-store` 和 `X-Request-Id`。
+</div>
+<div id="sharing-recorded-downloads-and-history" className="dev-moved-section">
 
-数值型资源 ID 为不大于 2147483647 的正整数。模板/分组/字段/版本 ID 为不透明字符串，不一定是 UUID。媒体 ID 是 **FilePath ID**，而非 AssetObject ID 或商品关联 ID。分类的 `iconAssetId` 是另一种标识符，来自 `CategoryIconAsset`。旧版/无法解析的商品媒体投影可能为 `id: null`。
-`size` 为十进制**字符串**（或 null），以确保大字节数保持精确。日期为 RFC 3339 字符串或显式的 null，绝不使用整数时间戳。同步中的
-`updatedAt` 和 `syncedUntil` 使用六位小数秒；请原样保留。
-SKU 在传输格式中为 `spu`。品牌 `logoUrl` 在受限的写入中可被接受，但在所有品牌读写 DTO 中均会被省略；不会暴露任何原始图标/logo URL。
+相关说明已移至[分享、有记录的下载与历史](./product-library-reference#sharing-recorded-downloads-and-history)。
 
-普通列表接受 `page`（默认 1）和 `pageSize`（默认 20，上限 100），返回 `pagination: { page, pageSize, totalCount, totalPages }`。商品和素材分页会省略在生成响应时变为不可见的记录，因此某一页的条数可能少于 `pageSize`，而原始计数保持不变。单项读取对不可见的记录仍返回 404。有效的媒体引用不会被截断。分类还接受 `brandId`；商品接受 `search`、`brandId`、`categoryId` 和 `status`；素材接受 `search` 以及按 MIME 前缀匹配的 `mimeType`。品牌和模板列表没有搜索筛选。未知的普通查询参数会被忽略，但严格的 JSON 请求体会拒绝未知属性。同步有其独立的校验规则和元数据；见下文。
+</div>
+<div id="synchronization-and-removals" className="dev-moved-section">
 
-## 写入、并发与限制
+相关说明已移至[同步与移除](./product-library-reference#synchronization-and-removals)。
 
-资源创建返回 201，并接受可选的 `Idempotency-Key`（非空白，最多 255 个字符，不含 ASCII
-控制字符）。该幂等键的作用域为团队、API key 和创建操作，有效期 24 小时。相同的规范化输入会重放原始的标量结果和 ETag；输入发生变化则返回 409。签名 URL 在响应时重新投影，绝不会作为重放凭据保存。商品重放会将原始媒体 ID 与其原始槽位中当前仍有效的关联取交集；无法恢复已删除/不可见的商品，也不会保留已移除的下载。
+</div>
+<div id="error-catalog" className="dev-moved-section">
 
-目录资源的单项读取和成功变更操作会返回带引号的强 `ETag`。
-`PATCH`、状态变更和 `DELETE` 接受可选的
-`If-Match`。请原样传递收到的字符串。`*` 或包含当前强标签的逗号分隔列表同样视为匹配；弱标签不匹配。过期的标签会在写入前返回 412；省略则采用最后写入者胜出。不支持
-`If-None-Match`/304。模板指纹包含完整的未删除分组、字段、绑定及商品库默认设置，因此移除/移动都会使标签失效。素材详情标签使用 FilePath 及其关联 AssetObject 的标识和所维护的更新时间戳。持久化元数据发生变化会改变标签；仅签发新的临时预览签名不会改变标签。分享、活动记录与有记录的下载不使用 ETag 或 If-Match。
+相关说明已移至[错误目录](./product-library-reference#error-catalog)。
 
-| 限制项                       | 值                                      |
-| ---------------------------- | --------------------------------------- |
-| 所有路由（包括读取）的请求体 | 1 MiB（1048576 字节）；超出返回 413     |
-| 普通或同步分页大小           | 默认 20，最大 100（更大的值按上限截取） |
-| 每次写入的商品媒体引用总数   | 100，涵盖封面/图片/相关/自定义字段      |
-| 模板定义                     | 共 200 个字段，1–200 个分组             |
-| 模板绑定数组                 | 每个维度最多 10000 个 ID                |
-| 分类树                       | 深度 10，每个品牌 5000 个未删除节点     |
-| 可见性检查                   | 0–100 个 ID，保留重复项和顺序           |
-| 同步游标                     | 不透明字符串，最多 8192 个字符          |
-| 幂等记录保留期               | 24 小时                                 |
-| 每次分享、下载或导出商品数 | 1–100 |
-| 每次原文件下载的文件数 | 200 |
-| 原文件下载大小 | 合计 500 MiB |
+</div>
+<div id="protected-template-fields-and-category-defaults" className="dev-moved-section">
 
-v1 没有 429/速率限制契约。已知的、已回滚的写入争用会返回
-`503 write_conflict` 并附带 `Retry-After: 1`；见 [写入约定](./product-library-write-conventions)。不包含
-multipart 上传、远程素材导入、通用提供方同步、webhook 或批量写入。现有界面行为仍由其自身的工作流管控。
+相关说明已移至[受保护的模板字段与分类默认值](./product-library-reference#protected-template-fields-and-category-defaults)。
 
-有关详细校验规则，请阅读 [写入约定](./product-library-write-conventions)、[分类规则](./product-library-categories)、
-[模板写入](./product-library-template-writes) 和 [商品写入](./product-library-product-writes)。
+</div>
 
-## 模板版本与字段值
-
-商品创建时会保存所用模板的版本，后续的模板修改或删除不会改变已有商品的字段定义和值。读取商品的 `templateDefinition` 可获取这一版本的字段定义。
-
-创建时，显式指定的未删除模板优先。当省略 `templateId` 或其为 null，且提供了非 null 的
-`categoryId` 时，解析顺序为：该分类或其祖先分类的绑定，然后是该分类所属品牌的绑定，最后是商品库默认模板。当省略 `categoryId` 或其为 null 时，即使提供了 `brandId`，也仅使用商品库默认模板进行解析。若未解析出任何模板，则该商品没有模板。已解析出模板的商品会固定一个不可变的版本。模板变更始终使用 `newOnly`；API 会拒绝
-`syncAll`。现有商品在编辑或软删除后仍保留其版本和值。请读取商品的 `templateDefinition` 来解释 `templateFields`；当前模板最新版本的字段可能不同。普通的商品 PATCH 无法切换模板。
-
-提供模板 `groups` 时为完整替换。请保留分组和字段 ID；字段不能在分组之间移动。被省略的分组/字段会被移除，但受默认/系统保护规则约束。省略 `groups` 则保留现有集合。新字段需要 key/name/type，且 key 必须是唯一的有效标识符。绑定数组仅替换其自身维度。当所选品牌非空时，所选分类必须属于这些品牌。移动绑定或更改默认模板会影响后续解析，而不影响现有商品的固定版本。
-
-`templateFields` PATCH 按稳定的自定义字段 ID 进行浅合并；null 会清除字段。草稿会跳过必填值检查，但仍校验类型、选项和媒体约束。Number/currency 值为 JSON 数字；
-dateRange 为有序的日期字符串对；checkbox 为选项值数组；image/file 输入为 FilePath ID
-数组。Richtext 在 HTML 模式下为字符串，在 delta 模式下为 `{ "ops": [...] }`。已发布结果必须通过完整校验。字段配置结构和所有输入长度均在
-[openapi.json](/assets/developers/product-library/openapi.json) 和 [模板写入](./product-library-template-writes) 中说明。
-
-## 媒体与过期
-
-使用 `previewUrl` 渲染媒体。对于图片，即使是 `view_only` 的 API key，也可能使用短时有效的原图作为预览回退。这并不授予一般的原文件下载权限。对于非图片素材，只可能返回派生预览；原始 PDF/压缩包/文档绝不会作为预览回退。素材库素材查找和模板配置中仅包含预览。
-
-仅当当前关联可解析、可见，且在 `usable` 或更高角色下获得读取+下载授权时，商品媒体才包含
-`downloadUrl` 和 `downloadUrlExpiresAt`。缺少权限/引用无法解析时会**省略**这些属性；已授权但原文件不可用时可能为 null。不要根据图片预览推断下载授权。签名派生预览的有效期上限为
-3600 秒，图片原图回退和下载的上限为 300 秒，且均额外受 API key 过期时间约束。URL 过期时请重新获取商品数据；不要将签名 URL 作为素材标识持久化。
-
-已存储的外部 DAM 缩略图/预览仅对无过期时间的 API key 返回，且会先排除已知的原文件 URL。其有效期仍由第三方提供方控制；不保证短有效期，也不保证校验提供方签名。对于设置了 `expiresAt` 的 API key，过期时间无法验证的外部预览为 `null`。URL 查询参数（包括形似签名的参数）不能作为可信的过期时间依据。由服务签发的派生预览、原图回退和下载保持上述上限，签名失败时绝不会回退为原始存储 URL。
-
-## 分享、有记录的下载与历史
-
-`POST /product-shares` 为固定的 1–100 个已发布商品创建分享。`expiresInDays` 可设为 7、30、90 或 null，并提供 `allowDownload`，还可设置四位数字的 `accessCode`。响应包含绝对访问 URL。访问者无需登录或 API key。内容实时更新，未发布或已删除商品会被隐藏。分享归属于团队，创建 key 的到期、停用、撤销或权限变化不会使其失效。具有分享权限的管理员可通过 `DELETE /product-shares/{id}` 撤销团队分享。
-
-`GET /products/{id}/download-assets` 返回包含不透明选择 key 和 `downloadable` 的扁平候选列表，不返回原文件或预览 URL，也不创建业务记录。`POST /product-downloads` 接受 `kind: "assets"` 和可选的 `assetKeys`（省略则选择全部原文件）。单文件返回原附件，多文件返回 ZIP。缺失的原文件保持不可下载。获取单文件可使用 `GET /products/{id}/download-assets/{assetKey}`，将 key 编码为路径片段。每次提取均检查当前权限。
-
-导出业务表格时，设置 `kind: "export"`，`format` 可为 `xlsx`（默认）、`csv` 或 `json`，不接受 `assetKeys`。`locale` 默认为 `zh-CN`，影响系统标签和状态，不改变用户自定义标签或值。`includeAssetUrls` 默认为 true。链接指向需认证的单文件路由，需要 Bearer 请求头；仅点击表格中的链接无法发送该请求头。URL 绝不包含 key。需要无 API 凭证的浏览器访问时，应明确创建商品分享。商品读取 DTO 仍是同步时使用的稳定机器字段接口。
-
-下载和导出返回 `X-Download-Record-Id`；`requested` 表示已接受，不表示传输或本地保存完成。接受后检测到准备或传输失败会标记为 `failed`，重试不会重置状态。同一逻辑请求可在 24 小时内复用可选的 `Idempotency-Key`，作用域为团队、API key 和操作。匹配的重试复用首次记录及快照，但会重新鉴权并传输当前内容，不缓存字节。POST 与单文件 GET 的作用域不同。输入改变返回 409；省略、使用新 key 或过期后视为新操作。这不是永久去重。在附件交付开始前，错误保留具体错误码；业务记录已提交或重放时还会包含 `mutationOutcome`。重试该已接受操作应保留原幂等 key。商品读取、预览及旧存储 `downloadUrl` 的访问仍不进入业务下载历史。
-
-具有 `products:history` 的管理员可查询 `GET /product-shares` 与 `GET /product-downloads`。省略 `productId` 查询全团队，也可提供一个商品 ID。两个列表均支持 `page` 和 `pageSize`，拒绝未知或重复参数，按新到旧返回完整操作及分页信息。按商品筛选仍保留匹配操作中的其他商品和文件。包含浏览器记录及团队其他 key 的记录，不隐式按创建者或 key 过滤。key ID 与名称快照在 key 生命周期变化后仍保留归因。
-
-## 同步与移除
-
-首次全量同步和增量周期均使用 `GET /products?sync=true`。将上一次完成时的 `syncedUntil` 作为 `updatedAfter` 传入。请读取每一个
-`nextCursor`，包括当前数据页为空的情况。固定区间为
-`[updatedAfter, syncedUntil)`，按 `(updatedAt, id)` 升序排列；上界为
-PostgreSQL 时间减去 30 秒。仅在所有分页都已持久合并后再保存检查点。按 ID 和全精度更新时间去重。不要将按页码浏览用作同步协议。
-
-不透明游标绑定了 API key、角色、商品库、筛选条件、分页大小和边界。后续请求可以仅包含 `sync=true&cursor=...`；重复提供的参数必须一致。重复的同步参数、`page`、变更的绑定或格式错误的时间边界会返回 422。时间戳输入接受时区，且小数秒最多六位。耗时超过安全窗口的事务属于已接受的限制。
-
-同步结果不包含已删除商品的记录。请定期将本地已知的 ID 发送至
-`POST /products/visibility`；移除被报告为 `not_visible` 的条目。该状态统一涵盖不存在、已删除、不属于本商品库以及因角色而隐藏的记录，不会泄露记录是否存在。完整协议请参阅 [商品同步](./product-library-synchronization)，同步循环请参阅
-[示例](./product-library-examples#synchronize-and-save-a-checkpoint)。
-
-## 错误目录
-
-| 状态码 | 错误码                                  | 含义 / 调用方处理                                            |
-| ------ | --------------------------------------- | ------------------------------------------------------------ |
-| 401    | `invalid_credentials`                   | Bearer key 缺失、格式错误或未知；请更正凭据。                |
-| 401    | `key_inactive`                          | 已验证的 key 已停用/已吊销/已过期；请获取有效的 key。        |
-| 503    | `authentication_unavailable`            | 实时 MuseDAM 校验不可用；不会执行任何受保护操作。             |
-| 403    | `forbidden`                             | 角色/权限不允许此操作或当前已发布状态。                      |
-| 404    | `not_found`                             | 条目不存在、已删除、不在本商品库中或不可见；不要推断其存在。 |
-| 409    | `download_unavailable` | 无法准备原文件下载，检查候选可用性。 |
-| 413    | `download_too_large` | 减少选择至 200 个文件及合计 500 MiB 以内。 |
-| 409    | `sku_in_use`                            | 非空的商品 `spu` 在商品库中冲突。                            |
-| 409    | `code_in_use`                           | 生成的品牌编码冲突。                                         |
-| 409    | `name_in_use`                           | 模板名称或同级分类名称冲突。                                 |
-| 409    | `brand_has_dependents`                  | 删除品牌前请移除/重新分配未删除的分类/商品。                 |
-| 409    | `category_has_products`                 | 子树包含未删除的商品；请先处理依赖关系。                     |
-| 409    | `default_template_replacement_required` | 请提供替换 ID 或显式的 null。                                |
-| 409    | `idempotency_key_reused`                | 同一幂等键被用于不同的规范化创建输入。                       |
-| 412    | `precondition_failed`                   | 重新获取、协调后使用当前 ETag 重试。                         |
-| 413    | `payload_too_large`                     | 将请求体缩减至 1 MiB 以下。                                  |
-| 422    | `validation_failed`                     | 更正查询/请求体/引用/字段状态；检查可选的 details。          |
-| 500    | `internal_server_error`                 | 保留 requestId 以便排查；不会暴露内部细节。                  |
-| 503 | `write_conflict` | 写入已回滚；等待 `Retry-After` 后使用相同幂等键重试。 |
-| 409 | `mutation_response_unavailable` | 变更已提交或重放；核对状态后再重试。 |
-
-### 受保护的模板字段与分类默认值
-
-创建模板时，在生成第一个版本快照之前，会自动向第一个分组添加受保护的商品名称、SKU 和主图字段。这三个字段计入 200 个字段的上限，因此创建时最多接受 197 个自定义字段。它们的 key
-为保留值，更新时必须保留其 ID 和受保护设置。仅当当前商品库默认模板未绑定任何品牌，或已绑定该分类所属品牌时，新建分类才会直接绑定到该模板；该直接绑定优先于祖先分类的绑定。否则分类仍创建成功，不添加直接绑定，模板解析依次查找祖先分类、品牌和商品库默认模板。删除分类子树时会原子性地移除其直接模板绑定。
+响应格式、请求限制、媒体链接和错误码统一见接口文档中的[公共规则](./product-library-reference#common-rules)。

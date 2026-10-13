@@ -543,6 +543,12 @@
 .dev-code pre * {
   font-family: inherit;
 }
+.dev-moved-section {
+  display: none;
+}
+.dev-moved-section:target {
+  display: block;
+}
 .dev-prose details {
   padding: 16px;
   border: 1px solid var(--dev-line);

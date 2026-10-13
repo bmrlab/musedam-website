@@ -1,18 +1,18 @@
 ## 讀取接口文檔
 
-將[開發者文檔索引](https://www.musedam.cc/zh-TW/developers/llms.txt)、[商品庫概覽 Markdown](https://www.musedam.cc/zh-TW/developers/markdown/product-library.md)和 [OpenAPI 契約](/assets/developers/product-library/openapi.json)提供給 AI 助手。頁面工具欄支持複製可直接使用的提示詞和當前文檔 Markdown。這些內容公開可讀，無需代碼倉庫權限。
+將[開發者文檔索引](https://www.musedam.cc/zh-TW/developers/llms.txt)、[商品庫快速接入 Markdown](https://www.musedam.cc/zh-TW/developers/markdown/product-library.md)和 [OpenAPI 契約](/assets/developers/product-library/openapi.json)提供給 AI 助手。頁面工具欄支持複製可直接使用的提示詞和當前文檔 Markdown。這些內容公開可讀，無需代碼倉庫權限。
 
-&#62; 實現前先閱讀商品庫概覽和接口參考。使用 https://open.musedam.cc/api/product 作為 Base URL，根據目標操作確定所需協作者角色，只使用文檔中的端點和字段。同步商品時遵循游標協議，並核對可見性。將憑據保存在安全的本地或服務端配置中。
+&#62; 實現前先閱讀商品庫快速接入和接口文檔。使用 https://open.musedam.cc/api/product 作為 Base URL，根據目標操作確定所需協作者角色，只使用文檔中的端點和字段。同步商品時遵循游標協議，並核對可見性。將憑據保存在安全的本地或服務端配置中。
 
 ## 配置憑據與權限
 
 使用現有 MuseDAM API Key，並由商品庫管理員在「成員設置 → 添加成員」中將其添加為 API Key 協作者。初始角色為 `view_only`，請按目標操作分配角色。商品庫不簽發密鑰，各項操作權限由角色統一決定。
 
-請求透過 `Authorization: Bearer <key>` 攜帶 API Key，請在伺服器端呼叫。詳見[認證與權限](./product-library#authentication-and-scope)。
+請求透過 `Authorization: Bearer <key>` 攜帶 API Key，請在伺服器端呼叫。詳見[取得授權](./product-library#authentication-and-scope)。
 
 ## 選擇對應指南
 
-- 在[接口參考](./product-library-reference)中查找參數和響應結構。
+- 在[接口文檔](./product-library-reference)中查找參數和響應結構。
 - 按[寫入約定](./product-library-write-conventions)處理冪等與併發修改。
 - 按[商品同步](./product-library-synchronization)建立商品副本與檢查點。
 - 結合目標操作調整 [curl 示例](./product-library-examples)。創建、發佈、分享和刪除會影響團隊真實數據。

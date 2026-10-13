@@ -1,18 +1,18 @@
 ## Read the API documentation
 
-Give your AI assistant the [documentation index](https://www.musedam.cc/en-US/developers/llms.txt), the [Product Library overview in Markdown](https://www.musedam.cc/en-US/developers/markdown/product-library.md), and the [OpenAPI contract](/assets/developers/product-library/openapi.json). The page toolbar can copy a ready-to-use prompt or the current document as Markdown. These resources are public and do not require repository access.
+Give your AI assistant the [documentation index](https://www.musedam.cc/en-US/developers/llms.txt), the [Product Library quick start in Markdown](https://www.musedam.cc/en-US/developers/markdown/product-library.md), and the [OpenAPI contract](/assets/developers/product-library/openapi.json). The page toolbar can copy a ready-to-use prompt or the current document as Markdown. These resources are public and do not require repository access.
 
-&#62; Read the Product Library overview and API reference before implementation. Use https://open.musedam.cc/api/product as the API Base URL. Determine the required collaborator role from the requested operation, and use only documented endpoints and fields. For synchronization, follow the cursor protocol and reconcile visibility. Keep credentials in secure local or server-side configuration.
+&#62; Read the Product Library quick start and API documentation before implementation. Use https://open.musedam.cc/api/product as the API Base URL. Determine the required collaborator role from the requested operation, and use only documented endpoints and fields. For synchronization, follow the cursor protocol and reconcile visibility. Keep credentials in secure local or server-side configuration.
 
 ## Configure credentials and permissions
 
 Use an existing MuseDAM API key. Ask a Product Library Manager to add it as an API Key Collaborator through **Member Settings → Add Members**. Its initial role is `view_only`; choose a role for the intended operations. Product Library does not issue keys, and each role defines its operation permissions.
 
-Send the API key in the `Authorization: Bearer <key>` header from your server. See [authentication and permissions](./product-library#authentication-and-scope).
+Send the API key in the `Authorization: Bearer <key>` header from your server. See [getting access](./product-library#authentication-and-scope).
 
 ## Choose the relevant guide
 
-- Read the [API reference](./product-library-reference) for parameters and response schemas.
+- Read the [API documentation](./product-library-reference) for parameters and response schemas.
 - Follow [write conventions](./product-library-write-conventions) for idempotency and concurrent changes.
 - Use [product synchronization](./product-library-synchronization) for catalog copies and checkpoints.
 - Adapt the [curl examples](./product-library-examples) to the intended operation. Creation, publication, sharing and deletion affect real team data.
