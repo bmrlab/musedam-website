@@ -455,6 +455,11 @@
         "id": "訂閱與回調subscriptionquery--subscriptionchange",
         "title": "訂閱與回調（subscriptionQuery / subscriptionChange）",
         "level": 2
+      },
+      {
+        "id": "訂閱回調-payload-說明",
+        "title": "訂閱回調 payload 說明",
+        "level": 3
       }
     ],
     "markdown": "透過 Muse Open 轉發地址調用審批開放接口：`POST https://muse-open.test.tezign.com/api/muse/approval-api`。\n\n支援 service：`subscriptionQuery`、`subscriptionChange`、`listTemplates`、`createApproval`、`taskStatusQuery`。\n\n統一響應包含 `code`、`message`、`result`、`traceId`，其中 `code = \"0\"` 代表成功。\n\n建立審批時需傳 `templateId`、`createdBy` 與 `assets`（至少 1 條），且 `assets[].url` 必須是可公開訪問地址。\n\n建議按 `eventId` 做回調冪等去重（至少一次投遞）。",

@@ -120,14 +120,459 @@ Add subscription:
 }
 ```
 
-Typical callback events:
+Cancel subscription:
 
-- `NODE_STARTED`
-- `APPROVER_SUBMITTED`
-- `NODE_COMPLETED`
-- `NODE_TRANSFERRED`
-- `SUBMITTER_RESUBMITTED`
-- `NODE_TIMEOUT`
-- `TASK_APPROVED`
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "DELETE"
+}
+```
 
-Use `eventId` for idempotency because delivery is at-least-once.
+### Callback payload specification
+
+After `subscriptionChange` with `operation = ADD` succeeds, approval state changes are posted to your `callbackUrl`.
+
+#### Callback request basics
+
+- Method: `POST`
+- `Content-Type`: `application/json`
+
+Callback body:
+
+```json
+{
+  "eventId": "evt_xxx",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258885000",
+  "payload": {
+    "eventName": "TASK_APPROVED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "APPROVED"
+  }
+}
+```
+
+Field notes:
+
+- `eventId`: unique event id (use as idempotency key)
+- `eventType`: always `APPROVAL`
+- `eventTime`: millisecond timestamp string
+- `payload`: business payload
+
+#### Common payload fields
+
+Every callback `payload` contains at least:
+
+- `eventName`
+- `orgId` (system populated)
+- `taskId`
+- `taskStatus` (`PROCESSING` / `APPROVED` / `TIMEOUT`)
+
+#### Full event set
+
+- `NODE_STARTED`: when a node starts (first node, normal transition, or resubmit transition)
+- `APPROVER_SUBMITTED`: when an approver submits a decision (can happen multiple times per node)
+- `NODE_COMPLETED`: when a node is completed (approved/rejected)
+- `NODE_TRANSFERRED`: when flow transfers to another processing node (normal/resubmit/timeout transfer)
+- `SUBMITTER_RESUBMITTED`: when submitter uploads updated assets at resubmit step
+- `TASK_APPROVED`: when task reaches final approved status
+- `NODE_TIMEOUT`: when node times out (timeout transfer or re-assignment pending)
+
+#### Field definitions
+
+##### `payload.node`
+
+- `nodeId` (`string`): node id
+- `nodeOrder` (`number`): node order (present in some events)
+- `nodeRole` (`string`): `normal` / `resubmit_submitter` / `resubmit_approver` (event-specific)
+- `nodeStatus` (`string`): common values include `pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned`
+- `signMode` (`string`): `and` / `or` (event-specific)
+- `approverCount` (`number`): approver count (event-specific)
+- `approvers` (`array`): approver results on `NODE_COMPLETED`, item fields: `id`, `name`, `status`
+- `startedAt` (`string`): ISO start time
+- `completedAt` (`string`): ISO completion time
+- `timeoutHours` (`number`): timeout threshold in hours (timeout events)
+
+##### `payload.approver` (`APPROVER_SUBMITTED`)
+
+- `id` (`string`): approver user id
+- `name` (`string`): approver name
+- `decision` (`approved` | `rejected`)
+- `comment` (`string`)
+- `submittedAt` (`string`, ISO)
+
+##### `payload.submitter` (`SUBMITTER_RESUBMITTED`)
+
+- `id` (`string`): submitter user id
+- `name` (`string`): submitter name
+- `comment` (`string`): resubmission comment
+- `submittedAt` (`string`, ISO)
+
+##### `payload.timeout`
+
+- `transferTo` (`object | null`): timeout transfer target
+  - when present: `{ "id": "...", "name": "..." }`
+  - otherwise: `null`
+
+##### `payload.latestAssets` (`SUBMITTER_RESUBMITTED`)
+
+- `assetId` (`string`)
+- `filePathId` (`string`)
+- `version` (`number`)
+- `oldStorePath` (`string`)
+- `newStorePath` (`string`)
+- `updatedAt` (`string`, ISO)
+
+##### `payload.transferReason` (`NODE_TRANSFERRED`)
+
+- `NEXT_NODE`: normal transition to next approval node
+- `RESUBMIT_SUBMITTER`: transition to submitter resubmission node
+- `RESUBMIT_APPROVER`: transition to approver re-review node after resubmission
+- `TIMEOUT_TRANSFER`: transition after timeout transfer
+
+#### Callback examples (all events)
+
+`TASK_APPROVED`:
+
+```json
+{
+  "eventId": "evt_2a93f5f5f4d64907a2f3b73cb8f0f201",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258885000",
+  "payload": {
+    "eventName": "TASK_APPROVED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "APPROVED",
+    "operator": {
+      "id": "10086",
+      "name": "张三"
+    },
+    "finishedAt": "2026-10-12T08:08:05.000Z"
+  }
+}
+```
+
+`NODE_STARTED`:
+
+```json
+{
+  "eventId": "evt_d3a39140643a4d73afedf0a47c0a601d",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258700000",
+  "payload": {
+    "eventName": "NODE_STARTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeRole": "normal",
+      "nodeStatus": "processing",
+      "signMode": "and",
+      "approverCount": 2,
+      "startedAt": "2026-10-12T08:05:00.000Z"
+    }
+  }
+}
+```
+
+`APPROVER_SUBMITTED`:
+
+```json
+{
+  "eventId": "evt_8bc9f92f83564f10adf8270b598f95d2",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258820000",
+  "payload": {
+    "eventName": "APPROVER_SUBMITTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "processing",
+      "signMode": "and"
+    },
+    "approver": {
+      "id": "10086",
+      "name": "张三",
+      "decision": "approved",
+      "comment": "同意",
+      "submittedAt": "2026-10-12T08:07:00.000Z"
+    },
+    "approverCount": 2
+  }
+}
+```
+
+`NODE_COMPLETED`:
+
+```json
+{
+  "eventId": "evt_652d4d8c09d24477af9fdb21624fd070",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258855000",
+  "payload": {
+    "eventName": "NODE_COMPLETED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "approved",
+      "signMode": "and",
+      "approvers": [
+        {
+          "id": "10086",
+          "name": "张三",
+          "status": "approved"
+        },
+        {
+          "id": "10087",
+          "name": "李四",
+          "status": "approved"
+        }
+      ],
+      "completedAt": "2026-10-12T08:07:35.000Z"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (normal transition):
+
+```json
+{
+  "eventId": "evt_21881077723e4a17aa4e2e58ee78ce79",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258856000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "NEXT_NODE",
+    "fromNode": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "approved"
+    },
+    "node": {
+      "nodeId": "12002",
+      "nodeOrder": 2,
+      "nodeRole": "normal",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (rejected -> resubmit):
+
+```json
+{
+  "eventId": "evt_e612f8b5e1de4960bb712d3df18e2617",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258900000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "RESUBMIT_SUBMITTER",
+    "fromNode": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "rejected"
+    },
+    "node": {
+      "nodeId": "13001",
+      "nodeOrder": 2,
+      "nodeRole": "resubmit_submitter",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (resubmit -> re-review):
+
+```json
+{
+  "eventId": "evt_f0c43dd5ca5d4fca9e4adbe536fbb8f5",
+  "eventType": "APPROVAL",
+  "eventTime": "1760259005000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "RESUBMIT_APPROVER",
+    "fromNode": {
+      "nodeId": "13001",
+      "nodeOrder": 2,
+      "nodeStatus": "approved"
+    },
+    "node": {
+      "nodeId": "13002",
+      "nodeOrder": 3,
+      "nodeRole": "resubmit_approver",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TIMEOUT` (transferred on timeout):
+
+```json
+{
+  "eventId": "evt_b0d67fb6f3de42e79a60b8f9df6ad20d",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260000000",
+  "payload": {
+    "eventName": "NODE_TIMEOUT",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "TIMEOUT",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "timeout_transferred",
+      "timeoutHours": 24
+    },
+    "timeout": {
+      "transferTo": {
+        "id": "10100",
+        "name": "王五"
+      }
+    }
+  }
+}
+```
+
+`NODE_TIMEOUT` (not transferred):
+
+```json
+{
+  "eventId": "evt_2e4372871f0c4a7eb95a9d7c638de8a0",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260100000",
+  "payload": {
+    "eventName": "NODE_TIMEOUT",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "TIMEOUT",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "re_assigned",
+      "timeoutHours": 24
+    },
+    "timeout": {
+      "transferTo": null
+    }
+  }
+}
+```
+
+`SUBMITTER_RESUBMITTED`:
+
+```json
+{
+  "eventId": "evt_5d017db5b458443697f6c10d5f6370df",
+  "eventType": "APPROVAL",
+  "eventTime": "1760259000000",
+  "payload": {
+    "eventName": "SUBMITTER_RESUBMITTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12002",
+      "nodeOrder": 3,
+      "nodeStatus": "approved",
+      "signMode": "and"
+    },
+    "submitter": {
+      "id": "10010",
+      "name": "李四",
+      "comment": "已更新素材，重新提交",
+      "submittedAt": "2026-10-12T08:10:00.000Z"
+    },
+    "latestAssets": [
+      {
+        "assetId": "asset_1",
+        "filePathId": "30001",
+        "version": 3,
+        "oldStorePath": "assets/old/asset_1_v2.mp4",
+        "newStorePath": "assets/new/asset_1_v3.mp4",
+        "updatedAt": "2026-10-12T08:10:00.000Z"
+      }
+    ],
+    "latestAssetCount": 1
+  }
+}
+```
+
+`NODE_TRANSFERRED` (after timeout transfer):
+
+```json
+{
+  "eventId": "evt_15f4348dd4f34a4b9d51ec93313f4dff",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260001000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "TIMEOUT_TRANSFER",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "timeout_transferred"
+    },
+    "timeout": {
+      "transferTo": {
+        "id": "10100",
+        "name": "王五"
+      }
+    }
+  }
+}
+```
+
+#### Event sequence (key flows)
+
+Delivery is at-least-once. Use `eventId` for idempotent processing.
+
+##### Normal pass (multi-node)
+
+1. `NODE_STARTED` (first node)
+2. `APPROVER_SUBMITTED` (may repeat for each approver)
+3. `NODE_COMPLETED`
+4. If next node exists: `NODE_TRANSFERRED` -> `NODE_STARTED`
+5. Repeat 2-4 until final node is complete
+6. `TASK_APPROVED`
+
+##### Rejected then resubmitted
+
+1. `APPROVER_SUBMITTED` (`decision = rejected`)
+2. `NODE_COMPLETED` (`nodeStatus = rejected`)
+3. `NODE_TRANSFERRED` (`transferReason = RESUBMIT_SUBMITTER`)
+4. `NODE_STARTED` (`nodeRole = resubmit_submitter`)
+5. `SUBMITTER_RESUBMITTED`
+6. `NODE_COMPLETED` (resubmission node)
+7. `NODE_TRANSFERRED` (`transferReason = RESUBMIT_APPROVER`)
+8. `NODE_STARTED` (re-review node)
+9. Back to normal approval flow (`APPROVER_SUBMITTED` ...)
+
+##### Timeout transfer / no transfer
+
+1. Node timeout triggers `NODE_TIMEOUT` (`taskStatus = TIMEOUT`)
+2. If timeout transfer target exists: `NODE_TRANSFERRED` (`transferReason = TIMEOUT_TRANSFER`) and task returns to `PROCESSING`
+3. If no transfer target: only `NODE_TIMEOUT` (commonly `nodeStatus = re_assigned`) until manual follow-up

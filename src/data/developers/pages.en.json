@@ -455,6 +455,11 @@
         "id": "subscription-and-callbacks",
         "title": "Subscription and callbacks",
         "level": 2
+      },
+      {
+        "id": "callback-payload-specification",
+        "title": "Callback payload specification",
+        "level": 3
       }
     ],
     "markdown": "Forwarding endpoint: `POST https://muse-open.test.tezign.com/api/muse/approval-api`.\n\nSupported `service` values: `subscriptionQuery`, `subscriptionChange`, `listTemplates`, `createApproval`, `taskStatusQuery`.\n\nThe unified response contains `code`, `message`, `result`, and `traceId`. `code = \"0\"` means success.\n\nFor `createApproval`, provide `templateId`, `createdBy`, and non-empty `assets`. Each `assets[].url` must be a public URL.\n\nUse `taskStatusQuery` to track progress and status. Use `eventId` as an idempotency key for callback processing.",
