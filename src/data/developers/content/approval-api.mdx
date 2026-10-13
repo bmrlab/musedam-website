@@ -1,0 +1,225 @@
+## 审批开放接口
+
+- `POST https://muse-open.test.tezign.com/api/muse/approval-api`
+
+> 说明：调用方只需按本文档组织请求体；下游鉴权与内部路由由转发链路处理。
+
+## 调用约定
+
+- 请求方法：`POST`
+- `Content-Type`：`application/json`
+- 请求体必须为合法 JSON
+- 使用 `service` 字段区分能力
+
+## Service 能力总览
+
+公共字段：
+
+- `service`（必填，`string`）
+- 可选值：`subscriptionQuery` / `subscriptionChange` / `listTemplates` / `createApproval` / `taskStatusQuery`
+
+公共请求示例：
+
+```json
+{
+  "service": "listTemplates"
+}
+```
+
+统一响应结构：
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {},
+  "traceId": "trace_20261012_001"
+}
+```
+
+常见失败码：
+
+- `400`：参数错误（如 `invalid_payload:*`）
+- `401`：鉴权失败
+- `403`：权限不足
+- `404`：资源不存在（如 `team_not_found` / `template_not_found` / `task_not_found` / `asset_not_found`）
+- `500`：服务内部错误
+
+## 查询模板（listTemplates）
+
+请求：
+
+```json
+{
+  "service": "listTemplates"
+}
+```
+
+响应 `result` 为模板数组，核心字段：
+
+- `id` / `name` / `description` / `enabled`
+- `usageCount` / `autoImportEnabled`
+- `targetFolder`（可能为空）
+- `workflow`（节点定义，包含审批人、抄送、签审模式、超时配置等）
+
+## 创建审批任务（createApproval）
+
+请求字段：
+
+- `service`（必填，固定 `createApproval`）
+- `templateId`（必填，`string`）
+- `createdBy`（必填，`string`，发起人用户 ID）
+- `assets`（必填，`array`，至少 1 条）
+  - `name`（建议传原始文件名）
+  - `url`（必填，公网可访问 `http/https`）
+  - `size` / `mimeType` / `extension`（可选）
+- `sourceContext`（可选，业务上下文）
+- `reason`（可选，发起原因）
+
+请求示例：
+
+```json
+{
+  "service": "createApproval",
+  "templateId": "101",
+  "createdBy": "10086",
+  "assets": [
+    {
+      "name": "demo.mp4",
+      "url": "https://cdn.example.com/m/asset_1.mp4"
+    }
+  ]
+}
+```
+
+成功响应：
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "taskId": "9527"
+  }
+}
+```
+
+调用限制：
+
+- `assets` 不能为空
+- `assets[].url` 不能为空且同一请求内不能重复
+- `assets[].url` 必须是公网地址，不能是 `localhost`、内网域名或私网 IP
+- 下载超时或超大小限制会返回 `invalid_payload:*`
+
+## 查询任务状态（taskStatusQuery）
+
+请求：
+
+```json
+{
+  "service": "taskStatusQuery",
+  "taskId": "9527"
+}
+```
+
+响应 `result` 关键字段：
+
+- `taskId`
+- `status`：`PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`
+- `statusLabel`
+- `progressPercent`
+- `currentNodeName` / `currentNodeSignMode`
+- `currentNodeProgress`（通过、拒绝、待审统计）
+- `currentNodeApprovers`（节点内审批人状态）
+- `operator` / `updatedAt`
+
+## 订阅与回调（subscriptionQuery / subscriptionChange）
+
+查询是否订阅：
+
+```json
+{
+  "service": "subscriptionQuery"
+}
+```
+
+订阅回调：
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "ADD",
+  "callbackUrl": "https://example.com/webhook/approval"
+}
+```
+
+取消订阅：
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "DELETE"
+}
+```
+
+回调基础结构：
+
+```json
+{
+  "eventId": "evt_xxx",
+  "eventTime": "1760258885000",
+  "payload": {
+    "eventName": "TASK_APPROVED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "APPROVED"
+  }
+}
+```
+
+常见事件：
+
+- `NODE_STARTED`
+- `APPROVER_SUBMITTED`
+- `NODE_COMPLETED`
+- `NODE_TRANSFERRED`
+- `SUBMITTER_RESUBMITTED`
+- `NODE_TIMEOUT`
+- `TASK_APPROVED`
+
+消费建议：
+
+- 按 `eventId` 做幂等去重（至少一次投递）
+- 先落库再异步处理业务动作
+- 对回调失败做可观测与重试
+
+## curl 示例
+
+查询模板：
+
+```bash
+curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"service":"listTemplates"}'
+```
+
+创建审批任务：
+
+```bash
+curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "service":"createApproval",
+    "templateId":"101",
+    "createdBy":"10086",
+    "assets":[{"name":"demo.mp4","url":"https://cdn.example.com/m/asset_1.mp4"}]
+  }'
+```
+
+查询任务状态：
+
+```bash
+curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"service":"taskStatusQuery","taskId":"9527"}'
+```

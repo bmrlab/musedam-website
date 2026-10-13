@@ -1,0 +1,133 @@
+## Approval Open API
+
+- `POST https://muse-open.test.tezign.com/api/muse/approval-api`
+
+## Request conventions
+
+- Method: `POST`
+- `Content-Type`: `application/json`
+- Body must be valid JSON
+- Use `service` to select the capability
+
+Supported `service` values:
+
+- `subscriptionQuery`
+- `subscriptionChange`
+- `listTemplates`
+- `createApproval`
+- `taskStatusQuery`
+
+## Unified response
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {},
+  "traceId": "trace_xxx"
+}
+```
+
+Common error codes:
+
+- `400`: invalid payload
+- `401`: authentication failed
+- `403`: permission denied
+- `404`: resource not found
+- `500`: internal error
+
+## listTemplates
+
+Request:
+
+```json
+{
+  "service": "listTemplates"
+}
+```
+
+`result` is an array of templates with fields such as:
+`id`, `name`, `description`, `enabled`, `usageCount`, `autoImportEnabled`, `targetFolder`, `workflow`.
+
+## createApproval
+
+Required fields:
+
+- `templateId`
+- `createdBy`
+- `assets` (at least one item)
+- `assets[].url` must be a public `http/https` URL
+
+Request example:
+
+```json
+{
+  "service": "createApproval",
+  "templateId": "101",
+  "createdBy": "10086",
+  "assets": [
+    {
+      "name": "demo.mp4",
+      "url": "https://cdn.example.com/m/asset_1.mp4"
+    }
+  ]
+}
+```
+
+Success example:
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "taskId": "9527"
+  }
+}
+```
+
+## taskStatusQuery
+
+Request:
+
+```json
+{
+  "service": "taskStatusQuery",
+  "taskId": "9527"
+}
+```
+
+`result.status` values:
+`PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`.
+
+## Subscription and callbacks
+
+Check subscription:
+
+```json
+{
+  "service": "subscriptionQuery"
+}
+```
+
+Add subscription:
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "ADD",
+  "callbackUrl": "https://example.com/webhook/approval"
+}
+```
+
+Typical callback events:
+
+- `NODE_STARTED`
+- `APPROVER_SUBMITTED`
+- `NODE_COMPLETED`
+- `NODE_TRANSFERRED`
+- `SUBMITTER_RESUBMITTED`
+- `NODE_TIMEOUT`
+- `TASK_APPROVED`
+
+Use `eventId` for idempotency because delivery is at-least-once.

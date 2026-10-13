@@ -1,0 +1,133 @@
+## 審批開放接口
+
+- `POST https://muse-open.test.tezign.com/api/muse/approval-api`
+
+## 調用約定
+
+- 請求方法：`POST`
+- `Content-Type`：`application/json`
+- 請求體必須是合法 JSON
+- 使用 `service` 區分具體能力
+
+可用 `service`：
+
+- `subscriptionQuery`
+- `subscriptionChange`
+- `listTemplates`
+- `createApproval`
+- `taskStatusQuery`
+
+## 統一響應
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {},
+  "traceId": "trace_xxx"
+}
+```
+
+常見錯誤碼：
+
+- `400`：參數錯誤
+- `401`：鑑權失敗
+- `403`：權限不足
+- `404`：資源不存在
+- `500`：服務內部錯誤
+
+## listTemplates
+
+請求示例：
+
+```json
+{
+  "service": "listTemplates"
+}
+```
+
+`result` 為模板陣列，常見字段：
+`id`、`name`、`description`、`enabled`、`usageCount`、`autoImportEnabled`、`targetFolder`、`workflow`。
+
+## createApproval
+
+必填字段：
+
+- `templateId`
+- `createdBy`
+- `assets`（至少 1 條）
+- `assets[].url` 必須為可公開訪問的 `http/https` 地址
+
+請求示例：
+
+```json
+{
+  "service": "createApproval",
+  "templateId": "101",
+  "createdBy": "10086",
+  "assets": [
+    {
+      "name": "demo.mp4",
+      "url": "https://cdn.example.com/m/asset_1.mp4"
+    }
+  ]
+}
+```
+
+成功示例：
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "taskId": "9527"
+  }
+}
+```
+
+## taskStatusQuery
+
+請求示例：
+
+```json
+{
+  "service": "taskStatusQuery",
+  "taskId": "9527"
+}
+```
+
+`result.status` 取值：
+`PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`。
+
+## 訂閱與回調
+
+查詢訂閱：
+
+```json
+{
+  "service": "subscriptionQuery"
+}
+```
+
+新增訂閱：
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "ADD",
+  "callbackUrl": "https://example.com/webhook/approval"
+}
+```
+
+常見回調事件：
+
+- `NODE_STARTED`
+- `APPROVER_SUBMITTED`
+- `NODE_COMPLETED`
+- `NODE_TRANSFERRED`
+- `SUBMITTER_RESUBMITTED`
+- `NODE_TIMEOUT`
+- `TASK_APPROVED`
+
+回調為至少一次投遞，建議按 `eventId` 做冪等處理。
