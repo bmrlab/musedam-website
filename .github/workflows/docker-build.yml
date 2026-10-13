@@ -54,10 +54,10 @@ jobs:
           path: /tmp/images.tar.gz
           retention-days: 1
 
-  push-azure:
+  push-azure-app:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       VERSION: ${{ needs.build.outputs.version }}
     steps:
@@ -69,24 +69,6 @@ jobs:
 
       - name: Load Docker images
         run: gunzip -c /tmp/images.tar.gz | docker load
-
-      - name: Inspect image sizes and registry connectivity
-        run: |
-          for image in musedam-website:local musedam-website-job:local; do
-            echo "::group::Image diagnostics: $image"
-            docker image inspect "$image" --format 'Total uncompressed bytes: {{.Size}}'
-            echo 'Filesystem layer IDs (base to top; prefixes match docker push output):'
-            docker image inspect "$image" --format '{{range .RootFS.Layers}}{{println .}}{{end}}'
-            echo 'Layer history (top to base; includes metadata-only entries):'
-            docker history "$image" --format 'table {{.ID}}\t{{.Size}}'
-            echo 'Layer history sizes in bytes (same order):'
-            docker history --no-trunc --human=false "$image" --format '{{.Size}}'
-            echo '::endgroup::'
-          done
-          echo 'Unauthenticated registry probe: HTTP 401 is expected for a private registry.'
-          curl --silent --show-error --output /dev/null --connect-timeout 10 --max-time 30 \
-            --write-out 'HTTP %{http_code}; DNS %{time_namelookup}s; connect %{time_connect}s; TLS %{time_appconnect}s; first byte %{time_starttransfer}s; total %{time_total}s\n' \
-            https://musecr.azurecr.cn/v2/ || echo '::warning::Registry connectivity probe failed; see curl error above.'
 
       - name: Login to Azure Container Registry
         uses: docker/login-action@v2
@@ -103,6 +85,29 @@ jobs:
           /usr/bin/time -p docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}
           /usr/bin/time -p docker push musecr.azurecr.cn/muse/musedam-website:latest
 
+  push-azure-job:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp
+
+      - name: Load Docker images
+        run: gunzip -c /tmp/images.tar.gz | docker load
+
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: musecr.azurecr.cn
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
       - name: Push Jobs to Azure Container Registry
         run: |
           docker tag musedam-website-job:local musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
@@ -111,6 +116,13 @@ jobs:
           /usr/bin/time -p docker push musecr.azurecr.cn/muse/musedam-website:${{ env.VERSION }}-job
           /usr/bin/time -p docker push musecr.azurecr.cn/muse/musedam-website:latest-job
 
+  deploy-azure:
+    needs: [build, push-azure-app, push-azure-job]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
       - name: Setup Kubernetes Config And Update Deployment
         run: |
           mkdir -p $HOME/.kube
