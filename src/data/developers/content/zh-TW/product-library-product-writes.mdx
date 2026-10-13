@@ -44,6 +44,19 @@
 
 商品創建後，普通 PATCH 不能更換模板。模板的創建、配置和綁定方式見[模板管理](./product-library-template-writes)。
 
+<details id="product-template-definition">
+<summary>商品返回的模板定義有哪些字段？</summary>
+
+`templateDefinition` 是商品保存的模板版本，無模板時為 null。讀取它不需要 `templates:read`。
+
+| 字段 | 類型 | 說明 |
+| --- | --- | --- |
+| `groups` | 對象數組 | 分組及其字段定義，見[模板定義字段](./product-library-template-writes#template-definition) |
+
+`templateFields` 以定義中的字段 ID 為鍵，不使用字段名稱或 key。普通值保留 JSON 類型；圖片和文件值返回[媒體對象](#product-media-fields)數組。
+
+</details>
+
 <details>
 <summary>未指定 templateId 時，如何選擇模板？</summary>
 
@@ -129,6 +142,23 @@
 
 所有服務簽發鏈接還受 API key 的到期時間限制。鏈接過期後重新獲取商品數據，不要將簽名 URL 當作素材 ID 保存。
 
+<details id="product-media-fields">
+<summary>封面、圖片和關聯素材返回哪些字段？</summary>
+
+`cover` 是一個媒體對象，無封面時為 null；`images`、`relatedAssets` 和自定義圖片/文件值為媒體對象數組。
+
+| 字段 | 類型 | 說明 |
+| --- | --- | --- |
+| `id` | 整數或 null | 素材查詢返回的 ID（FilePath ID），不是 AssetObject ID 或商品素材關聯 ID |
+| `name`、`mimeType` | 字符串或 null | 文件名、MIME 類型 |
+| `size` | 字符串或 null | 十進制字節數，如 `"2048"`，不是 JSON 數字 |
+| `width`、`height`、`duration` | 數字或 null | 媒體尺寸和時長 |
+| `previewUrl` | URL 或 null | 用於展示的預覽地址；不可用時為 null |
+| `downloadUrl` | URL 或 null，可省略 | 原文件地址；返回條件見上表 |
+| `downloadUrlExpiresAt` | 時間字符串或 null，可省略 | 下載地址的到期時間，RFC 3339 格式 |
+
+</details>
+
 <details>
 <summary>鏈接缺失、舊版媒體和外部預覽如何處理？</summary>
 
@@ -184,6 +214,32 @@
 下載和導出通過 `X-Download-Record-Id` 返回記錄 ID。`requested` 僅表示請求已接受，不表示傳輸或本地保存完成；接受後檢測到準備或傳輸失敗時標記為 `failed`，重試不會重置狀態。
 
 查詢 `GET /product-shares` 或 `GET /product-downloads` 可查看團隊歷史。省略 `productId` 查詢全團隊，提供一個商品 ID 則查詢相關操作；支持 `page` 和 `pageSize`，按新到舊返回。
+
+<details id="product-snapshot-fields">
+<summary>記錄中的商品快照有哪些字段？</summary>
+
+分享和下載記錄的 `products` 數組保留操作發生時的商品信息，不隨商品後續修改更新。
+
+| 字段 | 類型 | 說明 |
+| --- | --- | --- |
+| `id` | 正整數 | 商品 ID |
+| `name` | 字符串 | 當時的商品名稱 |
+| `spu` | 字符串或 null | 當時的 SKU |
+
+</details>
+
+<details id="file-snapshot-fields">
+<summary>下載記錄中的文件快照有哪些字段？</summary>
+
+下載記錄的 `files` 數組保留首次接受操作時的文件信息。
+
+| 字段 | 類型 | 說明 |
+| --- | --- | --- |
+| `id` | 字符串 | 文件快照標識 |
+| `productId` | 正整數 | 所屬商品 ID |
+| `name` | 字符串 | 當時的文件名 |
+
+</details>
 
 <details>
 <summary>同一次下載重試時，如何避免重復記錄？</summary>

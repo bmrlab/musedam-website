@@ -44,6 +44,19 @@ A new product saves the latest version of its resolved template. Interpret `temp
 
 Ordinary PATCH cannot switch a product's template. See [template management](./product-library-template-writes) for template creation, configuration, and bindings.
 
+<details id="product-template-definition">
+<summary>Which fields are in the product's template definition?</summary>
+
+`templateDefinition` is the version saved with the product, or null when no template is assigned. Reading it does not require `templates:read`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `groups` | Object array | Groups and their field definitions; see [template definition fields](./product-library-template-writes#template-definition) |
+
+`templateFields` is keyed by field ID from this definition, not by field name or key. Scalar values retain their JSON types; image and file values return arrays of [media objects](#product-media-fields).
+
+</details>
+
 <details>
 <summary>How is a template chosen without templateId?</summary>
 
@@ -129,6 +142,23 @@ Use `previewUrl` to display product media. For originals, check `downloadUrl` or
 
 Every service-issued link is also bounded by the API key's expiry. Fetch product data again after a link expires; do not persist signed URLs as asset identifiers.
 
+<details id="product-media-fields">
+<summary>Which fields do covers, images, and related assets return?</summary>
+
+`cover` is one media object, or null when there is no cover. `images`, `relatedAssets`, and custom image/file values are arrays of media objects.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | Integer or null | ID returned by asset lookup (FilePath ID), not an AssetObject ID or product-asset association ID |
+| `name`, `mimeType` | String or null | File name and MIME type |
+| `size` | String or null | Decimal byte count, such as `"2048"`; never a JSON number |
+| `width`, `height`, `duration` | Number or null | Media dimensions and duration |
+| `previewUrl` | URL or null | Preview for display; null when unavailable |
+| `downloadUrl` | URL or null; may be omitted | Original file URL; availability is described above |
+| `downloadUrlExpiresAt` | Timestamp or null; may be omitted | Download URL expiry in RFC 3339 format |
+
+</details>
+
 <details>
 <summary>How do missing links, legacy media, and external previews behave?</summary>
 
@@ -184,6 +214,32 @@ Call `POST /product-downloads` with `kind: "export"`. Choose `xlsx` (default), `
 Downloads and exports return a record ID in `X-Download-Record-Id`. `requested` means accepted, not transferred or saved locally; a detected preparation or transfer failure after acceptance marks the record `failed`, and retries do not reset its state.
 
 Use `GET /product-shares` or `GET /product-downloads` for team history. Omit `productId` for the whole team or provide one product ID for matching operations; both accept `page` and `pageSize` and return newest first.
+
+<details id="product-snapshot-fields">
+<summary>Which fields are in a record's product snapshots?</summary>
+
+The `products` array in share and download records preserves product details at the time of the operation. Later product edits do not update it.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | Positive integer | Product ID |
+| `name` | String | Product name at the time of the operation |
+| `spu` | String or null | SKU at the time of the operation |
+
+</details>
+
+<details id="file-snapshot-fields">
+<summary>Which fields are in a download record's file snapshots?</summary>
+
+A download record's `files` array preserves file details when the operation is first accepted.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | String | File snapshot identifier |
+| `productId` | Positive integer | Associated product ID |
+| `name` | String | File name at the time of the operation |
+
+</details>
 
 <details>
 <summary>How can I retry one download without creating another record?</summary>

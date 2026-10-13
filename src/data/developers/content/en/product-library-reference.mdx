@@ -61,7 +61,7 @@ Required role: view_only, usable, editable or manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [BrandListResponse](#schema-BrandListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -162,7 +162,7 @@ Unknown fields are rejected.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 201. Full definition: [BrandResponse](#schema-BrandResponse)
+Success response: 201.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -250,7 +250,7 @@ Required role: view_only, usable, editable or manage.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 200. Full definition: [BrandResponse](#schema-BrandResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -340,7 +340,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 200. Full definition: [BrandResponse](#schema-BrandResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -417,7 +417,7 @@ Required role: manage.
 | - | - | - |
 | id | Integer | Resource ID. Minimum: 1; Maximum: 2,147,483,647 |
 
-Success response: 200. Full definition: [DeletedIdResponse](#schema-DeletedIdResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -514,7 +514,7 @@ Required role: view_only, usable, editable or manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [CategoryListResponse](#schema-CategoryListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -626,7 +626,7 @@ Unknown fields are rejected.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 201. Full definition: [CategoryResponse](#schema-CategoryResponse)
+Success response: 201.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -721,7 +721,7 @@ Required role: view_only, usable, editable or manage.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 200. Full definition: [CategoryResponse](#schema-CategoryResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -821,7 +821,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | createdAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 
-Success response: 200. Full definition: [CategoryResponse](#schema-CategoryResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -903,7 +903,7 @@ Required role: manage.
 | - | - | - |
 | id | Integer | Resource ID. Minimum: 1; Maximum: 2,147,483,647 |
 
-Success response: 200. Full definition: [DeletedIdResponse](#schema-DeletedIdResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -987,7 +987,7 @@ Required role: view_only, usable, editable or manage.
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
 | boundCategoryIds | List&lt;Integer&gt; | Bound category IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
-| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [VersionGroup](#schema-VersionGroup) |
+| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [Template groups and fields](./product-library-template-writes#template-definition) |
 
 **Page fields**:
 
@@ -998,7 +998,7 @@ Required role: view_only, usable, editable or manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [TemplateListResponse](#schema-TemplateListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -1099,7 +1099,7 @@ Unknown fields are rejected.
 | name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
 | description | String | No | Maximum length 50 characters; May be null |
 | enabled | Boolean | No | — |
-| groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [TemplateGroupInput](#schema-TemplateGroupInput) |
+| groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](./product-library-template-writes#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | No | Each item: Minimum: 1; Maximum: 2,147,483,647; Maximum items 10,000 |
 | boundCategoryIds | List&lt;Integer&gt; | No | Each item: Minimum: 1; Maximum: 2,147,483,647; Maximum items 10,000 |
 | isLibraryDefault | Boolean | No | — |
@@ -1129,9 +1129,9 @@ Unknown fields are rejected.
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
 | boundCategoryIds | List&lt;Integer&gt; | Bound category IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
-| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [VersionGroup](#schema-VersionGroup) |
+| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [Template groups and fields](./product-library-template-writes#template-definition) |
 
-Success response: 201. Full definition: [TemplateResponse](#schema-TemplateResponse)
+Success response: 201.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -1255,9 +1255,9 @@ Required role: view_only, usable, editable or manage.
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
 | boundCategoryIds | List&lt;Integer&gt; | Bound category IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
-| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [VersionGroup](#schema-VersionGroup) |
+| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [Template groups and fields](./product-library-template-writes#template-definition) |
 
-Success response: 200. Full definition: [TemplateResponse](#schema-TemplateResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -1347,7 +1347,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | name | String | No | Minimum length 1 characters; Maximum length 30 characters |
 | description | String | No | Maximum length 50 characters; May be null |
 | enabled | Boolean | No | — |
-| groups | List&lt;TemplateGroupInput&gt; | No | Minimum items 1; Maximum items 200 Nested fields: [TemplateGroupInput](#schema-TemplateGroupInput) |
+| groups | List&lt;TemplateGroupInput&gt; | No | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](./product-library-template-writes#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | No | Each item: Minimum: 1; Maximum: 2,147,483,647; Maximum items 10,000 |
 | boundCategoryIds | List&lt;Integer&gt; | No | Each item: Minimum: 1; Maximum: 2,147,483,647; Maximum items 10,000 |
 | isLibraryDefault | Boolean | No | — |
@@ -1377,9 +1377,9 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | updatedAt | String | RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits. Format: date-time |
 | boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
 | boundCategoryIds | List&lt;Integer&gt; | Bound category IDs. Each item: Minimum: 1; Maximum: 2,147,483,647 |
-| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [VersionGroup](#schema-VersionGroup) |
+| groups | List&lt;VersionGroup&gt; | Template groups. Nested fields: [Template groups and fields](./product-library-template-writes#template-definition) |
 
-Success response: 200. Full definition: [TemplateResponse](#schema-TemplateResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -1492,7 +1492,7 @@ Unknown fields are rejected.
 | - | - | - |
 | id | String | Resource ID. Minimum length 1 characters; Maximum length 128 characters |
 
-Success response: 200. Full definition: [DeletedTemplateIdResponse](#schema-DeletedTemplateIdResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -1592,9 +1592,9 @@ Required role: view_only, usable, editable or manage.
 | templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateFields | Object | Values keyed by stable template field IDs. |
-| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [ProductSummary](#schema-ProductSummary) |
-| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [PublicAsset](#schema-PublicAsset) |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](./product-library-product-writes#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
 
 **Page fields**:
 
@@ -1614,7 +1614,7 @@ Required role: view_only, usable, editable or manage.
 | nextCursor | String | Cursor for the next page; null after the scan is exhausted. Maximum length 8,192 characters; May be null |
 | hasMore | Boolean | Whether another synchronization page is available. |
 
-Success response: 200. Full definition: [ProductListResponse](#schema-ProductListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -1848,12 +1848,12 @@ Unknown fields are rejected.
 | templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateFields | Object | Values keyed by stable template field IDs. |
-| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [ProductDetail](#schema-ProductDetail) |
-| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](./product-library-product-writes#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [Product template definition](./product-library-product-writes#product-template-definition) |
 
-Success response: 201. Full definition: [ProductDetailResponse](#schema-ProductDetailResponse)
+Success response: 201.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2008,12 +2008,12 @@ Required role: view_only, usable, editable or manage.
 | templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateFields | Object | Values keyed by stable template field IDs. |
-| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [ProductDetail](#schema-ProductDetail) |
-| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](./product-library-product-writes#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [Product template definition](./product-library-product-writes#product-template-definition) |
 
-Success response: 200. Full definition: [ProductDetailResponse](#schema-ProductDetailResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2291,12 +2291,12 @@ Unknown fields are rejected.
 | templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateFields | Object | Values keyed by stable template field IDs. |
-| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [ProductDetail](#schema-ProductDetail) |
-| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](./product-library-product-writes#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [Product template definition](./product-library-product-writes#product-template-definition) |
 
-Success response: 200. Full definition: [ProductDetailResponse](#schema-ProductDetailResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2433,7 +2433,7 @@ Required role: editable or manage.
 | - | - | - |
 | id | Integer | Resource ID. Minimum: 1; Maximum: 2,147,483,647 |
 
-Success response: 200. Full definition: [DeletedIdResponse](#schema-DeletedIdResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2526,12 +2526,12 @@ Unknown fields are rejected.
 | templateId | String | Template ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateVersionId | String | Pinned template version ID. Minimum length 1 characters; Maximum length 128 characters; May be null |
 | templateFields | Object | Values keyed by stable template field IDs. |
-| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [ProductDetail](#schema-ProductDetail) |
-| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [PublicAsset](#schema-PublicAsset) |
-| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [NullableTemplateDefinition](#schema-NullableTemplateDefinition) |
+| cover | Object | Product cover. Unknown fields are rejected; May be null Nested fields: [Cover media fields](./product-library-product-writes#product-media-fields) |
+| images | List&lt;PublicAsset&gt; | Product images. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| relatedAssets | List&lt;PublicAsset&gt; | Related assets. Nested fields: [Media fields](./product-library-product-writes#product-media-fields) |
+| templateDefinition | NullableTemplateDefinition | Pinned template definition. Nested fields: [Product template definition](./product-library-product-writes#product-template-definition) |
 
-Success response: 200. Full definition: [ProductDetailResponse](#schema-ProductDetailResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2677,7 +2677,7 @@ Unknown fields are rejected.
 | id | Integer | Resource ID. Minimum: 1; Maximum: 2,147,483,647 |
 | visibility | String | Visibility of the submitted product ID. Allowed values: visible, not_visible |
 
-Success response: 200. Full definition: [VisibilityResponse](#schema-VisibilityResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -2779,7 +2779,7 @@ Required role: editable or manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [LibraryAssetListResponse](#schema-LibraryAssetListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -2867,7 +2867,7 @@ Required role: editable or manage.
 | duration | Number | Duration. May be null |
 | previewUrl | String | Preview URL. Format: uri; May be null |
 
-Success response: 200. Full definition: [LibraryAssetResponse](#schema-LibraryAssetResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [ETag](#header-ETag)
 
@@ -2926,7 +2926,7 @@ Required role: manage.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| productId | PositiveId | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. [PositiveId](#schema-PositiveId) |
+| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Query parameter. Ordinary page number. Not allowed when sync=true. Excessive offset causing integer overflow is rejected. Minimum: 1; Default: 1 |
 | pageSize | Integer | No | Query parameter. Page size; values above 100 are capped at 100. Nonpositive/noninteger values are rejected. Minimum: 1; Default: 20 |
 
@@ -2947,7 +2947,7 @@ Required role: manage.
 | - | - | - |
 | id | String | Resource ID. |
 | url | String | Share URL. Format: uri |
-| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
+| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](./product-library-product-writes#product-snapshot-fields) |
 | createdById | Integer | Creator user ID. May be null |
 | createdByApiKeyId | String | Creator API key ID. May be null |
 | createdByName | String | Creator name. |
@@ -2968,7 +2968,7 @@ Required role: manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [ProductShareListResponse](#schema-ProductShareListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -3051,7 +3051,7 @@ Unknown fields are rejected.
 
 | Field | Type | Required | Description |
 | - | - | - | - |
-| productIds | List&lt;PositiveId&gt; | Yes | Minimum items 1; Maximum items 100 Nested fields: [PositiveId](#schema-PositiveId) |
+| productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
 | expiresInDays | Integer | Yes | May be null; Allowed values: 7, 30, 90, null |
 | accessCode | String | No | Must match `^[0-9]{4}$` |
 | allowDownload | Boolean | Yes | — |
@@ -3072,7 +3072,7 @@ Unknown fields are rejected.
 | - | - | - |
 | id | String | Resource ID. |
 | url | String | Share URL. Format: uri |
-| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
+| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](./product-library-product-writes#product-snapshot-fields) |
 | createdById | Integer | Creator user ID. May be null |
 | createdByApiKeyId | String | Creator API key ID. May be null |
 | createdByName | String | Creator name. |
@@ -3084,7 +3084,7 @@ Unknown fields are rejected.
 | status | String | Current status. Allowed values: active, expired, revoked |
 | canRevoke | Boolean | Whether the current caller may revoke the share. |
 
-Success response: 201. Full definition: [ProductShareResponse](#schema-ProductShareResponse)
+Success response: 201.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -3179,7 +3179,7 @@ Required role: manage.
 | id | String | Resource ID. |
 | revokedAt | String | Revocation time. Format: date-time |
 
-Success response: 200. Full definition: [RevokedProductShareResponse](#schema-RevokedProductShareResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -3232,7 +3232,7 @@ Required role: manage.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| productId | PositiveId | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. [PositiveId](#schema-PositiveId) |
+| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Query parameter. Ordinary page number. Not allowed when sync=true. Excessive offset causing integer overflow is rejected. Minimum: 1; Default: 1 |
 | pageSize | Integer | No | Query parameter. Page size; values above 100 are capped at 100. Nonpositive/noninteger values are rejected. Minimum: 1; Default: 20 |
 
@@ -3259,8 +3259,8 @@ Required role: manage.
 | apiKeyId | String | API key ID. May be null |
 | actorName | String | Actor name. |
 | shareId | String | Share ID. May be null |
-| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [ProductLabelSnapshot](#schema-ProductLabelSnapshot) |
-| files | List&lt;FileLabelSnapshot&gt; | File snapshots. Nested fields: [FileLabelSnapshot](#schema-FileLabelSnapshot) |
+| products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](./product-library-product-writes#product-snapshot-fields) |
+| files | List&lt;FileLabelSnapshot&gt; | File snapshots. Nested fields: [File snapshot fields](./product-library-product-writes#file-snapshot-fields) |
 | createdAt | String | Creation time. Format: date-time |
 
 **Page fields**:
@@ -3272,7 +3272,7 @@ Required role: manage.
 | totalCount | Integer | Total number of items. Minimum: 0 |
 | totalPages | Integer | Total number of pages. Minimum: 0 |
 
-Success response: 200. Full definition: [ProductDownloadListResponse](#schema-ProductDownloadListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -3362,7 +3362,7 @@ Unknown fields are rejected.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | kind | String | Yes | Allowed values: assets, export |
-| productIds | List&lt;PositiveId&gt; | Yes | Minimum items 1; Maximum items 100 Nested fields: [PositiveId](#schema-PositiveId) |
+| productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
 | assetKeys | List&lt;String&gt; | No | Each item: Minimum length 1 characters; Maximum length 256 characters; Minimum items 1; Maximum items 200 |
 | format | String | No | Allowed values: xlsx, csv, json; Default: "xlsx" |
 | includeAssetUrls | Boolean | No | Default: true |
@@ -3380,6 +3380,8 @@ The successful response is an attachment, not a JSON success envelope. The examp
 | - | application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | The response body contains the file bytes. |
 | - | text/csv | The response body contains the file bytes. |
 | - | application/json | The response body contains the file bytes. |
+
+A JSON export file contains an array of row objects whose values are strings.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id), [Content-Disposition](#header-Content-Disposition), [X-Download-Record-Id](#header-X-Download-Record-Id), [X-Idempotency-Replayed](#header-X-Idempotency-Replayed)
 
@@ -3453,14 +3455,14 @@ Required role: usable, editable or manage.
 | - | - | - |
 | key | String | Download selection key. |
 | name | String | Name. |
-| productId | PositiveId | Product ID. Nested fields: [PositiveId](#schema-PositiveId) |
+| productId | Integer | Product ID. Positive integer ID, up to 2147483647. |
 | productName | String | Product name. |
 | category | String | Media category. Allowed values: main, related, field |
 | mimeType | String | MIME type. May be null |
 | size | String | Size in bytes, represented as a decimal string. May be null; Must match `^[0-9]+$` |
 | downloadable | Boolean | Whether this file can currently be downloaded. |
 
-Success response: 200. Full definition: [ProductDownloadCandidateListResponse](#schema-ProductDownloadCandidateListResponse)
+Success response: 200.
 
 Response headers: [Cache-Control](#header-Cache-Control), [X-Request-Id](#header-X-Request-Id)
 
@@ -3663,3890 +3665,9 @@ Legacy or unresolved product media can have `id: null`. Valid media references a
 
 All responses include `Cache-Control: private, no-store`. JSON operations and errors use `application/json`. See [Request limits](./product-library-write-conventions#request-limits) for request size and batch limits.
 
-## Data schemas
-
-These are the complete schema definitions from the published contract. Names and JSON keys are stable across languages. Expand a definition to inspect required fields, nullable values, formats, limits and additionalProperties. Follow linked references for nested structures.
-
-Schema references beginning with #/components/schemas/ point to this page’s Data schemas appendix.
-
-**Inline response schemas**:
-
-<details>
-<summary>Response schema (200, original file)</summary>
-
-```json
-{
-  "type": "string",
-  "format": "binary"
-}
-```
-
-</details>
-
-<details>
-<summary>Response schema (200, ZIP)</summary>
-
-```json
-{
-  "type": "string",
-  "format": "binary"
-}
-```
-
-</details>
-
-<details>
-<summary>Response schema (200, Excel)</summary>
-
-```json
-{
-  "type": "string",
-  "format": "binary"
-}
-```
-
-</details>
-
-<details>
-<summary>Response schema (200, CSV)</summary>
-
-```json
-{
-  "type": "string",
-  "format": "binary"
-}
-```
-
-</details>
-
-<details>
-<summary>Response schema (200, JSON)</summary>
-
-```json
-{
-  "type": "array",
-  "items": {
-    "type": "object",
-    "additionalProperties": {
-      "type": "string"
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Response schema (200, original file)</summary>
-
-```json
-{
-  "type": "string",
-  "format": "binary"
-}
-```
-
-</details>
-
-<details id="schema-PositiveId">
-<summary>PositiveId</summary>
-
-```json
-{
-  "type": "integer",
-  "minimum": 1,
-  "maximum": 2147483647
-}
-```
-
-</details>
-
-<details id="schema-TemplateId">
-<summary>TemplateId</summary>
-
-```json
-{
-  "type": "string",
-  "minLength": 1,
-  "maxLength": 128
-}
-```
-
-</details>
-
-<details id="schema-Page">
-<summary>Page</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "page": {
-      "type": "integer",
-      "minimum": 1
-    },
-    "pageSize": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 100
-    },
-    "totalCount": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "totalPages": {
-      "type": "integer",
-      "minimum": 0
-    }
-  },
-  "required": [
-    "page",
-    "pageSize",
-    "totalCount",
-    "totalPages"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-SyncPage">
-<summary>SyncPage</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "pageSize": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 100
-    },
-    "syncedUntil": {
-      "type": "string",
-      "format": "date-time",
-      "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6}Z$",
-      "description": "PostgreSQL clock minus 30 seconds, fixed for the cycle. Save this exact string only after nextCursor is null."
-    },
-    "nextCursor": {
-      "type": "string",
-      "maxLength": 8192,
-      "nullable": true
-    },
-    "hasMore": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "pageSize",
-    "syncedUntil",
-    "nextCursor",
-    "hasMore"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-Brand">
-<summary>Brand</summary>
-
-Public scalar metadata. logoUrl is never returned. code is server-generated and read-only; website, sortOrder and isEnabled are read-only in v1.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "name": {
-      "type": "string"
-    },
-    "code": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "website": {
-      "type": "string",
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer"
-    },
-    "isEnabled": {
-      "type": "boolean"
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "code",
-    "description",
-    "website",
-    "sortOrder",
-    "isEnabled",
-    "createdAt",
-    "updatedAt"
-  ],
-  "additionalProperties": false,
-  "description": "Public scalar metadata. logoUrl is never returned. code is server-generated and read-only; website, sortOrder and isEnabled are read-only in v1."
-}
-```
-
-</details>
-
-<details id="schema-Category">
-<summary>Category</summary>
-
-Flat tree node. iconAssetId refers to CategoryIconAsset, not FilePath. No icon URL is returned.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "parentId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "name": {
-      "type": "string"
-    },
-    "pathKey": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "iconEmoji": {
-      "type": "string",
-      "nullable": true
-    },
-    "iconAssetId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer"
-    },
-    "isEnabled": {
-      "type": "boolean"
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    }
-  },
-  "required": [
-    "id",
-    "brandId",
-    "parentId",
-    "name",
-    "pathKey",
-    "description",
-    "iconEmoji",
-    "iconAssetId",
-    "sortOrder",
-    "isEnabled",
-    "createdAt",
-    "updatedAt"
-  ],
-  "additionalProperties": false,
-  "description": "Flat tree node. iconAssetId refers to CategoryIconAsset, not FilePath. No icon URL is returned."
-}
-```
-
-</details>
-
-<details id="schema-PreviewAsset">
-<summary>PreviewAsset</summary>
-
-Preview-only asset projection used by library asset lookup and template configuration. FilePath ID, or null for unresolved/legacy media. No download properties.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "name": {
-      "type": "string",
-      "nullable": true
-    },
-    "mimeType": {
-      "type": "string",
-      "nullable": true
-    },
-    "size": {
-      "type": "string",
-      "pattern": "^\\d+$",
-      "description": "Decimal byte count string; never a JSON number.",
-      "nullable": true
-    },
-    "width": {
-      "type": "number",
-      "nullable": true
-    },
-    "height": {
-      "type": "number",
-      "nullable": true
-    },
-    "duration": {
-      "type": "number",
-      "nullable": true
-    },
-    "previewUrl": {
-      "type": "string",
-      "format": "uri",
-      "nullable": true
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "mimeType",
-    "size",
-    "width",
-    "height",
-    "duration",
-    "previewUrl"
-  ],
-  "additionalProperties": false,
-  "description": "Preview-only asset projection used by library asset lookup and template configuration. FilePath ID, or null for unresolved/legacy media. No download properties."
-}
-```
-
-</details>
-
-<details id="schema-LibraryAsset">
-<summary>LibraryAsset</summary>
-
-A live FilePath in this product library. Use its id in product media writes. Contains preview fields only, regardless of products:download.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "name": {
-      "type": "string",
-      "nullable": true
-    },
-    "mimeType": {
-      "type": "string",
-      "nullable": true
-    },
-    "size": {
-      "type": "string",
-      "pattern": "^\\d+$",
-      "description": "Decimal byte count string; never a JSON number.",
-      "nullable": true
-    },
-    "width": {
-      "type": "number",
-      "nullable": true
-    },
-    "height": {
-      "type": "number",
-      "nullable": true
-    },
-    "duration": {
-      "type": "number",
-      "nullable": true
-    },
-    "previewUrl": {
-      "type": "string",
-      "format": "uri",
-      "nullable": true
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "mimeType",
-    "size",
-    "width",
-    "height",
-    "duration",
-    "previewUrl"
-  ],
-  "additionalProperties": false,
-  "description": "A live FilePath in this product library. Use its id in product media writes. Contains preview fields only, regardless of products:download."
-}
-```
-
-</details>
-
-<details id="schema-PublicAsset">
-<summary>PublicAsset</summary>
-
-Product media projection. id is FilePath.id, never AssetObject.id or ProductAsset.id. Download properties are omitted unless a current, resolvable product association is downloadable under products:read + products:download and role usable/editable/manage. An authorized unavailable original may return null. Non-image originals never serve as previews. Preview null means unavailable. For a finite key, stored third-party previews with unverifiable expiry return null. Keys without expiry retain eligible stored third-party previews; their lifetime is provider-controlled, without a service-issued TTL guarantee.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "name": {
-      "type": "string",
-      "nullable": true
-    },
-    "mimeType": {
-      "type": "string",
-      "nullable": true
-    },
-    "size": {
-      "type": "string",
-      "pattern": "^\\d+$",
-      "description": "Decimal byte count string; never a JSON number.",
-      "nullable": true
-    },
-    "width": {
-      "type": "number",
-      "nullable": true
-    },
-    "height": {
-      "type": "number",
-      "nullable": true
-    },
-    "duration": {
-      "type": "number",
-      "nullable": true
-    },
-    "previewUrl": {
-      "type": "string",
-      "format": "uri",
-      "nullable": true
-    },
-    "downloadUrl": {
-      "type": "string",
-      "format": "uri",
-      "nullable": true
-    },
-    "downloadUrlExpiresAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits.",
-      "nullable": true
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "mimeType",
-    "size",
-    "width",
-    "height",
-    "duration",
-    "previewUrl"
-  ],
-  "additionalProperties": false,
-  "description": "Product media projection. id is FilePath.id, never AssetObject.id or ProductAsset.id. Download properties are omitted unless a current, resolvable product association is downloadable under products:read + products:download and role usable/editable/manage. An authorized unavailable original may return null. Non-image originals never serve as previews. Preview null means unavailable. For a finite key, stored third-party previews with unverifiable expiry return null. Keys without expiry retain eligible stored third-party previews; their lifetime is provider-controlled, without a service-issued TTL guarantee."
-}
-```
-
-</details>
-
-<details id="schema-FieldConfig">
-<summary>FieldConfig</summary>
-
-Type-dependent configuration; media references in reads are projected to PreviewAsset, removing storage paths and credentials. Write config rules: plain text/textarea/email/phone/url/color/date/dateRange use &#123;&#125;; number allows unit; currency requires code/symbol and decimals 0..4; richtext mode is html or delta; select/radio/checkbox require nonempty options with unique value, label, sortOrder and optional archived; image/file accept maxCount and maxSizeMB &gt; 0 plus accept string array. System customPlaceholder may be at most 255 characters. System brand/category cannot accept custom options.
-
-```json
-{
-  "type": "object",
-  "additionalProperties": true,
-  "description": "Type-dependent configuration; media references in reads are projected to PreviewAsset, removing storage paths and credentials. Write config rules: plain text/textarea/email/phone/url/color/date/dateRange use {}; number allows unit; currency requires code/symbol and decimals 0..4; richtext mode is html or delta; select/radio/checkbox require nonempty options with unique value, label, sortOrder and optional archived; image/file accept maxCount and maxSizeMB > 0 plus accept string array. System customPlaceholder may be at most 255 characters. System brand/category cannot accept custom options."
-}
-```
-
-</details>
-
-<details id="schema-OptionConfig">
-<summary>OptionConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "value": {
-      "type": "string",
-      "minLength": 1
-    },
-    "label": {
-      "type": "string",
-      "minLength": 1
-    },
-    "sortOrder": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "archived": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "value",
-    "label",
-    "sortOrder"
-  ],
-  "additionalProperties": true
-}
-```
-
-</details>
-
-<details id="schema-EmptyFieldConfig">
-<summary>EmptyFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {},
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-NumberFieldConfig">
-<summary>NumberFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "unit": {
-      "type": "string"
-    }
-  },
-  "additionalProperties": true
-}
-```
-
-</details>
-
-<details id="schema-CurrencyFieldConfig">
-<summary>CurrencyFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "code": {
-      "type": "string",
-      "minLength": 1
-    },
-    "symbol": {
-      "type": "string",
-      "minLength": 1
-    },
-    "decimals": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 4
-    }
-  },
-  "required": [
-    "code",
-    "symbol",
-    "decimals"
-  ],
-  "additionalProperties": true
-}
-```
-
-</details>
-
-<details id="schema-RichtextFieldConfig">
-<summary>RichtextFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "mode": {
-      "type": "string",
-      "enum": [
-        "html",
-        "delta"
-      ]
-    }
-  },
-  "required": [
-    "mode"
-  ],
-  "additionalProperties": true
-}
-```
-
-</details>
-
-<details id="schema-ChoiceFieldConfig">
-<summary>ChoiceFieldConfig</summary>
-
-Option values must be unique. Unknown config/option properties are stripped by validation.
-
-Referenced definitions: [`OptionConfig`](#schema-OptionConfig)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "options": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/OptionConfig"
-      },
-      "minItems": 1
-    }
-  },
-  "required": [
-    "options"
-  ],
-  "additionalProperties": true,
-  "description": "Option values must be unique. Unknown config/option properties are stripped by validation."
-}
-```
-
-</details>
-
-<details id="schema-MediaFieldConfig">
-<summary>MediaFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "maxCount": {
-      "type": "integer",
-      "minimum": 1
-    },
-    "maxSizeMB": {
-      "type": "number",
-      "minimum": 0,
-      "exclusiveMinimum": true
-    },
-    "accept": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
-  },
-  "additionalProperties": true
-}
-```
-
-</details>
-
-<details id="schema-SystemFieldConfig">
-<summary>SystemFieldConfig</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "customPlaceholder": {
-      "type": "string",
-      "maxLength": 255
-    }
-  },
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-FieldConfigInput">
-<summary>FieldConfigInput</summary>
-
-Validated using the resolved field type/system identity, including existing field identity on PATCH. See x-config-by-field-type and SystemFieldConfig; existing protected system settings cannot be reassigned. Unknown properties are rejected by empty/system configs and stripped by other config validators.
-
-Referenced definitions: [`EmptyFieldConfig`](#schema-EmptyFieldConfig), [`RichtextFieldConfig`](#schema-RichtextFieldConfig), [`NumberFieldConfig`](#schema-NumberFieldConfig), [`CurrencyFieldConfig`](#schema-CurrencyFieldConfig), [`ChoiceFieldConfig`](#schema-ChoiceFieldConfig), [`MediaFieldConfig`](#schema-MediaFieldConfig), [`SystemFieldConfig`](#schema-SystemFieldConfig)
-
-```json
-{
-  "type": "object",
-  "additionalProperties": true,
-  "description": "Validated using the resolved field type/system identity, including existing field identity on PATCH. See x-config-by-field-type and SystemFieldConfig; existing protected system settings cannot be reassigned. Unknown properties are rejected by empty/system configs and stripped by other config validators.",
-  "x-config-by-field-type": {
-    "text": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "textarea": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "email": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "phone": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "url": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "color": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "richtext": {
-      "$ref": "#/components/schemas/RichtextFieldConfig"
-    },
-    "number": {
-      "$ref": "#/components/schemas/NumberFieldConfig"
-    },
-    "currency": {
-      "$ref": "#/components/schemas/CurrencyFieldConfig"
-    },
-    "date": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "dateRange": {
-      "$ref": "#/components/schemas/EmptyFieldConfig"
-    },
-    "select": {
-      "$ref": "#/components/schemas/ChoiceFieldConfig"
-    },
-    "radio": {
-      "$ref": "#/components/schemas/ChoiceFieldConfig"
-    },
-    "checkbox": {
-      "$ref": "#/components/schemas/ChoiceFieldConfig"
-    },
-    "image": {
-      "$ref": "#/components/schemas/MediaFieldConfig"
-    },
-    "file": {
-      "$ref": "#/components/schemas/MediaFieldConfig"
-    }
-  },
-  "x-system-config": {
-    "$ref": "#/components/schemas/SystemFieldConfig"
-  }
-}
-```
-
-</details>
-
-<details id="schema-VersionField">
-<summary>VersionField</summary>
-
-Referenced definitions: [`FieldConfig`](#schema-FieldConfig)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "key": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "type": {
-      "type": "string",
-      "enum": [
-        "text",
-        "textarea",
-        "email",
-        "phone",
-        "url",
-        "color",
-        "richtext",
-        "number",
-        "currency",
-        "date",
-        "dateRange",
-        "select",
-        "radio",
-        "checkbox",
-        "image",
-        "file"
-      ]
-    },
-    "required": {
-      "type": "boolean"
-    },
-    "placeholder": {
-      "type": "string",
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer"
-    },
-    "isSystemField": {
-      "type": "boolean"
-    },
-    "systemKey": {
-      "type": "string",
-      "enum": [
-        "name",
-        "sku",
-        "brand",
-        "category",
-        "description",
-        "mainImage",
-        null
-      ],
-      "nullable": true
-    },
-    "config": {
-      "$ref": "#/components/schemas/FieldConfig"
-    }
-  },
-  "required": [
-    "id",
-    "key",
-    "name",
-    "type",
-    "required",
-    "placeholder",
-    "sortOrder",
-    "isSystemField",
-    "systemKey",
-    "config"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-VersionGroup">
-<summary>VersionGroup</summary>
-
-Referenced definitions: [`VersionField`](#schema-VersionField)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "name": {
-      "type": "string"
-    },
-    "isDefault": {
-      "type": "boolean"
-    },
-    "sortOrder": {
-      "type": "integer"
-    },
-    "fields": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/VersionField"
-      }
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "isDefault",
-    "sortOrder",
-    "fields"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-TemplateDefinition">
-<summary>TemplateDefinition</summary>
-
-Immutable version pinned by the product, including after the live template is edited or soft-deleted. Does not require templates:read.
-
-Referenced definitions: [`VersionGroup`](#schema-VersionGroup)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "groups": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/VersionGroup"
-      }
-    }
-  },
-  "required": [
-    "groups"
-  ],
-  "additionalProperties": false,
-  "description": "Immutable version pinned by the product, including after the live template is edited or soft-deleted. Does not require templates:read."
-}
-```
-
-</details>
-
-<details id="schema-NullableTemplateDefinition">
-<summary>NullableTemplateDefinition</summary>
-
-Immutable version pinned by the product, including after the live template is edited or soft-deleted. Does not require templates:read.
-
-Referenced definitions: [`VersionGroup`](#schema-VersionGroup)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "groups": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/VersionGroup"
-      }
-    }
-  },
-  "required": [
-    "groups"
-  ],
-  "additionalProperties": false,
-  "description": "Immutable version pinned by the product, including after the live template is edited or soft-deleted. Does not require templates:read.",
-  "nullable": true
-}
-```
-
-</details>
-
-<details id="schema-Template">
-<summary>Template</summary>
-
-Referenced definitions: [`VersionGroup`](#schema-VersionGroup)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "name": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "enabled": {
-      "type": "boolean"
-    },
-    "isSystemDefault": {
-      "type": "boolean"
-    },
-    "isLibraryDefault": {
-      "type": "boolean"
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "boundBrandIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      }
-    },
-    "boundCategoryIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      }
-    },
-    "groups": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/VersionGroup"
-      }
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "description",
-    "enabled",
-    "isSystemDefault",
-    "isLibraryDefault",
-    "createdAt",
-    "updatedAt",
-    "boundBrandIds",
-    "boundCategoryIds",
-    "groups"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductSummary">
-<summary>ProductSummary</summary>
-
-List and sync item. templateDefinition is deliberately absent. SKU is named spu on the wire. view_only/usable keys see published products only.
-
-Referenced definitions: [`PublicAsset`](#schema-PublicAsset)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "name": {
-      "type": "string"
-    },
-    "spu": {
-      "type": "string",
-      "nullable": true
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "draft",
-        "published"
-      ]
-    },
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "categoryId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "ownerUserId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "publishedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits.",
-      "nullable": true
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "draftReason": {
-      "type": "string",
-      "nullable": true
-    },
-    "templateId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    },
-    "templateVersionId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    },
-    "templateFields": {
-      "type": "object",
-      "additionalProperties": {},
-      "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Media values are projected PublicAsset arrays; scalars retain their JSON types."
-    },
-    "cover": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 2147483647,
-          "nullable": true
-        },
-        "name": {
-          "type": "string",
-          "nullable": true
-        },
-        "mimeType": {
-          "type": "string",
-          "nullable": true
-        },
-        "size": {
-          "type": "string",
-          "pattern": "^\\d+$",
-          "description": "Decimal byte count string; never a JSON number.",
-          "nullable": true
-        },
-        "width": {
-          "type": "number",
-          "nullable": true
-        },
-        "height": {
-          "type": "number",
-          "nullable": true
-        },
-        "duration": {
-          "type": "number",
-          "nullable": true
-        },
-        "previewUrl": {
-          "type": "string",
-          "format": "uri",
-          "nullable": true
-        },
-        "downloadUrl": {
-          "type": "string",
-          "format": "uri",
-          "nullable": true
-        },
-        "downloadUrlExpiresAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits.",
-          "nullable": true
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "mimeType",
-        "size",
-        "width",
-        "height",
-        "duration",
-        "previewUrl"
-      ],
-      "additionalProperties": false,
-      "description": "Product media projection. id is FilePath.id, never AssetObject.id or ProductAsset.id. Download properties are omitted unless a current, resolvable product association is downloadable under products:read + products:download and role usable/editable/manage. An authorized unavailable original may return null. Non-image originals never serve as previews. Preview null means unavailable. For a finite key, stored third-party previews with unverifiable expiry return null. Keys without expiry retain eligible stored third-party previews; their lifetime is provider-controlled, without a service-issued TTL guarantee.",
-      "nullable": true
-    },
-    "images": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PublicAsset"
-      }
-    },
-    "relatedAssets": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PublicAsset"
-      }
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "spu",
-    "description",
-    "status",
-    "brandId",
-    "categoryId",
-    "ownerUserId",
-    "publishedAt",
-    "createdAt",
-    "updatedAt",
-    "draftReason",
-    "templateId",
-    "templateVersionId",
-    "templateFields",
-    "cover",
-    "images",
-    "relatedAssets"
-  ],
-  "additionalProperties": false,
-  "description": "List and sync item. templateDefinition is deliberately absent. SKU is named spu on the wire. view_only/usable keys see published products only."
-}
-```
-
-</details>
-
-<details id="schema-ProductDetail">
-<summary>ProductDetail</summary>
-
-Referenced definitions: [`PublicAsset`](#schema-PublicAsset), [`NullableTemplateDefinition`](#schema-NullableTemplateDefinition)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "name": {
-      "type": "string"
-    },
-    "spu": {
-      "type": "string",
-      "nullable": true
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "draft",
-        "published"
-      ]
-    },
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "categoryId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "ownerUserId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "publishedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits.",
-      "nullable": true
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits."
-    },
-    "draftReason": {
-      "type": "string",
-      "nullable": true
-    },
-    "templateId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    },
-    "templateVersionId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    },
-    "templateFields": {
-      "type": "object",
-      "additionalProperties": {},
-      "description": "Map keyed by stable field ID from the pinned definition, not field key/name. Media values are projected PublicAsset arrays; scalars retain their JSON types."
-    },
-    "cover": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 2147483647,
-          "nullable": true
-        },
-        "name": {
-          "type": "string",
-          "nullable": true
-        },
-        "mimeType": {
-          "type": "string",
-          "nullable": true
-        },
-        "size": {
-          "type": "string",
-          "pattern": "^\\d+$",
-          "description": "Decimal byte count string; never a JSON number.",
-          "nullable": true
-        },
-        "width": {
-          "type": "number",
-          "nullable": true
-        },
-        "height": {
-          "type": "number",
-          "nullable": true
-        },
-        "duration": {
-          "type": "number",
-          "nullable": true
-        },
-        "previewUrl": {
-          "type": "string",
-          "format": "uri",
-          "nullable": true
-        },
-        "downloadUrl": {
-          "type": "string",
-          "format": "uri",
-          "nullable": true
-        },
-        "downloadUrlExpiresAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "RFC 3339 UTC timestamp string. Preserve all fractional digits; sync product updatedAt uses six digits.",
-          "nullable": true
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "mimeType",
-        "size",
-        "width",
-        "height",
-        "duration",
-        "previewUrl"
-      ],
-      "additionalProperties": false,
-      "description": "Product media projection. id is FilePath.id, never AssetObject.id or ProductAsset.id. Download properties are omitted unless a current, resolvable product association is downloadable under products:read + products:download and role usable/editable/manage. An authorized unavailable original may return null. Non-image originals never serve as previews. Preview null means unavailable. For a finite key, stored third-party previews with unverifiable expiry return null. Keys without expiry retain eligible stored third-party previews; their lifetime is provider-controlled, without a service-issued TTL guarantee.",
-      "nullable": true
-    },
-    "images": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PublicAsset"
-      }
-    },
-    "relatedAssets": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PublicAsset"
-      }
-    },
-    "templateDefinition": {
-      "$ref": "#/components/schemas/NullableTemplateDefinition"
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "spu",
-    "description",
-    "status",
-    "brandId",
-    "categoryId",
-    "ownerUserId",
-    "publishedAt",
-    "createdAt",
-    "updatedAt",
-    "draftReason",
-    "templateId",
-    "templateVersionId",
-    "templateFields",
-    "cover",
-    "images",
-    "relatedAssets",
-    "templateDefinition"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-DeletedId">
-<summary>DeletedId</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    }
-  },
-  "required": [
-    "id"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-DeletedTemplateId">
-<summary>DeletedTemplateId</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    }
-  },
-  "required": [
-    "id"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-Visibility">
-<summary>Visibility</summary>
-
-not_visible combines missing, deleted, foreign-library and role-hidden IDs without revealing existence.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "visibility": {
-      "type": "string",
-      "enum": [
-        "visible",
-        "not_visible"
-      ]
-    }
-  },
-  "required": [
-    "id",
-    "visibility"
-  ],
-  "additionalProperties": false,
-  "description": "not_visible combines missing, deleted, foreign-library and role-hidden IDs without revealing existence."
-}
-```
-
-</details>
-
-<details id="schema-BrandCreate">
-<summary>BrandCreate</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "description": "Trimmed before validation."
-    },
-    "description": {
-      "type": "string",
-      "maxLength": 512,
-      "nullable": true
-    },
-    "logoUrl": {
-      "type": "string",
-      "maxLength": 512,
-      "description": "Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads.",
-      "nullable": true
-    }
-  },
-  "required": [
-    "name"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-BrandPatch">
-<summary>BrandPatch</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "description": "Trimmed before validation."
-    },
-    "description": {
-      "type": "string",
-      "maxLength": 512,
-      "nullable": true
-    },
-    "logoUrl": {
-      "type": "string",
-      "maxLength": 512,
-      "description": "Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads.",
-      "nullable": true
-    }
-  },
-  "additionalProperties": false,
-  "minProperties": 1
-}
-```
-
-</details>
-
-<details id="schema-CategoryCreate">
-<summary>CategoryCreate</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 64,
-      "pattern": "^(?=.*\\S)[^/]+$",
-      "description": "Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings."
-    },
-    "parentId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 5000,
-      "description": "Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent."
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "iconEmoji": {
-      "type": "string",
-      "maxLength": 16,
-      "nullable": true
-    },
-    "iconAssetId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true,
-      "description": "Existing same-library CategoryIconAsset ID, not FilePath ID."
-    },
-    "isEnabled": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "brandId",
-    "name"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-CategoryPatch">
-<summary>CategoryPatch</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 64,
-      "pattern": "^(?=.*\\S)[^/]+$",
-      "description": "Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings."
-    },
-    "parentId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 5000,
-      "description": "Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent."
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "iconEmoji": {
-      "type": "string",
-      "maxLength": 16,
-      "nullable": true
-    },
-    "iconAssetId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true,
-      "description": "Existing same-library CategoryIconAsset ID, not FilePath ID."
-    },
-    "isEnabled": {
-      "type": "boolean"
-    }
-  },
-  "additionalProperties": false,
-  "minProperties": 1
-}
-```
-
-</details>
-
-<details id="schema-TemplateFieldInput">
-<summary>TemplateFieldInput</summary>
-
-New fields require key/name/type. Existing IDs must belong to this group; preserve their key and system identity. System fields cannot be created. Type changes need typeChangeConfirmed where the existing batch rules require it. Omitted new-field defaults: required=false, placeholder=null, config=&#123;&#125;, sortOrder=array index.
-
-Referenced definitions: [`FieldConfigInput`](#schema-FieldConfigInput)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "key": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 64,
-      "description": "Required for new fields; valid identifier. Immutable for existing fields."
-    },
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "type": {
-      "type": "string",
-      "enum": [
-        "text",
-        "textarea",
-        "email",
-        "phone",
-        "url",
-        "color",
-        "richtext",
-        "number",
-        "currency",
-        "date",
-        "dateRange",
-        "select",
-        "radio",
-        "checkbox",
-        "image",
-        "file"
-      ]
-    },
-    "required": {
-      "type": "boolean"
-    },
-    "placeholder": {
-      "type": "string",
-      "maxLength": 255,
-      "nullable": true
-    },
-    "sortOrder": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "config": {
-      "$ref": "#/components/schemas/FieldConfigInput"
-    },
-    "isSystemField": {
-      "type": "boolean"
-    },
-    "systemKey": {
-      "type": "string",
-      "enum": [
-        "name",
-        "sku",
-        "brand",
-        "category",
-        "description",
-        "mainImage",
-        null
-      ],
-      "nullable": true
-    },
-    "typeChangeConfirmed": {
-      "type": "boolean"
-    }
-  },
-  "additionalProperties": false,
-  "description": "New fields require key/name/type. Existing IDs must belong to this group; preserve their key and system identity. System fields cannot be created. Type changes need typeChangeConfirmed where the existing batch rules require it. Omitted new-field defaults: required=false, placeholder=null, config={}, sortOrder=array index."
-}
-```
-
-</details>
-
-<details id="schema-TemplateGroupInput">
-<summary>TemplateGroupInput</summary>
-
-Name is trimmed. Existing ID must belong to this template. Existing groups retain their stored order; new groups append in supplied order. No isDefault or sortOrder input.
-
-Referenced definitions: [`TemplateFieldInput`](#schema-TemplateFieldInput)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128
-    },
-    "fields": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/TemplateFieldInput"
-      },
-      "maxItems": 200
-    }
-  },
-  "required": [
-    "name",
-    "fields"
-  ],
-  "additionalProperties": false,
-  "description": "Name is trimmed. Existing ID must belong to this template. Existing groups retain their stored order; new groups append in supplied order. No isDefault or sortOrder input."
-}
-```
-
-</details>
-
-<details id="schema-TemplateCreate">
-<summary>TemplateCreate</summary>
-
-Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
-
-Referenced definitions: [`TemplateGroupInput`](#schema-TemplateGroupInput)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 30
-    },
-    "description": {
-      "type": "string",
-      "maxLength": 50,
-      "nullable": true
-    },
-    "enabled": {
-      "type": "boolean"
-    },
-    "groups": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/TemplateGroupInput"
-      },
-      "minItems": 1,
-      "maxItems": 200
-    },
-    "boundBrandIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 10000
-    },
-    "boundCategoryIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 10000
-    },
-    "isLibraryDefault": {
-      "type": "boolean"
-    },
-    "syncStrategy": {
-      "type": "string",
-      "enum": [
-        "newOnly"
-      ],
-      "default": "newOnly"
-    }
-  },
-  "required": [
-    "name",
-    "groups"
-  ],
-  "additionalProperties": false,
-  "description": "Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products."
-}
-```
-
-</details>
-
-<details id="schema-TemplatePatch">
-<summary>TemplatePatch</summary>
-
-Omitted groups are preserved; supplied groups replace the entire live set. Preserve stable group/field IDs. Omitted groups/fields are deleted, subject to protected default/system fields. Every successful write creates a new immutable version, including metadata-only updates.
-
-Referenced definitions: [`TemplateGroupInput`](#schema-TemplateGroupInput)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 30
-    },
-    "description": {
-      "type": "string",
-      "maxLength": 50,
-      "nullable": true
-    },
-    "enabled": {
-      "type": "boolean"
-    },
-    "groups": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/TemplateGroupInput"
-      },
-      "minItems": 1,
-      "maxItems": 200
-    },
-    "boundBrandIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 10000
-    },
-    "boundCategoryIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 10000
-    },
-    "isLibraryDefault": {
-      "type": "boolean"
-    },
-    "syncStrategy": {
-      "type": "string",
-      "enum": [
-        "newOnly"
-      ],
-      "default": "newOnly"
-    }
-  },
-  "additionalProperties": false,
-  "minProperties": 1,
-  "description": "Omitted groups are preserved; supplied groups replace the entire live set. Preserve stable group/field IDs. Omitted groups/fields are deleted, subject to protected default/system fields. Every successful write creates a new immutable version, including metadata-only updates."
-}
-```
-
-</details>
-
-<details id="schema-TemplateDelete">
-<summary>TemplateDelete</summary>
-
-Optional body. If deleting the current library default, this property is required: a different live same-library template ID, or explicit null to clear the default. Historical versions remain available to pinned products.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "replacementForLibraryDefault": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    }
-  },
-  "additionalProperties": false,
-  "description": "Optional body. If deleting the current library default, this property is required: a different live same-library template ID, or explicit null to clear the default. Historical versions remain available to pinned products."
-}
-```
-
-</details>
-
-<details id="schema-ProductCreate">
-<summary>ProductCreate</summary>
-
-Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted/null and a non-null categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted or null, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "maxLength": 255,
-      "description": "Trimmed; optional/empty for draft."
-    },
-    "spu": {
-      "type": "string",
-      "maxLength": 64,
-      "description": "Trimmed; null/blank clears. Unique within the library, including soft-deleted products.",
-      "nullable": true
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "categoryId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "ownerUserId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "templateId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 128,
-      "nullable": true
-    },
-    "templateFields": {
-      "type": "object",
-      "additionalProperties": {},
-      "description": "Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted."
-    },
-    "coverAssetId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "imageAssetIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 100
-    },
-    "relatedAssetIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 100
-    }
-  },
-  "additionalProperties": false,
-  "description": "Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted/null and a non-null categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted or null, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits."
-}
-```
-
-</details>
-
-<details id="schema-ProductPatch">
-<summary>ProductPatch</summary>
-
-Omitted fields remain unchanged; explicit null clears nullable fields and [] clears lists. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "maxLength": 255,
-      "description": "Trimmed; optional/empty for draft."
-    },
-    "spu": {
-      "type": "string",
-      "maxLength": 64,
-      "description": "Trimmed; null/blank clears. Unique within the library, including soft-deleted products.",
-      "nullable": true
-    },
-    "description": {
-      "type": "string",
-      "nullable": true
-    },
-    "brandId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "categoryId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "ownerUserId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "templateFields": {
-      "type": "object",
-      "additionalProperties": {},
-      "description": "Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted."
-    },
-    "coverAssetId": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647,
-      "nullable": true
-    },
-    "imageAssetIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 100
-    },
-    "relatedAssetIds": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 100
-    }
-  },
-  "additionalProperties": false,
-  "description": "Omitted fields remain unchanged; explicit null clears nullable fields and [] clears lists. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected."
-}
-```
-
-</details>
-
-<details id="schema-ProductStatus">
-<summary>ProductStatus</summary>
-
-Both products:update and products:publish required for either transition, including same-status requests. Publish validates all required pinned fields and current media; failure is atomic. publishedAt is set on first publication, retained on repeated publication and cleared on draft.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "status": {
-      "type": "string",
-      "enum": [
-        "draft",
-        "published"
-      ]
-    }
-  },
-  "required": [
-    "status"
-  ],
-  "additionalProperties": false,
-  "description": "Both products:update and products:publish required for either transition, including same-status requests. Publish validates all required pinned fields and current media; failure is atomic. publishedAt is set on first publication, retained on repeated publication and cleared on draft."
-}
-```
-
-</details>
-
-<details id="schema-VisibilityInput">
-<summary>VisibilityInput</summary>
-
-0..100 IDs. Output preserves input order and duplicates; [] returns [].
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "ids": {
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 2147483647
-      },
-      "maxItems": 100
-    }
-  },
-  "required": [
-    "ids"
-  ],
-  "additionalProperties": false,
-  "description": "0..100 IDs. Output preserves input order and duplicates; [] returns []."
-}
-```
-
-</details>
-
-<details id="schema-Error">
-<summary>Error</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        false
-      ]
-    },
-    "data": {
-      "type": "object",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "code": {
-      "type": "string",
-      "enum": [
-        "invalid_credentials",
-        "authentication_unavailable",
-        "key_inactive",
-        "forbidden",
-        "not_found",
-        "sku_in_use",
-        "code_in_use",
-        "name_in_use",
-        "brand_has_dependents",
-        "category_has_products",
-        "default_template_replacement_required",
-        "idempotency_key_reused",
-        "precondition_failed",
-        "payload_too_large",
-        "validation_failed",
-        "internal_server_error",
-        "write_conflict",
-        "mutation_response_unavailable",
-        "download_unavailable",
-        "download_too_large"
-      ]
-    },
-    "message": {
-      "type": "string"
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "details": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "field",
-          "message"
-        ],
-        "additionalProperties": false
-      }
-    },
-    "mutationOutcome": {
-      "type": "string",
-      "enum": [
-        "committed",
-        "replayed"
-      ],
-      "description": "Present only for mutation_response_unavailable. Confirms completion; never blindly repeat the mutation."
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false,
-  "oneOf": [
-    {
-      "properties": {
-        "code": {
-          "not": {
-            "enum": [
-              "mutation_response_unavailable"
-            ]
-          }
-        }
-      },
-      "not": {
-        "required": [
-          "mutationOutcome"
-        ]
-      }
-    },
-    {
-      "properties": {
-        "code": {
-          "enum": [
-            "mutation_response_unavailable"
-          ]
-        }
-      },
-      "required": [
-        "mutationOutcome"
-      ]
-    }
-  ]
-}
-```
-
-</details>
-
-<details id="schema-BrandResponse">
-<summary>BrandResponse</summary>
-
-Referenced definitions: [`Brand`](#schema-Brand)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/Brand"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-CategoryResponse">
-<summary>CategoryResponse</summary>
-
-Referenced definitions: [`Category`](#schema-Category)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/Category"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-TemplateResponse">
-<summary>TemplateResponse</summary>
-
-Referenced definitions: [`Template`](#schema-Template)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/Template"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductDetailResponse">
-<summary>ProductDetailResponse</summary>
-
-Referenced definitions: [`ProductDetail`](#schema-ProductDetail)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/ProductDetail"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-LibraryAssetResponse">
-<summary>LibraryAssetResponse</summary>
-
-Referenced definitions: [`LibraryAsset`](#schema-LibraryAsset)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/LibraryAsset"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-DeletedIdResponse">
-<summary>DeletedIdResponse</summary>
-
-Referenced definitions: [`DeletedId`](#schema-DeletedId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/DeletedId"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-DeletedTemplateIdResponse">
-<summary>DeletedTemplateIdResponse</summary>
-
-Referenced definitions: [`DeletedTemplateId`](#schema-DeletedTemplateId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/DeletedTemplateId"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-BrandListResponse">
-<summary>BrandListResponse</summary>
-
-Referenced definitions: [`Brand`](#schema-Brand), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Brand"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-CategoryListResponse">
-<summary>CategoryListResponse</summary>
-
-Referenced definitions: [`Category`](#schema-Category), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Category"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-TemplateListResponse">
-<summary>TemplateListResponse</summary>
-
-Referenced definitions: [`Template`](#schema-Template), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Template"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-LibraryAssetListResponse">
-<summary>LibraryAssetListResponse</summary>
-
-Referenced definitions: [`LibraryAsset`](#schema-LibraryAsset), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/LibraryAsset"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductListResponse">
-<summary>ProductListResponse</summary>
-
-Referenced definitions: [`ProductSummary`](#schema-ProductSummary), [`Page`](#schema-Page), [`SyncPage`](#schema-SyncPage)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductSummary"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "oneOf": [
-        {
-          "$ref": "#/components/schemas/Page"
-        },
-        {
-          "$ref": "#/components/schemas/SyncPage"
-        }
-      ]
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-VisibilityResponse">
-<summary>VisibilityResponse</summary>
-
-Referenced definitions: [`Visibility`](#schema-Visibility)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Visibility"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-MutationResponseUnavailable">
-<summary>MutationResponseUnavailable</summary>
-
-Referenced definitions: [`Error`](#schema-Error)
-
-```json
-{
-  "allOf": [
-    {
-      "$ref": "#/components/schemas/Error"
-    },
-    {
-      "type": "object",
-      "required": [
-        "mutationOutcome"
-      ],
-      "properties": {
-        "code": {
-          "type": "string",
-          "enum": [
-            "mutation_response_unavailable"
-          ]
-        }
-      }
-    }
-  ]
-}
-```
-
-</details>
-
-<details id="schema-ProductLabelSnapshot">
-<summary>ProductLabelSnapshot</summary>
-
-Referenced definitions: [`PositiveId`](#schema-PositiveId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "$ref": "#/components/schemas/PositiveId"
-    },
-    "name": {
-      "type": "string"
-    },
-    "spu": {
-      "type": "string",
-      "nullable": true
-    }
-  },
-  "required": [
-    "id",
-    "name",
-    "spu"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-FileLabelSnapshot">
-<summary>FileLabelSnapshot</summary>
-
-Referenced definitions: [`PositiveId`](#schema-PositiveId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string"
-    },
-    "productId": {
-      "$ref": "#/components/schemas/PositiveId"
-    },
-    "name": {
-      "type": "string"
-    }
-  },
-  "required": [
-    "id",
-    "productId",
-    "name"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductShare">
-<summary>ProductShare</summary>
-
-A team-owned share with an absolute recipient URL and creation-time labels. Access codes and hashes are never returned. Creator key identity and name are attribution snapshots; key lifecycle changes do not revoke the share or cap its lifetime. Recipient content is current published content from the fixed product selection.
-
-Referenced definitions: [`ProductLabelSnapshot`](#schema-ProductLabelSnapshot)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string"
-    },
-    "url": {
-      "type": "string",
-      "format": "uri"
-    },
-    "products": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductLabelSnapshot"
-      }
-    },
-    "createdById": {
-      "type": "integer",
-      "nullable": true
-    },
-    "createdByApiKeyId": {
-      "type": "string",
-      "nullable": true
-    },
-    "createdByName": {
-      "type": "string"
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "expiresAt": {
-      "type": "string",
-      "nullable": true,
-      "format": "date-time"
-    },
-    "revokedAt": {
-      "type": "string",
-      "nullable": true,
-      "format": "date-time"
-    },
-    "allowDownload": {
-      "type": "boolean"
-    },
-    "hasAccessCode": {
-      "type": "boolean"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "active",
-        "expired",
-        "revoked"
-      ]
-    },
-    "canRevoke": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "id",
-    "url",
-    "products",
-    "createdById",
-    "createdByApiKeyId",
-    "createdByName",
-    "createdAt",
-    "expiresAt",
-    "revokedAt",
-    "allowDownload",
-    "hasAccessCode",
-    "status",
-    "canRevoke"
-  ],
-  "additionalProperties": false,
-  "description": "A team-owned share with an absolute recipient URL and creation-time labels. Access codes and hashes are never returned. Creator key identity and name are attribution snapshots; key lifecycle changes do not revoke the share or cap its lifetime. Recipient content is current published content from the fixed product selection."
-}
-```
-
-</details>
-
-<details id="schema-ProductShareCreate">
-<summary>ProductShareCreate</summary>
-
-Referenced definitions: [`PositiveId`](#schema-PositiveId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "productIds": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PositiveId"
-      },
-      "minItems": 1,
-      "maxItems": 100
-    },
-    "expiresInDays": {
-      "type": "integer",
-      "nullable": true,
-      "enum": [
-        7,
-        30,
-        90,
-        null
-      ]
-    },
-    "accessCode": {
-      "type": "string",
-      "pattern": "^[0-9]{4}$"
-    },
-    "allowDownload": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "productIds",
-    "expiresInDays",
-    "allowDownload"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-RevokedProductShare">
-<summary>RevokedProductShare</summary>
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string"
-    },
-    "revokedAt": {
-      "type": "string",
-      "format": "date-time"
-    }
-  },
-  "required": [
-    "id",
-    "revokedAt"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductDownloadRecord">
-<summary>ProductDownloadRecord</summary>
-
-One accepted logical operation, with first-acceptance product/file labels and actor attribution retained. requested records acceptance, not completed transfer or client save. failed records a detected preparation or stream failure and is not reset by a later retry. A product filter retains the complete multi-product operation.
-
-Referenced definitions: [`ProductLabelSnapshot`](#schema-ProductLabelSnapshot), [`FileLabelSnapshot`](#schema-FileLabelSnapshot)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string"
-    },
-    "kind": {
-      "type": "string",
-      "enum": [
-        "product_export",
-        "asset_download"
-      ]
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "requested",
-        "failed"
-      ]
-    },
-    "actorType": {
-      "type": "string",
-      "enum": [
-        "member",
-        "external",
-        "api_key"
-      ]
-    },
-    "actorId": {
-      "type": "integer",
-      "nullable": true
-    },
-    "apiKeyId": {
-      "type": "string",
-      "nullable": true
-    },
-    "actorName": {
-      "type": "string"
-    },
-    "shareId": {
-      "type": "string",
-      "nullable": true
-    },
-    "products": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductLabelSnapshot"
-      }
-    },
-    "files": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/FileLabelSnapshot"
-      }
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time"
-    }
-  },
-  "required": [
-    "id",
-    "kind",
-    "status",
-    "actorType",
-    "actorId",
-    "apiKeyId",
-    "actorName",
-    "shareId",
-    "products",
-    "files",
-    "createdAt"
-  ],
-  "additionalProperties": false,
-  "description": "One accepted logical operation, with first-acceptance product/file labels and actor attribution retained. requested records acceptance, not completed transfer or client save. failed records a detected preparation or stream failure and is not reset by a later retry. A product filter retains the complete multi-product operation."
-}
-```
-
-</details>
-
-<details id="schema-ProductDownloadCandidate">
-<summary>ProductDownloadCandidate</summary>
-
-A current selection key and availability metadata. No original URL, signed URL or preview URL is exposed; availability does not guarantee future transfer.
-
-Referenced definitions: [`PositiveId`](#schema-PositiveId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "key": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "productId": {
-      "$ref": "#/components/schemas/PositiveId"
-    },
-    "productName": {
-      "type": "string"
-    },
-    "category": {
-      "type": "string",
-      "enum": [
-        "main",
-        "related",
-        "field"
-      ]
-    },
-    "mimeType": {
-      "type": "string",
-      "nullable": true
-    },
-    "size": {
-      "type": "string",
-      "nullable": true,
-      "pattern": "^[0-9]+$"
-    },
-    "downloadable": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "key",
-    "name",
-    "productId",
-    "productName",
-    "category",
-    "mimeType",
-    "size",
-    "downloadable"
-  ],
-  "additionalProperties": false,
-  "description": "A current selection key and availability metadata. No original URL, signed URL or preview URL is exposed; availability does not guarantee future transfer."
-}
-```
-
-</details>
-
-<details id="schema-ProductDownloadCreate">
-<summary>ProductDownloadCreate</summary>
-
-assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. Export links default on, require Bearer authentication, and never contain API-key secrets. locale changes system labels/status, not user-authored labels or values.
-
-Referenced definitions: [`PositiveId`](#schema-PositiveId)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "kind": {
-      "type": "string",
-      "enum": [
-        "assets",
-        "export"
-      ]
-    },
-    "productIds": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/PositiveId"
-      },
-      "minItems": 1,
-      "maxItems": 100
-    },
-    "assetKeys": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 256
-      },
-      "minItems": 1,
-      "maxItems": 200
-    },
-    "format": {
-      "type": "string",
-      "enum": [
-        "xlsx",
-        "csv",
-        "json"
-      ],
-      "default": "xlsx"
-    },
-    "includeAssetUrls": {
-      "type": "boolean",
-      "default": true
-    },
-    "locale": {
-      "type": "string",
-      "enum": [
-        "zh-CN",
-        "en-US",
-        "zh-TW",
-        "ja-JP",
-        "ko-KR",
-        "pt-BR",
-        "ru-RU",
-        "id-ID",
-        "fr-FR",
-        "it-IT",
-        "pl-PL",
-        "vi-VN",
-        "tr-TR",
-        "th-TH",
-        "de-DE",
-        "es-ES",
-        "hi-IN"
-      ],
-      "default": "zh-CN"
-    }
-  },
-  "required": [
-    "kind",
-    "productIds"
-  ],
-  "additionalProperties": false,
-  "not": {
-    "properties": {
-      "kind": {
-        "enum": [
-          "export"
-        ]
-      }
-    },
-    "required": [
-      "assetKeys"
-    ]
-  },
-  "description": "assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. Export links default on, require Bearer authentication, and never contain API-key secrets. locale changes system labels/status, not user-authored labels or values."
-}
-```
-
-</details>
-
-<details id="schema-ProductShareResponse">
-<summary>ProductShareResponse</summary>
-
-Referenced definitions: [`ProductShare`](#schema-ProductShare)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/ProductShare"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductShareListResponse">
-<summary>ProductShareListResponse</summary>
-
-Referenced definitions: [`ProductShare`](#schema-ProductShare), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductShare"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-RevokedProductShareResponse">
-<summary>RevokedProductShareResponse</summary>
-
-Referenced definitions: [`RevokedProductShare`](#schema-RevokedProductShare)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "$ref": "#/components/schemas/RevokedProductShare"
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductDownloadListResponse">
-<summary>ProductDownloadListResponse</summary>
-
-Referenced definitions: [`ProductDownloadRecord`](#schema-ProductDownloadRecord), [`Page`](#schema-Page)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductDownloadRecord"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "pagination": {
-      "$ref": "#/components/schemas/Page"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId",
-    "pagination"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-ProductDownloadCandidateListResponse">
-<summary>ProductDownloadCandidateListResponse</summary>
-
-Referenced definitions: [`ProductDownloadCandidate`](#schema-ProductDownloadCandidate)
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "success": {
-      "type": "boolean",
-      "enum": [
-        true
-      ]
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/ProductDownloadCandidate"
-      }
-    },
-    "code": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "message": {
-      "type": "string",
-      "nullable": true,
-      "enum": [
-        null
-      ]
-    },
-    "requestId": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
-<details id="schema-AttachmentError">
-<summary>AttachmentError</summary>
-
-Attachment errors preserve the specific error code. mutationOutcome is present after a business record was committed or replayed, even if no bytes were delivered. Reuse the original idempotency key within its retention window for the same logical retry.
-
-Referenced definitions: [`Error.properties.success`](#schema-Error), [`Error.properties.data`](#schema-Error), [`Error.properties.code`](#schema-Error), [`Error.properties.message`](#schema-Error), [`Error.properties.requestId`](#schema-Error), [`Error.properties.details`](#schema-Error)
-
-```json
-{
-  "type": "object",
-  "description": "Attachment errors preserve the specific error code. mutationOutcome is present after a business record was committed or replayed, even if no bytes were delivered. Reuse the original idempotency key within its retention window for the same logical retry.",
-  "properties": {
-    "success": {
-      "$ref": "#/components/schemas/Error/properties/success"
-    },
-    "data": {
-      "$ref": "#/components/schemas/Error/properties/data"
-    },
-    "code": {
-      "$ref": "#/components/schemas/Error/properties/code"
-    },
-    "message": {
-      "$ref": "#/components/schemas/Error/properties/message"
-    },
-    "requestId": {
-      "$ref": "#/components/schemas/Error/properties/requestId"
-    },
-    "details": {
-      "$ref": "#/components/schemas/Error/properties/details"
-    },
-    "mutationOutcome": {
-      "type": "string",
-      "enum": [
-        "committed",
-        "replayed"
-      ],
-      "description": "Present after business-record acceptance or reuse, independently of transfer success."
-    }
-  },
-  "required": [
-    "success",
-    "data",
-    "code",
-    "message",
-    "requestId"
-  ],
-  "additionalProperties": false
-}
-```
-
-</details>
-
 ## Shared error responses
+
+The `$ref` values in the JSON below refer to the [downloadable OpenAPI definition](/assets/developers/product-library/openapi.json).
 
 Each operation lists the statuses it can return. The definitions below include the exact error envelope, error examples and any response headers. A download can return these JSON errors only before attachment delivery starts.
 
@@ -7555,7 +3676,7 @@ Each operation lists the statuses it can return. The definitions below include t
 
 invalid_credentials: Missing, malformed or unknown bearer credential. Never reveals key existence; key_inactive: A verified key is disabled, revoked or expired.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7605,7 +3726,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 forbidden: The current key role/grants do not authorize the action; published mutations may need products:publish.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7646,7 +3767,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 not_found: The resource is absent, deleted, outside this library or invisible to the key.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7687,7 +3808,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 payload_too_large: The request body exceeds 1048576 bytes (1 MiB).
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7728,7 +3849,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 validation_failed: Malformed JSON/IDs/query/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7775,7 +3896,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 internal_server_error: Unexpected server failure; report requestId without credentials. The public message does not expose internal details.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7816,7 +3937,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 code_in_use: A generated brand code conflicts; retry with a fresh create request; idempotency_key_reused: This key and operation already used the idempotency key with a different canonical request; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7866,7 +3987,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 precondition_failed: If-Match does not match the locked current resource; refetch and reconcile before retry.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7907,7 +4028,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 brand_has_dependents: The brand still has live categories or products; no cascading deletion; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7948,7 +4069,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 name_in_use: A unique template name or category sibling name conflicts; idempotency_key_reused: This key and operation already used the idempotency key with a different canonical request; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -7998,7 +4119,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 name_in_use: A unique template name or category sibling name conflicts; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8039,7 +4160,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 category_has_products: The category subtree still contains live products; no cascading product deletion; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8080,7 +4201,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 default_template_replacement_required: Deleting the library default requires replacementForLibraryDefault, including explicit null to clear; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8121,7 +4242,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 sku_in_use: The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products; idempotency_key_reused: This key and operation already used the idempotency key with a different canonical request; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8171,7 +4292,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 sku_in_use: The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8212,7 +4333,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 The write rolled back due to a deadlock, serialization failure, or lock timeout. Retry after one second using the same create idempotency key.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8251,7 +4372,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 Mutation committed or was replayed, but an authorized representation is unavailable. Reconcile before another mutation.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`MutationResponseUnavailable`](#schema-MutationResponseUnavailable)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Write outcomes and recovery](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8281,7 +4402,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 Share creation input differs from the retained idempotent operation.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`Error`](#schema-Error)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Error handling](./product-library-write-conventions#troubleshooting)
 
 ```json
 {
@@ -8322,7 +4443,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 invalid_credentials: Missing, malformed or unknown bearer credential. Never reveals key existence; key_inactive: A verified key is disabled, revoked or expired.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8352,7 +4473,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 forbidden: The current key role/grants do not authorize the action; published mutations may need products:publish.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8382,7 +4503,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 not_found: The resource is absent, deleted, outside this library or invisible to the key.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8412,7 +4533,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 The request body, file count or combined original size exceeds its limit.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8442,7 +4563,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 validation_failed: Malformed JSON/IDs/query/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8472,7 +4593,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 internal_server_error: Unexpected server failure; report requestId without credentials. The public message does not expose internal details.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8502,7 +4623,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 The original is unavailable or the idempotency key was reused with different input.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {
@@ -8544,7 +4665,7 @@ Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id
 
 The write rolled back due to a deadlock, serialization failure, or lock timeout. Retry after one second using the same create idempotency key.
 
-Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [`AttachmentError`](#schema-AttachmentError)
+Referenced definitions: [`Cache-Control`](#header-Cache-Control), [`X-Request-Id`](#header-X-Request-Id), [Download errors and retries](./product-library-write-conventions#write-outcomes-and-audit-durability)
 
 ```json
 {

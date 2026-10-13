@@ -96,15 +96,16 @@ banner, rate-limit policy or credential instructions to these pages.
 The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
 the source snapshot; only the server URL and description are adapted for the public
-gateway. The reference includes all operations and shared definitions without
-adding a browser request console or a new dependency.
+gateway. The reference includes all operations and links to concise field tables
+in the relevant guides. Full schemas remain in the downloadable contract; do not
+render a schema appendix on the documentation page.
 
 Match the existing Open API articles (`search.mdx` and `assets.mdx`) when editing
 the reference: endpoint, method, description, request parameters, response fields,
 then visible curl and response examples. Keep the Product Library response shape;
-do not substitute the asset API envelope. Put shared technical definitions in the
-appendix and link to common error handling instead of repeating a status-code
-catalog for every operation.
+do not substitute the asset API envelope. Explain necessary nested fields in
+short tables and link directly to those sections. Link to error handling for
+status codes and to the OpenAPI download for complete machine-readable definitions.
 
 Keep public examples short and independent: a complete URL, an explicit
 `your_api_key` placeholder, representative resource IDs, and the request body.

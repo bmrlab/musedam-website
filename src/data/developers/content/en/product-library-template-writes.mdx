@@ -1,76 +1,142 @@
-All paths below use `/api/product`. Writes require a `manage` API Key Collaborator;
-the role grants `templates:create`, `templates:update`, and `templates:delete`.
-The key determines the product library. Requests cannot override that library.
+All paths use `/api/product`. Writes require a `manage` API Key Collaborator.
 
 ## Creating and updating
 
-`POST /product-info-templates` requires `name` and `groups`. `PATCH
-/product-info-templates/{id}` accepts the same fields as partial metadata changes.
-Omitting `groups` keeps the definition. Providing `groups` replaces the complete
-live definition: retain existing group and field `id` values, omit IDs for new
-rows, and omit existing rows to soft-delete them. Existing field keys cannot
-change. Field IDs cannot be moved between groups. The initial group's default
-status is assigned by the server and the default group cannot be removed.
-Reordering existing group entries does not reorder groups: existing groups retain
-their stored order and new groups append in supplied order. Fields support
-`sortOrder`. Creation always seeds protected name, SKU, and main-image fields
-before the initial version; at most 197 additional custom fields fit the
-200-field total. Include protected field IDs in replacement definitions.
-New fields are custom fields; system identities cannot be created or reassigned.
-Existing protected system fields keep their type, required flag, and configuration.
-
-System field keys are reserved. Custom field keys must be unique, valid identifiers.
+To create a template, provide a name and at least one group. This example adds an optional color field:
 
 ```json
 {
   "name": "Catalog",
-  "description": "Product information",
-  "enabled": true,
   "groups": [
     {
       "name": "Basics",
       "fields": [
-        { "key": "color", "name": "Color", "type": "text", "required": false, "config": {} }
+        { "key": "color", "name": "Color", "type": "text" }
       ]
     }
-  ],
-  "boundBrandIds": [],
-  "boundCategoryIds": [],
-  "isLibraryDefault": true,
-  "syncStrategy": "newOnly"
+  ]
 }
 ```
 
-Existing field entries require their `id`; omitted field properties retain their
-values, except that an omitted field `sortOrder` uses its array position. A field
-may also provide `placeholder` and `typeChangeConfirmed` for an allowed type change
-that requires confirmation. Field configurations use the browser's type-specific
-validation. Names allow 30 characters, descriptions 50, and a definition at most
-200 fields. Unknown request properties are rejected.
+`POST /product-info-templates` returns `201`; `PATCH /product-info-templates/{id}` returns `200`. Both return template details and an `ETag`. Names allow 1–30 characters; descriptions allow up to 50.
 
-Binding arrays replace only the supplied dimension; omitted arrays retain their
-bindings. All binding IDs must be valid in the same library. When selected brands
-are nonempty, selected categories must belong to those brands. Binding an ID that
-currently belongs to another template moves that binding. `isLibraryDefault: true`
-selects this template as the library default; `false` clears it only if this
-template is currently the default. Omission preserves the existing default.
+On update, omitting `groups` preserves the definition. Supplying `groups` replaces the complete definition. Keep existing group and field `id` values, and omit `id` for new groups and fields. Omitted existing groups and fields are soft-deleted.
 
-Each successful create or update saves a new template version with `newOnly`. A product saves the template version used at creation; later template changes do not alter existing products’ field definitions or values. `syncAll` returns `422 validation_failed`.
+<details>
+<summary>Bindings, the default template, and versions</summary>
 
-Creation returns `201` and updates return `200`, with template details and an `ETag`. `POST` accepts `Idempotency-Key`: retrying with the same key and body returns the first successful result, even if the template has since changed. Using the same key with a different body returns `409 idempotency_key_reused`. Media information is generated again using the current key’s permissions; signed URLs are not stored in idempotency records.
+- `boundBrandIds` and `boundCategoryIds` replace only the supplied binding dimension. Omitted arrays stay unchanged; each array allows up to 10,000 IDs. IDs must belong to the same library. When brands are selected, categories must belong to those brands. IDs bound to another template move to this template.
+- `isLibraryDefault: true` makes this template the library default. `false` clears the default only if this template is currently selected. Omission leaves it unchanged.
+- Every successful create or update saves a new version. Only `syncStrategy: "newOnly"` is supported; `syncAll` returns `422 validation_failed`. Existing products keep the version used at creation, including its field definitions and values.
+
+</details>
+
+`POST` supports safe retries with `Idempotency-Key`; updates can check the version with `If-Match`. See [Write conventions](./product-library-write-conventions). For all top-level parameters, see [Create a template](./product-library-reference#operation-createTemplate) and [Update a template](./product-library-reference#operation-updateTemplate).
+
+## Groups
+
+`groups` contains 1–200 groups. A template may have at most 200 fields in total.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | string | Required for an existing group, 1–128 characters, belonging to this template. Omit for a new group. |
+| `name` | string | Required, 1–128 characters. Leading and trailing whitespace is trimmed. |
+| `fields` | array | Required. Fields in the group, described below. |
+
+Existing groups keep their stored order; new groups append in the supplied order. Groups do not accept `sortOrder` or `isDefault`. The server assigns the default group, which cannot be deleted.
+
+## Fields
+
+New fields require `key`, `name`, and `type`. Existing fields require `id`; omitted properties retain their values, except for `sortOrder`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | string | Required for an existing field, 1–128 characters, belonging to this group. Omit for a new field. |
+| `key` | string | Required for a new field, 1–64 characters. A unique, valid identifier; cannot change for existing fields. |
+| `name` | string | Required for a new field, 1–128 characters. |
+| `type` | string | Required for a new field. Supported types appear in the configuration table below. |
+| `required` | boolean | Optional. Defaults to `false` for a new field. |
+| `placeholder` | string or null | Optional, up to 255 characters. Defaults to `null` for a new field. |
+| `sortOrder` | integer | Optional, nonnegative. If omitted, uses the field's array position. |
+| `config` | object | Depends on the field type; see below. Defaults to `{}` for a new field, but must still meet that type's configuration requirements. |
+| `typeChangeConfirmed` | boolean | Optional. Set to `true` for an allowed type change that requires confirmation. |
+
+<details>
+<summary>System fields and update restrictions</summary>
+
+Creation seeds three protected fields: name, SKU, and main image. This leaves room for up to 197 custom fields. Replacement definitions must keep these field IDs, types, required flags, and configurations. Fields cannot move between groups.
+
+New fields must be custom fields and cannot use reserved system keys. `isSystemField` and `systemKey` cannot create or reassign system identities; preserve their values on update. Unknown group or field properties are rejected.
+
+</details>
+
+## Field configuration
+
+`config` depends on the field's `type`. For example, text fields use `{}`, while currency and choice fields need additional configuration.
+
+<details>
+<summary>View configuration for each field type</summary>
+
+| Field type | Configuration |
+| --- | --- |
+| `text`, `textarea`, `email`, `phone`, `url`, `color`, `date`, `dateRange` | Use `{}`. Other configuration properties are not accepted. |
+| `number` | Optional `unit`, a string. |
+| `currency` | Required `code` and `symbol` (nonempty strings), and `decimals` (an integer from 0 to 4). |
+| `richtext` | Required `mode`, either `html` or `delta`. |
+| `select`, `radio`, `checkbox` | Required, nonempty `options` array. Entries follow the table below; `value` must be unique. |
+| `image`, `file` | Optional `maxCount` (an integer of at least 1), `maxSizeMB` (a number greater than 0), and `accept` (an array of strings). |
+
+Each `options` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `value` | string | Required, nonempty. The option's unique value. |
+| `label` | string | Required, nonempty. The display label. |
+| `sortOrder` | integer | Required, nonnegative. |
+| `archived` | boolean | Optional. Whether the option is archived. |
+
+System fields support `customPlaceholder`, an optional string of up to 255 characters. System brand and category fields do not accept custom options. Protected system fields cannot change their configuration.
+
+Empty and system configurations reject unknown properties. Other configuration and option validators strip unknown properties. Download the [OpenAPI JSON](/assets/developers/product-library/openapi.json) for the full machine-readable definition.
+
+</details>
+
+## Returned template definition
+
+Template details use `groups`; products use `templateDefinition.groups`. Both contain groups and fields. Products return the version pinned at creation, unchanged by later template edits or deletion. `templateDefinition` may be `null` when no template is assigned.
+
+<details>
+<summary>View returned group and field properties</summary>
+
+Each group always returns `id`, `name`, `fields`, and these read-only properties:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `isDefault` | boolean | Whether this is the default group. |
+| `sortOrder` | integer | The group's order. |
+
+Each field always returns `id`, `key`, `name`, `type`, `required`, `placeholder`, `sortOrder`, `config`, and the following properties. The write-only parameter `typeChangeConfirmed` is not returned.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `isSystemField` | boolean | Whether this is a system field. |
+| `systemKey` | string or null | System identity: `name`, `sku`, `brand`, `category`, `description`, or `mainImage`. `null` for custom fields. |
+
+`placeholder` may be `null`. Media references in configuration return safe preview information without storage paths or credentials. Reading a product's pinned template definition does not require `templates:read`.
+
+</details>
 
 ## Preconditions and deletion
 
-`PATCH` and `DELETE` accept optional `If-Match`. Send the exact `ETag` returned when reading the template. A stale value returns `412 precondition_failed` without changing the template. When the header is omitted, the later write takes precedence.
+`PATCH` and `DELETE` accept optional `If-Match`. Send the exact `ETag` returned when reading the template. A stale value returns `412 precondition_failed` without changing the template. If omitted, the later write takes precedence.
 
-`DELETE /product-info-templates/{id}` soft-deletes the template and removes its
-direct brand and category bindings. Historical versions and product pins remain.
-Deleting the library default requires a JSON body with
-`replacementForLibraryDefault`, either another live same-library template ID or
-explicit `null`. Omitting it returns
-`409 default_template_replacement_required`. A nondefault template can be deleted
-without a body. Success returns `200` with the deleted ID and `ETag`.
+`DELETE /product-info-templates/{id}` soft-deletes the template and removes brand and category bindings. Historical versions and product pins remain. Success returns `200` with the deleted ID and an `ETag`.
 
-Invalid definitions, references, protected system-field changes, and conflicting
-field keys return `422 validation_failed`; a duplicate live template name returns
-`409 name_in_use`. Missing or foreign target templates return `404 not_found`.
+<details>
+<summary>Deleting the default template and handling errors</summary>
+
+Deleting the library default requires the JSON field `replacementForLibraryDefault`: another live template ID in the same library, or `null` to clear the default. Omission returns `409 default_template_replacement_required`. Deleting a nondefault template does not require a body.
+
+Invalid definitions, references, protected field changes, or duplicate field keys return `422 validation_failed`. A duplicate live template name returns `409 name_in_use`. A missing template or one outside the current library returns `404 not_found`.
+
+</details>
