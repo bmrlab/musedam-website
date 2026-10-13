@@ -211,7 +211,7 @@
 
 ### 查詢記錄與重試下載
 
-下載和導出通過 `X-Download-Record-Id` 返回記錄 ID。`requested` 僅表示請求已接受，不表示傳輸或本地保存完成；接受後檢測到準備或傳輸失敗時標記為 `failed`，重試不會重置狀態。
+下載和導出通過 `X-Download-Record-Id` 返回記錄 ID；重用現有記錄時，響應頭包含 `X-Idempotency-Replayed: true`。`requested` 僅表示請求已接受，不表示傳輸或本地保存完成；接受後檢測到準備或傳輸失敗時標記為 `failed`，重試不會重置狀態。
 
 查詢 `GET /product-shares` 或 `GET /product-downloads` 可查看團隊歷史。省略 `productId` 查詢全團隊，提供一個商品 ID 則查詢相關操作；支持 `page` 和 `pageSize`，按新到舊返回。
 

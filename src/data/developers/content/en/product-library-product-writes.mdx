@@ -211,7 +211,7 @@ Call `POST /product-downloads` with `kind: "export"`. Choose `xlsx` (default), `
 
 ### Query records and retry downloads
 
-Downloads and exports return a record ID in `X-Download-Record-Id`. `requested` means accepted, not transferred or saved locally; a detected preparation or transfer failure after acceptance marks the record `failed`, and retries do not reset its state.
+Downloads and exports return a record ID in `X-Download-Record-Id`; reusing an existing record also returns `X-Idempotency-Replayed: true`. `requested` means accepted, not transferred or saved locally; a detected preparation or transfer failure after acceptance marks the record `failed`, and retries do not reset its state.
 
 Use `GET /product-shares` or `GET /product-downloads` for team history. Omit `productId` for the whole team or provide one product ID for matching operations; both accept `page` and `pageSize` and return newest first.
 

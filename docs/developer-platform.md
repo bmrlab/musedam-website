@@ -97,8 +97,9 @@ The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
 the source snapshot; only the server URL and description are adapted for the public
 gateway. The reference includes all operations and links to concise field tables
-in the relevant guides. Full schemas remain in the downloadable contract; do not
-render a schema appendix on the documentation page.
+in the relevant guides. Full schemas and shared response, header and parameter
+definitions remain in the downloadable contract; do not render these raw OpenAPI
+components or appendices on the documentation page.
 
 Match the existing Open API articles (`search.mdx` and `assets.mdx`) when editing
 the reference: endpoint, method, description, request parameters, response fields,
