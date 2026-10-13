@@ -156,7 +156,7 @@ curl --request POST 'https://open.musedam.cc/api/product/products/visibility' \
   --data-raw '{"ids":[40,41]}'
 ```
 
-响应为 `not_visible` 的商品应从本地副本移除。该状态也可能表示草稿不可见或无访问权限，不应据此推断商品是否存在。如需删除商品本身，参见[商品写入与发布](./product-library-product-writes)。
+响应为 `not_visible` 的商品应从本地副本移除。该状态也可能表示草稿不可见或无访问权限，不应据此推断商品是否存在。如需删除商品本身，参见[商品操作指南](./product-library-product-writes)。
 
 ## 处理常见错误
 
@@ -167,4 +167,4 @@ curl --request POST 'https://open.musedam.cc/api/product/products/visibility' \
 | 422 | 按 `details[].field` 和 `details[].message` 修正参数。 |
 | 409 | 根据 `code` 处理冲突；若为 `mutation_response_unavailable`，先读取并核对结果。 |
 
-保留响应中的 `requestId` 便于排查。完整说明见[错误码](./product-library-reference#error-catalog)。
+保留响应中的 `requestId` 便于排查。完整说明见[错误码](./product-library-write-conventions#error-catalog)。

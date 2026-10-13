@@ -1,82 +1,207 @@
-`POST /api/product/products` requires `products:create` and returns `201`.
-`PATCH /api/product/products/{id}` requires `products:update` and returns `200`.
-Both return product details in `data` and a strong `ETag`.
-PATCH accepts optional `If-Match`; stale validators return `412 precondition_failed`.
-POST accepts optional `Idempotency-Key` with the shared 24-hour, team/key/operation scope.
+Follow the operation you need, from creating a draft to publishing, previewing, sharing, and downloading products. All paths are relative to `https://open.musedam.cc/api/product`; see the [API reference](./product-library-reference) for complete parameters.
 
-The body accepts these properties only:
+## Create a product
 
-| Property                | Value                                 | Create default / PATCH behavior                                                                           |
-| ----------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `name`                  | String, at most 255 characters        | Empty draft name / preserve omitted                                                                       |
-| `spu`                   | String up to 64 characters, or null   | Null; whitespace trims to null / preserve omitted                                                         |
-| `description`           | String or null                        | Null / explicit null clears                                                                               |
-| `brandId`, `categoryId` | Positive integer or null              | Null / preserve omitted; resulting category must belong to resulting brand                                |
-| `ownerUserId`           | Same-team member ID or null           | No owner / preserve omitted; explicit null clears                                                         |
-| `templateId`            | Live same-library template ID or null | Select this template; null/omitted uses the resolution rules below. Rejected in PATCH    |
-| `templateFields`        | Object keyed by custom field ID       | Empty / shallow merge; null values clear individual fields                                                |
-| `coverAssetId`          | Library Asset ID or null              | No explicit cover / null clears the cover                                                                 |
-| `imageAssetIds`         | Array of Library Asset IDs            | Empty / omitted preserves images; empty clears; first image becomes cover unless coverAssetId is supplied |
-| `relatedAssetIds`       | Array of Library Asset IDs            | Empty / omitted preserves associations, including legacy links; empty clears                              |
+Call `POST /products` with `products:create` permission to create a draft. Success returns `201`, product details in `data`, and a strong `ETag` response header.
 
-An explicit live `templateId` takes precedence on creation. When it is omitted
-or null, supplying a non-null `categoryId` enables the category/ancestor
-binding, then that category's brand binding, then the library default. When
-`categoryId` is omitted or null, only the library default is considered, even if
-`brandId` is supplied. If no template resolves, the product has no template.
+1. Prepare the name, SKU, and any brand, category, or asset IDs to associate.
+2. Supply `templateId` to choose a template, or use the resolution order below.
+3. Complete the fields and then [publish the product](#publish-product). Creation does not accept `status` or `templateVersionId`.
 
-Creation always produces a draft. Status and templateVersionId are not body properties.
-PATCH on a published product additionally requires `products:publish`, preserves
-publication, and validates the complete resulting product. Validation or transaction failure before commit rolls back scalar changes and media associations together. A committed mutation may still fail to return its response; follow [write recovery](./product-library-write-conventions#write-outcomes-and-audit-durability).
+<details>
+<summary>Which fields can I create or update?</summary>
 
-Required fields may be absent in drafts. Submitted and merged values must still
-have valid types and enum options. Date and date-range values must contain real
-calendar dates, including valid leap days; date ranges must be ordered. Existing
-datetime and timezone forms remain supported. Image/file custom fields accept arrays of
-Library Asset IDs or null and respect the pinned field's count, size, and accepted
-type configuration. A request can contain at most 100 total asset references,
-including cover, images, related assets, and custom fields. It cannot upload,
-download, or synchronize assets. Image slots require image assets.
+| Field | Value | Create default / update behavior |
+| --- | --- | --- |
+| `name` | String, at most 255 characters | Empty name / preserve when omitted |
+| `spu` | String, at most 64 characters, or null | null; whitespace trims to null / preserve when omitted |
+| `description` | String or null | null / null clears |
+| `brandId`, `categoryId` | Positive integer or null | null / preserve when omitted; the resulting category must belong to the resulting brand |
+| `ownerUserId` | Same-team member ID or null | No owner / preserve when omitted, null clears |
+| `templateId` | Live same-library template ID or null | Explicit or resolved template / rejected on update |
+| `templateFields` | Object keyed by custom field ID | Empty / shallow merge, null clears one field |
+| `coverAssetId` | Library Asset ID or null | No explicit cover / null clears |
+| `imageAssetIds` | Array of Library Asset IDs | Empty / preserve when omitted, empty array clears; the first image becomes the cover unless `coverAssetId` is supplied |
+| `relatedAssetIds` | Array of Library Asset IDs | Empty / preserve when omitted, including legacy associations; empty array clears |
 
-A new product saves the latest version of the selected or automatically resolved template. Custom fields are validated against that saved version, even after the template is edited or deleted. A missing or mismatched version returns an internal error. PATCH cannot change the template used by a product.
+The body accepts only these fields. API creator/updater attribution is separate from product ownership; the API key creator does not automatically become the owner.
 
-`PATCH /api/product/products/{id}/status` accepts only
-`{"status":"draft"}` or `{"status":"published"}` and always requires both
-`products:update` and `products:publish`, even when the requested status equals
-the current status. It returns product details and a new strong ETag.
-`If-Match` is optional; a stale validator returns `412` without changing the product.
-Publishing validates the complete pinned definition, including required system
-and custom fields, custom types/options, and stored image/file availability and
-configuration limits. Missing fields return `422` with field details. By default,
-name, SKU, and cover are required; the pinned template can override system-field
-requirements. First publication sets `publishedAt`; repeated publication preserves
-it. Returning to draft clears `publishedAt` and allows later incomplete draft edits.
+</details>
 
-`DELETE /api/product/products/{id}` requires `products:delete`; published products
-additionally require `products:publish`. It soft-deletes the product and returns `200`
-with `data: {"id": 123}` and a new strong ETag. Optional `If-Match` uses the same
-validator rules. A repeated deletion returns `404`.
+<details>
+<summary>What does a retried creation return for products and media?</summary>
 
-Validation failures return `422 validation_failed` with optional `details` entries
-containing `field` and `message`. Foreign/deleted/invalid references are validation
-errors. Duplicate SKUs, including soft-deleted products, return `409 sku_in_use`.
-Foreign, deleted, or missing product IDs return `404`. API creator/updater
-attribution is independent of human ownership; the key's creator is never made
-the Product Owner automatically.
+- Creation accepts `Idempotency-Key`, retained for 24 hours within the team, API key, and operation scope. See [creation and retries](./product-library-write-conventions).
+- Replay preserves the original non-media fields, business text, links, and ETag. Records store original media IDs, never storage URLs or signatures.
+- Media is checked again against current grants, product visibility, file validity, and the same current association slot. New associations are not added to the original result; detached media in structured custom values is also omitted.
+- Download properties still require product-read and product-download grants. Deleted or invisible products cannot reappear through replay; text and URL fields remain ordinary business data.
 
-An idempotency replay preserves the original non-media fields and original ETag.
-It stores original media IDs, never storage URLs or signatures. Replay media is
-restricted to those original IDs still present in the same current association
-slots; newer associations do not enter the original result. Current key grants,
-product visibility, and file validity are checked again. Download properties still
-require both product-read and product-download grants. Deleted/invisible products
-cannot be resurrected through a stored result.
+</details>
 
-Media nested in structured custom values is also checked against current permissions and associations. Retries preserve the original business text and links, but omit media that is no longer associated with that field. Text and URL fields are still returned as ordinary business data.
+## Use templates and custom fields
 
-PATCH and publication validate the entire resulting product against its pinned
-definition. A legacy browser value such as an invalid URL or email can therefore
-reject an unrelated API edit with `422 validation_failed`; `details[].field`
-identifies the stored field ID. No partial edit or publication occurs. Correct
-that value in the same PATCH (or through the browser) before retrying. The API
-does not silently grandfather invalid stored values or discard unrelated fields.
+A new product saves the latest version of its resolved template. Interpret `templateFields` using the product's returned `templateDefinition`, not the template's current definition; later template edits or deletion do not change existing products' versions or values.
+
+Ordinary PATCH cannot switch a product's template. See [template management](./product-library-template-writes) for template creation, configuration, and bindings.
+
+<details>
+<summary>How is a template chosen without templateId?</summary>
+
+- An explicitly supplied live `templateId` takes precedence.
+- If `templateId` is omitted or null and a non-null `categoryId` is supplied, resolve the category or ancestor binding, then that category's brand binding, then the library default.
+- If `categoryId` is omitted or null, only the library default is considered, even when `brandId` is supplied.
+- If none resolves, the product has no template. A missing or mismatched pinned version on an existing product returns an internal error; it does not select another version.
+
+</details>
+
+<details>
+<summary>Custom field formats and asset limits</summary>
+
+| Field type | Input format |
+| --- | --- |
+| `number`, `currency` | JSON number |
+| `dateRange` | Ordered pair of date strings |
+| `checkbox` | Array of option values |
+| `image`, `file` | Array of FilePath IDs, or null |
+| `richtext` | String in HTML mode; `{ "ops": [...] }` in delta mode |
+
+- `templateFields` uses field IDs from the pinned version. Updates shallow-merge values; null clears the corresponding field.
+- Drafts may omit required fields, but submitted and merged values must satisfy type, option, and media constraints. Dates must be real calendar dates, including valid leap days; ranges must be ordered. Existing datetime and timezone forms remain supported.
+- Image/file fields follow the pinned count, size, and accepted-type settings. Image slots require image assets.
+- One request may reference at most 100 assets across the cover, images, related assets, and custom fields. These operations associate existing assets; they do not upload, download, or synchronize them.
+
+</details>
+
+## Update a product
+
+Call `PATCH /products/{id}` with `products:update` permission. Send only the fields to change; success returns `200`, product details, and a strong `ETag`.
+
+| Current state | Update requirements |
+| --- | --- |
+| Draft | Required values may be absent; supplied values must remain valid |
+| Published | Also requires `products:publish`; validates the complete product and preserves its published state |
+
+To avoid overwriting another update, first read the product and send its `ETag` unchanged in `If-Match`. A stale value returns `412 precondition_failed` without changing the product; see [concurrent updates and retries](./product-library-write-conventions).
+
+<details>
+<summary>Why can changing one field fail validation elsewhere?</summary>
+
+- PATCH and publication validate the entire result against the pinned template, including stored values you did not change.
+- A legacy invalid URL, email, or asset can cause `422 validation_failed`. Check `details[].field`, then correct that value in the same PATCH or through the browser before retrying.
+- Validation or transaction failure before commit rolls back fields and asset associations together. There is no partial update or removal of unrelated fields.
+- A committed update can still fail to return its response. Follow [write outcomes and recovery](./product-library-write-conventions#write-outcomes-and-audit-durability); a failed response alone does not establish a rollback.
+
+</details>
+
+## Publish or return to draft
+
+Call `PATCH /products/{id}/status` with either `{"status":"published"}` or `{"status":"draft"}`. Both `products:update` and `products:publish` are required, even when the requested state is unchanged.
+
+| Action | Validation and result |
+| --- | --- |
+| Publish | Checks the pinned required fields, types, options, and asset availability and limits; missing fields return `422` with field details |
+| First publication | Sets `publishedAt`; repeated publication preserves it |
+| Return to draft | Clears `publishedAt` and permits later incomplete draft edits |
+
+Name, SKU, and cover are required by default; the pinned template defines the actual requirements. Success returns product details and a new strong `ETag`; a stale optional `If-Match` returns `412` without changing the product.
+
+## Delete products and handle errors
+
+Call `DELETE /products/{id}` with `products:delete`; a published product also requires `products:publish`. This soft deletion returns `200`, `data: {"id": 123}`, and a new strong `ETag`; repeating it returns `404`.
+
+Deletion accepts optional `If-Match` with the same validation as updates.
+
+| Error | What to do |
+| --- | --- |
+| `422 validation_failed` | Check optional `details[].field` and `message`; correct fields or foreign, deleted, or invalid references |
+| `409 sku_in_use` | Choose another SKU; soft-deleted products still participate in uniqueness checks |
+| `404 not_found` | Check the product ID and library; foreign, deleted, and missing products share this response |
+
+## Preview and download links
+
+Use `previewUrl` to display product media. For originals, check `downloadUrl` or use the download operations below; preview access does not establish download permission.
+
+| Link | Availability | Maximum service-issued lifetime |
+| --- | --- | --- |
+| Derived preview | Appropriate viewing permission | 3600 seconds |
+| Original-image preview fallback | Images only; may also be returned to `view_only` | 300 seconds |
+| `downloadUrl` | Resolvable, visible association; `usable` or higher plus `products:read` and `products:download` | 300 seconds |
+
+Every service-issued link is also bounded by the API key's expiry. Fetch product data again after a link expires; do not persist signed URLs as asset identifiers.
+
+<details>
+<summary>How do missing links, legacy media, and external previews behave?</summary>
+
+- Non-image assets only return derived previews. Original PDFs, archives, and documents never serve as preview fallbacks. Library asset lookup and template configuration contain previews only.
+- Missing download permission or an unresolved association omits `downloadUrl` and `downloadUrlExpiresAt`. With permission but an unavailable original, those values may be null.
+- Stored external DAM thumbnails or previews are returned only to API keys without expiry, after excluding known original URLs. The provider controls their lifetime; short expiry and provider-signature validation are not guaranteed.
+- For an API key with `expiresAt`, an external preview whose expiry cannot be verified is null. Signature-like query parameters are not a trusted expiry source.
+- Service-issued URLs keep the limits above. Signing failure never falls back to a raw storage URL.
+
+</details>
+
+## Sharing, downloads, and history
+
+Choose an operation by its purpose. The roles and permissions below are checked on each request.
+
+| Purpose | Required role and permissions |
+| --- | --- |
+| Create a share | `usable` or higher, `products:read` and `products:share`; enabling downloads also requires `products:download` |
+| Download or export | `usable` or higher, `products:read` and `products:download`; `usable` can access published products only |
+| Revoke a team share | `manage` and `products:share`; does not additionally require `products:read` |
+| List team history | `manage` and `products:history`; does not additionally require `products:read` |
+
+### Create and revoke shares
+
+Use `POST /product-shares` for a fixed selection of 1–100 published products. It returns an absolute access URL; visitors need no login or API key.
+
+| Parameter | Values |
+| --- | --- |
+| `expiresInDays` | 7, 30, 90, or null for no expiry |
+| `allowDownload` | Whether visitors may download |
+| `accessCode` | Optional, exactly four digits |
+
+Shares show current product content; unpublished or deleted products are hidden. A share belongs to the team and survives its creator key's expiry, deactivation, revocation, or permission changes; call `DELETE /product-shares/{id}` to stop access.
+
+### Download originals
+
+1. Call `GET /products/{id}/download-assets` for candidate `assetKey` and `downloadable` values. This step returns no media URLs and creates no download record.
+2. Call `POST /product-downloads` with `kind: "assets"` and `productIds`. Select files with `assetKeys`, or omit it to select all originals.
+3. One file returns the original attachment; multiple files return a ZIP. Missing originals remain unavailable.
+
+For one file, you can also call `GET /products/{id}/download-assets/{assetKey}`. Encode the candidate key as a path segment; it is not an asset ID. Every retrieval checks current permission.
+
+### Export product tables
+
+Call `POST /product-downloads` with `kind: "export"`. Choose `xlsx` (default), `csv`, or `json` as `format`; `assetKeys` is not accepted.
+
+- `locale` defaults to `zh-CN` and changes only system labels and statuses, not custom labels or values.
+- `includeAssetUrls` defaults to true. Table links point to the single-file endpoint requiring a Bearer header, without embedding credentials; clicking a link does not send that header.
+- Create a share for browser access without API credentials. Machine synchronization uses stable product-read fields, not localized table exports.
+
+### Query records and retry downloads
+
+Downloads and exports return a record ID in `X-Download-Record-Id`. `requested` means accepted, not transferred or saved locally; a detected preparation or transfer failure after acceptance marks the record `failed`, and retries do not reset its state.
+
+Use `GET /product-shares` or `GET /product-downloads` for team history. Omit `productId` for the whole team or provide one product ID for matching operations; both accept `page` and `pageSize` and return newest first.
+
+<details>
+<summary>How can I retry one download without creating another record?</summary>
+
+- Reuse the same `Idempotency-Key` within 24 hours, scoped to the team, API key, and operation. POST downloads and single-file GET have separate scopes.
+- Matching retries reuse the first record and snapshot, but authorize again, read current content, and transfer it. File bytes are not cached.
+- Changing input under the same key returns `409`. Omitting the key, using a new key, or retrying after retention creates a new operation; deduplication is not permanent.
+- Before attachment delivery starts, errors keep their specific codes. Committed or replayed records also include `mutationOutcome`; keep the original idempotency key when retrying an accepted operation.
+- Ordinary product reads, previews, and direct storage `downloadUrl` access do not enter business download history.
+
+</details>
+
+<details>
+<summary>Which records appear in team history?</summary>
+
+- Browser operations and other API keys in the team are included. The current key or creator does not implicitly narrow results.
+- Filtering by product still returns the complete operation, including its other products and files.
+- Key ID and name snapshots preserve attribution after later key changes.
+- History endpoints accept only `productId`, `page`, and `pageSize`; unknown or repeated parameters are rejected.
+
+</details>

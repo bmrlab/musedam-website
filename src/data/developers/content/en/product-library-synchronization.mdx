@@ -76,3 +76,5 @@ submitted IDs are returned; there is no removal feed or draft discovery endpoint
 Call this periodically for IDs already stored by the integration, for example
 after each completed cycle. Invalid bodies, noninteger IDs, unknown body fields,
 and batches over 100 return `422 validation_failed`.
+
+When an ID is `not_visible`, remove the corresponding product from local storage.

@@ -70,9 +70,12 @@ The `product-library` navigation group adds nine documents in Simplified Chinese
 English and Traditional Chinese. Its entry is `/{lng}/developers/product-library`,
 linked from the developer landing page. Quick start contains only the service
 address, authorization steps and a first request. API documentation groups
-operations by resource and centralizes shared request and response rules. The
-remaining pages cover AI assistant integration, examples, write recovery,
-categories, information templates, product writes and synchronization. Keep the
+operations by resource, with brief permission, response and pagination notes.
+Link to the relevant guides for writing, errors, media, sharing and synchronization
+rather than combining those topics in a shared rules section. Use short steps and
+tables; put uncommon edge cases in clearly named expandable sections. The remaining
+pages cover AI assistant integration, examples, writes and errors, categories,
+information templates, product operations and synchronization. Keep the
 existing page routes when changing these titles or their navigation labels.
 
 The source snapshot is `bmrlab/musedam-product-library` commit

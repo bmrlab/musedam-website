@@ -1,42 +1,207 @@
-`POST /api/product/products` 需要 `products:create`，返回 `201`。
-`PATCH /api/product/products/{id}` 需要 `products:update`，返回 `200`。兩者都會在 `data` 中返回商品詳情，並返回強 `ETag`。
-PATCH 接受可選的 `If-Match`；過期的校驗值返回 `412 precondition_failed`。
-POST 接受可選的 `Idempotency-Key`，採用共享的 24 小時、團隊/key/操作範圍。
+從創建草稿到發佈商品，再到預覽、分享和下載，按當前操作查閱即可。所有路徑均相對於 `https://open.musedam.cc/api/product`；完整參數見[接口文檔](./product-library-reference)。
 
-請求體僅接受以下屬性：
+## 創建商品
 
-| 屬性                    | 值                                | 創建時默認值 / PATCH 行為                                                          |
-| ----------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
-| `name`                  | 字符串，最多 255 個字符           | 草稿名稱為空 / 省略時保留                                                          |
-| `spu`                   | 最多 64 個字符的字符串，或 null   | Null；僅含空白時裁剪為 null / 省略時保留                                           |
-| `description`           | 字符串或 null                     | Null / 顯式 null 時清空                                                            |
-| `brandId`, `categoryId` | 正整數或 null                     | Null / 省略時保留；結果中的分類必須屬於結果中的品牌                                |
-| `ownerUserId`           | 同一團隊成員 ID 或 null           | 無負責人 / 省略時保留；顯式 null 時清空                                            |
-| `templateId`            | 同一商品庫中有效的模板 ID 或 null | 選擇此模板；null/省略時使用下方的解析規則。PATCH 中會被拒絕                        |
-| `templateFields`        | 以自定義字段 ID 為鍵的對象        | 空 / 淺合併；null 值清空對應的單個字段                                             |
-| `coverAssetId`          | 素材庫素材 ID 或 null             | 無顯式封面 / null 時清空封面                                                       |
-| `imageAssetIds`         | 素材庫素材 ID 數組                | 空 / 省略時保留圖片；空數組時清空；除非提供了 coverAssetId，否則第一張圖片成為封面 |
-| `relatedAssetIds`       | 素材庫素材 ID 數組                | 空 / 省略時保留關聯（包括舊版鏈接）；空數組時清空                                  |
+調用 `POST /products` 創建草稿，需要 `products:create`。成功返回 `201`，`data` 包含商品詳情，響應頭包含強 `ETag`。
 
-創建時，顯式指定的有效 `templateId` 優先。當其省略或為 null 時，提供非 null 的 `categoryId` 會啓用分類/祖先分類綁定，其次是該分類所屬品牌的綁定，最後是商品庫默認模板。當 `categoryId` 省略或為 null 時，即使提供了 `brandId`，也只會考慮商品庫默認模板。如果未解析到任何模板，商品將沒有模板。
+1. 準備商品名稱、SKU，以及需要關聯的品牌、分類和素材 ID。
+2. 如需指定模板，傳入 `templateId`；否則按下方的模板匹配順序選擇。
+3. 創建後補齊字段，再調用[發佈接口](#publish-product)。創建請求不能設置 `status` 或 `templateVersionId`。
 
-創建始終生成草稿。Status 和 templateVersionId 不是請求體屬性。對已發佈商品執行 PATCH 還額外需要 `products:publish`，會保持其發佈狀態，並校驗完整的結果商品。提交前的校驗或事務失敗會將標量變更和媒體關聯一併回滾。已提交的變更仍可能無法返回響應，請按[寫入恢復規則](./product-library-write-conventions#write-outcomes-and-audit-durability)處理。
+<details>
+<summary>創建和更新可以填寫哪些字段？</summary>
 
-草稿中可以缺少必填字段。提交的值以及合併後的值仍必須具有有效的類型和枚舉選項。日期和日期範圍值必須是真實存在的日曆日期（包括有效的閏日）；日期範圍必須有序。現有的 datetime 和時區格式仍受支持。圖片/文件類自定義字段接受素材庫素材 ID 數組或 null，並遵守固定版本中該字段的數量、大小和可接受類型配置。一個請求最多可包含 100 個素材引用（總計），包括封面、圖片、關聯素材和自定義字段。它不能上傳、下載或同步素材。圖片槽位要求使用圖片素材。
+| 字段 | 值 | 創建默認值 / 更新方式 |
+| --- | --- | --- |
+| `name` | 字符串，最多 255 個字符 | 空名稱 / 省略時保留 |
+| `spu` | 字符串，最多 64 個字符，或 null | null；純空白裁剪為 null / 省略時保留 |
+| `description` | 字符串或 null | null / null 清空 |
+| `brandId`、`categoryId` | 正整數或 null | null / 省略時保留；最終分類必須屬於最終品牌 |
+| `ownerUserId` | 同一團隊成員 ID 或 null | 無負責人 / 省略時保留，null 清空 |
+| `templateId` | 同一商品庫中有效的模板 ID 或 null | 指定模板或自動匹配 / 更新時不能提供 |
+| `templateFields` | 以自定義字段 ID 為鍵的對象 | 空 / 淺合併，null 清空單個字段 |
+| `coverAssetId` | 素材庫素材 ID 或 null | 無顯式封面 / null 清空 |
+| `imageAssetIds` | 素材庫素材 ID 數組 | 空 / 省略時保留，空數組清空；未提供 `coverAssetId` 時，第一張圖片成為封面 |
+| `relatedAssetIds` | 素材庫素材 ID 數組 | 空 / 省略時保留（包括舊版關聯），空數組清空 |
 
-新商品會保存所選或自動匹配模板的最新版本。自定義字段始終按商品保存的模板版本校驗，後續修改或刪除模板不會改變這一版本。版本缺失或不匹配時返回內部錯誤。PATCH 不能更換商品使用的模板。
+請求體只接受這些字段。API 創建者和更新者的歸屬獨立於商品負責人，API key 的創建者不會自動成為負責人。
 
-`PATCH /api/product/products/{id}/status` 僅接受
-`{"status":"draft"}` 或 `{"status":"published"}`，並且始終同時需要
-`products:update` 和 `products:publish`，即使請求的狀態與當前狀態相同。它返回商品詳情和新的強 ETag。
-`If-Match` 是可選的；過期的校驗值返回 `412`，且不會修改商品。發佈會校驗完整的固定版本定義，包括必填的系統字段和自定義字段、自定義類型/選項，以及已存儲圖片/文件的可用性和配置限制。缺少字段時返回 `422` 並附帶字段詳情。默認情況下，名稱、SKU 和封面為必填；固定版本的模板可以覆蓋系統字段的必填要求。首次發佈會設置 `publishedAt`；重復發佈會保留該值。恢復為草稿會清空 `publishedAt`，並允許之後進行不完整的草稿編輯。
+</details>
 
-`DELETE /api/product/products/{id}` 需要 `products:delete`；已發佈商品還額外需要 `products:publish`。它會軟刪除商品，並返回 `200`、`data: {"id": 123}` 以及新的強 ETag。可選的 `If-Match` 使用相同的校驗規則。重復刪除返回 `404`。
+<details>
+<summary>重試創建時，商品和媒體會返回什麼？</summary>
 
-校驗失敗返回 `422 validation_failed`，並可附帶包含 `field` 和 `message` 的 `details` 條目。外部/已刪除/無效的引用屬於校驗錯誤。重復的 SKU（包括已軟刪除的商品）返回 `409 sku_in_use`。外部、已刪除或不存在的商品 ID 返回 `404`。API 的創建者/更新者歸屬獨立於人工負責人；key 的創建者絕不會自動成為商品負責人（Product Owner）。
+- 創建可攜帶 `Idempotency-Key`，在 24 小時內按團隊、API key 和操作識別同一請求，詳見[創建與冪等重試](./product-library-write-conventions)。
+- 重放保留首次結果的非媒體字段、業務文本、鏈接值和原始 ETag；記錄只保存原始媒體 ID，不保存存儲 URL 或簽名。
+- 返回媒體前會重新檢查當前權限、商品可見性、文件有效性，以及原 ID 是否仍位於相同關聯槽位。新增關聯不會加入首次結果；結構化自定義值中已解除關聯的媒體也會被移除。
+- 下載屬性仍需要商品讀取和下載權限。已刪除或不可見的商品不會因重放重新出現，文本和 URL 字段仍作為普通業務數據返回。
 
-冪等重放會保留原始的非媒體字段和原始 ETag。它存儲的是原始媒體 ID，絕不存儲存儲 URL 或簽名。重放的媒體僅限於那些仍存在於相同當前關聯槽位中的原始 ID；較新的關聯不會進入原始結果。當前 key 的權限、商品可見性和文件有效性會被重新檢查。下載屬性仍同時需要商品讀取和商品下載權限。已刪除/不可見的商品不能通過已存儲的結果恢復。
+</details>
 
-結構化自定義值中的媒體也會重新檢查當前權限和關聯關係。重試會保留首次結果的業務文本和鏈接值，但不再關聯該字段的媒體會被移除。文本和 URL 字段仍按普通業務數據返回。
+## 使用模板和自定義字段
 
-PATCH 和發佈會依據固定版本定義校驗整個結果商品。因此，瀏覽器端遺留的值（例如無效的 URL 或郵箱）可能導致一次無關的 API 編輯被以 `422 validation_failed` 拒絕；`details[].field` 會標明已存儲的字段 ID。不會發生部分編輯或部分發佈。請在同一個 PATCH 中（或通過瀏覽器）修正該值後再重試。API 不會靜默地豁免無效的已存儲值，也不會丟棄無關字段。
+新商品保存所用模板的最新版本。讀取商品返回的 `templateDefinition` 來解釋 `templateFields`，不要使用模板當前的最新定義；模板後續修改或刪除不會改變已有商品的版本和值。
+
+商品創建後，普通 PATCH 不能更換模板。模板的創建、配置和綁定方式見[模板管理](./product-library-template-writes)。
+
+<details>
+<summary>未指定 templateId 時，如何選擇模板？</summary>
+
+- 顯式提供有效的 `templateId` 時，直接使用它。
+- `templateId` 省略或為 null，且提供非 null 的 `categoryId` 時，依次查找：分類或祖先分類綁定、該分類所屬品牌綁定、商品庫默認模板。
+- `categoryId` 省略或為 null 時，即使提供 `brandId`，也只考慮商品庫默認模板。
+- 未找到模板時，商品沒有模板。已有商品的固定版本缺失或不匹配時，返回內部錯誤，不會改用其他版本。
+
+</details>
+
+<details>
+<summary>自定義字段值的格式與素材限制</summary>
+
+| 字段類型 | 輸入格式 |
+| --- | --- |
+| `number`、`currency` | JSON 數字 |
+| `dateRange` | 起止日期字符串組成的有序數組 |
+| `checkbox` | 選項值數組 |
+| `image`、`file` | FilePath ID 數組，或 null |
+| `richtext` | HTML 模式為字符串；delta 模式為 `{ "ops": [...] }` |
+
+- `templateFields` 按固定版本中的字段 ID 校驗。更新時淺合併，值為 null 時清空對應字段。
+- 草稿允許缺少必填字段，但已提交及合併後的值仍須滿足類型、枚舉和素材限制。日期必須是真實日曆日期，包括有效閏日；日期範圍須有序，現有 datetime 和時區格式仍受支持。
+- 圖片/文件字段遵守該版本的數量、大小和可接受類型配置；圖片槽位只能引用圖片素材。
+- 單次請求的封面、圖片、關聯素材和自定義字段合計最多引用 100 個素材。此處只關聯已有素材，不上傳、下載或同步素材。
+
+</details>
+
+## 更新商品
+
+調用 `PATCH /products/{id}`，需要 `products:update`。只傳需要修改的字段；成功返回 `200`、商品詳情和強 `ETag`。
+
+| 當前狀態 | 更新要求 |
+| --- | --- |
+| 草稿 | 可缺少必填值，已填寫的值仍須合法 |
+| 已發佈 | 額外需要 `products:publish`；校驗完整商品，成功後保持發佈狀態 |
+
+需要避免覆蓋他人的修改時，先讀取商品，再將響應的 `ETag` 原樣放入 `If-Match`。值已過期時返回 `412 precondition_failed`，商品保持不變；詳見[併發更新與重試](./product-library-write-conventions)。
+
+<details>
+<summary>只改一個字段，為什麼仍可能校驗失敗？</summary>
+
+- PATCH 和發佈會按商品保存的模板版本校驗整個結果，包括未修改的已存儲值。
+- 舊數據中的無效 URL、郵箱或素材也可能導致 `422 validation_failed`。查看 `details[].field`，在同一次 PATCH 中或通過瀏覽器修正後重試。
+- 校驗或事務在提交前失敗時，字段和素材關聯一起回滾，不會部分修改或丟棄其他字段。
+- 已提交的修改仍可能無法返回響應，按[寫入結果與恢復](./product-library-write-conventions#write-outcomes-and-audit-durability)核對，不能僅憑響應失敗判斷回滾。
+
+</details>
+
+## 發佈或恢復草稿
+
+調用 `PATCH /products/{id}/status`，請求體只能是 `{"status":"published"}` 或 `{"status":"draft"}`。無論目標狀態是否變化，都需要 `products:update` 和 `products:publish`。
+
+| 操作 | 校驗與結果 |
+| --- | --- |
+| 發佈 | 校驗固定版本的必填字段、類型、選項及素材可用性和配置限制；缺少字段返回 `422` 和字段詳情 |
+| 首次發佈 | 設置 `publishedAt`；重復發佈保留此時間 |
+| 恢復草稿 | 清空 `publishedAt`，之後允許不完整的草稿編輯 |
+
+默認必填項為名稱、SKU 和封面，具體以商品保存的模板版本為準。成功返回商品詳情和新的強 `ETag`；可選的 `If-Match` 過期時返回 `412`，不改變商品。
+
+## 刪除商品與處理錯誤
+
+調用 `DELETE /products/{id}`，需要 `products:delete`；刪除已發佈商品還需要 `products:publish`。這是軟刪除，成功返回 `200`、`data: {"id": 123}` 和新的強 `ETag`；重復刪除返回 `404`。
+
+刪除也支持可選的 `If-Match`，校驗方式與更新相同。
+
+| 錯誤 | 處理方式 |
+| --- | --- |
+| `422 validation_failed` | 查看可選的 `details[].field` 和 `message`；修正字段或外部、已刪除、無效的引用 |
+| `409 sku_in_use` | 更換 SKU；已軟刪除商品的 SKU 仍參與唯一性校驗 |
+| `404 not_found` | 檢查商品 ID 和所屬商品庫；外部、已刪除或不存在的商品均返回此狀態 |
+
+## 預覽與下載鏈接
+
+展示商品媒體時使用 `previewUrl`。需要原文件時，檢查 `downloadUrl`，或使用下一節的下載接口；能預覽不等於有下載權限。
+
+| 鏈接 | 返回條件 | 服務簽發鏈接的有效期上限 |
+| --- | --- | --- |
+| 派生預覽 | 具備相應查看權限 | 3600 秒 |
+| 圖片原圖預覽回退 | 僅適用於圖片，`view_only` 也可能返回 | 300 秒 |
+| `downloadUrl` | 關聯可解析且可見，`usable` 或更高角色，同時具備 `products:read` 和 `products:download` | 300 秒 |
+
+所有服務簽發鏈接還受 API key 的到期時間限制。鏈接過期後重新獲取商品數據，不要將簽名 URL 當作素材 ID 保存。
+
+<details>
+<summary>鏈接缺失、舊版媒體和外部預覽如何處理？</summary>
+
+- 非圖片素材只返回派生預覽，原始 PDF、壓縮包和文檔不會作為預覽回退。素材庫素材查詢和模板配置只包含預覽。
+- 缺少下載權限或關聯無法解析時，會省略 `downloadUrl` 和 `downloadUrlExpiresAt`；已授權但原文件不可用時，這些值可能為 null。
+- 已存儲的外部 DAM 縮略圖或預覽，只對未設置過期時間的 API key 返回，並先排除已知原文件 URL。它們的有效期由第三方控制，不保證短有效期，也不保證校驗提供方簽名。
+- API key 設置了 `expiresAt` 時，過期時間無法驗證的外部預覽返回 null。查詢參數中形似簽名的值不能作為可信的過期依據。
+- 服務簽發的鏈接仍遵守上表限制；簽名失敗時不會返回原始存儲 URL。
+
+</details>
+
+## 分享、下載與歷史
+
+按使用目的選擇接口。下面的角色和權限均在每次請求時檢查。
+
+| 目的 | 所需角色與權限 |
+| --- | --- |
+| 創建分享 | `usable` 或更高角色，`products:read` 和 `products:share`；允許下載時還需 `products:download` |
+| 下載或導出 | `usable` 或更高角色，`products:read` 和 `products:download`；`usable` 只可訪問已發佈商品 |
+| 撤銷團隊分享 | `manage` 和 `products:share`，不額外要求 `products:read` |
+| 查詢團隊歷史 | `manage` 和 `products:history`，不額外要求 `products:read` |
+
+### 創建與撤銷分享
+
+使用 `POST /product-shares` 分享固定的 1–100 個已發佈商品。返回絕對訪問 URL，訪問者無需登錄或 API key。
+
+| 參數 | 可選值 |
+| --- | --- |
+| `expiresInDays` | 7、30、90 或 null（不過期） |
+| `allowDownload` | 是否允許訪問者下載 |
+| `accessCode` | 可選，四位數字 |
+
+分享展示商品的當前內容；未發佈或已刪除的商品會隱藏。分享屬於團隊，創建 API key 的到期、停用、撤銷或權限變化不會使其失效；需要停止訪問時調用 `DELETE /product-shares/{id}`。
+
+### 下載原文件
+
+1. 調用 `GET /products/{id}/download-assets`，獲取候選項的 `assetKey` 和 `downloadable`。此步驟不返回媒體 URL，也不創建下載記錄。
+2. 調用 `POST /product-downloads`，設置 `kind: "assets"` 和 `productIds`。可用 `assetKeys` 選擇文件，省略時選擇全部原文件。
+3. 單個文件返回原附件，多個文件返回 ZIP。缺失的原文件不可下載。
+
+只取單個文件也可調用 `GET /products/{id}/download-assets/{assetKey}`，將候選 key 編碼為路徑片段；它不是素材 ID。每次提取都會重新檢查權限。
+
+### 導出商品表格
+
+調用 `POST /product-downloads`，設置 `kind: "export"`。`format` 可選 `xlsx`（默認）、`csv` 或 `json`，不能提供 `assetKeys`。
+
+- `locale` 默認為 `zh-CN`，只影響系統標籤和狀態，不改動自定義標籤或值。
+- `includeAssetUrls` 默認為 true。表格中的鏈接指向需要 Bearer 請求頭的單文件接口，URL 不包含密鑰；直接點擊無法攜帶該請求頭。
+- 需要讓瀏覽器訪客免憑證訪問時，創建商品分享。機器同步使用商品讀取接口中的穩定字段，不使用本地化表格。
+
+### 查詢記錄與重試下載
+
+下載和導出通過 `X-Download-Record-Id` 返回記錄 ID。`requested` 僅表示請求已接受，不表示傳輸或本地保存完成；接受後檢測到準備或傳輸失敗時標記為 `failed`，重試不會重置狀態。
+
+查詢 `GET /product-shares` 或 `GET /product-downloads` 可查看團隊歷史。省略 `productId` 查詢全團隊，提供一個商品 ID 則查詢相關操作；支持 `page` 和 `pageSize`，按新到舊返回。
+
+<details>
+<summary>同一次下載重試時，如何避免重復記錄？</summary>
+
+- 在 24 小時內復用同一 `Idempotency-Key`，作用域為團隊、API key 和操作；POST 下載與單文件 GET 的作用域不同。
+- 匹配的重試復用首次記錄及快照，但會重新鑒權、讀取當前內容並傳輸，不緩存文件字節。
+- 同一 key 改變輸入返回 `409`。省略 key、換用新 key 或超過保留期，均視為新操作，不是永久去重。
+- 附件交付開始前，錯誤保留具體錯誤碼；記錄已提交或重放時還包含 `mutationOutcome`。重試該已接受操作時，保留原始冪等 key。
+- 普通商品讀取、預覽及直接訪問存儲 `downloadUrl` 不進入業務下載歷史。
+
+</details>
+
+<details>
+<summary>團隊歷史包含哪些記錄？</summary>
+
+- 包含瀏覽器操作和團隊其他 API key 的記錄，不按當前 key 或創建者自動過濾。
+- 按商品篩選仍返回完整操作，包括同一次操作中的其他商品和文件。
+- API key 的 ID 和名稱快照保留用于歸因，不因 key 後續變化而消失。
+- 歷史接口只接受 `productId`、`page` 和 `pageSize`；未知或重復參數會被拒絕。
+
+</details>

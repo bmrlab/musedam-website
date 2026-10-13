@@ -4,9 +4,11 @@
 
 服務地址：`https://open.musedam.cc/api/product`。在服務地址後添加接口路徑即可調用；範例中的 `your_api_key` 和資源 ID 需替換為實際值。
 
-[權限規則](#permission-rules) · [響應格式](#wire-format-and-identifiers) · [寫入與限制](#writes-concurrency-and-limits) · [錯誤碼](#error-catalog) · [下載 OpenAPI JSON](/assets/developers/product-library/openapi.json)
+[取得授權](./product-library#authentication-and-scope) · [回應與分頁](#wire-format-and-identifiers) · [寫入與錯誤處理](./product-library-write-conventions) · [下載 OpenAPI JSON](/assets/developers/product-library/openapi.json)
 
 ## 品牌
+
+品牌寫入與刪除說明見[品牌操作](./product-library-write-conventions#brands)。
 
 ### 獲取品牌列表
 
@@ -63,7 +65,7 @@
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -164,7 +166,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：品牌 code 衝突、冪等鍵被復用，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_code_in_use_idempotency_key_reused)
 
@@ -252,7 +254,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -342,7 +344,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 412：ETag 不匹配，未執行寫入。 [錯誤詳情](#response-Error412_precondition_failed)
 
@@ -419,7 +421,7 @@ curl --request PATCH \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：品牌下仍有有效分類或商品，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_brand_has_dependents)
 
@@ -454,6 +456,8 @@ curl --request DELETE \
 </div>
 
 ## 分類
+
+層級、排序和刪除說明見[商品分類](./product-library-categories)。
 
 ### 獲取分類列表
 
@@ -514,7 +518,7 @@ curl --request DELETE \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -626,7 +630,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：模板名稱或同級分類名稱衝突、冪等鍵被復用，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_name_in_use_idempotency_key_reused)
 
@@ -721,7 +725,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -821,7 +825,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：模板名稱或同級分類名稱衝突，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_name_in_use)
 
@@ -903,7 +907,7 @@ curl --request PATCH \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：仍有商品引用此分類子樹，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_category_has_products)
 
@@ -938,6 +942,8 @@ curl --request DELETE \
 </div>
 
 ## 信息模板
+
+欄位設定與範本版本說明見[商品資訊範本](./product-library-template-writes)。
 
 ### 獲取模板列表
 
@@ -996,7 +1002,7 @@ curl --request DELETE \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -1129,7 +1135,7 @@ name/description 會去除首尾空白。所有分組合計最多 200 個字段�
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：模板名稱或同級分類名稱衝突、冪等鍵被復用，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_name_in_use_idempotency_key_reused)
 
@@ -1255,7 +1261,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -1377,7 +1383,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：模板名稱或同級分類名稱衝突，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_name_in_use)
 
@@ -1490,7 +1496,7 @@ curl --request PATCH \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：刪除商品庫默認模板時須明確指定替代模板或 null；也可能已提交變更但響應不可用。 [錯誤詳情](#response-Error409_default_template_replacement_required)
 
@@ -1529,6 +1535,8 @@ curl --request DELETE \
 </div>
 
 ## 商品
+
+相關指南：[建立與發佈](./product-library-product-writes) · [媒體連結](./product-library-product-writes#media-and-expiry) · [同步商品](./product-library-synchronization)。
 
 ### 獲取或同步商品列表
 
@@ -1610,7 +1618,7 @@ curl --request DELETE \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -1849,7 +1857,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：商品 SKU 衝突、冪等鍵被復用，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_sku_in_use_idempotency_key_reused)
 
@@ -2009,7 +2017,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -2292,7 +2300,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：商品 SKU 衝突，或變更已提交但響應不可用。 [錯誤詳情](#response-Error409_sku_in_use)
 
@@ -2429,7 +2437,7 @@ curl --request PATCH \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 412：ETag 不匹配，未執行寫入。 [錯誤詳情](#response-Error412_precondition_failed)
 
@@ -2527,7 +2535,7 @@ curl --request DELETE \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 412：ETag 不匹配，未執行寫入。 [錯誤詳情](#response-Error412_precondition_failed)
 
@@ -2673,7 +2681,7 @@ curl --request PATCH \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -2775,7 +2783,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -2863,7 +2871,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[ETag](#header-ETag)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -2901,6 +2909,8 @@ curl --request GET \
 </div>
 
 ## 分享
+
+分享有效期、存取方式和撤銷說明見[商品分享](./product-library-product-writes#sharing-recorded-downloads-and-history)。
 
 ### 查詢團隊分享記錄
 
@@ -2962,7 +2972,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -3078,7 +3088,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：分享創建輸入與保留的冪等操作不同。 [錯誤詳情](#response-Error409ShareReplay)
 
@@ -3173,7 +3183,7 @@ curl --request POST \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -3205,6 +3215,8 @@ curl --request DELETE \
 </div>
 
 ## 下載
+
+原始檔案、匯出和記錄說明見[商品下載](./product-library-product-writes#product-downloads)。
 
 ### 查詢團隊下載記錄
 
@@ -3264,7 +3276,7 @@ curl --request DELETE \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -3371,7 +3383,7 @@ assets 省略 assetKeys 時選擇全部原文件，否則僅選擇提供的當�
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[Content-Disposition](#header-Content-Disposition)、[X-Download-Record-Id](#header-X-Download-Record-Id)、[X-Idempotency-Replayed](#header-X-Idempotency-Replayed)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：原文件不可用，或冪等鍵被用於不同的輸入。 [錯誤詳情](#response-Error409ProductDownloadAttachment)
 
@@ -3452,7 +3464,7 @@ X-Download-Record-Id: <record-id>
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 **示例**：
 
@@ -3520,7 +3532,7 @@ curl --request GET \
 
 響應頭：[Cache-Control](#header-Cache-Control)、[X-Request-Id](#header-X-Request-Id)、[Content-Disposition](#header-Content-Disposition)、[X-Download-Record-Id](#header-X-Download-Record-Id)、[X-Idempotency-Replayed](#header-X-Idempotency-Replayed)
 
-[查看錯誤處理](#error-catalog)。
+[查看錯誤處理](./product-library-write-conventions#error-catalog)。
 
 409：原文件不可用，或冪等鍵被用於不同的輸入。 [錯誤詳情](#response-Error409ProductDownloadAttachment)
 
@@ -3550,142 +3562,106 @@ X-Download-Record-Id: <record-id>
 
 響應體為文件字節。
 
-## 公共規則
+<div id="common-rules" className="dev-moved-section">
 
-### 權限規則
+[回應與分頁](#wire-format-and-identifiers)
 
-每次請求都會校驗密鑰狀態及其所屬團隊。未添加、已移除、已過期或被拒絕的密鑰無法訪問；認證服務不可用時返回 `503 authentication_unavailable`。權限由協作者當前角色決定，不繼承密鑰創建者的權限，也不能通過請求參數切換團隊、商品庫或操作者。商品庫不提供密鑰或協作者管理接口。
+</div>
 
-權限隨協作者角色統一分配，不能為單個密鑰另行勾選。各接口的「所需角色」說明該操作的角色要求。移除協作者後，審計、冪等記錄、歷史和團隊分享仍會保留；如需停止分享，請單獨撤銷。
+<div id="writes-concurrency-and-limits" className="dev-moved-section">
 
-即使沒有讀取權限，商品寫入響應也會包含商品詳情。但其中的原文件下載屬性仍需同時具備
-`products:read` 和 `products:download`。`products:publish` 與相應的變更權限組合使用時，還授權編輯和刪除已發佈的商品。狀態變更不會啓動審批流程或外部同步。
+[寫入與錯誤處理](./product-library-write-conventions)
 
-### 傳輸格式與標識符
+</div>
 
-成功：`{ "success": true, "data": ..., "code": null, "message": null,
-"requestId": "..." }`。列表會額外包含頂層 `pagination`。錯誤使用
-`success: false`、`data: null`、穩定的 `code`、安全且可讀的 `message`，以及相同的 `requestId`。校驗錯誤可能包含
-`details: [{ "field": "templateFields.<id>", "message": "..." }]`。消息內容隨上下文變化，不是穩定標識符；請根據 code/status 進行分支處理。JSON 操作和錯誤使用 `application/json`。成功的下載和導出返回附件（包括 JSON 導出），而非成功響應結構。所有響應均攜帶 `Cache-Control: private, no-store` 和 `X-Request-Id`。
+<div id="template-pins-and-field-values" className="dev-moved-section">
 
-數值型資源 ID 為不大於 2147483647 的正整數。模板/分組/字段/版本 ID 為不透明字符串，不一定是 UUID。媒體 ID 是 **FilePath ID**，而非 AssetObject ID 或商品關聯 ID。分類的 `iconAssetId` 是另一種標識符，來自 `CategoryIconAsset`。舊版/無法解析的商品媒體投影可能為 `id: null`。
-`size` 為十進制**字符串**（或 null），以確保大字節數保持精確。日期為 RFC 3339 字符串或顯式的 null，絕不使用整數時間戳。同步中的
-`updatedAt` 和 `syncedUntil` 使用六位小數秒；請原樣保留。
-SKU 在傳輸格式中為 `spu`。品牌 `logoUrl` 在受限的寫入中可被接受，但在所有品牌讀寫 DTO 中均會被省略；不會暴露任何原始圖標/logo URL。
+[範本與欄位值](./product-library-product-writes#template-pins-and-field-values)
 
-普通列表接受 `page`（默認 1）和 `pageSize`（默認 20，上限 100），返回 `pagination: { page, pageSize, totalCount, totalPages }`。商品和素材分頁會省略在生成響應時變為不可見的記錄，因此某一頁的條數可能少於 `pageSize`，而原始計數保持不變。單項讀取對不可見的記錄仍返回 404。有效的媒體引用不會被截斷。分類還接受 `brandId`；商品接受 `search`、`brandId`、`categoryId` 和 `status`；素材接受 `search` 以及按 MIME 前綴匹配的 `mimeType`。品牌和模板列表沒有搜索篩選。未知的普通查詢參數會被忽略，但嚴格的 JSON 請求體會拒絕未知屬性。同步有其獨立的校驗規則和元數據，見[同步與移除](#synchronization-and-removals)。
+</div>
 
-### 寫入、併發與限制
+<div id="media-and-expiry" className="dev-moved-section">
 
-資源創建返回 201，並接受可選的 `Idempotency-Key`（非空白，最多 255 個字符，不含 ASCII
-控制字符）。該冪等鍵的作用域為團隊、API key 和創建操作，有效期 24 小時。相同的規範化輸入會重放原始的標量結果和 ETag；輸入發生變化則返回 409。簽名 URL 在響應時重新投影，絕不會作為重放憑據保存。商品重放會將原始媒體 ID 與其原始槽位中當前仍有效的關聯取交集；無法恢復已刪除/不可見的商品，也不會保留已移除的下載。
+[媒體連結](./product-library-product-writes#media-and-expiry)
 
-目錄資源的單項讀取和成功變更操作會返回帶引號的強 `ETag`。
-`PATCH`、狀態變更和 `DELETE` 接受可選的
-`If-Match`。請原樣傳遞收到的字符串。`*` 或包含當前強標籤的逗號分隔列表同樣視為匹配；弱標籤不匹配。過期的標籤會在寫入前返回 412；省略則採用最後寫入者勝出。不支持
-`If-None-Match`/304。模板指紋包含完整的未刪除分組、字段、綁定及商品庫默認設置，因此移除/移動都會使標籤失效。素材詳情標籤使用 FilePath 及其關聯 AssetObject 的標識和所維護的更新時間戳。持久化元數據發生變化會改變標籤；僅簽發新的臨時預覽簽名不會改變標籤。分享、活動記錄與有記錄的下載不使用 ETag 或 If-Match。
+</div>
 
-| 限制項                       | 值                                      |
-| ---------------------------- | --------------------------------------- |
-| 所有路由（包括讀取）的請求體 | 1 MiB（1048576 字節）；超出返回 413     |
-| 普通或同步分頁大小           | 默認 20，最大 100（更大的值按上限截取） |
-| 每次寫入的商品媒體引用總數   | 100，涵蓋封面/圖片/相關/自定義字段      |
-| 模板定義                     | 共 200 個字段，1–200 個分組             |
-| 模板綁定數組                 | 每個維度最多 10000 個 ID                |
-| 分類樹                       | 深度 10，每個品牌 5000 個未刪除節點     |
-| 可見性檢查                   | 0–100 個 ID，保留重復項和順序           |
-| 同步游標                     | 不透明字符串，最多 8192 個字符          |
-| 冪等記錄保留期               | 24 小時                                 |
-| 每次分享、下載或導出商品數 | 1–100 |
-| 每次原文件下載的文件數 | 200 |
-| 原文件下載大小 | 合計 500 MiB |
+<div id="sharing-recorded-downloads-and-history" className="dev-moved-section">
 
-v1 沒有 429/速率限制契約。已知的、已回滾的寫入爭用會返回
-`503 write_conflict` 並附帶 `Retry-After: 1`；見 [寫入約定](./product-library-write-conventions)。不包含
-multipart 上傳、遠程素材導入、通用提供方同步、webhook 或批量寫入。現有界面行為仍由其自身的工作流管控。
+[分享與下載](./product-library-product-writes#sharing-recorded-downloads-and-history)
 
-有關詳細校驗規則，請閱讀 [寫入約定](./product-library-write-conventions)、[分類規則](./product-library-categories)、
-[模板寫入](./product-library-template-writes) 和 [商品寫入](./product-library-product-writes)。
+</div>
 
-### 模板版本與字段值
+<div id="synchronization-and-removals" className="dev-moved-section">
 
-商品創建時會保存所用模板的版本，後續的模板修改或刪除不會改變已有商品的字段定義和值。讀取商品的 `templateDefinition` 可取得這一版本的字段定義。
+[同步商品](./product-library-synchronization#cycle-protocol)
 
-創建時，顯式指定的未刪除模板優先。當省略 `templateId` 或其為 null，且提供了非 null 的
-`categoryId` 時，解析順序為：該分類或其祖先分類的綁定，然後是該分類所屬品牌的綁定，最後是商品庫默認模板。當省略 `categoryId` 或其為 null 時，即使提供了 `brandId`，也僅使用商品庫默認模板進行解析。若未解析出任何模板，則該商品沒有模板。已解析出模板的商品會固定一個不可變的版本。模板變更始終使用 `newOnly`；API 會拒絕
-`syncAll`。現有商品在編輯或軟刪除後仍保留其版本和值。請讀取商品的 `templateDefinition` 來解釋 `templateFields`；當前模板最新版本的字段可能不同。普通的商品 PATCH 無法切換模板。
+</div>
 
-提供模板 `groups` 時為完整替換。請保留分組和字段 ID；字段不能在分組之間移動。被省略的分組/字段會被移除，但受默認/系統保護規則約束。省略 `groups` 則保留現有集合。新字段需要 key/name/type，且 key 必須是唯一的有效標識符。綁定數組僅替換其自身維度。當所選品牌非空時，所選分類必須屬於這些品牌。移動綁定或更改默認模板會影響後續解析，而不影響現有商品的固定版本。
+<div id="error-catalog" className="dev-moved-section">
 
-`templateFields` PATCH 按穩定的自定義字段 ID 進行淺合併；null 會清除字段。草稿會跳過必填值檢查，但仍校驗類型、選項和媒體約束。Number/currency 值為 JSON 數字；
-dateRange 為有序的日期字符串對；checkbox 為選項值數組；image/file 輸入為 FilePath ID
-數組。Richtext 在 HTML 模式下為字符串，在 delta 模式下為 `{ "ops": [...] }`。已發佈結果必須通過完整校驗。字段配置結構和所有輸入長度均在
-[openapi.json](/assets/developers/product-library/openapi.json) 和 [模板寫入](./product-library-template-writes) 中說明。
+[錯誤碼](./product-library-write-conventions#error-catalog)
 
-### 媒體與過期
+</div>
 
-使用 `previewUrl` 渲染媒體。對於圖片，即使是 `view_only` 的 API key，也可能使用短時有效的原圖作為預覽回退。這並不授予一般的原文件下載權限。對於非圖片素材，只可能返回派生預覽；原始 PDF/壓縮包/文檔絕不會作為預覽回退。素材庫素材查找和模板配置中僅包含預覽。
+<div id="protected-template-fields-and-category-defaults" className="dev-moved-section">
 
-僅當當前關聯可解析、可見，且在 `usable` 或更高角色下獲得讀取+下載授權時，商品媒體才包含
-`downloadUrl` 和 `downloadUrlExpiresAt`。缺少權限/引用無法解析時會**省略**這些屬性；已授權但原文件不可用時可能為 null。不要根據圖片預覽推斷下載授權。簽名派生預覽的有效期上限為
-3600 秒，圖片原圖回退和下載的上限為 300 秒，且均額外受 API key 過期時間約束。URL 過期時請重新獲取商品數據；不要將簽名 URL 作為素材標識持久化。
+[範本欄位](./product-library-template-writes#creating-and-updating)
 
-已存儲的外部 DAM 縮略圖/預覽僅對無過期時間的 API key 返回，且會先排除已知的原文件 URL。其有效期仍由第三方提供方控制；不保證短有效期，也不保證校驗提供方簽名。對於設置了 `expiresAt` 的 API key，過期時間無法驗證的外部預覽為 `null`。URL 查詢參數（包括形似簽名的參數）不能作為可信的過期時間依據。由服務簽發的派生預覽、原圖回退和下載保持上述上限，簽名失敗時絕不會回退為原始存儲 URL。
+</div>
 
-### 分享、有記錄的下載與歷史
+## 權限與資料範圍
 
-`POST /product-shares` 為固定的 1–100 個已發佈商品創建分享。`expiresInDays` 可設為 7、30、90 或 null，並提供 `allowDownload`，還可設置四位數字的 `accessCode`。響應包含絕對訪問 URL。訪問者無需登錄或 API key。內容實時更新，未發佈或已刪除商品會被隱藏。分享歸屬於團隊，創建 key 的到期、停用、撤銷或權限變化不會使其失效。具有分享權限的管理員可通過 `DELETE /product-shares/{id}` 撤銷團隊分享。
+- 使用前先完成[取得授權](./product-library#authentication-and-scope)。每次請求依密鑰所屬團隊和協作者目前角色驗證，不繼承密鑰建立者的權限。
+- 請求參數不能切換團隊、商品庫或操作者。商品庫 API 不提供密鑰及協作者管理接口。
+- 移除協作者不會刪除既有分享和歷史記錄；停止分享需呼叫[撤銷分享](#operation-revokeProductShare)。密鑰失效及認證服務無法使用時的處理見[錯誤碼](./product-library-write-conventions#error-catalog)。
 
-`GET /products/{id}/download-assets` 返回包含不透明選擇 key 和 `downloadable` 的扁平候選列表，不返回原文件或預覽 URL，也不創建業務記錄。`POST /product-downloads` 接受 `kind: "assets"` 和可選的 `assetKeys`（省略則選擇全部原文件）。單文件返回原附件，多文件返回 ZIP。缺失的原文件保持不可下載。獲取單文件可使用 `GET /products/{id}/download-assets/{assetKey}`，將 key 編碼為路徑片段。每次提取均檢查當前權限。
+## 回應與分頁
 
-導出業務表格時，設置 `kind: "export"`，`format` 可為 `xlsx`（默認）、`csv` 或 `json`，不接受 `assetKeys`。`locale` 默認為 `zh-CN`，影響系統標籤和狀態，不改變用戶自定義標籤或值。`includeAssetUrls` 默認為 true。鏈接指向需認證的單文件路由，需要 Bearer 請求頭；僅點擊表格中的鏈接無法發送該請求頭。URL 絕不包含 key。需要無 API 憑證的瀏覽器訪問時，應明確創建商品分享。商品讀取 DTO 仍是同步時使用的穩定機器字段接口。
+JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 
-下載和導出返回 `X-Download-Record-Id`；`requested` 表示已接受，不表示傳輸或本地保存完成。接受後檢測到準備或傳輸失敗會標記為 `failed`，重試不會重置狀態。同一邏輯請求可在 24 小時內復用可選的 `Idempotency-Key`，作用域為團隊、API key 和操作。匹配的重試復用首次記錄及快照，但會重新鑒權並傳輸當前內容，不緩存字節。POST 與單文件 GET 的作用域不同。輸入改變返回 409；省略、使用新 key 或過期後視為新操作。這不是永久去重。在附件交付開始前，錯誤保留具體錯誤碼；業務記錄已提交或重放時還會包含 `mutationOutcome`。重試該已接受操作應保留原冪等 key。商品讀取、預覽及舊存儲 `downloadUrl` 的訪問仍不進入業務下載歷史。
+| 回傳內容 | 讀取方式 |
+| --- | --- |
+| 操作成功 | `success: true`，從 `data` 讀取結果；`code`、`message` 為 `null`。 |
+| 操作失敗 | `success: false`，`data: null`；依 HTTP 狀態碼和 `code` 處理，不依賴 `message` 的文案。 |
+| 參數驗證失敗 | 從 `details[].field` 和 `details[].message` 找到需要修正的欄位。 |
+| 請求追蹤 | 保留 `requestId` 或回應標頭 `X-Request-Id`，用於排查問題。 |
 
-具有 `products:history` 的管理員可查詢 `GET /product-shares` 與 `GET /product-downloads`。省略 `productId` 查詢全團隊，也可提供一個商品 ID。兩個列表均支持 `page` 和 `pageSize`，拒絕未知或重復參數，按新到舊返回完整操作及分頁信息。按商品篩選仍保留匹配操作中的其他商品和文件。包含瀏覽器記錄及團隊其他 key 的記錄，不隱式按創建者或 key 過濾。key ID 與名稱快照在 key 生命週期變化後仍保留歸因。
+一般列表使用 `page` 和 `pageSize`，在回應頂層回傳 `pagination`：
 
-### 同步與移除
+| 參數 | 預設值 | 範圍 |
+| --- | --- | --- |
+| `page` | `1` | 從 `1` 開始的整數。 |
+| `pageSize` | `20` | 正整數，超過 `100` 時以 `100` 處理。 |
 
-首次全量同步和增量週期均使用 `GET /products?sync=true`。將上一次完成時的 `syncedUntil` 作為 `updatedAfter` 傳入。請讀取每一個
-`nextCursor`，包括當前數據頁為空的情況。固定區間為
-`[updatedAfter, syncedUntil)`，按 `(updatedAt, id)` 升序排列；上界為
-PostgreSQL 時間減去 30 秒。僅在所有分頁都已持久合併後再保存檢查點。按 ID 和全精度更新時間去重。不要將按頁碼瀏覽用作同步協議。
+```json
+{
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 42,
+  "totalPages": 3
+}
+```
 
-不透明游標綁定了 API key、角色、商品庫、篩選條件、分頁大小和邊界。後續請求可以僅包含 `sync=true&cursor=...`；重復提供的參數必須一致。重復的同步參數、`page`、變更的綁定或格式錯誤的時間邊界會返回 422。時間戳輸入接受時區，且小數秒最多六位。耗時超過安全窗口的事務屬於已接受的限制。
+商品和素材可能在請求期間變為不可見，因此實際回傳筆數可能少於 `pageSize`，計數仍保留分頁時的結果。單一資源不可見時回傳 `404`。
 
-同步結果不包含已刪除商品的記錄。請定期將本地已知的 ID 發送至
-`POST /products/visibility`；移除被報告為 `not_visible` 的條目。該狀態統一涵蓋不存在、已刪除、不屬於本商品庫以及因角色而隱藏的記錄，不會洩露記錄是否存在。完整協議請參閱 [商品同步](./product-library-synchronization)，同步循環請參閱
-[示例](./product-library-examples#synchronize-and-save-a-checkpoint)。
+需要持續同步商品時，請使用[游標同步](./product-library-synchronization)，不要依靠一般頁碼列表。篩選參數見具體接口；一般查詢會忽略未知參數，JSON 請求主體會拒絕未知欄位。
 
-### 錯誤碼
+### 欄位格式
 
-| 狀態碼 | 錯誤碼                                  | 含義 / 調用方處理                                            |
-| ------ | --------------------------------------- | ------------------------------------------------------------ |
-| 401    | `invalid_credentials`                   | Bearer key 缺失、格式錯誤或未知；請更正憑據。                |
-| 401    | `key_inactive`                          | 已驗證的 key 已停用/已吊銷/已過期；請獲取有效的 key。        |
-| 503    | `authentication_unavailable`            | 實時 MuseDAM 校驗不可用；不會執行任何受保護操作。             |
-| 403    | `forbidden`                             | 角色/權限不允許此操作或當前已發佈狀態。                      |
-| 404    | `not_found`                             | 條目不存在、已刪除、不在本商品庫中或不可見；不要推斷其存在。 |
-| 409    | `download_unavailable` | 無法準備原文件下載，檢查候選可用性。 |
-| 413    | `download_too_large` | 減少選擇至 200 個文件及合計 500 MiB 以內。 |
-| 409    | `sku_in_use`                            | 非空的商品 `spu` 在商品庫中衝突。                            |
-| 409    | `code_in_use`                           | 生成的品牌編碼衝突。                                         |
-| 409    | `name_in_use`                           | 模板名稱或同級分類名稱衝突。                                 |
-| 409    | `brand_has_dependents`                  | 刪除品牌前請移除/重新分配未刪除的分類/商品。                 |
-| 409    | `category_has_products`                 | 子樹包含未刪除的商品；請先處理依賴關係。                     |
-| 409    | `default_template_replacement_required` | 請提供替換 ID 或顯式的 null。                                |
-| 409    | `idempotency_key_reused`                | 同一冪等鍵被用於不同的規範化創建輸入。                       |
-| 412    | `precondition_failed`                   | 重新獲取、協調後使用當前 ETag 重試。                         |
-| 413    | `payload_too_large`                     | 將請求體縮減至 1 MiB 以下。                                  |
-| 422    | `validation_failed`                     | 更正查詢/請求體/引用/字段狀態；檢查可選的 details。          |
-| 500    | `internal_server_error`                 | 保留 requestId 以便排查；不會暴露內部細節。                  |
-| 503 | `write_conflict` | 寫入已回滾；等待 `Retry-After` 後使用相同冪等鍵重試。 |
-| 409 | `mutation_response_unavailable` | 變更已提交或重放；核對狀態後再重試。 |
+| 欄位 | 使用方式 |
+| --- | --- |
+| 數值型資源 ID | 正整數，最大 `2147483647`。 |
+| 範本、分組、欄位、版本 ID | 字串，原樣保存，不假定為 UUID。 |
+| 素材 ID | 使用素材查詢回傳的 `id`（FilePath ID），不能替換成 AssetObject ID 或商品關聯 ID。 |
+| 分類 `iconAssetId` | 使用分類圖示的識別碼（CategoryIconAsset）。 |
+| `size` | 十進位字串或 `null`，避免大型檔案位元組數失去精度。 |
+| 日期 | RFC 3339 字串或 `null`；同步時間戳記保留完整六位小數。 |
+| 商品 SKU | API 欄位名稱為 `spu`。 |
 
-### 受保護的模板字段與分類默認值
+舊版或無法解析的商品媒體可能回傳 `id: null`。有效的媒體引用不會被截斷。預覽和下載連結的使用方式見[媒體連結](./product-library-product-writes#media-and-expiry)。
 
-創建模板時，在生成第一個版本快照之前，會自動向第一個分組添加受保護的商品名稱、SKU 和主圖字段。這三個字段計入 200 個字段的上限，因此創建時最多接受 197 個自定義字段。它們的 key
-為保留值，更新時必須保留其 ID 和受保護設置。僅當當前商品庫默認模板未綁定任何品牌，或已綁定該分類所屬品牌時，新建分類才會直接綁定到該模板；該直接綁定優先於祖先分類的綁定。否則分類仍創建成功，不添加直接綁定，模板解析依次查找祖先分類、品牌和商品庫默認模板。刪除分類子樹時會原子性地移除其直接模板綁定。
+所有回應攜帶 `Cache-Control: private, no-store`。JSON 操作和錯誤使用 `application/json`。請求大小、批次數量等上限見[請求限制](./product-library-write-conventions#request-limits)。
 
 ## 數據結構附錄
 

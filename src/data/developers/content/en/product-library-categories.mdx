@@ -36,7 +36,8 @@ Unknown fields, including caller-supplied paths or actor IDs, are rejected.
 
 On creation, the library default template is explicitly bound to the new
 category only if the template has no brand bindings or includes the category's
-brand. Otherwise, creation succeeds without an explicit category binding;
+brand. This direct binding takes precedence over ancestor bindings.
+Otherwise, creation succeeds without an explicit category binding;
 template resolution still checks ancestors, then the brand, then the library
 default.
 
@@ -48,5 +49,7 @@ actor relations, or library IDs are exposed or saved in replay snapshots.
 ## Delete a category and its children
 
 Deleting a category also deletes its child categories. If any category in that subtree contains a nondeleted product, the API returns `409 category_has_products` and leaves every category unchanged.
+
+Deleting a category subtree removes its direct template bindings in the same transaction.
 
 Deletion is a soft delete: names, parent IDs, brand IDs and historical product relationships are preserved. New categories can reuse the original paths, and the remaining sibling categories are reordered. Product content and status do not change; assets, templates and brands are not deleted. Deleted categories no longer appear in reads and cannot be assigned to products.

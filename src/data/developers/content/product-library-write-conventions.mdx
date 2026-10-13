@@ -1,35 +1,200 @@
-## 写入前置条件
+## 更新前先读取资源
 
-所有路径使用 Base URL `https://open.musedam.cc/api/product`。每个操作的权限由当前 API Key 协作者角色决定。在请求中提供团队、商品库、操作者或操作白名单，不能增加权限。
+更新商品、品牌、分类或模板时，建议按以下步骤避免覆盖他人的修改：
 
-更新前先读取资源并保存强 `ETag`，在 PATCH、状态变更或 DELETE 时通过 `If-Match` 原样发送。过期或弱标签返回 `412 precondition_failed`，不会修改资源。`*` 或包含当前强标签的逗号分隔列表同样视为匹配。省略该请求头时，后一次写入覆盖前一次。分享、历史和有记录的下载不使用 ETag 或 If-Match。
+1. 读取资源，保存响应头中的 `ETag`（包括引号）。
+2. 发送 PATCH、状态变更或 DELETE 时，将这个值放入 `If-Match` 请求头。
+3. 如果返回 `412 precondition_failed`，重新读取并核对变更，再使用新的 ETag 重试。
 
-## 创建与幂等重试
+`If-Match` 可选。省略时，后一次写入覆盖前一次。分享、历史和有记录的下载不使用 ETag 或 If-Match。
 
-资源创建接受可选的 `Idempotency-Key`，按团队、API key 和操作划定作用域，保留 24 小时。值不能为空白，最多 255 个字符，不得包含 ASCII 控制字符。创建结果不确定时，请使用相同幂等键和输入重试。同一键对应的规范化输入不同，返回 `409 idempotency_key_reused`。
+所有请求使用 `https://open.musedam.cc/api/product`。权限取决于当前 API Key 协作者角色；请求中的团队、商品库、操作者或操作白名单不能增加权限。
 
-重放保留首次成功的非媒体结果和 ETag，即使资源之后已被修改。媒体 URL 会在重新检查当前权限、可见性和关联关系后签发。不能通过重放恢复已删除或不可见的商品，新增的素材关联也不会进入首次结果。新的逻辑操作才使用新的幂等键。
+<details>
+<summary>ETag 的匹配方式与有效范围</summary>
 
-## 部分更新
+- 目录资源的单项读取和成功变更会返回带引号的强 ETag。请原样传递，不要自行生成。
+- `*` 或包含当前强 ETag 的逗号分隔列表也能匹配。弱标签不匹配；过期或弱标签返回 412，资源不会改变。
+- 不支持 `If-None-Match` 或 304 响应。
+- 模板的分组、字段、绑定和商品库默认设置均影响 ETag，删除或移动也会使旧标签失效。
+- 素材 ETag 取决于文件路径及关联素材的标识和更新时间。持久化元数据改变会更新标签，仅刷新临时预览签名不会。
 
-省略的字段保留原值，显式 `null` 仅清空允许为空的字段。商品 `templateFields` 按自定义字段 ID 浅合并，null 清空对应值。模板 `groups` 一旦提供即替换完整定义，必须保留现有分组和字段 ID，包括受保护的系统字段。未知 JSON 属性会被拒绝。
+</details>
 
-## 品牌
+## 创建失败后如何重试
 
-品牌写入需要 `manage` API Key 协作者。创建接受 `name`、`description` 和 `logoUrl`，PATCH 接受其中的非空子集。名称去除首尾空白后不能为空，最多 128 个字符；描述可为 null，最多 512 个字符。Logo 引用必须使用允许的存储/CDN 主机及不含内嵌凭据的 HTTP(S) 地址，查询签名在存储前移除。写入不会上传或远程导入素材。
+资源创建成功返回 201。需要安全重试时，可附带 `Idempotency-Key`：
 
-品牌响应省略 `logoUrl`，返回 `id`、`name`、`code`、`description`、`website`、`sortOrder`、`isEnabled`、`createdAt` 和 `updatedAt`。名称不要求唯一；商品库内唯一的编码由服务端生成，客户端不能设置。编码冲突重试耗尽时返回 `409 code_in_use`。
+1. 为一次创建操作设置一个键。
+2. 结果不确定时，在 24 小时内使用**相同的键和输入**重试。
+3. 创建另一条资源时使用新的键。同一个键对应不同输入会返回 `409 idempotency_key_reused`。
 
-仍有未删除的分类或商品引用品牌时，删除返回 `409 brand_has_dependents`。请先调整或移除依赖。
+键按团队、API key 和创建操作区分。值不能为空白，最多 255 个字符，不得包含 ASCII 控制字符。
 
-## 写入结果与恢复
+<details>
+<summary>重试返回的数据是否会变化</summary>
 
-已回滚的锁冲突返回 `503 write_conflict` 和 `Retry-After: 1`。等待后重试，创建操作保留相同幂等键，并按需刷新过期的前置条件。
+- 相同的规范化输入重放首次成功的非媒体结果和 ETag，即使资源之后已被修改。
+- 媒体 URL 会重新检查当前权限、可见性和关联关系后签发，不保存签名 URL 作为重放凭据。
+- 商品仅保留原始素材 ID 在原始槽位中仍有效的关联。后来新增的素材不会进入首次结果，已移除的下载也不会恢复。
+- 重放不能恢复已删除或当前不可见的商品。
 
-变更已提交但响应无法准备时，返回 `409 mutation_response_unavailable`、`success: false`、`data: null`，以及 `mutationOutcome: committed`（重放时为 `replayed`）。不会返回 ETag 或媒体 URL。此时变更没有回滚，请通过有权限的读取或原始幂等键核对，避免盲目重复操作。
+</details>
 
-已接受的下载和导出可能返回具体的准备或交付错误，并附带 `mutationOutcome`。重试该操作时保留原始幂等键。`requested` 只表示已接受，不表示传输完成或本地文件已保存。
+## 只更新需要修改的字段
 
-## 排查错误
+| 请求内容 | 更新方式 |
+| --- | --- |
+| 省略字段 | 保留原值 |
+| 显式传入 `null` | 仅清空允许为空的字段 |
+| 商品 `templateFields` | 按自定义字段 ID 浅合并；`null` 清空对应值 |
+| 模板 `groups` | 替换完整定义，须保留现有分组和字段 ID，包括受保护的系统字段 |
 
-`401` 或 `403` 应修正 API key 或协作者角色；`422` 应检查 `details[].field` 并修正输入。保留 `X-Request-Id` 或 JSON 中的 `requestId` 以便排查，不记录密钥和签名媒体 URL。参见[错误目录](./product-library-reference#error-catalog)和[接口文档](./product-library-reference)。
+未知 JSON 属性会被拒绝。具体字段见[商品写入](./product-library-product-writes)和[模板写入](./product-library-template-writes)。
+
+## 品牌写入注意事项
+
+品牌写入需要 `manage` 角色。创建接受 `name`、`description`、`logoUrl`；PATCH 至少提供其中一个字段。
+
+| 字段 | 要求 |
+| --- | --- |
+| `name` | 去除首尾空白后不能为空，最多 128 个字符；允许重名 |
+| `description` | 可为 `null`，最多 512 个字符 |
+| `logoUrl` | 使用允许的存储/CDN 主机，HTTP(S) 地址中不得含内嵌凭据 |
+
+品牌仍有关联的未删除分类或商品时，不能删除。请先调整或移除依赖。
+
+<details>
+<summary>品牌编码、Logo 与返回字段</summary>
+
+- `code` 由服务端生成，在商品库内唯一，客户端不能设置。编码冲突重试耗尽时返回 `409 code_in_use`。
+- Logo 地址的查询签名会在存储前移除。写入只引用地址，不上传或远程导入素材。
+- 品牌响应省略 `logoUrl`，返回 `id`、`name`、`code`、`description`、`website`、`sortOrder`、`isEnabled`、`createdAt` 和 `updatedAt`。
+
+</details>
+
+## 判断写入是否已经生效
+
+收到错误后，先确认写入结果，再决定如何重试。
+
+| 返回结果 | 接下来怎么做 |
+| --- | --- |
+| `503 write_conflict` | 写入已回滚。按 `Retry-After: 1` 等待后重试；创建沿用原幂等键，过期的 ETag 需重新读取 |
+| `409 mutation_response_unavailable` | 写入已提交或重放。通过有权限的读取或原幂等键核对，避免重复创建 |
+| 下载或导出错误含 `mutationOutcome` | 业务记录已经提交或重放。重试已接受的操作时保留原幂等键 |
+
+<details>
+<summary>响应准备失败与下载状态</summary>
+
+写入已生效但响应无法准备时，会返回 `success: false`、`data: null`，以及 `mutationOutcome: committed`（重放时为 `replayed`）。此时不会返回 ETag 或媒体 URL，写入也没有回滚。
+
+下载和导出在准备或交付失败时保留具体错误码。`requested` 仅表示已接受请求，不代表传输完成或文件已保存到本地。
+
+</details>
+
+## 排查请求失败
+
+1. 根据 HTTP 状态码和 `code` 查找下方处理方式，不要依赖 `message` 文案判断错误类型。
+2. 参数校验失败时，检查返回的 `details[].field` 并修正输入。
+3. 需要协助时提供 `X-Request-Id` 或 JSON 中的 `requestId`。不要记录密钥和签名媒体 URL。
+
+## 按错误码查处理方式
+
+展开与返回状态码对应的分组。
+
+<details>
+<summary>认证与访问：401、403、404、503</summary>
+
+| 状态码 / code | 处理方式 |
+| --- | --- |
+| 401 `invalid_credentials` | Bearer key 缺失、格式错误或未知，检查请求头和密钥 |
+| 401 `key_inactive` | Key 已停用、吊销或过期，换用有效密钥 |
+| 403 `forbidden` | 核对当前协作者角色，以及操作或已发布状态所需权限 |
+| 404 `not_found` | 核对 ID 和可见范围；不存在、已删除、其他商品库或不可见资源均可能返回此错误，不能据此推断存在性 |
+| 503 `authentication_unavailable` | 实时认证暂不可用，稍后重试；本次不会执行受保护操作 |
+
+</details>
+
+<details>
+<summary>参数与容量：413、422</summary>
+
+| 状态码 / code | 处理方式 |
+| --- | --- |
+| 413 `payload_too_large` | 将请求体缩减至 1 MiB（1048576 字节）以内 |
+| 422 `validation_failed` | 检查查询、请求体、引用和字段状态；如有 `details`，按字段修正 |
+
+</details>
+
+<details>
+<summary>重名与依赖：409</summary>
+
+| code | 处理方式 |
+| --- | --- |
+| `sku_in_use` | 非空的商品 `spu` 已被占用，调整后重试 |
+| `code_in_use` | 服务端生成的品牌编码冲突，请重试创建 |
+| `name_in_use` | 更换重复的模板名称或同级分类名称 |
+| `brand_has_dependents` | 先移除或重新分配品牌下未删除的分类、商品 |
+| `category_has_products` | 先处理分类子树中未删除的商品 |
+| `default_template_replacement_required` | 提供替换模板 ID，或显式传入 `null` |
+
+</details>
+
+<details>
+<summary>重试与写入结果：409、412、500、503</summary>
+
+| 状态码 / code | 处理方式 |
+| --- | --- |
+| 409 `idempotency_key_reused` | 同一幂等键的规范化输入不同；重试须保留原输入，新操作应使用新键 |
+| 409 `mutation_response_unavailable` | 变更已提交或重放，先核对状态再重试 |
+| 412 `precondition_failed` | 重新读取、核对变更，再用当前 ETag 重试 |
+| 500 `internal_server_error` | 保留 `requestId` 以便排查；响应不会暴露内部细节 |
+| 503 `write_conflict` | 写入已回滚，等待 `Retry-After` 后使用原幂等键重试 |
+
+</details>
+
+<details>
+<summary>文件下载：409、413</summary>
+
+| 状态码 / code | 处理方式 |
+| --- | --- |
+| 409 `download_unavailable` | 原文件无法准备，重新检查下载候选是否可用 |
+| 413 `download_too_large` | 减少选择，单次最多 200 个文件、合计 500 MiB |
+
+</details>
+
+## 请求数量与大小限制
+
+| 适用范围 | 限制 |
+| --- | --- |
+| 所有路由的请求体，包括读取 | 1 MiB（1048576 字节）；超出返回 413 |
+| 普通或同步分页 | 默认每页 20 条，最大 100；超过 100 按 100 处理 |
+| 幂等记录 | 保留 24 小时 |
+
+<details>
+<summary>商品、模板与分类的数量限制</summary>
+
+| 适用范围 | 限制 |
+| --- | --- |
+| 每次商品写入的媒体引用 | 合计最多 100 个，涵盖封面、图片、相关素材、自定义字段 |
+| 模板定义 | 共 200 个字段，1–200 个分组 |
+| 模板绑定数组 | 每个维度最多 10000 个 ID |
+| 分类树 | 最大深度 10，每个品牌最多 5000 个未删除节点 |
+| 可见性检查 | 0–100 个 ID，保留重复项和顺序 |
+| 同步游标 | 不透明字符串，最多 8192 个字符 |
+
+</details>
+
+<details>
+<summary>分享、下载与导出的数量限制</summary>
+
+| 适用范围 | 限制 |
+| --- | --- |
+| 每次分享、下载或导出的商品 | 1–100 个 |
+| 每次原文件下载的文件 | 最多 200 个 |
+| 原文件下载大小 | 合计最多 500 MiB |
+
+</details>
+
+v1 未定义 429 或速率限制约定。写入争用按 `503 write_conflict` 处理。
+
+暂不提供 multipart 上传、远程素材导入、通用提供方同步、webhook 或批量写入。界面的操作仍遵循各自工作流。
