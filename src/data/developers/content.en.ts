@@ -1,4 +1,5 @@
 import Page6 from './content/en/analysis.mdx'
+import Page17 from './content/en/approval-api.mdx'
 import Page10 from './content/en/applications.mdx'
 import Page3 from './content/en/assets.mdx'
 import Page1 from './content/en/authentication.mdx'
@@ -25,6 +26,7 @@ export const englishContent = {
   tags: Page4,
   folders: Page5,
   analysis: Page6,
+  'approval-api': Page17,
   team: Page7,
   events: Page8,
   errors: Page9,

@@ -1,4 +1,5 @@
 import Page6 from './content/zh-TW/analysis.mdx'
+import Page17 from './content/zh-TW/approval-api.mdx'
 import Page10 from './content/zh-TW/applications.mdx'
 import Page3 from './content/zh-TW/assets.mdx'
 import Page1 from './content/zh-TW/authentication.mdx'
@@ -25,6 +26,7 @@ export const traditionalContent = {
   tags: Page4,
   folders: Page5,
   analysis: Page6,
+  'approval-api': Page17,
   team: Page7,
   events: Page8,
   errors: Page9,

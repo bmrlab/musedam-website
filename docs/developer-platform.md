@@ -2,11 +2,11 @@
 
 入口：`/{lng}/developers/landing`。`/{lng}/developers` 重定向到概览。
 
-沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 18 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
+沿用 Next.js App Router、站点头部和语言路由；开发者文档采用独立的三栏阅读布局。概览、导航及全部 19 篇技术文档提供中英文版本；英文路由使用独立英文正文、目录、搜索与复制内容。
 
 ## 内容维护
 
-- `src/data/developers/content/*.mdx`：18 篇技术文档，服务端渲染。
+- `src/data/developers/content/*.mdx`：19 篇技术文档，服务端渲染。
 - `src/data/developers/pages.json`：标题、分组、描述、目录与用于复制的 Markdown；改动正文后同步更新对应条目。
 - `src/data/developers/content/en/*.mdx`、`pages.en.json` 和 `content.en.ts`：完整英文正文、元数据与注册表，修改文档时需同步维护。
 - `src/data/developers/content.ts`：中文 MDX 组件注册表。

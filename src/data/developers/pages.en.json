@@ -631,6 +631,67 @@
     "updatedAt": "2026-09-29"
   },
   {
+    "slug": "approval-api",
+    "title": "Approval Open API",
+    "en": "Approval API",
+    "group": "api",
+    "description": "Create approval tasks, query status, and subscribe to callbacks via Muse Open forwarding.",
+    "headings": [
+      {
+        "id": "approval-open-api",
+        "title": "Approval Open API",
+        "level": 2
+      },
+      {
+        "id": "request-conventions",
+        "title": "Request conventions",
+        "level": 2
+      },
+      {
+        "id": "supported-services",
+        "title": "Supported services",
+        "level": 2
+      },
+      {
+        "id": "listtemplates",
+        "title": "listTemplates",
+        "level": 2
+      },
+      {
+        "id": "createapproval",
+        "title": "createApproval",
+        "level": 2
+      },
+      {
+        "id": "taskstatusquery",
+        "title": "taskStatusQuery",
+        "level": 2
+      },
+      {
+        "id": "subscription-and-callbacks",
+        "title": "Subscription and callbacks",
+        "level": 2
+      },
+      {
+        "id": "query-subscription-status-subscriptionquery",
+        "title": "Query subscription status (`subscriptionQuery`)",
+        "level": 3
+      },
+      {
+        "id": "change-subscription-subscriptionchange",
+        "title": "Change subscription (`subscriptionChange`)",
+        "level": 3
+      },
+      {
+        "id": "callback-payload-specification",
+        "title": "Callback payload specification",
+        "level": 3
+      }
+    ],
+    "markdown": "Production endpoint: `POST https://open.musedam.cc/api/muse/approval-api`.\n\nThis API is available only after purchasing and enabling the Approval Center extension module.\n\nSupported `service` values: `subscriptionQuery`, `subscriptionChange`, `listTemplates`, `createApproval`, `taskStatusQuery`.\n\nUse `Authorization: Bearer your_api_key` and process callbacks with `eventId` idempotency.",
+    "updatedAt": "2026-10-13"
+  },
+  {
     "slug": "applications",
     "title": "App authentication",
     "en": "App authentication",

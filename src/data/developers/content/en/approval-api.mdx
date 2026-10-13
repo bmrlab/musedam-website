@@ -1,0 +1,786 @@
+## Approval Open API
+
+- **Production base URL**: `https://open.musedam.cc/api/muse`
+- **Approval path**: `/approval-api`
+- **Full endpoint**: `POST https://open.musedam.cc/api/muse/approval-api`
+- **Availability**: This API is available only after purchasing and enabling the **Approval Center extension module**.
+
+## Request conventions
+
+- Method: `POST`
+- `Content-Type`: `application/json`
+- Body must be valid JSON
+- Use `service` to select the capability
+- Include header: `Authorization: Bearer your_api_key`
+
+Supported `service` values:
+
+- `subscriptionQuery`
+- `subscriptionChange`
+- `listTemplates`
+- `createApproval`
+- `taskStatusQuery`
+
+## Unified response
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {},
+  "traceId": "trace_xxx"
+}
+```
+
+Common error codes:
+
+- `400`: invalid payload
+- `401`: authentication failed
+- `403`: permission denied
+- `404`: resource not found
+- `500`: internal error
+
+## listTemplates
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `listTemplates` |
+
+**Response (`result`)**: an array of templates.
+
+| Field | Type | Description |
+|-|-|-|
+| id | String | Template ID |
+| name | String | Template name |
+| description | String | Template description |
+| enabled | Boolean | Whether the template is enabled |
+| usageCount | Number | Number of uses |
+| autoImportEnabled | Boolean | Whether auto-import is enabled |
+| targetFolder | Object \| null | Target folder for auto-import |
+| workflow | Array | Approval workflow node definitions |
+
+Request:
+
+```json
+{
+  "service": "listTemplates"
+}
+```
+
+`result` is an array of templates with fields such as:
+`id`, `name`, `description`, `enabled`, `usageCount`, `autoImportEnabled`, `targetFolder`, `workflow`.
+
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "listTemplates"
+}'
+```
+
+## createApproval
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `createApproval` |
+| templateId | String | Yes | Approval template ID |
+| createdBy | String | Yes | Initiator user ID |
+| assets | Array | Yes | Asset list, at least 1 item |
+| sourceContext | Object | No | Business context |
+| reason | String | No | Submission reason |
+
+**assets[] fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| name | String | Yes | Asset name; original filename is recommended |
+| url | String | Yes | Publicly accessible `http/https` URL |
+| size | Number | No | File size in bytes |
+| mimeType | String | No | MIME type |
+| extension | String | No | File extension |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | String | Approval task ID |
+
+Required fields:
+
+- `templateId`
+- `createdBy`
+- `assets` (at least one item)
+- `assets[].url` must be a public `http/https` URL
+
+Request example:
+
+```json
+{
+  "service": "createApproval",
+  "templateId": "101",
+  "createdBy": "10086",
+  "assets": [
+    {
+      "name": "demo.mp4",
+      "url": "https://cdn.example.com/m/asset_1.mp4"
+    }
+  ]
+}
+```
+
+Success example:
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "taskId": "9527"
+  }
+}
+```
+
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "assets": [
+      {
+        "name": "demo.mp4",
+        "url": "https://cdn.example.com/m/asset_1.mp4"
+      }
+    ]
+}'
+```
+
+## taskStatusQuery
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `taskStatusQuery` |
+| taskId | String | Yes | Approval task ID (positive integer) |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | String | Task ID |
+| status | String | `PENDING` / `PROCESSING` / `APPROVED` / `REJECTED` / `CANCELED` |
+| statusLabel | String | Status label |
+| progressPercent | Number | Progress percentage |
+| currentNodeName | String \| null | Current node name |
+| currentNodeSignMode | String \| null | Current node sign mode (`and` / `or`) |
+| currentNodeProgress | Object | Current node progress summary |
+| currentNodeApprovers | Array | Current node approver status list |
+| operator | String \| null | Latest operator |
+| updatedAt | String | Last updated time (ISO) |
+
+Request:
+
+```json
+{
+  "service": "taskStatusQuery",
+  "taskId": "9527"
+}
+```
+
+`result.status` values:
+`PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`.
+
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "taskStatusQuery",
+    "taskId": "9527"
+}'
+```
+
+## Subscription and callbacks
+
+### Query subscription status (`subscriptionQuery`)
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `subscriptionQuery` |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| subscribed | Boolean | Whether subscription is active |
+| callbackUrl | String \| null | Current callback URL |
+| updatedAt | String \| null | Last updated time (ISO) |
+
+Check subscription:
+
+```json
+{
+  "service": "subscriptionQuery"
+}
+```
+
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionQuery"
+}'
+```
+
+### Change subscription (`subscriptionChange`)
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `subscriptionChange` |
+| operation | String | No | `ADD` or `DELETE`; default is `ADD` |
+| callbackUrl | String | Conditional | Required when `operation = ADD`; must be `http/https` |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| result | Boolean | `true` means subscribed, `false` means unsubscribed |
+
+Add subscription:
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "ADD",
+  "callbackUrl": "https://example.com/webhook/approval"
+}
+```
+
+Cancel subscription:
+
+```json
+{
+  "service": "subscriptionChange",
+  "operation": "DELETE"
+}
+```
+
+**curl (ADD)**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "ADD",
+    "callbackUrl": "https://example.com/webhook/approval"
+}'
+```
+
+**curl (DELETE)**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "DELETE"
+}'
+```
+
+### Callback payload specification
+
+After `subscriptionChange` with `operation = ADD` succeeds, approval state changes are posted to your `callbackUrl`.
+
+#### Callback request basics
+
+- Method: `POST`
+- `Content-Type`: `application/json`
+
+Callback body:
+
+```json
+{
+  "eventId": "evt_xxx",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258885000",
+  "payload": {
+    "eventName": "TASK_APPROVED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "APPROVED"
+  }
+}
+```
+
+Field notes:
+
+| Field | Type | Description |
+|-|-|-|
+| eventId | String | Unique event id (recommended idempotency key) |
+| eventType | String | Always `APPROVAL` |
+| eventTime | String | Millisecond timestamp string |
+| payload | Object | Business payload |
+
+#### Common payload fields
+
+Every callback `payload` contains at least:
+
+| Field | Type | Description |
+|-|-|-|
+| eventName | String | Event name |
+| orgId | String | Organization ID (system populated) |
+| taskId | String | Approval task ID |
+| taskStatus | String | `PROCESSING` / `APPROVED` / `TIMEOUT` |
+
+#### Full event set
+
+| eventName | Trigger |
+|-|-|
+| NODE_STARTED | Triggered when a node starts (first node, normal transition, or resubmit transition) |
+| APPROVER_SUBMITTED | Triggered when an approver submits a decision (can happen multiple times in one node) |
+| NODE_COMPLETED | Triggered when a node is completed (approved/rejected) |
+| NODE_TRANSFERRED | Triggered when flow transfers to another node (normal, resubmit, timeout transfer) |
+| SUBMITTER_RESUBMITTED | Triggered when submitter resubmits assets in resubmit step |
+| TASK_APPROVED | Triggered when the task reaches final approved status |
+| NODE_TIMEOUT | Triggered when a node times out (timeout transfer or pending reassignment) |
+
+#### Field definitions
+
+##### `payload.node`
+
+| Field | Type | Description |
+|-|-|-|
+| nodeId | String | Node ID (always present) |
+| nodeOrder | Number | Node order (present in some events) |
+| nodeRole | String | `normal` / `resubmit_submitter` / `resubmit_approver` (event-specific) |
+| nodeStatus | String | Common values: `pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned` |
+| signMode | String | `and` / `or` (event-specific) |
+| approverCount | Number | Approver count (event-specific) |
+| approvers | Array | Approver results on `NODE_COMPLETED`; item fields: `id`, `name`, `status` |
+| startedAt | String | Node start time (ISO) |
+| completedAt | String | Node completion time (ISO) |
+| timeoutHours | Number | Timeout threshold in hours (timeout events) |
+
+##### `payload.approver` (`APPROVER_SUBMITTED`)
+
+| Field | Type | Description |
+|-|-|-|
+| id | String | Approver user ID |
+| name | String | Approver name |
+| decision | String | `approved` / `rejected` |
+| comment | String | Approval comment |
+| submittedAt | String | Submitted time (ISO) |
+
+##### `payload.submitter` (`SUBMITTER_RESUBMITTED`)
+
+| Field | Type | Description |
+|-|-|-|
+| id | String | Submitter user ID |
+| name | String | Submitter name |
+| comment | String | Resubmission comment |
+| submittedAt | String | Submitted time (ISO) |
+
+##### `payload.timeout`
+
+| Field | Type | Description |
+|-|-|-|
+| transferTo | Object \| null | Timeout transfer target; when present: `{ "id": "...", "name": "..." }`, otherwise `null` |
+
+##### `payload.latestAssets` (`SUBMITTER_RESUBMITTED`)
+
+| Field | Type | Description |
+|-|-|-|
+| assetId | String | Asset ID |
+| filePathId | String | File path ID |
+| version | Number | Asset version |
+| oldStorePath | String | Previous storage path |
+| newStorePath | String | New storage path |
+| updatedAt | String | Updated time (ISO) |
+
+##### `payload.transferReason` (`NODE_TRANSFERRED`)
+
+| Enum | Description |
+|-|-|
+| NEXT_NODE | Normal transition to the next approval node |
+| RESUBMIT_SUBMITTER | Transition to submitter resubmission node |
+| RESUBMIT_APPROVER | Transition to approver re-review node after resubmission |
+| TIMEOUT_TRANSFER | Transition after timeout transfer |
+
+#### Callback examples (all events)
+
+`TASK_APPROVED`:
+
+```json
+{
+  "eventId": "evt_2a93f5f5f4d64907a2f3b73cb8f0f201",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258885000",
+  "payload": {
+    "eventName": "TASK_APPROVED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "APPROVED",
+    "operator": {
+      "id": "10086",
+      "name": "张三"
+    },
+    "finishedAt": "2026-10-12T08:08:05.000Z"
+  }
+}
+```
+
+`NODE_STARTED`:
+
+```json
+{
+  "eventId": "evt_d3a39140643a4d73afedf0a47c0a601d",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258700000",
+  "payload": {
+    "eventName": "NODE_STARTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeRole": "normal",
+      "nodeStatus": "processing",
+      "signMode": "and",
+      "approverCount": 2,
+      "startedAt": "2026-10-12T08:05:00.000Z"
+    }
+  }
+}
+```
+
+`APPROVER_SUBMITTED`:
+
+```json
+{
+  "eventId": "evt_8bc9f92f83564f10adf8270b598f95d2",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258820000",
+  "payload": {
+    "eventName": "APPROVER_SUBMITTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "processing",
+      "signMode": "and"
+    },
+    "approver": {
+      "id": "10086",
+      "name": "张三",
+      "decision": "approved",
+      "comment": "同意",
+      "submittedAt": "2026-10-12T08:07:00.000Z"
+    },
+    "approverCount": 2
+  }
+}
+```
+
+`NODE_COMPLETED`:
+
+```json
+{
+  "eventId": "evt_652d4d8c09d24477af9fdb21624fd070",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258855000",
+  "payload": {
+    "eventName": "NODE_COMPLETED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "approved",
+      "signMode": "and",
+      "approvers": [
+        {
+          "id": "10086",
+          "name": "张三",
+          "status": "approved"
+        },
+        {
+          "id": "10087",
+          "name": "李四",
+          "status": "approved"
+        }
+      ],
+      "completedAt": "2026-10-12T08:07:35.000Z"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (normal transition):
+
+```json
+{
+  "eventId": "evt_21881077723e4a17aa4e2e58ee78ce79",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258856000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "NEXT_NODE",
+    "fromNode": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "approved"
+    },
+    "node": {
+      "nodeId": "12002",
+      "nodeOrder": 2,
+      "nodeRole": "normal",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (rejected -> resubmit):
+
+```json
+{
+  "eventId": "evt_e612f8b5e1de4960bb712d3df18e2617",
+  "eventType": "APPROVAL",
+  "eventTime": "1760258900000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "RESUBMIT_SUBMITTER",
+    "fromNode": {
+      "nodeId": "12001",
+      "nodeOrder": 1,
+      "nodeStatus": "rejected"
+    },
+    "node": {
+      "nodeId": "13001",
+      "nodeOrder": 2,
+      "nodeRole": "resubmit_submitter",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TRANSFERRED` (resubmit -> re-review):
+
+```json
+{
+  "eventId": "evt_f0c43dd5ca5d4fca9e4adbe536fbb8f5",
+  "eventType": "APPROVAL",
+  "eventTime": "1760259005000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "RESUBMIT_APPROVER",
+    "fromNode": {
+      "nodeId": "13001",
+      "nodeOrder": 2,
+      "nodeStatus": "approved"
+    },
+    "node": {
+      "nodeId": "13002",
+      "nodeOrder": 3,
+      "nodeRole": "resubmit_approver",
+      "nodeStatus": "pending"
+    }
+  }
+}
+```
+
+`NODE_TIMEOUT` (transferred on timeout):
+
+```json
+{
+  "eventId": "evt_b0d67fb6f3de42e79a60b8f9df6ad20d",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260000000",
+  "payload": {
+    "eventName": "NODE_TIMEOUT",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "TIMEOUT",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "timeout_transferred",
+      "timeoutHours": 24
+    },
+    "timeout": {
+      "transferTo": {
+        "id": "10100",
+        "name": "王五"
+      }
+    }
+  }
+}
+```
+
+`NODE_TIMEOUT` (not transferred):
+
+```json
+{
+  "eventId": "evt_2e4372871f0c4a7eb95a9d7c638de8a0",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260100000",
+  "payload": {
+    "eventName": "NODE_TIMEOUT",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "TIMEOUT",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "re_assigned",
+      "timeoutHours": 24
+    },
+    "timeout": {
+      "transferTo": null
+    }
+  }
+}
+```
+
+`SUBMITTER_RESUBMITTED`:
+
+```json
+{
+  "eventId": "evt_5d017db5b458443697f6c10d5f6370df",
+  "eventType": "APPROVAL",
+  "eventTime": "1760259000000",
+  "payload": {
+    "eventName": "SUBMITTER_RESUBMITTED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "node": {
+      "nodeId": "12002",
+      "nodeOrder": 3,
+      "nodeStatus": "approved",
+      "signMode": "and"
+    },
+    "submitter": {
+      "id": "10010",
+      "name": "李四",
+      "comment": "已更新素材，重新提交",
+      "submittedAt": "2026-10-12T08:10:00.000Z"
+    },
+    "latestAssets": [
+      {
+        "assetId": "asset_1",
+        "filePathId": "30001",
+        "version": 3,
+        "oldStorePath": "assets/old/asset_1_v2.mp4",
+        "newStorePath": "assets/new/asset_1_v3.mp4",
+        "updatedAt": "2026-10-12T08:10:00.000Z"
+      }
+    ],
+    "latestAssetCount": 1
+  }
+}
+```
+
+`NODE_TRANSFERRED` (after timeout transfer):
+
+```json
+{
+  "eventId": "evt_15f4348dd4f34a4b9d51ec93313f4dff",
+  "eventType": "APPROVAL",
+  "eventTime": "1760260001000",
+  "payload": {
+    "eventName": "NODE_TRANSFERRED",
+    "orgId": "233",
+    "taskId": "9527",
+    "taskStatus": "PROCESSING",
+    "transferReason": "TIMEOUT_TRANSFER",
+    "node": {
+      "nodeId": "12002",
+      "nodeStatus": "timeout_transferred"
+    },
+    "timeout": {
+      "transferTo": {
+        "id": "10100",
+        "name": "王五"
+      }
+    }
+  }
+}
+```
+
+#### Event sequence (key flows)
+
+Delivery is at-least-once. Use `eventId` for idempotent processing.
+
+##### Normal pass (multi-node)
+
+1. `NODE_STARTED` (first node)
+2. `APPROVER_SUBMITTED` (may repeat for each approver)
+3. `NODE_COMPLETED`
+4. If next node exists: `NODE_TRANSFERRED` -> `NODE_STARTED`
+5. Repeat 2-4 until final node is complete
+6. `TASK_APPROVED`
+
+##### Rejected then resubmitted
+
+1. `APPROVER_SUBMITTED` (`decision = rejected`)
+2. `NODE_COMPLETED` (`nodeStatus = rejected`)
+3. `NODE_TRANSFERRED` (`transferReason = RESUBMIT_SUBMITTER`)
+4. `NODE_STARTED` (`nodeRole = resubmit_submitter`)
+5. `SUBMITTER_RESUBMITTED`
+6. `NODE_COMPLETED` (resubmission node)
+7. `NODE_TRANSFERRED` (`transferReason = RESUBMIT_APPROVER`)
+8. `NODE_STARTED` (re-review node)
+9. Back to normal approval flow (`APPROVER_SUBMITTED` ...)
+
+##### Timeout transfer / no transfer
+
+1. Node timeout triggers `NODE_TIMEOUT` (`taskStatus = TIMEOUT`)
+2. If timeout transfer target exists: `NODE_TRANSFERRED` (`transferReason = TIMEOUT_TRANSFER`) and task returns to `PROCESSING`
+3. If no transfer target: only `NODE_TIMEOUT` (commonly `nodeStatus = re_assigned`) until manual follow-up

@@ -631,6 +631,67 @@
     "updatedAt": "2026-09-29"
   },
   {
+    "slug": "approval-api",
+    "title": "審批開放 API",
+    "en": "Approval API",
+    "group": "api",
+    "description": "透過 Muse Open 轉發地址建立審批、查詢狀態並接收回調事件。",
+    "headings": [
+      {
+        "id": "審批開放接口",
+        "title": "審批開放接口",
+        "level": 2
+      },
+      {
+        "id": "調用約定",
+        "title": "調用約定",
+        "level": 2
+      },
+      {
+        "id": "service-能力總覽",
+        "title": "Service 能力總覽",
+        "level": 2
+      },
+      {
+        "id": "查詢模板listtemplates",
+        "title": "查詢模板（listTemplates）",
+        "level": 2
+      },
+      {
+        "id": "建立審批任務createapproval",
+        "title": "建立審批任務（createApproval）",
+        "level": 2
+      },
+      {
+        "id": "查詢任務狀態taskstatusquery",
+        "title": "查詢任務狀態（taskStatusQuery）",
+        "level": 2
+      },
+      {
+        "id": "訂閱與回調subscriptionquery--subscriptionchange",
+        "title": "訂閱與回調（subscriptionQuery / subscriptionChange）",
+        "level": 2
+      },
+      {
+        "id": "查詢訂閱狀態subscriptionquery",
+        "title": "查詢訂閱狀態（subscriptionQuery）",
+        "level": 3
+      },
+      {
+        "id": "變更訂閱subscriptionchange",
+        "title": "變更訂閱（subscriptionChange）",
+        "level": 3
+      },
+      {
+        "id": "訂閱回調-payload-說明",
+        "title": "訂閱回調 payload 說明",
+        "level": 3
+      }
+    ],
+    "markdown": "生產環境地址：`POST https://open.musedam.cc/api/muse/approval-api`。\n\n僅在購買並開通「審批中心擴展模組」後可使用此接口能力。\n\n支援 service：`subscriptionQuery`、`subscriptionChange`、`listTemplates`、`createApproval`、`taskStatusQuery`。\n\n請使用 `Authorization: Bearer your_api_key`，並以 `eventId` 做回調冪等去重。",
+    "updatedAt": "2026-10-13"
+  },
+  {
     "slug": "applications",
     "title": "應用認證與安裝",
     "en": "App authentication",
