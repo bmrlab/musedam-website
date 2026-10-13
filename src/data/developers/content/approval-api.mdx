@@ -1,8 +1,9 @@
 ## 审批开放接口
 
-- `POST https://muse-open.test.tezign.com/api/muse/approval-api`
-
-> 说明：调用方只需按本文档组织请求体；下游鉴权与内部路由由转发链路处理。
+- **生产环境基础地址**：`https://open.musedam.cc/api/muse`
+- **审批接口路径**：`/approval-api`
+- **完整调用地址**：`POST https://open.musedam.cc/api/muse/approval-api`
+- **开通要求**：仅购买并开通「审批中心扩展模块」后，当前开放接口能力才可用。
 
 ## 调用约定
 
@@ -10,6 +11,7 @@
 - `Content-Type`：`application/json`
 - 请求体必须为合法 JSON
 - 使用 `service` 字段区分能力
+- 请求头需携带：`Authorization: Bearer your_api_key`
 
 ## Service 能力总览
 
@@ -47,6 +49,27 @@
 
 ## 查询模板（listTemplates）
 
+**接口路径**：`/approval-api`
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| service | String | 是 | 固定为 `listTemplates` |
+
+**响应（result）**：模板数组，单项结构如下：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | String | 模板 ID |
+| name | String | 模板名称 |
+| description | String | 模板描述 |
+| enabled | Boolean | 模板是否启用 |
+| usageCount | Number | 使用次数 |
+| autoImportEnabled | Boolean | 是否自动入库 |
+| targetFolder | Object \| null | 入库目标文件夹 |
+| workflow | Array | 节点流程定义 |
+
 请求：
 
 ```json
@@ -62,7 +85,47 @@
 - `targetFolder`（可能为空）
 - `workflow`（节点定义，包含审批人、抄送、签审模式、超时配置等）
 
+**curl 示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "listTemplates"
+}'
+```
+
 ## 创建审批任务（createApproval）
+
+**接口路径**：`/approval-api`
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| service | String | 是 | 固定为 `createApproval` |
+| templateId | String | 是 | 审批模板 ID |
+| createdBy | String | 是 | 发起人用户 ID |
+| assets | Array | 是 | 素材列表，至少 1 条 |
+| sourceContext | Object | 否 | 业务上下文 |
+| reason | String | 否 | 发起原因 |
+
+**assets[] 字段**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| name | String | 是 | 素材名称，建议传原始文件名 |
+| url | String | 是 | 公网可访问 `http/https` 地址 |
+| size | Number | 否 | 文件大小（字节） |
+| mimeType | String | 否 | MIME 类型 |
+| extension | String | 否 | 文件扩展名 |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| taskId | String | 审批任务 ID |
 
 请求字段：
 
@@ -111,7 +174,50 @@
 - `assets[].url` 必须是公网地址，不能是 `localhost`、内网域名或私网 IP
 - 下载超时或超大小限制会返回 `invalid_payload:*`
 
+**curl 示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "assets": [
+      {
+        "name": "demo.mp4",
+        "url": "https://cdn.example.com/m/asset_1.mp4"
+      }
+    ]
+}'
+```
+
 ## 查询任务状态（taskStatusQuery）
+
+**接口路径**：`/approval-api`
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| service | String | 是 | 固定为 `taskStatusQuery` |
+| taskId | String | 是 | 审批任务 ID（正整数） |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| taskId | String | 任务 ID |
+| status | String | 任务状态：`PENDING` / `PROCESSING` / `APPROVED` / `REJECTED` / `CANCELED` |
+| statusLabel | String | 状态文案 |
+| progressPercent | Number | 进度百分比 |
+| currentNodeName | String \| null | 当前节点名称 |
+| currentNodeSignMode | String \| null | 当前节点签审模式（`and` / `or`） |
+| currentNodeProgress | Object | 当前节点统计 |
+| currentNodeApprovers | Array | 当前节点审批人状态列表 |
+| operator | String \| null | 最近操作人 |
+| updatedAt | String | 更新时间（ISO） |
 
 请求：
 
@@ -133,7 +239,37 @@
 - `currentNodeApprovers`（节点内审批人状态）
 - `operator` / `updatedAt`
 
+**curl 示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "taskStatusQuery",
+    "taskId": "9527"
+}'
+```
+
 ## 订阅与回调（subscriptionQuery / subscriptionChange）
+
+### 查询订阅状态（subscriptionQuery）
+
+**接口路径**：`/approval-api`
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| service | String | 是 | 固定为 `subscriptionQuery` |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| subscribed | Boolean | 是否已订阅 |
+| callbackUrl | String \| null | 当前订阅回调地址 |
+| updatedAt | String \| null | 最近更新时间（ISO） |
 
 查询是否订阅：
 
@@ -142,6 +278,35 @@
   "service": "subscriptionQuery"
 }
 ```
+
+**curl 示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionQuery"
+}'
+```
+
+### 变更订阅（subscriptionChange）
+
+**接口路径**：`/approval-api`
+
+**请求参数**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| service | String | 是 | 固定为 `subscriptionChange` |
+| operation | String | 否 | `ADD` / `DELETE`，默认 `ADD` |
+| callbackUrl | String | 条件必填 | 当 `operation = ADD` 时必填，必须为 `http/https` |
+
+**响应参数**：
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| result | Boolean | `true` 表示当前为已订阅状态；`false` 表示当前为取消订阅状态 |
 
 订阅回调：
 
@@ -160,6 +325,31 @@
   "service": "subscriptionChange",
   "operation": "DELETE"
 }
+```
+
+**curl 示例（ADD）**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "ADD",
+    "callbackUrl": "https://example.com/webhook/approval"
+}'
+```
+
+**curl 示例（DELETE）**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "DELETE"
+}'
 ```
 
 ### 订阅回调 payload 说明
@@ -189,83 +379,97 @@
 
 字段说明：
 
-- `eventId`：事件唯一 ID（接收方建议按此做幂等）
-- `eventType`：固定为 `APPROVAL`
-- `eventTime`：毫秒时间戳字符串
-- `payload`：业务数据体
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| eventId | String | 事件唯一 ID（接收方建议按此做幂等） |
+| eventType | String | 固定为 `APPROVAL` |
+| eventTime | String | 毫秒时间戳字符串 |
+| payload | Object | 业务数据体 |
 
 #### payload 公共字段
 
 每个回调事件的 `payload` 至少包含：
 
-- `eventName`：事件名
-- `orgId`：组织 ID（由系统填充）
-- `taskId`：审批任务 ID
-- `taskStatus`：任务状态（`PROCESSING` / `APPROVED` / `TIMEOUT`）
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| eventName | String | 事件名 |
+| orgId | String | 组织 ID（由系统填充） |
+| taskId | String | 审批任务 ID |
+| taskStatus | String | 任务状态：`PROCESSING` / `APPROVED` / `TIMEOUT` |
 
 #### 事件全集（触发条件）
 
-- `NODE_STARTED`：节点开始处理时触发（创建任务首节点、节点流转到下一节点、流转到重提节点都会触发）
-- `APPROVER_SUBMITTED`：审批人在节点提交审批意见时触发（同一节点可多次触发，不同审批人各触发一次）
-- `NODE_COMPLETED`：某节点办结时触发（通过 / 拒绝）
-- `NODE_TRANSFERRED`：节点办结后流转到下一处理节点时触发（正常流转、重提流转、超时转交流转）
-- `SUBMITTER_RESUBMITTED`：发起人在“待重新提交”节点提交新素材时触发
-- `TASK_APPROVED`：任务终态通过时触发
-- `NODE_TIMEOUT`：节点超时时触发（超时转交或超时待重新分配）
+| eventName | 触发条件 |
+|-|-|
+| NODE_STARTED | 节点开始处理时触发（创建任务首节点、节点流转到下一节点、流转到重提节点） |
+| APPROVER_SUBMITTED | 审批人在节点提交审批意见时触发（同一节点可多次触发） |
+| NODE_COMPLETED | 某节点办结时触发（通过 / 拒绝） |
+| NODE_TRANSFERRED | 节点办结后流转到下一处理节点时触发（正常流转、重提流转、超时转交流转） |
+| SUBMITTER_RESUBMITTED | 发起人在“待重新提交”节点提交新素材时触发 |
+| TASK_APPROVED | 任务终态通过时触发 |
+| NODE_TIMEOUT | 节点超时时触发（超时转交或超时待重新分配） |
 
 #### 字段定义（完整）
 
 ##### `payload.node`（节点对象）
 
-- `nodeId`（`string`）：节点 ID（必有）
-- `nodeOrder`（`number`）：节点顺序（部分事件存在）
-- `nodeRole`（`string`）：节点角色（`normal` / `resubmit_submitter` / `resubmit_approver`，部分事件存在）
-- `nodeStatus`（`string`）：节点状态
-  - 常见值：`pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned`
-- `signMode`（`string`）：签审模式（`and` / `or`，按场景出现）
-- `approverCount`（`number`）：审批人数（按场景出现）
-- `approvers`（`array`）：节点办结时审批人结果（`NODE_COMPLETED`）
-  - 子项：`id`、`name`、`status`
-- `startedAt`（`string`）：节点开始时间（ISO）
-- `completedAt`（`string`）：节点完成时间（ISO）
-- `timeoutHours`（`number`）：节点超时阈值小时数（超时事件出现）
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| nodeId | String | 节点 ID（必有） |
+| nodeOrder | Number | 节点顺序（部分事件存在） |
+| nodeRole | String | 节点角色：`normal` / `resubmit_submitter` / `resubmit_approver`（部分事件存在） |
+| nodeStatus | String | 节点状态，常见值：`pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned` |
+| signMode | String | 签审模式：`and` / `or`（按场景出现） |
+| approverCount | Number | 审批人数（按场景出现） |
+| approvers | Array | 节点办结时审批人结果（`NODE_COMPLETED`），子项含 `id` / `name` / `status` |
+| startedAt | String | 节点开始时间（ISO） |
+| completedAt | String | 节点完成时间（ISO） |
+| timeoutHours | Number | 节点超时阈值小时数（超时事件出现） |
 
 ##### `payload.approver`（审批人提交对象，`APPROVER_SUBMITTED`）
 
-- `id`（`string`）：审批人用户 ID
-- `name`（`string`）：审批人名称
-- `decision`（`approved` | `rejected`）：审批决定
-- `comment`（`string`）：审批意见
-- `submittedAt`（`string`）：提交时间（ISO）
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | String | 审批人用户 ID |
+| name | String | 审批人名称 |
+| decision | String | 审批决定：`approved` / `rejected` |
+| comment | String | 审批意见 |
+| submittedAt | String | 提交时间（ISO） |
 
 ##### `payload.submitter`（提交人对象，`SUBMITTER_RESUBMITTED`）
 
-- `id`（`string`）：提交人用户 ID
-- `name`（`string`）：提交人名称
-- `comment`（`string`）：重提备注
-- `submittedAt`（`string`）：提交时间（ISO）
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | String | 提交人用户 ID |
+| name | String | 提交人名称 |
+| comment | String | 重提备注 |
+| submittedAt | String | 提交时间（ISO） |
 
 ##### `payload.timeout`（超时对象）
 
-- `transferTo`（`object | null`）：超时转交目标
-  - 有转交人时：`{ "id": "...", "name": "..." }`
-  - 无转交人时：`null`
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| transferTo | Object \| null | 超时转交目标；有转交人时为 `{ "id": "...", "name": "..." }`，无转交人时为 `null` |
 
 ##### `payload.latestAssets`（重提素材快照，`SUBMITTER_RESUBMITTED`）
 
-- `assetId`（`string`）
-- `filePathId`（`string`）
-- `version`（`number`）
-- `oldStorePath`（`string`）：旧版本存储路径
-- `newStorePath`（`string`）：新版本存储路径
-- `updatedAt`（`string`）：更新时间（ISO）
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| assetId | String | 素材 ID |
+| filePathId | String | 文件路径 ID |
+| version | Number | 素材版本号 |
+| oldStorePath | String | 旧版本存储路径 |
+| newStorePath | String | 新版本存储路径 |
+| updatedAt | String | 更新时间（ISO） |
 
 ##### `payload.transferReason`（`NODE_TRANSFERRED`）
 
-- `NEXT_NODE`：正常流转到下一审批节点
-- `RESUBMIT_SUBMITTER`：流转到待重新提交节点
-- `RESUBMIT_APPROVER`：重提后流转到重审节点
-- `TIMEOUT_TRANSFER`：超时后转交
+| 枚举值 | 描述 |
+|-|-|
+| NEXT_NODE | 正常流转到下一审批节点 |
+| RESUBMIT_SUBMITTER | 流转到待重新提交节点 |
+| RESUBMIT_APPROVER | 重提后流转到重审节点 |
+| TIMEOUT_TRANSFER | 超时后转交 |
 
 #### 回调示例（全事件）
 
@@ -612,33 +816,3 @@
 2. 若配置了超时转交人：紧接着触发 `NODE_TRANSFERRED`（`transferReason = TIMEOUT_TRANSFER`），任务回到 `PROCESSING`
 3. 若无可转交人：仅有 `NODE_TIMEOUT`（常见 `nodeStatus = re_assigned`），等待人工处理后再推进
 
-## curl 示例
-
-查询模板：
-
-```bash
-curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{"service":"listTemplates"}'
-```
-
-创建审批任务：
-
-```bash
-curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-    "service":"createApproval",
-    "templateId":"101",
-    "createdBy":"10086",
-    "assets":[{"name":"demo.mp4","url":"https://cdn.example.com/m/asset_1.mp4"}]
-  }'
-```
-
-查询任务状态：
-
-```bash
-curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{"service":"taskStatusQuery","taskId":"9527"}'
-```

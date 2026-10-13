@@ -1,6 +1,9 @@
 ## Approval Open API
 
-- `POST https://muse-open.test.tezign.com/api/muse/approval-api`
+- **Production base URL**: `https://open.musedam.cc/api/muse`
+- **Approval path**: `/approval-api`
+- **Full endpoint**: `POST https://open.musedam.cc/api/muse/approval-api`
+- **Availability**: This API is available only after purchasing and enabling the **Approval Center extension module**.
 
 ## Request conventions
 
@@ -8,6 +11,7 @@
 - `Content-Type`: `application/json`
 - Body must be valid JSON
 - Use `service` to select the capability
+- Include header: `Authorization: Bearer your_api_key`
 
 Supported `service` values:
 
@@ -38,6 +42,27 @@ Common error codes:
 
 ## listTemplates
 
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `listTemplates` |
+
+**Response (`result`)**: an array of templates.
+
+| Field | Type | Description |
+|-|-|-|
+| id | String | Template ID |
+| name | String | Template name |
+| description | String | Template description |
+| enabled | Boolean | Whether the template is enabled |
+| usageCount | Number | Number of uses |
+| autoImportEnabled | Boolean | Whether auto-import is enabled |
+| targetFolder | Object \| null | Target folder for auto-import |
+| workflow | Array | Approval workflow node definitions |
+
 Request:
 
 ```json
@@ -49,7 +74,47 @@ Request:
 `result` is an array of templates with fields such as:
 `id`, `name`, `description`, `enabled`, `usageCount`, `autoImportEnabled`, `targetFolder`, `workflow`.
 
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "listTemplates"
+}'
+```
+
 ## createApproval
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `createApproval` |
+| templateId | String | Yes | Approval template ID |
+| createdBy | String | Yes | Initiator user ID |
+| assets | Array | Yes | Asset list, at least 1 item |
+| sourceContext | Object | No | Business context |
+| reason | String | No | Submission reason |
+
+**assets[] fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| name | String | Yes | Asset name; original filename is recommended |
+| url | String | Yes | Publicly accessible `http/https` URL |
+| size | Number | No | File size in bytes |
+| mimeType | String | No | MIME type |
+| extension | String | No | File extension |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | String | Approval task ID |
 
 Required fields:
 
@@ -86,7 +151,50 @@ Success example:
 }
 ```
 
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "assets": [
+      {
+        "name": "demo.mp4",
+        "url": "https://cdn.example.com/m/asset_1.mp4"
+      }
+    ]
+}'
+```
+
 ## taskStatusQuery
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `taskStatusQuery` |
+| taskId | String | Yes | Approval task ID (positive integer) |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | String | Task ID |
+| status | String | `PENDING` / `PROCESSING` / `APPROVED` / `REJECTED` / `CANCELED` |
+| statusLabel | String | Status label |
+| progressPercent | Number | Progress percentage |
+| currentNodeName | String \| null | Current node name |
+| currentNodeSignMode | String \| null | Current node sign mode (`and` / `or`) |
+| currentNodeProgress | Object | Current node progress summary |
+| currentNodeApprovers | Array | Current node approver status list |
+| operator | String \| null | Latest operator |
+| updatedAt | String | Last updated time (ISO) |
 
 Request:
 
@@ -100,7 +208,37 @@ Request:
 `result.status` values:
 `PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`.
 
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "taskStatusQuery",
+    "taskId": "9527"
+}'
+```
+
 ## Subscription and callbacks
+
+### Query subscription status (`subscriptionQuery`)
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `subscriptionQuery` |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| subscribed | Boolean | Whether subscription is active |
+| callbackUrl | String \| null | Current callback URL |
+| updatedAt | String \| null | Last updated time (ISO) |
 
 Check subscription:
 
@@ -109,6 +247,35 @@ Check subscription:
   "service": "subscriptionQuery"
 }
 ```
+
+**curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionQuery"
+}'
+```
+
+### Change subscription (`subscriptionChange`)
+
+**Path**: `/approval-api`
+
+**Request parameters**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| service | String | Yes | Fixed value: `subscriptionChange` |
+| operation | String | No | `ADD` or `DELETE`; default is `ADD` |
+| callbackUrl | String | Conditional | Required when `operation = ADD`; must be `http/https` |
+
+**Response fields**:
+
+| Field | Type | Description |
+|-|-|-|
+| result | Boolean | `true` means subscribed, `false` means unsubscribed |
 
 Add subscription:
 
@@ -127,6 +294,31 @@ Cancel subscription:
   "service": "subscriptionChange",
   "operation": "DELETE"
 }
+```
+
+**curl (ADD)**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "ADD",
+    "callbackUrl": "https://example.com/webhook/approval"
+}'
+```
+
+**curl (DELETE)**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "subscriptionChange",
+    "operation": "DELETE"
+}'
 ```
 
 ### Callback payload specification
@@ -156,81 +348,97 @@ Callback body:
 
 Field notes:
 
-- `eventId`: unique event id (use as idempotency key)
-- `eventType`: always `APPROVAL`
-- `eventTime`: millisecond timestamp string
-- `payload`: business payload
+| Field | Type | Description |
+|-|-|-|
+| eventId | String | Unique event id (recommended idempotency key) |
+| eventType | String | Always `APPROVAL` |
+| eventTime | String | Millisecond timestamp string |
+| payload | Object | Business payload |
 
 #### Common payload fields
 
 Every callback `payload` contains at least:
 
-- `eventName`
-- `orgId` (system populated)
-- `taskId`
-- `taskStatus` (`PROCESSING` / `APPROVED` / `TIMEOUT`)
+| Field | Type | Description |
+|-|-|-|
+| eventName | String | Event name |
+| orgId | String | Organization ID (system populated) |
+| taskId | String | Approval task ID |
+| taskStatus | String | `PROCESSING` / `APPROVED` / `TIMEOUT` |
 
 #### Full event set
 
-- `NODE_STARTED`: when a node starts (first node, normal transition, or resubmit transition)
-- `APPROVER_SUBMITTED`: when an approver submits a decision (can happen multiple times per node)
-- `NODE_COMPLETED`: when a node is completed (approved/rejected)
-- `NODE_TRANSFERRED`: when flow transfers to another processing node (normal/resubmit/timeout transfer)
-- `SUBMITTER_RESUBMITTED`: when submitter uploads updated assets at resubmit step
-- `TASK_APPROVED`: when task reaches final approved status
-- `NODE_TIMEOUT`: when node times out (timeout transfer or re-assignment pending)
+| eventName | Trigger |
+|-|-|
+| NODE_STARTED | Triggered when a node starts (first node, normal transition, or resubmit transition) |
+| APPROVER_SUBMITTED | Triggered when an approver submits a decision (can happen multiple times in one node) |
+| NODE_COMPLETED | Triggered when a node is completed (approved/rejected) |
+| NODE_TRANSFERRED | Triggered when flow transfers to another node (normal, resubmit, timeout transfer) |
+| SUBMITTER_RESUBMITTED | Triggered when submitter resubmits assets in resubmit step |
+| TASK_APPROVED | Triggered when the task reaches final approved status |
+| NODE_TIMEOUT | Triggered when a node times out (timeout transfer or pending reassignment) |
 
 #### Field definitions
 
 ##### `payload.node`
 
-- `nodeId` (`string`): node id
-- `nodeOrder` (`number`): node order (present in some events)
-- `nodeRole` (`string`): `normal` / `resubmit_submitter` / `resubmit_approver` (event-specific)
-- `nodeStatus` (`string`): common values include `pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned`
-- `signMode` (`string`): `and` / `or` (event-specific)
-- `approverCount` (`number`): approver count (event-specific)
-- `approvers` (`array`): approver results on `NODE_COMPLETED`, item fields: `id`, `name`, `status`
-- `startedAt` (`string`): ISO start time
-- `completedAt` (`string`): ISO completion time
-- `timeoutHours` (`number`): timeout threshold in hours (timeout events)
+| Field | Type | Description |
+|-|-|-|
+| nodeId | String | Node ID (always present) |
+| nodeOrder | Number | Node order (present in some events) |
+| nodeRole | String | `normal` / `resubmit_submitter` / `resubmit_approver` (event-specific) |
+| nodeStatus | String | Common values: `pending` / `processing` / `approved` / `rejected` / `timeout_transferred` / `re_assigned` |
+| signMode | String | `and` / `or` (event-specific) |
+| approverCount | Number | Approver count (event-specific) |
+| approvers | Array | Approver results on `NODE_COMPLETED`; item fields: `id`, `name`, `status` |
+| startedAt | String | Node start time (ISO) |
+| completedAt | String | Node completion time (ISO) |
+| timeoutHours | Number | Timeout threshold in hours (timeout events) |
 
 ##### `payload.approver` (`APPROVER_SUBMITTED`)
 
-- `id` (`string`): approver user id
-- `name` (`string`): approver name
-- `decision` (`approved` | `rejected`)
-- `comment` (`string`)
-- `submittedAt` (`string`, ISO)
+| Field | Type | Description |
+|-|-|-|
+| id | String | Approver user ID |
+| name | String | Approver name |
+| decision | String | `approved` / `rejected` |
+| comment | String | Approval comment |
+| submittedAt | String | Submitted time (ISO) |
 
 ##### `payload.submitter` (`SUBMITTER_RESUBMITTED`)
 
-- `id` (`string`): submitter user id
-- `name` (`string`): submitter name
-- `comment` (`string`): resubmission comment
-- `submittedAt` (`string`, ISO)
+| Field | Type | Description |
+|-|-|-|
+| id | String | Submitter user ID |
+| name | String | Submitter name |
+| comment | String | Resubmission comment |
+| submittedAt | String | Submitted time (ISO) |
 
 ##### `payload.timeout`
 
-- `transferTo` (`object | null`): timeout transfer target
-  - when present: `{ "id": "...", "name": "..." }`
-  - otherwise: `null`
+| Field | Type | Description |
+|-|-|-|
+| transferTo | Object \| null | Timeout transfer target; when present: `{ "id": "...", "name": "..." }`, otherwise `null` |
 
 ##### `payload.latestAssets` (`SUBMITTER_RESUBMITTED`)
 
-- `assetId` (`string`)
-- `filePathId` (`string`)
-- `version` (`number`)
-- `oldStorePath` (`string`)
-- `newStorePath` (`string`)
-- `updatedAt` (`string`, ISO)
+| Field | Type | Description |
+|-|-|-|
+| assetId | String | Asset ID |
+| filePathId | String | File path ID |
+| version | Number | Asset version |
+| oldStorePath | String | Previous storage path |
+| newStorePath | String | New storage path |
+| updatedAt | String | Updated time (ISO) |
 
 ##### `payload.transferReason` (`NODE_TRANSFERRED`)
 
-- `NEXT_NODE`: normal transition to next approval node
-- `RESUBMIT_SUBMITTER`: transition to submitter resubmission node
-- `RESUBMIT_APPROVER`: transition to approver re-review node after resubmission
-- `TIMEOUT_TRANSFER`: transition after timeout transfer
+| Enum | Description |
+|-|-|
+| NEXT_NODE | Normal transition to the next approval node |
+| RESUBMIT_SUBMITTER | Transition to submitter resubmission node |
+| RESUBMIT_APPROVER | Transition to approver re-review node after resubmission |
+| TIMEOUT_TRANSFER | Transition after timeout transfer |
 
 #### Callback examples (all events)
 
