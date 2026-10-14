@@ -9,7 +9,7 @@ export function getDeveloperDocument(lng: string, slug: string) {
   return {
     slug,
     title: english ? 'MuseDAM Developer Platform' : localizeDeveloperText('MuseDAM 开放平台', lng),
-    updatedAt: '2026-10-13',
+    updatedAt: '2026-10-14',
     markdown: [
       english
         ? 'Connect your MuseDAM asset and product libraries using Open API, app integrations and MCP.'
@@ -18,11 +18,11 @@ export function getDeveloperDocument(lng: string, slug: string) {
             lng,
           ),
       'Open API: https://open.musedam.cc/api/muse (cn) / https://open.musedam.ai/api/muse (overseas)',
-      'Product Library API: https://open.musedam.cc/api/product',
+      'Product Library API: POST https://open.musedam.cc/api/muse/product-api',
       english
-        ? 'Read Product Library API under Open API for authorization, endpoint parameters and examples. Use an existing MuseDAM API key with Authorization: Bearer <key>; a Product Library Manager must first add it as an API Key Collaborator. Access follows the collaborator role.'
+        ? 'Read Product Library API under Open API for authorization, service parameters and examples. Send Content-Type: application/json and put service and all business parameters at the top level of the JSON body. Use your MuseDAM API key with Authorization: Bearer <APIKEY>; a Product Library Manager must first add it as an API Key Collaborator. Access follows the collaborator role.'
         : localizeDeveloperText(
-            '商品库接入请阅读「开放 API → 商品库 API」，查看授权步骤、接口参数与示例。使用现有 MuseDAM API Key，通过 Authorization: Bearer <key> 认证；商品库管理员须先将密钥添加为 API Key Collaborator，访问权限由协作者角色决定。',
+            '商品库接入请阅读「开放 API → 商品库 API」，查看授权步骤、接口参数与示例。携带 Content-Type: application/json，将 service 和全部业务参数放在 JSON 请求体顶层。使用现有 MuseDAM API Key，通过 Authorization: Bearer <APIKEY> 认证；商品库管理员须先将密钥添加为 API Key Collaborator，访问权限由协作者角色决定。',
             lng,
           ),
       'App API: https://open.musedam.cc/api/apps (cn) / https://open.musedam.ai/api/apps (overseas)',

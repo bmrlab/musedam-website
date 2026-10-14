@@ -1,10 +1,10 @@
 ## 快速接入
 
-商品庫 API 的服務位址為 `https://open.musedam.cc/api/product`。在此位址後加上接口路徑，例如 `/products`。
+商品庫全部 31 個操作統一使用 POST `https://open.musedam.cc/api/muse/product-api`。透過 `service` 指定下文的操作識別碼，所有業務參數放在扁平 JSON 請求本文中。
 
 1. 取得 MuseDAM API Key。
 2. 請商品庫管理員在「成員設定 → 新增成員」中，將該密鑰新增為 API Key 協作者，並指派所需角色。
-3. 從伺服器端呼叫接口，在請求標頭中攜帶 `Authorization: Bearer <key>`。
+3. 從伺服器端呼叫接口，在請求標頭中攜帶 `Authorization: Bearer <APIKEY>`。
 
 權限依密鑰所屬團隊和協作者目前角色驗證，請求參數不能切換商品庫。
 
@@ -22,15 +22,21 @@
 將 `your_api_key` 替換為已授權的 API Key，查詢商品列表：
 
 ```bash
-curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProducts",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 請求成功時，`success` 為 `true`，`data` 為商品列表，`pagination` 為分頁資訊。列表為空時，請先確認商品庫中是否有目前角色可見的商品；`view_only` 和 `usable` 只能檢視已發佈商品。
 
 ## 請求與回應
 
-所有請求均攜帶 `Authorization: Bearer <key>`；JSON 請求使用 `Content-Type: application/json`。介面表中的路徑均相對上述服務地址。
+所有請求均使用您自己的 MuseDAM API Key，攜帶 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json`。全部操作使用相同的公開 POST 位址；資源 ID、分頁、篩選和寫入欄位均為 JSON 請求本文欄位，與必填的 `service` 同層。
 
 JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 
@@ -59,7 +65,7 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 
 商品和素材可能在請求期間變為不可見，因此實際回傳筆數可能少於 `pageSize`，計數仍保留分頁時的結果。單一資源不可見時回傳 `404`。
 
-需要持續同步商品時，請使用[游標同步](#cycle-protocol)，不要依靠一般頁碼列表。篩選參數見具體接口；一般查詢會忽略未知參數，JSON 請求主體會拒絕未知欄位。
+需要持續同步商品時，請使用[游標同步](#cycle-protocol)，不要依靠一般頁碼列表。篩選參數見具體接口；一般讀取服務忽略未知業務欄位，寫入服務拒絕未知業務欄位；歷史和同步讀取採用更嚴格的驗證。
 
 <details id="field-formats">
 <summary>欄位格式</summary>
@@ -97,7 +103,7 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 <details id="error-catalog">
 <summary>請求限制與錯誤處理</summary>
 
-請求本文最多 1 MiB。未知 JSON 欄位會被拒絕；一般查詢忽略未知參數，歷史和同步查詢另有嚴格驗證。
+請求本文最多 1 MiB。寫入服務拒絕未知業務欄位，一般讀取服務忽略未知業務欄位；歷史和同步讀取服務嚴格驗證。此規則依服務區分，與 HTTP 方法無關。
 
 | 回傳結果 | 處理方式 |
 | --- | --- |
@@ -136,9 +142,9 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 
 ### 獲取品牌列表
 
-**接口路徑**：/brands
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：返回公開元數據，按 sortOrder 再按 id 排序。不包含原始 logo URL。
 
@@ -146,8 +152,11 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `listBrands`. |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
@@ -156,9 +165,14 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/brands?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listBrands",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listBrands">
@@ -196,9 +210,9 @@ curl --request GET \
 
 ### 創建品牌
 
-**接口路徑**：/brands
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：創建品牌；允許名稱重復，code 由服務端生成。Logo 地址限制見下方參數表。
 
@@ -206,10 +220,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createBrand`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | BrandCreate | 是 | JSON 請求體：application/json |
 
 **BrandCreate參數說明**：
 
@@ -228,11 +244,11 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/brands' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createBrand",
   "name": "Example brand"
 }'
 ```
@@ -264,9 +280,9 @@ curl --request POST \
 
 ### 獲取品牌詳情
 
-**接口路徑**：/brands/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：回傳指定品牌的公開元資料及目前的強 ETag，不包含原始 logo URL。
 
@@ -274,9 +290,12 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `getBrand`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：Brand。 [欄位說明](#fields-Brand)
 
@@ -285,9 +304,13 @@ curl --request POST \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/brands/10' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getBrand",
+  "id": 10
+}'
 ```
 
 <details id="response-getBrand">
@@ -317,9 +340,9 @@ curl --request GET \
 
 ### 更新品牌
 
-**接口路徑**：/brands/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：PATCH
+**請求方式**： POST
 
 **接口描述**：更新所提供的元數據字段；未提供的屬性保持不變。不支持文件上傳或通用素材替換。
 
@@ -327,11 +350,13 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `updateBrand`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | BrandPatch | 是 | JSON 請求體：application/json |
 
 **BrandPatch參數說明**：
 
@@ -350,11 +375,12 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/brands/10' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateBrand",
+  "id": 10,
   "description": "Updated by API"
 }'
 ```
@@ -386,9 +412,9 @@ curl --request PATCH \
 
 ### 刪除品牌
 
-**接口路徑**：/brands/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：DELETE
+**請求方式**： POST
 
 **接口描述**：僅可刪除沒有有效分類或商品的品牌，否則返回 409；絕不會級聯刪除商品。
 
@@ -396,9 +422,12 @@ curl --request PATCH \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `deleteBrand`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
@@ -408,9 +437,13 @@ curl --request PATCH \
 請求示例：
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/brands/10' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteBrand",
+  "id": 10
+}'
 ```
 
 <details id="response-deleteBrand">
@@ -463,9 +496,9 @@ curl --request DELETE \
 
 ### 獲取分類列表
 
-**接口路徑**：/categories
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：返回扁平的有效分類樹，按 brandId、parentId、sortOrder 和 id 排序。可選按品牌篩選；不會隱式展開子樹。
 
@@ -473,20 +506,28 @@ curl --request DELETE \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `listCategorys`. |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
-| brandId | Integer | 否 | 查詢參數。按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
+| brandId | Integer | 否 | 請求本文欄位。按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：List&lt;Category&gt;。 [欄位說明](#fields-Category) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/categories?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listCategorys",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listCategorys">
@@ -527,9 +568,9 @@ curl --request GET \
 
 ### 創建分類
 
-**接口路徑**：/categories
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：在指定品牌下創建有效節點。父節點必須是同一品牌/商品庫中的有效節點。最大深度為 10，每個品牌最多 5000 個有效節點。同級名稱必須唯一。僅當商品庫默認模板未綁定任何品牌或已綁定該品牌時，才會添加顯式模板綁定；否則分類仍創建成功，不添加顯式綁定，並保留依次查找祖先分類、品牌和商品庫默認模板的解析順序。
 
@@ -537,10 +578,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createCategory`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | CategoryCreate | 是 | JSON 請求體：application/json |
 
 **CategoryCreate參數說明**：
 
@@ -564,11 +607,11 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/categories' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createCategory",
   "name": "Catalog",
   "brandId": 10
 }'
@@ -604,9 +647,9 @@ curl --request POST \
 
 ### 獲取分類詳情
 
-**接口路徑**：/categories/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：回傳指定未刪除分類及目前的強 ETag；分類不存在或不屬於目前商品庫時回傳 404。
 
@@ -614,9 +657,12 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `getCategory`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：Category。 [欄位說明](#fields-Category)
 
@@ -625,9 +671,13 @@ curl --request POST \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/categories/20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getCategory",
+  "id": 20
+}'
 ```
 
 <details id="response-getCategory">
@@ -660,9 +710,9 @@ curl --request GET \
 
 ### 更新分類
 
-**接口路徑**：/categories/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：PATCH
+**請求方式**： POST
 
 **接口描述**：在其現有品牌內更新或移動節點；brandId 不可變更。會拒絕循環引用、超出深度/節點數限制以及無效的排序索引。以原子方式更新後代路徑。
 
@@ -670,11 +720,13 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `updateCategory`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | CategoryPatch | 是 | JSON 請求體：application/json |
 
 **CategoryPatch參數說明**：
 
@@ -697,11 +749,12 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/categories/20' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateCategory",
+  "id": 20,
   "description": "Updated by API"
 }'
 ```
@@ -736,9 +789,9 @@ curl --request PATCH \
 
 ### 刪除分類
 
-**接口路徑**：/categories/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：DELETE
+**請求方式**： POST
 
 **接口描述**：僅當沒有有效商品引用任何後代分類時，才軟刪除整個分類子樹。不會刪除或降級商品。
 
@@ -746,9 +799,12 @@ curl --request PATCH \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `deleteCategory`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
@@ -758,9 +814,13 @@ curl --request PATCH \
 請求示例：
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/categories/20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteCategory",
+  "id": 20
+}'
 ```
 
 <details id="response-deleteCategory">
@@ -893,9 +953,9 @@ curl --request DELETE \
 
 ### 獲取模板列表
 
-**接口路徑**：/product-info-templates
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：返回有效模板的元數據、綁定以及有序的分組/字段，包括僅預覽配置。按 createdAt 降序再按 id 排序。
 
@@ -903,8 +963,11 @@ curl --request DELETE \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `listTemplates`. |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
@@ -913,9 +976,14 @@ curl --request DELETE \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listTemplates",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listTemplates">
@@ -1012,9 +1080,9 @@ curl --request GET \
 
 ### 創建模板
 
-**接口路徑**：/product-info-templates
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：建立模板及不可變版本。syncStrategy 可省略，目前僅支援 newOnly；最多 200 個欄位，不會變更任何既有商品。
 
@@ -1022,10 +1090,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createTemplate`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | TemplateCreate | 是 | JSON 請求體：application/json |
 
 **TemplateCreate參數說明**：
 
@@ -1051,11 +1121,11 @@ name/description 會去除首尾空白。所有分組合計最多 200 個字段�
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-info-templates' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createTemplate",
   "name": "Example template",
   "groups": [
     {
@@ -1159,9 +1229,9 @@ curl --request POST \
 
 ### 獲取模板詳情
 
-**接口路徑**：/product-info-templates/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：回傳指定未刪除模板的元資料、綁定及分組／欄位，包括僅供預覽的設定。分組和欄位按 sortOrder、id 升序排列。回應包含目前的強 ETag，涵蓋有效欄位、分組、綁定集合及預設模板標記。
 
@@ -1169,9 +1239,12 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | String | 是 | 路徑參數。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
+| service | String | 是 | 服務識別碼，固定為 `getTemplate`. |
+| id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
 
 **響應參數**： `200`，`data`：Template。 [欄位說明](#fields-Template)
 
@@ -1180,9 +1253,13 @@ curl --request POST \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getTemplate",
+  "id": "template_example"
+}'
 ```
 
 <details id="response-getTemplate">
@@ -1271,9 +1348,9 @@ curl --request GET \
 
 ### 更新模板
 
-**接口路徑**：/product-info-templates/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：PATCH
+**請求方式**： POST
 
 **接口描述**：使用與瀏覽器端共享的批量操作。省略 `groups` 欄位時保留原定義；提供 `groups` 時完整替換分組和欄位。會校驗穩定 ID 以及受保護的系統/默認字段。創建新的不可變版本，但不會遷移現有商品的固定版本或字段值；綁定/默認設置的變更會影響後續的模板解析。
 
@@ -1281,11 +1358,13 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | String | 是 | 路徑參數。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
+| service | String | 是 | 服務識別碼，固定為 `updateTemplate`. |
+| id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | TemplatePatch | 是 | JSON 請求體：application/json |
 
 **TemplatePatch參數說明**：
 
@@ -1311,11 +1390,12 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateTemplate",
+  "id": "template_example",
   "description": "Updated by API"
 }'
 ```
@@ -1406,9 +1486,9 @@ curl --request PATCH \
 
 ### 刪除模板
 
-**接口路徑**：/product-info-templates/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：DELETE
+**請求方式**： POST
 
 **接口描述**：軟刪除有效模板，同時保留現有商品所使用的不可變版本。刪除當前商品庫默認模板時，必須顯式指定替代模板或 null；默認/系統保護規則仍然適用。會移除綁定，但不會改寫現有商品的固定版本。
 
@@ -1416,15 +1496,17 @@ curl --request PATCH \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | String | 是 | 路徑參數。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
+| service | String | 是 | 服務識別碼，固定為 `deleteTemplate`. |
+| id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | TemplateDelete | 否 | JSON 請求體：application/json |
 
 **TemplateDelete參數說明**：
 
-可選請求體。若刪除的是當前商品庫默認模板，則此屬性必填：取值為同一商品庫中另一個有效模板的 ID，或顯式 null 以清除默認模板。歷史版本對固定了該版本的商品仍然可用。
+`replacementForLibraryDefault` 為選填欄位；若刪除的是目前商品庫預設範本，則必須提供同一商品庫中另一個有效範本的 ID，或明確傳入 null 以清除預設範本。包含 `service` 和 `id` 的 JSON 請求本文一律必填。歷史版本對固定了該版本的商品仍然可用。
 
 不接受未定義字段。
 
@@ -1439,11 +1521,12 @@ curl --request PATCH \
 請求示例：
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "deleteTemplate",
+  "id": "template_example",
   "replacementForLibraryDefault": null
 }'
 ```
@@ -1470,7 +1553,7 @@ curl --request DELETE \
 <details id="template-pins-and-field-values">
 <summary>模板版本與自訂欄位</summary>
 
-商品建立時儲存模板版本。讀取 `templateDefinition` 解釋 `templateFields`；後續模板變更或刪除不影響這個版本，一般 PATCH 不能更換模板。`templateFields` 以固定版本中的欄位 ID 為鍵，更新時淺合併；`null` 清空單個欄位。
+商品建立時儲存模板版本。讀取 `templateDefinition` 解釋 `templateFields`；後續模板變更或刪除不影響這個版本，`updateProduct` 不能更換模板。`templateFields` 以固定版本中的欄位 ID 為鍵，更新時淺合併；`null` 清空單個欄位。
 
 明確提供的 `templateId` 優先；否則，有 `categoryId` 時依次查找分類、祖先分類、品牌和商品庫預設模板。沒有分類時只考慮商品庫預設模板，即使傳入了品牌。
 
@@ -1489,9 +1572,9 @@ curl --request DELETE \
 <details id="cycle-protocol">
 <summary>同步與檢查點</summary>
 
-1. 首次使用 `sync=true`，省略 `updatedAfter`；增量週期傳入上次完成的 `syncedUntil`。
+1. 首次使用 `"sync": "true"`，省略 `updatedAfter`；增量週期傳入上次完成的 `syncedUntil`。
 2. 按商品 `id` 和 `updatedAt` 合併，保留較新版本。
-3. 使用 `sync=true&cursor=...` 跟隨 `nextCursor` 直到 null；即使 `data` 為空，也要繼續。
+3. 使用 `"sync": "true", "cursor": "<nextCursor>"` 跟隨 `nextCursor` 直到 null；即使 `data` 為空，也要繼續。
 4. 完成後原樣儲存 `syncedUntil`，不要改用最後一筆商品的時間。
 
 游標綁定密鑰、角色、商品庫、篩選條件和頁面大小；續頁時不要變更它們。更換授權或篩選條件要開始新週期；範圍擴大時重新完整同步。檢查點和同步 `updatedAt` 保留完整六位小數，不要用 JavaScript Date 截斷精度。每週期讀取目前狀態的 `[updatedAfter, syncedUntil)`，上界為首次請求時伺服器時間減 30 秒；長交易仍可能影響完整性，不提供每次變更的事件串流。
@@ -1587,27 +1670,30 @@ curl --request DELETE \
 
 ### 獲取或同步商品列表
 
-**接口路徑**：/products
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
-**接口描述**：普通分頁按 updatedAt/id 降序排序。sync=true 時按 (updatedAt,id) 升序排序，使用包含的下界和不包含的固定上界（PostgreSQL 時鐘減 30 秒）。全量掃描時省略 updatedAfter；請持續跟隨每個 nextCursor，即使 data 頁為空。游標綁定 key/角色/商品庫/篩選條件/pageSize/邊界。僅在遍歷完畢後原樣保存 syncedUntil；按 id 和 updatedAt 進行重放/去重。持續時間超過 30 秒安全窗口的事務屬於 v1 已接受的限制。見[同步說明](#cycle-protocol)。view_only/usable 僅可見已發佈商品。
+**接口描述**：普通分頁按 updatedAt/id 降序排序。sync: "true" 時按 (updatedAt,id) 升序排序，使用包含的下界和不包含的固定上界（PostgreSQL 時鐘減 30 秒）。全量掃描時省略 updatedAfter；請持續跟隨每個 nextCursor，即使 data 頁為空。游標綁定 key/角色/商品庫/篩選條件/pageSize/邊界。僅在遍歷完畢後原樣保存 syncedUntil；按 id 和 updatedAt 進行重放/去重。持續時間超過 30 秒安全窗口的事務屬於 v1 已接受的限制。見[同步說明](#cycle-protocol)。view_only/usable 僅可見已發佈商品。
 
 所需角色：所有協作者角色。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| page | Integer | 否 | 頁碼，正整數，預設 1；sync=true 時不可用。 |
+| service | String | 是 | 服務識別碼，固定為 `listProducts`. |
+| page | Integer | 否 | 頁碼，正整數，預設 1；sync: "true" 時不可用。 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
-| search | String | 否 | 查詢參數。去除首尾空白、不區分大小寫的子串匹配：商品名稱/spu，或素材庫素材名稱。 |
-| brandId | Integer | 否 | 查詢參數。按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
-| categoryId | Integer | 否 | 查詢參數。按精確的分類 ID 篩選，不包含其後代分類。正整數 ID，最大 2147483647。 |
-| status | String | 否 | 查詢參數。請求的商品狀態；不會擴大角色可見範圍。允許值：draft、published |
-| sync | String | 否 | 查詢參數。true 表示使用有界的鍵集同步；false 表示普通分頁。見[同步說明](#cycle-protocol)。允許值：true、false；默認值："false" |
-| updatedAfter | String | 否 | 查詢參數。僅在 sync=true 時使用。包含的下界；RFC3339 格式，使用 Z 或時區偏移，0..6 位小數，日曆日期/偏移須有效。請將 syncedUntil 作為字符串保存並復用。全量掃描時省略。格式：date-time |
-| cursor | String | 否 | 查詢參數。不透明的續頁令牌，僅在 sync=true 時使用。綁定 key、角色、商品庫、邊界、篩選條件和每頁條數。續頁時省略其他參數，或重復傳入等價的值。重復的同步參數會被拒絕。最短 1 個字符；最長 8,192 個字符 |
+| search | String | 否 | 請求本文欄位。去除首尾空白、不區分大小寫的子串匹配：商品名稱/spu，或素材庫素材名稱。 |
+| brandId | Integer | 否 | 請求本文欄位。按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
+| categoryId | Integer | 否 | 請求本文欄位。按精確的分類 ID 篩選，不包含其後代分類。正整數 ID，最大 2147483647。 |
+| status | String | 否 | 請求本文欄位。請求的商品狀態；不會擴大角色可見範圍。允許值：draft、published |
+| sync | String | 否 | 請求本文欄位。true 表示使用有界的鍵集同步；false 表示普通分頁。見[同步說明](#cycle-protocol)。允許值：true、false；默認值："false" |
+| updatedAfter | String | 否 | 請求本文欄位。僅在 sync: "true" 時使用。包含的下界；RFC3339 格式，使用 Z 或時區偏移，0..6 位小數，日曆日期/偏移須有效。請將 syncedUntil 作為字符串保存並復用。全量掃描時省略。格式：date-time |
+| cursor | String | 否 | 請求本文欄位。不透明的續頁令牌，僅在 sync: "true" 時使用。綁定 key、角色、商品庫、邊界、篩選條件和每頁條數。續頁時省略其他參數，或重復傳入等價的值。最短 1 個字符；最長 8,192 個字符 |
 
 **響應參數**： `200`，`data`：List&lt;ProductSummary&gt;。 [欄位說明](#fields-ProductSummary) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
@@ -1623,9 +1709,14 @@ curl --request DELETE \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProducts",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProducts">
@@ -1773,9 +1864,9 @@ curl --request GET \
 
 ### 創建草稿商品
 
-**接口路徑**：/products
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：僅創建草稿。創建時解析並固定一個模板版本；模板字段依據該不可變定義進行校驗。可關聯同一商品庫中現有的 FilePath ID；不支持上傳、遠程導入或回寫到提供方。冪等重放會保留原始標量結果/ETag，並且僅對在當前同一槽位中仍然有效的原始媒體按當前權限重新投影。
 
@@ -1783,10 +1874,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createProduct`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | ProductCreate | 是 | JSON 請求體：application/json |
 
 **ProductCreate參數說明**：
 
@@ -1803,7 +1896,7 @@ curl --request GET \
 | categoryId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | templateId | String | 否 | 最短 1 個字符；最長 128 個字符；可為 null |
-| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。PATCH 依據固定版本進行校驗，即使其有效模板已被刪除。 |
+| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
 | coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
@@ -1815,11 +1908,11 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/products' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createProduct",
   "name": "Example product",
   "spu": "EXAMPLE-001",
   "brandId": 10,
@@ -1913,9 +2006,9 @@ curl --request POST \
 
 ### 獲取商品及其固定版本定義
 
-**接口路徑**：/products/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：返回可訪問的有效商品及其固定的不可變模板定義，即使有效模板已變更或被刪除。不需要 templates:read。每次響應都會對媒體預覽/下載進行授權；下載需要 products:read 加 products:download，且角色為 usable 或更高。草稿對 view_only/usable 不可見。
 
@@ -1923,9 +2016,12 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `getProduct`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
 
@@ -1934,9 +2030,13 @@ curl --request POST \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getProduct",
+  "id": 40
+}'
 ```
 
 <details id="response-getProduct">
@@ -2132,9 +2232,9 @@ curl --request GET \
 
 ### 部分更新商品
 
-**接口路徑**：/products/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：PATCH
+**請求方式**： POST
 
 **接口描述**：合併標量/自定義字段，並替換所提交的媒體列表。使用不可變的固定版本定義，包括有效模板已被刪除的情況。已發佈商品還需要 products:publish 權限，並保持已發佈狀態；必須以原子方式通過對最終狀態的完整校驗。此處不接受切換狀態/模板。
 
@@ -2142,11 +2242,13 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `updateProduct`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | ProductPatch | 是 | JSON 請求體：application/json |
 
 **ProductPatch參數說明**：
 
@@ -2162,7 +2264,7 @@ curl --request GET \
 | brandId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | categoryId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。PATCH 依據固定版本進行校驗，即使其有效模板已被刪除。 |
+| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
 | coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
@@ -2174,11 +2276,12 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/products/40' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateProduct",
+  "id": 40,
   "description": null,
   "templateFields": {
     "field_color": "Blue"
@@ -2268,9 +2371,9 @@ curl --request PATCH \
 
 ### 軟刪除商品
 
-**接口路徑**：/products/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：DELETE
+**請求方式**： POST
 
 **接口描述**：軟刪除一個可見的有效商品。草稿需要 delete 權限；已發佈商品需要 delete 和 publish 權限。歷史模板版本保持不變。不與提供方同步。重復刪除返回 404。
 
@@ -2278,9 +2381,12 @@ curl --request PATCH \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `deleteProduct`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
@@ -2290,9 +2396,13 @@ curl --request PATCH \
 請求示例：
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/products/40' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteProduct",
+  "id": 40
+}'
 ```
 
 <details id="response-deleteProduct">
@@ -2314,9 +2424,9 @@ curl --request DELETE \
 
 ### 發佈商品或將商品退回草稿
 
-**接口路徑**：/products/&#123;id&#125;/status
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：PATCH
+**請求方式**： POST
 
 **接口描述**：始終同時需要 update 和 publish 權限。發佈時會校驗固定版本的所有必填/類型/選項/媒體規則；狀態無效時返回 422 及字段詳情，且不做任何更改。重復發佈會保留 publishedAt，退回草稿會清除該值。不會啓動審批流程。
 
@@ -2324,11 +2434,13 @@ curl --request DELETE \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `setProductStatus`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
-| - | ProductStatus | 是 | JSON 請求體：application/json |
 
 **ProductStatus參數說明**：
 
@@ -2347,11 +2459,12 @@ curl --request DELETE \
 請求示例：
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/products/40/status' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "setProductStatus",
+  "id": 40,
   "status": "published"
 }'
 ```
@@ -2438,9 +2551,9 @@ curl --request PATCH \
 
 ### 核對已知商品 ID
 
-**接口路徑**：/products/visibility
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：在當前 key 的可見性下檢查最多 100 個已知 ID。保留順序和重復項，接受空數組。not_visible 不區分已刪除、不存在、屬於其他商品庫以及因角色而隱藏的條目。由於同步不提供刪除墓碑記錄，請定期調用以清理本地的過期條目。此讀操作不支持 Idempotency-Key 或 ETag。
 
@@ -2448,9 +2561,11 @@ curl --request PATCH \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| - | VisibilityInput | 是 | JSON 請求體：application/json |
+| service | String | 是 | 服務識別碼，固定為 `checkProductVisibility`. |
 
 **VisibilityInput參數說明**：
 
@@ -2474,11 +2589,11 @@ curl --request PATCH \
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/products/visibility' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "checkProductVisibility",
   "ids": [
     40,
     41
@@ -2530,9 +2645,9 @@ curl --request POST \
 
 ### 查找現有素材庫素材
 
-**接口路徑**：/assets
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：列出 key 所屬商品庫中有效的非目錄 FilePath 素材，按 id 排序。需要在 editable/manage 角色下具有 products:create 或 products:update 權限，而非 products:read。僅返回預覽，絕不返回原始文件下載字段。在商品寫入中使用 FilePath id；上傳不在 v1 範圍內。
 
@@ -2540,21 +2655,29 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `listAssets`. |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
-| search | String | 否 | 查詢參數。去除首尾空白、不區分大小寫的子串匹配：商品名稱/spu，或素材庫素材名稱。 |
-| mimeType | String | 否 | 查詢參數。去除首尾空白、不區分大小寫的 MIME 前綴，例如 image/ 或 application/pdf。 |
+| search | String | 否 | 請求本文欄位。去除首尾空白、不區分大小寫的子串匹配：商品名稱/spu，或素材庫素材名稱。 |
+| mimeType | String | 否 | 請求本文欄位。去除首尾空白、不區分大小寫的 MIME 前綴，例如 image/ 或 application/pdf。 |
 
 **響應參數**： `200`，`data`：List&lt;LibraryAsset&gt;。 [欄位說明](#fields-LibraryAsset) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/assets?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listAssets",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listAssets">
@@ -2591,9 +2714,9 @@ curl --request GET \
 
 ### 獲取現有素材庫素材詳情
 
-**接口路徑**：/assets/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
 **接口描述**：返回同一商品庫中有效的 FilePath 及僅預覽的媒體元數據。與列表接口使用相同的 create 或 update 權限門檻。返回不透明的強 ETag，該 ETag 基於 FilePath 和關聯 AssetObject 的標識以及所維護的更新時間戳；臨時簽名的變化不會改變此標籤。
 
@@ -2601,9 +2724,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `getAsset`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：LibraryAsset。 [欄位說明](#fields-LibraryAsset)
 
@@ -2612,9 +2738,13 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/assets/30' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getAsset",
+  "id": 30
+}'
 ```
 
 <details id="response-getAsset">
@@ -2686,19 +2816,22 @@ curl --request GET \
 
 ### 查詢團隊分享記錄
 
-**接口路徑**：/product-shares
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
-**接口描述**：按 createdAt 和 id 倒序列出當前團隊所有瀏覽器操作者及 API key 的記錄。可選 productId 返回完整的匹配操作；省略則查詢全團隊。僅接受 productId、page 和 pageSize，未知或重復參數返回 422。不會隱式限制為當前 API key 或創建者的記錄。需要 manage 和 products:history，無需 products:read。
+**接口描述**：按 createdAt 和 id 倒序列出當前團隊所有瀏覽器操作者及 API key 的記錄。可選 productId 返回完整的匹配操作；省略則查詢全團隊。僅接受 service、productId、page 和 pageSize，未知欄位返回 422。不會隱式限制為當前 API key 或創建者的記錄。需要 manage 和 products:history，無需 products:read。
 
 所需角色：manage。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| productId | Integer | 否 | 查詢參數。按一個商品 ID 篩選記錄，仍返回包含其他商品和文件的完整操作。省略時查詢當前團隊全部記錄。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `listProductShares`. |
+| productId | Integer | 否 | 請求本文欄位。按一個商品 ID 篩選記錄，仍返回包含其他商品和文件的完整操作。省略時查詢當前團隊全部記錄。正整數 ID，最大 2147483647。 |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
@@ -2707,9 +2840,14 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductShares",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProductShares">
@@ -2757,9 +2895,9 @@ curl --request GET \
 
 ### 創建商品分享
 
-**接口路徑**：/product-shares
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
 **接口描述**：為固定的已發佈商品集合創建有效期為 7/30/90 天或永久的分享。accessCode 可選且必須為四位數字。allowDownload 另需 products:download。訪問者無需登錄或 API key；未發佈/已刪除商品會從實時分享中隱藏。創建 key 的變化不會撤銷獨立的團隊分享。可選的 24 小時冪等機制復用同一分享。
 
@@ -2767,10 +2905,12 @@ curl --request GET \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createProductShare`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | ProductShareCreate | 是 | JSON 請求體：application/json |
 
 **ProductShareCreate參數說明**：
 
@@ -2788,11 +2928,11 @@ curl --request GET \
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-shares' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createProductShare",
   "productIds": [
     40
   ],
@@ -2838,9 +2978,9 @@ curl --request POST \
 
 ### 撤銷商品分享
 
-**接口路徑**：/product-shares/&#123;id&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：DELETE
+**請求方式**： POST
 
 **接口描述**：撤銷當前團隊任意分享。需要 manage 和 products:share，無需 products:read。重復撤銷返回原 revokedAt。未知或其他團隊的 ID 返回 404。不使用 ETag 或 If-Match。
 
@@ -2848,9 +2988,12 @@ curl --request POST \
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | String | 是 | 路徑參數。不透明的分享標識符。最短 1 個字符；最長 128 個字符 |
+| service | String | 是 | 服務識別碼，固定為 `revokeProductShare`. |
+| id | String | 是 | 請求本文欄位。不透明的分享標識符。最短 1 個字符；最長 128 個字符 |
 
 **響應參數**： `200`，`data`：RevokedProductShare。
 
@@ -2864,9 +3007,13 @@ curl --request POST \
 請求示例：
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-shares/share-example' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "revokeProductShare",
+  "id": "share-example"
+}'
 ```
 
 <details id="response-revokeProductShare">
@@ -2892,7 +3039,7 @@ curl --request DELETE \
 <details id="download-usage">
 <summary>選擇檔案、匯出與記錄</summary>
 
-先查詢商品下載候選，將回傳的 `key` 放入 `assetKeys`，或 URL 編碼後用作單檔路徑參數 `assetKey`；它不是 FilePath ID。原始檔案下載只有一個檔案時回傳該檔案，多個檔案時回傳 ZIP。每次選擇 1–100 個商品、最多 200 個檔案、合計不超過 500 MiB。
+先查詢商品下載候選，將回傳的 `key` 放入 `assetKeys`，或將原始 key 放入單檔請求本文欄位 `assetKey`；它不是 FilePath ID。原始檔案下載只有一個檔案時回傳該檔案，多個檔案時回傳 ZIP。每次選擇 1–100 個商品、最多 200 個檔案、合計不超過 500 MiB。
 
 匯出使用 `kind: "export"`，格式為 xlsx（預設）、csv 或 json，不能傳 `assetKeys`。`includeAssetUrls` 預設 true，匯出的連結仍需要 Bearer 請求標頭；給免登入訪客使用時應建立分享。`locale` 只影響系統標籤和狀態。
 
@@ -2950,19 +3097,22 @@ curl --request DELETE \
 
 ### 查詢團隊下載記錄
 
-**接口路徑**：/product-downloads
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
-**接口描述**：按 createdAt 和 id 倒序列出當前團隊所有瀏覽器操作者及 API key 的記錄。可選 productId 返回完整的匹配操作；省略則查詢全團隊。僅接受 productId、page 和 pageSize，未知或重復參數返回 422。不會隱式限制為當前 API key 或創建者的記錄。需要 manage 和 products:history，無需 products:read。
+**接口描述**：按 createdAt 和 id 倒序列出當前團隊所有瀏覽器操作者及 API key 的記錄。可選 productId 返回完整的匹配操作；省略則查詢全團隊。僅接受 service、productId、page 和 pageSize，未知欄位返回 422。不會隱式限制為當前 API key 或創建者的記錄。需要 manage 和 products:history，無需 products:read。
 
 所需角色：manage。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| productId | Integer | 否 | 查詢參數。按一個商品 ID 篩選記錄，仍返回包含其他商品和文件的完整操作。省略時查詢當前團隊全部記錄。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `listProductDownloads`. |
+| productId | Integer | 否 | 請求本文欄位。按一個商品 ID 篩選記錄，仍返回包含其他商品和文件的完整操作。省略時查詢當前團隊全部記錄。正整數 ID，最大 2147483647。 |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
@@ -2971,9 +3121,14 @@ curl --request DELETE \
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductDownloads",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProductDownloads">
@@ -3025,20 +3180,22 @@ curl --request GET \
 
 ### 下載原文件或導出商品
 
-**接口路徑**：/product-downloads
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：POST
+**請求方式**： POST
 
-**接口描述**：返回一個原文件、所選原文件的 ZIP，或 XLSX/CSV/JSON 業務表格導出。需要 usable 及以上角色的當前讀取和下載權限；usable 只能訪問已發佈商品。已接受的操作在交付前記入記錄。導出鏈接默認指向需認證的單文件 GET URL；每次接受的提取有自己的業務記錄。可選 Idempotency-Key 在 24 小時內保留一條記錄，每次重試仍重新鑒權並傳輸當前內容。商品讀取、預覽和舊存儲 downloadUrl 的訪問不會由此操作記入記錄。
+**接口描述**：返回一個原文件、所選原文件的 ZIP，或 XLSX/CSV/JSON 業務表格導出。需要 usable 及以上角色的當前讀取和下載權限；usable 只能訪問已發佈商品。已接受的操作在交付前記入記錄。匯出連結需要 Bearer 驗證；每次接受的提取有自己的業務記錄。依回傳值使用連結，不要根據服務位址建構或改寫連結。可選 Idempotency-Key 在 24 小時內保留一條記錄，每次重試仍重新鑒權並傳輸當前內容。商品讀取、預覽和舊存儲 downloadUrl 的訪問不會由此操作記入記錄。
 
 所需角色：usable、editable 或 manage。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `downloadProducts`. |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-| - | ProductDownloadCreate | 是 | JSON 請求體：application/json |
 
 **ProductDownloadCreate參數說明**：
 
@@ -3062,11 +3219,11 @@ assets 省略 assetKeys 時選擇全部原文件，否則僅選擇提供的當�
 請求示例：
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-downloads' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "downloadProducts",
   "kind": "export",
   "productIds": [
     40
@@ -3094,28 +3251,35 @@ X-Download-Record-Id: <record-id>
 
 ### 查詢商品下載候選素材
 
-**接口路徑**：/products/&#123;id&#125;/download-assets
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
-**接口描述**：在讀取和下載授權下返回當前候選素材的選擇 key 和 downloadable 可用性。不產生業務下載記錄，也不返回原文件或預覽 URL。使用單文件路由或 POST product-downloads 獲取文件字節。
+**接口描述**：在讀取和下載授權下返回當前候選素材的選擇 key 和 downloadable 可用性。不產生業務下載記錄，也不返回原文件或預覽 URL。使用 `downloadProductAsset` 或 `downloadProducts` 服務取得檔案位元組。
 
 所需角色：usable、editable 或 manage。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| service | String | 是 | 服務識別碼，固定為 `listProductDownloadAssets`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`data`：List&lt;ProductDownloadCandidate&gt;。 [欄位說明](#fields-ProductDownloadCandidate)
 
 請求示例：
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40/download-assets' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductDownloadAssets",
+  "id": 40
+}'
 ```
 
 <details id="response-listProductDownloadAssets">
@@ -3146,20 +3310,23 @@ curl --request GET \
 
 ### 下載一個商品原文件
 
-**接口路徑**：/products/&#123;id&#125;/download-assets/&#123;assetKey&#125;
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
 
-**請求方式**：GET
+**請求方式**： POST
 
-**接口描述**：通過編碼後的候選 key 獲取當前商品的一個原文件。需要 Bearer 請求頭以及當前讀取/下載授權；URL 不含 API key 密鑰。交付前創建業務記錄。可選的 24 小時冪等機制與 POST 下載使用不同作用域，復用記錄時仍重新鑒權並傳輸當前字節。
+**接口描述**：透過請求本文中的原始候選 key 獲取當前商品的一個原文件。需要 Bearer 請求頭以及當前讀取/下載授權；URL 不含 API key 密鑰。交付前創建業務記錄。可選的 24 小時冪等機制與 `downloadProducts`使用不同作用域，復用記錄時仍重新鑒權並傳輸當前字節。
 
 所需角色：usable、editable 或 manage。
 
 **請求參數**：
 
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| id | Integer | 是 | 路徑參數。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| assetKey | String | 是 | 路徑參數。對商品下載候選列表返回的選擇 key 進行 URL 編碼；它不是 FilePath 或 AssetObject ID。最短 1 個字符；最長 256 個字符 |
+| service | String | 是 | 服務識別碼，固定為 `downloadProductAsset`. |
+| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
+| assetKey | String | 是 | 請求本文欄位。商品下載候選列表返回的原始選擇 key，不做 URL 編碼；它不是 FilePath 或 AssetObject ID。最短 1 個字符；最長 256 個字符 |
 | Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **響應參數**： `200`。成功時回傳附件，回應本文為檔案位元組；JSON 僅用於交付前的錯誤。
@@ -3168,12 +3335,17 @@ curl --request GET \
 
 請求示例：
 
-示例使用下載候選 key p40:a2，URL 編碼後為 p40%3Aa2。請使用您的下載候選列表返回的 key，它不是 FilePath 或 AssetObject ID。
+範例將下載候選原始 key `p40:a2` 放入 JSON 請求本文的 `assetKey`，不做 URL 編碼。請使用您的下載候選列表返回的 key，它不是 FilePath 或 AssetObject ID。
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40/download-assets/p40%3Aa2' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "downloadProductAsset",
+  "id": 40,
+  "assetKey": "p40:a2"
+}' \
   --output product-asset.bin
 ```
 

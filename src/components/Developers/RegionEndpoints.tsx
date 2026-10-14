@@ -16,8 +16,8 @@ export function RegionEndpoints({
     ? [
         {
           name: english ? 'API endpoint' : localizeDeveloperText('接口地址', lng),
-          url: 'https://open.musedam.cc/api/product',
-          detail: 'REST API',
+          url: 'https://open.musedam.cc/api/muse/product-api',
+          detail: 'POST · application/json',
         },
       ]
     : [
@@ -46,7 +46,9 @@ export function RegionEndpoints({
       <strong>
         {mcp
           ? 'MCP · Streamable HTTP'
-          : `${productLibrary ? 'Product Library API' : kind === 'apps' ? 'App API' : 'Open API'} · Base URL`}
+          : productLibrary
+            ? 'Product Library API · Endpoint'
+            : `${kind === 'apps' ? 'App API' : 'Open API'} · Base URL`}
       </strong>
       {rows.map((row) => (
         <div className="dev-region-row" key={row.name}>

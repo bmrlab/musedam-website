@@ -1,10 +1,10 @@
 ## Quick start
 
-The Product Library API is available at `https://open.musedam.cc/api/product`. Append an endpoint path, such as `/products`, to this address.
+All 31 Product Library operations use POST `https://open.musedam.cc/api/muse/product-api`. Set `service` to the operation identifier shown below and put all business parameters in a flat JSON body.
 
 1. Obtain a MuseDAM API Key.
 2. Ask a Product Library manager to add the key as an API Key Collaborator in **Member settings → Add member** and assign the required role.
-3. Call the API from your server with an `Authorization: Bearer <key>` header.
+3. Call the API from your server with an `Authorization: Bearer <APIKEY>` header.
 
 Authorization uses the key’s team and the collaborator’s current role. Request parameters cannot switch product libraries.
 
@@ -22,15 +22,21 @@ Each role includes the preceding role’s permissions. Replace resource IDs in t
 Replace `your_api_key` with your authorized API Key to query the product list:
 
 ```bash
-curl --request GET 'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProducts",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 A successful response has `success: true`, a product list in `data`, and paging information in `pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
 ## Requests and responses
 
-Every request uses `Authorization: Bearer <key>`. JSON requests use `Content-Type: application/json`. Endpoint paths below are relative to the service address.
+Every request uses your own MuseDAM API Key in `Authorization: Bearer <APIKEY>` and `Content-Type: application/json`. All operations use the same public POST URL. Resource IDs, pagination, filters and write fields are JSON body fields, alongside the required `service`.
 
 JSON endpoints use the following structure. Successful downloads and exports return files directly.
 
@@ -59,7 +65,7 @@ Ordinary lists accept `page` and `pageSize` and return a top-level `pagination` 
 
 Products and assets can become invisible during a request. A page may therefore contain fewer than `pageSize` records while retaining its original counts. Reading an invisible individual resource returns `404`.
 
-Use [cursor synchronization](#cycle-protocol) to maintain a product copy; ordinary page numbers are for browsing. See each endpoint for filters. Ordinary queries ignore unknown parameters; JSON request bodies reject unknown fields.
+Use [cursor synchronization](#cycle-protocol) to maintain a product copy; ordinary page numbers are for browsing. See each endpoint for filters. Ordinary read services ignore unknown business fields; write services reject unknown business fields. History and synchronization reads use stricter validation.
 
 <details id="field-formats">
 <summary>Field formats</summary>
@@ -95,7 +101,7 @@ Resource creation accepts `Idempotency-Key`, scoped to the team, API key, and op
 <details id="error-catalog">
 <summary>Request limits and errors</summary>
 
-Request bodies are limited to 1 MiB. Unknown JSON properties are rejected. Ordinary queries ignore unknown parameters; history and sync queries use stricter validation.
+Request bodies are limited to 1 MiB. Write services reject unknown business fields. Ordinary read services ignore unknown business fields; history and synchronization read services validate them strictly. These rules depend on the service, not the HTTP method.
 
 | Result | Action |
 | --- | --- |
@@ -134,9 +140,9 @@ Use `X-Request-Id` or the JSON `requestId` for troubleshooting. A download error
 
 ### List brands
 
-**Endpoint**: /brands
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns public metadata ordered by sortOrder then id. Raw logo URLs are excluded.
 
@@ -144,8 +150,11 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `listBrands`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
@@ -154,9 +163,14 @@ Required role: any collaborator role.
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/brands?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listBrands",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listBrands">
@@ -194,7 +208,7 @@ curl --request GET \
 
 ### Create brand
 
-**Endpoint**: /brands
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -204,10 +218,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `createBrand`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | BrandCreate | Yes | JSON request body: application/json |
 
 **BrandCreate fields**:
 
@@ -226,11 +242,11 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/brands' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createBrand",
   "name": "Example brand"
 }'
 ```
@@ -262,9 +278,9 @@ curl --request POST \
 
 ### Read brand
 
-**Endpoint**: /brands/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns the specified brand’s public metadata and current strong ETag. Raw logo URLs are excluded.
 
@@ -272,9 +288,12 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `getBrand`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: Brand. [field details](#fields-Brand)
 
@@ -283,9 +302,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/brands/10' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getBrand",
+  "id": 10
+}'
 ```
 
 <details id="response-getBrand">
@@ -315,9 +338,9 @@ curl --request GET \
 
 ### Update brand
 
-**Endpoint**: /brands/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: PATCH
+**Method**: POST
 
 **Description**: Updates the provided metadata fields; omitted properties remain unchanged. No file upload or generic asset replacement.
 
@@ -325,11 +348,13 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `updateBrand`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | BrandPatch | Yes | JSON request body: application/json |
 
 **BrandPatch fields**:
 
@@ -348,11 +373,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/brands/10' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateBrand",
+  "id": 10,
   "description": "Updated by API"
 }'
 ```
@@ -384,9 +410,9 @@ curl --request PATCH \
 
 ### Delete brand
 
-**Endpoint**: /brands/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: DELETE
+**Method**: POST
 
 **Description**: Deletes only a brand with no live categories or products. Returns 409 otherwise; never cascades into products.
 
@@ -394,9 +420,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `deleteBrand`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
@@ -406,9 +435,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/brands/10' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteBrand",
+  "id": 10
+}'
 ```
 
 <details id="response-deleteBrand">
@@ -461,9 +494,9 @@ Creation adds a direct library-default template binding only when that template 
 
 ### List categories
 
-**Endpoint**: /categories
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns a flat live tree ordered by brandId, parentId, sortOrder and id. Optional brand filter; no implicit subtree expansion.
 
@@ -471,20 +504,28 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `listCategorys`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| brandId | Integer | No | Query parameter. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| brandId | Integer | No | Body field. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: List&lt;Category&gt;. [field details](#fields-Category) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/categories?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listCategorys",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listCategorys">
@@ -525,7 +566,7 @@ curl --request GET \
 
 ### Create category
 
-**Endpoint**: /categories
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -535,10 +576,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `createCategory`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | CategoryCreate | Yes | JSON request body: application/json |
 
 **CategoryCreate fields**:
 
@@ -562,11 +605,11 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/categories' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createCategory",
   "name": "Catalog",
   "brandId": 10
 }'
@@ -602,9 +645,9 @@ curl --request POST \
 
 ### Read category
 
-**Endpoint**: /categories/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns the specified nondeleted category and current strong ETag. A missing category or one outside the current library returns 404.
 
@@ -612,9 +655,12 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `getCategory`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: Category. [field details](#fields-Category)
 
@@ -623,9 +669,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/categories/20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getCategory",
+  "id": 20
+}'
 ```
 
 <details id="response-getCategory">
@@ -658,9 +708,9 @@ curl --request GET \
 
 ### Update category
 
-**Endpoint**: /categories/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: PATCH
+**Method**: POST
 
 **Description**: Updates or moves a node within its existing brand; brandId is immutable. Rejects cycles/depth/node limits and invalid sort index. Updates descendant paths atomically.
 
@@ -668,11 +718,13 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `updateCategory`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | CategoryPatch | Yes | JSON request body: application/json |
 
 **CategoryPatch fields**:
 
@@ -695,11 +747,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/categories/20' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateCategory",
+  "id": 20,
   "description": "Updated by API"
 }'
 ```
@@ -734,9 +787,9 @@ curl --request PATCH \
 
 ### Delete category
 
-**Endpoint**: /categories/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: DELETE
+**Method**: POST
 
 **Description**: Soft-deletes the entire category subtree only if no live products reference any descendant. Does not delete or demote products.
 
@@ -744,9 +797,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `deleteCategory`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
@@ -756,9 +812,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/categories/20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteCategory",
+  "id": 20
+}'
 ```
 
 <details id="response-deleteCategory">
@@ -891,9 +951,9 @@ Each field always returns `id`, `key`, `name`, `type`, `required`, `placeholder`
 
 ### List templates
 
-**Endpoint**: /product-info-templates
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns live template metadata, bindings and ordered groups/fields, including preview-only configuration. Ordered by createdAt descending then id.
 
@@ -901,8 +961,11 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `listTemplates`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
@@ -911,9 +974,14 @@ Required role: any collaborator role.
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listTemplates",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listTemplates">
@@ -1010,7 +1078,7 @@ curl --request GET \
 
 ### Create template
 
-**Endpoint**: /product-info-templates
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -1020,10 +1088,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `createTemplate`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | TemplateCreate | Yes | JSON request body: application/json |
 
 **TemplateCreate fields**:
 
@@ -1049,11 +1119,11 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-info-templates' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createTemplate",
   "name": "Example template",
   "groups": [
     {
@@ -1157,9 +1227,9 @@ curl --request POST \
 
 ### Read template
 
-**Endpoint**: /product-info-templates/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending. The current strong ETag covers live fields, groups, bindings, and the default designation.
 
@@ -1167,9 +1237,12 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| service | String | Yes | Service identifier; must be `getTemplate`. |
+| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `data`: Template. [field details](#fields-Template)
 
@@ -1178,9 +1251,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getTemplate",
+  "id": "template_example"
+}'
 ```
 
 <details id="response-getTemplate">
@@ -1269,9 +1346,9 @@ curl --request GET \
 
 ### Update template
 
-**Endpoint**: /product-info-templates/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: PATCH
+**Method**: POST
 
 **Description**: Uses the shared browser batch operation. Omitting the `groups` property preserves the existing definition; supplying `groups` replaces the groups and fields in full. Stable IDs and protected system/default fields are validated. Creates a new immutable version without migrating existing product pins or values; bindings/default changes affect future template resolution.
 
@@ -1279,11 +1356,13 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| service | String | Yes | Service identifier; must be `updateTemplate`. |
+| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | TemplatePatch | Yes | JSON request body: application/json |
 
 **TemplatePatch fields**:
 
@@ -1309,11 +1388,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateTemplate",
+  "id": "template_example",
   "description": "Updated by API"
 }'
 ```
@@ -1404,9 +1484,9 @@ curl --request PATCH \
 
 ### Delete template
 
-**Endpoint**: /product-info-templates/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: DELETE
+**Method**: POST
 
 **Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Current library default requires an explicit replacement or null; default/system protections still apply. Removes bindings without rewriting existing product pins.
 
@@ -1414,15 +1494,17 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | String | Yes | Path parameter. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| service | String | Yes | Service identifier; must be `deleteTemplate`. |
+| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | TemplateDelete | No | JSON request body: application/json |
 
 **TemplateDelete fields**:
 
-Optional body. If deleting the current library default, this property is required: a different live same-library template ID, or explicit null to clear the default. Historical versions remain available to pinned products.
+`replacementForLibraryDefault` is optional unless deleting the current library default. In that case, provide a different live same-library template ID, or explicit null to clear the default. The JSON body with `service` and `id` is always required. Historical versions remain available to pinned products.
 
 Unknown fields are rejected.
 
@@ -1437,11 +1519,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-info-templates/template_example' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "deleteTemplate",
+  "id": "template_example",
   "replacementForLibraryDefault": null
 }'
 ```
@@ -1468,7 +1551,7 @@ curl --request DELETE \
 <details id="template-pins-and-field-values">
 <summary>Pinned templates and custom fields</summary>
 
-Products save a template version at creation. Interpret `templateFields` using `templateDefinition`; later template edits or deletion do not change that version. Ordinary PATCH cannot change the template. `templateFields` uses pinned field IDs as keys and shallow-merges on update; `null` clears an individual value.
+Products save a template version at creation. Interpret `templateFields` using `templateDefinition`; later template edits or deletion do not change that version. `updateProduct` cannot change the template. `templateFields` uses pinned field IDs as keys and shallow-merges on update; `null` clears an individual value.
 
 An explicit `templateId` takes priority. Otherwise a supplied `categoryId` resolves the category, ancestors, brand, then library default. Without a category, only the library default is considered, even when a brand is supplied.
 
@@ -1487,9 +1570,9 @@ Drafts may omit required values, but supplied and merged fields must meet type a
 <details id="cycle-protocol">
 <summary>Synchronization and checkpoints</summary>
 
-1. Start with `sync=true`, omitting `updatedAfter` for a full scan. For an incremental cycle, use the previous completed `syncedUntil`.
+1. Start with `"sync": "true"`, omitting `updatedAfter` for a full scan. For an incremental cycle, use the previous completed `syncedUntil`.
 2. Merge by product `id` and `updatedAt`, retaining the newer version.
-3. Follow `nextCursor` with `sync=true&cursor=...` until null, including when `data` is empty.
+3. Follow `nextCursor` with `"sync": "true", "cursor": "<nextCursor>"` until null, including when `data` is empty.
 4. Save the completed `syncedUntil` unchanged, not the last product timestamp.
 
 Cursors bind the key, role, library, filters, and page size; keep them unchanged while paging. Start a new cycle after authorization or filter changes, and scan fully when the scope expands. Preserve all six fractional digits in checkpoints and sync `updatedAt`; JavaScript Date loses precision. Each cycle reads current state in `[updatedAfter, syncedUntil)`, with the first request’s server time minus 30 seconds as its upper bound. Longer transactions may still affect completeness; this is not an event stream of every change.
@@ -1585,27 +1668,30 @@ Other fields match the [product list response fields](#fields-ProductSummary).
 
 ### List or synchronize products
 
-**Endpoint**: /products
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
-**Description**: Ordinary pagination orders updatedAt/id descending. sync=true uses ascending (updatedAt,id), inclusive lower and exclusive fixed upper bound (PostgreSQL clock minus 30 seconds). A full scan omits updatedAfter; continue every nextCursor, even with an empty data page. Cursor binds key/role/library/filters/pageSize/bounds. Save syncedUntil verbatim only after exhaustion; replay/deduplicate by id and updatedAt. Transactions longer than the 30-second safety window are an accepted v1 limitation. view_only/usable see only published products.
+**Description**: Ordinary pagination orders updatedAt/id descending. sync: "true" uses ascending (updatedAt,id), inclusive lower and exclusive fixed upper bound (PostgreSQL clock minus 30 seconds). A full scan omits updatedAfter; continue every nextCursor, even with an empty data page. Cursor binds key/role/library/filters/pageSize/bounds. Save syncedUntil verbatim only after exhaustion; replay/deduplicate by id and updatedAt. Transactions longer than the 30-second safety window are an accepted v1 limitation. view_only/usable see only published products.
 
 Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| page | Integer | No | Positive page number, default 1. Not available with sync=true. |
+| service | String | Yes | Service identifier; must be `listProducts`. |
+| page | Integer | No | Positive page number, default 1. Not available with sync: "true". |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| search | String | No | Query parameter. Trimmed case-insensitive substring: product name/spu, or library asset name. |
-| brandId | Integer | No | Query parameter. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
-| categoryId | Integer | No | Query parameter. Filter by exact category ID, not its descendants. Positive integer ID, maximum 2147483647. |
-| status | String | No | Query parameter. Requested product status; does not widen role visibility. Allowed values: draft, published |
-| sync | String | No | Query parameter. true selects bounded keyset synchronization; false is ordinary pagination. Allowed values: true, false; Default: "false" |
-| updatedAfter | String | No | Query parameter. Only with sync=true. Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
-| cursor | String | No | Query parameter. Opaque continuation token, only with sync=true. Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Duplicate sync parameters are rejected. Minimum length 1 characters; Maximum length 8,192 characters |
+| search | String | No | Body field. Trimmed case-insensitive substring: product name/spu, or library asset name. |
+| brandId | Integer | No | Body field. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| categoryId | Integer | No | Body field. Filter by exact category ID, not its descendants. Positive integer ID, maximum 2147483647. |
+| status | String | No | Body field. Requested product status; does not widen role visibility. Allowed values: draft, published |
+| sync | String | No | Body field. true selects bounded keyset synchronization; false is ordinary pagination. Allowed values: true, false; Default: "false" |
+| updatedAfter | String | No | Body field. Only with sync: "true". Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
+| cursor | String | No | Body field. Opaque continuation token, only with sync: "true". Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Minimum length 1 characters; Maximum length 8,192 characters |
 
 **Response fields**: `200`; `data`: List&lt;ProductSummary&gt;. [field details](#fields-ProductSummary) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
@@ -1621,9 +1707,14 @@ Required role: any collaborator role.
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProducts",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProducts">
@@ -1771,7 +1862,7 @@ Response example (Empty continuation page):
 
 ### Create a draft product
 
-**Endpoint**: /products
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -1781,10 +1872,12 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `createProduct`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | ProductCreate | Yes | JSON request body: application/json |
 
 **ProductCreate fields**:
 
@@ -1801,7 +1894,7 @@ Unknown fields are rejected.
 | categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | templateId | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
-| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted. |
+| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. `updateProduct` validates against the pinned version, even if its live template was deleted. |
 | coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
@@ -1813,11 +1906,11 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/products' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createProduct",
   "name": "Example product",
   "spu": "EXAMPLE-001",
   "brandId": 10,
@@ -1911,9 +2004,9 @@ curl --request POST \
 
 ### Read a product and its pinned definition
 
-**Endpoint**: /products/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns an accessible live product with its pinned immutable template definition, even after the live template changes or is deleted. Does not require templates:read. Media preview/download is authorized on every response; download requires products:read plus products:download and role usable or higher. Drafts are invisible to view_only/usable.
 
@@ -1921,9 +2014,12 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `getProduct`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
 
@@ -1932,9 +2028,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getProduct",
+  "id": 40
+}'
 ```
 
 <details id="response-getProduct">
@@ -2130,9 +2230,9 @@ Response example (Authorized download):
 
 ### Partially update a product
 
-**Endpoint**: /products/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: PATCH
+**Method**: POST
 
 **Description**: Merges scalar/custom fields and replaces submitted media lists. Uses the immutable pinned definition, including when the live template is deleted. Published products additionally require products:publish and stay published; full resulting-state validation must pass atomically. Status/template switching is not accepted here.
 
@@ -2140,11 +2240,13 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `updateProduct`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | ProductPatch | Yes | JSON request body: application/json |
 
 **ProductPatch fields**:
 
@@ -2160,7 +2262,7 @@ Unknown fields are rejected.
 | brandId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. PATCH validates against the pinned version, even if its live template was deleted. |
+| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. `updateProduct` validates against the pinned version, even if its live template was deleted. |
 | coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
@@ -2172,11 +2274,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/products/40' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "updateProduct",
+  "id": 40,
   "description": null,
   "templateFields": {
     "field_color": "Blue"
@@ -2266,9 +2369,9 @@ curl --request PATCH \
 
 ### Soft-delete a product
 
-**Endpoint**: /products/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: DELETE
+**Method**: POST
 
 **Description**: Soft-deletes a visible live product. Draft requires delete; published requires delete and publish. Leaves historical template versions intact. No provider synchronization. A repeated delete returns 404.
 
@@ -2276,9 +2379,12 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `deleteProduct`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
@@ -2288,9 +2394,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/products/40' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "deleteProduct",
+  "id": 40
+}'
 ```
 
 <details id="response-deleteProduct">
@@ -2312,9 +2422,9 @@ curl --request DELETE \
 
 ### Publish or return a product to draft
 
-**Endpoint**: /products/&#123;id&#125;/status
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: PATCH
+**Method**: POST
 
 **Description**: Always requires both update and publish grants. Publishing validates all pinned required/type/option/media rules; invalid state returns 422 with field details and makes no changes. Repeated published keeps publishedAt, returning to draft clears it. No approval workflow is started.
 
@@ -2322,11 +2432,13 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `setProductStatus`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
-| - | ProductStatus | Yes | JSON request body: application/json |
 
 **ProductStatus fields**:
 
@@ -2345,11 +2457,12 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request PATCH \
-  'https://open.musedam.cc/api/product/products/40/status' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "setProductStatus",
+  "id": 40,
   "status": "published"
 }'
 ```
@@ -2436,7 +2549,7 @@ curl --request PATCH \
 
 ### Reconcile known product IDs
 
-**Endpoint**: /products/visibility
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -2446,9 +2559,11 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| - | VisibilityInput | Yes | JSON request body: application/json |
+| service | String | Yes | Service identifier; must be `checkProductVisibility`. |
 
 **VisibilityInput fields**:
 
@@ -2472,11 +2587,11 @@ Unknown fields are rejected.
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/products/visibility' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "checkProductVisibility",
   "ids": [
     40,
     41
@@ -2528,9 +2643,9 @@ curl --request POST \
 
 ### Find existing library assets
 
-**Endpoint**: /assets
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Lists live non-directory FilePath assets in the key library, ordered by id. Requires either products:create or products:update under editable/manage role, not products:read. Returns previews only, never original download fields. Use FilePath id in product writes; uploads are outside v1.
 
@@ -2538,21 +2653,29 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `listAssets`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| search | String | No | Query parameter. Trimmed case-insensitive substring: product name/spu, or library asset name. |
-| mimeType | String | No | Query parameter. Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
+| search | String | No | Body field. Trimmed case-insensitive substring: product name/spu, or library asset name. |
+| mimeType | String | No | Body field. Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
 
 **Response fields**: `200`; `data`: List&lt;LibraryAsset&gt;. [field details](#fields-LibraryAsset) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/assets?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listAssets",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listAssets">
@@ -2589,9 +2712,9 @@ curl --request GET \
 
 ### Read an existing library asset
 
-**Endpoint**: /assets/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
 **Description**: Returns a live same-library FilePath with preview-only media metadata. Same create-or-update gate as listing. Returns an opaque strong ETag based on the FilePath and linked AssetObject identities and maintained update timestamps; temporary signature changes do not change this tag.
 
@@ -2599,9 +2722,12 @@ Required role: editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `getAsset`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: LibraryAsset. [field details](#fields-LibraryAsset)
 
@@ -2610,9 +2736,13 @@ Response headers: `ETag`
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/assets/30' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "getAsset",
+  "id": 30
+}'
 ```
 
 <details id="response-getAsset">
@@ -2684,19 +2814,22 @@ The `products` array in share and download records preserves product details at 
 
 ### List team share history
 
-**Endpoint**: /product-shares
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
-**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only productId, page and pageSize are accepted; unknown or repeated parameters return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
+**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only service, productId, page and pageSize are accepted; unknown fields return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
 
 Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| service | String | Yes | Service identifier; must be `listProductShares`. |
+| productId | Integer | No | Body field. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
@@ -2705,9 +2838,14 @@ Required role: manage.
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-shares?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductShares",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProductShares">
@@ -2755,7 +2893,7 @@ curl --request GET \
 
 ### Create product share
 
-**Endpoint**: /product-shares
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
@@ -2765,10 +2903,12 @@ Required role: usable, editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `createProductShare`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | ProductShareCreate | Yes | JSON request body: application/json |
 
 **ProductShareCreate fields**:
 
@@ -2786,11 +2926,11 @@ Unknown fields are rejected.
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-shares' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "createProductShare",
   "productIds": [
     40
   ],
@@ -2836,9 +2976,9 @@ curl --request POST \
 
 ### Revoke product share
 
-**Endpoint**: /product-shares/&#123;id&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: DELETE
+**Method**: POST
 
 **Description**: Revokes any share in the current team. Requires manage and products:share, without products:read. Repeating a revocation returns the original revokedAt. Unknown or foreign-team IDs return 404. No ETag or If-Match is used.
 
@@ -2846,9 +2986,12 @@ Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | String | Yes | Path parameter. Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
+| service | String | Yes | Service identifier; must be `revokeProductShare`. |
+| id | String | Yes | Body field. Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `data`: RevokedProductShare.
 
@@ -2862,9 +3005,13 @@ Required role: manage.
 Request example:
 
 ```bash
-curl --request DELETE \
-  'https://open.musedam.cc/api/product/product-shares/share-example' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "revokeProductShare",
+  "id": "share-example"
+}'
 ```
 
 <details id="response-revokeProductShare">
@@ -2890,7 +3037,7 @@ curl --request DELETE \
 <details id="download-usage">
 <summary>File selection, exports, and records</summary>
 
-List product download candidates first. Put the returned `key` in `assetKeys`, or URL-encode it as the single-file path parameter `assetKey`; it is not a FilePath ID. One original returns that file; multiple originals return a ZIP. A request selects 1–100 products, at most 200 files, and no more than 500 MiB.
+List product download candidates first. Put the returned `key` in `assetKeys`, or put the raw key in the single-file body field `assetKey`; it is not a FilePath ID. One original returns that file; multiple originals return a ZIP. A request selects 1–100 products, at most 200 files, and no more than 500 MiB.
 
 Exports use `kind: "export"`, with xlsx (default), csv, or json. Do not send `assetKeys`. `includeAssetUrls` defaults to true; exported links still require a Bearer header. Create a share for visitors without credentials. `locale` affects system labels and status only.
 
@@ -2948,19 +3095,22 @@ A download record's `files` array preserves file details when the operation is f
 
 ### List team download history
 
-**Endpoint**: /product-downloads
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
-**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only productId, page and pageSize are accepted; unknown or repeated parameters return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
+**Description**: Lists records from every browser actor and API key in the current team, newest first by createdAt and id. Optional productId returns complete matching operations; omission selects all team records. Only service, productId, page and pageSize are accepted; unknown fields return 422. The current API key or creator never implicitly narrows the list. Requires manage plus products:history, without products:read.
 
 Required role: manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| productId | Integer | No | Query parameter. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| service | String | Yes | Service identifier; must be `listProductDownloads`. |
+| productId | Integer | No | Body field. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
@@ -2969,9 +3119,14 @@ Required role: manage.
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/product-downloads?page=1&pageSize=20' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductDownloads",
+  "page": 1,
+  "pageSize": 20
+}'
 ```
 
 <details id="response-listProductDownloads">
@@ -3023,20 +3178,22 @@ curl --request GET \
 
 ### Download originals or export products
 
-**Endpoint**: /product-downloads
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
 **Method**: POST
 
-**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Export links default to authenticated single-file GET URLs; each accepted retrieval has its own business record. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
+**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Exported links require Bearer authentication; each accepted retrieval has its own business record. Use returned links as provided; do not construct or rewrite them from the service URL. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
 
 Required role: usable, editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
+| service | String | Yes | Service identifier; must be `downloadProducts`. |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-| - | ProductDownloadCreate | Yes | JSON request body: application/json |
 
 **ProductDownloadCreate fields**:
 
@@ -3060,11 +3217,11 @@ Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-
 Request example:
 
 ```bash
-curl --request POST \
-  'https://open.musedam.cc/api/product/product-downloads' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
   --header 'Content-Type: application/json' \
   --data-raw '{
+  "service": "downloadProducts",
   "kind": "export",
   "productIds": [
     40
@@ -3092,28 +3249,35 @@ The response body contains the file bytes.
 
 ### List product download candidates
 
-**Endpoint**: /products/&#123;id&#125;/download-assets
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
-**Description**: Returns current candidate selection keys and downloadable availability under read and download authorization. No business download record is created, and no original or preview URLs are returned. Use the single-file route or POST product-downloads to retrieve bytes.
+**Description**: Returns current candidate selection keys and downloadable availability under read and download authorization. No business download record is created, and no original or preview URLs are returned. Use `downloadProductAsset` or `downloadProducts` to retrieve bytes.
 
 Required role: usable, editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| service | String | Yes | Service identifier; must be `listProductDownloadAssets`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `data`: List&lt;ProductDownloadCandidate&gt;. [field details](#fields-ProductDownloadCandidate)
 
 Request example:
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40/download-assets' \
-  --header 'Authorization: Bearer your_api_key'
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "listProductDownloadAssets",
+  "id": 40
+}'
 ```
 
 <details id="response-listProductDownloadAssets">
@@ -3144,20 +3308,23 @@ curl --request GET \
 
 ### Download one product original
 
-**Endpoint**: /products/&#123;id&#125;/download-assets/&#123;assetKey&#125;
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
 
-**Method**: GET
+**Method**: POST
 
-**Description**: Fetches one current product original identified by an encoded candidate key. Requires a Bearer header and current read/download authorization; the URL contains no API-key secret. Creates a business record before delivery. Optional 24-hour idempotency is scoped separately from POST downloads, reuses the record, and still reauthorizes and transfers current bytes.
+**Description**: Fetches one current product original identified by a raw candidate key in the JSON body. Requires a Bearer header and current read/download authorization; the URL contains no API-key secret. Creates a business record before delivery. Optional 24-hour idempotency is scoped separately from `downloadProducts`, reuses the record, and still reauthorizes and transfers current bytes.
 
 Required role: usable, editable or manage.
 
 **Request parameters**:
 
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| id | Integer | Yes | Path parameter. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| assetKey | String | Yes | Path parameter. URL-encoded selection key returned by the product download-candidate list. Not a FilePath or AssetObject ID. Minimum length 1 characters; Maximum length 256 characters |
+| service | String | Yes | Service identifier; must be `downloadProductAsset`. |
+| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| assetKey | String | Yes | Body field. Raw selection key returned by the product download-candidate list; do not URL-encode it. Not a FilePath or AssetObject ID. Minimum length 1 characters; Maximum length 256 characters |
 | Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **Response fields**: `200`. Success returns an attachment containing file bytes. Errors before delivery use JSON.
@@ -3166,12 +3333,17 @@ Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-
 
 Request example:
 
-The example uses the download-candidate key p40:a2, encoded as p40%3Aa2 in the URL. Use the key returned by your download-candidate list; it is not a FilePath or AssetObject ID.
+The example puts the raw download-candidate key `p40:a2` in the JSON body as `assetKey`, without URL encoding. Use the key returned by your download-candidate list; it is not a FilePath or AssetObject ID.
 
 ```bash
-curl --request GET \
-  'https://open.musedam.cc/api/product/products/40/download-assets/p40%3Aa2' \
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "downloadProductAsset",
+  "id": 40,
+  "assetKey": "p40:a2"
+}' \
   --output product-asset.bin
 ```
 
