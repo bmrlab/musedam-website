@@ -32,22 +32,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-A successful response has `success: true`, a product list in `data`, and paging information in `pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
+A successful JSON response has `code: "0"`, `message: "成功"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
 ## Requests and responses
 
 Every request uses your own MuseDAM API Key in `Authorization: Bearer <APIKEY>` and `Content-Type: application/json`. All operations use the same public POST URL. Resource IDs, pagination, filters and write fields are JSON body fields, alongside the required `service`.
 
-JSON endpoints use the following structure. Successful downloads and exports return files directly.
+Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged. Successful downloads, including JSON exports, remain raw files without this envelope.
 
-| Result | How to read it |
-| --- | --- |
-| Success | `success: true`; read the result from `data`. `code` and `message` are `null`. |
-| Failure | `success: false` and `data: null`. Handle the HTTP status and `code`; do not depend on the wording of `message`. |
-| Validation failure | If the response includes `details`, use `details[].field` and `details[].message` to correct the fields. |
-| Request tracing | Keep `requestId` or the `X-Request-Id` response header for troubleshooting. |
+| Field | Type | How to read it |
+| --- | --- | --- |
+| `code` | String | `"0"` on success; a nonzero numeric string on failure. |
+| `message` | String | `"成功"` on success; a public error message on failure. Do not branch on its wording. |
+| `result` | Object | The entire former v1 body, not just its `data` value. |
+| `result.success` | Boolean | `true` on success; `false` on failure. |
+| `result.data` | Object, array or null | The service's unchanged resource DTO, list or mutation result; null on failure. |
+| `result.code` | String or null | Original semantic error name, such as `validation_failed`; null on success. |
+| `result.message` | String or null | Original public error message; null on success. |
+| `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
+| `result.details` | Array, when present | Validation errors: `result.details[].field` and `result.details[].message`. |
+| `result.mutationOutcome` | String, when present | `committed` or `replayed`; inspect it before retrying. |
+| `result.requestId` | String | Server request identifier, also exposed in `X-Request-Id`. |
+| `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
 
-Ordinary lists accept `page` and `pageSize` and return a top-level `pagination` object. `totalCount` is the total record count; `totalPages` is the total page count:
+Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve both outer `traceId` and `result.requestId` (or `X-Request-Id`) when reporting a problem. Tracing does not change authorization, HTTP statuses, or control headers.
+
+The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value, including for successful raw attachments.
+
+Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its `totalCount` is the total record count; `totalPages` is the total page count. The following fragment shows only `result.pagination`, not a complete response:
 
 | Parameter | Default | Range |
 | --- | --- | --- |
@@ -107,13 +119,80 @@ Request bodies are limited to 1 MiB. Write services reject unknown business fiel
 | --- | --- |
 | 401 / 403 | Check the key, collaborator role, and resource visibility. |
 | 404 | The resource is missing, deleted, or inaccessible; check its ID. |
-| 422 `validation_failed` | Correct the input. If `details` is present, read `field` and `message`. |
+| 422 `validation_failed` | Correct the input. If `result.details` is present, read `field` and `message`. |
 | 409 `sku_in_use` / `name_in_use` | Change the conflicting SKU or name. Soft-deleted products still reserve their SKU. |
-| 409 `mutation_response_unavailable` | The mutation committed or replayed. Check `mutationOutcome`; do not blindly create again. |
+| 409 `mutation_response_unavailable` | The mutation committed or replayed. Check `result.mutationOutcome`; do not blindly create again. |
 | 503 `write_conflict` | The mutation rolled back. Wait according to `Retry-After: 1`, then retry. |
 | 413 | Reduce the body or download count/size. |
 
-Use `X-Request-Id` or the JSON `requestId` for troubleshooting. A download error with `mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting. A download error with `result.mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+
+
+
+Outer `code` values are strings. `result.code` retains the semantic name. Use the HTTP status, outer code and outcome metadata, not message wording.
+
+| HTTP status | Outer `code` | `result.code` | Action |
+| --- | --- | --- | --- |
+| 401 | `"40101"` | `invalid_credentials` | Check the API Key and Bearer header. |
+| 503 | `"50301"` | `authentication_unavailable` | Credential validation is temporarily unavailable; retry later. |
+| 401 | `"40102"` | `key_inactive` | Check whether the API Key is inactive or expired. |
+| 403 | `"40301"` | `forbidden` | Check collaborator role and required permissions. |
+| 404 | `"40401"` | `not_found` | Check the resource ID and current visibility. |
+| 409 | `"40901"` | `download_unavailable` | The download could not be prepared; inspect result.mutationOutcome before retrying. |
+| 413 | `"41301"` | `download_too_large` | Reduce the download file count or size. |
+| 409 | `"40902"` | `sku_in_use` | Choose another SKU; soft-deleted products still reserve their SKU. |
+| 409 | `"40903"` | `code_in_use` | Choose another resource code. |
+| 409 | `"40904"` | `name_in_use` | Choose another resource name. |
+| 409 | `"40905"` | `brand_has_dependents` | Remove or reassign dependent categories and products first. |
+| 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
+| 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
+| 409 | `"40908"` | `idempotency_key_reused` | Reuse a key only with the same input; use a new key for a different request. |
+| 412 | `"41201"` | `precondition_failed` | Read again and reconcile before retrying with the new ETag. |
+| 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
+| 422 | `"42201"` | `validation_failed` | Correct the input using result.details[].field and result.details[].message. |
+| 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
+| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed or replayed; inspect result.mutationOutcome and do not blindly repeat it. |
+| 500 | `"50001"` | `internal_server_error` | Retain traceId and result.requestId for troubleshooting; reconcile state before retrying a write. |
+
+Validation failure example (HTTP 422):
+
+```json
+{
+  "code": "42201",
+  "message": "Invalid request fields",
+  "result": {
+    "success": false,
+    "data": null,
+    "code": "validation_failed",
+    "message": "Invalid request fields",
+    "details": [{ "field": "name", "message": "Required" }],
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
+}
+```
+
+Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID. A download error containing `result.mutationOutcome` means its record committed; retain the original idempotency key when retrying.
+
+Mutation response unavailable example (HTTP 409):
+
+```json
+{
+  "code": "40909",
+  "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
+  "result": {
+    "success": false,
+    "data": null,
+    "code": "mutation_response_unavailable",
+    "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "mutationOutcome": "committed"
+  },
+  "traceId": "trace_123"
+}
+```
+
+For `mutation_response_unavailable`, reconcile the committed or replayed mutation instead of blindly creating another resource.
 
 </details>
 
@@ -158,7 +237,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
-**Response fields**: `200`; `data`: List&lt;Brand&gt;. [field details](#fields-Brand) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;Brand&gt;. [field details](#fields-Brand) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -178,29 +257,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 10,
-      "name": "Example brand",
-      "code": "example-code",
-      "description": null,
-      "website": null,
-      "sortOrder": 0,
-      "isEnabled": true,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 10,
+        "name": "Example brand",
+        "code": "example-code",
+        "description": null,
+        "website": null,
+        "sortOrder": 0,
+        "isEnabled": true,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -235,7 +319,7 @@ Unknown fields are rejected.
 | description | String | No | Maximum length 512 characters; May be null |
 | logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
 
-**Response fields**: `201`; `data`: Brand. [field details](#fields-Brand)
+**Response fields**: `201`; `result.data`: Brand. [field details](#fields-Brand)
 
 Response headers: `ETag`
 
@@ -256,21 +340,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": null,
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": null,
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -295,7 +384,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `getBrand`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: Brand. [field details](#fields-Brand)
+**Response fields**: `200`; `result.data`: Brand. [field details](#fields-Brand)
 
 Response headers: `ETag`
 
@@ -316,21 +405,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": null,
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": null,
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -366,7 +460,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | description | String | No | Maximum length 512 characters; May be null |
 | logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
 
-**Response fields**: `200`; `data`: Brand. [field details](#fields-Brand)
+**Response fields**: `200`; `result.data`: Brand. [field details](#fields-Brand)
 
 Response headers: `ETag`
 
@@ -388,21 +482,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": "Updated by API",
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": "Updated by API",
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -428,7 +527,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
-**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+**Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
 Response headers: `ETag`
 
@@ -449,13 +548,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -513,7 +617,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 | brandId | Integer | No | Body field. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: List&lt;Category&gt;. [field details](#fields-Category) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;Category&gt;. [field details](#fields-Category) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -533,32 +637,37 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 20,
-      "brandId": 10,
-      "parentId": null,
-      "name": "Catalog",
-      "pathKey": "/Catalog",
-      "description": null,
-      "iconEmoji": null,
-      "iconAssetId": null,
-      "sortOrder": 0,
-      "isEnabled": true,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 20,
+        "brandId": 10,
+        "parentId": null,
+        "name": "Catalog",
+        "pathKey": "/Catalog",
+        "description": null,
+        "iconEmoji": null,
+        "iconAssetId": null,
+        "sortOrder": 0,
+        "isEnabled": true,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -598,7 +707,7 @@ Unknown fields are rejected.
 | iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
 | isEnabled | Boolean | No | — |
 
-**Response fields**: `201`; `data`: Category. [field details](#fields-Category)
+**Response fields**: `201`; `result.data`: Category. [field details](#fields-Category)
 
 Response headers: `ETag`
 
@@ -620,24 +729,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": null,
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": null,
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -662,7 +776,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `getCategory`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: Category. [field details](#fields-Category)
+**Response fields**: `200`; `result.data`: Category. [field details](#fields-Category)
 
 Response headers: `ETag`
 
@@ -683,24 +797,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": null,
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": null,
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -740,7 +859,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
 | isEnabled | Boolean | No | — |
 
-**Response fields**: `200`; `data`: Category. [field details](#fields-Category)
+**Response fields**: `200`; `result.data`: Category. [field details](#fields-Category)
 
 Response headers: `ETag`
 
@@ -762,24 +881,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": "Updated by API",
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": "Updated by API",
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -805,7 +929,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
-**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+**Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
 Response headers: `ETag`
 
@@ -826,13 +950,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -969,7 +1098,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
-**Response fields**: `200`; `data`: List&lt;Template&gt;. [field details](#fields-Template) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;Template&gt;. [field details](#fields-Template) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -989,9 +1118,173 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "template_example",
+        "name": "Example template",
+        "description": null,
+        "enabled": true,
+        "isSystemDefault": false,
+        "isLibraryDefault": false,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z",
+        "boundBrandIds": [],
+        "boundCategoryIds": [],
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 3,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
+    }
+  },
+  "traceId": "trace_123"
+}
+```
+
+</details>
+
+### Create template
+
+**Endpoint**: https://open.musedam.cc/api/muse/product-api
+
+**Method**: POST
+
+**Description**: Creates a template and an immutable version. syncStrategy is optional and only newOnly is supported. Allows at most 200 fields and leaves existing products unchanged.
+
+Required role: manage.
+
+**Request parameters**:
+
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+
+| Parameter | Type | Required | Description |
+| - | - | - | - |
+| service | String | Yes | Service identifier; must be `createTemplate`. |
+| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
+
+**TemplateCreate fields**:
+
+Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
+
+Unknown fields are rejected.
+
+| Field | Type | Required | Description |
+| - | - | - | - |
+| name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
+| description | String | No | Maximum length 50 characters; May be null |
+| enabled | Boolean | No | — |
+| groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
+| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| isLibraryDefault | Boolean | No | — |
+| syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
+
+**Response fields**: `201`; `result.data`: Template. [field details](#fields-Template)
+
+Response headers: `ETag`
+
+Request example:
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "createTemplate",
+  "name": "Example template",
+  "groups": [
     {
+      "name": "Details",
+      "fields": [
+        {
+          "key": "color",
+          "name": "Color",
+          "type": "text",
+          "config": {}
+        }
+      ]
+    }
+  ]
+}'
+```
+
+<details id="response-createTemplate">
+<summary>Response example</summary>
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
       "id": "template_example",
       "name": "Example template",
       "description": null,
@@ -1060,166 +1353,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
           ]
         }
       ]
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
-}
-```
-
-</details>
-
-### Create template
-
-**Endpoint**: https://open.musedam.cc/api/muse/product-api
-
-**Method**: POST
-
-**Description**: Creates a template and an immutable version. syncStrategy is optional and only newOnly is supported. Allows at most 200 fields and leaves existing products unchanged.
-
-Required role: manage.
-
-**Request parameters**:
-
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
-
-| Parameter | Type | Required | Description |
-| - | - | - | - |
-| service | String | Yes | Service identifier; must be `createTemplate`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-
-**TemplateCreate fields**:
-
-Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
-| name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
-| description | String | No | Maximum length 50 characters; May be null |
-| enabled | Boolean | No | — |
-| groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
-| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
-| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
-| isLibraryDefault | Boolean | No | — |
-| syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
-
-**Response fields**: `201`; `data`: Template. [field details](#fields-Template)
-
-Response headers: `ETag`
-
-Request example:
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "createTemplate",
-  "name": "Example template",
-  "groups": [
-    {
-      "name": "Details",
-      "fields": [
-        {
-          "key": "color",
-          "name": "Color",
-          "type": "text",
-          "config": {}
-        }
-      ]
-    }
-  ]
-}'
-```
-
-<details id="response-createTemplate">
-<summary>Response example</summary>
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": null,
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1244,7 +1383,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `getTemplate`. |
 | id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 
-**Response fields**: `200`; `data`: Template. [field details](#fields-Template)
+**Response fields**: `200`; `result.data`: Template. [field details](#fields-Template)
 
 Response headers: `ETag`
 
@@ -1265,80 +1404,85 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": null,
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example",
+      "name": "Example template",
+      "description": null,
+      "enabled": true,
+      "isSystemDefault": false,
+      "isLibraryDefault": false,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "boundBrandIds": [],
+      "boundCategoryIds": [],
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 3,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1381,7 +1525,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | isLibraryDefault | Boolean | No | — |
 | syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
 
-**Response fields**: `200`; `data`: Template. [field details](#fields-Template)
+**Response fields**: `200`; `result.data`: Template. [field details](#fields-Template)
 
 Response headers: `ETag`
 
@@ -1403,80 +1547,85 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": "Updated by API",
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example",
+      "name": "Example template",
+      "description": "Updated by API",
+      "enabled": true,
+      "isSystemDefault": false,
+      "isLibraryDefault": false,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z",
+      "boundBrandIds": [],
+      "boundCategoryIds": [],
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 3,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1512,7 +1661,7 @@ Unknown fields are rejected.
 | - | - | - | - |
 | replacementForLibraryDefault | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
 
-**Response fields**: `200`; `data`: DeletedTemplateId. Returns `data.id`, the deleted resource ID.
+**Response fields**: `200`; `result.data`: DeletedTemplateId. Returns `result.data.id`, the deleted resource ID.
 
 Response headers: `ETag`
 
@@ -1534,13 +1683,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1570,12 +1724,15 @@ Drafts may omit required values, but supplied and merged fields must meet type a
 <details id="cycle-protocol">
 <summary>Synchronization and checkpoints</summary>
 
-1. Start with `"sync": "true"`, omitting `updatedAfter` for a full scan. For an incremental cycle, use the previous completed `syncedUntil`.
+1. Start with `"sync": "true"`, omitting `updatedAfter` for a full scan. For an incremental cycle, use the previous completed `result.pagination.syncedUntil`.
 2. Merge by product `id` and `updatedAt`, retaining the newer version.
-3. Follow `nextCursor` with `"sync": "true", "cursor": "<nextCursor>"` until null, including when `data` is empty.
-4. Save the completed `syncedUntil` unchanged, not the last product timestamp.
+3. Follow `result.pagination.nextCursor` with `"sync": "true", "cursor": "<nextCursor>"` until null, including when `result.data` is empty.
+4. Save the completed `result.pagination.syncedUntil` unchanged, not the last product timestamp.
 
 Cursors bind the key, role, library, filters, and page size; keep them unchanged while paging. Start a new cycle after authorization or filter changes, and scan fully when the scope expands. Preserve all six fractional digits in checkpoints and sync `updatedAt`; JavaScript Date loses precision. Each cycle reads current state in `[updatedAfter, syncedUntil)`, with the first request’s server time minus 30 seconds as its upper bound. Longer transactions may still affect completeness; this is not an event stream of every change.
+
+
+Synchronization returns items in `result.data` and metadata in `result.pagination`: `mode`, `syncedUntil` and `nextCursor`. Copy the returned `result.pagination.nextCursor` into the next request’s `cursor` field; do not rename request fields or wrap business input in `result`.
 
 </details>
 
@@ -1693,7 +1850,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | updatedAfter | String | No | Body field. Only with sync: "true". Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
 | cursor | String | No | Body field. Opaque continuation token, only with sync: "true". Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Minimum length 1 characters; Maximum length 8,192 characters |
 
-**Response fields**: `200`; `data`: List&lt;ProductSummary&gt;. [field details](#fields-ProductSummary) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;ProductSummary&gt;. [field details](#fields-ProductSummary) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 **SyncPage**
 
@@ -1722,38 +1879,30 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "name": "Example product",
-      "spu": "EXAMPLE-001",
-      "description": null,
-      "status": "draft",
-      "brandId": 10,
-      "categoryId": 20,
-      "ownerUserId": null,
-      "publishedAt": null,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z",
-      "draftReason": null,
-      "templateId": "template_example",
-      "templateVersionId": "version_one",
-      "templateFields": {
-        "field_color": "Blue"
-      },
-      "cover": {
-        "id": 30,
-        "name": "cover.jpg",
-        "mimeType": "image/jpeg",
-        "size": "9007199254740993",
-        "width": 1200,
-        "height": 900,
-        "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      },
-      "images": [
-        {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "name": "Example product",
+        "spu": "EXAMPLE-001",
+        "description": null,
+        "status": "draft",
+        "brandId": 10,
+        "categoryId": 20,
+        "ownerUserId": null,
+        "publishedAt": null,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z",
+        "draftReason": null,
+        "templateId": "template_example",
+        "templateVersionId": "version_one",
+        "templateFields": {
+          "field_color": "Blue"
+        },
+        "cover": {
           "id": 30,
           "name": "cover.jpg",
           "mimeType": "image/jpeg",
@@ -1762,20 +1911,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
           "height": 900,
           "duration": null,
           "previewUrl": "https://media.example.test/preview?signature=example"
-        }
-      ],
-      "relatedAssets": []
+        },
+        "images": [
+          {
+            "id": 30,
+            "name": "cover.jpg",
+            "mimeType": "image/jpeg",
+            "size": "9007199254740993",
+            "width": 1200,
+            "height": 900,
+            "duration": null,
+            "previewUrl": "https://media.example.test/preview?signature=example"
+          }
+        ],
+        "relatedAssets": []
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1783,38 +1945,30 @@ Response example (Synchronization):
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "name": "Example product",
-      "spu": "EXAMPLE-001",
-      "description": null,
-      "status": "draft",
-      "brandId": 10,
-      "categoryId": 20,
-      "ownerUserId": null,
-      "publishedAt": null,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.123456Z",
-      "draftReason": null,
-      "templateId": "template_example",
-      "templateVersionId": "version_one",
-      "templateFields": {
-        "field_color": "Blue"
-      },
-      "cover": {
-        "id": 30,
-        "name": "cover.jpg",
-        "mimeType": "image/jpeg",
-        "size": "9007199254740993",
-        "width": 1200,
-        "height": 900,
-        "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      },
-      "images": [
-        {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "name": "Example product",
+        "spu": "EXAMPLE-001",
+        "description": null,
+        "status": "draft",
+        "brandId": 10,
+        "categoryId": 20,
+        "ownerUserId": null,
+        "publishedAt": null,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.123456Z",
+        "draftReason": null,
+        "templateId": "template_example",
+        "templateVersionId": "version_one",
+        "templateFields": {
+          "field_color": "Blue"
+        },
+        "cover": {
           "id": 30,
           "name": "cover.jpg",
           "mimeType": "image/jpeg",
@@ -1823,20 +1977,33 @@ Response example (Synchronization):
           "height": 900,
           "duration": null,
           "previewUrl": "https://media.example.test/preview?signature=example"
-        }
-      ],
-      "relatedAssets": []
+        },
+        "images": [
+          {
+            "id": 30,
+            "name": "cover.jpg",
+            "mimeType": "image/jpeg",
+            "size": "9007199254740993",
+            "width": 1200,
+            "height": 900,
+            "duration": null,
+            "previewUrl": "https://media.example.test/preview?signature=example"
+          }
+        ],
+        "relatedAssets": []
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "pageSize": 20,
+      "syncedUntil": "2026-10-08T10:01:00.123456Z",
+      "nextCursor": null,
+      "hasMore": false
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "pageSize": 20,
-    "syncedUntil": "2026-10-08T10:01:00.123456Z",
-    "nextCursor": null,
-    "hasMore": false
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1844,17 +2011,22 @@ Response example (Empty continuation page):
 
 ```json
 {
-  "success": true,
-  "data": [],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "pageSize": 20,
-    "syncedUntil": "2026-10-08T10:01:00.123456Z",
-    "nextCursor": "opaque-continuation-token",
-    "hasMore": true
-  }
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "pageSize": 20,
+      "syncedUntil": "2026-10-08T10:01:00.123456Z",
+      "nextCursor": "opaque-continuation-token",
+      "hasMore": true
+    }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1899,7 +2071,7 @@ Unknown fields are rejected.
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 
-**Response fields**: `201`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+**Response fields**: `201`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
 Response headers: `ETag`
 
@@ -1927,37 +2099,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -1966,37 +2130,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2021,7 +2198,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `getProduct`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+**Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
 Response headers: `ETag`
 
@@ -2042,37 +2219,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2081,37 +2250,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2119,31 +2301,36 @@ Response example (No template or media):
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": null,
-    "templateVersionId": null,
-    "templateFields": {},
-    "cover": null,
-    "images": [],
-    "relatedAssets": [],
-    "templateDefinition": null
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": null,
+      "templateVersionId": null,
+      "templateFields": {},
+      "cover": null,
+      "images": [],
+      "relatedAssets": [],
+      "templateDefinition": null
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2151,39 +2338,29 @@ Response example (Authorized download):
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example",
-      "downloadUrl": "https://media.example.test/original?signature=example",
-      "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2191,38 +2368,53 @@ Response example (Authorized download):
         "width": 1200,
         "height": 900,
         "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+        "previewUrl": "https://media.example.test/preview?signature=example",
+        "downloadUrl": "https://media.example.test/original?signature=example",
+        "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2267,7 +2459,7 @@ Unknown fields are rejected.
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 
-**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+**Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
 Response headers: `ETag`
 
@@ -2292,37 +2484,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2331,37 +2515,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2387,7 +2584,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
-**Response fields**: `200`; `data`: DeletedId. Returns `data.id`, the deleted resource ID.
+**Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
 Response headers: `ETag`
 
@@ -2408,13 +2605,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2450,7 +2652,7 @@ Unknown fields are rejected.
 | - | - | - | - |
 | status | String | Yes | Allowed values: draft, published |
 
-**Response fields**: `200`; `data`: ProductDetail. [field details](#fields-ProductDetail)
+**Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
 Response headers: `ETag`
 
@@ -2472,37 +2674,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "published",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": "2026-10-08T10:00:00.000Z",
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "published",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": "2026-10-08T10:00:00.000Z",
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2511,37 +2705,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2575,7 +2782,7 @@ Unknown fields are rejected.
 | - | - | - | - |
 | ids | List&lt;Integer&gt; | Yes | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 
-**Response fields**: `200`; `data`: List&lt;Visibility&gt;.
+**Response fields**: `200`; `result.data`: List&lt;Visibility&gt;.
 
 **Visibility**
 
@@ -2604,20 +2811,25 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "visibility": "visible"
-    },
-    {
-      "id": 41,
-      "visibility": "not_visible"
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "visibility": "visible"
+      },
+      {
+        "id": 41,
+        "visibility": "not_visible"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2663,7 +2875,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | search | String | No | Body field. Trimmed case-insensitive substring: product name/spu, or library asset name. |
 | mimeType | String | No | Body field. Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
 
-**Response fields**: `200`; `data`: List&lt;LibraryAsset&gt;. [field details](#fields-LibraryAsset) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;LibraryAsset&gt;. [field details](#fields-LibraryAsset) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -2683,28 +2895,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2729,7 +2946,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `getAsset`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: LibraryAsset. [field details](#fields-LibraryAsset)
+**Response fields**: `200`; `result.data`: LibraryAsset. [field details](#fields-LibraryAsset)
 
 Response headers: `ETag`
 
@@ -2750,20 +2967,25 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 30,
-    "name": "cover.jpg",
-    "mimeType": "image/jpeg",
-    "size": "9007199254740993",
-    "width": 1200,
-    "height": 900,
-    "duration": null,
-    "previewUrl": "https://media.example.test/preview?signature=example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2833,7 +3055,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
-**Response fields**: `200`; `data`: List&lt;ProductShare&gt;. [field details](#fields-ProductShare) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;ProductShare&gt;. [field details](#fields-ProductShare) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -2853,39 +3075,44 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "share-example",
-      "url": "https://your-deployment.example/share/products/example-recipient-token",
-      "products": [
-        {
-          "id": 40,
-          "name": "Example product",
-          "spu": "SKU-40"
-        }
-      ],
-      "createdById": null,
-      "createdByApiKeyId": "integration-key-id",
-      "createdByName": "Catalog integration",
-      "createdAt": "2026-10-09T10:00:00.000Z",
-      "expiresAt": "2026-10-16T10:00:00.000Z",
-      "revokedAt": null,
-      "allowDownload": false,
-      "hasAccessCode": false,
-      "status": "active",
-      "canRevoke": true
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "share-example",
+        "url": "https://your-deployment.example/share/products/example-recipient-token",
+        "products": [
+          {
+            "id": 40,
+            "name": "Example product",
+            "spu": "SKU-40"
+          }
+        ],
+        "createdById": null,
+        "createdByApiKeyId": "integration-key-id",
+        "createdByName": "Catalog integration",
+        "createdAt": "2026-10-09T10:00:00.000Z",
+        "expiresAt": "2026-10-16T10:00:00.000Z",
+        "revokedAt": null,
+        "allowDownload": false,
+        "hasAccessCode": false,
+        "status": "active",
+        "canRevoke": true
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2921,7 +3148,7 @@ Unknown fields are rejected.
 | accessCode | String | No | Must match `^[0-9]{4}$` |
 | allowDownload | Boolean | Yes | — |
 
-**Response fields**: `201`; `data`: ProductShare. [field details](#fields-ProductShare)
+**Response fields**: `201`; `result.data`: ProductShare. [field details](#fields-ProductShare)
 
 Request example:
 
@@ -2944,31 +3171,36 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "share-example",
-    "url": "https://your-deployment.example/share/products/example-recipient-token",
-    "products": [
-      {
-        "id": 40,
-        "name": "Example product",
-        "spu": "SKU-40"
-      }
-    ],
-    "createdById": null,
-    "createdByApiKeyId": "integration-key-id",
-    "createdByName": "Catalog integration",
-    "createdAt": "2026-10-09T10:00:00.000Z",
-    "expiresAt": "2026-10-16T10:00:00.000Z",
-    "revokedAt": null,
-    "allowDownload": false,
-    "hasAccessCode": false,
-    "status": "active",
-    "canRevoke": false
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "share-example",
+      "url": "https://your-deployment.example/share/products/example-recipient-token",
+      "products": [
+        {
+          "id": 40,
+          "name": "Example product",
+          "spu": "SKU-40"
+        }
+      ],
+      "createdById": null,
+      "createdByApiKeyId": "integration-key-id",
+      "createdByName": "Catalog integration",
+      "createdAt": "2026-10-09T10:00:00.000Z",
+      "expiresAt": "2026-10-16T10:00:00.000Z",
+      "revokedAt": null,
+      "allowDownload": false,
+      "hasAccessCode": false,
+      "status": "active",
+      "canRevoke": false
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2993,7 +3225,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `revokeProductShare`. |
 | id | String | Yes | Body field. Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
 
-**Response fields**: `200`; `data`: RevokedProductShare.
+**Response fields**: `200`; `result.data`: RevokedProductShare.
 
 **RevokedProductShare**
 
@@ -3019,14 +3251,19 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "share-example",
-    "revokedAt": "2026-10-09T11:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "share-example",
+      "revokedAt": "2026-10-09T11:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -3141,7 +3378,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
-**Response fields**: `200`; `data`: List&lt;ProductDownloadRecord&gt;. [field details](#fields-ProductDownloadRecord) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
+**Response fields**: `200`; `result.data`: List&lt;ProductDownloadRecord&gt;. [field details](#fields-ProductDownloadRecord) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
 Request example:
 
@@ -3161,43 +3398,48 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "download-example",
-      "kind": "product_export",
-      "status": "requested",
-      "actorType": "api_key",
-      "actorId": null,
-      "apiKeyId": "integration-key-id",
-      "actorName": "Catalog integration",
-      "shareId": null,
-      "products": [
-        {
-          "id": 40,
-          "name": "Example product",
-          "spu": "SKU-40"
-        }
-      ],
-      "files": [
-        {
-          "id": "export:xlsx",
-          "productId": 40,
-          "name": "products.xlsx"
-        }
-      ],
-      "createdAt": "2026-10-09T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "download-example",
+        "kind": "product_export",
+        "status": "requested",
+        "actorType": "api_key",
+        "actorId": null,
+        "apiKeyId": "integration-key-id",
+        "actorName": "Catalog integration",
+        "shareId": null,
+        "products": [
+          {
+            "id": 40,
+            "name": "Example product",
+            "spu": "SKU-40"
+          }
+        ],
+        "files": [
+          {
+            "id": "export:xlsx",
+            "productId": 40,
+            "name": "products.xlsx"
+          }
+        ],
+        "createdAt": "2026-10-09T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -3293,7 +3535,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listProductDownloadAssets`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
-**Response fields**: `200`; `data`: List&lt;ProductDownloadCandidate&gt;. [field details](#fields-ProductDownloadCandidate)
+**Response fields**: `200`; `result.data`: List&lt;ProductDownloadCandidate&gt;. [field details](#fields-ProductDownloadCandidate)
 
 Request example:
 
@@ -3312,22 +3554,27 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "key": "p40:a2",
-      "name": "example.png",
-      "productId": 40,
-      "productName": "Example product",
-      "category": "main",
-      "mimeType": "image/png",
-      "size": "1024",
-      "downloadable": true
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "key": "p40:a2",
+        "name": "example.png",
+        "productId": 40,
+        "productName": "Example product",
+        "category": "main",
+        "mimeType": "image/png",
+        "size": "1024",
+        "downloadable": true
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
 }
 ```
 

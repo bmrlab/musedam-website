@@ -32,22 +32,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-請求成功時，`success` 為 `true`，`data` 為商品列表，`pagination` 為分頁資訊。列表為空時，請先確認商品庫中是否有目前角色可見的商品；`view_only` 和 `usable` 只能檢視已發佈商品。
+A successful JSON response has `code: "0"`, `message: "成功"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. 列表為空時，請先確認商品庫中是否有目前角色可見的商品；`view_only` 和 `usable` 只能檢視已發佈商品。
 
 ## 請求與回應
 
 所有請求均使用您自己的 MuseDAM API Key，攜帶 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json`。全部操作使用相同的公開 POST 位址；資源 ID、分頁、篩選和寫入欄位均為 JSON 請求本文欄位，與必填的 `service` 同層。
 
-JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
+Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged. Successful downloads, including JSON exports, remain raw files without this envelope.
 
-| 回傳內容 | 讀取方式 |
-| --- | --- |
-| 操作成功 | `success: true`，從 `data` 讀取結果；`code`、`message` 為 `null`。 |
-| 操作失敗 | `success: false`，`data: null`；依 HTTP 狀態碼和 `code` 處理，不依賴 `message` 的文案。 |
-| 參數驗證失敗 | 若回應包含 `details`，可依 `details[].field` 和 `details[].message` 修正欄位。 |
-| 請求追蹤 | 保留 `requestId` 或回應標頭 `X-Request-Id`，用於排查問題。 |
+| Field | Type | How to read it |
+| --- | --- | --- |
+| `code` | String | `"0"` on success; a nonzero numeric string on failure. |
+| `message` | String | `"成功"` on success; a public error message on failure. Do not branch on its wording. |
+| `result` | Object | The entire former v1 body, not just its `data` value. |
+| `result.success` | Boolean | `true` on success; `false` on failure. |
+| `result.data` | Object, array or null | The service's unchanged resource DTO, list or mutation result; null on failure. |
+| `result.code` | String or null | Original semantic error name, such as `validation_failed`; null on success. |
+| `result.message` | String or null | Original public error message; null on success. |
+| `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
+| `result.details` | Array, when present | Validation errors: `result.details[].field` and `result.details[].message`. |
+| `result.mutationOutcome` | String, when present | `committed` or `replayed`; inspect it before retrying. |
+| `result.requestId` | String | Server request identifier, also exposed in `X-Request-Id`. |
+| `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
 
-一般列表使用 `page` 和 `pageSize`，在回應頂層回傳 `pagination`。其中 `totalCount` 為總筆數，`totalPages` 為總頁數：
+Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve both outer `traceId` and `result.requestId` (or `X-Request-Id`) when reporting a problem. Tracing does not change authorization, HTTP statuses, or control headers.
+
+The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value, including for successful raw attachments.
+
+Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its `totalCount` is the total record count; `totalPages` is the total page count. The following fragment shows only `result.pagination`, not a complete response:
 
 | 參數 | 預設值 | 範圍 |
 | --- | --- | --- |
@@ -109,13 +121,80 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 | --- | --- |
 | 401 / 403 | 檢查密鑰、協作者角色及資源可見性。 |
 | 404 | 資源不存在、已刪除或不可存取，核對 ID。 |
-| 422 `validation_failed` | 修正輸入；若有 `details`，讀取 `field` 和 `message`。 |
+| 422 `validation_failed` | 修正輸入；若有 `result.details`，讀取 `field` 和 `message`。 |
 | 409 `sku_in_use` / `name_in_use` | 變更衝突的 SKU 或名稱；軟刪除商品的 SKU 仍被占用。 |
-| 409 `mutation_response_unavailable` | 變更已提交或重播，按 `mutationOutcome` 核對；不要盲目重新建立。 |
+| 409 `mutation_response_unavailable` | 變更已提交或重播，按 `result.mutationOutcome` 核對；不要盲目重新建立。 |
 | 503 `write_conflict` | 變更已回滾，依 `Retry-After: 1` 等待後重試。 |
 | 413 | 縮小請求本文或下載數量／大小。 |
 
-透過回應標頭 `X-Request-Id` 或 JSON 中的 `requestId` 排查請求。下載錯誤含 `mutationOutcome` 時，記錄已經提交，重試沿用原冪等鍵。
+Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting. A download error with `result.mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+
+
+
+Outer `code` values are strings. `result.code` retains the semantic name. Use the HTTP status, outer code and outcome metadata, not message wording.
+
+| HTTP status | Outer `code` | `result.code` | Action |
+| --- | --- | --- | --- |
+| 401 | `"40101"` | `invalid_credentials` | Check the API Key and Bearer header. |
+| 503 | `"50301"` | `authentication_unavailable` | Credential validation is temporarily unavailable; retry later. |
+| 401 | `"40102"` | `key_inactive` | Check whether the API Key is inactive or expired. |
+| 403 | `"40301"` | `forbidden` | Check collaborator role and required permissions. |
+| 404 | `"40401"` | `not_found` | Check the resource ID and current visibility. |
+| 409 | `"40901"` | `download_unavailable` | The download could not be prepared; inspect result.mutationOutcome before retrying. |
+| 413 | `"41301"` | `download_too_large` | Reduce the download file count or size. |
+| 409 | `"40902"` | `sku_in_use` | Choose another SKU; soft-deleted products still reserve their SKU. |
+| 409 | `"40903"` | `code_in_use` | Choose another resource code. |
+| 409 | `"40904"` | `name_in_use` | Choose another resource name. |
+| 409 | `"40905"` | `brand_has_dependents` | Remove or reassign dependent categories and products first. |
+| 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
+| 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
+| 409 | `"40908"` | `idempotency_key_reused` | Reuse a key only with the same input; use a new key for a different request. |
+| 412 | `"41201"` | `precondition_failed` | Read again and reconcile before retrying with the new ETag. |
+| 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
+| 422 | `"42201"` | `validation_failed` | Correct the input using result.details[].field and result.details[].message. |
+| 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
+| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed or replayed; inspect result.mutationOutcome and do not blindly repeat it. |
+| 500 | `"50001"` | `internal_server_error` | Retain traceId and result.requestId for troubleshooting; reconcile state before retrying a write. |
+
+Validation failure example (HTTP 422):
+
+```json
+{
+  "code": "42201",
+  "message": "Invalid request fields",
+  "result": {
+    "success": false,
+    "data": null,
+    "code": "validation_failed",
+    "message": "Invalid request fields",
+    "details": [{ "field": "name", "message": "Required" }],
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
+}
+```
+
+Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID. A download error containing `result.mutationOutcome` means its record committed; retain the original idempotency key when retrying.
+
+Mutation response unavailable example (HTTP 409):
+
+```json
+{
+  "code": "40909",
+  "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
+  "result": {
+    "success": false,
+    "data": null,
+    "code": "mutation_response_unavailable",
+    "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "mutationOutcome": "committed"
+  },
+  "traceId": "trace_123"
+}
+```
+
+For `mutation_response_unavailable`, reconcile the committed or replayed mutation instead of blindly creating another resource.
 
 </details>
 
@@ -160,7 +239,7 @@ JSON 接口使用以下結構。下載和匯出成功時直接回傳檔案。
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
-**響應參數**： `200`，`data`：List&lt;Brand&gt;。 [欄位說明](#fields-Brand) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;Brand&gt;。 [欄位說明](#fields-Brand) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -180,29 +259,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 10,
-      "name": "Example brand",
-      "code": "example-code",
-      "description": null,
-      "website": null,
-      "sortOrder": 0,
-      "isEnabled": true,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 10,
+        "name": "Example brand",
+        "code": "example-code",
+        "description": null,
+        "website": null,
+        "sortOrder": 0,
+        "isEnabled": true,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -237,7 +321,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | description | String | 否 | 最長 512 個字符；可為 null |
 | logoUrl | String | 否 | null/空值表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符；可為 null |
 
-**響應參數**： `201`，`data`：Brand。 [欄位說明](#fields-Brand)
+**響應參數**： `201`，`result.data`：Brand。 [欄位說明](#fields-Brand)
 
 響應頭：`ETag`
 
@@ -258,21 +342,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": null,
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": null,
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -297,7 +386,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `getBrand`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：Brand。 [欄位說明](#fields-Brand)
+**響應參數**： `200`，`result.data`：Brand。 [欄位說明](#fields-Brand)
 
 響應頭：`ETag`
 
@@ -318,21 +407,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": null,
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": null,
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -368,7 +462,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | description | String | 否 | 最長 512 個字符；可為 null |
 | logoUrl | String | 否 | null/空值表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符；可為 null |
 
-**響應參數**： `200`，`data`：Brand。 [欄位說明](#fields-Brand)
+**響應參數**： `200`，`result.data`：Brand。 [欄位說明](#fields-Brand)
 
 響應頭：`ETag`
 
@@ -390,21 +484,26 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10,
-    "name": "Example brand",
-    "code": "example-code",
-    "description": "Updated by API",
-    "website": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "name": "Example brand",
+      "code": "example-code",
+      "description": "Updated by API",
+      "website": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -430,7 +529,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
-**響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
+**響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
 
 響應頭：`ETag`
 
@@ -451,13 +550,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 10
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 10
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -515,7 +619,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 | brandId | Integer | 否 | 請求本文欄位。按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：List&lt;Category&gt;。 [欄位說明](#fields-Category) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;Category&gt;。 [欄位說明](#fields-Category) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -535,32 +639,37 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 20,
-      "brandId": 10,
-      "parentId": null,
-      "name": "Catalog",
-      "pathKey": "/Catalog",
-      "description": null,
-      "iconEmoji": null,
-      "iconAssetId": null,
-      "sortOrder": 0,
-      "isEnabled": true,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 20,
+        "brandId": 10,
+        "parentId": null,
+        "name": "Catalog",
+        "pathKey": "/Catalog",
+        "description": null,
+        "iconEmoji": null,
+        "iconAssetId": null,
+        "sortOrder": 0,
+        "isEnabled": true,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -600,7 +709,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。；可為 null |
 | isEnabled | Boolean | 否 | — |
 
-**響應參數**： `201`，`data`：Category。 [欄位說明](#fields-Category)
+**響應參數**： `201`，`result.data`：Category。 [欄位說明](#fields-Category)
 
 響應頭：`ETag`
 
@@ -622,24 +731,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": null,
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": null,
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -664,7 +778,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `getCategory`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：Category。 [欄位說明](#fields-Category)
+**響應參數**： `200`，`result.data`：Category。 [欄位說明](#fields-Category)
 
 響應頭：`ETag`
 
@@ -685,24 +799,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": null,
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": null,
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -742,7 +861,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。；可為 null |
 | isEnabled | Boolean | 否 | — |
 
-**響應參數**： `200`，`data`：Category。 [欄位說明](#fields-Category)
+**響應參數**： `200`，`result.data`：Category。 [欄位說明](#fields-Category)
 
 響應頭：`ETag`
 
@@ -764,24 +883,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20,
-    "brandId": 10,
-    "parentId": null,
-    "name": "Catalog",
-    "pathKey": "/Catalog",
-    "description": "Updated by API",
-    "iconEmoji": null,
-    "iconAssetId": null,
-    "sortOrder": 0,
-    "isEnabled": true,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20,
+      "brandId": 10,
+      "parentId": null,
+      "name": "Catalog",
+      "pathKey": "/Catalog",
+      "description": "Updated by API",
+      "iconEmoji": null,
+      "iconAssetId": null,
+      "sortOrder": 0,
+      "isEnabled": true,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -807,7 +931,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
-**響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
+**響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
 
 響應頭：`ETag`
 
@@ -828,13 +952,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 20
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 20
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -971,7 +1100,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
-**響應參數**： `200`，`data`：List&lt;Template&gt;。 [欄位說明](#fields-Template) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;Template&gt;。 [欄位說明](#fields-Template) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -991,9 +1120,173 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "template_example",
+        "name": "Example template",
+        "description": null,
+        "enabled": true,
+        "isSystemDefault": false,
+        "isLibraryDefault": false,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z",
+        "boundBrandIds": [],
+        "boundCategoryIds": [],
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 3,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
+    }
+  },
+  "traceId": "trace_123"
+}
+```
+
+</details>
+
+### 創建模板
+
+**接口路徑**： https://open.musedam.cc/api/muse/product-api
+
+**請求方式**： POST
+
+**接口描述**：建立模板及不可變版本。syncStrategy 可省略，目前僅支援 newOnly；最多 200 個欄位，不會變更任何既有商品。
+
+所需角色：manage。
+
+**請求參數**：
+
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+
+| 參數名 | 類型 | 必填 | 描述 |
+| - | - | - | - |
+| service | String | 是 | 服務識別碼，固定為 `createTemplate`. |
+| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
+
+**TemplateCreate參數說明**：
+
+name/description 會去除首尾空白。所有分組合計最多 200 個字段。綁定必須屬於同一商品庫，會替換所提供的綁定集合，並可將綁定從其他模板移過來。當所選品牌非空時，所選分類必須屬於這些品牌。僅支持 newOnly；絕不批量重新固定現有商品的版本。
+
+不接受未定義字段。
+
+| 字段名 | 類型 | 必填 | 描述 |
+| - | - | - | - |
+| name | String | 是 | 最短 1 個字符；最長 30 個字符 |
+| description | String | 否 | 最長 50 個字符；可為 null |
+| enabled | Boolean | 否 | — |
+| groups | List&lt;TemplateGroupInput&gt; | 是 | 最少 1 項；最多 200 項。嵌套字段：[範本分組欄位](#template-groups) |
+| boundBrandIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
+| boundCategoryIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
+| isLibraryDefault | Boolean | 否 | — |
+| syncStrategy | String | 否 | 允許值：newOnly；默認值："newOnly" |
+
+**響應參數**： `201`，`result.data`：Template。 [欄位說明](#fields-Template)
+
+響應頭：`ETag`
+
+請求示例：
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "service": "createTemplate",
+  "name": "Example template",
+  "groups": [
     {
+      "name": "Details",
+      "fields": [
+        {
+          "key": "color",
+          "name": "Color",
+          "type": "text",
+          "config": {}
+        }
+      ]
+    }
+  ]
+}'
+```
+
+<details id="response-createTemplate">
+<summary>回應範例</summary>
+
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
       "id": "template_example",
       "name": "Example template",
       "description": null,
@@ -1062,166 +1355,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
           ]
         }
       ]
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
-}
-```
-
-</details>
-
-### 創建模板
-
-**接口路徑**： https://open.musedam.cc/api/muse/product-api
-
-**請求方式**： POST
-
-**接口描述**：建立模板及不可變版本。syncStrategy 可省略，目前僅支援 newOnly；最多 200 個欄位，不會變更任何既有商品。
-
-所需角色：manage。
-
-**請求參數**：
-
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
-
-| 參數名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| service | String | 是 | 服務識別碼，固定為 `createTemplate`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-
-**TemplateCreate參數說明**：
-
-name/description 會去除首尾空白。所有分組合計最多 200 個字段。綁定必須屬於同一商品庫，會替換所提供的綁定集合，並可將綁定從其他模板移過來。當所選品牌非空時，所選分類必須屬於這些品牌。僅支持 newOnly；絕不批量重新固定現有商品的版本。
-
-不接受未定義字段。
-
-| 字段名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| name | String | 是 | 最短 1 個字符；最長 30 個字符 |
-| description | String | 否 | 最長 50 個字符；可為 null |
-| enabled | Boolean | 否 | — |
-| groups | List&lt;TemplateGroupInput&gt; | 是 | 最少 1 項；最多 200 項。嵌套字段：[範本分組欄位](#template-groups) |
-| boundBrandIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
-| boundCategoryIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
-| isLibraryDefault | Boolean | 否 | — |
-| syncStrategy | String | 否 | 允許值：newOnly；默認值："newOnly" |
-
-**響應參數**： `201`，`data`：Template。 [欄位說明](#fields-Template)
-
-響應頭：`ETag`
-
-請求示例：
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "createTemplate",
-  "name": "Example template",
-  "groups": [
-    {
-      "name": "Details",
-      "fields": [
-        {
-          "key": "color",
-          "name": "Color",
-          "type": "text",
-          "config": {}
-        }
-      ]
-    }
-  ]
-}'
-```
-
-<details id="response-createTemplate">
-<summary>回應範例</summary>
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": null,
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1246,7 +1385,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `getTemplate`. |
 | id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
 
-**響應參數**： `200`，`data`：Template。 [欄位說明](#fields-Template)
+**響應參數**： `200`，`result.data`：Template。 [欄位說明](#fields-Template)
 
 響應頭：`ETag`
 
@@ -1267,80 +1406,85 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": null,
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example",
+      "name": "Example template",
+      "description": null,
+      "enabled": true,
+      "isSystemDefault": false,
+      "isLibraryDefault": false,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "boundBrandIds": [],
+      "boundCategoryIds": [],
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 3,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1383,7 +1527,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | isLibraryDefault | Boolean | 否 | — |
 | syncStrategy | String | 否 | 允許值：newOnly；默認值："newOnly" |
 
-**響應參數**： `200`，`data`：Template。 [欄位說明](#fields-Template)
+**響應參數**： `200`，`result.data`：Template。 [欄位說明](#fields-Template)
 
 響應頭：`ETag`
 
@@ -1405,80 +1549,85 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example",
-    "name": "Example template",
-    "description": "Updated by API",
-    "enabled": true,
-    "isSystemDefault": false,
-    "isLibraryDefault": false,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:05:00.000Z",
-    "boundBrandIds": [],
-    "boundCategoryIds": [],
-    "groups": [
-      {
-        "id": "group_details",
-        "name": "Details",
-        "isDefault": true,
-        "sortOrder": 0,
-        "fields": [
-          {
-            "id": "field_name",
-            "key": "name",
-            "name": "商品名称",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 0,
-            "isSystemField": true,
-            "systemKey": "name",
-            "config": {}
-          },
-          {
-            "id": "field_sku",
-            "key": "sku",
-            "name": "SKU",
-            "type": "text",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 1,
-            "isSystemField": true,
-            "systemKey": "sku",
-            "config": {}
-          },
-          {
-            "id": "field_main_image",
-            "key": "mainImage",
-            "name": "商品主图",
-            "type": "image",
-            "required": true,
-            "placeholder": null,
-            "sortOrder": 2,
-            "isSystemField": true,
-            "systemKey": "mainImage",
-            "config": {}
-          },
-          {
-            "id": "field_color",
-            "key": "color",
-            "name": "Color",
-            "type": "text",
-            "required": false,
-            "placeholder": null,
-            "sortOrder": 3,
-            "isSystemField": false,
-            "systemKey": null,
-            "config": {}
-          }
-        ]
-      }
-    ]
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example",
+      "name": "Example template",
+      "description": "Updated by API",
+      "enabled": true,
+      "isSystemDefault": false,
+      "isLibraryDefault": false,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:05:00.000Z",
+      "boundBrandIds": [],
+      "boundCategoryIds": [],
+      "groups": [
+        {
+          "id": "group_details",
+          "name": "Details",
+          "isDefault": true,
+          "sortOrder": 0,
+          "fields": [
+            {
+              "id": "field_name",
+              "key": "name",
+              "name": "商品名称",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 0,
+              "isSystemField": true,
+              "systemKey": "name",
+              "config": {}
+            },
+            {
+              "id": "field_sku",
+              "key": "sku",
+              "name": "SKU",
+              "type": "text",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 1,
+              "isSystemField": true,
+              "systemKey": "sku",
+              "config": {}
+            },
+            {
+              "id": "field_main_image",
+              "key": "mainImage",
+              "name": "商品主图",
+              "type": "image",
+              "required": true,
+              "placeholder": null,
+              "sortOrder": 2,
+              "isSystemField": true,
+              "systemKey": "mainImage",
+              "config": {}
+            },
+            {
+              "id": "field_color",
+              "key": "color",
+              "name": "Color",
+              "type": "text",
+              "required": false,
+              "placeholder": null,
+              "sortOrder": 3,
+              "isSystemField": false,
+              "systemKey": null,
+              "config": {}
+            }
+          ]
+        }
+      ]
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1514,7 +1663,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | - | - | - | - |
 | replacementForLibraryDefault | String | 否 | 最短 1 個字符；最長 128 個字符；可為 null |
 
-**響應參數**： `200`，`data`：DeletedTemplateId。 回傳 `data.id`，即已刪除的資源 ID。
+**響應參數**： `200`，`result.data`：DeletedTemplateId。 回傳 `result.data.id`，即已刪除的資源 ID。
 
 響應頭：`ETag`
 
@@ -1536,13 +1685,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "template_example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "template_example"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -1572,12 +1726,15 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 <details id="cycle-protocol">
 <summary>同步與檢查點</summary>
 
-1. 首次使用 `"sync": "true"`，省略 `updatedAfter`；增量週期傳入上次完成的 `syncedUntil`。
+1. 首次使用 `"sync": "true"`，省略 `updatedAfter`；增量週期傳入上次完成的 `result.pagination.syncedUntil`。
 2. 按商品 `id` 和 `updatedAt` 合併，保留較新版本。
-3. 使用 `"sync": "true", "cursor": "<nextCursor>"` 跟隨 `nextCursor` 直到 null；即使 `data` 為空，也要繼續。
-4. 完成後原樣儲存 `syncedUntil`，不要改用最後一筆商品的時間。
+3. 使用 `"sync": "true", "cursor": "<nextCursor>"` 跟隨 `result.pagination.nextCursor` 直到 null；即使 `result.data` 為空，也要繼續。
+4. 完成後原樣儲存 `result.pagination.syncedUntil`，不要改用最後一筆商品的時間。
 
 游標綁定密鑰、角色、商品庫、篩選條件和頁面大小；續頁時不要變更它們。更換授權或篩選條件要開始新週期；範圍擴大時重新完整同步。檢查點和同步 `updatedAt` 保留完整六位小數，不要用 JavaScript Date 截斷精度。每週期讀取目前狀態的 `[updatedAfter, syncedUntil)`，上界為首次請求時伺服器時間減 30 秒；長交易仍可能影響完整性，不提供每次變更的事件串流。
+
+
+Synchronization returns items in `result.data` and metadata in `result.pagination`: `mode`, `syncedUntil` and `nextCursor`. Copy the returned `result.pagination.nextCursor` into the next request’s `cursor` field; do not rename request fields or wrap business input in `result`.
 
 </details>
 
@@ -1695,7 +1852,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | updatedAfter | String | 否 | 請求本文欄位。僅在 sync: "true" 時使用。包含的下界；RFC3339 格式，使用 Z 或時區偏移，0..6 位小數，日曆日期/偏移須有效。請將 syncedUntil 作為字符串保存並復用。全量掃描時省略。格式：date-time |
 | cursor | String | 否 | 請求本文欄位。不透明的續頁令牌，僅在 sync: "true" 時使用。綁定 key、角色、商品庫、邊界、篩選條件和每頁條數。續頁時省略其他參數，或重復傳入等價的值。最短 1 個字符；最長 8,192 個字符 |
 
-**響應參數**： `200`，`data`：List&lt;ProductSummary&gt;。 [欄位說明](#fields-ProductSummary) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;ProductSummary&gt;。 [欄位說明](#fields-ProductSummary) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 **SyncPage**
 
@@ -1724,38 +1881,30 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "name": "Example product",
-      "spu": "EXAMPLE-001",
-      "description": null,
-      "status": "draft",
-      "brandId": 10,
-      "categoryId": 20,
-      "ownerUserId": null,
-      "publishedAt": null,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.000Z",
-      "draftReason": null,
-      "templateId": "template_example",
-      "templateVersionId": "version_one",
-      "templateFields": {
-        "field_color": "Blue"
-      },
-      "cover": {
-        "id": 30,
-        "name": "cover.jpg",
-        "mimeType": "image/jpeg",
-        "size": "9007199254740993",
-        "width": 1200,
-        "height": 900,
-        "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      },
-      "images": [
-        {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "name": "Example product",
+        "spu": "EXAMPLE-001",
+        "description": null,
+        "status": "draft",
+        "brandId": 10,
+        "categoryId": 20,
+        "ownerUserId": null,
+        "publishedAt": null,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.000Z",
+        "draftReason": null,
+        "templateId": "template_example",
+        "templateVersionId": "version_one",
+        "templateFields": {
+          "field_color": "Blue"
+        },
+        "cover": {
           "id": 30,
           "name": "cover.jpg",
           "mimeType": "image/jpeg",
@@ -1764,20 +1913,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
           "height": 900,
           "duration": null,
           "previewUrl": "https://media.example.test/preview?signature=example"
-        }
-      ],
-      "relatedAssets": []
+        },
+        "images": [
+          {
+            "id": 30,
+            "name": "cover.jpg",
+            "mimeType": "image/jpeg",
+            "size": "9007199254740993",
+            "width": 1200,
+            "height": 900,
+            "duration": null,
+            "previewUrl": "https://media.example.test/preview?signature=example"
+          }
+        ],
+        "relatedAssets": []
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1785,38 +1947,30 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "name": "Example product",
-      "spu": "EXAMPLE-001",
-      "description": null,
-      "status": "draft",
-      "brandId": 10,
-      "categoryId": 20,
-      "ownerUserId": null,
-      "publishedAt": null,
-      "createdAt": "2026-10-08T10:00:00.000Z",
-      "updatedAt": "2026-10-08T10:00:00.123456Z",
-      "draftReason": null,
-      "templateId": "template_example",
-      "templateVersionId": "version_one",
-      "templateFields": {
-        "field_color": "Blue"
-      },
-      "cover": {
-        "id": 30,
-        "name": "cover.jpg",
-        "mimeType": "image/jpeg",
-        "size": "9007199254740993",
-        "width": 1200,
-        "height": 900,
-        "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      },
-      "images": [
-        {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "name": "Example product",
+        "spu": "EXAMPLE-001",
+        "description": null,
+        "status": "draft",
+        "brandId": 10,
+        "categoryId": 20,
+        "ownerUserId": null,
+        "publishedAt": null,
+        "createdAt": "2026-10-08T10:00:00.000Z",
+        "updatedAt": "2026-10-08T10:00:00.123456Z",
+        "draftReason": null,
+        "templateId": "template_example",
+        "templateVersionId": "version_one",
+        "templateFields": {
+          "field_color": "Blue"
+        },
+        "cover": {
           "id": 30,
           "name": "cover.jpg",
           "mimeType": "image/jpeg",
@@ -1825,20 +1979,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
           "height": 900,
           "duration": null,
           "previewUrl": "https://media.example.test/preview?signature=example"
-        }
-      ],
-      "relatedAssets": []
+        },
+        "images": [
+          {
+            "id": 30,
+            "name": "cover.jpg",
+            "mimeType": "image/jpeg",
+            "size": "9007199254740993",
+            "width": 1200,
+            "height": 900,
+            "duration": null,
+            "previewUrl": "https://media.example.test/preview?signature=example"
+          }
+        ],
+        "relatedAssets": []
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "pageSize": 20,
+      "syncedUntil": "2026-10-08T10:01:00.123456Z",
+      "nextCursor": null,
+      "hasMore": false
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "pageSize": 20,
-    "syncedUntil": "2026-10-08T10:01:00.123456Z",
-    "nextCursor": null,
-    "hasMore": false
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1846,17 +2013,22 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "pageSize": 20,
-    "syncedUntil": "2026-10-08T10:01:00.123456Z",
-    "nextCursor": "opaque-continuation-token",
-    "hasMore": true
-  }
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "pageSize": 20,
+      "syncedUntil": "2026-10-08T10:01:00.123456Z",
+      "nextCursor": "opaque-continuation-token",
+      "hasMore": true
+    }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -1901,7 +2073,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 
-**響應參數**： `201`，`data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
+**響應參數**： `201`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
 
 響應頭：`ETag`
 
@@ -1929,37 +2101,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -1968,37 +2132,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2023,7 +2200,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `getProduct`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
+**響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
 
 響應頭：`ETag`
 
@@ -2044,37 +2221,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2083,37 +2252,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2121,31 +2303,36 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": null,
-    "templateVersionId": null,
-    "templateFields": {},
-    "cover": null,
-    "images": [],
-    "relatedAssets": [],
-    "templateDefinition": null
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": null,
+      "templateVersionId": null,
+      "templateFields": {},
+      "cover": null,
+      "images": [],
+      "relatedAssets": [],
+      "templateDefinition": null
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2153,39 +2340,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example",
-      "downloadUrl": "https://media.example.test/original?signature=example",
-      "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2193,38 +2370,53 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "width": 1200,
         "height": 900,
         "duration": null,
-        "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+        "previewUrl": "https://media.example.test/preview?signature=example",
+        "downloadUrl": "https://media.example.test/original?signature=example",
+        "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2269,7 +2461,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 
-**響應參數**： `200`，`data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
+**響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
 
 響應頭：`ETag`
 
@@ -2294,37 +2486,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "draft",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": null,
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "draft",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": null,
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2333,37 +2517,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2389,7 +2586,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 | If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
-**響應參數**： `200`，`data`：DeletedId。 回傳 `data.id`，即已刪除的資源 ID。
+**響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
 
 響應頭：`ETag`
 
@@ -2410,13 +2607,18 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2452,7 +2654,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | - | - | - | - |
 | status | String | 是 | 允許值：draft、published |
 
-**響應參數**： `200`，`data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
+**響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
 
 響應頭：`ETag`
 
@@ -2474,37 +2676,29 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 40,
-    "name": "Example product",
-    "spu": "EXAMPLE-001",
-    "description": null,
-    "status": "published",
-    "brandId": 10,
-    "categoryId": 20,
-    "ownerUserId": null,
-    "publishedAt": "2026-10-08T10:00:00.000Z",
-    "createdAt": "2026-10-08T10:00:00.000Z",
-    "updatedAt": "2026-10-08T10:00:00.000Z",
-    "draftReason": null,
-    "templateId": "template_example",
-    "templateVersionId": "version_one",
-    "templateFields": {
-      "field_color": "Blue"
-    },
-    "cover": {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
-    },
-    "images": [
-      {
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 40,
+      "name": "Example product",
+      "spu": "EXAMPLE-001",
+      "description": null,
+      "status": "published",
+      "brandId": 10,
+      "categoryId": 20,
+      "ownerUserId": null,
+      "publishedAt": "2026-10-08T10:00:00.000Z",
+      "createdAt": "2026-10-08T10:00:00.000Z",
+      "updatedAt": "2026-10-08T10:00:00.000Z",
+      "draftReason": null,
+      "templateId": "template_example",
+      "templateVersionId": "version_one",
+      "templateFields": {
+        "field_color": "Blue"
+      },
+      "cover": {
         "id": 30,
         "name": "cover.jpg",
         "mimeType": "image/jpeg",
@@ -2513,37 +2707,50 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
         "height": 900,
         "duration": null,
         "previewUrl": "https://media.example.test/preview?signature=example"
-      }
-    ],
-    "relatedAssets": [],
-    "templateDefinition": {
-      "groups": [
+      },
+      "images": [
         {
-          "id": "group_details",
-          "name": "Details",
-          "isDefault": true,
-          "sortOrder": 0,
-          "fields": [
-            {
-              "id": "field_color",
-              "key": "color",
-              "name": "Color",
-              "type": "text",
-              "required": false,
-              "placeholder": null,
-              "sortOrder": 0,
-              "isSystemField": false,
-              "systemKey": null,
-              "config": {}
-            }
-          ]
+          "id": 30,
+          "name": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": "9007199254740993",
+          "width": 1200,
+          "height": 900,
+          "duration": null,
+          "previewUrl": "https://media.example.test/preview?signature=example"
         }
-      ]
-    }
+      ],
+      "relatedAssets": [],
+      "templateDefinition": {
+        "groups": [
+          {
+            "id": "group_details",
+            "name": "Details",
+            "isDefault": true,
+            "sortOrder": 0,
+            "fields": [
+              {
+                "id": "field_color",
+                "key": "color",
+                "name": "Color",
+                "type": "text",
+                "required": false,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": false,
+                "systemKey": null,
+                "config": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2577,7 +2784,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | - | - | - | - |
 | ids | List&lt;Integer&gt; | 是 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 
-**響應參數**： `200`，`data`：List&lt;Visibility&gt;。
+**響應參數**： `200`，`result.data`：List&lt;Visibility&gt;。
 
 **Visibility**
 
@@ -2606,20 +2813,25 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 40,
-      "visibility": "visible"
-    },
-    {
-      "id": 41,
-      "visibility": "not_visible"
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 40,
+        "visibility": "visible"
+      },
+      {
+        "id": 41,
+        "visibility": "not_visible"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2665,7 +2877,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | search | String | 否 | 請求本文欄位。去除首尾空白、不區分大小寫的子串匹配：商品名稱/spu，或素材庫素材名稱。 |
 | mimeType | String | 否 | 請求本文欄位。去除首尾空白、不區分大小寫的 MIME 前綴，例如 image/ 或 application/pdf。 |
 
-**響應參數**： `200`，`data`：List&lt;LibraryAsset&gt;。 [欄位說明](#fields-LibraryAsset) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;LibraryAsset&gt;。 [欄位說明](#fields-LibraryAsset) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -2685,28 +2897,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 30,
-      "name": "cover.jpg",
-      "mimeType": "image/jpeg",
-      "size": "9007199254740993",
-      "width": 1200,
-      "height": 900,
-      "duration": null,
-      "previewUrl": "https://media.example.test/preview?signature=example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": 30,
+        "name": "cover.jpg",
+        "mimeType": "image/jpeg",
+        "size": "9007199254740993",
+        "width": 1200,
+        "height": 900,
+        "duration": null,
+        "previewUrl": "https://media.example.test/preview?signature=example"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2731,7 +2948,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `getAsset`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：LibraryAsset。 [欄位說明](#fields-LibraryAsset)
+**響應參數**： `200`，`result.data`：LibraryAsset。 [欄位說明](#fields-LibraryAsset)
 
 響應頭：`ETag`
 
@@ -2752,20 +2969,25 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 30,
-    "name": "cover.jpg",
-    "mimeType": "image/jpeg",
-    "size": "9007199254740993",
-    "width": 1200,
-    "height": 900,
-    "duration": null,
-    "previewUrl": "https://media.example.test/preview?signature=example"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": 30,
+      "name": "cover.jpg",
+      "mimeType": "image/jpeg",
+      "size": "9007199254740993",
+      "width": 1200,
+      "height": 900,
+      "duration": null,
+      "previewUrl": "https://media.example.test/preview?signature=example"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2835,7 +3057,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
-**響應參數**： `200`，`data`：List&lt;ProductShare&gt;。 [欄位說明](#fields-ProductShare) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;ProductShare&gt;。 [欄位說明](#fields-ProductShare) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -2855,39 +3077,44 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "share-example",
-      "url": "https://your-deployment.example/share/products/example-recipient-token",
-      "products": [
-        {
-          "id": 40,
-          "name": "Example product",
-          "spu": "SKU-40"
-        }
-      ],
-      "createdById": null,
-      "createdByApiKeyId": "integration-key-id",
-      "createdByName": "Catalog integration",
-      "createdAt": "2026-10-09T10:00:00.000Z",
-      "expiresAt": "2026-10-16T10:00:00.000Z",
-      "revokedAt": null,
-      "allowDownload": false,
-      "hasAccessCode": false,
-      "status": "active",
-      "canRevoke": true
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "share-example",
+        "url": "https://your-deployment.example/share/products/example-recipient-token",
+        "products": [
+          {
+            "id": 40,
+            "name": "Example product",
+            "spu": "SKU-40"
+          }
+        ],
+        "createdById": null,
+        "createdByApiKeyId": "integration-key-id",
+        "createdByName": "Catalog integration",
+        "createdAt": "2026-10-09T10:00:00.000Z",
+        "expiresAt": "2026-10-16T10:00:00.000Z",
+        "revokedAt": null,
+        "allowDownload": false,
+        "hasAccessCode": false,
+        "status": "active",
+        "canRevoke": true
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -2923,7 +3150,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | accessCode | String | 否 | 須匹配 `^[0-9]{4}$` |
 | allowDownload | Boolean | 是 | — |
 
-**響應參數**： `201`，`data`：ProductShare。 [欄位說明](#fields-ProductShare)
+**響應參數**： `201`，`result.data`：ProductShare。 [欄位說明](#fields-ProductShare)
 
 請求示例：
 
@@ -2946,31 +3173,36 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "share-example",
-    "url": "https://your-deployment.example/share/products/example-recipient-token",
-    "products": [
-      {
-        "id": 40,
-        "name": "Example product",
-        "spu": "SKU-40"
-      }
-    ],
-    "createdById": null,
-    "createdByApiKeyId": "integration-key-id",
-    "createdByName": "Catalog integration",
-    "createdAt": "2026-10-09T10:00:00.000Z",
-    "expiresAt": "2026-10-16T10:00:00.000Z",
-    "revokedAt": null,
-    "allowDownload": false,
-    "hasAccessCode": false,
-    "status": "active",
-    "canRevoke": false
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "share-example",
+      "url": "https://your-deployment.example/share/products/example-recipient-token",
+      "products": [
+        {
+          "id": 40,
+          "name": "Example product",
+          "spu": "SKU-40"
+        }
+      ],
+      "createdById": null,
+      "createdByApiKeyId": "integration-key-id",
+      "createdByName": "Catalog integration",
+      "createdAt": "2026-10-09T10:00:00.000Z",
+      "expiresAt": "2026-10-16T10:00:00.000Z",
+      "revokedAt": null,
+      "allowDownload": false,
+      "hasAccessCode": false,
+      "status": "active",
+      "canRevoke": false
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -2995,7 +3227,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `revokeProductShare`. |
 | id | String | 是 | 請求本文欄位。不透明的分享標識符。最短 1 個字符；最長 128 個字符 |
 
-**響應參數**： `200`，`data`：RevokedProductShare。
+**響應參數**： `200`，`result.data`：RevokedProductShare。
 
 **RevokedProductShare**
 
@@ -3021,14 +3253,19 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "share-example",
-    "revokedAt": "2026-10-09T11:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {
+      "id": "share-example",
+      "revokedAt": "2026-10-09T11:00:00.000Z"
+    },
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
   },
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "traceId": "trace_123"
 }
 ```
 
@@ -3143,7 +3380,7 @@ for (const request of requests) {
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
 
-**響應參數**： `200`，`data`：List&lt;ProductDownloadRecord&gt;。 [欄位說明](#fields-ProductDownloadRecord) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
+**響應參數**： `200`，`result.data`：List&lt;ProductDownloadRecord&gt;。 [欄位說明](#fields-ProductDownloadRecord) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
 請求示例：
 
@@ -3163,43 +3400,48 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "download-example",
-      "kind": "product_export",
-      "status": "requested",
-      "actorType": "api_key",
-      "actorId": null,
-      "apiKeyId": "integration-key-id",
-      "actorName": "Catalog integration",
-      "shareId": null,
-      "products": [
-        {
-          "id": 40,
-          "name": "Example product",
-          "spu": "SKU-40"
-        }
-      ],
-      "files": [
-        {
-          "id": "export:xlsx",
-          "productId": 40,
-          "name": "products.xlsx"
-        }
-      ],
-      "createdAt": "2026-10-09T10:00:00.000Z"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "id": "download-example",
+        "kind": "product_export",
+        "status": "requested",
+        "actorType": "api_key",
+        "actorId": null,
+        "apiKeyId": "integration-key-id",
+        "actorName": "Catalog integration",
+        "shareId": null,
+        "products": [
+          {
+            "id": 40,
+            "name": "Example product",
+            "spu": "SKU-40"
+          }
+        ],
+        "files": [
+          {
+            "id": "export:xlsx",
+            "productId": 40,
+            "name": "products.xlsx"
+          }
+        ],
+        "createdAt": "2026-10-09T10:00:00.000Z"
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111",
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "totalCount": 1,
+      "totalPages": 1
     }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111",
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  },
+  "traceId": "trace_123"
 }
 ```
 
@@ -3295,7 +3537,7 @@ X-Download-Record-Id: <record-id>
 | service | String | 是 | 服務識別碼，固定為 `listProductDownloadAssets`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
-**響應參數**： `200`，`data`：List&lt;ProductDownloadCandidate&gt;。 [欄位說明](#fields-ProductDownloadCandidate)
+**響應參數**： `200`，`result.data`：List&lt;ProductDownloadCandidate&gt;。 [欄位說明](#fields-ProductDownloadCandidate)
 
 請求示例：
 
@@ -3314,22 +3556,27 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "key": "p40:a2",
-      "name": "example.png",
-      "productId": 40,
-      "productName": "Example product",
-      "category": "main",
-      "mimeType": "image/png",
-      "size": "1024",
-      "downloadable": true
-    }
-  ],
-  "code": null,
-  "message": null,
-  "requestId": "11111111-1111-4111-8111-111111111111"
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "key": "p40:a2",
+        "name": "example.png",
+        "productId": 40,
+        "productName": "Example product",
+        "category": "main",
+        "mimeType": "image/png",
+        "size": "1024",
+        "downloadable": true
+      }
+    ],
+    "code": null,
+    "message": null,
+    "requestId": "11111111-1111-4111-8111-111111111111"
+  },
+  "traceId": "trace_123"
 }
 ```
 

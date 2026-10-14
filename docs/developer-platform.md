@@ -126,7 +126,14 @@ fields, category paths, nullable custom media and mutation results. The public
 contract has one POST operation with 31 named request variants selected by a
 `service` discriminator. `x-services` retains per-service responses, permissions,
 roles and supported control headers; aggregated responses do not apply to every
-service. Business fields and response shapes are preserved. The reference includes
+service. Business fields are preserved. JSON responses use
+`{code, message, result, traceId}`: success has string code `"0"` and message
+`"成功"`; failures use the product gateway's nonzero numeric-string error codes.
+`result` contains the entire former response, including data, pagination,
+semantic errors, validation details and mutation outcomes. Optional request-body
+`traceId` is echoed and logged; absent values use the generated request ID, and
+invalid values fail validation with a generated fallback trace. Successful
+attachments, including JSON exports, remain unwrapped. The reference includes
 all services and links to concise field tables in the same article.
 Full schemas and shared response, header and parameter definitions remain in the
 downloadable contract; do not render these raw OpenAPI components or appendices
