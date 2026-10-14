@@ -3039,7 +3039,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 List product download candidates first. Put the returned `key` in `assetKeys`, or put the raw key in the single-file body field `assetKey`; it is not a FilePath ID. One original returns that file; multiple originals return a ZIP. A request selects 1–100 products, at most 200 files, and no more than 500 MiB.
 
-Exports use `kind: "export"`, with xlsx (default), csv, or json. Do not send `assetKeys`. `includeAssetUrls` defaults to true; exported links still require a Bearer header. Create a share for visitors without credentials. `locale` affects system labels and status only.
+Exports use `kind: "export"`, with xlsx (default), csv, or json. Do not send `assetKeys`. `includeAssetUrls` defaults to true. In all three formats, main-image, related-asset and custom image/file cells contain **stringified JSON arrays of download request descriptors**, even for one file; empty cells contain the string `"[]"`. Ordinary fields are unchanged. JSON exports remain an array of localized business rows with string cell values, not nested descriptor arrays; parse each media cell separately.
+
+Each descriptor has exactly this shape (the `assetKey` is raw, not URL-encoded):
+
+```json
+[{"url":"https://open.musedam.cc/api/muse/product-api","method":"POST","body":{"service":"downloadProductAsset","id":40,"assetKey":"p40:a2"}}]
+```
+
+This is the JSON text inside a cell, not the entire export. Descriptors contain no credentials or headers. To execute one, parse the cell and add the user's `Authorization: Bearer <APIKEY>` and `Content-Type: application/json` headers at runtime:
+
+```js
+const requests = JSON.parse(mediaCell);
+for (const request of requests) {
+  const response = await fetch(request.url, {
+    method: request.method,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request.body),
+  });
+  if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+  const file = await response.blob();
+  // Save or process the original file here.
+}
+```
+
+When enabled, API media column labels use the localized suffix ` (download requests)` instead of URL labels, including custom media field labels. `locale` changes system labels/status and this suffix, not user-authored labels or values. With `includeAssetUrls: false`, main-image and related-asset cells remain empty strings, and custom image/file cells retain semicolon-separated file names. API exports no longer generate legacy `/api/open/v1` URLs. Web/member/share exports are unchanged. Create a share for visitors without credentials.
 
 `X-Download-Record-Id` identifies the business record. `requested` means accepted, not transferred or saved locally. History includes browser and other API key operations across the team. Ordinary reads, previews, and direct access to storage download URLs do not create history records.
 
@@ -3182,7 +3209,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Exported links require Bearer authentication; each accepted retrieval has its own business record. Use returned links as provided; do not construct or rewrite them from the service URL. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
+**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Export media cells contain stringified arrays of POST download request descriptors by default; execute them with Bearer authentication as explained in [File selection, exports, and records](#download-usage). Each accepted retrieval has its own business record. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
 
 Required role: usable, editable or manage.
 
@@ -3197,7 +3224,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 
 **ProductDownloadCreate fields**:
 
-assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. Export links default on, require Bearer authentication, and never contain API-key secrets. locale changes system labels/status, not user-authored labels or values.
+assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. With includeAssetUrls true (default), media cells are stringified JSON arrays of download request descriptors, not URLs. See the [export cell contract](#download-usage) for parsing, labels and false-mode behavior. locale changes system labels/status and the download-request suffix, not user-authored labels or values.
 
 Unknown fields are rejected.
 

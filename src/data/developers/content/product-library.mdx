@@ -3039,7 +3039,34 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 先查询商品下载候选，将返回的 `key` 放入 `assetKeys`，或将原始 key 放入单文件请求体字段 `assetKey`；它不是 FilePath ID。原文件下载仅一个文件时返回该文件，多个文件时返回 ZIP。每次选择 1–100 个商品、最多 200 个文件、合计不超过 500 MiB。
 
-导出使用 `kind: "export"`，格式为 xlsx（默认）、csv 或 json，不能传 `assetKeys`。`includeAssetUrls` 默认 true，导出的链接仍需要 Bearer 请求头；给免登录访客使用时应创建分享。`locale` 只影响系统标签和状态。
+导出使用 `kind: "export"`，格式为 xlsx（默认）、csv 或 json，不能传 `assetKeys`。`includeAssetUrls` 默认 true。三种格式的主图、关联素材及自定义 image/file 单元格均为**下载请求描述符数组的 JSON 字符串**，只有一个文件也使用数组，空单元格为字符串 `"[]"`。普通字段不变。JSON 导出仍是本地化业务行数组，单元格值为字符串，而不是嵌套描述符数组；媒体单元格需要单独解析。
+
+每个描述符严格采用以下结构（`assetKey` 是原始 key，不做 URL 编码）：
+
+```json
+[{"url":"https://open.musedam.cc/api/muse/product-api","method":"POST","body":{"service":"downloadProductAsset","id":40,"assetKey":"p40:a2"}}]
+```
+
+这是单元格内部的 JSON 文本，而非整个导出文件。描述符不包含凭证或请求头。执行时先解析单元格，再在运行时添加用户的 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json` 请求头：
+
+```js
+const requests = JSON.parse(mediaCell);
+for (const request of requests) {
+  const response = await fetch(request.url, {
+    method: request.method,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request.body),
+  });
+  if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+  const file = await response.blob();
+  // Save or process the original file here.
+}
+```
+
+启用时，API 媒体列名使用本地化的 ` (download requests)`（下载请求）后缀代替 URL 标签，自定义媒体字段标签也添加相同后缀。`locale` 影响系统标签、状态和该后缀，不改变用户自定义标签或内容。`includeAssetUrls: false` 时保留旧行为：主图和关联素材单元格为空字符串，自定义 image/file 单元格为分号分隔的文件名。API 导出不再生成旧的 `/api/open/v1` URL。网页、成员及分享导出不变。给免登录访客使用时应创建分享。
 
 附件响应头 `X-Download-Record-Id` 是业务记录 ID。`requested` 仅表示请求已接受，不表示传输或本地保存完成。历史包含团队浏览器操作及其他 API Key 的操作；普通读取、预览和直接访问存储下载 URL 不计入历史。
 
@@ -3182,7 +3209,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **请求方式**： POST
 
-**接口描述**：返回一个原文件、所选原文件的 ZIP，或 XLSX/CSV/JSON 业务表格导出。需要 usable 及以上角色的当前读取和下载权限；usable 只能访问已发布商品。已接受的操作在交付前记入记录。导出链接需要 Bearer 认证；每次接受的提取有自己的业务记录。按返回值使用链接，不要根据服务地址构造或改写链接。可选 Idempotency-Key 在 24 小时内保留一条记录，每次重试仍重新鉴权并传输当前内容。商品读取、预览和旧存储 downloadUrl 的访问不会由此操作记入记录。
+**接口描述**：返回一个原文件、所选原文件的 ZIP，或 XLSX/CSV/JSON 业务表格导出。需要 usable 及以上角色的当前读取和下载权限；usable 只能访问已发布商品。已接受的操作在交付前记入记录。导出媒体单元格默认包含 POST 下载请求描述符数组的 JSON 字符串，执行时需添加 Bearer 认证，详见[选择文件、导出与记录](#download-usage)。每次接受的提取有自己的业务记录。可选 Idempotency-Key 在 24 小时内保留一条记录，每次重试仍重新鉴权并传输当前内容。商品读取、预览和旧存储 downloadUrl 的访问不会由此操作记入记录。
 
 所需角色：usable、editable 或 manage。
 
@@ -3197,7 +3224,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **ProductDownloadCreate参数说明**：
 
-assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当前 key。export 不接受 assetKeys，并生成本地化业务表格。format、includeAssetUrls 和 locale 仅影响导出；素材下载接受这些选项但不据此改变交付内容。导出默认包含需要 Bearer 认证的链接，绝不包含 API key 密钥。locale 影响系统标签和状态，不改变用户自定义标签或内容。
+assets 省略 assetKeys 时选择全部原文件，否则仅选择提供的当前 key。export 不接受 assetKeys，并生成本地化业务表格。format、includeAssetUrls 和 locale 仅影响导出；素材下载接受这些选项但不据此改变交付内容。includeAssetUrls 为 true（默认）时，媒体单元格是下载请求描述符数组的 JSON 字符串，而非 URL。解析、列名及 false 模式详见[导出单元格约定](#download-usage)。locale 影响系统标签、状态及下载请求后缀，不改变用户自定义标签或内容。
 
 不接受未定义字段。
 
