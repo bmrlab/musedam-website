@@ -59,6 +59,15 @@ export function RegionEndpoints({
           <code>{row.url}</code>
         </div>
       ))}
+      {productLibrary && (
+        <p>
+          <strong>
+            {english
+              ? 'Product Library must be enabled before you can use this API.'
+              : localizeDeveloperText('仅开通商品库后，才能使用商品库 API。', lng)}
+          </strong>
+        </p>
+      )}
       <p>
         {productLibrary
           ? english
