@@ -424,7 +424,7 @@
     "title": "审批开放 API",
     "en": "Approval API",
     "group": "api",
-    "description": "通过 Muse Open 转发地址创建审批、查询状态并接收回调事件。",
+    "description": "需购买并开通审批中心扩展模块",
     "headings": [
       {
         "id": "审批开放接口",
