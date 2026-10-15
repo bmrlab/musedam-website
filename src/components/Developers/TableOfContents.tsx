@@ -21,6 +21,63 @@ export function TableOfContents({ headings, lng }: { headings: Heading[]; lng: s
     })
     return () => observer.disconnect()
   }, [headings])
+
+  useEffect(() => {
+    const openDetailsAndScroll = (hash: string, smooth: boolean) => {
+      if (!hash || !hash.startsWith('#') || hash === '#') return false
+      let id = hash.slice(1)
+      try {
+        id = decodeURIComponent(id)
+      } catch {
+        // Keep raw hash id if decoding fails
+      }
+      const target = document.getElementById(id)
+      if (!target) return false
+
+      let el: HTMLElement | null = target
+      while (el) {
+        if (el.tagName === 'DETAILS') {
+          ;(el as HTMLDetailsElement).open = true
+        }
+        el = el.parentElement
+      }
+
+      target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' })
+      return true
+    }
+
+    if (window.location.hash) {
+      openDetailsAndScroll(window.location.hash, false)
+    }
+
+    const handleHashChange = () => {
+      openDetailsAndScroll(window.location.hash, false)
+    }
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return
+      }
+      const anchor = (event.target as Element | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (!href || href === '#') return
+
+      if (openDetailsAndScroll(href, true)) {
+        event.preventDefault()
+        if (window.location.hash !== href) {
+          window.history.pushState(null, '', href)
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    document.addEventListener('click', handleDocumentClick)
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+      document.removeEventListener('click', handleDocumentClick)
+    }
+  }, [])
   return (
     <aside className="dev-toc">
       <nav aria-label={lng === 'en-US' ? 'On this page' : localizeDeveloperText('本页目录', lng)}>
