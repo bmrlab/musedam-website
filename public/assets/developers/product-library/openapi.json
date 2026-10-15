@@ -3,7 +3,7 @@
   "info": {
     "title": "Product Library Open API",
     "version": "1.0.0",
-    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. The current local role alone determines capabilities; no selectable operation allowlist remains. MuseDAM owns issuance and lifecycle; this API has no key-management or collaborator endpoints. All operations use the standard JSON envelope {code, message, result, traceId}. The public product API provides no file-download or export operations; browser, member and share downloads and exports are unchanged. All request bodies are capped at 1048576 bytes. Errors use the shared Error envelope. Aborted lock conflicts return 503 write_conflict with Retry-After: 1; committed mutations whose response is unavailable return 409 with result.code \"mutation_response_unavailable\" and result.mutationOutcome \"committed\". Do not repeat the mutation. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY>. The required service selects an operation; all business parameters are flat in the JSON body. Responses returned by the Product Library service have outer code \"0\" (upstream gateway errors may return another code). On success, outer message is \"成功\", result.success is true, and result.data holds the resource or array (with result.pagination on list/sync endpoints). On failure, outer message is the public error summary, result.success is false, result.data is null, result.code holds the semantic error code, and result.message holds the specific error details (including field-level validation issues joined by \"; \"). X-Request-Id and result.requestId carry the server request identifier on both success and failure."
+    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. Roles determine capabilities; this API does not manage keys or collaborators. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY> and a flat JSON body containing service and its business parameters. Bodies are capped at 1048576 bytes. The public gateway returns HTTP 200 for successful operations (including creation) and handled failures. Success has code \"0\", result.success true, and resource data in result.data; lists include result.pagination. The observed success message is \"OK\", but wording is not a contract. Handled failures have a nonzero string code and result null: MB100005 for upstream service failures and MO100002 for invalid credentials. Other gateway codes may occur. Never infer success from HTTP 200 alone or parse message as a protocol. Preserve the response traceId; the gateway may replace a submitted traceId. Internal HTTP statuses, headers and error bodies are retained only as diagnostic references in x-internal-responses and x-services; forwarding of Retry-After and X-Request-Id is not guaranteed. Reconcile state before retrying an uncertain mutation. The public API provides no file-download or export operations; browser, member and share downloads are unchanged."
   },
   "servers": [
     {
@@ -41,7 +41,7 @@
       "post": {
         "operationId": "productLibrary",
         "summary": "Call a Product Library service",
-        "description": "Use the required service field to select one of the 28 services. Send all business parameters in the JSON body, not in a URL path or query string. See x-services for per-service permissions, roles and responses.",
+        "description": "Use service to select one of 28 operations. Send business parameters in the JSON body, not a URL path or query string. responses describes the public gateway contract. x-services describes per-service requests, permissions and internal service responses; its HTTP statuses and headers are not public gateway guarantees. x-internal-responses contains aggregated internal response examples for troubleshooting only.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -253,6 +253,112 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Public gateway response, including creates and handled errors. Check code before reading result. A nonzero code is a failure even with HTTP 200; result is null in that case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BrandListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BrandResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DeletedIdResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CategoryListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CategoryResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TemplateListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TemplateResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DeletedTemplateIdResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductDetailResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/VisibilityResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LibraryAssetListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LibraryAssetResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductShareListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductShareResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RevokedProductShareResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductDownloadListResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GatewayError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "emptyProductList": {
+                    "value": {
+                      "code": "0",
+                      "message": "OK",
+                      "result": {
+                        "success": true,
+                        "data": [],
+                        "code": null,
+                        "message": null,
+                        "requestId": "11111111-1111-4111-8111-111111111111",
+                        "pagination": {
+                          "page": 1,
+                          "pageSize": 20,
+                          "totalCount": 0,
+                          "totalPages": 0
+                        }
+                      },
+                      "traceId": "trace_123"
+                    }
+                  },
+                  "permissionDenied": {
+                    "description": "Illustrative diagnostic message. Its wording and embedded internal JSON are not a parsing contract.",
+                    "value": {
+                      "code": "MB100005",
+                      "message": "product-library HTTP 403: {\"code\":\"0\",\"result\":{\"success\":false,\"data\":null,\"code\":\"forbidden\",\"message\":\"Insufficient permissions\",\"requestId\":\"request_123\"}}",
+                      "result": null,
+                      "traceId": "trace_123"
+                    }
+                  },
+                  "invalidCredentials": {
+                    "value": {
+                      "code": "MO100002",
+                      "message": "Invalid authorization info",
+                      "result": null,
+                      "traceId": "trace_123"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-internal-responses": {
           "200": {
             "description": "Service-dependent response. See x-services for exact status, headers, schemas and examples for the selected service.",
             "headers": {
@@ -8962,7 +9068,7 @@
       "FieldConfig": {
         "type": "object",
         "additionalProperties": true,
-        "description": "Type-dependent configuration; media references in reads are projected to PreviewAsset, removing storage paths and credentials. Write config rules: plain text/textarea/email/phone/url/color/date/dateRange use {}; number allows unit; currency requires code/symbol and decimals 0..4; richtext mode is html or delta; select/radio/checkbox require nonempty options with unique value, label, sortOrder and optional archived; image/file accept maxCount and maxSizeMB > 0 plus accept string array. System customPlaceholder may be at most 255 characters. System brand/category cannot accept custom options."
+        "description": "Type-dependent configuration; media references in reads are projected to PreviewAsset, removing storage paths and credentials. Write config rules: plain text/textarea/email/phone/url/color/date/dateRange use {}; number allows unit; currency requires code/symbol and decimals 0..4; richtext mode is html or delta; select/radio/checkbox require nonempty options with unique value, label, sortOrder and optional archived; image/file accept maxCount and maxSizeMB > 0 plus accept string array. System field settings (type, required, config) are immutable through this API; preserve existing config on updateTemplate."
       },
       "OptionConfig": {
         "type": "object",
@@ -9095,7 +9201,7 @@
       "FieldConfigInput": {
         "type": "object",
         "additionalProperties": true,
-        "description": "Validated using the resolved field type/system identity, including existing field identity on updateTemplate. See x-config-by-field-type and SystemFieldConfig; existing protected system settings cannot be reassigned. Unknown properties are rejected by empty/system configs and stripped by other config validators.",
+        "description": "Validated using the resolved field type/system identity, including existing field identity on updateTemplate. See x-config-by-field-type and SystemFieldConfig; existing system field settings (type, required, config) are immutable through this API. Unknown properties are rejected by empty/system configs and stripped by other config validators.",
         "x-config-by-field-type": {
           "text": {
             "$ref": "#/components/schemas/EmptyFieldConfig"
@@ -10167,7 +10273,8 @@
             "description": "Trimmed; blank clears. Unique within the library, including soft-deleted products."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Empty string clears to null."
           },
           "brandId": {
             "type": "integer",
@@ -10212,7 +10319,7 @@
                 }
               ]
             },
-            "description": "Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. PATCH validates against the pinned version, even if its live template was deleted."
+            "description": "Map keyed by stable custom field ID from the resolved template version. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls."
           },
           "coverAssetId": {
             "type": "integer",
@@ -10255,7 +10362,8 @@
             "description": "Trimmed; blank clears. Unique within the library, including soft-deleted products."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Empty string clears to null."
           },
           "brandId": {
             "type": "integer",
@@ -10322,6 +10430,7 @@
           }
         },
         "additionalProperties": false,
+        "minProperties": 1,
         "description": "Omitted fields remain unchanged; empty strings and [] retain their existing clear behavior. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected."
       },
       "ProductStatus": {
@@ -10360,8 +10469,47 @@
         "additionalProperties": false,
         "description": "0..100 IDs. Output preserves input order and duplicates; [] returns []."
       },
+      "GatewayError": {
+        "type": "object",
+        "description": "Handled public gateway failure, returned with HTTP 200. Other transport or infrastructure failures can still produce non-200 responses.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "not": {
+              "enum": [
+                "0"
+              ]
+            },
+            "example": "MB100005",
+            "description": "Nonzero gateway code. Observed codes include MB100005 (upstream service failure) and MO100002 (invalid credentials); this is not an exhaustive list."
+          },
+          "message": {
+            "type": "string",
+            "description": "Diagnostic text only. Do not branch on wording or parse embedded internal responses."
+          },
+          "result": {
+            "type": "object",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Preserve this response trace identifier for troubleshooting. It may differ from the submitted traceId."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "result",
+          "traceId"
+        ]
+      },
       "Error": {
         "type": "object",
+        "description": "Internal Product Library error envelope, for troubleshooting only. The public gateway instead returns GatewayError with result null.",
         "properties": {
           "code": {
             "type": "string",
@@ -10460,9 +10608,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10530,9 +10677,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10600,9 +10746,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10670,9 +10815,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10740,9 +10884,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10810,9 +10953,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10880,9 +11022,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -10950,9 +11091,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11027,9 +11167,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11104,9 +11243,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11181,9 +11319,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11258,9 +11395,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11342,9 +11478,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11694,9 +11829,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11764,9 +11898,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11841,9 +11974,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -11911,9 +12043,8 @@
           },
           "message": {
             "type": "string",
-            "enum": [
-              "成功"
-            ]
+            "example": "OK",
+            "description": "Informational text; do not use its wording to determine success."
           },
           "result": {
             "type": "object",
@@ -12628,7 +12759,8 @@
             "description": "Trimmed; blank clears. Unique within the library, including soft-deleted products."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Empty string clears to null."
           },
           "brandId": {
             "type": "integer",
@@ -12673,7 +12805,7 @@
                 }
               ]
             },
-            "description": "Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. PATCH validates against the pinned version, even if its live template was deleted."
+            "description": "Map keyed by stable custom field ID from the resolved template version. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls."
           },
           "coverAssetId": {
             "type": "integer",
@@ -12749,7 +12881,8 @@
             "description": "Trimmed; blank clears. Unique within the library, including soft-deleted products."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Empty string clears to null."
           },
           "brandId": {
             "type": "integer",
@@ -12822,6 +12955,7 @@
           }
         },
         "additionalProperties": false,
+        "minProperties": 3,
         "description": "Omitted fields remain unchanged; empty strings and [] retain their existing clear behavior. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.",
         "title": "Partially update a product",
         "required": [

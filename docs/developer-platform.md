@@ -111,19 +111,21 @@ the source implementation. Descriptions and examples from the source contract ha
 been corrected against that implementation, including item reads, template system
 fields, category paths, nullable custom media and mutation results. The public
 contract has one POST operation with 28 named request variants selected by a
-`service` discriminator. `x-services` retains per-service responses, permissions,
-roles; aggregated responses do not apply to every
-service. Business fields are preserved. JSON responses use
-`{code, message, result, traceId}`: responses from the Product Library service have outer `code` `"0"`. On success,
-outer `message` is `"成功"`, `result.success` is `true`, and `result` contains
-`data`, `code: null`, `message: null`, `requestId`, and (for list/sync services)
-`pagination`. On failure, outer `message` is the top-level error summary,
-`result.success` is `false`, `result.data` is `null`, `result.code` holds the
-semantic error code string, `result.message` includes specific error or field-level
-validation details joined by `"; "`, and `result.requestId` carries the request ID.
-Use `result.code` `"mutation_response_unavailable"` (`result.mutationOutcome: "committed"`)
-to recognize a committed mutation whose response is unavailable; reconcile its state
-and do not repeat the mutation.
+`service` discriminator. `responses` describes the public gateway contract:
+HTTP 200 for successful operations, including creation, and handled failures.
+Success has outer `code: "0"`, `result.success: true`, and `result` contains
+`data`, `code: null`, `message: null`, `requestId`, and optional `pagination`.
+Use `"OK"` in public success examples, but do not constrain message wording.
+Handled gateway errors have a nonzero string `code` and `result: null`;
+observed codes include `MB100005` for upstream failures and `MO100002` for
+invalid credentials. Do not parse diagnostic text or embedded JSON in `message`.
+Preserve the response `traceId`, which may differ from a submitted trace ID.
+Do not promise forwarding of `Retry-After` or `X-Request-Id` headers.
+`x-services` retains per-service permissions, roles and internal responses;
+`x-internal-responses` retains aggregated internal examples for troubleshooting.
+These internal statuses and envelopes are not the public gateway contract.
+For uncertain writes, reconcile state before retrying; an internal
+`mutation_response_unavailable` means the mutation committed and must not be repeated.
 The reference includes
 all services and links to concise field tables in the same article.
 Full schemas and shared response, header and parameter definitions remain in the
