@@ -949,7 +949,7 @@
   white-space: nowrap;
 }
 .dev-article[data-document-slug='product-library']
-  .dev-prose table:not(:has(th:nth-child(2)[data-type-column])) td:nth-child(2) {
+  .dev-prose table:not(:has(th:nth-child(2)[data-type-column])) td:nth-child(2):last-child {
   min-width: 240px;
 }
 .dev-prose td:last-child {

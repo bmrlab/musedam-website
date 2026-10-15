@@ -64,12 +64,12 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 
 公共界面文案通过 `localizeDeveloperText` 与 `ui.tw.json` 转换，新增简体文案时需补齐对应繁体词组。提示词、流程图、侧栏、目录及 `llms.txt` / Markdown 输出均随路由语言切换。繁体页面优先使用 PingFang TC / Microsoft JhengHei。
 
-## Product Library API documentation (2026-10-13)
+## Product Library API documentation (2026-10-14)
 
 Product Library API is one article in the existing Open API navigation group,
 at `/{lng}/developers/product-library`, in Simplified Chinese, English and
 Traditional Chinese. It combines authorization, shared request conventions and
-all 31 operations, organized by resource. Keep endpoint parameters and independent
+all 28 operations, organized by resource. Keep endpoint parameters and independent
 curl examples visible. Reuse shared field tables and put response examples and
 less common details in labeled disclosures. Do not recreate separate overview,
 reference, examples or guide pages for this API.
@@ -79,7 +79,7 @@ single document. Navigation, search, the document index and sitemap contain only
 the canonical article. Product Library endpoint banners and table formatting are
 selected by document slug, independently of the navigation group.
 
-The source snapshot is `bmrlab/musedam-product-library` commit
+The original resource schemas come from `bmrlab/musedam-product-library` commit
 `01574a8aeede7682e4e172526367703d05c0e14c`:
 
 - `docs/open-api/openapi.json`: the English contract, including 17 paths,
@@ -88,19 +88,46 @@ The source snapshot is `bmrlab/musedam-product-library` commit
 - `src/app/developers/open-api/content/zh-CN/`: Chinese guides and the
   description-only OpenAPI localization overlay.
 
-The public Base URL confirmed for this documentation is
-`https://open.musedam.cc/api/product`. The source application's internal
-`/api/open/v1` prefix is not the public gateway path. The asset API at `/api/muse`
-has different service and authorization rules. Do not apply its region banner,
-rate-limit policy or credential instructions to the Product Library article.
+All 28 public services use `POST https://open.musedam.cc/api/muse/product-api`.
+Authenticate with the user's MuseDAM API Key in
+`Authorization: Bearer <APIKEY>`. Set `Content-Type: application/json` and send
+`service` (the original operationId) and all business parameters as sibling body
+fields. Resource IDs, pagination and filters are not URL parameters. The public
+caller supplies no separate team or caller identity. Do not publish internal
+service credentials or internal routes. Do not apply
+the asset API's region banner, rate-limit policy or response envelope here.
+
+The public product API provides no file-download, export or download-candidate
+selection operations. Keep `listProductDownloads` for team history, including
+existing API key records. Product reads retain signed `downloadUrl` and
+`downloadUrlExpiresAt` fields under current authorization. Browser, member and
+share downloads and exports are unchanged. Keep this scope synchronized in all
+three Product Library MDX articles, their `pages*.json` Markdown mirrors and the
+downloadable OpenAPI contract.
 
 The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
 the source implementation. Descriptions and examples from the source contract have
 been corrected against that implementation, including item reads, template system
-fields, category paths, nullable custom media and mutation results. The API shapes
-are unchanged, and the server URL is adapted for the public gateway. The reference
-includes all operations and links to concise field tables in the same article.
+fields, category paths, nullable custom media and mutation results. The public
+contract has one POST operation with 28 named request variants selected by a
+`service` discriminator. `responses` describes the public gateway contract:
+HTTP 200 for successful operations, including creation, and handled failures.
+Success has outer `code: "0"`, `result.success: true`, and `result` contains
+`data`, `code: null`, `message: null`, `requestId`, and optional `pagination`.
+Use `"OK"` in public success examples, but do not constrain message wording.
+Handled gateway errors have a nonzero string `code` and `result: null`;
+observed codes include `MB100005` for upstream failures and `MO100002` for
+invalid credentials. Do not parse diagnostic text or embedded JSON in `message`.
+Preserve the response `traceId`, which may differ from a submitted trace ID.
+Do not promise forwarding of `Retry-After` or `X-Request-Id` headers.
+`x-services` retains per-service permissions, roles and internal responses;
+`x-internal-responses` retains aggregated internal examples for troubleshooting.
+These internal statuses and envelopes are not the public gateway contract.
+For uncertain writes, reconcile state before retrying; an internal
+`mutation_response_unavailable` means the mutation committed and must not be repeated.
+The reference includes
+all services and links to concise field tables in the same article.
 Full schemas and shared response, header and parameter definitions remain in the
 downloadable contract; do not render these raw OpenAPI components or appendices
 on the documentation page.

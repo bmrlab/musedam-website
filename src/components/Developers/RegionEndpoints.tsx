@@ -16,8 +16,7 @@ export function RegionEndpoints({
     ? [
         {
           name: english ? 'API endpoint' : localizeDeveloperText('接口地址', lng),
-          url: 'https://open.musedam.cc/api/product',
-          detail: 'REST API',
+          url: 'https://open.musedam.cc/api/muse/product-api',
         },
       ]
     : [
@@ -46,17 +45,28 @@ export function RegionEndpoints({
       <strong>
         {mcp
           ? 'MCP · Streamable HTTP'
-          : `${productLibrary ? 'Product Library API' : kind === 'apps' ? 'App API' : 'Open API'} · Base URL`}
+          : productLibrary
+            ? 'Product Library API · Endpoint'
+            : `${kind === 'apps' ? 'App API' : 'Open API'} · Base URL`}
       </strong>
       {rows.map((row) => (
         <div className="dev-region-row" key={row.name}>
           <span>
             {row.name}
-            <small>{row.detail}</small>
+            {row.detail ? <small>{row.detail}</small> : null}
           </span>
           <code>{row.url}</code>
         </div>
       ))}
+      {productLibrary && (
+        <p>
+          <strong>
+            {english
+              ? 'Product Library must be enabled before you can use this API.'
+              : localizeDeveloperText('仅开通商品库后，才能使用商品库 API。', lng)}
+          </strong>
+        </p>
+      )}
       <p>
         {productLibrary
           ? english
