@@ -17,7 +17,6 @@ export function RegionEndpoints({
         {
           name: english ? 'API endpoint' : localizeDeveloperText('接口地址', lng),
           url: 'https://open.musedam.cc/api/muse/product-api',
-          detail: 'POST · application/json',
         },
       ]
     : [
@@ -54,7 +53,7 @@ export function RegionEndpoints({
         <div className="dev-region-row" key={row.name}>
           <span>
             {row.name}
-            <small>{row.detail}</small>
+            {row.detail ? <small>{row.detail}</small> : null}
           </span>
           <code>{row.url}</code>
         </div>
