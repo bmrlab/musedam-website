@@ -424,7 +424,7 @@
     "title": "審批開放 API",
     "en": "Approval API",
     "group": "api",
-    "description": "透過 Muse Open 轉發地址建立審批、查詢狀態並接收回調事件。",
+    "description": "需購買並開通審批中心擴展模組",
     "headings": [
       {
         "id": "審批開放接口",

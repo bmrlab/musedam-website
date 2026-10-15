@@ -424,7 +424,7 @@
     "title": "Approval Open API",
     "en": "Approval API",
     "group": "api",
-    "description": "Create approval tasks, query status, and subscribe to callbacks via Muse Open forwarding.",
+    "description": "Requires purchasing and enabling the Approval Center extension module.",
     "headings": [
       {
         "id": "approval-open-api",
