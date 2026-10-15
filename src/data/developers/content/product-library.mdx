@@ -38,24 +38,22 @@ A successful JSON response has `code: "0"`, `message: "成功"`, `result.success
 
 所有请求均使用您自己的 MuseDAM API Key，携带 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json`。全部操作使用相同的公共 POST 地址；资源 ID、分页、筛选和写入字段均为 JSON 请求体字段，与必填的 `service` 同级。
 
-Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged.
+Successful JSON responses wrap the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. Every failure is exactly `{code, message, result: null, traceId}`, with an existing nonzero numeric string `code` from the [error catalog](#error-catalog). Its specific business `message` includes field names and validation details when applicable. Failures have no nested response fields. HTTP statuses and control headers are unchanged.
 
 | Field | Type | How to read it |
 | --- | --- | --- |
 | `code` | String | `"0"` on success; a nonzero numeric string on failure. |
 | `message` | String | `"成功"` on success; a public error message on failure. Do not branch on its wording. |
-| `result` | Object | The entire former v1 body, not just its `data` value. |
-| `result.success` | Boolean | `true` on success; `false` on failure. |
-| `result.data` | Object, array or null | The service's unchanged resource DTO, list or mutation result; null on failure. |
-| `result.code` | String or null | Original semantic error name, such as `validation_failed`; null on success. |
-| `result.message` | String or null | Original public error message; null on success. |
+| `result` | Object or null | The entire former v1 body on success; always null on failure. |
+| `result.success` | Boolean, success only | `true`. |
+| `result.data` | Object, array or null, success only | The service's unchanged resource DTO, list or mutation result. |
+| `result.code` | Null, success only | Unchanged success field. |
+| `result.message` | Null, success only | Unchanged success field. |
 | `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
-| `result.details` | Array, when present | Validation errors: `result.details[].field` and `result.details[].message`. |
-| `result.mutationOutcome` | String, when present | `committed`; inspect it before retrying. |
-| `result.requestId` | String | Server request identifier, also exposed in `X-Request-Id`. |
+| `result.requestId` | String, success only | Server request identifier, also exposed in `X-Request-Id`. |
 | `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
 
-Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve both outer `traceId` and `result.requestId` (or `X-Request-Id`) when reporting a problem. Tracing does not change authorization, HTTP statuses, or control headers.
+Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve outer `traceId` and `X-Request-Id` when reporting a failure; `result.requestId` exists only on success. Tracing does not change authorization, HTTP statuses, or control headers.
 
 The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value.
 
@@ -107,19 +105,19 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 | --- | --- |
 | 401 / 403 | 检查密钥、协作者角色及资源可见性。 |
 | 404 | 资源不存在、已删除或不可访问，核对 ID。 |
-| 422 `validation_failed` | 修正输入；若有 `result.details`，读取 `field` 和 `message`。 |
+| 422 `"42201"` | 根据 `message` 中的字段详情修正输入。 |
 | 409 `sku_in_use` / `name_in_use` | 修改冲突的 SKU 或名称；软删除商品的 SKU 仍被占用。 |
-| 409 `mutation_response_unavailable` | 变更已提交，按 `result.mutationOutcome` 核对；不要盲目重新创建。 |
+| 409 `"40909"` | 变更已提交，核对当前状态；不要重复执行变更。 |
 | 503 `write_conflict` | 变更已回滚，按 `Retry-After: 1` 等待后重试。 |
 | 413 | 缩小请求体。 |
 
-Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting.
+Use outer `traceId` and `X-Request-Id` for troubleshooting failures.
 
 
 
-Outer `code` values are strings. `result.code` retains the semantic name. Use the HTTP status, outer code and outcome metadata, not message wording.
+Outer `code` values are numeric strings. Error names below explain their meaning, not response fields. Use the HTTP status and outer code, not message wording, to choose recovery behavior.
 
-| HTTP status | Outer `code` | `result.code` | Action |
+| HTTP status | Outer `code` | Meaning | Action |
 | --- | --- | --- | --- |
 | 401 | `"40101"` | `invalid_credentials` | Check the API Key and Bearer header. |
 | 503 | `"50301"` | `authentication_unavailable` | Credential validation is temporarily unavailable; retry later. |
@@ -133,25 +131,18 @@ Outer `code` values are strings. `result.code` retains the semantic name. Use th
 | 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
 | 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
 | 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
-| 422 | `"42201"` | `validation_failed` | Correct the input using result.details[].field and result.details[].message. |
+| 422 | `"42201"` | `validation_failed` | Correct the input using field details in message. |
 | 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
-| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed; inspect result.mutationOutcome and do not blindly repeat it. |
-| 500 | `"50001"` | `internal_server_error` | Retain traceId and result.requestId for troubleshooting; reconcile state before retrying a write. |
+| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed; reconcile its state and do not repeat it. |
+| 500 | `"50001"` | `internal_server_error` | Retain traceId and X-Request-Id for troubleshooting; reconcile state before retrying a write. |
 
 Validation failure example (HTTP 422):
 
 ```json
 {
   "code": "42201",
-  "message": "Invalid request fields",
-  "result": {
-    "success": false,
-    "data": null,
-    "code": "validation_failed",
-    "message": "Invalid request fields",
-    "details": [{ "field": "name", "message": "Required" }],
-    "requestId": "11111111-1111-4111-8111-111111111111"
-  },
+  "message": "Invalid request fields: name: Required",
+  "result": null,
   "traceId": "trace_123"
 }
 ```
@@ -164,19 +155,12 @@ Mutation response unavailable example (HTTP 409):
 {
   "code": "40909",
   "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
-  "result": {
-    "success": false,
-    "data": null,
-    "code": "mutation_response_unavailable",
-    "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
-    "requestId": "11111111-1111-4111-8111-111111111111",
-    "mutationOutcome": "committed"
-  },
+  "result": null,
   "traceId": "trace_123"
 }
 ```
 
-For `mutation_response_unavailable`, reconcile the committed mutation instead of blindly creating another resource.
+For code `"40909"` (`mutation_response_unavailable`), reconcile the committed mutation instead of creating another resource. Do not repeat the mutation.
 
 </details>
 

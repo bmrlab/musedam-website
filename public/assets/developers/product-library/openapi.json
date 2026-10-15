@@ -3,7 +3,7 @@
   "info": {
     "title": "Product Library Open API",
     "version": "1.0.0",
-    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. The current local role alone determines capabilities; no selectable operation allowlist remains. MuseDAM owns issuance and lifecycle; this API has no key-management or collaborator endpoints. All operations use the standard JSON envelope. The public product API provides no file-download or export operations; browser, member and share downloads and exports are unchanged. All request bodies are capped at 1048576 bytes. Errors use the shared Error envelope. No CORS/rate-limit contract, 429, bulk writes, multipart upload, webhooks or approval callbacks are provided by v1. Aborted lock conflicts return 503 write_conflict with Retry-After: 1; committed mutations whose response is unavailable return 409 mutation_response_unavailable with an explicit mutationOutcome. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY>. The required service selects an operation; all business parameters are flat in the JSON body. Caller identity and team context come from the API key, not orgId or userId request fields. x-services preserves the exact response and authorization contract for each service; aggregate responses do not imply every service returns every status or representation. JSON responses use the gateway envelope {code, message, result, traceId}. Success has code \"0\" and message \"成功\"; failures use stable nonzero numeric-string codes from PRODUCT_API_ERROR_CODES, documented on Error.code. result contains the entire original response payload, including success, data, semantic code, message, requestId, pagination, details and mutationOutcome where applicable. Optional request-body traceId must match ^[A-Za-z0-9._:-]{1,128}$ for log correlation; a valid value is echoed in the outer traceId and X-Trace-Id, otherwise a fallback is generated. X-Request-Id refers to result.requestId for JSON envelopes."
+    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. The current local role alone determines capabilities; no selectable operation allowlist remains. MuseDAM owns issuance and lifecycle; this API has no key-management or collaborator endpoints. All operations use the standard JSON envelope. The public product API provides no file-download or export operations; browser, member and share downloads and exports are unchanged. All request bodies are capped at 1048576 bytes. Errors use the shared Error envelope. No CORS/rate-limit contract, 429, bulk writes, multipart upload, webhooks or approval callbacks are provided by v1. Aborted lock conflicts return 503 write_conflict with Retry-After: 1; committed mutations whose response is unavailable return 409 mutation_response_unavailable with numeric string code 40909 and result null. Do not repeat the mutation. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY>. The required service selects an operation; all business parameters are flat in the JSON body. Caller identity and team context come from the API key, not orgId or userId request fields. x-services preserves the exact response and authorization contract for each service; aggregate responses do not imply every service returns every status or representation. JSON responses use the gateway envelope {code, message, result, traceId}. Success has code \"0\" and message \"成功\"; failures use stable nonzero numeric-string codes from PRODUCT_API_ERROR_CODES, documented on Error.code. On success, result contains the entire original response payload unchanged. Every failure is exactly {code, message, result: null, traceId}; the specific business message includes field details when applicable. Optional request-body traceId must match ^[A-Za-z0-9._:-]{1,128}$ for log correlation; a valid value is echoed in the outer traceId and X-Trace-Id, otherwise a fallback is generated. X-Request-Id carries the server request identifier; result.requestId is present only on success."
   },
   "servers": [
     {
@@ -1801,13 +1801,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1815,13 +1809,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1829,13 +1817,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1843,13 +1825,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1857,13 +1833,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1871,13 +1841,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1885,13 +1849,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1899,13 +1857,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1913,13 +1865,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1927,13 +1873,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1941,13 +1881,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1955,13 +1889,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1969,13 +1897,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1983,13 +1905,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -1997,13 +1913,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2011,13 +1921,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2025,13 +1929,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2039,13 +1937,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2053,13 +1945,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2067,13 +1953,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2081,13 +1961,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2095,13 +1969,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2109,13 +1977,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2123,13 +1985,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2137,13 +1993,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2151,13 +2001,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2165,13 +2009,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2179,13 +2017,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2193,13 +2025,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2207,13 +2033,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2221,13 +2041,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2235,13 +2049,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2249,13 +2057,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2263,13 +2065,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2277,13 +2073,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2291,13 +2081,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2305,13 +2089,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2319,13 +2097,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2333,13 +2105,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2347,13 +2113,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2361,13 +2121,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2375,13 +2129,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2389,13 +2137,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2403,13 +2145,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2417,13 +2153,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2431,13 +2161,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2445,13 +2169,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2459,13 +2177,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2473,13 +2185,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2487,13 +2193,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2501,13 +2201,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2515,13 +2209,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2529,13 +2217,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2543,13 +2225,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2557,13 +2233,7 @@
                     "value": {
                       "code": "40101",
                       "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2571,13 +2241,7 @@
                     "value": {
                       "code": "40102",
                       "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -2612,13 +2276,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2626,13 +2284,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2640,13 +2292,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2654,13 +2300,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2668,13 +2308,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2682,13 +2316,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2696,13 +2324,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2710,13 +2332,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2724,13 +2340,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2738,13 +2348,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2752,13 +2356,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2766,13 +2364,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2780,13 +2372,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2794,13 +2380,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2808,13 +2388,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2822,13 +2396,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2836,13 +2404,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2850,13 +2412,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2864,13 +2420,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2878,13 +2428,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2892,13 +2436,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2906,13 +2444,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2920,13 +2452,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2934,13 +2460,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2948,13 +2468,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2962,13 +2476,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2976,13 +2484,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -2990,13 +2492,7 @@
                     "value": {
                       "code": "40301",
                       "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -3031,13 +2527,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3045,13 +2535,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3059,13 +2543,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3073,13 +2551,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3087,13 +2559,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3101,13 +2567,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3115,13 +2575,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3129,13 +2583,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3143,13 +2591,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3157,13 +2599,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3171,13 +2607,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3185,13 +2615,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3199,13 +2623,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3213,13 +2631,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3227,13 +2639,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3241,13 +2647,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3255,13 +2655,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3269,13 +2663,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3283,13 +2671,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3297,13 +2679,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3311,13 +2687,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3325,13 +2695,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3339,13 +2703,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3353,13 +2711,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3367,13 +2719,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3381,13 +2727,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3395,13 +2735,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3409,13 +2743,7 @@
                     "value": {
                       "code": "40401",
                       "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -3453,13 +2781,7 @@
                     "value": {
                       "code": "40903",
                       "message": "A generated brand code conflicts; retry with a fresh create request.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "code_in_use",
-                        "message": "A generated brand code conflicts; retry with a fresh create request.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3467,13 +2789,7 @@
                     "value": {
                       "code": "40905",
                       "message": "The brand still has live categories or products; no cascading deletion.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "brand_has_dependents",
-                        "message": "The brand still has live categories or products; no cascading deletion.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3481,13 +2797,7 @@
                     "value": {
                       "code": "40904",
                       "message": "A unique template name or category sibling name conflicts.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "name_in_use",
-                        "message": "A unique template name or category sibling name conflicts.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3495,13 +2805,7 @@
                     "value": {
                       "code": "40904",
                       "message": "A unique template name or category sibling name conflicts.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "name_in_use",
-                        "message": "A unique template name or category sibling name conflicts.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3509,13 +2813,7 @@
                     "value": {
                       "code": "40906",
                       "message": "The category subtree still contains live products; no cascading product deletion.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "category_has_products",
-                        "message": "The category subtree still contains live products; no cascading product deletion.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3523,13 +2821,7 @@
                     "value": {
                       "code": "40904",
                       "message": "A unique template name or category sibling name conflicts.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "name_in_use",
-                        "message": "A unique template name or category sibling name conflicts.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3537,13 +2829,7 @@
                     "value": {
                       "code": "40904",
                       "message": "A unique template name or category sibling name conflicts.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "name_in_use",
-                        "message": "A unique template name or category sibling name conflicts.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3551,13 +2837,7 @@
                     "value": {
                       "code": "40907",
                       "message": "Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "default_template_replacement_required",
-                        "message": "Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3565,13 +2845,7 @@
                     "value": {
                       "code": "40902",
                       "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "sku_in_use",
-                        "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3579,13 +2853,7 @@
                     "value": {
                       "code": "40902",
                       "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "sku_in_use",
-                        "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -3620,13 +2888,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3634,13 +2896,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3648,13 +2904,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3662,13 +2912,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3676,13 +2920,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3690,13 +2928,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3704,13 +2936,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3718,13 +2944,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3732,13 +2952,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3746,13 +2960,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3760,13 +2968,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3774,13 +2976,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3788,13 +2984,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3802,13 +2992,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3816,13 +3000,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3830,13 +3008,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3844,13 +3016,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3858,13 +3024,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3872,13 +3032,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3886,13 +3040,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3900,13 +3048,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3914,13 +3056,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3928,13 +3064,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3942,13 +3072,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3956,13 +3080,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3970,13 +3088,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3984,13 +3096,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -3998,13 +3104,7 @@
                     "value": {
                       "code": "41302",
                       "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -4038,560 +3138,224 @@
                   "listBrands_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "createBrand_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "getBrand_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "updateBrand_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "deleteBrand_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listCategorys_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "createCategory_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "getCategory_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "updateCategory_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "deleteCategory_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listTemplates_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "createTemplate_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "getTemplate_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "updateTemplate_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "deleteTemplate_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listProducts_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "createProduct_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "getProduct_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "updateProduct_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "deleteProduct_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "setProductStatus_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "checkProductVisibility_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listAssets_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "getAsset_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listProductShares_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "createProductShare_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "revokeProductShare_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
                   "listProductDownloads_validation_failed": {
                     "value": {
                       "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
+                      "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -4626,13 +3390,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4640,13 +3398,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4654,13 +3406,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4668,13 +3414,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4682,13 +3422,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4696,13 +3430,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4710,13 +3438,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4724,13 +3446,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4738,13 +3454,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4752,13 +3462,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4766,13 +3470,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4780,13 +3478,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4794,13 +3486,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4808,13 +3494,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4822,13 +3502,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4836,13 +3510,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4850,13 +3518,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4864,13 +3526,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4878,13 +3534,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4892,13 +3542,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4906,13 +3550,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4920,13 +3558,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4934,13 +3566,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4948,13 +3574,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4962,13 +3582,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4976,13 +3590,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -4990,13 +3598,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   },
@@ -5004,13 +3606,7 @@
                     "value": {
                       "code": "50001",
                       "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
+                      "result": null,
                       "traceId": "product-api-example-001"
                     }
                   }
@@ -9844,98 +8440,17 @@
               "40909",
               "50001"
             ],
-            "description": "Stable nonzero numeric-string gateway error code; result.code retains the semantic error name. Mapping: invalid_credentials=40101, authentication_unavailable=50301, key_inactive=40102, forbidden=40301, not_found=40401, sku_in_use=40902, code_in_use=40903, name_in_use=40904, brand_has_dependents=40905, category_has_products=40906, default_template_replacement_required=40907, payload_too_large=41302, validation_failed=42201, write_conflict=50302, mutation_response_unavailable=40909, internal_server_error=50001."
+            "description": "Stable nonzero numeric-string gateway error code; use this code to select recovery behavior. Mapping: invalid_credentials=40101, authentication_unavailable=50301, key_inactive=40102, forbidden=40301, not_found=40401, sku_in_use=40902, code_in_use=40903, name_in_use=40904, brand_has_dependents=40905, category_has_products=40906, default_template_replacement_required=40907, payload_too_large=41302, validation_failed=42201, write_conflict=50302, mutation_response_unavailable=40909, internal_server_error=50001."
           },
           "message": {
             "type": "string",
-            "description": "Public error message, matching result.message."
+            "description": "Specific public business error message, including field names and validation details when applicable. Do not branch on its wording."
           },
           "result": {
             "type": "object",
-            "properties": {
-              "success": {
-                "type": "boolean",
-                "enum": [false]
-              },
-              "data": {
-                "type": "object",
-                "nullable": true,
-                "enum": [null]
-              },
-              "code": {
-                "type": "string",
-                "enum": [
-                  "invalid_credentials",
-                  "authentication_unavailable",
-                  "key_inactive",
-                  "forbidden",
-                  "not_found",
-                  "sku_in_use",
-                  "code_in_use",
-                  "name_in_use",
-                  "brand_has_dependents",
-                  "category_has_products",
-                  "default_template_replacement_required",
-                  "payload_too_large",
-                  "validation_failed",
-                  "internal_server_error",
-                  "write_conflict",
-                  "mutation_response_unavailable"
-                ]
-              },
-              "message": {
-                "type": "string"
-              },
-              "requestId": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "details": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "required": ["field", "message"],
-                  "additionalProperties": false
-                }
-              },
-              "mutationOutcome": {
-                "type": "string",
-                "enum": ["committed"],
-                "description": "Present only for mutation_response_unavailable. Confirms completion; never blindly repeat the mutation."
-              }
-            },
-            "required": ["success", "data", "code", "message", "requestId"],
-            "additionalProperties": false,
-            "oneOf": [
-              {
-                "properties": {
-                  "code": {
-                    "not": {
-                      "enum": ["mutation_response_unavailable"]
-                    }
-                  }
-                },
-                "not": {
-                  "required": ["mutationOutcome"]
-                }
-              },
-              {
-                "properties": {
-                  "code": {
-                    "enum": ["mutation_response_unavailable"]
-                  }
-                },
-                "required": ["mutationOutcome"]
-              }
-            ]
+            "nullable": true,
+            "enum": [null],
+            "description": "Always null on failure; no nested response fields are returned."
           },
           "traceId": {
             "type": "string",
@@ -10634,20 +9149,11 @@
               "code": {
                 "type": "string",
                 "enum": ["40909"]
-              },
-              "result": {
-                "type": "object",
-                "required": ["mutationOutcome"],
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "enum": ["mutation_response_unavailable"]
-                  }
-                }
               }
             }
           }
-        ]
+        ],
+        "description": "Code 40909 means the mutation committed but its authorized representation is unavailable. Reconcile its state. Do not repeat the mutation."
       },
       "ProductLabelSnapshot": {
         "type": "object",
@@ -12375,13 +10881,7 @@
                 "value": {
                   "code": "40101",
                   "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "invalid_credentials",
-                    "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               },
@@ -12389,13 +10889,7 @@
                 "value": {
                   "code": "40102",
                   "message": "A verified key is disabled, revoked or expired.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "key_inactive",
-                    "message": "A verified key is disabled, revoked or expired.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12426,13 +10920,7 @@
                 "value": {
                   "code": "40301",
                   "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "forbidden",
-                    "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12463,13 +10951,7 @@
                 "value": {
                   "code": "40401",
                   "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "not_found",
-                    "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12500,13 +10982,7 @@
                 "value": {
                   "code": "41302",
                   "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "payload_too_large",
-                    "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12515,7 +10991,7 @@
         }
       },
       "Error422_validation_failed": {
-        "description": "validation_failed: Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
+        "description": "validation_failed: Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. The specific business message includes field details.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12536,20 +11012,8 @@
               "validation_failed": {
                 "value": {
                   "code": "42201",
-                  "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "validation_failed",
-                    "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                    "requestId": "11111111-1111-4111-8111-111111111111",
-                    "details": [
-                      {
-                        "field": "templateFields.field_color",
-                        "message": "Invalid field value"
-                      }
-                    ]
-                  },
+                  "message": "Invalid request fields: templateFields.field_color: Invalid field value",
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12580,13 +11044,7 @@
                 "value": {
                   "code": "50001",
                   "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "internal_server_error",
-                    "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12595,7 +11053,7 @@
         }
       },
       "Error409_brand_has_dependents": {
-        "description": "brand_has_dependents: The brand still has live categories or products; no cascading deletion.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "brand_has_dependents: The brand still has live categories or products; no cascading deletion.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12617,13 +11075,7 @@
                 "value": {
                   "code": "40905",
                   "message": "The brand still has live categories or products; no cascading deletion.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "brand_has_dependents",
-                    "message": "The brand still has live categories or products; no cascading deletion.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12632,7 +11084,7 @@
         }
       },
       "Error409_name_in_use": {
-        "description": "name_in_use: A unique template name or category sibling name conflicts.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "name_in_use: A unique template name or category sibling name conflicts.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12654,13 +11106,7 @@
                 "value": {
                   "code": "40904",
                   "message": "A unique template name or category sibling name conflicts.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "name_in_use",
-                    "message": "A unique template name or category sibling name conflicts.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12669,7 +11115,7 @@
         }
       },
       "Error409_category_has_products": {
-        "description": "category_has_products: The category subtree still contains live products; no cascading product deletion.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "category_has_products: The category subtree still contains live products; no cascading product deletion.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12691,13 +11137,7 @@
                 "value": {
                   "code": "40906",
                   "message": "The category subtree still contains live products; no cascading product deletion.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "category_has_products",
-                    "message": "The category subtree still contains live products; no cascading product deletion.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12706,7 +11146,7 @@
         }
       },
       "Error409_default_template_replacement_required": {
-        "description": "default_template_replacement_required: Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "default_template_replacement_required: Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12728,13 +11168,7 @@
                 "value": {
                   "code": "40907",
                   "message": "Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "default_template_replacement_required",
-                    "message": "Deleting the library default requires replacementForLibraryDefault, with a different live same-library template ID.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12743,7 +11177,7 @@
         }
       },
       "Error409_sku_in_use": {
-        "description": "sku_in_use: The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "sku_in_use: The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12765,13 +11199,7 @@
                 "value": {
                   "code": "40902",
                   "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "sku_in_use",
-                    "message": "The resulting nonempty product spu conflicts with a product in this library, including soft-deleted products.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12808,7 +11236,7 @@
         }
       },
       "Error409_mutation_response_unavailable": {
-        "description": "Mutation committed, but an authorized representation is unavailable. Reconcile before another mutation.",
+        "description": "Mutation committed, but an authorized representation is unavailable. Use code 40909 and reconcile its state. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12829,7 +11257,7 @@
         }
       },
       "Error409_code_in_use": {
-        "description": "code_in_use: A generated brand code conflicts; retry with a fresh create request.; mutation_response_unavailable: Mutation completed but representation is unavailable; mutationOutcome is required and data is null. Do not repeat blindly.",
+        "description": "code_in_use: A generated brand code conflicts; retry with a fresh create request.; mutation_response_unavailable: Mutation committed but representation is unavailable; code is 40909 and result is null. Do not repeat the mutation.",
         "headers": {
           "Cache-Control": {
             "$ref": "#/components/headers/Cache-Control"
@@ -12851,13 +11279,7 @@
                 "value": {
                   "code": "40903",
                   "message": "A generated brand code conflicts; retry with a fresh create request.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "code_in_use",
-                    "message": "A generated brand code conflicts; retry with a fresh create request.",
-                    "requestId": "11111111-1111-4111-8111-111111111111"
-                  },
+                  "result": null,
                   "traceId": "product-api-example-001"
                 }
               }
@@ -12918,7 +11340,7 @@
     },
     "validation_failed": {
       "status": 422,
-      "description": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields."
+      "description": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. The specific business message includes field details."
     },
     "internal_server_error": {
       "status": 500,
@@ -12930,7 +11352,7 @@
     },
     "mutation_response_unavailable": {
       "status": 409,
-      "description": "The mutation committed but its authorized representation is unavailable. mutationOutcome is required; data is null. Do not repeat blindly."
+      "description": "The mutation committed but its authorized representation is unavailable. Use code 40909; result is null. Do not repeat the mutation."
     }
   },
   "x-limits": {

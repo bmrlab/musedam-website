@@ -116,8 +116,13 @@ roles; aggregated responses do not apply to every
 service. Business fields are preserved. JSON responses use
 `{code, message, result, traceId}`: success has string code `"0"` and message
 `"成功"`; failures use the product gateway's nonzero numeric-string error codes.
-`result` contains the entire former response, including data, pagination,
-semantic errors, validation details and mutation outcomes. Optional request-body
+On success, `result` contains the entire former response, including data and
+pagination, unchanged. Every failure is exactly `{code, message, result: null,
+traceId}`. The specific business message includes validation field details;
+failures expose no nested success, data, semantic code, details or mutation outcome.
+Use numeric string code `"40909"` to recognize a committed mutation whose response
+is unavailable. Reconcile its state and do not repeat the mutation.
+Optional request-body
 `traceId` is echoed and logged; absent values use the generated request ID, and
 invalid values fail validation with a generated fallback trace. The reference includes
 all services and links to concise field tables in the same article.
