@@ -1,6 +1,6 @@
 ## Quick start
 
-All 31 Product Library operations use POST `https://open.musedam.cc/api/muse/product-api`. Set `service` to the operation identifier shown below and put all business parameters in a flat JSON body.
+All 28 Product Library operations use POST `https://open.musedam.cc/api/muse/product-api`. Set `service` to the operation identifier shown below and put all business parameters in a flat JSON body.
 
 1. Obtain a MuseDAM API Key.
 2. Ask a Product Library manager to add the key as an API Key Collaborator in **Member settings → Add member** and assign the required role.
@@ -38,7 +38,7 @@ A successful JSON response has `code: "0"`, `message: "成功"`, `result.success
 
 Every request uses your own MuseDAM API Key in `Authorization: Bearer <APIKEY>` and `Content-Type: application/json`. All operations use the same public POST URL. Resource IDs, pagination, filters and write fields are JSON body fields, alongside the required `service`.
 
-Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged. Successful downloads, including JSON exports, remain raw files without this envelope.
+Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged.
 
 | Field | Type | How to read it |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ Every JSON API response wraps the entire former v1 body in `result`; resource DT
 
 Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve both outer `traceId` and `result.requestId` (or `X-Request-Id`) when reporting a problem. Tracing does not change authorization, HTTP statuses, or control headers.
 
-The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value, including for successful raw attachments.
+The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value.
 
 Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its `totalCount` is the total record count; `totalPages` is the total page count. The following fragment shows only `result.pagination`, not a complete response:
 
@@ -104,9 +104,9 @@ Save the strong `ETag` (including quotes) when reading a brand, category, templa
 </details>
 
 <details id="atomic-create-replay">
-<summary>Creation and download retries</summary>
+<summary>Creation retries</summary>
 
-Resource creation accepts `Idempotency-Key`, scoped to the team, API key, and operation. Keys allow up to 255 characters and cannot be blank or contain control characters. Retry with the same key and input within 24 hours; changed input returns `409 idempotency_key_reused`. Resource creation replays the initial non-media result and rebuilds media using current permissions. Download retries reuse the record but authorize and transfer current files again.
+Resource creation accepts `Idempotency-Key`, scoped to the team, API key, and operation. Keys allow up to 255 characters and cannot be blank or contain control characters. Retry with the same key and input within 24 hours; changed input returns `409 idempotency_key_reused`. Resource creation replays the initial non-media result and rebuilds media using current permissions.
 
 </details>
 
@@ -123,9 +123,9 @@ Request bodies are limited to 1 MiB. Write services reject unknown business fiel
 | 409 `sku_in_use` / `name_in_use` | Change the conflicting SKU or name. Soft-deleted products still reserve their SKU. |
 | 409 `mutation_response_unavailable` | The mutation committed or replayed. Check `result.mutationOutcome`; do not blindly create again. |
 | 503 `write_conflict` | The mutation rolled back. Wait according to `Retry-After: 1`, then retry. |
-| 413 | Reduce the body or download count/size. |
+| 413 | Reduce the request body size. |
 
-Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting. A download error with `result.mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting.
 
 
 
@@ -138,8 +138,6 @@ Outer `code` values are strings. `result.code` retains the semantic name. Use th
 | 401 | `"40102"` | `key_inactive` | Check whether the API Key is inactive or expired. |
 | 403 | `"40301"` | `forbidden` | Check collaborator role and required permissions. |
 | 404 | `"40401"` | `not_found` | Check the resource ID and current visibility. |
-| 409 | `"40901"` | `download_unavailable` | The download could not be prepared; inspect result.mutationOutcome before retrying. |
-| 413 | `"41301"` | `download_too_large` | Reduce the download file count or size. |
 | 409 | `"40902"` | `sku_in_use` | Choose another SKU; soft-deleted products still reserve their SKU. |
 | 409 | `"40903"` | `code_in_use` | Choose another resource code. |
 | 409 | `"40904"` | `name_in_use` | Choose another resource name. |
@@ -172,7 +170,7 @@ Validation failure example (HTTP 422):
 }
 ```
 
-Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID. A download error containing `result.mutationOutcome` means its record committed; retain the original idempotency key when retrying.
+Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID.
 
 Mutation response unavailable example (HTTP 409):
 
@@ -1746,7 +1744,7 @@ Sync does not return deletion events. Periodically send local product IDs to [vi
 <details id="media-and-expiry">
 <summary>Preview and download links</summary>
 
-Use `previewUrl` to display product media. For originals, check `downloadUrl` or use the download operations below; preview access does not establish download permission.
+Use `previewUrl` to display product media. For originals, check `downloadUrl`; preview access does not establish download permission.
 
 | Link | Availability | Maximum service-issued lifetime |
 | --- | --- | --- |
@@ -3269,43 +3267,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 </details>
 
-## Downloads
+## Download history
 
 <details id="download-usage">
-<summary>File selection, exports, and records</summary>
+<summary>About download records</summary>
 
-List product download candidates first. Put the returned `key` in `assetKeys`, or put the raw key in the single-file body field `assetKey`; it is not a FilePath ID. One original returns that file; multiple originals return a ZIP. A request selects 1–100 products, at most 200 files, and no more than 500 MiB.
-
-Exports use `kind: "export"`, with xlsx (default), csv, or json. Do not send `assetKeys`. `includeAssetUrls` defaults to true. In all three formats, main-image, related-asset and custom image/file cells contain **stringified JSON arrays of download request descriptors**, even for one file; empty cells contain the string `"[]"`. Ordinary fields are unchanged. JSON exports remain an array of localized business rows with string cell values, not nested descriptor arrays; parse each media cell separately.
-
-Each descriptor has exactly this shape (the `assetKey` is raw, not URL-encoded):
-
-```json
-[{"url":"https://open.musedam.cc/api/muse/product-api","method":"POST","body":{"service":"downloadProductAsset","id":40,"assetKey":"p40:a2"}}]
-```
-
-This is the JSON text inside a cell, not the entire export. Descriptors contain no credentials or headers. To execute one, parse the cell and add the user's `Authorization: Bearer <APIKEY>` and `Content-Type: application/json` headers at runtime:
-
-```js
-const requests = JSON.parse(mediaCell);
-for (const request of requests) {
-  const response = await fetch(request.url, {
-    method: request.method,
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request.body),
-  });
-  if (!response.ok) throw new Error(`Download failed: ${response.status}`);
-  const file = await response.blob();
-  // Save or process the original file here.
-}
-```
-
-When enabled, API media column labels use the localized suffix ` (download requests)` instead of URL labels, including custom media field labels. `locale` changes system labels/status and this suffix, not user-authored labels or values. With `includeAssetUrls: false`, main-image and related-asset cells remain empty strings, and custom image/file cells retain semicolon-separated file names. API exports no longer generate legacy `/api/open/v1` URLs. Web/member/share exports are unchanged. Create a share for visitors without credentials.
-
-`X-Download-Record-Id` identifies the business record. `requested` means accepted, not transferred or saved locally. History includes browser and other API key operations across the team. Ordinary reads, previews, and direct access to storage download URLs do not create history records.
+History includes browser, member, share and existing API key operations across the team. `requested` means accepted, not transferred or saved locally. Product reads, previews and direct access to signed `downloadUrl` links do not create history records. The public product API provides no file-download or export operations; browser, member and share downloads and exports are unchanged.
 
 </details>
 
@@ -3338,22 +3305,6 @@ A download record's `files` array preserves file details when the operation is f
 | products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](#product-snapshot-fields) |
 | files | List&lt;FileLabelSnapshot&gt; | File snapshots. Nested fields: [File snapshot fields](#file-snapshot-fields) |
 | createdAt | String | Creation time. Format: date-time |
-
-</details>
-
-<details id="fields-ProductDownloadCandidate">
-<summary>ProductDownloadCandidate response fields</summary>
-
-| Field | Type | Description |
-| - | - | - |
-| key | String | Download selection key. |
-| name | String | Name. |
-| productId | Integer | Product ID. Positive integer ID, up to 2147483647. |
-| productName | String | Product name. |
-| category | String | Media category. Allowed values: main, related, field |
-| mimeType | String | MIME type. May be null |
-| size | String | Size in bytes, represented as a decimal string. May be null; Must match `^[0-9]+$` |
-| downloadable | Boolean | Whether this file can currently be downloaded. |
 
 </details>
 
@@ -3442,195 +3393,5 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   "traceId": "trace_123"
 }
 ```
-
-</details>
-
-### Download originals or export products
-
-**Endpoint**: https://open.musedam.cc/api/muse/product-api
-
-**Method**: POST
-
-**Description**: Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. Export media cells contain stringified arrays of POST download request descriptors by default; execute them with Bearer authentication as explained in [File selection, exports, and records](#download-usage). Each accepted retrieval has its own business record. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.
-
-Required role: usable, editable or manage.
-
-**Request parameters**:
-
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
-
-| Parameter | Type | Required | Description |
-| - | - | - | - |
-| service | String | Yes | Service identifier; must be `downloadProducts`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-
-**ProductDownloadCreate fields**:
-
-assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. With includeAssetUrls true (default), media cells are stringified JSON arrays of download request descriptors, not URLs. See the [export cell contract](#download-usage) for parsing, labels and false-mode behavior. locale changes system labels/status and the download-request suffix, not user-authored labels or values.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
-| kind | String | Yes | Allowed values: assets, export |
-| productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
-| assetKeys | List&lt;String&gt; | No | Each item: Minimum length 1 characters; Maximum length 256 characters; Minimum items 1; Maximum items 200 |
-| format | String | No | Allowed values: xlsx, csv, json; Default: "xlsx" |
-| includeAssetUrls | Boolean | No | Default: true |
-| locale | String | No | Allowed values: zh-CN, en-US, zh-TW, ja-JP, ko-KR, pt-BR, ru-RU, id-ID, fr-FR, it-IT, pl-PL, vi-VN, tr-TR, th-TH, de-DE, es-ES, hi-IN; Default: "zh-CN" |
-
-**Response fields**: `200`. Success returns an attachment containing file bytes. Errors before delivery use JSON.
-
-Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-Replayed`
-
-Request example:
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "downloadProducts",
-  "kind": "export",
-  "productIds": [
-    40
-  ],
-  "format": "xlsx",
-  "includeAssetUrls": true,
-  "locale": "zh-CN"
-}' \
-  --output products.xlsx
-```
-
-<details id="response-downloadProducts">
-<summary>Response example</summary>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-Content-Disposition: attachment
-X-Download-Record-Id: <record-id>
-```
-
-The response body contains the file bytes.
-
-</details>
-
-### List product download candidates
-
-**Endpoint**: https://open.musedam.cc/api/muse/product-api
-
-**Method**: POST
-
-**Description**: Returns current candidate selection keys and downloadable availability under read and download authorization. No business download record is created, and no original or preview URLs are returned. Use `downloadProductAsset` or `downloadProducts` to retrieve bytes.
-
-Required role: usable, editable or manage.
-
-**Request parameters**:
-
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
-
-| Parameter | Type | Required | Description |
-| - | - | - | - |
-| service | String | Yes | Service identifier; must be `listProductDownloadAssets`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-
-**Response fields**: `200`; `result.data`: List&lt;ProductDownloadCandidate&gt;. [field details](#fields-ProductDownloadCandidate)
-
-Request example:
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "listProductDownloadAssets",
-  "id": 40
-}'
-```
-
-<details id="response-listProductDownloadAssets">
-<summary>Response example</summary>
-
-```json
-{
-  "code": "0",
-  "message": "成功",
-  "result": {
-    "success": true,
-    "data": [
-      {
-        "key": "p40:a2",
-        "name": "example.png",
-        "productId": 40,
-        "productName": "Example product",
-        "category": "main",
-        "mimeType": "image/png",
-        "size": "1024",
-        "downloadable": true
-      }
-    ],
-    "code": null,
-    "message": null,
-    "requestId": "11111111-1111-4111-8111-111111111111"
-  },
-  "traceId": "trace_123"
-}
-```
-
-</details>
-
-### Download one product original
-
-**Endpoint**: https://open.musedam.cc/api/muse/product-api
-
-**Method**: POST
-
-**Description**: Fetches one current product original identified by a raw candidate key in the JSON body. Requires a Bearer header and current read/download authorization; the URL contains no API-key secret. Creates a business record before delivery. Optional 24-hour idempotency is scoped separately from `downloadProducts`, reuses the record, and still reauthorizes and transfers current bytes.
-
-Required role: usable, editable or manage.
-
-**Request parameters**:
-
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
-
-| Parameter | Type | Required | Description |
-| - | - | - | - |
-| service | String | Yes | Service identifier; must be `downloadProductAsset`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| assetKey | String | Yes | Body field. Raw selection key returned by the product download-candidate list; do not URL-encode it. Not a FilePath or AssetObject ID. Minimum length 1 characters; Maximum length 256 characters |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
-
-**Response fields**: `200`. Success returns an attachment containing file bytes. Errors before delivery use JSON.
-
-Response headers: `Content-Disposition`, `X-Download-Record-Id`, `X-Idempotency-Replayed`
-
-Request example:
-
-The example puts the raw download-candidate key `p40:a2` in the JSON body as `assetKey`, without URL encoding. Use the key returned by your download-candidate list; it is not a FilePath or AssetObject ID.
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "downloadProductAsset",
-  "id": 40,
-  "assetKey": "p40:a2"
-}' \
-  --output product-asset.bin
-```
-
-<details id="response-downloadProductAsset">
-<summary>Response example</summary>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/octet-stream
-Content-Disposition: attachment
-X-Download-Record-Id: <record-id>
-```
-
-The response body contains the file bytes.
 
 </details>

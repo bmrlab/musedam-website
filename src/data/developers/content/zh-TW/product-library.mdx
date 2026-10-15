@@ -1,6 +1,6 @@
 ## 快速接入
 
-商品庫全部 31 個操作統一使用 POST `https://open.musedam.cc/api/muse/product-api`。透過 `service` 指定下文的操作識別碼，所有業務參數放在扁平 JSON 請求本文中。
+商品庫全部 28 個操作統一使用 POST `https://open.musedam.cc/api/muse/product-api`。透過 `service` 指定下文的操作識別碼，所有業務參數放在扁平 JSON 請求本文中。
 
 1. 取得 MuseDAM API Key。
 2. 請商品庫管理員在「成員設定 → 新增成員」中，將該密鑰新增為 API Key 協作者，並指派所需角色。
@@ -38,7 +38,7 @@ A successful JSON response has `code: "0"`, `message: "成功"`, `result.success
 
 所有請求均使用您自己的 MuseDAM API Key，攜帶 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json`。全部操作使用相同的公開 POST 位址；資源 ID、分頁、篩選和寫入欄位均為 JSON 請求本文欄位，與必填的 `service` 同層。
 
-Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged. Successful downloads, including JSON exports, remain raw files without this envelope.
+Every JSON API response wraps the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. A failure has a nonzero string `code` from the [error catalog](#error-catalog) and a public error `message`. HTTP statuses and control headers are unchanged.
 
 | Field | Type | How to read it |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ Every JSON API response wraps the entire former v1 body in `result`; resource DT
 
 Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve both outer `traceId` and `result.requestId` (or `X-Request-Id`) when reporting a problem. Tracing does not change authorization, HTTP statuses, or control headers.
 
-The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value, including for successful raw attachments.
+The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value.
 
 Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its `totalCount` is the total record count; `totalPages` is the total page count. The following fragment shows only `result.pagination`, not a complete response:
 
@@ -106,9 +106,9 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 </details>
 
 <details id="atomic-create-replay">
-<summary>建立與下載重試</summary>
+<summary>建立重試</summary>
 
-建立資源可使用 `Idempotency-Key`。鍵按團隊、API Key 和操作區分，最長 255 個字元，不能為空白或含控制字元。24 小時內以相同鍵和輸入重試；變更輸入回傳 `409 idempotency_key_reused`。資源建立重播首次非媒體結果，媒體按目前權限重建。下載重試只重用業務記錄，仍重新授權並傳輸目前檔案。
+建立資源可使用 `Idempotency-Key`。鍵按團隊、API Key 和操作區分，最長 255 個字元，不能為空白或含控制字元。24 小時內以相同鍵和輸入重試；變更輸入回傳 `409 idempotency_key_reused`。資源建立重播首次非媒體結果，媒體按目前權限重建。
 
 </details>
 
@@ -125,9 +125,9 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 | 409 `sku_in_use` / `name_in_use` | 變更衝突的 SKU 或名稱；軟刪除商品的 SKU 仍被占用。 |
 | 409 `mutation_response_unavailable` | 變更已提交或重播，按 `result.mutationOutcome` 核對；不要盲目重新建立。 |
 | 503 `write_conflict` | 變更已回滾，依 `Retry-After: 1` 等待後重試。 |
-| 413 | 縮小請求本文或下載數量／大小。 |
+| 413 | 縮小請求本文。 |
 
-Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting. A download error with `result.mutationOutcome` means the record committed; retain the original idempotency key when retrying.
+Use outer `traceId`, `result.requestId` and `X-Request-Id` for troubleshooting.
 
 
 
@@ -140,8 +140,6 @@ Outer `code` values are strings. `result.code` retains the semantic name. Use th
 | 401 | `"40102"` | `key_inactive` | Check whether the API Key is inactive or expired. |
 | 403 | `"40301"` | `forbidden` | Check collaborator role and required permissions. |
 | 404 | `"40401"` | `not_found` | Check the resource ID and current visibility. |
-| 409 | `"40901"` | `download_unavailable` | The download could not be prepared; inspect result.mutationOutcome before retrying. |
-| 413 | `"41301"` | `download_too_large` | Reduce the download file count or size. |
 | 409 | `"40902"` | `sku_in_use` | Choose another SKU; soft-deleted products still reserve their SKU. |
 | 409 | `"40903"` | `code_in_use` | Choose another resource code. |
 | 409 | `"40904"` | `name_in_use` | Choose another resource name. |
@@ -174,7 +172,7 @@ Validation failure example (HTTP 422):
 }
 ```
 
-Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID. A download error containing `result.mutationOutcome` means its record committed; retain the original idempotency key when retrying.
+Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID.
 
 Mutation response unavailable example (HTTP 409):
 
@@ -1748,7 +1746,7 @@ Synchronization returns items in `result.data` and metadata in `result.paginatio
 <details id="media-and-expiry">
 <summary>預覽與下載鏈接</summary>
 
-展示商品媒體時使用 `previewUrl`。需要原文件時，檢查 `downloadUrl`，或使用下一節的下載接口；能預覽不等於有下載權限。
+展示商品媒體時使用 `previewUrl`。需要原文件時，檢查 `downloadUrl`；能預覽不等於有下載權限。
 
 | 鏈接 | 返回條件 | 服務簽發鏈接的有效期上限 |
 | --- | --- | --- |
@@ -3271,43 +3269,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 </details>
 
-## 下載
+## 下載記錄
 
 <details id="download-usage">
-<summary>選擇檔案、匯出與記錄</summary>
+<summary>記錄說明</summary>
 
-先查詢商品下載候選，將回傳的 `key` 放入 `assetKeys`，或將原始 key 放入單檔請求本文欄位 `assetKey`；它不是 FilePath ID。原始檔案下載只有一個檔案時回傳該檔案，多個檔案時回傳 ZIP。每次選擇 1–100 個商品、最多 200 個檔案、合計不超過 500 MiB。
-
-匯出使用 `kind: "export"`，格式為 xlsx（預設）、csv 或 json，不能傳 `assetKeys`。`includeAssetUrls` 預設 true。三種格式的主圖、關聯素材及自訂 image/file 儲存格均為**下載請求描述符陣列的 JSON 字串**，只有一個檔案也使用陣列，空儲存格為字串 `"[]"`。一般欄位不變。JSON 匯出仍是本地化業務列陣列，儲存格值為字串，而非巢狀描述符陣列；媒體儲存格需要另外解析。
-
-每個描述符嚴格採用以下結構（`assetKey` 是原始 key，不做 URL 編碼）：
-
-```json
-[{"url":"https://open.musedam.cc/api/muse/product-api","method":"POST","body":{"service":"downloadProductAsset","id":40,"assetKey":"p40:a2"}}]
-```
-
-這是儲存格內部的 JSON 文字，而非整個匯出檔案。描述符不包含憑證或請求標頭。執行時先解析儲存格，再於執行階段加入使用者的 `Authorization: Bearer <APIKEY>` 和 `Content-Type: application/json` 請求標頭：
-
-```js
-const requests = JSON.parse(mediaCell);
-for (const request of requests) {
-  const response = await fetch(request.url, {
-    method: request.method,
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request.body),
-  });
-  if (!response.ok) throw new Error(`Download failed: ${response.status}`);
-  const file = await response.blob();
-  // Save or process the original file here.
-}
-```
-
-啟用時，API 媒體欄名使用本地化的 ` (download requests)`（下載請求）後綴取代 URL 標籤，自訂媒體欄位標籤也加入相同後綴。`locale` 影響系統標籤、狀態及該後綴，不改變使用者自訂標籤或內容。`includeAssetUrls: false` 時保留舊行為：主圖和關聯素材儲存格為空字串，自訂 image/file 儲存格為分號分隔的檔案名稱。API 匯出不再產生舊的 `/api/open/v1` URL。網頁、成員及分享匯出不變。給免登入訪客使用時應建立分享。
-
-附件回應標頭 `X-Download-Record-Id` 是業務記錄 ID。`requested` 僅表示請求已接受，不表示傳輸或本機儲存完成。歷史包含團隊瀏覽器操作及其他 API Key 的操作；一般讀取、預覽和直接存取儲存下載 URL 不計入歷史。
+下載歷史包含團隊內瀏覽器、成員、分享及既有 API Key 操作的記錄。`requested` 表示操作已接受，不代表檔案已傳輸或儲存。商品讀取、預覽和直接存取簽名 `downloadUrl` 不會建立下載記錄。公開商品 API 不提供檔案下載或匯出操作；瀏覽器、成員和分享的下載及匯出功能不變。
 
 </details>
 
@@ -3340,22 +3307,6 @@ for (const request of requests) {
 | products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[商品快照欄位](#product-snapshot-fields) |
 | files | List&lt;FileLabelSnapshot&gt; | 文件快照。嵌套字段：[檔案快照欄位](#file-snapshot-fields) |
 | createdAt | String | 創建時間。格式：date-time |
-
-</details>
-
-<details id="fields-ProductDownloadCandidate">
-<summary>ProductDownloadCandidate 回傳欄位</summary>
-
-| 字段名 | 類型 | 描述 |
-| - | - | - |
-| key | String | 下載選擇標識。 |
-| name | String | 名稱。 |
-| productId | Integer | 商品 ID。正整數 ID，最大 2147483647。 |
-| productName | String | 商品名稱。 |
-| category | String | 媒體類別。允許值：main、related、field |
-| mimeType | String | MIME 類型。可為 null |
-| size | String | 文件字節數，以十進制字符串表示。可為 null；須匹配 `^[0-9]+$` |
-| downloadable | Boolean | 當前是否可下載此文件。 |
 
 </details>
 
@@ -3444,195 +3395,5 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   "traceId": "trace_123"
 }
 ```
-
-</details>
-
-### 下載原文件或導出商品
-
-**接口路徑**： https://open.musedam.cc/api/muse/product-api
-
-**請求方式**： POST
-
-**接口描述**：返回一個原文件、所選原文件的 ZIP，或 XLSX/CSV/JSON 業務表格導出。需要 usable 及以上角色的當前讀取和下載權限；usable 只能訪問已發佈商品。已接受的操作在交付前記入記錄。匯出媒體儲存格預設包含 POST 下載請求描述符陣列的 JSON 字串，執行時需加入 Bearer 驗證，詳見[選擇檔案、匯出與記錄](#download-usage)。每次接受的提取有自己的業務記錄。可選 Idempotency-Key 在 24 小時內保留一條記錄，每次重試仍重新鑒權並傳輸當前內容。商品讀取、預覽和舊存儲 downloadUrl 的訪問不會由此操作記入記錄。
-
-所需角色：usable、editable 或 manage。
-
-**請求參數**：
-
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
-
-| 參數名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| service | String | 是 | 服務識別碼，固定為 `downloadProducts`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-
-**ProductDownloadCreate參數說明**：
-
-assets 省略 assetKeys 時選擇全部原文件，否則僅選擇提供的當前 key。export 不接受 assetKeys，並生成本地化業務表格。format、includeAssetUrls 和 locale 僅影響導出；素材下載接受這些選項但不據此改變交付內容。includeAssetUrls 為 true（預設）時，媒體儲存格是下載請求描述符陣列的 JSON 字串，而非 URL。解析、欄名及 false 模式詳見[匯出儲存格約定](#download-usage)。locale 影響系統標籤、狀態及下載請求後綴，不改變使用者自訂標籤或內容。
-
-不接受未定義字段。
-
-| 字段名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| kind | String | 是 | 允許值：assets、export |
-| productIds | List&lt;Integer&gt; | 是 | 最少 1 項；最多 100 項；每個 ID 為正整數，最大 2147483647。 |
-| assetKeys | List&lt;String&gt; | 否 | 每個元素：最短 1 個字符；最長 256 個字符；最少 1 項；最多 200 項 |
-| format | String | 否 | 允許值：xlsx、csv、json；默認值："xlsx" |
-| includeAssetUrls | Boolean | 否 | 默認值：true |
-| locale | String | 否 | 允許值：zh-CN、en-US、zh-TW、ja-JP、ko-KR、pt-BR、ru-RU、id-ID、fr-FR、it-IT、pl-PL、vi-VN、tr-TR、th-TH、de-DE、es-ES、hi-IN；默認值："zh-CN" |
-
-**響應參數**： `200`。成功時回傳附件，回應本文為檔案位元組；JSON 僅用於交付前的錯誤。
-
-響應頭：`Content-Disposition`、`X-Download-Record-Id`、`X-Idempotency-Replayed`
-
-請求示例：
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "downloadProducts",
-  "kind": "export",
-  "productIds": [
-    40
-  ],
-  "format": "xlsx",
-  "includeAssetUrls": true,
-  "locale": "zh-CN"
-}' \
-  --output products.xlsx
-```
-
-<details id="response-downloadProducts">
-<summary>回應範例</summary>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-Content-Disposition: attachment
-X-Download-Record-Id: <record-id>
-```
-
-響應體為文件字節。
-
-</details>
-
-### 查詢商品下載候選素材
-
-**接口路徑**： https://open.musedam.cc/api/muse/product-api
-
-**請求方式**： POST
-
-**接口描述**：在讀取和下載授權下返回當前候選素材的選擇 key 和 downloadable 可用性。不產生業務下載記錄，也不返回原文件或預覽 URL。使用 `downloadProductAsset` 或 `downloadProducts` 服務取得檔案位元組。
-
-所需角色：usable、editable 或 manage。
-
-**請求參數**：
-
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
-
-| 參數名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| service | String | 是 | 服務識別碼，固定為 `listProductDownloadAssets`. |
-| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-
-**響應參數**： `200`，`result.data`：List&lt;ProductDownloadCandidate&gt;。 [欄位說明](#fields-ProductDownloadCandidate)
-
-請求示例：
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "listProductDownloadAssets",
-  "id": 40
-}'
-```
-
-<details id="response-listProductDownloadAssets">
-<summary>回應範例</summary>
-
-```json
-{
-  "code": "0",
-  "message": "成功",
-  "result": {
-    "success": true,
-    "data": [
-      {
-        "key": "p40:a2",
-        "name": "example.png",
-        "productId": 40,
-        "productName": "Example product",
-        "category": "main",
-        "mimeType": "image/png",
-        "size": "1024",
-        "downloadable": true
-      }
-    ],
-    "code": null,
-    "message": null,
-    "requestId": "11111111-1111-4111-8111-111111111111"
-  },
-  "traceId": "trace_123"
-}
-```
-
-</details>
-
-### 下載一個商品原文件
-
-**接口路徑**： https://open.musedam.cc/api/muse/product-api
-
-**請求方式**： POST
-
-**接口描述**：透過請求本文中的原始候選 key 獲取當前商品的一個原文件。需要 Bearer 請求頭以及當前讀取/下載授權；URL 不含 API key 密鑰。交付前創建業務記錄。可選的 24 小時冪等機制與 `downloadProducts`使用不同作用域，復用記錄時仍重新鑒權並傳輸當前字節。
-
-所需角色：usable、editable 或 manage。
-
-**請求參數**：
-
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
-
-| 參數名 | 類型 | 必填 | 描述 |
-| - | - | - | - |
-| service | String | 是 | 服務識別碼，固定為 `downloadProductAsset`. |
-| id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| assetKey | String | 是 | 請求本文欄位。商品下載候選列表返回的原始選擇 key，不做 URL 編碼；它不是 FilePath 或 AssetObject ID。最短 1 個字符；最長 256 個字符 |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
-
-**響應參數**： `200`。成功時回傳附件，回應本文為檔案位元組；JSON 僅用於交付前的錯誤。
-
-響應頭：`Content-Disposition`、`X-Download-Record-Id`、`X-Idempotency-Replayed`
-
-請求示例：
-
-範例將下載候選原始 key `p40:a2` 放入 JSON 請求本文的 `assetKey`，不做 URL 編碼。請使用您的下載候選列表返回的 key，它不是 FilePath 或 AssetObject ID。
-
-```bash
-curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
-  --header 'Authorization: Bearer your_api_key' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-  "service": "downloadProductAsset",
-  "id": 40,
-  "assetKey": "p40:a2"
-}' \
-  --output product-asset.bin
-```
-
-<details id="response-downloadProductAsset">
-<summary>回應範例</summary>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/octet-stream
-Content-Disposition: attachment
-X-Download-Record-Id: <record-id>
-```
-
-響應體為文件字節。
 
 </details>

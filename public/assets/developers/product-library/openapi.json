@@ -3,7 +3,7 @@
   "info": {
     "title": "Product Library Open API",
     "version": "1.0.0",
-    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. The current local role alone determines capabilities; no selectable operation allowlist remains. MuseDAM owns issuance and lifecycle; this API has no key-management or collaborator endpoints. JSON operations use the standard envelope; successful downloads and exports return attachments. All request bodies are capped at 1048576 bytes. Errors before attachment delivery use the shared Error envelope. No CORS/rate-limit contract, 429, bulk writes, multipart upload, webhooks or approval callbacks are provided by v1. Aborted lock conflicts return 503 write_conflict with Retry-After: 1; committed mutations whose response is unavailable return 409 mutation_response_unavailable with an explicit mutationOutcome. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY>. The required service selects an operation; all business parameters are flat in the JSON body. Caller identity and team context come from the API key, not orgId or userId request fields. x-services preserves the exact response and authorization contract for each service; aggregate responses do not imply every service returns every status or representation. JSON responses use the gateway envelope {code, message, result, traceId}. Success has code \"0\" and message \"成功\"; failures use stable nonzero numeric-string codes from PRODUCT_API_ERROR_CODES, documented on Error.code. result contains the entire original response payload, including success, data, semantic code, message, requestId, pagination, details and mutationOutcome where applicable. Successful attachments, including JSON export business-row arrays, are not wrapped. Optional request-body traceId must match ^[A-Za-z0-9._:-]{1,128}$ for log correlation; a valid value is echoed in the outer traceId and X-Trace-Id, otherwise a fallback is generated. X-Request-Id refers to result.requestId for JSON envelopes."
+    "description": "Existing MuseDAM API keys require explicit team-scoped API Key Collaborator access and fresh caller-key validation upstream. The current local role alone determines capabilities; no selectable operation allowlist remains. MuseDAM owns issuance and lifecycle; this API has no key-management or collaborator endpoints. All operations use the standard JSON envelope. The public product API provides no file-download or export operations; browser, member and share downloads and exports are unchanged. All request bodies are capped at 1048576 bytes. Errors use the shared Error envelope. No CORS/rate-limit contract, 429, bulk writes, multipart upload, webhooks or approval callbacks are provided by v1. Aborted lock conflicts return 503 write_conflict with Retry-After: 1; committed mutations whose response is unavailable return 409 mutation_response_unavailable with an explicit mutationOutcome. Send POST /api/muse/product-api with Authorization: Bearer <APIKEY>. The required service selects an operation; all business parameters are flat in the JSON body. Caller identity and team context come from the API key, not orgId or userId request fields. x-services preserves the exact response and authorization contract for each service; aggregate responses do not imply every service returns every status or representation. JSON responses use the gateway envelope {code, message, result, traceId}. Success has code \"0\" and message \"成功\"; failures use stable nonzero numeric-string codes from PRODUCT_API_ERROR_CODES, documented on Error.code. result contains the entire original response payload, including success, data, semantic code, message, requestId, pagination, details and mutationOutcome where applicable. Optional request-body traceId must match ^[A-Za-z0-9._:-]{1,128}$ for log correlation; a valid value is echoed in the outer traceId and X-Trace-Id, otherwise a fallback is generated. X-Request-Id refers to result.requestId for JSON envelopes."
   },
   "servers": [
     {
@@ -41,7 +41,7 @@
       "post": {
         "operationId": "productLibrary",
         "summary": "Call a Product Library service",
-        "description": "Use the required service field to select one of the 31 services. Send all business parameters in the JSON body, not in a URL path or query string. Optional traceId is correlation metadata, not a business field. Invalid traceId values fail validation (HTTP 422); missing or invalid values use the generated requestId as the response traceId. Optional HTTP control headers apply only to the services listed in x-services. Successful downloads and exports return bytes or business-table rows rather than the JSON success envelope. See x-services for per-service permissions, roles, responses and control-header semantics.",
+        "description": "Use the required service field to select one of the 28 services. Send all business parameters in the JSON body, not in a URL path or query string. Optional traceId is correlation metadata, not a business field. Invalid traceId values fail validation (HTTP 422); missing or invalid values use the generated requestId as the response traceId. Optional HTTP control headers apply only to the services listed in x-services. See x-services for per-service permissions, roles, responses and control-header semantics.",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -248,29 +248,6 @@
                   "value": {
                     "service": "listProductDownloads"
                   }
-                },
-                "downloadProducts_request": {
-                  "value": {
-                    "service": "downloadProducts",
-                    "kind": "export",
-                    "productIds": [40],
-                    "format": "xlsx",
-                    "includeAssetUrls": true,
-                    "locale": "zh-CN"
-                  }
-                },
-                "listProductDownloadAssets": {
-                  "value": {
-                    "service": "listProductDownloadAssets",
-                    "id": 40
-                  }
-                },
-                "downloadProductAsset": {
-                  "value": {
-                    "service": "downloadProductAsset",
-                    "id": 40,
-                    "assetKey": "p40:a2"
-                  }
                 }
               }
             }
@@ -288,12 +265,6 @@
               },
               "ETag": {
                 "$ref": "#/components/headers/ETag"
-              },
-              "Content-Disposition": {
-                "$ref": "#/components/headers/Content-Disposition"
-              },
-              "X-Download-Record-Id": {
-                "$ref": "#/components/headers/X-Download-Record-Id"
               },
               "X-Idempotency-Replayed": {
                 "$ref": "#/components/headers/X-Idempotency-Replayed"
@@ -353,18 +324,6 @@
                     },
                     {
                       "$ref": "#/components/schemas/ProductDownloadListResponse"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    {
-                      "$ref": "#/components/schemas/ProductDownloadCandidateListResponse"
                     }
                   ]
                 },
@@ -1538,56 +1497,7 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_success": {
-                    "value": {
-                      "code": "0",
-                      "message": "成功",
-                      "result": {
-                        "success": true,
-                        "data": [
-                          {
-                            "key": "p40:a2",
-                            "name": "example.png",
-                            "productId": 40,
-                            "productName": "Example product",
-                            "category": "main",
-                            "mimeType": "image/png",
-                            "size": "1024",
-                            "downloadable": true
-                          }
-                        ],
-                        "code": null,
-                        "message": null,
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
-                }
-              },
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              },
-              "application/zip": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              },
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              },
-              "text/csv": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
                 }
               }
             }
@@ -1900,9 +1810,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -2690,34 +2597,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_invalid_credentials": {
-                    "value": {
-                      "code": "40101",
-                      "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "invalid_credentials",
-                        "message": "Missing, malformed or unknown bearer credential. Never reveals key existence.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
-                  },
-                  "listProductDownloadAssets_key_inactive": {
-                    "value": {
-                      "code": "40102",
-                      "message": "A verified key is disabled, revoked or expired.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "key_inactive",
-                        "message": "A verified key is disabled, revoked or expired.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -2742,9 +2621,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -3140,20 +3016,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_forbidden": {
-                    "value": {
-                      "code": "40301",
-                      "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "forbidden",
-                        "message": "The current key role/grants do not authorize the action; published mutations may need products:publish.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -3178,9 +3040,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -3576,20 +3435,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_not_found": {
-                    "value": {
-                      "code": "40401",
-                      "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "not_found",
-                        "message": "The resource is absent, deleted, outside this library or invisible to the key.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -3617,9 +3462,6 @@
                     },
                     {
                       "$ref": "#/components/schemas/MutationResponseUnavailable"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -3833,36 +3675,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "downloadProducts_recordedFailure": {
-                    "value": {
-                      "code": "40901",
-                      "message": "The original download could not be prepared.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "download_unavailable",
-                        "message": "The original download could not be prepared.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "mutationOutcome": "committed"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
-                  },
-                  "downloadProductAsset_recordedFailure": {
-                    "value": {
-                      "code": "40901",
-                      "message": "The original download could not be prepared.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "download_unavailable",
-                        "message": "The original download could not be prepared.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "mutationOutcome": "committed"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -4036,9 +3848,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -4434,20 +4243,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_payload_too_large": {
-                    "value": {
-                      "code": "41302",
-                      "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "payload_too_large",
-                        "message": "The request body exceeds 1048576 bytes (1 MiB).",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -4472,9 +4267,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -5038,26 +4830,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_validation_failed": {
-                    "value": {
-                      "code": "42201",
-                      "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "validation_failed",
-                        "message": "Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-                        "requestId": "11111111-1111-4111-8111-111111111111",
-                        "details": [
-                          {
-                            "field": "templateFields.field_color",
-                            "message": "Invalid field value"
-                          }
-                        ]
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -5082,9 +4854,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 },
@@ -5480,20 +5249,6 @@
                       },
                       "traceId": "product-api-example-001"
                     }
-                  },
-                  "listProductDownloadAssets_internal_server_error": {
-                    "value": {
-                      "code": "50001",
-                      "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                      "result": {
-                        "success": false,
-                        "data": null,
-                        "code": "internal_server_error",
-                        "message": "Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-                        "requestId": "11111111-1111-4111-8111-111111111111"
-                      },
-                      "traceId": "product-api-example-001"
-                    }
                   }
                 }
               }
@@ -5525,9 +5280,6 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/AttachmentError"
                     }
                   ]
                 }
@@ -8753,264 +8505,6 @@
                 "$ref": "#/components/responses/Error500_internal_server_error"
               }
             }
-          },
-          "downloadProducts": {
-            "summary": "Download originals or export products",
-            "description": "Returns one original, a ZIP of selected originals, or an XLSX/CSV/JSON business-table export. Requires current read and download grants under usable or higher; usable sees published products only. Accepted operations are recorded before delivery. With includeAssetUrls true (default), main-image, related-asset and custom image/file cells are stringified JSON arrays of download request descriptors, including for one file; empty cells are the string '[]'. Each descriptor is exactly {url:'https://open.musedam.cc/api/muse/product-api',method:'POST',body:{service:'downloadProductAsset',id:<productId>,assetKey:<rawKey>}}. Descriptors contain no credentials or headers; execution adds the user's Authorization: Bearer <APIKEY> and Content-Type: application/json. Each accepted retrieval has its own business record. API exports generate no legacy /api/open/v1 URLs. Web/member/share exports are unchanged. Optional Idempotency-Key retains one record for 24 hours while each retry reauthorizes and transfers current content. Product reads, previews and legacy storage downloadUrl use are not recorded by this operation.",
-            "tags": ["product-activity"],
-            "requestSchema": {
-              "$ref": "#/components/schemas/DownloadProductsRequest"
-            },
-            "x-permissions": {
-              "allOf": ["products:read", "products:download"]
-            },
-            "x-roles": ["usable", "editable", "manage"],
-            "parameters": [
-              {
-                "$ref": "#/components/parameters/DownloadIdempotencyKey"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Attachment bytes, not a success envelope. JSON exports contain an array of localized business-table rows with string cell values. With includeAssetUrls true (default), media cell strings must be parsed separately as JSON arrays of download request descriptors, even for one file; empty cells contain '[]'. XLSX and CSV use the same media cell contract. See ProductDownloadCreate for the exact descriptor shape, localized labels and includeAssetUrls false behavior. A failure after streaming begins can terminate the body and mark the record failed; it cannot replace the committed response with a JSON error.",
-                "headers": {
-                  "Cache-Control": {
-                    "$ref": "#/components/headers/Cache-Control"
-                  },
-                  "X-Request-Id": {
-                    "$ref": "#/components/headers/X-Request-Id"
-                  },
-                  "Content-Disposition": {
-                    "$ref": "#/components/headers/Content-Disposition"
-                  },
-                  "X-Download-Record-Id": {
-                    "$ref": "#/components/headers/X-Download-Record-Id"
-                  },
-                  "X-Idempotency-Replayed": {
-                    "$ref": "#/components/headers/X-Idempotency-Replayed"
-                  },
-                  "X-Trace-Id": {
-                    "$ref": "#/components/headers/X-Trace-Id"
-                  }
-                },
-                "content": {
-                  "application/octet-stream": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "application/zip": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "text/csv": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "application/json": {
-                    "schema": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "401": {
-                "$ref": "#/components/responses/Error401_invalid_credentials_key_inactiveAttachment"
-              },
-              "403": {
-                "$ref": "#/components/responses/Error403_forbiddenAttachment"
-              },
-              "404": {
-                "$ref": "#/components/responses/Error404_not_foundAttachment"
-              },
-              "409": {
-                "$ref": "#/components/responses/Error409ProductDownloadAttachment"
-              },
-              "413": {
-                "$ref": "#/components/responses/Error413ProductDownloadAttachment"
-              },
-              "422": {
-                "$ref": "#/components/responses/Error422_validation_failedAttachment"
-              },
-              "500": {
-                "$ref": "#/components/responses/Error500_internal_server_errorAttachment"
-              },
-              "503": {
-                "$ref": "#/components/responses/Error503_write_conflictAttachment"
-              }
-            }
-          },
-          "listProductDownloadAssets": {
-            "summary": "List product download candidates",
-            "description": "Returns current candidate selection keys and downloadable availability under read and download authorization. No business download record is created, and no original or preview URLs are returned. Use service downloadProductAsset or downloadProducts to retrieve bytes.",
-            "tags": ["product-activity"],
-            "requestSchema": {
-              "$ref": "#/components/schemas/ListProductDownloadAssetsRequest"
-            },
-            "x-permissions": {
-              "allOf": ["products:read", "products:download"]
-            },
-            "x-roles": ["usable", "editable", "manage"],
-            "parameters": [],
-            "responses": {
-              "200": {
-                "description": "Successful request.",
-                "headers": {
-                  "Cache-Control": {
-                    "$ref": "#/components/headers/Cache-Control"
-                  },
-                  "X-Request-Id": {
-                    "$ref": "#/components/headers/X-Request-Id"
-                  },
-                  "X-Trace-Id": {
-                    "$ref": "#/components/headers/X-Trace-Id"
-                  }
-                },
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/ProductDownloadCandidateListResponse"
-                    },
-                    "examples": {
-                      "success": {
-                        "value": {
-                          "code": "0",
-                          "message": "成功",
-                          "result": {
-                            "success": true,
-                            "data": [
-                              {
-                                "key": "p40:a2",
-                                "name": "example.png",
-                                "productId": 40,
-                                "productName": "Example product",
-                                "category": "main",
-                                "mimeType": "image/png",
-                                "size": "1024",
-                                "downloadable": true
-                              }
-                            ],
-                            "code": null,
-                            "message": null,
-                            "requestId": "11111111-1111-4111-8111-111111111111"
-                          },
-                          "traceId": "product-api-example-001"
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "401": {
-                "$ref": "#/components/responses/Error401_invalid_credentials_key_inactive"
-              },
-              "403": {
-                "$ref": "#/components/responses/Error403_forbidden"
-              },
-              "404": {
-                "$ref": "#/components/responses/Error404_not_found"
-              },
-              "413": {
-                "$ref": "#/components/responses/Error413_payload_too_large"
-              },
-              "422": {
-                "$ref": "#/components/responses/Error422_validation_failed"
-              },
-              "500": {
-                "$ref": "#/components/responses/Error500_internal_server_error"
-              }
-            }
-          },
-          "downloadProductAsset": {
-            "summary": "Download one product original",
-            "description": "Fetches one current product original identified by a raw candidate key in assetKey (for example p40:a2, without URL encoding). Requires a Bearer header and current read/download authorization; the URL contains no API-key secret. Creates a business record before delivery. Optional 24-hour idempotency is scoped separately from downloadProducts, reuses the record, and still reauthorizes and transfers current bytes.",
-            "tags": ["product-activity"],
-            "requestSchema": {
-              "$ref": "#/components/schemas/DownloadProductAssetRequest"
-            },
-            "x-permissions": {
-              "allOf": ["products:read", "products:download"]
-            },
-            "x-roles": ["usable", "editable", "manage"],
-            "parameters": [
-              {
-                "$ref": "#/components/parameters/DownloadIdempotencyKey"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Attachment bytes, not a success envelope. JSON exports contain a localized array of business-table rows. A failure after streaming begins can terminate the body and mark the record failed; it cannot replace the committed response with a JSON error.",
-                "headers": {
-                  "Cache-Control": {
-                    "$ref": "#/components/headers/Cache-Control"
-                  },
-                  "X-Request-Id": {
-                    "$ref": "#/components/headers/X-Request-Id"
-                  },
-                  "Content-Disposition": {
-                    "$ref": "#/components/headers/Content-Disposition"
-                  },
-                  "X-Download-Record-Id": {
-                    "$ref": "#/components/headers/X-Download-Record-Id"
-                  },
-                  "X-Idempotency-Replayed": {
-                    "$ref": "#/components/headers/X-Idempotency-Replayed"
-                  },
-                  "X-Trace-Id": {
-                    "$ref": "#/components/headers/X-Trace-Id"
-                  }
-                },
-                "content": {
-                  "application/octet-stream": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
-                }
-              },
-              "401": {
-                "$ref": "#/components/responses/Error401_invalid_credentials_key_inactiveAttachment"
-              },
-              "403": {
-                "$ref": "#/components/responses/Error403_forbiddenAttachment"
-              },
-              "404": {
-                "$ref": "#/components/responses/Error404_not_foundAttachment"
-              },
-              "409": {
-                "$ref": "#/components/responses/Error409ProductDownloadAttachment"
-              },
-              "413": {
-                "$ref": "#/components/responses/Error413ProductDownloadAttachment"
-              },
-              "422": {
-                "$ref": "#/components/responses/Error422_validation_failedAttachment"
-              },
-              "500": {
-                "$ref": "#/components/responses/Error500_internal_server_errorAttachment"
-              },
-              "503": {
-                "$ref": "#/components/responses/Error503_write_conflictAttachment"
-              }
-            }
           }
         }
       }
@@ -9034,7 +8528,7 @@
           "minLength": 1,
           "maxLength": 255
         },
-        "description": "Optional nonblank value without ASCII controls. Scoped to team, key and create operation for 24 hours. Same canonical payload replays 201 and original scalar result/ETag; changed payload gives 409. Product media is reprojected using current authorization and valid original same-slot associations. Applies to createBrand, createCategory and createTemplate/createProduct; createProductShare and the two download services have their own replay semantics detailed in x-services."
+        "description": "Optional nonblank value without ASCII controls. Scoped to team, key and create operation for 24 hours. Same canonical payload replays 201 and original scalar result/ETag; changed payload gives 409. Product media is reprojected using current authorization and valid original same-slot associations. Applies to createBrand, createCategory and createTemplate/createProduct; createProductShare has its own replay semantics detailed in x-services."
       },
       "IfMatch": {
         "name": "If-Match",
@@ -9055,17 +8549,6 @@
           "maxLength": 255
         },
         "description": "Optional nonblank value without ASCII controls, at most 255 characters. Scoped to team, API key and share creation for 24 hours. Matching input reuses the share; changed input returns 409. No header or expired retention creates a new operation. Current authorization is checked on replay."
-      },
-      "DownloadIdempotencyKey": {
-        "name": "Idempotency-Key",
-        "in": "header",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 255
-        },
-        "description": "Optional nonblank value without ASCII controls, at most 255 characters. Scoped to team, API key and download operation for 24 hours. Matching input reuses the business record but reauthorizes, reads current content and transfers again; file bytes are not cached. downloadProducts and downloadProductAsset have separate operation scopes. Changed input returns 409. Omission, a new key or expiry creates a new record; deduplication is not permanent."
       }
     },
     "headers": {
@@ -9089,18 +8572,6 @@
           "type": "string"
         }
       },
-      "Content-Disposition": {
-        "description": "Attachment filename. One original keeps its filename; multiple originals use products.zip; exports use products.xlsx, products.csv or products.json.",
-        "schema": {
-          "type": "string"
-        }
-      },
-      "X-Download-Record-Id": {
-        "description": "Business record ID for this accepted operation; retries with the retained idempotency key reuse it. It does not certify delivery or local-save completion.",
-        "schema": {
-          "type": "string"
-        }
-      },
       "X-Idempotency-Replayed": {
         "description": "Present with true only when the retained business record is reused.",
         "schema": {
@@ -9109,7 +8580,7 @@
         }
       },
       "X-Trace-Id": {
-        "description": "Gateway trace identifier for log correlation. Echoes a valid request-body traceId; when omitted or invalid, a fallback is generated. Matches the outer traceId for JSON envelopes; also returned for successful attachments.",
+        "description": "Gateway trace identifier for log correlation. Echoes a valid request-body traceId; when omitted or invalid, a fallback is generated. Matches the outer traceId for JSON envelopes.",
         "schema": {
           "type": "string",
           "pattern": "^[A-Za-z0-9._:-]{1,128}$"
@@ -10772,8 +10243,6 @@
               "40102",
               "40301",
               "40401",
-              "40901",
-              "41301",
               "40902",
               "40903",
               "40904",
@@ -10788,7 +10257,7 @@
               "40909",
               "50001"
             ],
-            "description": "Stable nonzero numeric-string gateway error code; result.code retains the semantic error name. Mapping: invalid_credentials=40101, authentication_unavailable=50301, key_inactive=40102, forbidden=40301, not_found=40401, download_unavailable=40901, download_too_large=41301, sku_in_use=40902, code_in_use=40903, name_in_use=40904, brand_has_dependents=40905, category_has_products=40906, default_template_replacement_required=40907, idempotency_key_reused=40908, precondition_failed=41201, payload_too_large=41302, validation_failed=42201, write_conflict=50302, mutation_response_unavailable=40909, internal_server_error=50001."
+            "description": "Stable nonzero numeric-string gateway error code; result.code retains the semantic error name. Mapping: invalid_credentials=40101, authentication_unavailable=50301, key_inactive=40102, forbidden=40301, not_found=40401, sku_in_use=40902, code_in_use=40903, name_in_use=40904, brand_has_dependents=40905, category_has_products=40906, default_template_replacement_required=40907, idempotency_key_reused=40908, precondition_failed=41201, payload_too_large=41302, validation_failed=42201, write_conflict=50302, mutation_response_unavailable=40909, internal_server_error=50001."
           },
           "message": {
             "type": "string",
@@ -10826,9 +10295,7 @@
                   "validation_failed",
                   "internal_server_error",
                   "write_conflict",
-                  "mutation_response_unavailable",
-                  "download_unavailable",
-                  "download_too_large"
+                  "mutation_response_unavailable"
                 ]
               },
               "message": {
@@ -11810,121 +11277,6 @@
         "additionalProperties": false,
         "description": "One accepted logical operation, with first-acceptance product/file labels and actor attribution retained. requested records acceptance, not completed transfer or client save. failed records a detected preparation or stream failure and is not reset by a later retry. A product filter retains the complete multi-product operation."
       },
-      "ProductDownloadCandidate": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "productId": {
-            "$ref": "#/components/schemas/PositiveId"
-          },
-          "productName": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string",
-            "enum": ["main", "related", "field"]
-          },
-          "mimeType": {
-            "type": "string",
-            "nullable": true
-          },
-          "size": {
-            "type": "string",
-            "nullable": true,
-            "pattern": "^[0-9]+$"
-          },
-          "downloadable": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "key",
-          "name",
-          "productId",
-          "productName",
-          "category",
-          "mimeType",
-          "size",
-          "downloadable"
-        ],
-        "additionalProperties": false,
-        "description": "A current selection key and availability metadata. No original URL, signed URL or preview URL is exposed; availability does not guarantee future transfer."
-      },
-      "ProductDownloadCreate": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": ["assets", "export"]
-          },
-          "productIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PositiveId"
-            },
-            "minItems": 1,
-            "maxItems": 100
-          },
-          "assetKeys": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 256
-            },
-            "minItems": 1,
-            "maxItems": 200
-          },
-          "format": {
-            "type": "string",
-            "enum": ["xlsx", "csv", "json"],
-            "default": "xlsx"
-          },
-          "includeAssetUrls": {
-            "type": "boolean",
-            "default": true
-          },
-          "locale": {
-            "type": "string",
-            "enum": [
-              "zh-CN",
-              "en-US",
-              "zh-TW",
-              "ja-JP",
-              "ko-KR",
-              "pt-BR",
-              "ru-RU",
-              "id-ID",
-              "fr-FR",
-              "it-IT",
-              "pl-PL",
-              "vi-VN",
-              "tr-TR",
-              "th-TH",
-              "de-DE",
-              "es-ES",
-              "hi-IN"
-            ],
-            "default": "zh-CN"
-          }
-        },
-        "required": ["kind", "productIds"],
-        "additionalProperties": false,
-        "not": {
-          "properties": {
-            "kind": {
-              "enum": ["export"]
-            }
-          },
-          "required": ["assetKeys"]
-        },
-        "description": "assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. With includeAssetUrls true (default), main-image, related-asset and custom image/file cells in XLSX/CSV/JSON are stringified JSON arrays, even for one file; empty cells are the string '[]'. Each descriptor is exactly {url:'https://open.musedam.cc/api/muse/product-api',method:'POST',body:{service:'downloadProductAsset',id:<productId>,assetKey:<rawKey>}}. assetKey is not URL-encoded. No credentials or headers are embedded; execution adds the user's Authorization: Bearer <APIKEY> and Content-Type: application/json. Media column labels, including custom labels, use the localized ' (download requests)' suffix instead of URL labels. JSON exports remain arrays of localized business rows with string cell values; parse each media cell separately. Ordinary fields are unchanged. With includeAssetUrls false, main-image and related-asset cells are empty strings and custom image/file cells retain semicolon-separated file names. locale changes system labels/status and the suffix, not user-authored labels or values. API exports generate no legacy /api/open/v1 URLs; web/member/share exports are unchanged."
-      },
       "ProductShareResponse": {
         "type": "object",
         "properties": {
@@ -12122,131 +11474,6 @@
               }
             },
             "required": ["success", "data", "code", "message", "requestId", "pagination"],
-            "additionalProperties": false
-          },
-          "traceId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9._:-]{1,128}$",
-            "description": "Trace identifier for log correlation, also returned in X-Trace-Id. Echoes a valid request traceId; otherwise generated by the gateway."
-          }
-        },
-        "required": ["code", "message", "result", "traceId"],
-        "additionalProperties": false
-      },
-      "ProductDownloadCandidateListResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "enum": ["0"],
-            "description": "Gateway success code."
-          },
-          "message": {
-            "type": "string",
-            "enum": ["成功"]
-          },
-          "result": {
-            "type": "object",
-            "properties": {
-              "success": {
-                "type": "boolean",
-                "enum": [true]
-              },
-              "data": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ProductDownloadCandidate"
-                }
-              },
-              "code": {
-                "type": "string",
-                "nullable": true,
-                "enum": [null]
-              },
-              "message": {
-                "type": "string",
-                "nullable": true,
-                "enum": [null]
-              },
-              "requestId": {
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            "required": ["success", "data", "code", "message", "requestId"],
-            "additionalProperties": false
-          },
-          "traceId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9._:-]{1,128}$",
-            "description": "Trace identifier for log correlation, also returned in X-Trace-Id. Echoes a valid request traceId; otherwise generated by the gateway."
-          }
-        },
-        "required": ["code", "message", "result", "traceId"],
-        "additionalProperties": false
-      },
-      "AttachmentError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "enum": [
-              "40101",
-              "50301",
-              "40102",
-              "40301",
-              "40401",
-              "40901",
-              "41301",
-              "40902",
-              "40903",
-              "40904",
-              "40905",
-              "40906",
-              "40907",
-              "40908",
-              "41201",
-              "41302",
-              "42201",
-              "50302",
-              "40909",
-              "50001"
-            ],
-            "description": "Stable nonzero numeric-string gateway error code; result.code retains the semantic error name. Mapping: invalid_credentials=40101, authentication_unavailable=50301, key_inactive=40102, forbidden=40301, not_found=40401, download_unavailable=40901, download_too_large=41301, sku_in_use=40902, code_in_use=40903, name_in_use=40904, brand_has_dependents=40905, category_has_products=40906, default_template_replacement_required=40907, idempotency_key_reused=40908, precondition_failed=41201, payload_too_large=41302, validation_failed=42201, write_conflict=50302, mutation_response_unavailable=40909, internal_server_error=50001."
-          },
-          "message": {
-            "type": "string",
-            "description": "Public error message, matching result.message."
-          },
-          "result": {
-            "type": "object",
-            "description": "Attachment errors preserve the specific error code. mutationOutcome is present after a business record was committed or replayed, even if no bytes were delivered. Reuse the original idempotency key within its retention window for the same logical retry.",
-            "properties": {
-              "success": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/success"
-              },
-              "data": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/data"
-              },
-              "code": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/code"
-              },
-              "message": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/message"
-              },
-              "requestId": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/requestId"
-              },
-              "details": {
-                "$ref": "#/components/schemas/Error/properties/result/properties/details"
-              },
-              "mutationOutcome": {
-                "type": "string",
-                "enum": ["committed", "replayed"],
-                "description": "Present after business-record acceptance or reuse, independently of transfer success."
-              }
-            },
-            "required": ["success", "data", "code", "message", "requestId"],
             "additionalProperties": false
           },
           "traceId": {
@@ -13364,138 +12591,6 @@
         "title": "List team download history",
         "required": ["service"]
       },
-      "DownloadProductsRequest": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "type": "string",
-            "enum": ["downloadProducts"]
-          },
-          "kind": {
-            "type": "string",
-            "enum": ["assets", "export"]
-          },
-          "productIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PositiveId"
-            },
-            "minItems": 1,
-            "maxItems": 100
-          },
-          "assetKeys": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 256
-            },
-            "minItems": 1,
-            "maxItems": 200
-          },
-          "format": {
-            "type": "string",
-            "enum": ["xlsx", "csv", "json"],
-            "default": "xlsx"
-          },
-          "includeAssetUrls": {
-            "type": "boolean",
-            "default": true
-          },
-          "locale": {
-            "type": "string",
-            "enum": [
-              "zh-CN",
-              "en-US",
-              "zh-TW",
-              "ja-JP",
-              "ko-KR",
-              "pt-BR",
-              "ru-RU",
-              "id-ID",
-              "fr-FR",
-              "it-IT",
-              "pl-PL",
-              "vi-VN",
-              "tr-TR",
-              "th-TH",
-              "de-DE",
-              "es-ES",
-              "hi-IN"
-            ],
-            "default": "zh-CN"
-          },
-          "traceId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9._:-]{1,128}$",
-            "description": "Optional caller trace identifier for log correlation. Valid values are echoed in the gateway traceId and X-Trace-Id response header. If omitted or invalid, the gateway generates a fallback trace identifier."
-          }
-        },
-        "required": ["service", "kind", "productIds"],
-        "additionalProperties": false,
-        "not": {
-          "properties": {
-            "kind": {
-              "enum": ["export"]
-            }
-          },
-          "required": ["assetKeys"]
-        },
-        "description": "assets selects all originals when assetKeys is omitted, or only the supplied current keys. export rejects assetKeys and produces a localized business table. format, includeAssetUrls and locale apply only to exports; asset downloads accept but ignore them for delivery. With includeAssetUrls true (default), main-image, related-asset and custom image/file cells in XLSX/CSV/JSON are stringified JSON arrays, even for one file; empty cells are the string '[]'. Each descriptor is exactly {url:'https://open.musedam.cc/api/muse/product-api',method:'POST',body:{service:'downloadProductAsset',id:<productId>,assetKey:<rawKey>}}. assetKey is not URL-encoded. No credentials or headers are embedded; execution adds the user's Authorization: Bearer <APIKEY> and Content-Type: application/json. Media column labels, including custom labels, use the localized ' (download requests)' suffix instead of URL labels. JSON exports remain arrays of localized business rows with string cell values; parse each media cell separately. Ordinary fields are unchanged. With includeAssetUrls false, main-image and related-asset cells are empty strings and custom image/file cells retain semicolon-separated file names. locale changes system labels/status and the suffix, not user-authored labels or values. API exports generate no legacy /api/open/v1 URLs; web/member/share exports are unchanged.",
-        "title": "Download originals or export products"
-      },
-      "ListProductDownloadAssetsRequest": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "type": "string",
-            "enum": ["listProductDownloadAssets"]
-          },
-          "id": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647,
-            "description": "Positive signed 32-bit resource ID."
-          },
-          "traceId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9._:-]{1,128}$",
-            "description": "Optional caller trace identifier for log correlation. Valid values are echoed in the gateway traceId and X-Trace-Id response header. If omitted or invalid, the gateway generates a fallback trace identifier."
-          }
-        },
-        "additionalProperties": false,
-        "title": "List product download candidates",
-        "required": ["service", "id"]
-      },
-      "DownloadProductAssetRequest": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "type": "string",
-            "enum": ["downloadProductAsset"]
-          },
-          "id": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647,
-            "description": "Positive signed 32-bit resource ID."
-          },
-          "assetKey": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 256,
-            "description": "Raw selection key returned by listProductDownloadAssets (for example p40:a2); do not URL-encode it in the JSON body. Not a FilePath or AssetObject ID."
-          },
-          "traceId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9._:-]{1,128}$",
-            "description": "Optional caller trace identifier for log correlation. Valid values are echoed in the gateway traceId and X-Trace-Id response header. If omitted or invalid, the gateway generates a fallback trace identifier."
-          }
-        },
-        "additionalProperties": false,
-        "title": "Download one product original",
-        "required": ["service", "id", "assetKey"]
-      },
       "ProductLibraryRequest": {
         "type": "object",
         "required": ["service"],
@@ -13530,10 +12625,7 @@
               "listProductShares",
               "createProductShare",
               "revokeProductShare",
-              "listProductDownloads",
-              "downloadProducts",
-              "listProductDownloadAssets",
-              "downloadProductAsset"
+              "listProductDownloads"
             ]
           },
           "traceId": {
@@ -13626,15 +12718,6 @@
           },
           {
             "$ref": "#/components/schemas/ListProductDownloadsRequest"
-          },
-          {
-            "$ref": "#/components/schemas/DownloadProductsRequest"
-          },
-          {
-            "$ref": "#/components/schemas/ListProductDownloadAssetsRequest"
-          },
-          {
-            "$ref": "#/components/schemas/DownloadProductAssetRequest"
           }
         ],
         "discriminator": {
@@ -13667,10 +12750,7 @@
             "listProductShares": "#/components/schemas/ListProductSharesRequest",
             "createProductShare": "#/components/schemas/CreateProductShareRequest",
             "revokeProductShare": "#/components/schemas/RevokeProductShareRequest",
-            "listProductDownloads": "#/components/schemas/ListProductDownloadsRequest",
-            "downloadProducts": "#/components/schemas/DownloadProductsRequest",
-            "listProductDownloadAssets": "#/components/schemas/ListProductDownloadAssetsRequest",
-            "downloadProductAsset": "#/components/schemas/DownloadProductAssetRequest"
+            "listProductDownloads": "#/components/schemas/ListProductDownloadsRequest"
           }
         },
         "description": "Select exactly one service. All business parameters are flat JSON body properties alongside service. ID types, required fields and defaults depend on the selected service. If-Match and Idempotency-Key are HTTP headers, not body properties."
@@ -14379,198 +13459,6 @@
             }
           }
         }
-      },
-      "Error401_invalid_credentials_key_inactiveAttachment": {
-        "description": "invalid_credentials: Missing, malformed or unknown bearer credential. Never reveals key existence.; key_inactive: A verified key is disabled, revoked or expired.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error403_forbiddenAttachment": {
-        "description": "forbidden: The current key role/grants do not authorize the action; published mutations may need products:publish.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error404_not_foundAttachment": {
-        "description": "not_found: The resource is absent, deleted, outside this library or invisible to the key.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error413ProductDownloadAttachment": {
-        "description": "The request body, file count or combined original size exceeds its limit.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error422_validation_failedAttachment": {
-        "description": "validation_failed: Malformed JSON/IDs/body, invalid relationships or pinned-field/config/publish rules. Optional details identify fields.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error500_internal_server_errorAttachment": {
-        "description": "internal_server_error: Unexpected server failure; report requestId without credentials. The public message does not expose internal details.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
-      },
-      "Error409ProductDownloadAttachment": {
-        "description": "The original is unavailable or the idempotency key was reused with different input.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            },
-            "examples": {
-              "recordedFailure": {
-                "value": {
-                  "code": "40901",
-                  "message": "The original download could not be prepared.",
-                  "result": {
-                    "success": false,
-                    "data": null,
-                    "code": "download_unavailable",
-                    "message": "The original download could not be prepared.",
-                    "requestId": "11111111-1111-4111-8111-111111111111",
-                    "mutationOutcome": "committed"
-                  },
-                  "traceId": "product-api-example-001"
-                }
-              }
-            }
-          }
-        }
-      },
-      "Error503_write_conflictAttachment": {
-        "description": "The write rolled back due to a deadlock, serialization failure, or lock timeout. Retry after one second using the same create idempotency key.",
-        "headers": {
-          "Cache-Control": {
-            "$ref": "#/components/headers/Cache-Control"
-          },
-          "X-Request-Id": {
-            "$ref": "#/components/headers/X-Request-Id"
-          },
-          "Retry-After": {
-            "schema": {
-              "type": "string",
-              "enum": ["1"]
-            },
-            "description": "Minimum retry delay in seconds."
-          },
-          "X-Trace-Id": {
-            "$ref": "#/components/headers/X-Trace-Id"
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/AttachmentError"
-            }
-          }
-        }
       }
     }
   },
@@ -14646,14 +13534,6 @@
     "mutation_response_unavailable": {
       "status": 409,
       "description": "The mutation committed or was replayed but its authorized representation is unavailable. mutationOutcome is required; data is null. Do not repeat blindly."
-    },
-    "download_unavailable": {
-      "status": 409,
-      "description": "The original download could not be prepared; missing originals are not replaced by previews."
-    },
-    "download_too_large": {
-      "status": 413,
-      "description": "The original download exceeds 200 files or 500 MiB combined."
     }
   },
   "x-limits": {

@@ -69,7 +69,7 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 Product Library API is one article in the existing Open API navigation group,
 at `/{lng}/developers/product-library`, in Simplified Chinese, English and
 Traditional Chinese. It combines authorization, shared request conventions and
-all 31 operations, organized by resource. Keep endpoint parameters and independent
+all 28 operations, organized by resource. Keep endpoint parameters and independent
 curl examples visible. Reuse shared field tables and put response examples and
 less common details in labeled disclosures. Do not recreate separate overview,
 reference, examples or guide pages for this API.
@@ -88,8 +88,8 @@ The original resource schemas come from `bmrlab/musedam-product-library` commit
 - `src/app/developers/open-api/content/zh-CN/`: Chinese guides and the
   description-only OpenAPI localization overlay.
 
-All 31 services use `POST https://open.musedam.cc/api/muse/product-api`, as
-confirmed on 2026-10-14. Authenticate with the user's MuseDAM API Key in
+All 28 public services use `POST https://open.musedam.cc/api/muse/product-api`.
+Authenticate with the user's MuseDAM API Key in
 `Authorization: Bearer <APIKEY>`. Set `Content-Type: application/json` and send
 `service` (the original operationId) and all business parameters as sibling body
 fields. Resource IDs, pagination and filters are not URL parameters. The public
@@ -98,32 +98,20 @@ service credentials or internal routes. `If-Match` and `Idempotency-Key` remain
 optional HTTP control headers for the services that support them. Do not apply
 the asset API's region banner, rate-limit policy or response envelope here.
 
-For API `downloadProducts` exports, `includeAssetUrls` remains true by default.
-In XLSX, CSV and JSON, main-image, related-asset and custom image/file cells are
-stringified JSON arrays of download request descriptors, including for a single
-file; empty media cells contain the string `"[]"`. Each descriptor is exactly
-`{"url":"https://open.musedam.cc/api/muse/product-api","method":"POST","body":{"service":"downloadProductAsset","id":40,"assetKey":"p40:a2"}}`,
-where `id` is the product ID and `assetKey` is the raw, non-URL-encoded key.
-Do not embed credentials or headers. Consumers parse the media cell separately
-and add the user's `Authorization: Bearer <APIKEY>` and
-`Content-Type: application/json` headers when executing the request. JSON exports
-remain arrays of localized business rows with string cell values; ordinary
-fields are unchanged. Enabled API media column labels use the localized
-` (download requests)` suffix instead of URL labels, including custom media
-labels. `locale` changes system labels/status and this suffix, not user-authored
-labels or values. With `includeAssetUrls: false`, main-image and related-asset
-cells remain empty strings and custom image/file cells retain semicolon-separated
-file names. API exports no longer generate legacy `/api/open/v1` URLs.
-Web/member/share exports are unchanged. Keep these explanations synchronized in
-all three Product Library MDX articles, their `pages*.json` Markdown mirrors and
-the downloadable OpenAPI descriptions without changing public request inputs.
+The public product API provides no file-download, export or download-candidate
+selection operations. Keep `listProductDownloads` for team history, including
+existing API key records. Product reads retain signed `downloadUrl` and
+`downloadUrlExpiresAt` fields under current authorization. Browser, member and
+share downloads and exports are unchanged. Keep this scope synchronized in all
+three Product Library MDX articles, their `pages*.json` Markdown mirrors and the
+downloadable OpenAPI contract.
 
 The downloadable contract is served at
 `/assets/developers/product-library/openapi.json`. Its API shapes and examples match
 the source implementation. Descriptions and examples from the source contract have
 been corrected against that implementation, including item reads, template system
 fields, category paths, nullable custom media and mutation results. The public
-contract has one POST operation with 31 named request variants selected by a
+contract has one POST operation with 28 named request variants selected by a
 `service` discriminator. `x-services` retains per-service responses, permissions,
 roles and supported control headers; aggregated responses do not apply to every
 service. Business fields are preserved. JSON responses use
@@ -132,8 +120,7 @@ service. Business fields are preserved. JSON responses use
 `result` contains the entire former response, including data, pagination,
 semantic errors, validation details and mutation outcomes. Optional request-body
 `traceId` is echoed and logged; absent values use the generated request ID, and
-invalid values fail validation with a generated fallback trace. Successful
-attachments, including JSON exports, remain unwrapped. The reference includes
+invalid values fail validation with a generated fallback trace. The reference includes
 all services and links to concise field tables in the same article.
 Full schemas and shared response, header and parameter definitions remain in the
 downloadable contract; do not render these raw OpenAPI components or appendices
