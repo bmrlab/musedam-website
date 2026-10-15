@@ -51,7 +51,7 @@ Every JSON API response wraps the entire former v1 body in `result`; resource DT
 | `result.message` | String or null | Original public error message; null on success. |
 | `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
 | `result.details` | Array, when present | Validation errors: `result.details[].field` and `result.details[].message`. |
-| `result.mutationOutcome` | String, when present | `committed` or `replayed`; inspect it before retrying. |
+| `result.mutationOutcome` | String, when present | `committed`; inspect it before retrying. |
 | `result.requestId` | String | Server request identifier, also exposed in `X-Request-Id`. |
 | `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
 
@@ -98,19 +98,7 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 
 </details>
 
-<details id="write-preconditions">
-<summary>並行更新</summary>
-
-讀取品牌、分類、模板或商品時儲存強 `ETag`（包括引號），更新、狀態變更或刪除時可放入 `If-Match`。回傳 `412 precondition_failed` 時重新讀取並核對；省略時後一次寫入覆蓋前一次。分享、歷史和下載記錄不使用 ETag。
-
-</details>
-
-<details id="atomic-create-replay">
-<summary>建立重試</summary>
-
-建立資源可使用 `Idempotency-Key`。鍵按團隊、API Key 和操作區分，最長 255 個字元，不能為空白或含控制字元。24 小時內以相同鍵和輸入重試；變更輸入回傳 `409 idempotency_key_reused`。資源建立重播首次非媒體結果，媒體按目前權限重建。
-
-</details>
+更新時省略選填欄位以保留原值。支援的空字串和 `[]` 仍按既有規則清空。富文字內部可包含 null。回應欄位仍可為 null。
 
 <details id="error-catalog">
 <summary>請求限制與錯誤處理</summary>
@@ -123,7 +111,7 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 | 404 | 資源不存在、已刪除或不可存取，核對 ID。 |
 | 422 `validation_failed` | 修正輸入；若有 `result.details`，讀取 `field` 和 `message`。 |
 | 409 `sku_in_use` / `name_in_use` | 變更衝突的 SKU 或名稱；軟刪除商品的 SKU 仍被占用。 |
-| 409 `mutation_response_unavailable` | 變更已提交或重播，按 `result.mutationOutcome` 核對；不要盲目重新建立。 |
+| 409 `mutation_response_unavailable` | 變更已提交，按 `result.mutationOutcome` 核對；不要盲目重新建立。 |
 | 503 `write_conflict` | 變更已回滾，依 `Retry-After: 1` 等待後重試。 |
 | 413 | 縮小請求本文。 |
 
@@ -146,12 +134,10 @@ Outer `code` values are strings. `result.code` retains the semantic name. Use th
 | 409 | `"40905"` | `brand_has_dependents` | Remove or reassign dependent categories and products first. |
 | 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
 | 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
-| 409 | `"40908"` | `idempotency_key_reused` | Reuse a key only with the same input; use a new key for a different request. |
-| 412 | `"41201"` | `precondition_failed` | Read again and reconcile before retrying with the new ETag. |
 | 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
 | 422 | `"42201"` | `validation_failed` | Correct the input using result.details[].field and result.details[].message. |
 | 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
-| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed or replayed; inspect result.mutationOutcome and do not blindly repeat it. |
+| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed; inspect result.mutationOutcome and do not blindly repeat it. |
 | 500 | `"50001"` | `internal_server_error` | Retain traceId and result.requestId for troubleshooting; reconcile state before retrying a write. |
 
 Validation failure example (HTTP 422):
@@ -192,7 +178,7 @@ Mutation response unavailable example (HTTP 409):
 }
 ```
 
-For `mutation_response_unavailable`, reconcile the committed or replayed mutation instead of blindly creating another resource.
+For `mutation_response_unavailable`, reconcile the committed mutation instead of blindly creating another resource.
 
 </details>
 
@@ -229,7 +215,7 @@ For `mutation_response_unavailable`, reconcile the committed or replayed mutatio
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -302,12 +288,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `createBrand`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **BrandCreate參數說明**：
 
@@ -316,12 +301,10 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 是 | 校驗前會去除首尾空白。最短 1 個字符；最長 128 個字符 |
-| description | String | 否 | 最長 512 個字符；可為 null |
-| logoUrl | String | 否 | null/空值表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符；可為 null |
+| description | String | 否 | 最長 512 個字符 |
+| logoUrl | String | 否 | 空字串表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符 |
 
 **響應參數**： `201`，`result.data`：Brand。 [欄位說明](#fields-Brand)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -371,13 +354,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：回傳指定品牌的公開元資料及目前的強 ETag，不包含原始 logo URL。
+**接口描述**：回傳指定品牌的公開元資料，不包含原始 logo URL。
 
 所需角色：所有協作者角色。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -385,8 +368,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`result.data`：Brand。 [欄位說明](#fields-Brand)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -442,13 +423,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `updateBrand`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **BrandPatch參數說明**：
 
@@ -457,12 +437,10 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 否 | 校驗前會去除首尾空白。最短 1 個字符；最長 128 個字符 |
-| description | String | 否 | 最長 512 個字符；可為 null |
-| logoUrl | String | 否 | null/空值表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符；可為 null |
+| description | String | 否 | 最長 512 個字符 |
+| logoUrl | String | 否 | 空字串表示清除。僅支持 HTTP(S)，不得包含憑據，且須為允許列表中的 MuseDAM CDN 或已配置的存儲主機；存儲前會移除 query 和 fragment。不支持上傳；讀取時不會返回。最長 512 個字符 |
 
 **響應參數**： `200`，`result.data`：Brand。 [欄位說明](#fields-Brand)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -519,17 +497,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `deleteBrand`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -608,7 +583,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -685,12 +660,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `createCategory`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **CategoryCreate參數說明**：
 
@@ -700,16 +674,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | - | - | - | - |
 | brandId | Integer | 是 | 正整數 ID，最大 2147483647。 |
 | name | String | 是 | 精確值，不去除首尾空白。必須包含非空白字符且不含斜槓；在有效同級節點中唯一。最短 1 個字符；最長 64 個字符；須匹配 `^(?=.*\S)[^/]+$` |
-| parentId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
+| parentId | Integer | 否 | 正整數 ID，最大 2147483647。 |
 | sortOrder | Integer | 否 | 同級插入索引，不得大於目標位置的同級節點數。省略時：創建/移動時追加到末尾，父節點不變時保持原位置。最小值：0；最大值：5,000 |
-| description | String | 否 | 可為 null |
-| iconEmoji | String | 否 | 最長 16 個字符；可為 null |
-| iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。；可為 null |
+| description | String | 否 | — |
+| iconEmoji | String | 否 | 最長 16 個字符 |
+| iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。 |
 | isEnabled | Boolean | 否 | — |
 
 **響應參數**： `201`，`result.data`：Category。 [欄位說明](#fields-Category)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -763,13 +735,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：回傳指定未刪除分類及目前的強 ETag；分類不存在或不屬於目前商品庫時回傳 404。
+**接口描述**：回傳指定未刪除分類；分類不存在或不屬於目前商品庫時回傳 404。
 
 所需角色：所有協作者角色。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -777,8 +749,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`result.data`：Category。 [欄位說明](#fields-Category)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -837,13 +807,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `updateCategory`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **CategoryPatch參數說明**：
 
@@ -852,16 +821,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 否 | 精確值，不去除首尾空白。必須包含非空白字符且不含斜槓；在有效同級節點中唯一。最短 1 個字符；最長 64 個字符；須匹配 `^(?=.*\S)[^/]+$` |
-| parentId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
+| parentId | Integer | 否 | 正整數 ID，最大 2147483647。 |
 | sortOrder | Integer | 否 | 同級插入索引，不得大於目標位置的同級節點數。省略時：創建/移動時追加到末尾，父節點不變時保持原位置。最小值：0；最大值：5,000 |
-| description | String | 否 | 可為 null |
-| iconEmoji | String | 否 | 最長 16 個字符；可為 null |
-| iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。；可為 null |
+| description | String | 否 | — |
+| iconEmoji | String | 否 | 最長 16 個字符 |
+| iconAssetId | Integer | 否 | 同一商品庫中現有的 CategoryIconAsset ID，而非 FilePath ID。正整數 ID，最大 2147483647。 |
 | isEnabled | Boolean | 否 | — |
 
 **響應參數**： `200`，`result.data`：Category。 [欄位說明](#fields-Category)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -921,17 +888,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `deleteCategory`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -996,14 +960,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | `name` | string | 新欄位必填，1–128 個字元。 |
 | `type` | string | 新欄位必填，支援的類型見下方設定表。 |
 | `required` | boolean | 選填；新欄位預設為 `false`。 |
-| `placeholder` | string 或 null | 選填，最多 255 個字元；新欄位預設為 `null`。 |
+| `placeholder` | string | 選填，最多 255 個字元；更新時省略以保留原值，新欄位回應預設為 `null`。 |
 | `sortOrder` | integer | 選填，同組內唯一的非負整數；省略時使用欄位在陣列中的位置。 |
 | `config` | object | 按欄位類型填寫，見下方設定表；新欄位省略時使用 `{}`，但仍須滿足該類型的設定要求。 |
 | `typeChangeConfirmed` | boolean | 選填；允許但需要確認的類型變更須傳 `true`。 |
 
 建立時會自動加入名稱、SKU 和主圖三個受保護欄位，因此最多可新增 197 個自訂欄位。第一個分組的自訂欄位排列在這三個欄位之後，傳入的 `sortOrder`（省略時為陣列位置）會增加 3。替換定義時須保留這些欄位的 `id`，以及類型、必填標記和設定。欄位不能移到其他分組。
 
-新欄位只能是自訂欄位，不能使用保留的系統 key。`isSystemField` 和 `systemKey` 不能用於建立或重新分配系統身分；更新時保留原值。未知的分組或欄位屬性會被拒絕。
+新欄位只能是自訂欄位，不能使用保留的系統 key。`isSystemField` 和 `systemKey` 不能用於建立或重新分配系統身分；更新時保留原有身分。若提供 `systemKey`，必須是字串：`name`、`sku`、`brand`、`category`、`description` 或 `mainImage`；自訂欄位應省略它。未知的分組或欄位屬性會被拒絕。
 
 </details>
 
@@ -1090,7 +1054,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -1222,12 +1186,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `createTemplate`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **TemplateCreate參數說明**：
 
@@ -1238,7 +1201,7 @@ name/description 會去除首尾空白。所有分組合計最多 200 個字段�
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 是 | 最短 1 個字符；最長 30 個字符 |
-| description | String | 否 | 最長 50 個字符；可為 null |
+| description | String | 否 | 最長 50 個字符 |
 | enabled | Boolean | 否 | — |
 | groups | List&lt;TemplateGroupInput&gt; | 是 | 最少 1 項；最多 200 項。嵌套字段：[範本分組欄位](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
@@ -1247,8 +1210,6 @@ name/description 會去除首尾空白。所有分組合計最多 200 個字段�
 | syncStrategy | String | 否 | 允許值：newOnly；默認值："newOnly" |
 
 **響應參數**： `201`，`result.data`：Template。 [欄位說明](#fields-Template)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -1370,13 +1331,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：回傳指定未刪除模板的元資料、綁定及分組／欄位，包括僅供預覽的設定。分組和欄位按 sortOrder、id 升序排列。回應包含目前的強 ETag，涵蓋有效欄位、分組、綁定集合及預設模板標記。
+**接口描述**：回傳指定未刪除模板的元資料、綁定及分組／欄位，包括僅供預覽的設定。分組和欄位按 sortOrder、id 升序排列。
 
 所需角色：所有協作者角色。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -1384,8 +1345,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
 
 **響應參數**： `200`，`result.data`：Template。 [欄位說明](#fields-Template)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -1500,13 +1459,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `updateTemplate`. |
 | id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **TemplatePatch參數說明**：
 
@@ -1517,7 +1475,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 否 | 最短 1 個字符；最長 30 個字符 |
-| description | String | 否 | 最長 50 個字符；可為 null |
+| description | String | 否 | 最長 50 個字符 |
 | enabled | Boolean | 否 | — |
 | groups | List&lt;TemplateGroupInput&gt; | 否 | 最少 1 項；最多 200 項。嵌套字段：[範本分組欄位](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 10,000 項 |
@@ -1526,8 +1484,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | syncStrategy | String | 否 | 允許值：newOnly；默認值："newOnly" |
 
 **響應參數**： `200`，`result.data`：Template。 [欄位說明](#fields-Template)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -1637,33 +1593,30 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：軟刪除有效模板，同時保留現有商品所使用的不可變版本。刪除當前商品庫默認模板時，必須顯式指定替代模板或 null；默認/系統保護規則仍然適用。會移除綁定，但不會改寫現有商品的固定版本。
+**接口描述**：軟刪除有效模板，同時保留現有商品所使用的不可變版本。刪除當前商品庫默認模板時，必須指定替代模板 ID；默認/系統保護規則仍然適用。會移除綁定，但不會改寫現有商品的固定版本。
 
 所需角色：manage。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `deleteTemplate`. |
 | id | String | 是 | 請求本文欄位。不透明的模板 ID；請勿假定其為 UUID 格式。最短 1 個字符；最長 128 個字符 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **TemplateDelete參數說明**：
 
-`replacementForLibraryDefault` 為選填欄位；若刪除的是目前商品庫預設範本，則必須提供同一商品庫中另一個有效範本的 ID，或明確傳入 null 以清除預設範本。包含 `service` 和 `id` 的 JSON 請求本文一律必填。歷史版本對固定了該版本的商品仍然可用。
+`replacementForLibraryDefault` 為選填欄位；若刪除的是目前商品庫預設範本，則必須提供同一商品庫中另一個有效範本的 ID。包含 `service` 和 `id` 的 JSON 請求本文一律必填。歷史版本對固定了該版本的商品仍然可用。
 
 不接受未定義字段。
 
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
-| replacementForLibraryDefault | String | 否 | 最短 1 個字符；最長 128 個字符；可為 null |
+| replacementForLibraryDefault | String | 否 | 刪除商品庫預設範本時必填。最短 1 個字符；最長 128 個字符 |
 
 **響應參數**： `200`，`result.data`：DeletedTemplateId。 回傳 `result.data.id`，即已刪除的資源 ID。
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -1674,7 +1627,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --data-raw '{
   "service": "deleteTemplate",
   "id": "template_example",
-  "replacementForLibraryDefault": null
+  "replacementForLibraryDefault": "template_replacement"
 }'
 ```
 
@@ -1705,7 +1658,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 <details id="template-pins-and-field-values">
 <summary>模板版本與自訂欄位</summary>
 
-商品建立時儲存模板版本。讀取 `templateDefinition` 解釋 `templateFields`；後續模板變更或刪除不影響這個版本，`updateProduct` 不能更換模板。`templateFields` 以固定版本中的欄位 ID 為鍵，更新時淺合併；`null` 清空單個欄位。
+商品建立時儲存模板版本。讀取 `templateDefinition` 解釋 `templateFields`；後續模板變更或刪除不影響這個版本，`updateProduct` 不能更換模板。`templateFields` 以固定版本中的欄位 ID 為鍵，更新時淺合併；省略的值保持不變。富文字內部可包含 null。
 
 明確提供的 `templateId` 優先；否則，有 `categoryId` 時依次查找分類、祖先分類、品牌和商品庫預設模板。沒有分類時只考慮商品庫預設模板，即使傳入了品牌。
 
@@ -1714,7 +1667,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | `number`、`currency` | JSON 數字 |
 | `dateRange` | 起止日期字符串組成的有序數組 |
 | `checkbox` | 選項值數組 |
-| `image`、`file` | FilePath ID 數組，或 null |
+| `image`、`file` | FilePath ID 數組 |
 | `richtext` | HTML 模式為字符串；delta 模式為 `{ "ops": [...] }` |
 
 草稿可缺少必填值，但提交和合併後的欄位仍須滿足類型／選項規則；發布或編輯已發布商品會驗證完整商品。一次寫入的全部媒體引用合計最多 100 個，只接受本商品庫既有的 FilePath ID。媒體列表省略時保留，`[]` 清空；未傳 `coverAssetId` 時，首張 `imageAssetIds` 圖片成為封面。
@@ -1835,7 +1788,7 @@ Synchronization returns items in `result.data` and metadata in `result.paginatio
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -2038,42 +1991,39 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：僅創建草稿。創建時解析並固定一個模板版本；模板字段依據該不可變定義進行校驗。可關聯同一商品庫中現有的 FilePath ID；不支持上傳、遠程導入或回寫到提供方。冪等重放會保留原始標量結果/ETag，並且僅對在當前同一槽位中仍然有效的原始媒體按當前權限重新投影。
+**接口描述**：僅創建草稿。創建時解析並固定一個模板版本；模板字段依據該不可變定義進行校驗。可關聯同一商品庫中現有的 FilePath ID；不支持上傳、遠程導入或回寫到提供方。
 
 所需角色：editable 或 manage。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `createProduct`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **ProductCreate參數說明**：
 
-始終創建草稿。顯式指定的 templateId 必須是同一商品庫中的有效模板，且優先使用。當 templateId 省略/為 null 且提供了非 null 的 categoryId 時，解析順序為：分類或其祖先分類的綁定，然後是該分類所屬品牌的綁定，最後是商品庫默認模板。當 categoryId 省略或為 null 時，即使提供了 brandId，也僅考慮商品庫默認模板。若未解析出任何模板，則商品沒有模板。分類必須與最終品牌匹配；owner 必須是同一團隊成員，默認為 null，而非 key 創建者。cover/images/related/自定義媒體合計最多 100 個引用。圖片槽位要求使用圖片；自定義媒體必須滿足固定版本的數量/大小/類型限制。
+始終創建草稿。顯式指定的 templateId 必須是同一商品庫中的有效模板，且優先使用。當 templateId 省略且提供了 categoryId 時，解析順序為：分類或其祖先分類的綁定，然後是該分類所屬品牌的綁定，最後是商品庫默認模板。當 categoryId 省略時，即使提供了 brandId，也僅考慮商品庫默認模板。若未解析出任何模板，則商品沒有模板。分類必須與最終品牌匹配；owner 必須是同一團隊成員，默認為 null，而非 key 創建者。cover/images/related/自定義媒體合計最多 100 個引用。圖片槽位要求使用圖片；自定義媒體必須滿足固定版本的數量/大小/類型限制。
 
 不接受未定義字段。
 
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 否 | 會去除首尾空白；草稿可省略或為空。最長 255 個字符 |
-| spu | String | 否 | 會去除首尾空白；null/空白表示清除。在商品庫有效商品中唯一。最長 64 個字符；可為 null |
-| description | String | 否 | 可為 null |
-| brandId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| categoryId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| templateId | String | 否 | 最短 1 個字符；最長 128 個字符；可為 null |
-| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
-| coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
+| spu | String | 否 | 會去除首尾空白；空白表示清除。在商品庫有效商品中唯一。最長 64 個字符 |
+| description | String | 否 | — |
+| brandId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| categoryId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| templateId | String | 否 | 最短 1 個字符；最長 128 個字符 |
+| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；省略的值保持不變。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組，而非 URL/對象快照。富文字內部可包含 null。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
+| coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。 |
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 
 **響應參數**： `201`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -2191,7 +2141,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -2199,8 +2149,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -2432,36 +2380,33 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `updateProduct`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **ProductPatch參數說明**：
 
-省略的字段保持不變；顯式 null 清除可為 null 的字段，[] 清除列表。templateFields 採用合併；媒體數組替換其所在槽位。若提供 imageAssetIds 但未提供 coverAssetId，則第一張圖片成為封面。已發佈商品需要 products:publish 權限並保持已發佈狀態，且須通過對最終狀態的完整校驗。templateId、templateVersionId 和 status 會被拒絕。
+省略的字段保持不變。支援的空字串和 [] 仍按既有規則清空。templateFields 採用合併；媒體數組替換其所在槽位。若提供 imageAssetIds 但未提供 coverAssetId，則第一張圖片成為封面。已發佈商品需要 products:publish 權限並保持已發佈狀態，且須通過對最終狀態的完整校驗。templateId、templateVersionId 和 status 會被拒絕。
 
 不接受未定義字段。
 
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | name | String | 否 | 會去除首尾空白；草稿可省略或為空。最長 255 個字符 |
-| spu | String | 否 | 會去除首尾空白；null/空白表示清除。在商品庫有效商品中唯一。最長 64 個字符；可為 null |
-| description | String | 否 | 可為 null |
-| brandId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| categoryId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
-| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；null 清除單個字段。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組或 null，而非 URL/對象快照。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
-| coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。；可為 null |
+| spu | String | 否 | 會去除首尾空白；空白表示清除。在商品庫有效商品中唯一。最長 64 個字符 |
+| description | String | 否 | — |
+| brandId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| categoryId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| ownerUserId | Integer | 否 | 正整數 ID，最大 2147483647。 |
+| templateFields | Object | 否 | 按穩定的自定義字段 ID 淺合併；省略的值保持不變。未知/系統 ID 會被拒絕。即使是草稿也會校驗類型/選項。image/file 的值為 FilePath ID 數組，而非 URL/對象快照。富文字內部可包含 null。`updateProduct` 依據固定版本進行校驗，即使其有效模板已被刪除。 |
+| coverAssetId | Integer | 否 | 正整數 ID，最大 2147483647。 |
 | imageAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 | relatedAssetIds | List&lt;Integer&gt; | 否 | 每個元素：正整數 ID，最大 2147483647。；最多 100 項 |
 
 **響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -2472,7 +2417,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --data-raw '{
   "service": "updateProduct",
   "id": 40,
-  "description": null,
+  "description": "",
   "templateFields": {
     "field_color": "Blue"
   }
@@ -2576,17 +2521,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `deleteProduct`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **響應參數**： `200`，`result.data`：DeletedId。 回傳 `result.data.id`，即已刪除的資源 ID。
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -2634,13 +2576,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `setProductStatus`. |
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
-| If-Match | String | 否 | 選填請求標頭；使用讀取時的 ETag，詳見[並行更新](#write-preconditions)。 |
 
 **ProductStatus參數說明**：
 
@@ -2653,8 +2594,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | status | String | 是 | 允許值：draft、published |
 
 **響應參數**： `200`，`result.data`：ProductDetail。 [欄位說明](#fields-ProductDetail)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -2760,13 +2699,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：在當前 key 的可見性下檢查最多 100 個已知 ID。保留順序和重復項，接受空數組。not_visible 不區分已刪除、不存在、屬於其他商品庫以及因角色而隱藏的條目。由於同步不提供刪除墓碑記錄，請定期調用以清理本地的過期條目。此讀操作不支持 Idempotency-Key 或 ETag。
+**接口描述**：在當前 key 的可見性下檢查最多 100 個已知 ID。保留順序和重復項，接受空數組。not_visible 不區分已刪除、不存在、屬於其他商品庫以及因角色而隱藏的條目。由於同步不提供刪除墓碑記錄，請定期調用以清理本地的過期條目。
 
 所需角色：所有協作者角色。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -2865,7 +2804,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -2933,13 +2872,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：返回同一商品庫中有效的 FilePath 及僅預覽的媒體元數據。與列表接口使用相同的 create 或 update 權限門檻。返回不透明的強 ETag，該 ETag 基於 FilePath 和關聯 AssetObject 的標識以及所維護的更新時間戳；臨時簽名的變化不會改變此標籤。
+**接口描述**：返回同一商品庫中有效的 FilePath 及僅預覽的媒體元數據。與列表接口使用相同的 create 或 update 權限門檻。
 
 所需角色：editable 或 manage。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -2947,8 +2886,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 是 | 請求本文欄位。正的有符號 32 位資源 ID。正整數 ID，最大 2147483647。 |
 
 **響應參數**： `200`，`result.data`：LibraryAsset。 [欄位說明](#fields-LibraryAsset)
-
-響應頭：`ETag`
 
 請求示例：
 
@@ -3046,7 +2983,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -3124,18 +3061,17 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：為固定的已發佈商品集合創建有效期為 7/30/90 天或永久的分享。accessCode 可選且必須為四位數字。allowDownload 另需 products:download。訪問者無需登錄或 API key；未發佈/已刪除商品會從實時分享中隱藏。創建 key 的變化不會撤銷獨立的團隊分享。可選的 24 小時冪等機制復用同一分享。
+**接口描述**：為固定的已發佈商品集合創建分享，必須指定 7/30/90 天有效期。accessCode 可選且必須為四位數字。allowDownload 另需 products:download。訪問者無需登錄或 API key；未發佈/已刪除商品會從實時分享中隱藏。創建 key 的變化不會撤銷獨立的團隊分享。
 
 所需角色：usable、editable 或 manage。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | service | String | 是 | 服務識別碼，固定為 `createProductShare`. |
-| Idempotency-Key | String | 否 | 選填請求標頭；同一鍵和輸入在 24 小時內重試，詳見[冪等重試](#atomic-create-replay)。 |
 
 **ProductShareCreate參數說明**：
 
@@ -3144,7 +3080,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
 | productIds | List&lt;Integer&gt; | 是 | 最少 1 項；最多 100 項；每個 ID 為正整數，最大 2147483647。 |
-| expiresInDays | Integer | 是 | 可為 null；允許值：7、30、90、null |
+| expiresInDays | Integer | 是 | 允許值：7、30、90 |
 | accessCode | String | 否 | 須匹配 `^[0-9]{4}$` |
 | allowDownload | Boolean | 是 | — |
 
@@ -3212,13 +3148,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求方式**： POST
 
-**接口描述**：撤銷當前團隊任意分享。需要 manage 和 products:share，無需 products:read。重復撤銷返回原 revokedAt。未知或其他團隊的 ID 返回 404。不使用 ETag 或 If-Match。
+**接口描述**：撤銷當前團隊任意分享。需要 manage 和 products:share，無需 products:read。重復撤銷返回原 revokedAt。未知或其他團隊的 ID 返回 404。
 
 所需角色：manage。
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |
@@ -3322,7 +3258,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **請求參數**：
 
-以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。`If-Match` 和 `Idempotency-Key` 仍為 HTTP 請求標頭，不是業務欄位。
+以下業務欄位與 `service` 同層，直接放入 JSON 請求本文，不要使用 `params` 或 `data` 包裝。
 
 | 參數名 | 類型 | 必填 | 描述 |
 | - | - | - | - |

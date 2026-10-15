@@ -94,8 +94,7 @@ Authenticate with the user's MuseDAM API Key in
 `service` (the original operationId) and all business parameters as sibling body
 fields. Resource IDs, pagination and filters are not URL parameters. The public
 caller supplies no separate team or caller identity. Do not publish internal
-service credentials or internal routes. `If-Match` and `Idempotency-Key` remain
-optional HTTP control headers for the services that support them. Do not apply
+service credentials or internal routes. Do not apply
 the asset API's region banner, rate-limit policy or response envelope here.
 
 The public product API provides no file-download, export or download-candidate
@@ -113,7 +112,7 @@ been corrected against that implementation, including item reads, template syste
 fields, category paths, nullable custom media and mutation results. The public
 contract has one POST operation with 28 named request variants selected by a
 `service` discriminator. `x-services` retains per-service responses, permissions,
-roles and supported control headers; aggregated responses do not apply to every
+roles; aggregated responses do not apply to every
 service. Business fields are preserved. JSON responses use
 `{code, message, result, traceId}`: success has string code `"0"` and message
 `"成功"`; failures use the product gateway's nonzero numeric-string error codes.

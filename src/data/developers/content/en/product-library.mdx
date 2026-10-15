@@ -51,7 +51,7 @@ Every JSON API response wraps the entire former v1 body in `result`; resource DT
 | `result.message` | String or null | Original public error message; null on success. |
 | `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
 | `result.details` | Array, when present | Validation errors: `result.details[].field` and `result.details[].message`. |
-| `result.mutationOutcome` | String, when present | `committed` or `replayed`; inspect it before retrying. |
+| `result.mutationOutcome` | String, when present | `committed`; inspect it before retrying. |
 | `result.requestId` | String | Server request identifier, also exposed in `X-Request-Id`. |
 | `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
 
@@ -96,19 +96,7 @@ Legacy or unresolved product media can have `id: null`. Valid media references a
 
 </details>
 
-<details id="write-preconditions">
-<summary>Concurrent updates</summary>
-
-Save the strong `ETag` (including quotes) when reading a brand, category, template, or product. Supply it as `If-Match` for an update, status change, or deletion. On `412 precondition_failed`, read and reconcile again. If omitted, the later write takes precedence. Shares, history, and download records do not use ETag.
-
-</details>
-
-<details id="atomic-create-replay">
-<summary>Creation retries</summary>
-
-Resource creation accepts `Idempotency-Key`, scoped to the team, API key, and operation. Keys allow up to 255 characters and cannot be blank or contain control characters. Retry with the same key and input within 24 hours; changed input returns `409 idempotency_key_reused`. Resource creation replays the initial non-media result and rebuilds media using current permissions.
-
-</details>
+Omit optional fields to preserve existing values on update. Supported empty strings and `[]` retain their existing clear behavior. Richtext documents may contain internal nulls. Response fields may still be null.
 
 <details id="error-catalog">
 <summary>Request limits and errors</summary>
@@ -121,7 +109,7 @@ Request bodies are limited to 1 MiB. Write services reject unknown business fiel
 | 404 | The resource is missing, deleted, or inaccessible; check its ID. |
 | 422 `validation_failed` | Correct the input. If `result.details` is present, read `field` and `message`. |
 | 409 `sku_in_use` / `name_in_use` | Change the conflicting SKU or name. Soft-deleted products still reserve their SKU. |
-| 409 `mutation_response_unavailable` | The mutation committed or replayed. Check `result.mutationOutcome`; do not blindly create again. |
+| 409 `mutation_response_unavailable` | The mutation committed. Check `result.mutationOutcome`; do not blindly create again. |
 | 503 `write_conflict` | The mutation rolled back. Wait according to `Retry-After: 1`, then retry. |
 | 413 | Reduce the request body size. |
 
@@ -144,12 +132,10 @@ Outer `code` values are strings. `result.code` retains the semantic name. Use th
 | 409 | `"40905"` | `brand_has_dependents` | Remove or reassign dependent categories and products first. |
 | 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
 | 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
-| 409 | `"40908"` | `idempotency_key_reused` | Reuse a key only with the same input; use a new key for a different request. |
-| 412 | `"41201"` | `precondition_failed` | Read again and reconcile before retrying with the new ETag. |
 | 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
 | 422 | `"42201"` | `validation_failed` | Correct the input using result.details[].field and result.details[].message. |
 | 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
-| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed or replayed; inspect result.mutationOutcome and do not blindly repeat it. |
+| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed; inspect result.mutationOutcome and do not blindly repeat it. |
 | 500 | `"50001"` | `internal_server_error` | Retain traceId and result.requestId for troubleshooting; reconcile state before retrying a write. |
 
 Validation failure example (HTTP 422):
@@ -190,7 +176,7 @@ Mutation response unavailable example (HTTP 409):
 }
 ```
 
-For `mutation_response_unavailable`, reconcile the committed or replayed mutation instead of blindly creating another resource.
+For `mutation_response_unavailable`, reconcile the committed mutation instead of blindly creating another resource.
 
 </details>
 
@@ -227,7 +213,7 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -300,12 +286,11 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createBrand`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **BrandCreate fields**:
 
@@ -314,12 +299,10 @@ Unknown fields are rejected.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | Yes | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
-| description | String | No | Maximum length 512 characters; May be null |
-| logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
+| description | String | No | Maximum length 512 characters |
+| logoUrl | String | No | Empty string clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters |
 
 **Response fields**: `201`; `result.data`: Brand. [field details](#fields-Brand)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -369,13 +352,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Returns the specified brand’s public metadata and current strong ETag. Raw logo URLs are excluded.
+**Description**: Returns the specified brand’s public metadata. Raw logo URLs are excluded.
 
 Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -383,8 +366,6 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: Brand. [field details](#fields-Brand)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -440,13 +421,12 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateBrand`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **BrandPatch fields**:
 
@@ -455,12 +435,10 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | No | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
-| description | String | No | Maximum length 512 characters; May be null |
-| logoUrl | String | No | Null/empty clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters; May be null |
+| description | String | No | Maximum length 512 characters |
+| logoUrl | String | No | Empty string clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters |
 
 **Response fields**: `200`; `result.data`: Brand. [field details](#fields-Brand)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -517,17 +495,14 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteBrand`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
-
-Response headers: `ETag`
 
 Request example:
 
@@ -606,7 +581,7 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -683,12 +658,11 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createCategory`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **CategoryCreate fields**:
 
@@ -698,16 +672,14 @@ Unknown fields are rejected.
 | - | - | - | - |
 | brandId | Integer | Yes | Positive integer ID, maximum 2147483647. |
 | name | String | Yes | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
-| parentId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| parentId | Integer | No | Positive integer ID, maximum 2147483647. |
 | sortOrder | Integer | No | Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent. Minimum: 0; Maximum: 5,000 |
-| description | String | No | May be null |
-| iconEmoji | String | No | Maximum length 16 characters; May be null |
-| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
+| description | String | No | — |
+| iconEmoji | String | No | Maximum length 16 characters |
+| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647. |
 | isEnabled | Boolean | No | — |
 
 **Response fields**: `201`; `result.data`: Category. [field details](#fields-Category)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -761,13 +733,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Returns the specified nondeleted category and current strong ETag. A missing category or one outside the current library returns 404.
+**Description**: Returns the specified nondeleted category. A missing category or one outside the current library returns 404.
 
 Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -775,8 +747,6 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: Category. [field details](#fields-Category)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -835,13 +805,12 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateCategory`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **CategoryPatch fields**:
 
@@ -850,16 +819,14 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | No | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
-| parentId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| parentId | Integer | No | Positive integer ID, maximum 2147483647. |
 | sortOrder | Integer | No | Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent. Minimum: 0; Maximum: 5,000 |
-| description | String | No | May be null |
-| iconEmoji | String | No | Maximum length 16 characters; May be null |
-| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647.; May be null |
+| description | String | No | — |
+| iconEmoji | String | No | Maximum length 16 characters |
+| iconAssetId | Integer | No | Existing same-library CategoryIconAsset ID, not FilePath ID. Positive integer ID, maximum 2147483647. |
 | isEnabled | Boolean | No | — |
 
 **Response fields**: `200`; `result.data`: Category. [field details](#fields-Category)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -919,17 +886,14 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteCategory`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
-
-Response headers: `ETag`
 
 Request example:
 
@@ -994,14 +958,14 @@ New fields require `key`, `name`, and `type`. Existing fields require `id`. When
 | `name` | string | Required for a new field, 1–128 characters. |
 | `type` | string | Required for a new field. Supported types appear in the configuration table below. |
 | `required` | boolean | Optional. Defaults to `false` for a new field. |
-| `placeholder` | string or null | Optional, up to 255 characters. Defaults to `null` for a new field. |
+| `placeholder` | string | Optional, up to 255 characters. Omit to preserve an existing value; a new field defaults to `null` in responses. |
 | `sortOrder` | integer | Optional, nonnegative, and unique within the group. If omitted, uses the field's array position. |
 | `config` | object | Depends on the field type; see below. Defaults to `{}` for a new field, but must still meet that type's configuration requirements. |
 | `typeChangeConfirmed` | boolean | Optional. Set to `true` for an allowed type change that requires confirmation. |
 
 Creation seeds three protected fields: name, SKU, and main image. This leaves room for up to 197 custom fields. Custom fields in the first group follow those three fields: their supplied `sortOrder` (or array position when omitted) is increased by 3. Replacement definitions must keep these field IDs, types, required flags, and configurations. Fields cannot move between groups.
 
-New fields must be custom fields and cannot use reserved system keys. `isSystemField` and `systemKey` cannot create or reassign system identities; preserve their values on update. Unknown group or field properties are rejected.
+New fields must be custom fields and cannot use reserved system keys. `isSystemField` and `systemKey` cannot create or reassign system identities; preserve existing identity on update. If supplied, `systemKey` must be a string: `name`, `sku`, `brand`, `category`, `description`, or `mainImage`. Omit it for custom fields. Unknown group or field properties are rejected.
 
 </details>
 
@@ -1088,7 +1052,7 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -1220,12 +1184,11 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createTemplate`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **TemplateCreate fields**:
 
@@ -1236,7 +1199,7 @@ Unknown fields are rejected.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
-| description | String | No | Maximum length 50 characters; May be null |
+| description | String | No | Maximum length 50 characters |
 | enabled | Boolean | No | — |
 | groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
@@ -1245,8 +1208,6 @@ Unknown fields are rejected.
 | syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
 
 **Response fields**: `201`; `result.data`: Template. [field details](#fields-Template)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -1368,13 +1329,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending. The current strong ETag covers live fields, groups, bindings, and the default designation.
+**Description**: Returns the specified nondeleted template’s metadata, bindings, and groups/fields, including preview-only configuration. Groups and fields are ordered by sortOrder then id, ascending.
 
 Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -1382,8 +1343,6 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `result.data`: Template. [field details](#fields-Template)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -1498,13 +1457,12 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateTemplate`. |
 | id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **TemplatePatch fields**:
 
@@ -1515,7 +1473,7 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | No | Minimum length 1 characters; Maximum length 30 characters |
-| description | String | No | Maximum length 50 characters; May be null |
+| description | String | No | Maximum length 50 characters |
 | enabled | Boolean | No | — |
 | groups | List&lt;TemplateGroupInput&gt; | No | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
@@ -1524,8 +1482,6 @@ Unknown fields are rejected; Minimum number of fields: 1.
 | syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
 
 **Response fields**: `200`; `result.data`: Template. [field details](#fields-Template)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -1635,33 +1591,30 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Current library default requires an explicit replacement or null; default/system protections still apply. Removes bindings without rewriting existing product pins.
+**Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Current library default requires a replacement template ID; default/system protections still apply. Removes bindings without rewriting existing product pins.
 
 Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteTemplate`. |
 | id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **TemplateDelete fields**:
 
-`replacementForLibraryDefault` is optional unless deleting the current library default. In that case, provide a different live same-library template ID, or explicit null to clear the default. The JSON body with `service` and `id` is always required. Historical versions remain available to pinned products.
+`replacementForLibraryDefault` is optional unless deleting the current library default. In that case, provide a different live same-library template ID. The JSON body with `service` and `id` is always required. Historical versions remain available to pinned products.
 
 Unknown fields are rejected.
 
 | Field | Type | Required | Description |
 | - | - | - | - |
-| replacementForLibraryDefault | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
+| replacementForLibraryDefault | String | No | Required when deleting the library default. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `result.data`: DeletedTemplateId. Returns `result.data.id`, the deleted resource ID.
-
-Response headers: `ETag`
 
 Request example:
 
@@ -1672,7 +1625,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --data-raw '{
   "service": "deleteTemplate",
   "id": "template_example",
-  "replacementForLibraryDefault": null
+  "replacementForLibraryDefault": "template_replacement"
 }'
 ```
 
@@ -1703,7 +1656,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 <details id="template-pins-and-field-values">
 <summary>Pinned templates and custom fields</summary>
 
-Products save a template version at creation. Interpret `templateFields` using `templateDefinition`; later template edits or deletion do not change that version. `updateProduct` cannot change the template. `templateFields` uses pinned field IDs as keys and shallow-merges on update; `null` clears an individual value.
+Products save a template version at creation. Interpret `templateFields` using `templateDefinition`; later template edits or deletion do not change that version. `updateProduct` cannot change the template. `templateFields` uses pinned field IDs as keys and shallow-merges on update; omitted values remain unchanged. Richtext documents may contain internal nulls.
 
 An explicit `templateId` takes priority. Otherwise a supplied `categoryId` resolves the category, ancestors, brand, then library default. Without a category, only the library default is considered, even when a brand is supplied.
 
@@ -1712,7 +1665,7 @@ An explicit `templateId` takes priority. Otherwise a supplied `categoryId` resol
 | `number`, `currency` | JSON number |
 | `dateRange` | Ordered pair of date strings |
 | `checkbox` | Array of option values |
-| `image`, `file` | Array of FilePath IDs, or null |
+| `image`, `file` | Array of FilePath IDs |
 | `richtext` | String in HTML mode; `{ "ops": [...] }` in delta mode |
 
 Drafts may omit required values, but supplied and merged fields must meet type and option rules. Publishing or editing a published product validates the complete product. A write may reference at most 100 media items across all fields, using existing same-library FilePath IDs. Omitted media lists stay unchanged; `[]` clears them. Without `coverAssetId`, the first `imageAssetIds` image becomes the cover.
@@ -1833,7 +1786,7 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -2036,42 +1989,39 @@ Response example (Empty continuation page):
 
 **Method**: POST
 
-**Description**: Creates draft only. Resolves and pins a template version at creation; template fields validate against that immutable definition. Attach existing same-library FilePath IDs; no upload, remote import or provider write-back. Idempotent replay preserves original scalar result/ETag and reprojects only original media still valid in the same current slot under current grants.
+**Description**: Creates draft only. Resolves and pins a template version at creation; template fields validate against that immutable definition. Attach existing same-library FilePath IDs; no upload, remote import or provider write-back.
 
 Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createProduct`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **ProductCreate fields**:
 
-Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted/null and a non-null categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted or null, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
+Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted and a categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
 
 Unknown fields are rejected.
 
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
-| spu | String | No | Trimmed; null/blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters; May be null |
-| description | String | No | May be null |
-| brandId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| templateId | String | No | Minimum length 1 characters; Maximum length 128 characters; May be null |
-| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. `updateProduct` validates against the pinned version, even if its live template was deleted. |
-| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| spu | String | No | Trimmed; blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters |
+| description | String | No | — |
+| brandId | Integer | No | Positive integer ID, maximum 2147483647. |
+| categoryId | Integer | No | Positive integer ID, maximum 2147483647. |
+| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647. |
+| templateId | String | No | Minimum length 1 characters; Maximum length 128 characters |
+| templateFields | Object | No | Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. `updateProduct` validates against the pinned version, even if its live template was deleted. |
+| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647. |
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 
 **Response fields**: `201`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -2189,7 +2139,7 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -2197,8 +2147,6 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -2430,36 +2378,33 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateProduct`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **ProductPatch fields**:
 
-Omitted fields remain unchanged; explicit null clears nullable fields and [] clears lists. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
+Omitted fields remain unchanged. Supported empty strings and [] retain their existing clear behavior. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
 
 Unknown fields are rejected.
 
 | Field | Type | Required | Description |
 | - | - | - | - |
 | name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
-| spu | String | No | Trimmed; null/blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters; May be null |
-| description | String | No | May be null |
-| brandId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| categoryId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
-| templateFields | Object | No | Shallow merge by stable custom field ID; null clears one field. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs or null; not URL/object snapshots. `updateProduct` validates against the pinned version, even if its live template was deleted. |
-| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647.; May be null |
+| spu | String | No | Trimmed; blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters |
+| description | String | No | — |
+| brandId | Integer | No | Positive integer ID, maximum 2147483647. |
+| categoryId | Integer | No | Positive integer ID, maximum 2147483647. |
+| ownerUserId | Integer | No | Positive integer ID, maximum 2147483647. |
+| templateFields | Object | No | Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. `updateProduct` validates against the pinned version, even if its live template was deleted. |
+| coverAssetId | Integer | No | Positive integer ID, maximum 2147483647. |
 | imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 | relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -2470,7 +2415,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --data-raw '{
   "service": "updateProduct",
   "id": 40,
-  "description": null,
+  "description": "",
   "templateFields": {
     "field_color": "Blue"
   }
@@ -2574,17 +2519,14 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteProduct`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
-
-Response headers: `ETag`
 
 Request example:
 
@@ -2632,13 +2574,12 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `setProductStatus`. |
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-| If-Match | String | No | Optional header. Use the ETag from a read; see [Concurrent updates](#write-preconditions). |
 
 **ProductStatus fields**:
 
@@ -2651,8 +2592,6 @@ Unknown fields are rejected.
 | status | String | Yes | Allowed values: draft, published |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -2758,13 +2697,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Checks up to 100 known IDs under current key visibility. Keeps order and duplicates, accepts an empty array. not_visible does not distinguish deleted, missing, foreign-library and role-hidden items. Use periodically to remove stale local entries because sync has no deletion tombstones. This read operation has no Idempotency-Key or ETag.
+**Description**: Checks up to 100 known IDs under current key visibility. Keeps order and duplicates, accepts an empty array. not_visible does not distinguish deleted, missing, foreign-library and role-hidden items. Use periodically to remove stale local entries because sync has no deletion tombstones.
 
 Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -2863,7 +2802,7 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -2931,13 +2870,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Returns a live same-library FilePath with preview-only media metadata. Same create-or-update gate as listing. Returns an opaque strong ETag based on the FilePath and linked AssetObject identities and maintained update timestamps; temporary signature changes do not change this tag.
+**Description**: Returns a live same-library FilePath with preview-only media metadata. Same create-or-update gate as listing.
 
 Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -2945,8 +2884,6 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: LibraryAsset. [field details](#fields-LibraryAsset)
-
-Response headers: `ETag`
 
 Request example:
 
@@ -3044,7 +2981,7 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -3122,18 +3059,17 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Creates a fixed selection of published products with a 7/30/90-day or unlimited lifetime. accessCode is optional and exactly four digits. allowDownload additionally requires products:download. The recipient needs no login or API key; unpublished/deleted products disappear from the live share. Creator-key changes do not revoke the independent team share. Optional 24-hour idempotency reuses the same share.
+**Description**: Creates a fixed selection of published products with a required 7/30/90-day lifetime. accessCode is optional and exactly four digits. allowDownload additionally requires products:download. The recipient needs no login or API key; unpublished/deleted products disappear from the live share. Creator-key changes do not revoke the independent team share.
 
 Required role: usable, editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createProductShare`. |
-| Idempotency-Key | String | No | Optional header. Retry the same key and input within 24 hours; see [Idempotent retries](#atomic-create-replay). |
 
 **ProductShareCreate fields**:
 
@@ -3142,7 +3078,7 @@ Unknown fields are rejected.
 | Field | Type | Required | Description |
 | - | - | - | - |
 | productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
-| expiresInDays | Integer | Yes | May be null; Allowed values: 7, 30, 90, null |
+| expiresInDays | Integer | Yes | Allowed values: 7, 30, 90 |
 | accessCode | String | No | Must match `^[0-9]{4}$` |
 | allowDownload | Boolean | Yes | — |
 
@@ -3210,13 +3146,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Revokes any share in the current team. Requires manage and products:share, without products:read. Repeating a revocation returns the original revokedAt. Unknown or foreign-team IDs return 404. No ETag or If-Match is used.
+**Description**: Revokes any share in the current team. Requires manage and products:share, without products:read. Repeating a revocation returns the original revokedAt. Unknown or foreign-team IDs return 404.
 
 Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
@@ -3320,7 +3256,7 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `If-Match` and `Idempotency-Key` remain HTTP control headers, not business fields.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
