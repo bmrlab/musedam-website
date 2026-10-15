@@ -114,17 +114,17 @@ contract has one POST operation with 28 named request variants selected by a
 `service` discriminator. `x-services` retains per-service responses, permissions,
 roles; aggregated responses do not apply to every
 service. Business fields are preserved. JSON responses use
-`{code, message, result, traceId}`: success has string code `"0"` and message
-`"成功"`; failures use the product gateway's nonzero numeric-string error codes.
-On success, `result` contains the entire former response, including data and
-pagination, unchanged. Every failure is exactly `{code, message, result: null,
-traceId}`. The specific business message includes validation field details;
-failures expose no nested success, data, semantic code, details or mutation outcome.
-Use numeric string code `"40909"` to recognize a committed mutation whose response
-is unavailable. Reconcile its state and do not repeat the mutation.
-Optional request-body
-`traceId` is echoed and logged; absent values use the generated request ID, and
-invalid values fail validation with a generated fallback trace. The reference includes
+`{code, message, result, traceId}`: responses from the Product Library service have outer `code` `"0"`. On success,
+outer `message` is `"成功"`, `result.success` is `true`, and `result` contains
+`data`, `code: null`, `message: null`, `requestId`, and (for list/sync services)
+`pagination`. On failure, outer `message` is the top-level error summary,
+`result.success` is `false`, `result.data` is `null`, `result.code` holds the
+semantic error code string, `result.message` includes specific error or field-level
+validation details joined by `"; "`, and `result.requestId` carries the request ID.
+Use `result.code` `"mutation_response_unavailable"` (`result.mutationOutcome: "committed"`)
+to recognize a committed mutation whose response is unavailable; reconcile its state
+and do not repeat the mutation.
+The reference includes
 all services and links to concise field tables in the same article.
 Full schemas and shared response, header and parameter definitions remain in the
 downloadable contract; do not render these raw OpenAPI components or appendices

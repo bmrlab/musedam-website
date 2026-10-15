@@ -36,33 +36,55 @@ A successful JSON response has `code: "0"`, `message: "成功"`, `result.success
 
 ## Requests and responses
 
-Every request uses your own MuseDAM API Key in `Authorization: Bearer <APIKEY>` and `Content-Type: application/json`. All operations use the same public POST URL. Resource IDs, pagination, filters and write fields are JSON body fields, alongside the required `service`.
+All operations use `POST https://open.musedam.cc/api/muse/product-api` with `Authorization: Bearer <APIKEY>` and `Content-Type: application/json`. Put `service` and all business parameters at the top level of the JSON body.
 
-Successful JSON responses wrap the entire former v1 body in `result`; resource DTOs and business input fields are unchanged. The outer success fields are `code: "0"` and `message: "成功"`. Every failure is exactly `{code, message, result: null, traceId}`, with an existing nonzero numeric string `code` from the [error catalog](#error-catalog). Its specific business `message` includes field names and validation details when applicable. Failures have no nested response fields. HTTP statuses and control headers are unchanged.
+**Success response example**:
 
-| Field | Type | How to read it |
+```json
+{
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "success": true,
+    "data": {},
+    "code": null,
+    "message": null,
+    "requestId": "request_123"
+  },
+  "traceId": "trace_123"
+}
+```
+
+**Failure response example**:
+
+```json
+{
+  "code": "0",
+  "message": "Invalid request fields",
+  "result": {
+    "success": false,
+    "data": null,
+    "code": "validation_failed",
+    "message": "status: Cannot be set here. Use setProductStatus.; unknownField: Unknown field",
+    "requestId": "request_123"
+  },
+  "traceId": "trace_123"
+}
+```
+
+| Field | Type | Description |
 | --- | --- | --- |
-| `code` | String | `"0"` on success; a nonzero numeric string on failure. |
-| `message` | String | `"成功"` on success; a public error message on failure. Do not branch on its wording. |
-| `result` | Object or null | The entire former v1 body on success; always null on failure. |
-| `result.success` | Boolean, success only | `true`. |
-| `result.data` | Object, array or null, success only | The service's unchanged resource DTO, list or mutation result. |
-| `result.code` | Null, success only | Unchanged success field. |
-| `result.message` | Null, success only | Unchanged success field. |
-| `result.pagination` | Object, when present | Ordinary paging or synchronization metadata. |
-| `result.requestId` | String, success only | Server request identifier, also exposed in `X-Request-Id`. |
-| `traceId` | String | Correlation ID echoed in JSON and logged; falls back to the server request ID. |
+| `code` | String | Response status code. |
+| `message` | String | `"成功"` on success; error summary on failure. |
+| `result.success` | Boolean | Whether the operation succeeded (`true` or `false`). |
+| `result.data` | Object / Array / null | Returned object or array on success; `null` on failure. |
+| `result.code` | String / null | `null` on success; [error code](#error-catalog) on failure. |
+| `result.message` | String / null | `null` on success; specific error or field validation details on failure. |
+| `result.pagination` | Object | Pagination metadata returned on list and sync endpoints. |
+| `result.requestId` | String | Request ID. |
+| `traceId` | String | Trace ID. |
 
-Optionally send `traceId` alongside `service` in the request body. It must be a string of 1–128 characters matching `^[A-Za-z0-9._:-]+$`. A valid value is echoed as outer `traceId` and logged. Missing or invalid values use the server request ID for tracing; an invalid value still fails request validation, rather than being silently accepted. Preserve outer `traceId` and `X-Request-Id` when reporting a failure; `result.requestId` exists only on success. Tracing does not change authorization, HTTP statuses, or control headers.
-
-The response examples use `trace_123` to illustrate a valid optional request `traceId`. If you omit it in a request example, expect the generated server request ID instead. `X-Trace-Id` carries the same correlation value.
-
-Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its `totalCount` is the total record count; `totalPages` is the total page count. The following fragment shows only `result.pagination`, not a complete response:
-
-| Parameter | Default | Range |
-| --- | --- | --- |
-| `page` | `1` | Integer starting at `1`. |
-| `pageSize` | `20` | Positive integer; values above `100` are capped at `100`. |
+List endpoints accept `page` (default `1`) and `pageSize` (default `20`, max `100`) and return pagination counts in `result.pagination`. For continuous product synchronization, use [cursor synchronization](#cycle-protocol).
 
 ```json
 {
@@ -73,94 +95,46 @@ Ordinary lists accept `page` and `pageSize` and return `result.pagination`. Its 
 }
 ```
 
-Products and assets can become invisible during a request. A page may therefore contain fewer than `pageSize` records while retaining its original counts. Reading an invisible individual resource returns `404`.
-
-Use [cursor synchronization](#cycle-protocol) to maintain a product copy; ordinary page numbers are for browsing. See each endpoint for filters. Ordinary read services ignore unknown business fields; write services reject unknown business fields. History and synchronization reads use stricter validation.
-
 <details id="field-formats">
-<summary>Field formats</summary>
+<summary>Field formats and conventions</summary>
 
 | Field | Usage |
 | --- | --- |
 | Numeric resource IDs | Positive integers up to `2147483647`. |
-| Template, group, field and version IDs | Strings; preserve them as received and do not assume UUID format. |
+| Template, group, field, and version IDs | Strings; preserve as received and do not assume UUID format. |
 | Asset IDs | Use `id` from asset lookup (FilePath ID), not an AssetObject ID or product association ID. |
-| Category `iconAssetId` | A category icon identifier (CategoryIconAsset). |
-| `size` | Decimal string or `null`, preserving large byte counts. |
-| Dates | RFC 3339 strings or `null`; preserve all six fractional digits in synchronization timestamps. |
-| Product SKU | The API field is named `spu`. |
+| Category `iconAssetId` | Category icon identifier (CategoryIconAsset). |
+| `size` | Decimal byte-count string or `null` to avoid precision loss. |
+| Dates | RFC 3339 strings or `null`; preserve all 6 fractional digits in synchronization timestamps. |
+| Product SKU | Named `spu` in the API. |
 
-Legacy or unresolved product media can have `id: null`. Valid media references are not truncated. See [Media links](#media-and-expiry) for previews and downloads.
+Omit optional fields on update to keep existing values; supported fields accept `""` or `[]` to clear. See [Media links](#media-and-expiry) for preview and download URL expiry rules.
 
 </details>
 
-Omit optional fields to preserve existing values on update. Supported empty strings and `[]` retain their existing clear behavior. Richtext documents may contain internal nulls. Response fields may still be null.
-
 <details id="error-catalog">
-<summary>Request limits and errors</summary>
+<summary>Request limits and error codes</summary>
 
-Request bodies are limited to 1 MiB. Write services reject unknown business fields. Ordinary read services ignore unknown business fields; history and synchronization read services validate them strictly. These rules depend on the service, not the HTTP method.
+Request bodies are limited to 1 MiB. Write, history, and synchronization services reject unknown fields; ordinary list and detail reads ignore unknown fields.
 
-| Result | Action |
-| --- | --- |
-| 401 / 403 | Check the key, collaborator role, and resource visibility. |
-| 404 | The resource is missing, deleted, or inaccessible; check its ID. |
-| 422 `"42201"` | Correct the input using the field details in `message`. |
-| 409 `sku_in_use` / `name_in_use` | Change the conflicting SKU or name. Soft-deleted products still reserve their SKU. |
-| 409 `"40909"` | The mutation committed. Reconcile its state; do not repeat the mutation. |
-| 503 `write_conflict` | The mutation rolled back. Wait according to `Retry-After: 1`, then retry. |
-| 413 | Reduce the request body size. |
-
-Use outer `traceId` and `X-Request-Id` for troubleshooting failures.
-
-
-
-Outer `code` values are numeric strings. Error names below explain their meaning, not response fields. Use the HTTP status and outer code, not message wording, to choose recovery behavior.
-
-| HTTP status | Outer `code` | Meaning | Action |
-| --- | --- | --- | --- |
-| 401 | `"40101"` | `invalid_credentials` | Check the API Key and Bearer header. |
-| 503 | `"50301"` | `authentication_unavailable` | Credential validation is temporarily unavailable; retry later. |
-| 401 | `"40102"` | `key_inactive` | Check whether the API Key is inactive or expired. |
-| 403 | `"40301"` | `forbidden` | Check collaborator role and required permissions. |
-| 404 | `"40401"` | `not_found` | Check the resource ID and current visibility. |
-| 409 | `"40902"` | `sku_in_use` | Choose another SKU; soft-deleted products still reserve their SKU. |
-| 409 | `"40903"` | `code_in_use` | Choose another resource code. |
-| 409 | `"40904"` | `name_in_use` | Choose another resource name. |
-| 409 | `"40905"` | `brand_has_dependents` | Remove or reassign dependent categories and products first. |
-| 409 | `"40906"` | `category_has_products` | Remove or reassign dependent products first. |
-| 409 | `"40907"` | `default_template_replacement_required` | Provide a replacement default template. |
-| 413 | `"41302"` | `payload_too_large` | Reduce the request body to at most 1 MiB. |
-| 422 | `"42201"` | `validation_failed` | Correct the input using field details in message. |
-| 503 | `"50302"` | `write_conflict` | The mutation rolled back; wait according to Retry-After: 1, then retry. |
-| 409 | `"40909"` | `mutation_response_unavailable` | The mutation committed; reconcile its state and do not repeat it. |
-| 500 | `"50001"` | `internal_server_error` | Retain traceId and X-Request-Id for troubleshooting; reconcile state before retrying a write. |
-
-Validation failure example (HTTP 422):
-
-```json
-{
-  "code": "42201",
-  "message": "Invalid request fields: name: Required",
-  "result": null,
-  "traceId": "trace_123"
-}
-```
-
-Error detail wording is illustrative. An invalid request `traceId` is not echoed and still fails validation; outer `traceId` then uses the server request ID.
-
-Mutation response unavailable example (HTTP 409):
-
-```json
-{
-  "code": "40909",
-  "message": "The mutation completed, but its response is unavailable. Do not repeat the mutation.",
-  "result": null,
-  "traceId": "trace_123"
-}
-```
-
-For code `"40909"` (`mutation_response_unavailable`), reconcile the committed mutation instead of creating another resource. Do not repeat the mutation.
+| HTTP status | `result.code` | Description and action |
+| --- | --- | --- |
+| 401 | `invalid_credentials` | Invalid or missing API Key; check the `Authorization: Bearer` header. |
+| 401 | `key_inactive` | The API Key is inactive or expired. |
+| 403 | `forbidden` | Insufficient collaborator role permissions. |
+| 404 | `not_found` | Resource does not exist, was deleted, or is not visible to your role. |
+| 409 | `sku_in_use` | Product `spu` is already in use (including soft-deleted products). |
+| 409 | `code_in_use` | Resource code conflict; retry or use a different code. |
+| 409 | `name_in_use` | Sibling category name or template name is already in use. |
+| 409 | `brand_has_dependents` | Brand still has live categories or products; remove or move them first. |
+| 409 | `category_has_products` | Category subtree still has live products; remove or move them first. |
+| 409 | `default_template_replacement_required` | Provide `replacementForLibraryDefault` when deleting the library default template. |
+| 409 | `mutation_response_unavailable` | The mutation committed (`result.mutationOutcome: "committed"`), but its response is unavailable; reconcile state and do not repeat it. |
+| 413 | `payload_too_large` | Request body exceeds 1 MiB. |
+| 422 | `validation_failed` | Validation failed; fix the input using the field details in `result.message`. |
+| 503 | `authentication_unavailable` | Authentication service is temporarily unavailable; retry later. |
+| 503 | `write_conflict` | Write conflict rolled back; wait for `Retry-After: 1` and retry. |
+| 500 | `internal_server_error` | Server error; keep `traceId` and `result.requestId` and reconcile state before retrying writes. |
 
 </details>
 
@@ -270,18 +244,11 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createBrand`. |
-
-**BrandCreate fields**:
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
 | name | String | Yes | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
 | description | String | No | Maximum length 512 characters |
 | logoUrl | String | No | Empty string clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters |
@@ -347,7 +314,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `getBrand`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: Brand. [field details](#fields-Brand)
 
@@ -405,19 +372,12 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Unknown fields are rejected; Minimum number of fields: 1.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateBrand`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-
-**BrandPatch fields**:
-
-Unknown fields are rejected; Minimum number of fields: 1.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | name | String | No | Trimmed before validation. Minimum length 1 characters; Maximum length 128 characters |
 | description | String | No | Maximum length 512 characters |
 | logoUrl | String | No | Empty string clears. Only HTTP(S), no credentials, allowlisted MuseDAM CDN or configured storage host; query and fragment removed before storage. No upload; not echoed in reads. Maximum length 512 characters |
@@ -484,7 +444,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteBrand`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
@@ -540,12 +500,12 @@ Creation adds a direct library-default template binding only when that template 
 | - | - | - |
 | id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
 | brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647. |
-| parentId | Integer | Parent category ID. Positive integer ID, maximum 2147483647.; May be null |
+| parentId | Integer | Parent category ID. Positive integer ID, maximum 2147483647; May be null |
 | name | String | Name. |
 | pathKey | String | Category path. |
 | description | String | Description. May be null |
 | iconEmoji | String | Category emoji. May be null |
-| iconAssetId | Integer | Category icon ID. Positive integer ID, maximum 2147483647.; May be null |
+| iconAssetId | Integer | Category icon ID. Positive integer ID, maximum 2147483647; May be null |
 | sortOrder | Integer | Sort order. |
 | isEnabled | Boolean | Whether enabled. |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
@@ -572,7 +532,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listCategorys`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| brandId | Integer | No | Body field. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| brandId | Integer | No | Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: List&lt;Category&gt;. [field details](#fields-Category) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
@@ -642,18 +602,11 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createCategory`. |
-
-**CategoryCreate fields**:
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
 | brandId | Integer | Yes | Positive integer ID, maximum 2147483647. |
 | name | String | Yes | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
 | parentId | Integer | No | Positive integer ID, maximum 2147483647. |
@@ -728,7 +681,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `getCategory`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: Category. [field details](#fields-Category)
 
@@ -789,19 +742,12 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Unknown fields are rejected; Minimum number of fields: 1.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateCategory`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-
-**CategoryPatch fields**:
-
-Unknown fields are rejected; Minimum number of fields: 1.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | name | String | No | Exact value, not trimmed. Must contain non-whitespace and no slash; unique among live siblings. Minimum length 1 characters; Maximum length 64 characters; Must match `^(?=.*\S)[^/]+$` |
 | parentId | Integer | No | Positive integer ID, maximum 2147483647. |
 | sortOrder | Integer | No | Sibling insertion index, no greater than destination sibling count. Omitted: append on create/move, preserve for same parent. Minimum: 0; Maximum: 5,000 |
@@ -875,7 +821,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteCategory`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
@@ -1168,26 +1114,19 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createTemplate`. |
-
-**TemplateCreate fields**:
-
-Trim name/description. At most 200 fields across all groups. Bindings must be same-library, replace the provided binding set, and may move a binding from another template. When selected brands are nonempty, selected categories must belong to those brands. Only newOnly is supported; never bulk-repin existing products.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
 | name | String | Yes | Minimum length 1 characters; Maximum length 30 characters |
 | description | String | No | Maximum length 50 characters |
 | enabled | Boolean | No | — |
 | groups | List&lt;TemplateGroupInput&gt; | Yes | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
-| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
-| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 10,000 |
+| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 10,000 |
 | isLibraryDefault | Boolean | No | — |
 | syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
 
@@ -1324,7 +1263,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `getTemplate`. |
-| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
+| id | String | Yes | Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `result.data`: Template. [field details](#fields-Template)
 
@@ -1441,27 +1380,20 @@ Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Omitting the `groups` property preserves the existing definition. Supplying `groups` replaces it in full: existing groups and fields omitted from the array are deleted, subject to protected default/system fields. Retain the IDs of groups and fields you want to keep. Every successful write creates a new immutable version, including metadata-only updates.
+
+Unknown fields are rejected; Minimum number of fields: 1.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateTemplate`. |
-| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
-
-**TemplatePatch fields**:
-
-Omitting the `groups` property preserves the existing definition. Supplying `groups` replaces it in full: existing groups and fields omitted from the array are deleted, subject to protected default/system fields. Retain the IDs of groups and fields you want to keep. Every successful write creates a new immutable version, including metadata-only updates.
-
-Unknown fields are rejected; Minimum number of fields: 1.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | String | Yes | Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 | name | String | No | Minimum length 1 characters; Maximum length 30 characters |
 | description | String | No | Maximum length 50 characters |
 | enabled | Boolean | No | — |
 | groups | List&lt;TemplateGroupInput&gt; | No | Minimum items 1; Maximum items 200 Nested fields: [Template group fields](#template-groups) |
-| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
-| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 10,000 |
+| boundBrandIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 10,000 |
+| boundCategoryIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 10,000 |
 | isLibraryDefault | Boolean | No | — |
 | syncStrategy | String | No | Allowed values: newOnly; Default: "newOnly" |
 
@@ -1575,27 +1507,20 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Current library default requires a replacement template ID; default/system protections still apply. Removes bindings without rewriting existing product pins.
+**Description**: Soft-deletes the live template while retaining immutable versions used by existing products. Deleting the current library default template (`isLibraryDefault: true`) requires `replacementForLibraryDefault` set to another live template ID in the same library (passing `null` or omitting it returns `409 default_template_replacement_required`). Removes bindings without rewriting existing product pins.
 
 Required role: manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. `replacementForLibraryDefault` is optional unless deleting the current library default. In that case, provide a different live same-library template ID. The JSON body with `service` and `id` is always required. Historical versions remain available to pinned products.
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteTemplate`. |
-| id | String | Yes | Body field. Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
-
-**TemplateDelete fields**:
-
-`replacementForLibraryDefault` is optional unless deleting the current library default. In that case, provide a different live same-library template ID. The JSON body with `service` and `id` is always required. Historical versions remain available to pinned products.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | String | Yes | Opaque template ID; do not assume UUID syntax. Minimum length 1 characters; Maximum length 128 characters |
 | replacementForLibraryDefault | String | No | Required when deleting the library default. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `result.data`: DeletedTemplateId. Returns `result.data.id`, the deleted resource ID.
@@ -1667,7 +1592,7 @@ Drafts may omit required values, but supplied and merged fields must meet type a
 Cursors bind the key, role, library, filters, and page size; keep them unchanged while paging. Start a new cycle after authorization or filter changes, and scan fully when the scope expands. Preserve all six fractional digits in checkpoints and sync `updatedAt`; JavaScript Date loses precision. Each cycle reads current state in `[updatedAfter, syncedUntil)`, with the first request’s server time minus 30 seconds as its upper bound. Longer transactions may still affect completeness; this is not an event stream of every change.
 
 
-Synchronization returns items in `result.data` and metadata in `result.pagination`: `mode`, `syncedUntil` and `nextCursor`. Copy the returned `result.pagination.nextCursor` into the next request’s `cursor` field; do not rename request fields or wrap business input in `result`.
+Synchronization returns items in `result.data` and metadata in `result.pagination`: `pageSize`, `syncedUntil`, `nextCursor`, and `hasMore`. Copy the returned `result.pagination.nextCursor` into the next request’s `cursor` field; do not rename request fields or wrap business input in `result`.
 
 </details>
 
@@ -1731,9 +1656,9 @@ Every service-issued link is also bounded by the API key's expiry. Fetch product
 | spu | String | Product SKU. May be null |
 | description | String | Description. May be null |
 | status | String | Current status. Allowed values: draft, published |
-| brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647.; May be null |
-| categoryId | Integer | Category ID. Positive integer ID, maximum 2147483647.; May be null |
-| ownerUserId | Integer | Owner user ID. Positive integer ID, maximum 2147483647.; May be null |
+| brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647; May be null |
+| categoryId | Integer | Category ID. Positive integer ID, maximum 2147483647; May be null |
+| ownerUserId | Integer | Owner user ID. Positive integer ID, maximum 2147483647; May be null |
 | publishedAt | String | RFC 3339 timestamp; preserve full precision. `null` for drafts. |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
 | updatedAt | String | RFC 3339 timestamp; preserve full precision.|
@@ -1764,7 +1689,7 @@ Other fields match the [product list response fields](#fields-ProductSummary).
 
 **Method**: POST
 
-**Description**: Ordinary pagination orders updatedAt/id descending. sync: "true" uses ascending (updatedAt,id), inclusive lower and exclusive fixed upper bound (PostgreSQL clock minus 30 seconds). A full scan omits updatedAfter; continue every nextCursor, even with an empty data page. Cursor binds key/role/library/filters/pageSize/bounds. Save syncedUntil verbatim only after exhaustion; replay/deduplicate by id and updatedAt. Transactions longer than the 30-second safety window are an accepted v1 limitation. view_only/usable see only published products.
+**Description**: Ordinary pagination orders updatedAt/id descending. sync: "true" uses ascending (updatedAt,id), inclusive lower and exclusive fixed upper bound (server clock minus 30 seconds). A full scan omits updatedAfter; continue every nextCursor, even with an empty data page. Cursor binds key/role/library/filters/pageSize/bounds. Save syncedUntil verbatim only after exhaustion; replay/deduplicate by id and updatedAt. Long-running transactions exceeding the 30-second safety window may cross cycle boundaries. See [Cursor synchronization](#cycle-protocol). view_only/usable see only published products.
 
 Required role: any collaborator role.
 
@@ -1777,22 +1702,22 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listProducts`. |
 | page | Integer | No | Positive page number, default 1. Not available with sync: "true". |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| search | String | No | Body field. Trimmed case-insensitive substring: product name/spu, or library asset name. |
-| brandId | Integer | No | Body field. Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
-| categoryId | Integer | No | Body field. Filter by exact category ID, not its descendants. Positive integer ID, maximum 2147483647. |
-| status | String | No | Body field. Requested product status; does not widen role visibility. Allowed values: draft, published |
-| sync | String | No | Body field. true selects bounded keyset synchronization; false is ordinary pagination. Allowed values: true, false; Default: "false" |
-| updatedAfter | String | No | Body field. Only with sync: "true". Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
-| cursor | String | No | Body field. Opaque continuation token, only with sync: "true". Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Minimum length 1 characters; Maximum length 8,192 characters |
+| search | String | No | Trimmed case-insensitive substring matching product `name` or `spu`. |
+| brandId | Integer | No | Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| categoryId | Integer | No | Filter by exact category ID, not its descendants. Positive integer ID, maximum 2147483647. |
+| status | String | No | Requested product status; does not widen role visibility. Allowed values: draft, published |
+| sync | String | No | true selects bounded keyset synchronization; false is ordinary pagination. See [Cursor synchronization](#cycle-protocol). Allowed values: true, false; Default: "false" |
+| updatedAfter | String | No | Only with sync: "true". Inclusive lower bound; RFC3339 Z/offset, 0..6 fractional digits, valid calendar/offset. Save and reuse syncedUntil as a string. Omit for a full scan. Format: date-time |
+| cursor | String | No | Opaque continuation token, only with sync: "true" (see [Cursor synchronization](#cycle-protocol)). Binds key, role, library, bounds, filters and page size. On continuation omit other parameters or repeat equivalent values. Minimum length 1 characters; Maximum length 8,192 characters |
 
 **Response fields**: `200`; `result.data`: List&lt;ProductSummary&gt;. [field details](#fields-ProductSummary) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
-**SyncPage**
+**SyncPage (`result.pagination` fields)**:
 
 | Field | Type | Description |
 | - | - | - |
 | pageSize | Integer | Number of items per page. Minimum: 1; Maximum: 100 |
-| syncedUntil | String | PostgreSQL clock minus 30 seconds, fixed for the cycle. Save this exact string only after nextCursor is null. Format: date-time; Must match `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
+| syncedUntil | String | server clock minus 30 seconds, fixed for the cycle. Save this exact string only after nextCursor is null. Format: date-time; Must match `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
 | nextCursor | String | Cursor for the next page; null after the scan is exhausted. Maximum length 8,192 characters; May be null |
 | hasMore | Boolean | Whether another synchronization page is available. |
 
@@ -1979,20 +1904,13 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted and a categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createProduct`. |
-
-**ProductCreate fields**:
-
-Always creates draft. Explicit templateId must be a live same-library template and takes precedence. When templateId is omitted and a categoryId is supplied, resolution follows category or ancestor binding, then that category's brand binding, then library default. When categoryId is omitted, only the library default is considered, even if brandId is supplied. If no template resolves, the product has no template. Category must match resulting brand; owner must be a same-team member and defaults to null, not key creator. At most 100 total references across cover/images/related/custom media. Image slots require images; custom media must satisfy pinned count/size/type limits.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
 | name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
 | spu | String | No | Trimmed; blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters |
 | description | String | No | — |
@@ -2002,8 +1920,8 @@ Unknown fields are rejected.
 | templateId | String | No | Minimum length 1 characters; Maximum length 128 characters |
 | templateFields | Object | No | Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. `updateProduct` validates against the pinned version, even if its live template was deleted. |
 | coverAssetId | Integer | No | Positive integer ID, maximum 2147483647. |
-| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
-| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 100 |
+| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 100 |
 
 **Response fields**: `201`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
@@ -2050,9 +1968,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
       "draftReason": null,
       "templateId": "template_example",
       "templateVersionId": "version_one",
-      "templateFields": {
-        "field_color": "Blue"
-      },
+      "templateFields": {},
       "cover": {
         "id": 30,
         "name": "cover.jpg",
@@ -2085,13 +2001,49 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
             "sortOrder": 0,
             "fields": [
               {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
                 "id": "field_color",
                 "key": "color",
                 "name": "Color",
                 "type": "text",
                 "required": false,
                 "placeholder": null,
-                "sortOrder": 0,
+                "sortOrder": 3,
                 "isSystemField": false,
                 "systemKey": null,
                 "config": {}
@@ -2128,7 +2080,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `getProduct`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
@@ -2203,13 +2155,49 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
             "sortOrder": 0,
             "fields": [
               {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
                 "id": "field_color",
                 "key": "color",
                 "name": "Color",
                 "type": "text",
                 "required": false,
                 "placeholder": null,
-                "sortOrder": 0,
+                "sortOrder": 3,
                 "isSystemField": false,
                 "systemKey": null,
                 "config": {}
@@ -2311,7 +2299,9 @@ Response example (Authorized download):
           "width": 1200,
           "height": 900,
           "duration": null,
-          "previewUrl": "https://media.example.test/preview?signature=example"
+          "previewUrl": "https://media.example.test/preview?signature=example",
+          "downloadUrl": "https://media.example.test/original?signature=example",
+          "downloadUrlExpiresAt": "2026-10-08T10:05:00.000Z"
         }
       ],
       "relatedAssets": [],
@@ -2324,13 +2314,49 @@ Response example (Authorized download):
             "sortOrder": 0,
             "fields": [
               {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
                 "id": "field_color",
                 "key": "color",
                 "name": "Color",
                 "type": "text",
                 "required": false,
                 "placeholder": null,
-                "sortOrder": 0,
+                "sortOrder": 3,
                 "isSystemField": false,
                 "systemKey": null,
                 "config": {}
@@ -2362,21 +2388,14 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Omitted fields remain unchanged. Supported empty strings and [] retain their existing clear behavior. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `updateProduct`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-
-**ProductPatch fields**:
-
-Omitted fields remain unchanged. Supported empty strings and [] retain their existing clear behavior. templateFields merges; media arrays replace their slot. If imageAssetIds is provided without coverAssetId, first image becomes cover. Published products require products:publish and remain published, with full resulting-state validation. templateId, templateVersionId and status are rejected.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | name | String | No | Trimmed; optional/empty for draft. Maximum length 255 characters |
 | spu | String | No | Trimmed; blank clears. Unique within the library, including soft-deleted products. Maximum length 64 characters |
 | description | String | No | — |
@@ -2385,8 +2404,8 @@ Unknown fields are rejected.
 | ownerUserId | Integer | No | Positive integer ID, maximum 2147483647. |
 | templateFields | Object | No | Shallow merge by stable custom field ID; omitted values remain unchanged. Unknown/system IDs rejected. Types/options validated even for drafts. image/file values are arrays of FilePath IDs, not URL/object snapshots. Richtext documents may contain internal nulls. `updateProduct` validates against the pinned version, even if its live template was deleted. |
 | coverAssetId | Integer | No | Positive integer ID, maximum 2147483647. |
-| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
-| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+| imageAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 100 |
+| relatedAssetIds | List&lt;Integer&gt; | No | Each item: Positive integer ID, maximum 2147483647; Maximum items 100 |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
 
@@ -2399,7 +2418,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
   --data-raw '{
   "service": "updateProduct",
   "id": 40,
-  "description": "",
+  "description": "Updated by API",
   "templateFields": {
     "field_color": "Blue"
   }
@@ -2419,7 +2438,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
       "id": 40,
       "name": "Example product",
       "spu": "EXAMPLE-001",
-      "description": null,
+      "description": "Updated by API",
       "status": "draft",
       "brandId": 10,
       "categoryId": 20,
@@ -2465,13 +2484,49 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
             "sortOrder": 0,
             "fields": [
               {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
                 "id": "field_color",
                 "key": "color",
                 "name": "Color",
                 "type": "text",
                 "required": false,
                 "placeholder": null,
-                "sortOrder": 0,
+                "sortOrder": 3,
                 "isSystemField": false,
                 "systemKey": null,
                 "config": {}
@@ -2508,7 +2563,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `deleteProduct`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: DeletedId. Returns `result.data.id`, the deleted resource ID.
 
@@ -2558,21 +2613,14 @@ Required role: editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Both products:update and products:publish required for either transition, including same-status requests. Publish validates all required pinned fields and current media; failure is atomic. publishedAt is set on first publication, retained on repeated publication and cleared on draft.
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `setProductStatus`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
-
-**ProductStatus fields**:
-
-Both products:update and products:publish required for either transition, including same-status requests. Publish validates all required pinned fields and current media; failure is atomic. publishedAt is set on first publication, retained on repeated publication and cleared on draft.
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 | status | String | Yes | Allowed values: draft, published |
 
 **Response fields**: `200`; `result.data`: ProductDetail. [field details](#fields-ProductDetail)
@@ -2649,13 +2697,49 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
             "sortOrder": 0,
             "fields": [
               {
+                "id": "field_name",
+                "key": "name",
+                "name": "商品名称",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 0,
+                "isSystemField": true,
+                "systemKey": "name",
+                "config": {}
+              },
+              {
+                "id": "field_sku",
+                "key": "sku",
+                "name": "SKU",
+                "type": "text",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 1,
+                "isSystemField": true,
+                "systemKey": "sku",
+                "config": {}
+              },
+              {
+                "id": "field_main_image",
+                "key": "mainImage",
+                "name": "商品主图",
+                "type": "image",
+                "required": true,
+                "placeholder": null,
+                "sortOrder": 2,
+                "isSystemField": true,
+                "systemKey": "mainImage",
+                "config": {}
+              },
+              {
                 "id": "field_color",
                 "key": "color",
                 "name": "Color",
                 "type": "text",
                 "required": false,
                 "placeholder": null,
-                "sortOrder": 0,
+                "sortOrder": 3,
                 "isSystemField": false,
                 "systemKey": null,
                 "config": {}
@@ -2687,25 +2771,18 @@ Required role: any collaborator role.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. 0..100 IDs. Output preserves input order and duplicates; [] returns [].
+
+Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `checkProductVisibility`. |
-
-**VisibilityInput fields**:
-
-0..100 IDs. Output preserves input order and duplicates; [] returns [].
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
-| ids | List&lt;Integer&gt; | Yes | Each item: Positive integer ID, maximum 2147483647.; Maximum items 100 |
+| ids | List&lt;Integer&gt; | Yes | Each item: Positive integer ID, maximum 2147483647; Maximum items 100 |
 
 **Response fields**: `200`; `result.data`: List&lt;Visibility&gt;.
 
-**Visibility**
+**Visibility response fields**:
 
 | Field | Type | Description |
 | - | - | - |
@@ -2780,7 +2857,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 **Method**: POST
 
-**Description**: Lists live non-directory FilePath assets in the key library, ordered by id. Requires either products:create or products:update under editable/manage role, not products:read. Returns previews only, never original download fields. Use FilePath id in product writes; uploads are outside v1.
+**Description**: Lists live non-directory FilePath assets in the key library, ordered by id. Requires either products:create or products:update under editable/manage role, not products:read. Returns previews only, never original download fields. Use the returned FilePath `id` in product writes; direct file uploads are not supported by this API.
 
 Required role: editable or manage.
 
@@ -2793,8 +2870,8 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listAssets`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| search | String | No | Body field. Trimmed case-insensitive substring: product name/spu, or library asset name. |
-| mimeType | String | No | Body field. Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
+| search | String | No | Trimmed case-insensitive substring matching library asset `name`. |
+| mimeType | String | No | Trimmed case-insensitive MIME prefix, for example image/ or application/pdf. |
 
 **Response fields**: `200`; `result.data`: List&lt;LibraryAsset&gt;. [field details](#fields-LibraryAsset) See [Responses and pagination](#wire-format-and-identifiers) for pagination fields.
 
@@ -2865,7 +2942,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `getAsset`. |
-| id | Integer | Yes | Body field. Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
+| id | Integer | Yes | Positive signed 32-bit resource ID. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: LibraryAsset. [field details](#fields-LibraryAsset)
 
@@ -2970,7 +3047,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `listProductShares`. |
-| productId | Integer | No | Body field. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| productId | Integer | No | Filter matching shares by one product ID. The full share record is returned, including all products in that share. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
@@ -3049,18 +3126,11 @@ Required role: usable, editable or manage.
 
 **Request parameters**:
 
-The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`.
+The business fields below are siblings of `service` in the JSON body. Do not wrap them in `params` or `data`. Unknown fields are rejected.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `createProductShare`. |
-
-**ProductShareCreate fields**:
-
-Unknown fields are rejected.
-
-| Field | Type | Required | Description |
-| - | - | - | - |
 | productIds | List&lt;Integer&gt; | Yes | Minimum items 1; Maximum items 100. Each ID is a positive integer up to 2147483647. |
 | expiresInDays | Integer | Yes | Allowed values: 7, 30, 90 |
 | accessCode | String | No | Must match `^[0-9]{4}$` |
@@ -3141,11 +3211,11 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `revokeProductShare`. |
-| id | String | Yes | Body field. Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
+| id | String | Yes | Opaque share identifier. Minimum length 1 characters; Maximum length 128 characters |
 
 **Response fields**: `200`; `result.data`: RevokedProductShare.
 
-**RevokedProductShare**
+**RevokedProductShare response fields**:
 
 | Field | Type | Description |
 | - | - | - |
@@ -3245,7 +3315,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | Parameter | Type | Required | Description |
 | - | - | - | - |
 | service | String | Yes | Service identifier; must be `listProductDownloads`. |
-| productId | Integer | No | Body field. Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
+| productId | Integer | No | Filter matching activity by one product ID. The full operation is returned, including other products and files. Omit for all records in the current team. Positive integer ID, up to 2147483647. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
 
