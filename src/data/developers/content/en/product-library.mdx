@@ -531,7 +531,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listCategorys`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| brandId | Integer | No | Filter by brand ID within this library. **When omitted, returns non-deleted categories across all brands in the current library, with pagination**, not all categories in a single response. Positive integer ID, maximum 2147483647. |
+| brandId | Integer | No | Filter by brand ID within this library. **When omitted, returns all categories across all brands in the current library, with pagination**, not all categories in a single response. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: List&lt;Category&gt;. [field details](#fields-Category) See [Requests and responses](#wire-format-and-identifiers) for pagination fields.
 

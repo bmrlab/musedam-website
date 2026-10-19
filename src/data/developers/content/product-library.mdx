@@ -531,7 +531,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服务标识，固定为 `listCategorys`。 |
 | page | Integer | 否 | 页码，正整数，默认 1 |
 | pageSize | Integer | 否 | 每页条数，正整数，默认 20，上限 100。 |
-| brandId | Integer | 否 | 按本商品库内的品牌 ID 筛选。**不传时，分页返回当前商品库内所有品牌下的未删除分类**，不是一次返回全部分类。正整数 ID（最大 2147483647）。 |
+| brandId | Integer | 否 | 按本商品库内的品牌 ID 筛选。**不传时，分页返回当前商品库内所有品牌下的所有分类**，不是一次返回全部分类。正整数 ID（最大 2147483647）。 |
 
 **响应参数**： `200`，`result.data`：List&lt;Category&gt;。 [字段说明](#fields-Category) 分页字段见[请求与响应](#wire-format-and-identifiers)。
 
