@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const OSS_BASE = 'https://musedam-assets.oss-cn-beijing.aliyuncs.com/public/testAssets'
+import { getDemoViewer, loginRedirect } from '../access'
+import { getDemoFile, isSafeSegment } from '../storage'
+
+/** 回退源：oss://musedam-assets/public/testAssets/Demo HTML/ */
+const OSS_BASE = 'https://musedam-assets.oss-cn-beijing.aliyuncs.com/public/testAssets/Demo%20HTML'
 
 const HOP_BY_HOP = new Set([
   'connection',
@@ -17,10 +21,6 @@ const HOP_BY_HOP = new Set([
   'accept-ranges',
   'x-oss-force-download',
 ])
-
-function isSafeSegment(segment: string) {
-  return segment !== '' && segment !== '.' && segment !== '..' && !segment.includes('\\') && !segment.includes('\0')
-}
 
 function toOssUrl(segments: string[]) {
   if (!segments.length || !segments.every(isSafeSegment)) return null
@@ -59,7 +59,21 @@ async function fetchOssUrl(url: URL) {
   return null
 }
 
-async function fetchFromOss(segments: string[]) {
+function demoFileResponse(file: NonNullable<Awaited<ReturnType<typeof getDemoFile>>>) {
+  const headers = new Headers()
+  if (file.contentType) headers.set('content-type', file.contentType)
+  if (file.lastModified) headers.set('last-modified', file.lastModified.toUTCString())
+  if (file.etag) headers.set('etag', file.etag)
+  return new Response(file.body, { headers })
+}
+
+/** 先读上传到 S3 的 demo，没有再回退到阿里云 OSS */
+async function fetchDemo(segments: string[]) {
+  for (const candidate of candidatePaths(segments)) {
+    if (!candidate.length || !candidate.every(isSafeSegment)) continue
+    const file = await getDemoFile(candidate)
+    if (file) return { response: demoFileResponse(file), segments: candidate }
+  }
   for (const candidate of candidatePaths(segments)) {
     const url = toOssUrl(candidate)
     if (!url) continue
@@ -81,18 +95,26 @@ function passthroughHeaders(source: Headers, contentType?: string) {
   }
   headers.set('X-Content-Type-Options', 'nosniff')
   headers.set('Content-Disposition', 'inline')
+  // 需登录才能访问，禁止 CDN 等共享缓存
+  headers.set('Cache-Control', 'private, no-store')
+  headers.set('X-Robots-Tag', 'noindex, nofollow')
   return headers
 }
 
 function resolveContentType(ossType: string | null, filename: string) {
   if (filename.endsWith('.html') || filename.endsWith('.htm')) {
-    return ossType?.includes('html') ? ossType : 'text/html; charset=utf-8'
+    // OSS 返回的是不带 charset 的 text/html，且导出的 demo HTML 没有 <meta charset>，
+    // 浏览器会按系统语言回退成 GBK 解码，导致内联脚本中的中文变成乱码、脚本报错。
+    return 'text/html; charset=utf-8'
   }
   return ossType || undefined
 }
 
 async function proxyDemoAsset(request: NextRequest, path: string[]) {
-  const matched = await fetchFromOss(path)
+  // 任意已登录的 MuseDAM 用户均可访问单个 demo
+  if (!(await getDemoViewer())) return loginRedirect(request)
+
+  const matched = await fetchDemo(path)
   if (!matched) {
     return new NextResponse('Demo asset not found', { status: 404 })
   }
