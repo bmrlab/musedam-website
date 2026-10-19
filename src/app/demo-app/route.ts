@@ -256,7 +256,9 @@ function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
 }
 
-function parseUploadMeta(form: FormData) {
+type UploadMeta = { uploadId: string; total: number; name: string; folder: string[] }
+
+function parseUploadMeta(form: FormData): UploadMeta | { error: string } {
   const uploadId = String(form.get('id') ?? '')
   const total = Number(form.get('total'))
   const name = String(form.get('name') ?? '')
