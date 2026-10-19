@@ -69,7 +69,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 欄位 | 類型 | 說明 |
 | --- | --- | --- |
 | `code` | String | 公開閘道碼：成功為 `"0"`，上游失敗為 `"MB100005"`，無效憑證為 `"MO100002"`。 |
-| `message` | String | 成功範例為 `"OK"`；文案不穩定，僅供診斷，不應解析或用於分支判斷。 |
+| `message` | String | 成功範例為 `"OK"`；文案僅供診斷，不應解析或用於分支判斷。 |
 | `result` | Object / null | 成功時包含業務結果；閘道錯誤時為 `null`。 |
 | `result.success` | Boolean | 公開成功結果中為 `true`；閘道錯誤時沒有此欄位。 |
 | `result.data` | Object / Array | 成功時依介面回傳物件或陣列。 |
