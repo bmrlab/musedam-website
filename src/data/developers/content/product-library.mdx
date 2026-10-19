@@ -55,7 +55,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }
 ```
 
-已观察到的公网网关成功及错误响应均使用 HTTP 200。上游商品库失败时，外层 `code` 为 `"MB100005"`、`result` 为 `null`；无效凭证时为 `"MO100002"`、`result` 为 `null`。`message` 可能嵌入内部 HTTP 状态及响应正文，但仅供诊断，不是稳定的机器可解析协议。请保留响应 `traceId`；上游可能替换提交的 `traceId`。不保证透传 `Retry-After` 或 `X-Request-Id` 响应头。
+已观察到的公网网关成功及错误响应均使用 HTTP 200。上游商品库失败时，外层 `code` 为 `"MB100005"`、`result` 为 `null`；无效凭证时为 `"MO100002"`、`result` 为 `null`。`message` 可能嵌入内部 HTTP 状态及响应正文，但仅供诊断，不是稳定的机器可解析协议。
 
 **权限不足的网关失败响应示例（HTTP 200，诊断文案仅为示意）**：
 
