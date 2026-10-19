@@ -3,6 +3,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDemoViewer, loginRedirect } from '../access'
 import { getDemoFile, isSafeSegment } from '../storage'
 
+/** 回退源：oss://musedam-assets/public/testAssets/Demo HTML/ */
+const OSS_BASE = 'https://musedam-assets.oss-cn-beijing.aliyuncs.com/public/testAssets/Demo%20HTML'
+
+const HOP_BY_HOP = new Set([
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailers',
+  'transfer-encoding',
+  'upgrade',
+  'content-encoding',
+  'content-length',
+  'content-disposition',
+  'accept-ranges',
+  'x-oss-force-download',
+])
+
+function toOssUrl(segments: string[]) {
+  if (!segments.length || !segments.every(isSafeSegment)) return null
+  const url = new URL(segments.map(encodeURIComponent).join('/'), `${OSS_BASE}/`)
+  if (!url.href.startsWith(`${OSS_BASE}/`)) return null
+  return url
+}
+
 function candidatePaths(segments: string[]) {
   const last = segments[segments.length - 1]
   const candidates = [segments]
@@ -13,29 +39,82 @@ function candidatePaths(segments: string[]) {
   return candidates
 }
 
-async function findDemo(segments: string[]) {
-  if (!segments.length || !segments.every(isSafeSegment)) return null
-  for (const candidate of candidatePaths(segments)) {
-    const file = await getDemoFile(candidate)
-    if (file) return { file, segments: candidate }
+async function fetchOssUrl(url: URL) {
+  let current = url
+  for (let hop = 0; hop < 5; hop++) {
+    const response = await fetch(current, {
+      redirect: 'manual',
+      cache: 'no-store',
+    })
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location')
+      if (!location) return null
+      const next = new URL(location, current)
+      if (!next.href.startsWith(`${OSS_BASE}/`)) return null
+      current = next
+      continue
+    }
+    return response.ok ? response : null
   }
   return null
 }
 
-function resolveContentType(storedType: string | undefined, filename: string) {
+function demoFileResponse(file: NonNullable<Awaited<ReturnType<typeof getDemoFile>>>) {
+  const headers = new Headers()
+  if (file.contentType) headers.set('content-type', file.contentType)
+  if (file.lastModified) headers.set('last-modified', file.lastModified.toUTCString())
+  if (file.etag) headers.set('etag', file.etag)
+  return new Response(file.body, { headers })
+}
+
+/** 先读上传到 S3 的 demo，没有再回退到阿里云 OSS Demo HTML 目录 */
+async function fetchDemo(segments: string[]) {
+  for (const candidate of candidatePaths(segments)) {
+    if (!candidate.length || !candidate.every(isSafeSegment)) continue
+    const file = await getDemoFile(candidate)
+    if (file) return { response: demoFileResponse(file), segments: candidate }
+  }
+  for (const candidate of candidatePaths(segments)) {
+    const url = toOssUrl(candidate)
+    if (!url) continue
+    const response = await fetchOssUrl(url)
+    if (response) return { response, segments: candidate }
+  }
+  return null
+}
+
+function passthroughHeaders(source: Headers, contentType?: string) {
+  const headers = new Headers()
+  source.forEach((value, key) => {
+    if (!HOP_BY_HOP.has(key.toLowerCase())) {
+      headers.set(key, value)
+    }
+  })
+  if (contentType) {
+    headers.set('Content-Type', contentType)
+  }
+  headers.set('X-Content-Type-Options', 'nosniff')
+  headers.set('Content-Disposition', 'inline')
+  // 需登录才能访问，禁止 CDN 等共享缓存
+  headers.set('Cache-Control', 'private, no-store')
+  headers.set('X-Robots-Tag', 'noindex, nofollow')
+  return headers
+}
+
+function resolveContentType(sourceType: string | null, filename: string) {
   if (/\.html?$/i.test(filename)) {
     // 导出的 demo HTML 没有 <meta charset>，不声明 charset 时浏览器会按系统语言回退成 GBK 解码，
     // 导致内联脚本中的中文变成乱码、脚本报错。
     return 'text/html; charset=utf-8'
   }
-  return storedType || 'application/octet-stream'
+  return sourceType || undefined
 }
 
 async function serveDemo(request: NextRequest, path: string[]) {
   // 任意已登录的 MuseDAM 用户均可访问单个 demo
   if (!(await getDemoViewer())) return loginRedirect(request)
 
-  const matched = await findDemo(path)
+  const matched = await fetchDemo(path)
   if (!matched) {
     return new NextResponse('Demo not found', { status: 404 })
   }
@@ -49,19 +128,14 @@ async function serveDemo(request: NextRequest, path: string[]) {
     return NextResponse.redirect(new URL(dest, request.url), 302)
   }
 
-  const { file } = matched
-  const headers = new Headers({
-    'Content-Type': resolveContentType(file.contentType, lastFetched ?? ''),
-    'Content-Disposition': 'inline',
-    'X-Content-Type-Options': 'nosniff',
-    // 需登录才能访问，禁止 CDN 等共享缓存
-    'Cache-Control': 'private, no-store',
-    'X-Robots-Tag': 'noindex, nofollow',
-  })
-  if (file.lastModified) headers.set('Last-Modified', file.lastModified.toUTCString())
-  if (file.etag) headers.set('ETag', file.etag)
+  const filename = lastFetched ?? ''
+  const contentType = resolveContentType(matched.response.headers.get('content-type'), filename)
+  const headers = passthroughHeaders(matched.response.headers, contentType)
 
-  return new NextResponse(file.body, { headers })
+  return new NextResponse(matched.response.body, {
+    status: matched.response.status,
+    headers,
+  })
 }
 
 export async function GET(
