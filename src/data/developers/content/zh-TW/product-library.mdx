@@ -531,7 +531,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服務識別碼，固定為 `listCategorys`。 |
 | page | Integer | 否 | 頁碼，正整數，預設 1 |
 | pageSize | Integer | 否 | 每頁筆數，正整數，預設 20，上限 100。 |
-| brandId | Integer | 否 | 按本商品庫內的品牌 ID 篩選。正整數 ID，最大 2147483647。 |
+| brandId | Integer | 否 | 按本商品庫內的品牌 ID 篩選。**不傳時，分頁返回目前商品庫內所有品牌下的未刪除分類**，不是一次返回全部分類。正整數 ID，最大 2147483647。 |
 
 **回應參數**： `200`，`result.data`：List&lt;Category&gt;。 [欄位說明](#fields-Category) 分頁欄位見[請求與回應](#wire-format-and-identifiers)。
 
