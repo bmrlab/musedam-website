@@ -55,8 +55,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }
 ```
 
-已觀察到的公開閘道成功及錯誤回應均使用 HTTP 200。上游商品庫失敗時，外層 `code` 為 `"MB100005"`、`result` 為 `null`；無效憑證時為 `"MO100002"`、`result` 為 `null`。`message` 可能嵌入內部 HTTP 狀態及回應本文，但僅供診斷，不是穩定的機器可解析協定。
-
 **權限不足的閘道失敗回應範例（HTTP 200，診斷文案僅為示意）**：
 
 ```json

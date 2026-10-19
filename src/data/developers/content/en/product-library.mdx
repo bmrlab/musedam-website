@@ -55,8 +55,6 @@ All operations use `POST https://open.musedam.cc/api/muse/product-api` with `Aut
 }
 ```
 
-Observed public gateway success and error responses use HTTP 200. Upstream Product Library failures return outer `code: "MB100005"` and `result: null`; invalid credentials return `code: "MO100002"` and `result: null`. The `message` may embed an internal HTTP status and response body, but is diagnostic text, not a stable machine-readable protocol.
-
 **Permission-denied gateway response example (HTTP 200; illustrative diagnostic wording)**:
 
 ```json
