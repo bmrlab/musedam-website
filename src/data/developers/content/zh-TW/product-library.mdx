@@ -70,14 +70,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | --- | --- | --- |
 | `code` | String | 公開閘道碼：成功為 `"0"`，上游失敗為 `"MB100005"`，無效憑證為 `"MO100002"`。 |
 | `message` | String | 成功範例為 `"OK"`；文案僅供診斷，不應解析或用於分支判斷。 |
-| `result` | Object / null | 業務結果。 |
+| `result` | Object / null | 業務結果 |
 | `result.success` | Boolean | 成功 `true`，失敗 `false`。 |
 | `result.data` | Object / Array | 成功時依介面回傳物件或陣列。 |
 | `result.code` | null | 成功時為 `null`；內部錯誤碼見[疑難排解參考](#error-catalog)。 |
-| `result.message` | null | 錯誤訊息。 |
-| `result.pagination` | Object | 分頁資訊。 |
-| `result.requestId` | String | 請求 ID。 |
-| `traceId` | String | 鏈路追蹤 ID。 |
+| `result.message` | null | 錯誤訊息 |
+| `result.pagination` | Object | 分頁資訊 |
+| `result.requestId` | String | 請求 ID |
+| `traceId` | String | 鏈路追蹤 ID |
 
 一般列表介面支援 `page`（預設 `1`）和 `pageSize`（預設 `20`，最大 `100`），在 `result.pagination` 中回傳分頁統計。需要持續增量同步商品時，請使用[游標同步](#cycle-protocol)。
 
