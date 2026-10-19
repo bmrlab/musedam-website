@@ -8,7 +8,7 @@ All 28 Product Library operations use POST `https://open.musedam.cc/api/muse/pro
 
 Permissions follow the key’s settings in "Member Settings" - "Roles & Permissions".
 
-New collaborators have the `view_only` role by default. Choose a role for the operations you need:
+Choose a role for the operations you need:
 
 | Role | Available operations |
 | --- | --- |
@@ -32,7 +32,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-A successful response uses HTTP 200 with `code: "0"`, an example `message: "OK"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. Message wording is not stable; do not branch on it. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
+A successful response uses HTTP 200 with `code: "0"`, an example `message: "OK"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
 ## Requests and responses
 
@@ -55,8 +55,6 @@ All operations use `POST https://open.musedam.cc/api/muse/product-api` with `Aut
 }
 ```
 
-Observed public gateway success and error responses use HTTP 200. Upstream Product Library failures return outer `code: "MB100005"` and `result: null`; invalid credentials return `code: "MO100002"` and `result: null`. The `message` may embed an internal HTTP status and response body, but is diagnostic text, not a stable machine-readable protocol. Preserve the response `traceId`; upstream may replace a submitted `traceId`. Forwarding of `Retry-After` or `X-Request-Id` response headers is not guaranteed.
-
 **Permission-denied gateway response example (HTTP 200; illustrative diagnostic wording)**:
 
 ```json
@@ -71,15 +69,15 @@ Observed public gateway success and error responses use HTTP 200. Upstream Produ
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | String | Public gateway code: `"0"` on success, `"MB100005"` for upstream failures, `"MO100002"` for invalid credentials. |
-| `message` | String | Example success wording: `"OK"`. Unstable diagnostic text; do not parse it or branch on it. |
-| `result` | Object / null | Business result on success; `null` on gateway errors. |
-| `result.success` | Boolean | `true` in public success results; absent on gateway errors. |
+| `message` | String | Example success wording: `"OK"`. Text is for diagnostics only; do not parse it or branch on it. |
+| `result` | Object / null | Business result |
+| `result.success` | Boolean | `true` on success, `false` on failure. |
 | `result.data` | Object / Array | Returned object or array on success. |
-| `result.code` | null | `null` on success. [Internal error codes](#error-catalog) are troubleshooting references, not public gateway error fields. |
-| `result.message` | null | `null` on success; absent on gateway errors. |
-| `result.pagination` | Object | Pagination metadata returned on list and sync endpoints. |
-| `result.requestId` | String | Request ID. |
-| `traceId` | String | Trace ID. |
+| `result.code` | null | `null` on success. [Internal error codes](#error-catalog) are troubleshooting references. |
+| `result.message` | null | Error message |
+| `result.pagination` | Object | Pagination information |
+| `result.requestId` | String | Request ID |
+| `traceId` | String | Trace ID |
 
 List endpoints accept `page` (default `1`) and `pageSize` (default `20`, max `100`) and return pagination counts in `result.pagination`. For continuous product synchronization, use [cursor synchronization](#cycle-protocol).
 
@@ -147,12 +145,12 @@ Request bodies are limited to 1 MiB. Write, history, and synchronization service
 | Field | Type | Description |
 | - | - | - |
 | id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
-| name | String | Name. |
-| code | String | Code. |
+| name | String | Name |
+| code | String | Code |
 | description | String | Description. May be null |
 | website | String | Website URL. May be null |
-| sortOrder | Integer | Sort order. |
-| isEnabled | Boolean | Whether enabled. |
+| sortOrder | Integer | Sort order |
+| isEnabled | Boolean | Whether enabled |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
 | updatedAt | String | RFC 3339 timestamp; preserve full precision.|
 
@@ -500,13 +498,13 @@ Creation adds a direct library-default template binding only when that template 
 | id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
 | brandId | Integer | Brand ID. Positive integer ID, maximum 2147483647. |
 | parentId | Integer | Parent category ID. Positive integer ID, maximum 2147483647; May be null |
-| name | String | Name. |
-| pathKey | String | Category path. |
+| name | String | Name |
+| pathKey | String | Category path |
 | description | String | Description. May be null |
 | iconEmoji | String | Category emoji. May be null |
 | iconAssetId | Integer | Category icon ID. Positive integer ID, maximum 2147483647; May be null |
-| sortOrder | Integer | Sort order. |
-| isEnabled | Boolean | Whether enabled. |
+| sortOrder | Integer | Sort order |
+| isEnabled | Boolean | Whether enabled |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
 | updatedAt | String | RFC 3339 timestamp; preserve full precision.|
 
@@ -531,7 +529,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | service | String | Yes | Service identifier; must be `listCategorys`. |
 | page | Integer | No | Positive page number, default 1. |
 | pageSize | Integer | No | Positive page size, default 20, capped at 100. |
-| brandId | Integer | No | Filter by brand ID within this library. Positive integer ID, maximum 2147483647. |
+| brandId | Integer | No | Filter by brand ID within this library. **When omitted, returns all categories across all brands in the current library, with pagination**, not all categories in a single response. Positive integer ID, maximum 2147483647. |
 
 **Response fields**: `200`; `result.data`: List&lt;Category&gt;. [field details](#fields-Category) See [Requests and responses](#wire-format-and-identifiers) for pagination fields.
 
@@ -906,7 +904,7 @@ New fields must be custom fields and cannot use reserved system keys (`name`, `s
 | Field type | Configuration |
 | --- | --- |
 | `text`, `textarea`, `email`, `phone`, `url`, `color`, `date`, `dateRange` | Use `{}`. Other configuration properties are not accepted. |
-| `number` | Optional `unit`, a string. |
+| `number` | Optional `unit`, a string |
 | `currency` | Required `code` and `symbol` (nonempty strings), and `decimals` (an integer from 0 to 4). |
 | `richtext` | Required `mode`, either `html` or `delta`. |
 | `select`, `radio`, `checkbox` | Required, nonempty `options` array. Entries follow the table below; `value` must be unique. |
@@ -918,7 +916,7 @@ Each `options` entry contains:
 | --- | --- | --- |
 | `value` | string | Required, nonempty. The option's unique value. |
 | `label` | string | Required, nonempty. The display label. |
-| `sortOrder` | integer | Required, nonnegative. |
+| `sortOrder` | integer | Required, nonnegative |
 | `archived` | boolean | Optional. Whether the option is archived. |
 
 All system fields must preserve their existing `type`, `required`, and `config` when updating a template (`updateTemplate`); modifying system field `config` via Open API is not supported.
@@ -936,14 +934,14 @@ Each group always returns `id`, `name`, `fields`, and these read-only properties
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `isDefault` | boolean | Whether this is the default group. |
-| `sortOrder` | integer | The group's order. |
+| `isDefault` | boolean | Whether this is the default group |
+| `sortOrder` | integer | The group's order |
 
 Each field always returns `id`, `key`, `name`, `type`, `required`, `placeholder`, `sortOrder`, `config`, and the following properties. The write-only parameter `typeChangeConfirmed` is not returned.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `isSystemField` | boolean | Whether this is a system field. |
+| `isSystemField` | boolean | Whether this is a system field |
 | `systemKey` | string or null | System identity: `name`, `sku`, `brand`, `category`, `description`, or `mainImage`. `null` for custom fields. |
 
 `placeholder` may be `null`. Media references in configuration return safe preview information without storage paths or credentials.
@@ -956,11 +954,11 @@ Each field always returns `id`, `key`, `name`, `type`, `required`, `placeholder`
 | Field | Type | Description |
 | - | - | - |
 | id | String | Resource ID. Minimum length 1 characters; Maximum length 128 characters |
-| name | String | Name. |
+| name | String | Name |
 | description | String | Description. May be null |
-| enabled | Boolean | Whether the template is enabled. |
-| isSystemDefault | Boolean | Whether this is the system default template. |
-| isLibraryDefault | Boolean | Whether this is the library default template. |
+| enabled | Boolean | Whether the template is enabled |
+| isSystemDefault | Boolean | Whether this is the system default template |
+| isLibraryDefault | Boolean | Whether this is the library default template |
 | createdAt | String | RFC 3339 timestamp; preserve full precision.|
 | updatedAt | String | RFC 3339 timestamp; preserve full precision.|
 | boundBrandIds | List&lt;Integer&gt; | Bound brand IDs. Each item: Positive integer ID, maximum 2147483647. |
@@ -1659,7 +1657,7 @@ Every service-issued link is also bounded by the API key's expiry. Fetch product
 | Field | Type | Description |
 | - | - | - |
 | id | Integer | Resource ID. Positive integer ID, maximum 2147483647. |
-| name | String | Name. |
+| name | String | Name |
 | spu | String | Product SKU. May be null |
 | description | String | Description. May be null |
 | status | String | Current status. Allowed values: draft, published |
@@ -1726,7 +1724,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 | pageSize | Integer | Number of items per page. Minimum: 1; Maximum: 100 |
 | syncedUntil | String | server clock minus 30 seconds, fixed for the cycle. Save this exact string only after nextCursor is null. Format: date-time; Must match `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
 | nextCursor | String | Cursor for the next page; null after the scan is exhausted. Maximum length 8,192 characters; May be null |
-| hasMore | Boolean | Whether another synchronization page is available. |
+| hasMore | Boolean | Whether another synchronization page is available |
 
 Request example:
 
@@ -3019,17 +3017,17 @@ The `products` array in share and download records preserves product details at 
 
 | Field | Type | Description |
 | - | - | - |
-| id | String | Resource ID. |
+| id | String | Resource ID |
 | url | String | Share URL. Format: uri |
 | products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](#product-snapshot-fields) |
 | createdById | Integer | Creator user ID. May be null |
 | createdByApiKeyId | String | Creator API key ID. May be null |
-| createdByName | String | Creator name. |
+| createdByName | String | Creator name |
 | createdAt | String | Creation time. Format: date-time |
 | expiresAt | String | Expiry time. May be null; Format: date-time |
 | revokedAt | String | Revocation time. May be null; Format: date-time |
-| allowDownload | Boolean | Whether downloads are allowed. |
-| hasAccessCode | Boolean | Whether the share requires an access code. |
+| allowDownload | Boolean | Whether downloads are allowed |
+| hasAccessCode | Boolean | Whether the share requires an access code |
 | status | String | Current status. Allowed values: active, expired, revoked |
 | canRevoke | Boolean | Whether the current caller may revoke the share (`true` only when called with the `manage` role and the share is not yet revoked). |
 
@@ -3224,7 +3222,7 @@ The business fields below are siblings of `service` in the JSON body. Do not wra
 
 | Field | Type | Description |
 | - | - | - |
-| id | String | Resource ID. |
+| id | String | Resource ID |
 | revokedAt | String | Revocation time. Format: date-time |
 
 Request example:
@@ -3289,13 +3287,13 @@ A download record's `files` array preserves file details when the operation is f
 
 | Field | Type | Description |
 | - | - | - |
-| id | String | Resource ID. |
+| id | String | Resource ID |
 | kind | String | Operation kind. Allowed values: product_export, asset_download |
 | status | String | Current status. Allowed values: requested, failed |
 | actorType | String | Actor type. Allowed values: member, external, api_key |
 | actorId | Integer | Actor ID. May be null |
 | apiKeyId | String | API key ID. May be null |
-| actorName | String | Actor name. |
+| actorName | String | Actor name |
 | shareId | String | Share ID. May be null |
 | products | List&lt;ProductLabelSnapshot&gt; | Product snapshots. Nested fields: [Product snapshot fields](#product-snapshot-fields) |
 | files | List&lt;FileLabelSnapshot&gt; | File snapshots. Nested fields: [File snapshot fields](#file-snapshot-fields) |

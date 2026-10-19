@@ -8,7 +8,7 @@
 
 权限按密钥在 “成员设置” - “角色与权限” 中的设置
 
-新添加的协作者默认为 `view_only`。按需要选择角色：
+按需要选择角色：
 
 | 角色 | 可执行的操作 |
 | --- | --- |
@@ -32,7 +32,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-成功响应使用 HTTP 200，JSON 中 `code` 为 `"0"`，`message` 示例为 `"OK"`，`result.success` 为 `true`，商品数据位于 `result.data`，分页信息位于 `result.pagination`。`message` 文案不稳定，不要据此判断成功与否。列表为空时，先确认商品库中是否有当前角色可见的商品；`view_only` 和 `usable` 只能查看已发布商品。
+成功响应使用 HTTP 200，JSON 中 `code` 为 `"0"`，`message` 示例为 `"OK"`，`result.success` 为 `true`，商品数据位于 `result.data`，分页信息位于 `result.pagination`。列表为空时，先确认商品库中是否有当前角色可见的商品；`view_only` 和 `usable` 只能查看已发布商品。
 
 ## 请求与响应
 
@@ -55,8 +55,6 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }
 ```
 
-已观察到的公网网关成功及错误响应均使用 HTTP 200。上游商品库失败时，外层 `code` 为 `"MB100005"`、`result` 为 `null`；无效凭证时为 `"MO100002"`、`result` 为 `null`。`message` 可能嵌入内部 HTTP 状态及响应正文，但仅供诊断，不是稳定的机器可解析协议。请保留响应 `traceId`；上游可能替换提交的 `traceId`。不保证透传 `Retry-After` 或 `X-Request-Id` 响应头。
-
 **权限不足的网关失败响应示例（HTTP 200，诊断文案仅为示意）**：
 
 ```json
@@ -71,15 +69,15 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | `code` | String | 公网网关码：成功为 `"0"`，上游失败为 `"MB100005"`，无效凭证为 `"MO100002"`。 |
-| `message` | String | 成功示例为 `"OK"`；文案不稳定，仅供诊断，不应解析或用于分支判断。 |
-| `result` | Object / null | 成功时包含业务结果；网关错误时为 `null`。 |
-| `result.success` | Boolean | 公网成功结果中为 `true`；网关错误时没有此字段。 |
+| `message` | String | 成功示例为 `"OK"`；文案仅供诊断，不应解析或用于分支判断。 |
+| `result` | Object / null | 业务结果 |
+| `result.success` | Boolean | 成功 `true`，失败 `false`。 |
 | `result.data` | Object / Array | 成功时根据接口返回对象或数组。 |
-| `result.code` | null | 成功时为 `null`；内部错误码见[排障参考](#error-catalog)，不是公网错误结果字段。 |
-| `result.message` | null | 成功时为 `null`；网关错误时没有此字段。 |
-| `result.pagination` | Object | 列表与同步接口成功时返回的分页信息。 |
-| `result.requestId` | String | 请求 ID。 |
-| `traceId` | String | 链路追踪 ID。 |
+| `result.code` | null | 成功时为 `null`；内部错误码见[排障参考](#error-catalog)。 |
+| `result.message` | null | 错误信息 |
+| `result.pagination` | Object | 分页信息 |
+| `result.requestId` | String | 请求 ID |
+| `traceId` | String | 链路追踪 ID |
 
 普通列表接口支持 `page`（默认 `1`）和 `pageSize`（默认 `20`，最大 `100`），在 `result.pagination` 中返回分页统计。需要持续增量同步商品时，请使用[游标同步](#cycle-protocol)。
 
@@ -147,12 +145,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 类型 | 描述 |
 | - | - | - |
 | id | Integer | 品牌 ID，正整数（最大 2147483647）。 |
-| name | String | 名称。 |
-| code | String | 编码。 |
+| name | String | 名称 |
+| code | String | 编码 |
 | description | String | 说明。可为 null |
 | website | String | 网站地址。可为 null |
-| sortOrder | Integer | 排序值。 |
-| isEnabled | Boolean | 是否启用。 |
+| sortOrder | Integer | 排序值 |
+| isEnabled | Boolean | 是否启用 |
 | createdAt | String | RFC 3339 时间字符串；保留完整精度。|
 | updatedAt | String | RFC 3339 时间字符串；保留完整精度。|
 
@@ -500,13 +498,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 分类 ID，正整数（最大 2147483647）。 |
 | brandId | Integer | 品牌 ID，正整数（最大 2147483647）。 |
 | parentId | Integer | 父分类 ID，正整数（最大 2147483647）；顶级分类为 `null`。 |
-| name | String | 名称。 |
-| pathKey | String | 分类路径。 |
+| name | String | 名称 |
+| pathKey | String | 分类路径 |
 | description | String | 说明。可为 null |
 | iconEmoji | String | 分类表情图标。可为 null |
 | iconAssetId | Integer | 分类图标资源 ID，正整数（最大 2147483647）；可为 null |
-| sortOrder | Integer | 排序值。 |
-| isEnabled | Boolean | 是否启用。 |
+| sortOrder | Integer | 排序值 |
+| isEnabled | Boolean | 是否启用 |
 | createdAt | String | RFC 3339 时间字符串；保留完整精度。|
 | updatedAt | String | RFC 3339 时间字符串；保留完整精度。|
 
@@ -531,7 +529,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | service | String | 是 | 服务标识，固定为 `listCategorys`。 |
 | page | Integer | 否 | 页码，正整数，默认 1 |
 | pageSize | Integer | 否 | 每页条数，正整数，默认 20，上限 100。 |
-| brandId | Integer | 否 | 按本商品库内的品牌 ID 筛选。正整数 ID（最大 2147483647）。 |
+| brandId | Integer | 否 | 按本商品库内的品牌 ID 筛选。**不传时，分页返回当前商品库内所有品牌下的所有分类**，不是一次返回全部分类。正整数 ID（最大 2147483647）。 |
 
 **响应参数**： `200`，`result.data`：List&lt;Category&gt;。 [字段说明](#fields-Category) 分页字段见[请求与响应](#wire-format-and-identifiers)。
 
@@ -610,7 +608,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | name | String | 是 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
 | parentId | Integer | 否 | 父分类 ID，正整数（最大 2147483647）。省略时创建为顶级分类。 |
 | sortOrder | Integer | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
-| description | String | 否 | 分类说明。 |
+| description | String | 否 | 分类说明 |
 | iconEmoji | String | 否 | 分类表情图标，最长 16 个字符。 |
 | iconAssetId | Integer | 否 | 当前商品库中已有的分类图标资源 ID（不同于素材查询返回的 Asset ID；如需复用已有分类图标，可从分类详情的 `iconAssetId` 获取）。正整数 ID（最大 2147483647）。 |
 | isEnabled | Boolean | 否 | 是否启用，默认为 `true`。 |
@@ -750,10 +748,10 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | name | String | 否 | 精确值，不去除首尾空白。必须包含非空白字符且不含斜杠；在有效同级节点中唯一。最短 1 个字符；最长 64 个字符；须匹配 `^(?=.*\S)[^/]+$` |
 | parentId | Integer | 否 | 父分类 ID，正整数（最大 2147483647）。 |
 | sortOrder | Integer | 否 | 同级插入索引，不得大于目标位置的同级节点数。省略时：创建/移动时追加到末尾，父节点不变时保持原位置。最小值：0；最大值：5,000 |
-| description | String | 否 | 分类说明。 |
+| description | String | 否 | 分类说明 |
 | iconEmoji | String | 否 | 分类表情图标，最长 16 个字符。 |
 | iconAssetId | Integer | 否 | 当前商品库中已有的分类图标资源 ID（不同于素材查询返回的 Asset ID；如需复用已有分类图标，可从分类详情的 `iconAssetId` 获取）。正整数 ID（最大 2147483647）。 |
-| isEnabled | Boolean | 否 | 是否启用。 |
+| isEnabled | Boolean | 否 | 是否启用 |
 
 **响应参数**： `200`，`result.data`：Category。 [字段说明](#fields-Category)
 
@@ -906,7 +904,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段类型 | config 配置 |
 | --- | --- |
 | `text`、`textarea`、`email`、`phone`、`url`、`color`、`date`、`dateRange` | 使用 `{}`，不接受其他配置。 |
-| `number` | 可选 `unit`，字符串。 |
+| `number` | 可选 `unit`，字符串 |
 | `currency` | 必填 `code`、`symbol`（非空字符串）和 `decimals`（0–4 的整数）。 |
 | `richtext` | 必填 `mode`，取值为 `html` 或 `delta`。 |
 | `select`、`radio`、`checkbox` | 必填非空 `options` 数组。每项见下表，`value` 不得重复。 |
@@ -916,10 +914,10 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `value` | string | 必填，非空，选项的唯一值。 |
-| `label` | string | 必填，非空，显示名称。 |
-| `sortOrder` | integer | 必填，非负整数。 |
-| `archived` | boolean | 可选，是否归档该选项。 |
+| `value` | string | 必填，非空，选项的唯一值 |
+| `label` | string | 必填，非空，显示名称 |
+| `sortOrder` | integer | 必填，非负整数 |
+| `archived` | boolean | 可选，是否归档该选项 |
 
 通过 API 更新模板时，所有系统字段（`isSystemField: true`）的 `type`、`required` 和 `config` 均不可修改，传入时须与原模板保持一致（或省略以保留原值）。
 
@@ -936,14 +934,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `isDefault` | boolean | 是否为默认分组。 |
-| `sortOrder` | integer | 分组顺序。 |
+| `isDefault` | boolean | 是否为默认分组 |
+| `sortOrder` | integer | 分组顺序 |
 
 每个字段固定返回 `id`、`key`、`name`、`type`、`required`、`placeholder`、`sortOrder`、`config`，以及以下属性；不返回写入参数 `typeChangeConfirmed`。
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `isSystemField` | boolean | 是否为系统字段。 |
+| `isSystemField` | boolean | 是否为系统字段 |
 | `systemKey` | string 或 null | 系统身份：`name`、`sku`、`brand`、`category`、`description`、`mainImage`；自定义字段为 `null`。 |
 
 `placeholder` 可为 `null`。配置中的媒体引用会返回安全的预览信息，不包含存储路径或凭据。所有协作者角色在读取商品详情时均可获取该固定模板定义。
@@ -956,11 +954,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 类型 | 描述 |
 | - | - | - |
 | id | String | 模板 ID，最短 1 个字符；最长 128 个字符。 |
-| name | String | 名称。 |
+| name | String | 名称 |
 | description | String | 说明。可为 null |
-| enabled | Boolean | 是否启用模板。 |
-| isSystemDefault | Boolean | 是否为系统默认模板。 |
-| isLibraryDefault | Boolean | 是否为商品库默认模板。 |
+| enabled | Boolean | 是否启用模板 |
+| isSystemDefault | Boolean | 是否为系统默认模板 |
+| isLibraryDefault | Boolean | 是否为商品库默认模板 |
 | createdAt | String | RFC 3339 时间字符串；保留完整精度。|
 | updatedAt | String | RFC 3339 时间字符串；保留完整精度。|
 | boundBrandIds | List&lt;Integer&gt; | 绑定的品牌 ID。每个元素为正整数 ID（最大 2147483647）。 |
@@ -1126,7 +1124,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | groups | List&lt;TemplateGroupInput&gt; | 是 | 最少 1 项；最多 200 项。嵌套字段：[模板分组字段](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | 否 | 每个元素为正整数 ID（最大 2147483647）；最多 10,000 项 |
 | boundCategoryIds | List&lt;Integer&gt; | 否 | 每个元素为正整数 ID（最大 2147483647）；最多 10,000 项 |
-| isLibraryDefault | Boolean | 否 | 是否设为当前商品库默认模板。 |
+| isLibraryDefault | Boolean | 否 | 是否设为当前商品库默认模板 |
 | syncStrategy | String | 否 | 允许值：newOnly；默认值："newOnly" |
 
 **响应参数**： `200`，`result.data`：Template。 [字段说明](#fields-Template)
@@ -1389,11 +1387,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | String | 是 | 模板 ID（请勿假定其为 UUID 格式）。最短 1 个字符；最长 128 个字符 |
 | name | String | 否 | 最短 1 个字符；最长 30 个字符 |
 | description | String | 否 | 最长 50 个字符 |
-| enabled | Boolean | 否 | 是否启用模板。 |
+| enabled | Boolean | 否 | 是否启用模板 |
 | groups | List&lt;TemplateGroupInput&gt; | 否 | 最少 1 项；最多 200 项。嵌套字段：[模板分组字段](#template-groups) |
 | boundBrandIds | List&lt;Integer&gt; | 否 | 每个元素为正整数 ID（最大 2147483647）；最多 10,000 项 |
 | boundCategoryIds | List&lt;Integer&gt; | 否 | 每个元素为正整数 ID（最大 2147483647）；最多 10,000 项 |
-| isLibraryDefault | Boolean | 否 | 是否设为当前商品库默认模板。 |
+| isLibraryDefault | Boolean | 否 | 是否设为当前商品库默认模板 |
 | syncStrategy | String | 否 | 允许值：newOnly；默认值："newOnly" |
 
 **响应参数**： `200`，`result.data`：Template。 [字段说明](#fields-Template)
@@ -1653,7 +1651,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 字段名 | 类型 | 描述 |
 | - | - | - |
 | id | Integer | 商品 ID，正整数（最大 2147483647）。 |
-| name | String | 名称。 |
+| name | String | 名称 |
 | spu | String | 商品 SKU。可为 null |
 | description | String | 说明。可为 null |
 | status | String | 当前状态。允许值：draft、published |
@@ -1720,7 +1718,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | pageSize | Integer | 每页数量。最小值：1；最大值：100 |
 | syncedUntil | String | 本轮同步窗口的上界（服务端时间减 30 秒，在整个同步周期内固定不变）。仅在 `nextCursor` 为 `null` 后原样保存此字符串，作为下一轮的 `updatedAfter`。格式：date-time；须匹配 `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
 | nextCursor | String | 下一页游标，本轮扫描结束后为 `null`。最长 8,192 个字符；可为 null |
-| hasMore | Boolean | 是否还有下一页同步数据。 |
+| hasMore | Boolean | 是否还有下一页同步数据 |
 
 请求示例：
 
@@ -3013,17 +3011,17 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 字段名 | 类型 | 描述 |
 | - | - | - |
-| id | String | 资源 ID。 |
+| id | String | 资源 ID |
 | url | String | 分享地址。格式：uri |
 | products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[商品快照字段](#product-snapshot-fields) |
 | createdById | Integer | 创建者用户 ID。可为 null |
 | createdByApiKeyId | String | 创建者 API key ID。可为 null |
-| createdByName | String | 创建者名称。 |
+| createdByName | String | 创建者名称 |
 | createdAt | String | 创建时间。格式：date-time |
 | expiresAt | String | 过期时间。可为 null；格式：date-time |
 | revokedAt | String | 撤销时间。可为 null；格式：date-time |
-| allowDownload | Boolean | 是否允许下载。 |
-| hasAccessCode | Boolean | 分享是否设置访问码。 |
+| allowDownload | Boolean | 是否允许下载 |
+| hasAccessCode | Boolean | 分享是否设置访问码 |
 | status | String | 当前状态。允许值：active、expired、revoked |
 | canRevoke | Boolean | 当前调用方是否可撤销此分享（仅 `manage` 角色且分享未撤销时为 `true`）。 |
 
@@ -3218,7 +3216,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 字段名 | 类型 | 描述 |
 | - | - | - |
-| id | String | 资源 ID。 |
+| id | String | 资源 ID |
 | revokedAt | String | 撤销时间。格式：date-time |
 
 请求示例：
@@ -3283,13 +3281,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 字段名 | 类型 | 描述 |
 | - | - | - |
-| id | String | 资源 ID。 |
+| id | String | 资源 ID |
 | kind | String | 操作类型。允许值：product_export、asset_download |
 | status | String | 当前状态。允许值：requested、failed |
 | actorType | String | 操作者类型。允许值：member、external、api_key |
 | actorId | Integer | 操作者 ID。可为 null |
 | apiKeyId | String | API key ID。可为 null |
-| actorName | String | 操作者名称。 |
+| actorName | String | 操作者名称 |
 | shareId | String | 分享 ID。可为 null |
 | products | List&lt;ProductLabelSnapshot&gt; | 商品快照。嵌套字段：[商品快照字段](#product-snapshot-fields) |
 | files | List&lt;FileLabelSnapshot&gt; | 文件快照。嵌套字段：[文件快照字段](#file-snapshot-fields) |
