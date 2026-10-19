@@ -70,7 +70,7 @@ All operations use `POST https://open.musedam.cc/api/muse/product-api` with `Aut
 | --- | --- | --- |
 | `code` | String | Public gateway code: `"0"` on success, `"MB100005"` for upstream failures, `"MO100002"` for invalid credentials. |
 | `message` | String | Example success wording: `"OK"`. Text is for diagnostics only; do not parse it or branch on it. |
-| `result` | Object / null | Business result on success; `null` on gateway errors. |
+| `result` | Object / null | Business result. |
 | `result.success` | Boolean | `true` on success, `false` on failure. |
 | `result.data` | Object / Array | Returned object or array on success. |
 | `result.code` | null | `null` on success. [Internal error codes](#error-catalog) are troubleshooting references. |

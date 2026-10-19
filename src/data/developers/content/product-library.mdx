@@ -70,7 +70,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | --- | --- | --- |
 | `code` | String | 公网网关码：成功为 `"0"`，上游失败为 `"MB100005"`，无效凭证为 `"MO100002"`。 |
 | `message` | String | 成功示例为 `"OK"`；文案仅供诊断，不应解析或用于分支判断。 |
-| `result` | Object / null | 成功时包含业务结果；网关错误时为 `null`。 |
+| `result` | Object / null | 业务结果。 |
 | `result.success` | Boolean | 成功 `true`，失败 `false`。 |
 | `result.data` | Object / Array | 成功时根据接口返回对象或数组。 |
 | `result.code` | null | 成功时为 `null`；内部错误码见[排障参考](#error-catalog)。 |
