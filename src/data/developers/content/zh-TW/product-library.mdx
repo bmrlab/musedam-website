@@ -74,7 +74,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | `result.success` | Boolean | 成功 `true`，失敗 `false`。 |
 | `result.data` | Object / Array | 成功時依介面回傳物件或陣列。 |
 | `result.code` | null | 成功時為 `null`；內部錯誤碼見[疑難排解參考](#error-catalog)。 |
-| `result.message` | null | 成功時為 `null`；閘道錯誤時沒有此欄位。 |
+| `result.message` | null | 錯誤訊息。 |
 | `result.pagination` | Object | 列表與同步介面成功時回傳的分頁資訊。 |
 | `result.requestId` | String | 請求 ID。 |
 | `traceId` | String | 鏈路追蹤 ID。 |
