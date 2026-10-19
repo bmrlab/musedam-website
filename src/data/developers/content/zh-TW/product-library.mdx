@@ -145,12 +145,12 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
 | id | Integer | 資源 ID。正整數 ID，最大 2147483647。 |
-| name | String | 名稱。 |
-| code | String | 編碼。 |
+| name | String | 名稱 |
+| code | String | 編碼 |
 | description | String | 說明。可為 null |
 | website | String | 網站地址。可為 null |
-| sortOrder | Integer | 排序值。 |
-| isEnabled | Boolean | 是否啓用。 |
+| sortOrder | Integer | 排序值 |
+| isEnabled | Boolean | 是否啓用 |
 | createdAt | String | RFC 3339 時間字串；保留完整精度。|
 | updatedAt | String | RFC 3339 時間字串；保留完整精度。|
 
@@ -498,13 +498,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | id | Integer | 資源 ID。正整數 ID，最大 2147483647。 |
 | brandId | Integer | 品牌 ID。正整數 ID，最大 2147483647。 |
 | parentId | Integer | 父分類 ID。正整數 ID，最大 2147483647；可為 null |
-| name | String | 名稱。 |
-| pathKey | String | 分類路徑。 |
+| name | String | 名稱 |
+| pathKey | String | 分類路徑 |
 | description | String | 說明。可為 null |
 | iconEmoji | String | 分類表情圖標。可為 null |
 | iconAssetId | Integer | 分類圖標 ID。正整數 ID，最大 2147483647；可為 null |
-| sortOrder | Integer | 排序值。 |
-| isEnabled | Boolean | 是否啓用。 |
+| sortOrder | Integer | 排序值 |
+| isEnabled | Boolean | 是否啓用 |
 | createdAt | String | RFC 3339 時間字串；保留完整精度。|
 | updatedAt | String | RFC 3339 時間字串；保留完整精度。|
 
@@ -904,7 +904,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 欄位類型 | config 設定 |
 | --- | --- |
 | `text`、`textarea`、`email`、`phone`、`url`、`color`、`date`、`dateRange` | 使用 `{}`，不接受其他設定。 |
-| `number` | 選填 `unit`，字串。 |
+| `number` | 選填 `unit`，字串 |
 | `currency` | 必填 `code`、`symbol`（非空字串）和 `decimals`（0–4 的整數）。 |
 | `richtext` | 必填 `mode`，取值為 `html` 或 `delta`。 |
 | `select`、`radio`、`checkbox` | 必填非空 `options` 陣列。每項見下表，`value` 不得重複。 |
@@ -914,10 +914,10 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 欄位 | 類型 | 說明 |
 | --- | --- | --- |
-| `value` | string | 必填，非空，選項的唯一值。 |
-| `label` | string | 必填，非空，顯示名稱。 |
-| `sortOrder` | integer | 必填，非負整數。 |
-| `archived` | boolean | 選填，是否封存該選項。 |
+| `value` | string | 必填，非空，選項的唯一值 |
+| `label` | string | 必填，非空，顯示名稱 |
+| `sortOrder` | integer | 必填，非負整數 |
+| `archived` | boolean | 選填，是否封存該選項 |
 
 所有系統欄位在更新模板（`updateTemplate`）時必須保持原有的 `type`、`required` 與 `config` 不變，不支援透過 Open API 修改系統欄位的 `config`。
 
@@ -934,14 +934,14 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 欄位 | 類型 | 說明 |
 | --- | --- | --- |
-| `isDefault` | boolean | 是否為預設分組。 |
-| `sortOrder` | integer | 分組順序。 |
+| `isDefault` | boolean | 是否為預設分組 |
+| `sortOrder` | integer | 分組順序 |
 
 每個欄位固定回傳 `id`、`key`、`name`、`type`、`required`、`placeholder`、`sortOrder`、`config`，以及以下屬性；不回傳寫入參數 `typeChangeConfirmed`。
 
 | 欄位 | 類型 | 說明 |
 | --- | --- | --- |
-| `isSystemField` | boolean | 是否為系統欄位。 |
+| `isSystemField` | boolean | 是否為系統欄位 |
 | `systemKey` | string 或 null | 系統身分：`name`、`sku`、`brand`、`category`、`description`、`mainImage`；自訂欄位為 `null`。 |
 
 `placeholder` 可為 `null`。設定中的媒體引用會回傳安全的預覽資訊，不包含儲存路徑或憑證。
@@ -954,11 +954,11 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
 | id | String | 資源 ID。最短 1 個字元；最長 128 個字元 |
-| name | String | 名稱。 |
+| name | String | 名稱 |
 | description | String | 說明。可為 null |
-| enabled | Boolean | 是否啓用模板。 |
-| isSystemDefault | Boolean | 是否為系統預設範本。 |
-| isLibraryDefault | Boolean | 是否為商品庫預設範本。 |
+| enabled | Boolean | 是否啓用模板 |
+| isSystemDefault | Boolean | 是否為系統預設範本 |
+| isLibraryDefault | Boolean | 是否為商品庫預設範本 |
 | createdAt | String | RFC 3339 時間字串；保留完整精度。|
 | updatedAt | String | RFC 3339 時間字串；保留完整精度。|
 | boundBrandIds | List&lt;Integer&gt; | 綁定的品牌 ID。每個元素：正整數 ID，最大 2147483647。 |
@@ -1657,7 +1657,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
 | id | Integer | 資源 ID。正整數 ID，最大 2147483647。 |
-| name | String | 名稱。 |
+| name | String | 名稱 |
 | spu | String | 商品 SKU。可為 null |
 | description | String | 說明。可為 null |
 | status | String | 當前狀態。允許值：draft、published |
@@ -1724,7 +1724,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 | pageSize | Integer | 每頁數量。最小值：1；最大值：100 |
 | syncedUntil | String | 伺服器時鐘減 30 秒，在整個週期內固定。僅在 nextCursor 為 null 後原樣保存此字串。格式：date-time；須匹配 `^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$` |
 | nextCursor | String | 下一頁游標，掃描結束後為 null。最長 8,192 個字元；可為 null |
-| hasMore | Boolean | 是否還有下一頁同步數據。 |
+| hasMore | Boolean | 是否還有下一頁同步數據 |
 
 請求範例：
 
@@ -3019,19 +3019,19 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
-| id | String | 資源 ID。 |
+| id | String | 資源 ID |
 | url | String | 分享地址。格式：uri |
 | products | List&lt;ProductLabelSnapshot&gt; | 商品快照。巢狀欄位：[商品快照欄位](#product-snapshot-fields) |
 | createdById | Integer | 創建者用戶 ID。可為 null |
 | createdByApiKeyId | String | 創建者 API key ID。可為 null |
-| createdByName | String | 創建者名稱。 |
+| createdByName | String | 創建者名稱 |
 | createdAt | String | 創建時間。格式：date-time |
 | expiresAt | String | 過期時間。可為 null；格式：date-time |
 | revokedAt | String | 撤銷時間。可為 null；格式：date-time |
-| allowDownload | Boolean | 是否允許下載。 |
-| hasAccessCode | Boolean | 分享是否設置訪問碼。 |
+| allowDownload | Boolean | 是否允許下載 |
+| hasAccessCode | Boolean | 分享是否設置訪問碼 |
 | status | String | 當前狀態。允許值：active、expired、revoked |
-| canRevoke | Boolean | 當前調用方是否可撤銷此分享。 |
+| canRevoke | Boolean | 當前調用方是否可撤銷此分享 |
 
 </details>
 
@@ -3224,7 +3224,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
-| id | String | 資源 ID。 |
+| id | String | 資源 ID |
 | revokedAt | String | 撤銷時間。格式：date-time |
 
 請求範例：
@@ -3289,13 +3289,13 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 
 | 欄位名 | 類型 | 描述 |
 | - | - | - |
-| id | String | 資源 ID。 |
+| id | String | 資源 ID |
 | kind | String | 操作類型。允許值：product_export、asset_download |
 | status | String | 當前狀態。允許值：requested、failed |
 | actorType | String | 操作者類型。允許值：member、external、api_key |
 | actorId | Integer | 操作者 ID。可為 null |
 | apiKeyId | String | API key ID。可為 null |
-| actorName | String | 操作者名稱。 |
+| actorName | String | 操作者名稱 |
 | shareId | String | 分享 ID。可為 null |
 | products | List&lt;ProductLabelSnapshot&gt; | 商品快照。巢狀欄位：[商品快照欄位](#product-snapshot-fields) |
 | files | List&lt;FileLabelSnapshot&gt; | 文件快照。巢狀欄位：[檔案快照欄位](#file-snapshot-fields) |
