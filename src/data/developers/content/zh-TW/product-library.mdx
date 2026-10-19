@@ -32,7 +32,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-成功回應使用 HTTP 200，JSON 中 `code` 為 `"0"`，`message` 範例為 `"OK"`，`result.success` 為 `true`，商品資料位於 `result.data`，分頁資訊位於 `result.pagination`。`message` 文案不穩定，不要據此判斷成功與否。列表為空時，請先確認商品庫中是否有目前角色可見的商品；`view_only` 和 `usable` 只能檢視已發佈商品。
+成功回應使用 HTTP 200，JSON 中 `code` 為 `"0"`，`message` 範例為 `"OK"`，`result.success` 為 `true`，商品資料位於 `result.data`，分頁資訊位於 `result.pagination`。列表為空時，請先確認商品庫中是否有目前角色可見的商品；`view_only` 和 `usable` 只能檢視已發佈商品。
 
 ## 請求與回應
 

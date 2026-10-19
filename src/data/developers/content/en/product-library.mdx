@@ -32,7 +32,7 @@ curl --request POST 'https://open.musedam.cc/api/muse/product-api' \
 }'
 ```
 
-A successful response uses HTTP 200 with `code: "0"`, an example `message: "OK"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. Message wording is not stable; do not branch on it. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
+A successful response uses HTTP 200 with `code: "0"`, an example `message: "OK"`, `result.success: true`, products in `result.data`, and paging information in `result.pagination`. If the list is empty, check whether the library contains products visible to your role; `view_only` and `usable` can only view published products.
 
 ## Requests and responses
 
