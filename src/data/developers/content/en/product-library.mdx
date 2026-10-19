@@ -73,7 +73,7 @@ All operations use `POST https://open.musedam.cc/api/muse/product-api` with `Aut
 | `result` | Object / null | Business result on success; `null` on gateway errors. |
 | `result.success` | Boolean | `true` on success, `false` on failure. |
 | `result.data` | Object / Array | Returned object or array on success. |
-| `result.code` | null | `null` on success. [Internal error codes](#error-catalog) are troubleshooting references, not public gateway error fields. |
+| `result.code` | null | `null` on success. [Internal error codes](#error-catalog) are troubleshooting references. |
 | `result.message` | null | `null` on success; absent on gateway errors. |
 | `result.pagination` | Object | Pagination metadata returned on list and sync endpoints. |
 | `result.requestId` | String | Request ID. |
