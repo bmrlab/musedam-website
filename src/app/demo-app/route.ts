@@ -8,224 +8,219 @@ import {
   loginRedirect,
   PAGE_HEADERS,
 } from './access'
+import { listDemoFiles, type DemoFile } from './storage'
 import {
-  assembleTempUpload,
-  deleteDemoFile,
-  deleteTempUpload,
-  isSafeSegment,
-  listDemoFiles,
-  MAX_DEMO_BYTES,
-  putDemoFile,
-  putTempChunk,
-  UPLOAD_ID_RE,
-  type DemoFile,
-} from './storage'
+  demoFolder,
+  demoHref,
+  demoName,
+  formatDate,
+  formatSize,
+  ICONS,
+  PAGE_TITLE,
+  renderShell,
+} from './ui'
 
 export const dynamic = 'force-dynamic'
 
-const HTML_FILE_RE = /\.html?$/i
+const RECENT_MS = 7 * 24 * 60 * 60 * 1000
 
-function formatSize(bytes: number) {
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`
+/** 按路径生成稳定的封面色相 */
+function coverHue(path: string) {
+  let hash = 0
+  for (const char of path) hash = (hash * 31 + char.codePointAt(0)!) | 0
+  return Math.abs(hash) % 360
 }
 
-function formatDate(date?: Date) {
-  if (!date) return ''
-  return new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+function shortDate(date?: Date) {
+  return date ? formatDate(date).slice(0, 10) : ''
 }
 
-/** `a/b` → ['a', 'b']；含非法片段时返回 null */
-function parsePath(value: string) {
-  const segments = value
-    .trim()
-    .split('/')
-    .map((s) => s.trim())
-    .filter(Boolean)
-  return segments.every(isSafeSegment) ? segments : null
+function renderCard(file: DemoFile, now: number) {
+  const name = demoName(file)
+  const folder = demoFolder(file)
+  const href = demoHref(file)
+  const time = file.lastModified?.getTime() ?? 0
+  const isNew = time && now - time < RECENT_MS
+  return `<article class="card" data-folder="${escapeHtml(folder)}" data-name="${escapeHtml(name.toLowerCase())}" data-search="${escapeHtml(file.path.toLowerCase())}" data-time="${time}">
+  <a class="cover" href="${escapeHtml(href)}" target="_blank" rel="noopener" style="--h:${coverHue(file.path)}">
+    <span class="window">
+      <span class="window-bar"><i></i><i></i><i></i></span>
+      <span class="window-title">${escapeHtml(name)}</span>
+    </span>
+    ${isNew ? '<span class="badge">NEW</span>' : ''}
+    <span class="cover-open">${ICONS.open}打开</span>
+  </a>
+  <div class="card-body">
+    <div class="card-text">
+      <a class="card-title" href="${escapeHtml(href)}" target="_blank" rel="noopener" title="${escapeHtml(file.path)}">${escapeHtml(name)}</a>
+      <div class="card-meta">
+        ${folder ? `<span class="chip">${escapeHtml(folder)}</span>` : ''}
+        <span>${formatSize(file.size)}</span><span class="dot"></span><span title="${formatDate(file.lastModified)}">${shortDate(file.lastModified)}</span>
+      </div>
+    </div>
+    <button class="copy" type="button" data-href="${escapeHtml(href)}" title="复制链接" aria-label="复制链接">${ICONS.link}</button>
+  </div>
+</article>`
 }
 
-function groupByFolder(files: DemoFile[]) {
-  const groups = new Map<string, DemoFile[]>()
+function renderFolders(files: DemoFile[]) {
+  const counts = new Map<string, number>()
   for (const file of files) {
-    const idx = file.path.lastIndexOf('/')
-    const folder = idx === -1 ? '' : file.path.slice(0, idx)
-    groups.set(folder, [...(groups.get(folder) ?? []), file])
+    const folder = demoFolder(file)
+    counts.set(folder, (counts.get(folder) ?? 0) + 1)
   }
-  return [...groups.entries()]
+  if (counts.size < 2) return ''
+  const chips = [...counts.entries()]
+    .sort(([a], [b]) => (a === '' ? -1 : b === '' ? 1 : a.localeCompare(b, 'zh-CN')))
+    .map(
+      ([folder, n]) =>
+        `<button class="tab" type="button" data-folder="${escapeHtml(folder)}">${escapeHtml(folder || '未分组')}<span>${n}</span></button>`,
+    )
+    .join('')
+  return `<div class="tabs"><button class="tab active" type="button" data-folder="*">全部<span>${files.length}</span></button>${chips}</div>`
 }
 
-function renderList(files: DemoFile[]) {
-  if (!files.length) return '<p class="empty">暂无 Demo。</p>'
-  return groupByFolder(files)
-    .map(([folder, items]) => {
-      const rows = items
-        .map((file) => {
-          const name = file.path.slice(file.path.lastIndexOf('/') + 1).replace(HTML_FILE_RE, '')
-          const href = `/demo-app/${file.path.split('/').map(encodeURIComponent).join('/')}`
-          const del = `<form method="post" data-name="${escapeHtml(file.path)}" onsubmit="return confirm('确定删除 ' + this.dataset.name + '？')"><input type="hidden" name="action" value="delete"><input type="hidden" name="path" value="${escapeHtml(file.path)}"><button class="link danger">删除</button></form>`
-          return `<li data-search="${escapeHtml(file.path.toLowerCase())}">
-  <a href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(name)}</a>
-  <span class="meta">${formatSize(file.size)} · ${formatDate(file.lastModified)}${del}</span>
-</li>`
-        })
-        .join('\n')
-      return `<section>
-  <h2>${escapeHtml(folder || '根目录')}<span>${items.length}</span></h2>
-  <ul>${rows}</ul>
-</section>`
-    })
-    .join('\n')
-}
+const LIST_CSS = `
+  .hero { padding: 48px 0 24px; }
+  .hero h1 { margin: 0; font-size: 32px; line-height: 1.25; letter-spacing: -.02em; color: var(--ink); }
+  .hero p { margin: 8px 0 0; color: var(--sub); font-size: 15px; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
+  .search { position: relative; flex: 1 1 280px; max-width: 420px; }
+  .search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--sub); }
+  .search .field { width: 100%; padding-left: 36px; }
+  .toolbar select.field { padding-right: 32px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; margin-top: 16px; padding-bottom: 4px; scrollbar-width: none; }
+  .tab { flex: none; height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .15s; }
+  .tab span { margin-left: 6px; color: var(--sub); font-size: 12px; }
+  .tab:hover { border-color: var(--accent); }
+  .tab.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .tab.active span { color: inherit; opacity: .7; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 24px 0 80px; }
+  .card { position: relative; display: flex; flex-direction: column; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s; }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: transparent; }
+  .cover { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 0% 0%, hsl(var(--h) 90% 72% / .95), transparent 60%),
+      radial-gradient(120% 90% at 100% 100%, hsl(calc(var(--h) + 50) 85% 62% / .95), transparent 60%),
+      hsl(calc(var(--h) + 20) 70% 55%); }
+  .cover::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px); background-size: 14px 14px; mask-image: linear-gradient(to bottom, #000, transparent); }
+  .window { position: relative; z-index: 1; width: 76%; height: 64%; display: flex; flex-direction: column; border-radius: 10px; background: rgba(255,255,255,.9); box-shadow: 0 12px 32px rgba(16,20,38,.18); overflow: hidden; transform: translateY(10%); transition: transform .3s; }
+  .card:hover .window { transform: translateY(4%); }
+  .window-bar { display: flex; gap: 5px; padding: 8px 10px; background: rgba(255,255,255,.7); border-bottom: 1px solid rgba(34,43,69,.06); }
+  .window-bar i { width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--h) 60% 70%); }
+  .window-bar i:nth-child(2) { background: hsl(calc(var(--h) + 40) 60% 72%); }
+  .window-bar i:nth-child(3) { background: hsl(calc(var(--h) + 80) 60% 74%); }
+  .window-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: auto 14px; color: hsl(var(--h) 45% 28%); font-size: 15px; font-weight: 700; line-height: 1.35; text-align: center; word-break: break-all; }
+  .badge { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,.92); color: #222b45; font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .cover-open { position: absolute; z-index: 2; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; background: rgba(16,20,38,.55); color: #fff; font-size: 12px; opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .2s; backdrop-filter: blur(6px); }
+  .cover-open svg { width: 14px; height: 14px; }
+  .card:hover .cover-open { opacity: 1; transform: none; }
+  .card-body { display: flex; align-items: flex-start; gap: 8px; padding: 14px 12px 16px 16px; }
+  .card-text { flex: 1; min-width: 0; }
+  .card-title { display: block; font-size: 15px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy { flex: none; width: 30px; height: 30px; margin-top: -3px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--sub); cursor: pointer; transition: background .15s, color .15s; }
+  .card-title:hover { color: var(--accent); }
+  .card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 6px; color: var(--sub); font-size: 12px; }
+  .chip { max-width: 100%; padding: 1px 8px; border-radius: 6px; background: var(--surface-2); color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
+  .copy svg { width: 16px; height: 16px; }
+  .copy:hover { background: var(--accent-soft); color: var(--accent); }
+  .no-result { grid-column: 1 / -1; }
+  @media (max-width: 640px) {
+    .hero { padding-top: 32px; }
+    .hero h1 { font-size: 26px; }
+    .grid { grid-template-columns: 1fr; gap: 16px; }
+    .search { max-width: none; }
+  }
+`
 
-function renderUpload() {
-  return `<form id="upload-form" class="upload" method="post" enctype="multipart/form-data">
-  <input type="hidden" name="action" value="upload">
-  <input type="file" name="files" accept=".html,.htm" multiple required>
-  <input type="text" name="folder" placeholder="目录（可选，如 AI识别对象）">
-  <button type="submit">上传</button>
-  <p class="hint">仅支持 .html / .htm，单文件不超过 64 MB；同名文件会被覆盖。大文件会自动分片上传。</p>
-</form>`
-}
+const LIST_SCRIPT = `
+  (function () {
+    var grid = document.getElementById('grid');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
+    var q = document.getElementById('q');
+    var sort = document.getElementById('sort');
+    var noResult = document.getElementById('no-result');
+    var folder = '*';
 
-function renderPage({ files, message }: { files?: DemoFile[]; message?: string }) {
-  const body = files ? renderList(files) : '<p class="empty">Demo 列表加载失败，请稍后重试。</p>'
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>MuseDAM Demo</title>
-<style>
-  :root { color-scheme: light; --bg: #f7f9fc; --card: #fff; --ink: #2e3a59; --sub: #8f9bb3; --line: #e4e9f2; --accent: #3366ff; --danger: #ff3d71; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
-  main { max-width: 960px; margin: 0 auto; padding: 40px 16px 80px; }
-  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
-  h1 { margin: 0; font-size: 24px; }
-  h1 span { color: var(--sub); font-size: 14px; font-weight: 400; margin-left: 8px; }
-  input[type="search"], input[type="text"] { height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: #fff; }
-  input:focus { outline: none; border-color: var(--accent); }
-  #q { margin-left: auto; width: 260px; max-width: 100%; }
-  button { height: 36px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; cursor: pointer; }
-  button.link { height: auto; padding: 0; background: none; color: var(--accent); }
-  button.danger { color: var(--danger); }
-  .upload { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--card); border: 1px dashed var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
-  .upload .hint { flex-basis: 100%; margin: 0; }
-  .message { padding: 10px 16px; border-radius: 8px; background: #e6f0ff; margin-bottom: 16px; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
-  h2 { margin: 0 0 8px; font-size: 15px; }
-  h2 span { color: var(--sub); font-weight: 400; margin-left: 8px; }
-  ul { list-style: none; margin: 0; padding: 0; }
-  li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 10px 0; border-top: 1px solid var(--line); }
-  li:first-child { border-top: 0; }
-  li form { display: inline; margin-left: 12px; }
-  a { color: var(--accent); text-decoration: none; word-break: break-all; }
-  a:hover { text-decoration: underline; }
-  .meta, .empty, .hint { color: var(--sub); }
-  [hidden] { display: none !important; }
-</style>
-</head>
-<body>
-<main>
-  <header>
-    <h1>MuseDAM Demo${files ? `<span>共 ${files.length} 个</span>` : ''}</h1>
-    <input id="q" type="search" placeholder="搜索 Demo" autocomplete="off">
-  </header>
-  ${message ? `<p class="message">${escapeHtml(message)}</p>` : ''}
-  ${renderUpload()}
-  ${body}
-</main>
-<script>
-  document.getElementById('q').addEventListener('input', function (e) {
-    var q = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('section').forEach(function (s) {
+    function apply() {
+      var text = q.value.trim().toLowerCase();
       var shown = 0;
-      s.querySelectorAll('li').forEach(function (li) {
-        var hit = !q || li.dataset.search.indexOf(q) !== -1;
-        li.hidden = !hit;
+      cards.forEach(function (c) {
+        var hit = (folder === '*' || c.dataset.folder === folder) && (!text || c.dataset.search.indexOf(text) !== -1);
+        c.hidden = !hit;
         if (hit) shown++;
       });
-      s.hidden = shown === 0;
-    });
-  });
-
-  (function () {
-    var form = document.getElementById('upload-form');
-    if (!form) return;
-    var CHUNK = 256 * 1024;
-    var MAX = 64 * 1024 * 1024;
-    var button = form.querySelector('button[type="submit"]');
-
-    async function postForm(data) {
-      var res = await fetch('/demo-app', { method: 'POST', body: data, credentials: 'same-origin' });
-      var body = {};
-      try { body = await res.json(); } catch (e) {}
-      if (!res.ok) {
-        if (res.status === 413) throw new Error('文件过大，无法上传');
-        throw new Error(body.error || '上传失败');
-      }
-      return body;
+      noResult.hidden = shown !== 0;
     }
 
-    async function uploadOne(file, folder) {
-      if (file.size > MAX) throw new Error(file.name + ' 超过 64 MB');
-      var total = Math.max(1, Math.ceil(file.size / CHUNK));
-      var id = crypto.randomUUID();
-      for (var i = 0; i < total; i++) {
-        var chunk = file.slice(i * CHUNK, Math.min(file.size, (i + 1) * CHUNK));
-        var data = new FormData();
-        data.append('action', 'upload-chunk');
-        data.append('id', id);
-        data.append('index', String(i));
-        data.append('total', String(total));
-        data.append('name', file.name);
-        data.append('folder', folder);
-        data.append('chunk', chunk, file.name);
-        await postForm(data);
-        if (button) button.textContent = '上传中 ' + (i + 1) + '/' + total;
-      }
-      var done = new FormData();
-      done.append('action', 'upload-complete');
-      done.append('id', id);
-      done.append('total', String(total));
-      done.append('name', file.name);
-      done.append('folder', folder);
-      await postForm(done);
+    function reorder() {
+      var by = sort.value;
+      cards.sort(function (a, b) {
+        if (by === 'name') return a.dataset.name.localeCompare(b.dataset.name, 'zh-CN');
+        return Number(b.dataset.time) - Number(a.dataset.time);
+      });
+      cards.forEach(function (c) { grid.insertBefore(c, noResult); });
     }
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var files = Array.prototype.slice.call(form.querySelector('[name="files"]').files);
-      files = files.filter(function (f) { return f && f.size > 0; });
-      if (!files.length) return;
-      var folder = (form.querySelector('[name="folder"]') || {}).value || '';
-      button.disabled = true;
-      button.textContent = '上传中…';
-      (async function () {
-        for (var i = 0; i < files.length; i++) {
-          button.textContent = '上传中 ' + (i + 1) + '/' + files.length;
-          await uploadOne(files[i], folder);
-        }
-        location.href = '/demo-app?msg=' + encodeURIComponent('已上传 ' + files.map(function (f) { return f.name; }).join('、'));
-      })().catch(function (err) {
-        button.disabled = false;
-        button.textContent = '上传';
-        location.href = '/demo-app?msg=' + encodeURIComponent(err.message || '上传失败');
+    q.addEventListener('input', apply);
+    sort.addEventListener('change', reorder);
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
+        folder = tab.dataset.folder;
+        apply();
       });
     });
+    grid.addEventListener('click', function (e) {
+      var btn = e.target.closest('.copy');
+      if (!btn) return;
+      var url = location.origin + btn.dataset.href;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+        .then(function () { toast('链接已复制'); })
+        .catch(function () { window.prompt('复制链接', url); });
+    });
+    reorder();
   })();
-</script>
-</body>
-</html>`
+`
+
+function renderPage(files?: DemoFile[]) {
+  const now = Date.now()
+  const content = !files
+    ? '<p class="empty">Demo 列表加载失败，请稍后重试。</p>'
+    : !files.length
+      ? `<div class="empty">还没有 Demo，<a href="/demo-app/upload" style="color:var(--accent)">去上传</a>。</div>`
+      : `${renderFolders(files)}
+  <div class="grid" id="grid">
+    ${files.map((file) => renderCard(file, now)).join('\n')}
+    <p class="empty no-result" id="no-result" hidden>没有匹配的 Demo</p>
+  </div>`
+
+  return renderShell({
+    title: PAGE_TITLE,
+    css: LIST_CSS,
+    actions: `<a class="btn primary" href="/demo-app/upload">${ICONS.upload}上传 Demo</a>`,
+    body: `<main class="wrap">
+  <section class="hero">
+    <h1>${escapeHtml(PAGE_TITLE)}</h1>
+    <p>MuseDAM 产品演示原型合集${files ? ` · 共 ${files.length} 个` : ''}，点击卡片在新标签页打开。</p>
+    ${
+      files?.length
+        ? `<div class="toolbar">
+      <label class="search">${ICONS.search}<input class="field" id="q" type="search" placeholder="搜索 Demo 名称或目录" autocomplete="off"></label>
+      <select class="field" id="sort" aria-label="排序">
+        <option value="time">最近更新</option>
+        <option value="name">按名称</option>
+      </select>
+    </div>`
+        : ''
+    }
+  </section>
+  ${content}
+</main>`,
+    script: files?.length ? LIST_SCRIPT : '',
+  })
 }
 
 export async function GET(request: NextRequest) {
@@ -233,126 +228,11 @@ export async function GET(request: NextRequest) {
   if (!user) return loginRedirect(request)
   if (!isMuseSale(user)) return forbiddenResponse()
 
-  const message = request.nextUrl.searchParams.get('msg') ?? undefined
   try {
     const files = await listDemoFiles()
-    return new NextResponse(renderPage({ files, message }), { headers: PAGE_HEADERS })
+    return new NextResponse(renderPage(files), { headers: PAGE_HEADERS })
   } catch (error) {
     console.error('demo-app list error:', error)
-    return new NextResponse(renderPage({ message }), {
-      status: 502,
-      headers: PAGE_HEADERS,
-    })
-  }
-}
-
-function redirectWithMessage(request: NextRequest, message: string) {
-  const url = new URL('/demo-app', request.url)
-  url.searchParams.set('msg', message)
-  return NextResponse.redirect(url, 303)
-}
-
-function jsonError(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status })
-}
-
-type UploadMeta = { uploadId: string; total: number; name: string; folder: string[] }
-
-function parseUploadMeta(form: FormData): UploadMeta | { error: string } {
-  const uploadId = String(form.get('id') ?? '')
-  const total = Number(form.get('total'))
-  const name = String(form.get('name') ?? '')
-  const folder = parsePath(String(form.get('folder') ?? ''))
-  if (!UPLOAD_ID_RE.test(uploadId)) return { error: '上传失败：会话无效' }
-  if (!Number.isInteger(total) || total < 1 || total > 256) return { error: '上传失败：分片数量不合法' }
-  if (!folder) return { error: '上传失败：目录名不合法' }
-  if (!HTML_FILE_RE.test(name) || !isSafeSegment(name)) {
-    return { error: '上传失败：仅支持 .html / .htm 文件' }
-  }
-  return { uploadId, total, name, folder }
-}
-
-export async function POST(request: NextRequest) {
-  const origin = request.headers.get('origin')
-  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
-  if (origin && new URL(origin).host !== host) {
-    return new NextResponse('Forbidden', { status: 403 })
-  }
-  const user = await getDemoViewer()
-  if (!user) return new NextResponse('Unauthorized', { status: 401 })
-  if (!isMuseSale(user)) return new NextResponse('Forbidden', { status: 403 })
-
-  let action = ''
-  try {
-    const form = await request.formData()
-    action = String(form.get('action') ?? '')
-
-    if (action === 'delete') {
-      const segments = parsePath(String(form.get('path') ?? ''))
-      if (!segments?.length) return redirectWithMessage(request, '删除失败：路径不合法')
-      await deleteDemoFile(segments)
-      return redirectWithMessage(request, `已删除 ${segments.join('/')}`)
-    }
-
-    if (action === 'upload-chunk') {
-      const meta = parseUploadMeta(form)
-      if ('error' in meta) return jsonError(meta.error)
-      const index = Number(form.get('index'))
-      if (!Number.isInteger(index) || index < 0 || index >= meta.total) {
-        return jsonError('上传失败：分片序号不合法')
-      }
-      const chunk = form.get('chunk')
-      if (!(chunk instanceof File) || chunk.size <= 0 || chunk.size > 512 * 1024) {
-        return jsonError('上传失败：分片无效')
-      }
-      await putTempChunk(meta.uploadId, index, new Uint8Array(await chunk.arrayBuffer()))
-      return NextResponse.json({ ok: true })
-    }
-
-    if (action === 'upload-complete') {
-      const meta = parseUploadMeta(form)
-      if ('error' in meta) return jsonError(meta.error)
-      try {
-        const body = await assembleTempUpload(meta.uploadId, meta.total)
-        if (body.byteLength > MAX_DEMO_BYTES) return jsonError('上传失败：文件超过 64 MB')
-        await putDemoFile([...meta.folder, meta.name], body)
-      } finally {
-        await deleteTempUpload(meta.uploadId).catch((error) => {
-          console.error('demo-app temp cleanup error:', error)
-        })
-      }
-      return NextResponse.json({ ok: true })
-    }
-
-    if (action === 'upload') {
-      const folder = parsePath(String(form.get('folder') ?? ''))
-      if (!folder) return redirectWithMessage(request, '上传失败：目录名不合法')
-      const files = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0)
-      if (!files.length) return redirectWithMessage(request, '上传失败：请选择文件')
-
-      const invalid = files.filter((f) => !HTML_FILE_RE.test(f.name) || !isSafeSegment(f.name))
-      if (invalid.length) {
-        return redirectWithMessage(
-          request,
-          `上传失败：仅支持 .html / .htm 文件（${invalid.map((f) => f.name).join('、')}）`,
-        )
-      }
-      if (files.some((f) => f.size > MAX_DEMO_BYTES)) {
-        return redirectWithMessage(request, '上传失败：单文件不超过 64 MB')
-      }
-
-      for (const file of files) {
-        await putDemoFile([...folder, file.name], new Uint8Array(await file.arrayBuffer()))
-      }
-      return redirectWithMessage(request, `已上传 ${files.map((f) => f.name).join('、')}`)
-    }
-
-    return new NextResponse('Bad Request', { status: 400 })
-  } catch (error) {
-    console.error('demo-app upload error:', error)
-    if (action === 'upload-chunk' || action === 'upload-complete') {
-      return jsonError('操作失败，请稍后重试', 500)
-    }
-    return redirectWithMessage(request, '操作失败，请稍后重试')
+    return new NextResponse(renderPage(), { status: 502, headers: PAGE_HEADERS })
   }
 }

@@ -53,7 +53,7 @@ export function forbiddenResponse() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>MuseDAM Demo</title>
+<title>MuseDAM Demo Page</title>
 <style>
   body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 0 16px; background: #000; color: #fff; text-align: center; font: 16px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
   a { padding: 12px 32px; border-radius: 12px; background: #fff; color: #000; font-size: 14px; text-decoration: none; }
