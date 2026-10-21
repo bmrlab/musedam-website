@@ -106,16 +106,16 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/embed-code' \
 
 | code | Error | Description | Resolution |
 |-|-|-|-|
-| 50077 | EMBED_API_KEY_NOT_ALLOWED | Only team API keys can issue embed codes | Use a team API key, not a personal API key or app credential |
-| 50078 | EMBED_NOT_ENABLED | Component embedding is not enabled for this API key | Ask an administrator to enable it in the API key details |
-| 50079 | EMBED_MEMBER_NOT_FOUND | The user is not a valid member of this team | Valid members are normal, administrator, or pending-activation members who have not left the team; departed members cannot be used. The endpoint does not create accounts |
+| 50078 | EMBED_API_KEY_NOT_ALLOWED | Only team API keys can issue embed codes | Use a team API key, not a personal API key or app credential |
+| 50079 | EMBED_NOT_ENABLED | Component embedding is not enabled for this API key | Ask an administrator to enable it in the API key details |
+| 50080 | EMBED_MEMBER_NOT_FOUND | The user is not a valid member of this team | Valid members are normal, administrator, or pending-activation members who have not left the team; departed members cannot be used. The endpoint does not create accounts |
 
 If the API key is invalid or revoked, handle it as an authentication error described in [Error handling](./errors). Other related error codes:
 
 | code | Error | When it occurs |
 |-|-|-|
-| 50080 | EMBED_CODE_INVALID | The embedded page exchanges a `code` that is invalid, expired, or already used; the embedded page sends `musedam-embed-auth-failed` |
-| 50081 | EMBED_ORIGIN_INVALID | An administrator saves allowed embedding domains in an invalid format. It never occurs when issuing or embedding |
+| 50081 | EMBED_CODE_INVALID | The embedded page exchanges a `code` that is invalid, expired, or already used; the embedded page sends `musedam-embed-auth-failed` |
+| 50082 | EMBED_ORIGIN_INVALID | An administrator saves allowed embedding domains in an invalid format. It never occurs when issuing or embedding |
 
 ## Load the embedded page
 

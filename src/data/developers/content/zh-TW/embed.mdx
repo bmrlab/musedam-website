@@ -106,16 +106,16 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/embed-code' \
 
 | code | 錯誤 | 說明 | 處理方法 |
 |-|-|-|-|
-| 50077 | EMBED_API_KEY_NOT_ALLOWED | 只有團隊 API Key 才能簽發嵌入憑證 | 改用團隊 API Key，不要使用個人 API Key 或應用憑證 |
-| 50078 | EMBED_NOT_ENABLED | 該 API Key 未開啟嵌入組件 | 請管理員在 API Key 詳情中開啟嵌入組件 |
-| 50079 | EMBED_MEMBER_NOT_FOUND | 指定的用戶不是本團隊的有效成員 | 有效成員指狀態為正常、管理員或待激活且未退出團隊的成員，離職成員不可用；簽發接口不會自動創建賬號 |
+| 50078 | EMBED_API_KEY_NOT_ALLOWED | 只有團隊 API Key 才能簽發嵌入憑證 | 改用團隊 API Key，不要使用個人 API Key 或應用憑證 |
+| 50079 | EMBED_NOT_ENABLED | 該 API Key 未開啟嵌入組件 | 請管理員在 API Key 詳情中開啟嵌入組件 |
+| 50080 | EMBED_MEMBER_NOT_FOUND | 指定的用戶不是本團隊的有效成員 | 有效成員指狀態為正常、管理員或待激活且未退出團隊的成員，離職成員不可用；簽發接口不會自動創建賬號 |
 
 API Key 無效或已撤銷時，按[錯誤處理](./errors)中的認證錯誤處理。其他相關錯誤碼：
 
 | code | 錯誤 | 出現場景 |
 |-|-|-|
-| 50080 | EMBED_CODE_INVALID | 嵌入頁兌換 `code` 時，`code` 無效、已過期或已被使用；嵌入頁會發送 `musedam-embed-auth-failed` |
-| 50081 | EMBED_ORIGIN_INVALID | 管理員保存「允許嵌入的域名」時格式不正確，不會在簽發或嵌入時出現 |
+| 50081 | EMBED_CODE_INVALID | 嵌入頁兌換 `code` 時，`code` 無效、已過期或已被使用；嵌入頁會發送 `musedam-embed-auth-failed` |
+| 50082 | EMBED_ORIGIN_INVALID | 管理員保存「允許嵌入的域名」時格式不正確，不會在簽發或嵌入時出現 |
 
 ## 加載嵌入頁
 
