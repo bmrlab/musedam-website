@@ -1,6 +1,6 @@
 ## Tool catalog
 
-70 public tools, synchronized on 2026-10-21. Retrieve live schemas with `tools/list`. Third-party API Key management is not included.
+<MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> public tools, synchronized on 2026-10-21. Retrieve live schemas with `tools/list`. Third-party API Key management is not included.
 
 ## Assets, folders and tags
 
@@ -59,6 +59,8 @@
 | `musedam_approval_subscription_query` | Approval subscription query |
 | `musedam_approval_subscription_change` | Approval subscription change |
 
+<MainlandOnly>
+
 ## Product Library
 
 | Tool | Description |
@@ -92,11 +94,13 @@
 | `musedam_product_revoke_product_share` | Product revoke product share |
 | `musedam_product_list_product_downloads` | Product list product downloads |
 
+</MainlandOnly>
+
 ## Calling conventions
 
-Existing tools retain their top-level arguments. New tools with inputs accept a `params` object with camelCase API fields; no-input tools accept `{}`. Do not supply `service`: each approval and product tool fixes it internally. Configure API Key and region on the connection; China is the default, overseas uses `?region=overseas`.
+Existing tools retain their top-level arguments. New tools with inputs accept a `params` object with camelCase API fields; no-input tools accept `{}`. Do not supply `service`: each approval<MainlandOnly> and product</MainlandOnly> tool fixes it internally. Configure API Key and region on the connection; China is the default, overseas uses `?region=overseas`.
 
-Use `score` for asset modifications (`rating` is a compatibility alias; `score` wins). Uploads use `rating`, searches use `ratings`. Product Library requires API Key collaborator access and operation permissions.
+Use `score` for asset modifications (`rating` is a compatibility alias; `score` wins). Uploads use `rating`, searches use `ratings`.<MainlandOnly> Product Library requires API Key collaborator access and operation permissions.</MainlandOnly>
 
 ```json
 {

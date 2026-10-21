@@ -2,6 +2,7 @@ import { localizeDeveloperText } from './localize'
 import englishPages from './pages.en.json'
 import pages from './pages.json'
 import traditionalPages from './pages.tw.json'
+import { getDeveloperRegion, isDeveloperPageAvailable, regionalizeDeveloperBlocks } from './region'
 
 export const developerPages = pages
 export const developerGroups = [
@@ -31,22 +32,58 @@ export const developerNavigation = [
   })),
 ]
 
+/** 按部署区域过滤：去掉只在国内提供的页面，以及正文里只属于另一区域的片段和对应目录标题 */
+function regionalizePages<
+  T extends { slug: string; markdown: string; headings: { title: string }[] },
+>(list: T[]) {
+  const region = getDeveloperRegion()
+  return list
+    .filter((page) => isDeveloperPageAvailable(page.slug, region))
+    .map((page) => {
+      const { markdown, removed } = regionalizeDeveloperBlocks(page.markdown, region)
+      if (markdown === page.markdown) return page
+      const removedTitles = new Set(
+        Array.from(removed.matchAll(/^#{2,4}\s+(.+)$/gm), (match) => match[1].trim()),
+      )
+      return {
+        ...page,
+        markdown,
+        headings: page.headings.filter((heading) => !removedTitles.has(heading.title)),
+      }
+    })
+}
+
 export const getDeveloperPages = (lng: string) =>
-  lng === 'en-US' ? englishPages : lng === 'zh-TW' ? traditionalPages : pages
+  regionalizePages(lng === 'en-US' ? englishPages : lng === 'zh-TW' ? traditionalPages : pages)
 export function getDeveloperNavigation(lng: string) {
   if (lng === 'zh-TW')
     return [
       { ...developerNavigation[0], title: '概覽', description: '選擇適合你的接入方式' },
-      ...traditionalPages.map(({ slug, title, en, group, description, headings, markdown }) => ({
-        slug,
-        title,
-        en,
-        group,
-        description,
-        search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
-      })),
+      ...getDeveloperPages(lng).map(
+        ({ slug, title, en, group, description, headings, markdown }) => ({
+          slug,
+          title,
+          en,
+          group,
+          description,
+          search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
+        }),
+      ),
     ]
-  if (lng !== 'en-US') return developerNavigation
+  if (lng !== 'en-US')
+    return [
+      developerNavigation[0],
+      ...getDeveloperPages(lng).map(
+        ({ slug, title, en, group, description, headings, markdown }) => ({
+          slug,
+          title,
+          en,
+          group,
+          description,
+          search: `${headings.map((heading) => heading.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (match) => match[0]).join(' ')}`,
+        }),
+      ),
+    ]
   return [
     {
       ...developerNavigation[0],
@@ -54,14 +91,16 @@ export function getDeveloperNavigation(lng: string) {
       description: 'Choose your integration path',
       search: 'overview developer platform',
     },
-    ...englishPages.map(({ slug, title, en, group, description, headings, markdown }) => ({
-      slug,
-      title,
-      en,
-      group,
-      description,
-      search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
-    })),
+    ...getDeveloperPages(lng).map(
+      ({ slug, title, en, group, description, headings, markdown }) => ({
+        slug,
+        title,
+        en,
+        group,
+        description,
+        search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
+      }),
+    ),
   ]
 }
 

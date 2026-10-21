@@ -29,6 +29,9 @@ export function markdownComponents(
   const regionalize = (node: ReactNode): ReactNode =>
     typeof node === 'string' ? regionalizeDeveloperText(node, region) : node
   return {
+    // 只在某个部署区域展示的片段，pages*.json 中的同名标记由 regionalizeDeveloperBlocks 处理
+    MainlandOnly: ({ children }: { children?: ReactNode }) => (region === 'cn' ? <>{children}</> : null),
+    OverseasOnly: ({ children }: { children?: ReactNode }) => (region === 'overseas' ? <>{children}</> : null),
     ApiKeyScreenshot: ({
       step,
       caption,

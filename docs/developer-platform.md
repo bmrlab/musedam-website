@@ -51,6 +51,8 @@ MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添
 - 正文和 `pages*.json` 可写任意一个区域的域名，但不要写「国内为 X，海外为 Y」这类同时列出两个区域的句子。MCP 的 `region` 参数可选值属于参数说明，保留。
 - 环境变量只能在服务端读取，客户端组件（如 `ConnectionExample`）由服务端传入 `region`。
 - 商品库只在国内提供：`product-library` 页面固定按国内区域渲染，不做替换，始终显示 `https://open.musedam.cc/api/muse/product-api`。
+- 海外站隐藏商品库：`region.ts` 的 `MAINLAND_ONLY_PAGES` 列出只在国内提供的页面，海外站的导航、搜索、llms.txt、sitemap、首页卡片与复制提示词都不展示，直接访问返回 404。
+- 其他文档中只属于某个区域的内容，用 `<MainlandOnly>…</MainlandOnly>` / `<OverseasOnly>…</OverseasOnly>` 包裹，块级和行内都可以（如 MCP 工具列表的「商品库」一节和工具总数）。MDX 由同名组件渲染，`pages*.json` 的 Markdown 需写同样的标记，由 `regionalizeDeveloperBlocks()` 处理，被去掉片段里的标题也会从目录中移除。
 
 ## 2026-09-29 对外字段范围确认
 

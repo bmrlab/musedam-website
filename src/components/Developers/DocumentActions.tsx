@@ -1,4 +1,5 @@
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { getDeveloperRegion } from '@/data/developers/region'
 import getServerSideURL from '@/utilities/getServerSideURL'
 
 import { PromptDialog } from './PromptDialog'
@@ -48,7 +49,7 @@ export function DocumentActions({
             ),
         productLibraryGuidance,
       ].join('\n\n')
-    : slug === 'landing'
+    : slug === 'landing' && getDeveloperRegion() === 'cn' // 商品库只在国内提供
       ? `${generalPrompt}\n\n${productLibraryGuidance}`
       : generalPrompt
 

@@ -34,3 +34,23 @@ export function regionalizeDeveloperText(text: string, region: DeveloperRegion =
     .replace(/\/\/musedam\.ai/g, '//musedam.cc')
     .replace(/(https:\/\/mcp-service\.musedam\.cc)\?region=overseas/g, '$1')
 }
+
+/** 只在国内提供的文档页（海外站不展示、直接访问返回 404） */
+const MAINLAND_ONLY_PAGES = new Set(['product-library'])
+
+export const isDeveloperPageAvailable = (slug: string, region: DeveloperRegion = getDeveloperRegion()) =>
+  region !== 'overseas' || !MAINLAND_ONLY_PAGES.has(slug)
+
+const regionBlock = (tag: string) => new RegExp(`\\n*<${tag}>[\\s\\S]*?</${tag}>`, 'g')
+
+/**
+ * 按区域取舍正文里的 <MainlandOnly> / <OverseasOnly> 片段（MDX 中由同名组件渲染，这里处理 pages*.json 的 Markdown）。
+ * 返回保留下来的正文，以及被去掉的片段（用于同步去掉目录里的标题）。
+ */
+export function regionalizeDeveloperBlocks(text: string, region: DeveloperRegion = getDeveloperRegion()) {
+  const drop = region === 'overseas' ? 'MainlandOnly' : 'OverseasOnly'
+  const keep = region === 'overseas' ? 'OverseasOnly' : 'MainlandOnly'
+  const removed = text.match(regionBlock(drop)) ?? []
+  const markdown = text.replace(regionBlock(drop), '').replace(new RegExp(`</?${keep}>\\n?`, 'g'), '')
+  return { markdown, removed: removed.join('\n') }
+}

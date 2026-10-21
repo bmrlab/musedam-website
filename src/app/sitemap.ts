@@ -4,6 +4,7 @@ import getServerSideURL from '@/utilities/getServerSideURL'
 import { languages, enLng } from './i18n/settings'
 import { getBlogArticles } from '@/data/blog'
 import { developerNavigation } from '@/data/developers'
+import { isDeveloperPageAvailable } from '@/data/developers/region'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,9 +67,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     sitemap.push(...generateLangUrls())
 
     // Public developer documentation
-    developerNavigation.forEach(({ slug }) => {
-      sitemap.push(...generateLangUrls(`/developers/${slug}`))
-    })
+    developerNavigation
+      .filter(({ slug }) => isDeveloperPageAvailable(slug))
+      .forEach(({ slug }) => {
+        sitemap.push(...generateLangUrls(`/developers/${slug}`))
+      })
 
     // Add feature pages
     featurePages.forEach((path) => {

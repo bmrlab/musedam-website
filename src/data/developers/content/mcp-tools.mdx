@@ -1,6 +1,6 @@
 ## 工具列表
 
-当前公开参考包含 70 个工具，同步于 2026-10-21。参数以服务端 `tools/list` 返回的 schema 为准，不包含第三方应用 API Key 管理。
+当前公开参考包含 <MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> 个工具，同步于 2026-10-21。参数以服务端 `tools/list` 返回的 schema 为准，不包含第三方应用 API Key 管理。
 
 ## 素材、文件夹与标签
 
@@ -59,6 +59,8 @@
 | `musedam_approval_subscription_query` | 查询审批订阅 |
 | `musedam_approval_subscription_change` | 变更审批订阅 |
 
+<MainlandOnly>
+
 ## 商品库
 
 | 工具名 | 说明 |
@@ -92,11 +94,13 @@
 | `musedam_product_revoke_product_share` | 撤销：商品分享 |
 | `musedam_product_list_product_downloads` | 查询列表：商品下载记录 |
 
+</MainlandOnly>
+
 ## 调用约定
 
-原有工具保留顶层参数；新增带参数工具使用 `params` 对象，内部字段保留 API 的 camelCase 命名。无参数工具传 `{}`。审批和商品库工具自动填入固定的 `service`，无需传入。API Key 和区域在连接中配置，国内默认无需 region，海外使用 `?region=overseas`。
+原有工具保留顶层参数；新增带参数工具使用 `params` 对象，内部字段保留 API 的 camelCase 命名。无参数工具传 `{}`。审批<MainlandOnly>和商品库</MainlandOnly>工具自动填入固定的 `service`，无需传入。API Key 和区域在连接中配置，国内默认无需 region，海外使用 `?region=overseas`。
 
-修改素材使用 `score`（旧参数 `rating` 兼容，两者同时传入时 `score` 优先）；上传评分使用 `rating`，搜索使用 `ratings`。商品库需要将 API Key 添加为协作者，并具备对应操作权限。
+修改素材使用 `score`（旧参数 `rating` 兼容，两者同时传入时 `score` 优先）；上传评分使用 `rating`，搜索使用 `ratings`。<MainlandOnly>商品库需要将 API Key 添加为协作者，并具备对应操作权限。</MainlandOnly>
 
 ```json
 {

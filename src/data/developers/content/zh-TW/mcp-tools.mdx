@@ -1,6 +1,6 @@
 ## 工具列表
 
-當前公開參考包含 70 個工具，同步於 2026-10-21。參數以服務端 `tools/list` 返回的 schema 為準，不包含第三方應用 API Key 管理。
+當前公開參考包含 <MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> 個工具，同步於 2026-10-21。參數以服務端 `tools/list` 返回的 schema 為準，不包含第三方應用 API Key 管理。
 
 ## 素材、文件夾與標籤
 
@@ -59,6 +59,8 @@
 | `musedam_approval_subscription_query` | 查詢審批訂閱 |
 | `musedam_approval_subscription_change` | 變更審批訂閱 |
 
+<MainlandOnly>
+
 ## 商品庫
 
 | 工具名 | 說明 |
@@ -92,11 +94,13 @@
 | `musedam_product_revoke_product_share` | 撤銷：商品分享 |
 | `musedam_product_list_product_downloads` | 查詢列表：商品下載記錄 |
 
+</MainlandOnly>
+
 ## 調用約定
 
-原有工具保留頂層參數；新增帶參數工具使用 `params` 對象，內部字段保留 API 的 camelCase 命名。無參數工具傳 `{}`。審批和商品庫工具自動填入固定的 `service`，無需傳入。API Key 和區域在連接中配置，國內默認無需 region，海外使用 `?region=overseas`。
+原有工具保留頂層參數；新增帶參數工具使用 `params` 對象，內部字段保留 API 的 camelCase 命名。無參數工具傳 `{}`。審批<MainlandOnly>和商品庫</MainlandOnly>工具自動填入固定的 `service`，無需傳入。API Key 和區域在連接中配置，國內默認無需 region，海外使用 `?region=overseas`。
 
-修改素材使用 `score`（舊參數 `rating` 兼容，兩者同時傳入時 `score` 優先）；上傳評分使用 `rating`，搜索使用 `ratings`。商品庫需要將 API Key 添加為協作者，並具備對應操作權限。
+修改素材使用 `score`（舊參數 `rating` 兼容，兩者同時傳入時 `score` 優先）；上傳評分使用 `rating`，搜索使用 `ratings`。<MainlandOnly>商品庫需要將 API Key 添加為協作者，並具備對應操作權限。</MainlandOnly>
 
 ```json
 {

@@ -10,6 +10,7 @@ import { DocumentActions } from './DocumentActions'
 import { TableOfContents } from './TableOfContents'
 
 export function DeveloperLanding({ lng }: { lng: string }) {
+  const region = getDeveloperRegion()
   const en = lng === 'en-US'
   const text = (zh: string, english: string) => (en ? english : zh)
   const base = `/${lng}/developers`
@@ -142,22 +143,25 @@ export function DeveloperLanding({ lng }: { lng: string }) {
               </Link>
             ))}
           </div>
-          <div className="dev-example-note">
-            <Layers size={16} />
-            <span>
-              {text(
-                localizeDeveloperText(
-                  '商品库 API：管理商品、类目与模板，读取素材并同步商品数据。',
-                  lng,
-                ),
-                'Product Library API: manage products, categories and templates, read media and synchronize product data.',
-              )}{' '}
-              <Link className="dev-text-link" href={`${base}/product-library`}>
-                {text(localizeDeveloperText('查看 API 文档', lng), 'View API documentation')}
-                <ArrowUpRight size={14} />
-              </Link>
-            </span>
-          </div>
+          {/* 商品库只在国内提供 */}
+          {region === 'cn' && (
+            <div className="dev-example-note">
+              <Layers size={16} />
+              <span>
+                {text(
+                  localizeDeveloperText(
+                    '商品库 API：管理商品、类目与模板，读取素材并同步商品数据。',
+                    lng,
+                  ),
+                  'Product Library API: manage products, categories and templates, read media and synchronize product data.',
+                )}{' '}
+                <Link className="dev-text-link" href={`${base}/product-library`}>
+                  {text(localizeDeveloperText('查看 API 文档', lng), 'View API documentation')}
+                  <ArrowUpRight size={14} />
+                </Link>
+              </span>
+            </div>
+          )}
         </section>
         <section id="architecture" className="dev-landing-section">
           <div className="dev-section-heading">
@@ -196,7 +200,7 @@ export function DeveloperLanding({ lng }: { lng: string }) {
               'With an API Key, search for your first asset or configure your MCP client.',
             )}
           </p>
-          <ConnectionExample english={en} region={getDeveloperRegion()} />
+          <ConnectionExample english={en} region={region} />
           <div className="dev-example-note">
             <Terminal size={14} />
             <span>
