@@ -134,6 +134,14 @@ The embedded page uses the same domain your team members use to sign in to MuseD
 
 The embedded page itself is a transparent blank page that only hosts component dialogs. We recommend a full-screen iframe that your page hides or removes after the component returns a result. The `code` is removed from the embedded page URL after exchange.
 
+### Test page
+
+During integration, use the [embedded component test page](https://musedam.ai/outer/embed/test): paste an issued `code` to load the embedded page, choose an action, edit its arguments, send it, and inspect lifecycle events and results.
+
+- The test page is on the MuseDAM domain. After loading, the MuseDAM session in this browser switches to the user of the `code`, so we recommend using a private window.
+- If the API key restricts allowed embedding domains, add `https://musedam.ai` as well, or authentication fails.
+- This page tests embedding MuseDAM components in your system. The component test page in [Embedded apps & UI](./components) tests apps that run inside MuseDAM.
+
 ### Lifecycle events
 
 The embedded page sends the following events to the parent page with `postMessage`. Message structure: `{ source: 'musedam', type, timestamp, payload }`.

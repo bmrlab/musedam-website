@@ -134,6 +134,14 @@ https://musedam.cc/outer/embed?code={code}&theme=light
 
 嵌入頁本身是透明的空白頁，只承載組件彈窗。建議 iframe 全屏覆蓋，在組件返回結果後由你的頁面隱藏或移除 iframe。`code` 兌換後會從嵌入頁地址欄中移除。
 
+### 測試頁
+
+聯調時可以使用[嵌入組件測試頁](https://musedam.cc/outer/embed/test)：貼上簽發得到的 `code` 即可加載嵌入頁，選擇 action、編輯參數後發送，並查看生命週期事件和返回結果。
+
+- 測試頁與 MuseDAM 同域，加載後當前瀏覽器的 MuseDAM 登錄身份會切換為 `code` 對應的用戶，建議在無痕視窗中使用。
+- 如果 API Key 配置了允許嵌入的域名，需要把 `https://musedam.cc` 也加進去，否則會鑑權失敗。
+- 本頁面用於測試「在你的系統中嵌入 MuseDAM 組件」；[嵌入應用與組件](./components)中的組件測試頁用於測試應用嵌入 MuseDAM 內部運行的場景。
+
 ### 生命週期事件
 
 嵌入頁通過 `postMessage` 向父頁面發送以下事件，消息結構為 `{ source: 'musedam', type, timestamp, payload }`：

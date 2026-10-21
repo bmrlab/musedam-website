@@ -134,6 +134,14 @@ https://musedam.cc/outer/embed?code={code}&theme=light
 
 嵌入页本身是透明的空白页，只承载组件弹窗。建议 iframe 全屏覆盖，在组件返回结果后由你的页面隐藏或移除 iframe。`code` 兑换后会从嵌入页地址栏中移除。
 
+### 测试页
+
+联调时可以使用[嵌入组件测试页](https://musedam.cc/outer/embed/test)：粘贴签发得到的 `code` 即可加载嵌入页，选择 action、编辑参数后发送，并查看生命周期事件和返回结果。
+
+- 测试页与 MuseDAM 同域，加载后当前浏览器的 MuseDAM 登录身份会切换为 `code` 对应的用户，建议在无痕窗口中使用。
+- 如果 API Key 配置了允许嵌入的域名，需要把 `https://musedam.cc` 也加进去，否则会鉴权失败。
+- 本页面用于测试「在你的系统中嵌入 MuseDAM 组件」；[嵌入应用与组件](./components)中的组件测试页用于测试应用嵌入 MuseDAM 内部运行的场景。
+
 ### 生命周期事件
 
 嵌入页通过 `postMessage` 向父页面发送以下事件，消息结构为 `{ source: 'musedam', type, timestamp, payload }`：
