@@ -168,3 +168,12 @@ When refreshing these documents:
 Documentation verification does not establish that the public gateway forwards to
 this source snapshot. No authenticated production API requests or database
 operations are needed to build or read these pages.
+
+## 2026-10-21 异步上传
+
+依据内部 API 文档的 2.1、2.2 节（https://tezign.feishu.cn/wiki/D7kvwZORMiF4pCkMEWZcjjDnned），并核对后端 DTO、任务实现与 `000104.sql` 网关配置，在三种语言的素材管理页新增：
+
+- `POST /upload-assets-async`：URL 异步上传，单次最多 50 条，任务复用、失败重试及可选回调。
+- `POST /upload-assets-task`：任务归属校验、阶段、进度、字节数及成功/失败结果。
+
+同步维护目录、搜索描述、复制 Markdown 和文档日期。对外仅介绍 URL 上传，不说明内部存储路径上传方式或相关请求限制；响应字段保持完整。英文示例使用海外 Base URL。

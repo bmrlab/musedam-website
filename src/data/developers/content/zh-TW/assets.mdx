@@ -1,5 +1,7 @@
 ## 素材上傳
 
+大型檔案建議使用下方[非同步上傳素材](./assets#非同步上傳素材)，提交後透過任務查詢取得結果。
+
 **接口路徑**：/upload-assets
 
 **請求方式**：POST
@@ -104,6 +106,166 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/upload-assets' 
             }
         ]
     }}
+```
+
+### 非同步上傳素材
+
+**介面路徑**: /upload-assets-async
+
+**請求方式**: POST
+
+透過可下載 URL 非同步上傳素材，立即回傳任務編號，檔案下載與入庫在背景執行。檔案超過 **20 MB** 時建議使用本介面，避免同步下載逾時。提交成功僅表示已取得任務編號，素材是否上傳成功需查詢任務結果。
+
+**請求參數**
+
+JSON 陣列，單次 1–50 筆；每筆沿用上方[素材上傳](./assets#素材上傳)的 `EnterpriseAssetSaveReq` 公開欄位與權限要求。每筆必須提供可直接下載的 `url`；任一筆缺少 `url` 時，請求回傳錯誤（`30313`）。
+
+| 欄位名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| callbackUrl | String | 否 | 選填的 HTTP 或 HTTPS 回呼網址；僅非同步上傳使用。任務變為 SUCCESS 或 FAILED 後，伺服器向該網址 POST 一次任務結果 |
+
+**任務重用與重試**
+
+- 同一團隊、同一個 API Key 使用者、完全相同的 `url` 字串重用同一任務。素材擁有者 `userId` 不參與任務重用判斷。
+- 任務進行中或已成功時，回傳原 `taskId`，不重新下載或入庫；資料夾、名稱、中繼資料仍以第一次提交為準。
+- 上次失敗時，重新提交相同 URL 會重用原 `taskId`，並依本次請求參數重新執行。
+- URL 中簽章或到期參數變更也會視為不同 URL，建立新任務。
+
+**回應參數**
+
+| 欄位名 | 類型 | 描述 |
+|-|-|-|
+| tasks | List&lt;Item> | 每個提交的 URL 對應一筆任務 |
+| tasks[].taskId | String | 32 位無連字號 UUID；查詢任務時使用，非素材 ID |
+| tasks[].url | String | 本次提交的 URL 原文 |
+
+**請求範例**
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-async' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[
+  {
+    "folderIds": [
+      23015
+    ],
+    "url": "https://example.com/assets/sample.mp4",
+    "name": "產品影片",
+    "extension": "mp4",
+    "callbackUrl": "https://example.com/webhooks/musedam-upload"
+  }
+]'
+```
+
+**回應範例**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "tasks": [
+      {
+        "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+        "url": "https://example.com/assets/sample.mp4"
+      }
+    ]
+  }
+}
+```
+
+**回呼說明**
+
+回呼使用 `Content-Type: application/json`，本文直接是下方查詢介面的 `result` 物件，**不包含**外層 `code`、`message`、`result`。成功時包含素材資訊；失敗時 `stage` 為 `FAILED`，並回傳 `failReason`。回呼失敗不影響任務狀態；目前只傳送一次，建議保留查詢介面作為備援。
+
+```json
+{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+  "stage": "SUCCESS",
+  "progress": 100,
+  "transferredBytes": 52428800,
+  "totalBytes": 52428800,
+  "failReason": null,
+  "materialId": 6908936,
+  "storePath": "api_example.mp4",
+  "name": "產品影片",
+  "accessUrl": "https://example.com/assets/sample.mp4"
+}
+```
+
+### 查詢非同步上傳任務
+
+**介面路徑**: /upload-assets-task
+
+**請求方式**: POST
+
+依 `taskId` 查詢任務。任務必須屬於目前團隊及目前 API Key 使用者；不存在或歸屬不符時回傳 `30312`。
+
+**請求參數**
+
+| 欄位名 | 類型 | 必填 | 描述 |
+|-|-|-|-|
+| taskId | String | 是 | 32 位無連字號 UUID；查詢任務時使用，非素材 ID |
+
+**回應參數**
+
+| 欄位名 | 類型 | 描述 |
+|-|-|-|
+| taskId | String | 對外任務編號 |
+| stage | String | 目前任務階段，見下表 |
+| progress | Integer | 0–100：下載最高 80，寫入儲存 85，入庫 95，成功 100；總大小未知時下載階段為 0 |
+| transferredBytes | Long | 已從 URL 下載的位元組數 |
+| totalBytes | Long | 來源 URL 回應的 Content-Length；未回傳時為空 |
+| failReason | String | 失敗原因；成功或進行中為空 |
+| materialId | Long | 成功後的素材 ID |
+| storePath | String | 成功後的儲存 key |
+| name | String | 成功後的素材名稱 |
+| accessUrl | String | 僅 SUCCESS 時回傳；每次查詢重新簽發，有效期 1 天 |
+
+**任務階段**
+
+| 階段 | 含義 |
+|-|-|
+| WAITING | 等待處理 |
+| DOWNLOADING | 從 URL 下載檔案 |
+| SAVING | 寫入檔案儲存 |
+| INGESTING | 素材入庫 |
+| SUCCESS | 上傳完成，可使用回傳的素材資訊 |
+| FAILED | 上傳失敗，查看 failReason；修正原因後重新提交 |
+
+建議輪詢至 `stage` 為 `SUCCESS` 或 `FAILED` 後停止。`progress` 是整體處理進度；下載總大小未知時，下載階段維持 0，可透過 `transferredBytes` 觀察已下載位元組，不能僅憑進度 0 判定任務停滯。
+
+**請求範例**
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-task' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789"
+}'
+```
+
+**回應範例**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+    "stage": "SUCCESS",
+    "progress": 100,
+    "transferredBytes": 52428800,
+    "totalBytes": 52428800,
+    "failReason": null,
+    "materialId": 6908936,
+    "storePath": "api_example.mp4",
+    "name": "產品影片",
+    "accessUrl": "https://example.com/assets/sample.mp4"
+  }
+}
 ```
 
 ## 素材下載

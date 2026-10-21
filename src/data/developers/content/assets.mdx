@@ -1,5 +1,7 @@
 ## 素材上传
 
+大文件建议使用下方[异步上传素材](./assets#异步上传素材)，提交后通过任务查询获取结果。
+
 **接口路径**：/upload-assets
 
 **请求方式**：POST
@@ -104,6 +106,166 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/upload-assets' 
             }
         ]
     }}
+```
+
+### 异步上传素材
+
+**接口路径**: /upload-assets-async
+
+**请求方式**: POST
+
+通过可下载 URL 异步上传素材，立即返回任务号，文件下载与入库在后台执行。文件超过 **20 MB** 时建议使用本接口，避免同步下载超时。提交成功仅表示已获取任务号，素材是否上传成功需查询任务结果。
+
+**请求参数**
+
+JSON 数组，单次 1–50 条；每条沿用上方[素材上传](./assets#素材上传)的 `EnterpriseAssetSaveReq` 公开字段与权限要求。每条必须提供可直接下载的 `url`；任一条缺少 `url` 时，请求报错（`30313`）。
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| callbackUrl | String | 否 | 可选的 HTTP 或 HTTPS 回调地址；仅异步上传使用。任务变为 SUCCESS 或 FAILED 后，服务端向该地址 POST 一次任务结果 |
+
+**任务复用与重试**
+
+- 同一团队、同一个 API Key 用户、完全相同的 `url` 字符串复用同一任务。素材所有者 `userId` 不参与任务复用判断。
+- 任务进行中或已成功时，返回原 `taskId`，不重新下载或入库；文件夹、名称、元数据仍以第一次提交为准。
+- 上次失败时，重新提交相同 URL 会复用原 `taskId`，并按本次请求参数重新执行。
+- URL 中签名或过期参数变化也会视为不同 URL，创建新任务。
+
+**响应参数**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| tasks | List&lt;Item> | 每个提交的 URL 对应一项任务 |
+| tasks[].taskId | String | 32 位无横线 UUID；查询任务时使用，非素材 ID |
+| tasks[].url | String | 本次提交的 URL 原文 |
+
+**请求示例**
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-async' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[
+  {
+    "folderIds": [
+      23015
+    ],
+    "url": "https://example.com/assets/sample.mp4",
+    "name": "产品视频",
+    "extension": "mp4",
+    "callbackUrl": "https://example.com/webhooks/musedam-upload"
+  }
+]'
+```
+
+**响应示例**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "tasks": [
+      {
+        "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+        "url": "https://example.com/assets/sample.mp4"
+      }
+    ]
+  }
+}
+```
+
+**回调说明**
+
+回调使用 `Content-Type: application/json`，正文直接是下方查询接口的 `result` 对象，**不包含**外层 `code`、`message`、`result`。成功时包含素材信息；失败时 `stage` 为 `FAILED`，并返回 `failReason`。回调失败不影响任务状态；当前只发送一次，建议保留查询接口作为兜底。
+
+```json
+{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+  "stage": "SUCCESS",
+  "progress": 100,
+  "transferredBytes": 52428800,
+  "totalBytes": 52428800,
+  "failReason": null,
+  "materialId": 6908936,
+  "storePath": "api_example.mp4",
+  "name": "产品视频",
+  "accessUrl": "https://example.com/assets/sample.mp4"
+}
+```
+
+### 查询异步上传任务
+
+**接口路径**: /upload-assets-task
+
+**请求方式**: POST
+
+按 `taskId` 查询任务。任务必须属于当前团队及当前 API Key 用户；不存在或归属不符时返回 `30312`。
+
+**请求参数**
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| taskId | String | 是 | 32 位无横线 UUID；查询任务时使用，非素材 ID |
+
+**响应参数**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| taskId | String | 对外任务号 |
+| stage | String | 当前任务阶段，见下表 |
+| progress | Integer | 0–100：下载最高 80，写入存储 85，入库 95，成功 100；总大小未知时下载阶段为 0 |
+| transferredBytes | Long | 已从 URL 下载的字节数 |
+| totalBytes | Long | 源 URL 响应的 Content-Length；未返回时为空 |
+| failReason | String | 失败原因；成功或进行中为空 |
+| materialId | Long | 成功后的素材 ID |
+| storePath | String | 成功后的存储 key |
+| name | String | 成功后的素材名称 |
+| accessUrl | String | 仅 SUCCESS 时返回；每次查询重新签发，有效期 1 天 |
+
+**任务阶段**
+
+| 阶段 | 含义 |
+|-|-|
+| WAITING | 等待处理 |
+| DOWNLOADING | 从 URL 下载文件 |
+| SAVING | 写入文件存储 |
+| INGESTING | 素材入库 |
+| SUCCESS | 上传完成，可使用返回的素材信息 |
+| FAILED | 上传失败，查看 failReason；修正原因后重新提交 |
+
+建议轮询至 `stage` 为 `SUCCESS` 或 `FAILED` 后停止。`progress` 是整体处理进度；下载总大小未知时，下载阶段保持 0，可通过 `transferredBytes` 观察已下载字节，不能仅凭进度 0 判定任务停滞。
+
+**请求示例**
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-task' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789"
+}'
+```
+
+**响应示例**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+    "stage": "SUCCESS",
+    "progress": 100,
+    "transferredBytes": 52428800,
+    "totalBytes": 52428800,
+    "failReason": null,
+    "materialId": 6908936,
+    "storePath": "api_example.mp4",
+    "name": "产品视频",
+    "accessUrl": "https://example.com/assets/sample.mp4"
+  }
+}
 ```
 
 ## 素材下载

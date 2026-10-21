@@ -1,5 +1,7 @@
 ## Upload assets
 
+For large files, use [asynchronous uploads](./assets#upload-assets-asynchronously) below and query the task for its result.
+
 **Endpoint**: /upload-assets
 
 **Method**: POST
@@ -104,6 +106,166 @@ Response example:
             }
         ]
     }}
+```
+
+### Upload assets asynchronously
+
+**Endpoint**: /upload-assets-async
+
+**Method**: POST
+
+Upload assets from downloadable URLs asynchronously. The endpoint returns task IDs immediately while downloading and ingestion run in the background. Use this endpoint for files over **20 MB** to avoid synchronous download timeouts. A successful submission returns a task ID; query the task to confirm that the asset was uploaded successfully.
+
+**Request parameters**
+
+A JSON array containing 1–50 items. Each item uses the public `EnterpriseAssetSaveReq` fields and permission requirements in [Upload assets](./assets#upload-assets). Every item must have a directly downloadable `url`. If any item has no `url`, the request fails with `30313`.
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| callbackUrl | String | No | Optional HTTP or HTTPS callback URL, used only for asynchronous uploads. The server POSTs the task result once when the task reaches SUCCESS or FAILED |
+
+**Task reuse and retries**
+
+- Tasks are reused for the same team, API Key user, and exact `url` string. The asset owner `userId` does not participate in task reuse.
+- If the task is running or already successful, the original `taskId` is returned without downloading or ingesting again. Folders, name, and metadata remain as submitted the first time.
+- If the previous attempt failed, submitting the same URL reuses the original `taskId` and restarts the task with the new request parameters.
+- Changing a signature or expiry parameter in the URL creates a different URL and therefore a new task.
+
+**Response parameters**
+
+| Field | Type | Description |
+|-|-|-|
+| tasks | List&lt;Item> | One task entry for each submitted URL |
+| tasks[].taskId | String | 32-character UUID without hyphens; use this to query the task, not as an asset ID |
+| tasks[].url | String | The submitted URL string |
+
+**Request example**
+
+```bash
+curl --request POST 'https://open.musedam.ai/api/muse/upload-assets-async' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[
+  {
+    "folderIds": [
+      23015
+    ],
+    "url": "https://example.com/assets/sample.mp4",
+    "name": "Product video",
+    "extension": "mp4",
+    "callbackUrl": "https://example.com/webhooks/musedam-upload"
+  }
+]'
+```
+
+**Response example**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "tasks": [
+      {
+        "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+        "url": "https://example.com/assets/sample.mp4"
+      }
+    ]
+  }
+}
+```
+
+**Callbacks**
+
+Callbacks use `Content-Type: application/json`. The body is the query endpoint’s `result` object directly, **without** the outer `code`, `message`, or `result` wrapper. Success includes asset information; failure includes `stage: FAILED` and `failReason`. Callback failure does not change the task status. Only one callback attempt is made; keep task polling as a fallback.
+
+```json
+{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+  "stage": "SUCCESS",
+  "progress": 100,
+  "transferredBytes": 52428800,
+  "totalBytes": 52428800,
+  "failReason": null,
+  "materialId": 6908936,
+  "storePath": "api_example.mp4",
+  "name": "Product video",
+  "accessUrl": "https://example.com/assets/sample.mp4"
+}
+```
+
+### Query an async upload task
+
+**Endpoint**: /upload-assets-task
+
+**Method**: POST
+
+Query a task by `taskId`. It must belong to the current team and API Key user. A missing task or an ownership mismatch returns `30312`.
+
+**Request parameters**
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| taskId | String | Yes | 32-character UUID without hyphens; use this to query the task, not as an asset ID |
+
+**Response parameters**
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | String | Public task ID |
+| stage | String | Current stage; see the table below |
+| progress | Integer | 0–100: downloading up to 80, saving 85, ingesting 95, success 100; downloading stays at 0 when the total size is unknown |
+| transferredBytes | Long | Bytes downloaded from the URL |
+| totalBytes | Long | Content-Length from the source URL response; null if unavailable |
+| failReason | String | Failure reason; empty during processing or after success |
+| materialId | Long | Asset ID after success |
+| storePath | String | Storage key after success |
+| name | String | Asset name after success |
+| accessUrl | String | Returned only for SUCCESS; re-signed on every query and valid for 1 day |
+
+**Task stages**
+
+| Stage | Meaning |
+|-|-|
+| WAITING | Waiting to be processed |
+| DOWNLOADING | Downloading from the URL |
+| SAVING | Writing to file storage |
+| INGESTING | Ingesting the asset |
+| SUCCESS | Upload complete; the returned asset information is ready to use |
+| FAILED | Upload failed; check failReason, correct the cause, then resubmit |
+
+Poll until `stage` becomes `SUCCESS` or `FAILED`. `progress` represents overall processing progress. When the source file size is unknown, download progress stays at 0; use `transferredBytes` to track downloaded bytes instead of treating 0 as a stalled task.
+
+**Request example**
+
+```bash
+curl --request POST 'https://open.musedam.ai/api/muse/upload-assets-task' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+  "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789"
+}'
+```
+
+**Response example**
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "result": {
+    "taskId": "a1b2c3d4e5f64789a0b1c2d3e4f56789",
+    "stage": "SUCCESS",
+    "progress": 100,
+    "transferredBytes": 52428800,
+    "totalBytes": 52428800,
+    "failReason": null,
+    "materialId": 6908936,
+    "storePath": "api_example.mp4",
+    "name": "Product video",
+    "accessUrl": "https://example.com/assets/sample.mp4"
+  }
+}
 ```
 
 ## Download assets
