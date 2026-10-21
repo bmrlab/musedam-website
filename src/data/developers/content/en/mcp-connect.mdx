@@ -31,8 +31,6 @@
 }
 ```
 
-Mainland China defaults to `cn` and requires no query parameter. For overseas accounts, use `?region=overseas`, as shown in the English example.
-
 ### Configuration parameters
 
 - **url**: Server address. Set the region with `?region=xxx` (optional; defaults to `cn`).
@@ -57,11 +55,6 @@ Example:
 
 ## Regions and APIs
 
-| region | Description | MuseDAM Open API Base URL |
-|-|-|-|
-| `cn` | Mainland China (default) | `https://open.musedam.cc/api/muse` |
-| `overseas` | Overseas | `https://open.musedam.ai/api/muse` |
-
-These MCP tools access MuseDAM through the Open API. HTTP methods follow the corresponding API endpoints, using `Authorization: Bearer <api_key>`. For MCP, configure the key and region through connection settings.
+These MCP tools access MuseDAM through the Open API (`https://open.musedam.cc/api/muse`). HTTP methods follow the corresponding API endpoints, using `Authorization: Bearer <api_key>`. For MCP, configure the key and region through connection settings.
 
 ---

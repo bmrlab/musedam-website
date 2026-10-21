@@ -31,8 +31,6 @@
 }
 ```
 
-国内生产环境默认使用 `cn`，无需在 URL 中添加区域参数。
-
 ### 配置参数说明
 
 - **url**：服务器地址，可通过 query parameter `?region=xxx` 指定区域（可选，默认 `cn`）
@@ -57,11 +55,6 @@
 
 ## 区域与 API
 
-| region | 说明 | MuseDAM Open API Base URL |
-|-|-|-|
-| `cn` | 国内（默认） | `https://open.musedam.cc/api/muse` |
-| `overseas` | 海外 | `https://open.musedam.ai/api/muse` |
-
-本文列出的 MCP 工具通过开放 API 访问 MuseDAM；HTTP 方法以对应开放接口为准，鉴权方式：`Authorization: Bearer <api_key>`。对接本 MCP 时只需在连接配置中提供 `api_key` 并在需要时指定 `region` 即可。
+本文列出的 MCP 工具通过开放 API（`https://open.musedam.cc/api/muse`）访问 MuseDAM；HTTP 方法以对应开放接口为准，鉴权方式：`Authorization: Bearer <api_key>`。对接本 MCP 时只需在连接配置中提供 `api_key` 并在需要时指定 `region` 即可。
 
 ---

@@ -130,7 +130,7 @@ https://musedam.ai/outer/embed?code={code}&theme=light
 | code | Yes | One-time `code` returned by the issuing endpoint. Encode it with `encodeURIComponent` |
 | theme | No | `light` or `dark`. Applies to this embed only and is not saved to user preferences |
 
-The embedded page uses the same domain your team members use to sign in to MuseDAM; `https://musedam.cc` for Mainland China and `https://musedam.ai` for Overseas. Choose the Open API base URL above according to your team's region.
+The embedded page uses the same domain your team members use to sign in to MuseDAM: `https://musedam.cc`.
 
 The embedded page itself is a transparent blank page that only hosts component dialogs. We recommend a full-screen iframe that your page hides or removes after the component returns a result. The `code` is removed from the embedded page URL after exchange.
 
@@ -364,7 +364,7 @@ app.post('/api/musedam/embed-code', requireLogin, async (req, res) => {
 ### Open a component in the browser
 
 ```javascript
-// Use the MuseDAM domain your team signs in to (Mainland China: https://musedam.cc)
+// The MuseDAM domain your team signs in to
 const MUSEDAM_ORIGIN = 'https://musedam.ai'
 
 async function openMuseDAM(action, args) {

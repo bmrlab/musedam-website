@@ -1,11 +1,16 @@
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { developerEndpoints, getDeveloperRegion, regionalizeDeveloperText } from '@/data/developers/region'
 
 import { getDeveloperPages } from './index'
 
 export function getDeveloperDocument(lng: string, slug: string) {
   const english = lng === 'en-US'
   const pages = getDeveloperPages(lng)
-  if (slug !== 'landing') return pages.find((page) => page.slug === slug)
+  if (slug !== 'landing') {
+    const page = pages.find((page) => page.slug === slug)
+    return page && { ...page, markdown: regionalizeDeveloperText(page.markdown) }
+  }
+  const endpoints = developerEndpoints(getDeveloperRegion())
   return {
     slug,
     title: english ? 'MuseDAM Developer Platform' : localizeDeveloperText('MuseDAM 开放平台', lng),
@@ -14,9 +19,9 @@ export function getDeveloperDocument(lng: string, slug: string) {
       english
         ? 'Connect your MuseDAM library using Open API, app integrations and MCP.'
         : localizeDeveloperText('通过 Open API、第三方集成与 MCP 连接 MuseDAM 资产库。', lng),
-      'Open API: https://open.musedam.cc/api/muse (cn) / https://open.musedam.ai/api/muse (overseas)',
-      'App API: https://open.musedam.cc/api/apps (cn) / https://open.musedam.ai/api/apps (overseas)',
-      'MCP: https://mcp-service.musedam.cc (cn) / https://mcp-service.musedam.cc?region=overseas (overseas)',
+      `Open API: ${endpoints.openApi}/api/muse`,
+      `App API: ${endpoints.openApi}/api/apps`,
+      `MCP: ${endpoints.mcp}`,
       english
         ? 'Read the relevant documents before implementation. Ask for their contents if they are unavailable.'
         : localizeDeveloperText(

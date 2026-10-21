@@ -6,6 +6,7 @@ import { content } from '@/data/developers/content'
 import { englishContent } from '@/data/developers/content.en'
 import { traditionalContent } from '@/data/developers/content.tw'
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { getDeveloperRegion, regionalizeDeveloperText } from '@/data/developers/region'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { IntegrationFlow } from '@/components/Developers/Architecture'
@@ -62,6 +63,7 @@ export default async function DeveloperPage({ params }: Props) {
   const Content = (english ? englishContent : lng === 'zh-TW' ? traditionalContent : content)[
     slug as keyof typeof content
   ]
+  const region = getDeveloperRegion()
   const group = getDeveloperGroups(lng).find((group) => group.id === page.group)
   const index = developerNavigation.findIndex((page) => page.slug === slug)
   const previous = developerNavigation[index - 1]
@@ -83,7 +85,7 @@ export default async function DeveloperPage({ params }: Props) {
             lng={lng}
             slug={slug}
             title={page.title}
-            markdown={page.markdown}
+            markdown={regionalizeDeveloperText(page.markdown, region)}
             updatedAt={page.updatedAt}
           />
         </header>
@@ -96,6 +98,7 @@ export default async function DeveloperPage({ params }: Props) {
           <RegionEndpoints
             lng={lng}
             english={english}
+            region={region}
             kind={
               page.group === 'mcp'
                 ? 'mcp'
@@ -107,7 +110,7 @@ export default async function DeveloperPage({ params }: Props) {
         )}
         <IntegrationFlow slug={slug} english={english} lng={lng} />
         <div className="dev-prose">
-          <Content components={markdownComponents(page.headings, english, lng)} />
+          <Content components={markdownComponents(page.headings, english, lng, region)} />
         </div>
         <nav
           className="dev-pagination"

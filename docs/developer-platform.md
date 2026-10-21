@@ -40,9 +40,16 @@
 
 ## 区域地址说明
 
-Open API 国内为 `https://open.musedam.cc/api/muse`，海外为 `https://open.musedam.ai/api/muse`。应用管理 API 对应路径为 `/api/apps`。英文代码示例默认海外。
+Open API 国内为 `https://open.musedam.cc/api/muse`，海外为 `https://open.musedam.ai/api/muse`。应用管理 API 对应路径为 `/api/apps`。
 
 MCP 使用 `https://mcp-service.musedam.cc`，默认 cn 不带 query；海外添加 `?region=overseas`，Stdio 设置 `REGION=overseas`。不展示测试环境。
+
+页面只显示当前部署区域的地址，按 `DEPLOY_REGION` 判断：`global` 为海外，其余为国内。三种语言在同一区域显示同一套域名。
+
+- 统一入口为 `src/data/developers/region.ts`：`getDeveloperRegion()` 读环境变量，`regionalizeDeveloperText()` 把文本中的 `open.musedam.*`、`musedam.*`（不含 `www`）和 MCP 根地址换成当前区域。
+- 替换覆盖正文代码块、行内代码、链接、顶部 Base URL 框、首页接入示例、复制为 Markdown 和 `/markdown/{slug}.md`。普通段落文字不做替换，域名请写在行内代码或链接里。
+- 正文和 `pages*.json` 可写任意一个区域的域名，但不要写「国内为 X，海外为 Y」这类同时列出两个区域的句子。MCP 的 `region` 参数可选值属于参数说明，保留。
+- 环境变量只能在服务端读取，客户端组件（如 `ConnectionExample`）由服务端传入 `region`。
 
 ## 2026-09-29 对外字段范围确认
 

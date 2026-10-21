@@ -1,6 +1,7 @@
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react'
 import Image from 'next/image'
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { type DeveloperRegion, regionalizeDeveloperText } from '@/data/developers/region'
 import type { MDXComponents } from 'mdx/types'
 
 import { BusinessFlow } from './BusinessFlow'
@@ -20,8 +21,12 @@ export function markdownComponents(
   headings: { id: string; title: string; level: number }[],
   english = false,
   lng = 'zh-CN',
+  region: DeveloperRegion = 'cn',
 ): MDXComponents {
   let headingIndex = 0
+  // 正文里的接口域名统一换成当前部署区域
+  const regionalize = (node: ReactNode): ReactNode =>
+    typeof node === 'string' ? regionalizeDeveloperText(node, region) : node
   return {
     ApiKeyScreenshot: ({
       step,
@@ -122,17 +127,18 @@ export function markdownComponents(
       return (
         <CodeBlock
           english={english}
-          code={plainText(child.props.children)}
+          code={regionalizeDeveloperText(plainText(child.props.children), region)}
           language={child.props.className?.replace('language-', '') || 'text'}
         />
       )
     },
+    code: ({ children, ...props }) => <code {...props}>{Children.map(children, regionalize)}</code>,
     a: ({ href, children }) => (
       <a
-        href={href}
+        href={href && regionalizeDeveloperText(href, region)}
         {...(href?.startsWith('https://') ? { target: '_blank', rel: 'noreferrer' } : {})}
       >
-        {children}
+        {Children.map(children, regionalize)}
       </a>
     ),
   }
