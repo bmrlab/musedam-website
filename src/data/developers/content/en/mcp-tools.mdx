@@ -1,12 +1,15 @@
 ## Tool catalog
 
-The following tools follow MCP Tool definitions. Retrieve the current parameter schemas through MCP, or view tool descriptions and parameters in a client such as Cursor.
+70 public tools, synchronized on 2026-10-21. Retrieve live schemas with `tools/list`. Third-party API Key management is not included.
+
+## Assets, folders and tags
 
 | Tool | Description |
-|-|-|
+|---|---|
 | `musedam_search_assets` | Search workspace assets by folder, type, keyword, tags, dimensions, and more |
 | `musedam_upload_assets` | Upload assets to DAM from downloadable URLs |
 | `musedam_modify_assets` | Update asset names, descriptions, ratings, links, and tags |
+| `musedam_move_assets_to_folder` | Move assets to folder |
 | `musedam_assets_by_ids` | Get asset details by ID |
 | `musedam_folder_subscribe` | Subscribe to or unsubscribe from folder content callbacks |
 | `musedam_search_share` | Search assets and folders in a shared link |
@@ -16,16 +19,101 @@ The following tools follow MCP Tool definitions. Retrieve the current parameter 
 | `musedam_folder_path` | Get the full path of a folder |
 | `musedam_get_sub_folder_ids` | Get all child folder IDs |
 | `musedam_get_asset_analysis_result` | Get AI analysis results for an asset |
-| `musedam_org_info` | Get team information |
-| `musedam_org_member_info` | Get team member information |
 | `musedam_search_folders` | Search folders by parent and keyword |
 | `musedam_create_folder` | Create a folder under a parent folder |
 | `musedam_processed_public_links` | Get processed public links for original assets; requires DAT |
+| `musedam_enterprise_tag_list` | Enterprise tag list |
+| `musedam_upload_assets_async` | Upload assets async |
+| `musedam_upload_assets_task` | Upload assets task |
+| `musedam_metadata_records_by_ids` | Metadata records by ids |
+| `musedam_metadata_fields` | Metadata fields |
+| `musedam_check_transferred_materials` | Check transferred materials |
+| `musedam_material_access_users_query` | Material access users query |
+| `musedam_folder_auto_tags` | Folder auto tags |
+| `musedam_create_folder_tree` | Create folder tree |
+| `musedam_asset_derivative_versions` | Asset derivative versions |
 
----
+## Team and events
+
+| Tool | Description |
+|---|---|
+| `musedam_org_member_info` | Get team member information |
+| `musedam_org_info` | Get team information |
+| `musedam_org_point_info` | Org point info |
+| `musedam_org_members_query` | Org members query |
+| `musedam_org_whitelist_query` | Org whitelist query |
+| `musedam_org_departments_query` | Org departments query |
+| `musedam_org_groups_query` | Org groups query |
+| `musedam_department_members_query` | Department members query |
+| `musedam_group_members_query` | Group members query |
+| `musedam_material_automation_event_types` | Material automation event types |
+| `musedam_material_automation_subscribe` | Material automation subscribe |
+
+## Approvals
+
+| Tool | Description |
+|---|---|
+| `musedam_approval_list_templates` | Approval list templates |
+| `musedam_approval_create_approval` | Approval create approval |
+| `musedam_approval_task_status_query` | Approval task status query |
+| `musedam_approval_subscription_query` | Approval subscription query |
+| `musedam_approval_subscription_change` | Approval subscription change |
+
+## Product Library
+
+| Tool | Description |
+|---|---|
+| `musedam_product_list_brands` | Product list brands |
+| `musedam_product_create_brand` | Product create brand |
+| `musedam_product_get_brand` | Product get brand |
+| `musedam_product_update_brand` | Product update brand |
+| `musedam_product_delete_brand` | Product delete brand |
+| `musedam_product_list_categorys` | Product list categorys |
+| `musedam_product_create_category` | Product create category |
+| `musedam_product_get_category` | Product get category |
+| `musedam_product_update_category` | Product update category |
+| `musedam_product_delete_category` | Product delete category |
+| `musedam_product_list_templates` | Product list templates |
+| `musedam_product_create_template` | Product create template |
+| `musedam_product_get_template` | Product get template |
+| `musedam_product_update_template` | Product update template |
+| `musedam_product_delete_template` | Product delete template |
+| `musedam_product_list_products` | Product list products |
+| `musedam_product_create_product` | Product create product |
+| `musedam_product_get_product` | Product get product |
+| `musedam_product_update_product` | Product update product |
+| `musedam_product_delete_product` | Product delete product |
+| `musedam_product_set_product_status` | Product set product status |
+| `musedam_product_check_product_visibility` | Product check product visibility |
+| `musedam_product_list_assets` | Product list assets |
+| `musedam_product_get_asset` | Product get asset |
+| `musedam_product_list_product_shares` | Product list product shares |
+| `musedam_product_create_product_share` | Product create product share |
+| `musedam_product_revoke_product_share` | Product revoke product share |
+| `musedam_product_list_product_downloads` | Product list product downloads |
 
 ## Calling conventions
 
-Use MCP `tools/list` to retrieve current parameter schemas, then call tools through `tools/call`. Configure the API key and region in connection settings, not individual tool arguments. Key permissions still apply.
+Existing tools retain their top-level arguments. New tools with inputs accept a `params` object with camelCase API fields; no-input tools accept `{}`. Do not supply `service`: each approval and product tool fixes it internally. Configure API Key and region on the connection; China is the default, overseas uses `?region=overseas`.
 
-[Configure an MCP connection](./mcp-connect)
+Use `score` for asset modifications (`rating` is a compatibility alias; `score` wins). Uploads use `rating`, searches use `ratings`. Product Library requires API Key collaborator access and operation permissions.
+
+```json
+{
+  "name": "musedam_upload_assets_async",
+  "arguments": {
+    "params": {
+      "assets": [
+        {
+          "url": "https://example.com/video.mp4",
+          "extension": "mp4"
+        }
+      ]
+    }
+  }
+}
+```
+
+Then query `musedam_upload_assets_task` with `{"params":{"taskId":"<taskId>"}}` until `SUCCESS` or `FAILED`.
+
+[Configure MCP](./mcp-connect)

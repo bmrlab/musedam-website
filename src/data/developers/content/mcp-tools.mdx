@@ -1,12 +1,15 @@
 ## 工具列表
 
-以下工具均遵循 MCP 的 Tool 定义，名称与用途如下。各工具的具体参数以 MCP 协议返回的 schema 为准（如通过 Cursor 等客户端查看工具描述与参数列表）。
+当前公开参考包含 70 个工具，同步于 2026-10-21。参数以服务端 `tools/list` 返回的 schema 为准，不包含第三方应用 API Key 管理。
+
+## 素材、文件夹与标签
 
 | 工具名 | 说明 |
-|-|-|
+|---|---|
 | `musedam_search_assets` | 按目录、类型、关键词、标签、尺寸等检索企业空间素材 |
 | `musedam_upload_assets` | 通过可下载链接将素材上传到 DAM |
 | `musedam_modify_assets` | 修改素材名称、描述、评分、链接、标签 |
+| `musedam_move_assets_to_folder` | 移动或添加素材到文件夹 |
 | `musedam_assets_by_ids` | 根据素材 ID 列表获取详情 |
 | `musedam_folder_subscribe` | 订阅/取消订阅文件夹内容更新回调 |
 | `musedam_search_share` | 检索分享链接内的素材与文件夹 |
@@ -16,16 +19,101 @@
 | `musedam_folder_path` | 获取指定文件夹的完整路径 |
 | `musedam_get_sub_folder_ids` | 获取指定文件夹下所有子文件夹 ID |
 | `musedam_get_asset_analysis_result` | 获取素材 AI 解析结果 |
-| `musedam_org_info` | 获取团队基本信息 |
-| `musedam_org_member_info` | 获取团队成员信息 |
 | `musedam_search_folders` | 按父目录、关键词搜索文件夹 |
 | `musedam_create_folder` | 在指定父目录下创建文件夹 |
 | `musedam_processed_public_links` | 获取素材原图处理后的公开链接（需开通 DAT） |
+| `musedam_enterprise_tag_list` | 分页查询企业标签 |
+| `musedam_upload_assets_async` | 异步上传素材 |
+| `musedam_upload_assets_task` | 查询异步上传任务 |
+| `musedam_metadata_records_by_ids` | 查询素材元数据 |
+| `musedam_metadata_fields` | 查询元数据字段 |
+| `musedam_check_transferred_materials` | 检查转移素材 |
+| `musedam_material_access_users_query` | 查询素材取用者 |
+| `musedam_folder_auto_tags` | 查询文件夹自动标签 |
+| `musedam_create_folder_tree` | 创建文件夹树 |
+| `musedam_asset_derivative_versions` | 查询素材衍生版本 |
 
----
+## 团队与事件
+
+| 工具名 | 说明 |
+|---|---|
+| `musedam_org_member_info` | 获取团队成员信息 |
+| `musedam_org_info` | 获取团队基本信息 |
+| `musedam_org_point_info` | 获取团队积分 |
+| `musedam_org_members_query` | 查询团队成员 |
+| `musedam_org_whitelist_query` | 查询白名单 |
+| `musedam_org_departments_query` | 查询部门 |
+| `musedam_org_groups_query` | 查询群组 |
+| `musedam_department_members_query` | 查询部门成员 |
+| `musedam_group_members_query` | 查询群组成员 |
+| `musedam_material_automation_event_types` | 查询素材事件类型 |
+| `musedam_material_automation_subscribe` | 订阅素材事件 |
+
+## 审批
+
+| 工具名 | 说明 |
+|---|---|
+| `musedam_approval_list_templates` | 查询审批模板 |
+| `musedam_approval_create_approval` | 发起审批 |
+| `musedam_approval_task_status_query` | 查询审批状态 |
+| `musedam_approval_subscription_query` | 查询审批订阅 |
+| `musedam_approval_subscription_change` | 变更审批订阅 |
+
+## 商品库
+
+| 工具名 | 说明 |
+|---|---|
+| `musedam_product_list_brands` | 查询列表：品牌 |
+| `musedam_product_create_brand` | 创建：品牌 |
+| `musedam_product_get_brand` | 查询详情：品牌 |
+| `musedam_product_update_brand` | 更新：品牌 |
+| `musedam_product_delete_brand` | 删除：品牌 |
+| `musedam_product_list_categorys` | 查询列表：分类 |
+| `musedam_product_create_category` | 创建：分类 |
+| `musedam_product_get_category` | 查询详情：分类 |
+| `musedam_product_update_category` | 更新：分类 |
+| `musedam_product_delete_category` | 删除：分类 |
+| `musedam_product_list_templates` | 查询列表：模板 |
+| `musedam_product_create_template` | 创建：模板 |
+| `musedam_product_get_template` | 查询详情：模板 |
+| `musedam_product_update_template` | 更新：模板 |
+| `musedam_product_delete_template` | 删除：模板 |
+| `musedam_product_list_products` | 查询列表：商品 |
+| `musedam_product_create_product` | 创建：商品 |
+| `musedam_product_get_product` | 查询详情：商品 |
+| `musedam_product_update_product` | 更新：商品 |
+| `musedam_product_delete_product` | 删除：商品 |
+| `musedam_product_set_product_status` | 设置：商品发布状态 |
+| `musedam_product_check_product_visibility` | 检查：商品可见性 |
+| `musedam_product_list_assets` | 查询列表：素材 |
+| `musedam_product_get_asset` | 查询详情：素材 |
+| `musedam_product_list_product_shares` | 查询列表：商品分享 |
+| `musedam_product_create_product_share` | 创建：商品分享 |
+| `musedam_product_revoke_product_share` | 撤销：商品分享 |
+| `musedam_product_list_product_downloads` | 查询列表：商品下载记录 |
 
 ## 调用约定
 
-通过 MCP `tools/list` 获取当前服务返回的工具参数 schema，再使用 `tools/call` 调用。API Key 和 region 在连接配置中设置，不应作为工具参数重复传入。工具能力仍受密钥权限范围约束。
+原有工具保留顶层参数；新增带参数工具使用 `params` 对象，内部字段保留 API 的 camelCase 命名。无参数工具传 `{}`。审批和商品库工具自动填入固定的 `service`，无需传入。API Key 和区域在连接中配置，国内默认无需 region，海外使用 `?region=overseas`。
+
+修改素材使用 `score`（旧参数 `rating` 兼容，两者同时传入时 `score` 优先）；上传评分使用 `rating`，搜索使用 `ratings`。商品库需要将 API Key 添加为协作者，并具备对应操作权限。
+
+```json
+{
+  "name": "musedam_upload_assets_async",
+  "arguments": {
+    "params": {
+      "assets": [
+        {
+          "url": "https://example.com/video.mp4",
+          "extension": "mp4"
+        }
+      ]
+    }
+  }
+}
+```
+
+获取任务号后，使用 `musedam_upload_assets_task` 和 `{"params":{"taskId":"<taskId>"}}` 查询，直到 `SUCCESS` 或 `FAILED`。
 
 [配置 MCP 连接](./mcp-connect)
