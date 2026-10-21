@@ -123,6 +123,18 @@ const englishFlows: Record<string, { title: string; nodes: string[]; note: strin
       note: 'Both sides validate the origin and message source. UI operations follow the current user’s permissions.',
     },
   ],
+  embed: [
+    {
+      title: 'Embed MuseDAM components in your system',
+      nodes: [
+        'Admin enables embedding',
+        'Backend issues a code with the API key',
+        'Open /outer/embed in an iframe',
+        'Call components with postMessage',
+      ],
+      note: 'Keep the API key on your backend. Each code is valid for 5 minutes and can be used only once.',
+    },
+  ],
   'use-cases': [
     {
       title: 'CMS content creation',
@@ -207,6 +219,18 @@ export function IntegrationFlow({
           '通信双方校验 origin 与消息来源，界面操作沿用当前用户权限。',
           lng,
         ),
+      },
+    ],
+    embed: [
+      {
+        title: localizeDeveloperText('在业务系统中嵌入组件', lng),
+        nodes: [
+          localizeDeveloperText('管理员开启嵌入', lng),
+          localizeDeveloperText('后端用 API Key 签发 code', lng),
+          localizeDeveloperText('iframe 打开 /outer/embed', lng),
+          localizeDeveloperText('postMessage 调用组件', lng),
+        ],
+        note: localizeDeveloperText('API Key 只保存在后端；code 5 分钟内有效且只能使用一次。', lng),
       },
     ],
     'use-cases': [

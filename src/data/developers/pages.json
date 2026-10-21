@@ -42,7 +42,7 @@
         "level": 2
       }
     ],
-    "markdown": "## 获取 API 密钥\n\n### **方式一：通过 MuseDAM 管理后台获取**\n\n1. 系统管理员登录 MuseDAM \"设置与成员\"管理后台\n2. 进入\"安全管控\" → \"API 密钥\"页面\n3. 点击\"创建新密钥\"\n\n![进入「API 密钥」页面，点击「创建新密钥」。](/assets/developers/api-key/entry.png)\n\n4. 设置密钥名称并选择权限类型：\n\n   - API 权限：可访问指定文件夹的素材\n   - Admin 权限：可访问资产库内所有素材\n\n![填写名称，按需选择「API」或「管理员」权限。](/assets/developers/api-key/create.png)\n\n5. 保存并复制 API Key（注意：仅显示一次）\n\n![创建后可在密钥详情中查看类型与启用状态；图中密钥已掩码。](/assets/developers/api-key/detail.png)\n\n> 重要提示：对于 API 权限的密钥，系统管理员需在「共享文件夹」-「文件夹权限管理」中自定义权限范围和访问限制。\n\n### **方式二：通过第三方应用接口获取**\n\n[查看第三方应用认证与安装](./applications)\n\n> 概述：提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 认证方式说明\n\n所有API请求都需要在请求头中包含认证信息：\n\n```text\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n## 接口对接建议\n\n强烈建议使用服务端进行 API 对接，而非在前端直接调用 API，原因如下：\n\n- 保护 API 密钥安全，避免在客户端代码中暴露 API KEY\n- 防止未授权访问和潜在的安全风险\n- 可在服务端实现额外的访问控制和请求限制\n- 便于集中管理和监控 API 调用情况\n\n服务端对接模式下，客户端应通过您自己的服务器进行中转请求，而非直接访问 MuseDAM API。\n\n## 发起第一次请求\n\n先在服务端环境变量中设置 `MUSEDAM_API_KEY`，再运行以下命令。国内与海外账户使用各自的 API 域名。\n\n```bash\ncurl --request POST 'https://open.musedam.cc/api/muse/search-assets' \\\n  --header \"Authorization: Bearer $MUSEDAM_API_KEY\" \\\n  --header 'Content-Type: application/json' \\\n  --data '{\"keywords\": [\"品牌\"], \"startPoint\": 0, \"endPoint\": 10}'\n```\n\n## 处理响应\n\n读取 `result.assets` 和 `result.total`。结果为空时，先检查搜索条件和文件夹授权范围。保存失败响应中的 `traceId`，便于排查问题。\n\n[查看素材检索参数](./search) · [查看错误处理](./errors)\n",
+    "markdown": "## 获取 API 密钥\n\n### **方式一：通过 MuseDAM 管理后台获取**\n\n1. 系统管理员登录 MuseDAM \"设置与成员\"管理后台\n2. 进入\"安全管控\" → \"API 密钥\"页面\n3. 点击\"创建新密钥\"\n\n![进入「API 密钥」页面，点击「创建新密钥」。](/assets/developers/api-key/entry.png)\n\n4. 设置密钥名称并选择权限类型：\n\n   - API 权限：可访问指定文件夹的素材\n   - Admin 权限：可访问资产库内所有素材\n\n![填写名称，按需选择「API」或「管理员」权限。](/assets/developers/api-key/create.png)\n\n5. 保存并复制 API Key（注意：仅显示一次）\n\n![创建后可在密钥详情中查看类型与启用状态；图中密钥已掩码。](/assets/developers/api-key/detail.png)\n\n> 重要提示：对于 API 权限的密钥，系统管理员需在「共享文件夹」-「文件夹权限管理」中自定义权限范围和访问限制。\n\n### **方式二：通过第三方应用接口获取**\n\n[查看第三方应用认证与安装](./applications)\n\n> 概述：提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 认证方式说明\n\n所有API请求都需要在请求头中包含认证信息：\n\n```text\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n## 接口对接建议\n\n强烈建议使用服务端进行 API 对接，而非在前端直接调用 API，原因如下：\n\n- 保护 API 密钥安全，避免在客户端代码中暴露 API KEY\n- 防止未授权访问和潜在的安全风险\n- 可在服务端实现额外的访问控制和请求限制\n- 便于集中管理和监控 API 调用情况\n\n服务端对接模式下，客户端应通过您自己的服务器进行中转请求，而非直接访问 MuseDAM API。\n\n## 发起第一次请求\n\n先在服务端环境变量中设置 `MUSEDAM_API_KEY`，再运行以下命令。\n\n```bash\ncurl --request POST 'https://open.musedam.cc/api/muse/search-assets' \\\n  --header \"Authorization: Bearer $MUSEDAM_API_KEY\" \\\n  --header 'Content-Type: application/json' \\\n  --data '{\"keywords\": [\"品牌\"], \"startPoint\": 0, \"endPoint\": 10}'\n```\n\n## 处理响应\n\n读取 `result.assets` 和 `result.total`。结果为空时，先检查搜索条件和文件夹授权范围。保存失败响应中的 `traceId`，便于排查问题。\n\n[查看素材检索参数](./search) · [查看错误处理](./errors)\n",
     "updatedAt": "2026-09-29"
   },
   {
@@ -744,7 +744,7 @@
         "level": 3
       }
     ],
-    "markdown": "## 概述\n\n提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 基础信息\n\n### 请求路径\n\n- **生产环境**：https://open.musedam.cc/api/apps\n- **海外环境**：https://open.musedam.ai/api/apps\n\n### 认证方式\n\n采用 **HTTP Basic Authentication**认证机制：\n\n- 将appId和appSecretKey以`appId:appSecretKey`格式组合并进行base64编码\n- 在HTTP请求头中添加：`Authorization: Basic [base64编码结果]`\n- 所有应用相关请求必须包含此认证信息\n\n**认证示例:**\n\n假设您获取到的凭证为：\n\n- appId: `test_app_123`\n- appSecretKey: `s3cr3t_k3y_456`\n\n**认证步骤：**\n\n1. 组合appId和appSecretKey：`test_app_123:s3cr3t_k3y_456`\n2. 对组合字符串进行base64编码：`dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`\n3. 在HTTP请求头中添加认证信息：\n\n   ```text\n   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS\n   ```\n\n> **重要提示**：appId和appSecretKey需向museDAM申请获取。请联系您的museDAM客户代表获取访问凭证。\n\n### 获取API key\n\n**接口地址**: `/exchange-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"orgId\":185\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 16:13:25\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555988913681722512\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/exchange-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"orgId\":185\n}'\n```\n\n---\n\n### 刷新 API Key\n\n**接口地址**: `/refresh-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 18:22:18\"\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/refresh-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 撤销 API Key\n\n**接口地址**: `/revoke-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"apiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/revoke-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"apiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 查询安装状态\n\n**接口地址**: `/get-install-status?orgId=185`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"appId\": \"app_4f8c6e9d2b7a\",\n        \"createAt\": \"2025-08-18 18:53:27\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/get-install-status?orgId=185' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n---\n\n### 列出所有安装\n\n**接口地址**: `/list-all-install`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"appId\": \"app_4f8c6e9d2b7a\",\n            \"createAt\": \"2025-08-18 18:53:27\",\n            \"org\": {\n                \"id\": 185,\n                \"name\": \"示例团队\",\n                \"orgNo\": \"M000001\",\n                \"orgFeeType\": 4\n            }\n        }\n    ],\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/list-all-install' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n### 相关业务异常信息\n\n```json\n{\n  \"code\": \"50049\",\n  \"message\": \"APP未安装\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50047\",\n  \"message\": \"APP不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50050\",\n  \"message\": \"APP KEY不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"20045\",\n  \"message\": \"团队不存在或已到期！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"100007\",\n  \"message\": \"参数错误！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n[继续接入前端组件](./components)",
+    "markdown": "## 概述\n\n提供第三方应用使用企业开放API接口的能力。第三方应用需要企业管理员进行启用授权后，可通过appId和appSecretKey管理API密钥，并使用获取到的API密钥调用开放接口（详见\"核心API接口\"章节）。\n\n## 基础信息\n\n### 请求路径\n\n- **生产环境**：https://open.musedam.cc/api/apps\n\n### 认证方式\n\n采用 **HTTP Basic Authentication**认证机制：\n\n- 将appId和appSecretKey以`appId:appSecretKey`格式组合并进行base64编码\n- 在HTTP请求头中添加：`Authorization: Basic [base64编码结果]`\n- 所有应用相关请求必须包含此认证信息\n\n**认证示例:**\n\n假设您获取到的凭证为：\n\n- appId: `test_app_123`\n- appSecretKey: `s3cr3t_k3y_456`\n\n**认证步骤：**\n\n1. 组合appId和appSecretKey：`test_app_123:s3cr3t_k3y_456`\n2. 对组合字符串进行base64编码：`dGVzdF9hcHBfMTIzOnMzY3IzdF9rM3lfNDU2`\n3. 在HTTP请求头中添加认证信息：\n\n   ```text\n   Authorization: Basic YOUR_BASE64_APP_CREDENTIALS\n   ```\n\n> **重要提示**：appId和appSecretKey需向museDAM申请获取。请联系您的museDAM客户代表获取访问凭证。\n\n### 获取API key\n\n**接口地址**: `/exchange-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"orgId\":185\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 16:13:25\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555988913681722512\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/exchange-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"orgId\":185\n}'\n```\n\n---\n\n### 刷新 API Key\n\n**接口地址**: `/refresh-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"apiKey\": \"YOUR_API_KEY\",\n        \"expiresAt\": \"2055-08-19 18:22:18\"\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/refresh-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"oldApiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 撤销 API Key\n\n**接口地址**: `/revoke-api-key`\n\n**请求方式**: POST\n\n**请求体:**\n\n```text\n{\n    \"apiKey\": \"YOUR_API_KEY\"\n}\n```\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": true,\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/apps/revoke-api-key' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"apiKey\": \"YOUR_API_KEY\"\n}'\n```\n\n---\n\n### 查询安装状态\n\n**接口地址**: `/get-install-status?orgId=185`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": {\n        \"appId\": \"app_4f8c6e9d2b7a\",\n        \"createAt\": \"2025-08-18 18:53:27\",\n        \"org\": {\n            \"id\": 185,\n            \"name\": \"示例团队\",\n            \"orgNo\": \"M000001\",\n            \"orgFeeType\": 4\n        }\n    },\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/get-install-status?orgId=185' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n---\n\n### 列出所有安装\n\n**接口地址**: `/list-all-install`\n\n**请求方式**: GET\n\n**响应结果**:\n\n```json\n{\n    \"code\": 0,\n    \"message\": \"OK\",\n    \"result\": [\n        {\n            \"appId\": \"app_4f8c6e9d2b7a\",\n            \"createAt\": \"2025-08-18 18:53:27\",\n            \"org\": {\n                \"id\": 185,\n                \"name\": \"示例团队\",\n                \"orgNo\": \"M000001\",\n                \"orgFeeType\": 4\n            }\n        }\n    ],\n    \"traceId\": \"17555989381206489704\"\n}\n```\n\n请求示例：\n\n```bash\ncurl --location --request GET 'https://open.musedam.cc/api/apps/list-all-install' \\\n--header 'Authorization: Basic YOUR_BASE64_APP_CREDENTIALS' \\\n```\n\n### 相关业务异常信息\n\n```json\n{\n  \"code\": \"50049\",\n  \"message\": \"APP未安装\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50047\",\n  \"message\": \"APP不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"50050\",\n  \"message\": \"APP KEY不存在\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"20045\",\n  \"message\": \"团队不存在或已到期！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n```json\n{\n  \"code\": \"100007\",\n  \"message\": \"参数错误！\",\n  \"result\": null,\n  \"traceId\": \"17555973911012754965\"\n}\n```\n\n[继续接入前端组件](./components)",
     "updatedAt": "2026-09-29"
   },
   {
@@ -784,6 +784,137 @@
     "updatedAt": "2026-09-29"
   },
   {
+    "slug": "embed",
+    "title": "外部系统嵌入组件",
+    "en": "Embed components",
+    "group": "apps",
+    "description": "在自有业务系统中通过 iframe 免登录调用 MuseDAM 素材、文件夹、成员选择与上传组件。",
+    "headings": [
+      {
+        "id": "适用场景",
+        "title": "适用场景",
+        "level": 2
+      },
+      {
+        "id": "接入流程",
+        "title": "接入流程",
+        "level": 2
+      },
+      {
+        "id": "开启嵌入组件",
+        "title": "开启嵌入组件",
+        "level": 2
+      },
+      {
+        "id": "管理员开启嵌入",
+        "title": "管理员开启嵌入",
+        "level": 3
+      },
+      {
+        "id": "配置允许嵌入的域名",
+        "title": "配置允许嵌入的域名",
+        "level": 3
+      },
+      {
+        "id": "签发嵌入凭证",
+        "title": "签发嵌入凭证",
+        "level": 2
+      },
+      {
+        "id": "签发请求",
+        "title": "签发请求",
+        "level": 3
+      },
+      {
+        "id": "签发响应",
+        "title": "签发响应",
+        "level": 3
+      },
+      {
+        "id": "签发失败原因",
+        "title": "签发失败原因",
+        "level": 3
+      },
+      {
+        "id": "加载嵌入页",
+        "title": "加载嵌入页",
+        "level": 2
+      },
+      {
+        "id": "生命周期事件",
+        "title": "生命周期事件",
+        "level": 3
+      },
+      {
+        "id": "调用组件",
+        "title": "调用组件",
+        "level": 2
+      },
+      {
+        "id": "消息格式",
+        "title": "消息格式",
+        "level": 3
+      },
+      {
+        "id": "可调用的-action",
+        "title": "可调用的 action",
+        "level": 3
+      },
+      {
+        "id": "素材选择器",
+        "title": "素材选择器",
+        "level": 3
+      },
+      {
+        "id": "文件夹选择器",
+        "title": "文件夹选择器",
+        "level": 3
+      },
+      {
+        "id": "成员选择器",
+        "title": "成员选择器",
+        "level": 3
+      },
+      {
+        "id": "文件上传",
+        "title": "文件上传",
+        "level": 3
+      },
+      {
+        "id": "标签选择器",
+        "title": "标签选择器",
+        "level": 3
+      },
+      {
+        "id": "完整示例",
+        "title": "完整示例",
+        "level": 2
+      },
+      {
+        "id": "服务端签发-code",
+        "title": "服务端签发 code",
+        "level": 3
+      },
+      {
+        "id": "前端打开组件",
+        "title": "前端打开组件",
+        "level": 3
+      },
+      {
+        "id": "安全建议",
+        "title": "安全建议",
+        "level": 2
+      },
+      {
+        "id": "常见问题",
+        "title": "常见问题",
+        "level": 2
+      }
+    ],
+    "markdown": "## 适用场景\n\n企业员工已经登录了你的业务系统（OA、CMS、电商后台等），需要在其中直接使用 MuseDAM 的素材选择、文件夹选择、成员选择、上传和标签选择组件。\n\n- 员工打开组件时**免登录**，不会跳转 MuseDAM 登录页，也不需要逐个员工授权。\n- 是否开放由**团队管理员**统一决定，可随时开启、关闭或撤销。\n- 凭证只能代表本团队的正常成员，组件内的操作沿用该成员在 MuseDAM 中的权限。\n\n> 本文适用于「在你的系统中嵌入 MuseDAM 组件」。如果是将你的应用嵌入 MuseDAM 内部运行，请参阅[嵌入应用与组件](./components)。\n\n## 接入流程\n\n1. 团队管理员为一个团队 API Key 开启嵌入组件，并配置允许嵌入的域名。\n2. 员工在你的系统中触发操作时，你的**后端**使用该 API Key 调用签发接口，为该员工获取一次性 `code`。\n3. 你的前端用 iframe 打开 `https://{MuseDAM 域名}/outer/embed?code=...`。\n4. 嵌入页完成鉴权后，向父页面发送 `musedam-embed-ready` 事件。\n5. 前端通过 `postMessage` 发送 `action` 打开组件，并按 `dispatchId` 接收 `action_result` 结果。\n\n```text\n你的后端 ──(Bearer 团队 API Key + 员工标识)──► POST /api/muse/embed-code ──► { code, expiresIn }\n    │\n    ▼ 把 code 交给前端\n你的前端 ──► <iframe src=\"https://musedam.cc/outer/embed?code=...\">\n    ◄── musedam-embed-ready\n    ──► action: assets-selector-modal-open\n    ◄── action_result: { success: true, data: { selectedAssets } }\n```\n\n## 开启嵌入组件\n\n### 管理员开启嵌入\n\n1. 系统管理员登录 MuseDAM，进入「团队设置」→「API 账号」。\n2. 选择一个团队 API Key（如果还没有，请先按[快速开始](./quick-start)创建）。\n3. 在 API Key 详情的「嵌入组件」区域打开开关，填写允许嵌入的域名并保存。\n4. 开启后，API Key 列表会显示「已开启嵌入」标识。\n\n> 只有**团队 API Key** 能签发嵌入凭证；个人 API Key、第三方应用凭证均会被拒绝。关闭开关或撤销 API Key 后，立即无法再签发新的 `code`。\n\n### 配置允许嵌入的域名\n\n「允许嵌入的域名」用于限制哪些父页面可以加载嵌入页。配置后，嵌入页只在父页面 origin 匹配时进入可用状态，并且只接收、只发送给该 origin 的消息。\n\n| 规则 | 说明 |\n|-|-|\n| 格式 | `http(s)://host[:port]`，只填写 origin，不能带路径，例如 `https://oa.example.com` |\n| 通配符 | 支持一级子域名通配，例如 `https://*.example.com` |\n| 数量 | 最多 20 条 |\n| 留空 | 不限制父页面来源（不建议在生产环境使用） |\n\n## 签发嵌入凭证\n\n由你的**后端**调用，使用开启了嵌入的团队 API Key 认证。每次打开组件前签发一个新的 `code`。\n\n### 签发请求\n\n```text\nPOST https://open.musedam.cc/api/muse/embed-code\nAuthorization: Bearer your_api_key\nContent-Type: application/json\n```\n\n请求体用于指定员工，三个字段任选其一；同时传入时优先级为 `userId` > `loginEmail` > `loginPhone`。\n\n| 字段 | 类型 | 必填 | 说明 |\n|-|-|-|-|\n| userId | string | 否 | MuseDAM 用户 ID，可通过[团队与成员](./team)接口查询 |\n| loginEmail | string | 否 | 员工的 MuseDAM 登录邮箱 |\n| loginPhone | string | 否 | 员工的 MuseDAM 登录手机号 |\n\n请求示例：\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/embed-code' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"loginEmail\": \"zhangsan@example.com\"\n}'\n```\n\n### 签发响应\n\n```json\n{\n    \"code\": \"0\",\n    \"result\": {\n        \"code\": \"c3f1a9...\",\n        \"expiresIn\": 300,\n        \"userId\": \"1538720494056386560\",\n        \"orgId\": \"123\"\n    }\n}\n```\n\n| 字段 | 类型 | 说明 |\n|-|-|-|\n| result.code | string | 一次性嵌入凭证，用于拼接嵌入页地址 |\n| result.expiresIn | number | 有效期（秒），默认 300 |\n| result.userId | string | 凭证对应的 MuseDAM 用户 ID |\n| result.orgId | string | 凭证对应的团队 ID |\n\n> `code` 5 分钟内有效，且只能使用一次，兑换后立即作废。请在打开组件时实时签发，不要缓存或复用。\n\n### 签发失败原因\n\n| code | 错误 | 说明 | 处理方法 |\n|-|-|-|-|\n| 50078 | EMBED_API_KEY_NOT_ALLOWED | 只有团队 API Key 才能签发嵌入凭证 | 改用团队 API Key，不要使用个人 API Key 或应用凭证 |\n| 50079 | EMBED_NOT_ENABLED | 该 API Key 未开启嵌入组件 | 请管理员在 API Key 详情中开启嵌入组件 |\n| 50080 | EMBED_MEMBER_NOT_FOUND | 指定的用户不是本团队的有效成员 | 有效成员指状态为正常、管理员或待激活且未退出团队的成员，离职成员不可用；签发接口不会自动创建账号 |\n\nAPI Key 无效或已撤销时，按[错误处理](./errors)中的认证错误处理。其他相关错误码：\n\n| code | 错误 | 出现场景 |\n|-|-|-|\n| 50081 | EMBED_CODE_INVALID | 嵌入页兑换 `code` 时，`code` 无效、已过期或已被使用；嵌入页会发送 `musedam-embed-auth-failed` |\n| 50082 | EMBED_ORIGIN_INVALID | 管理员保存「允许嵌入的域名」时格式不正确，不会在签发或嵌入时出现 |\n\n## 加载嵌入页\n\n将签发得到的 `code` 拼接到嵌入页地址，用 iframe 打开：\n\n```text\nhttps://musedam.cc/outer/embed?code={code}&theme=light\n```\n\n| 参数 | 必填 | 说明 |\n|-|-|-|\n| code | 是 | 签发接口返回的一次性 `code`，请使用 `encodeURIComponent` 编码 |\n| theme | 否 | `light` 或 `dark`，只作用于本次嵌入，不写入用户偏好 |\n\n嵌入页域名与团队成员登录 MuseDAM 使用的域名一致，即 `https://musedam.cc`。\n\n嵌入页本身是透明的空白页，只承载组件弹窗。建议 iframe 全屏覆盖，在组件返回结果后由你的页面隐藏或移除 iframe。`code` 兑换后会从嵌入页地址栏中移除。\n\n### 测试页\n\n联调时可以使用[嵌入组件测试页](https://musedam.cc/outer/embed/test)：粘贴签发得到的 `code` 即可加载嵌入页，选择 action、编辑参数后发送，并查看生命周期事件和返回结果。\n\n- 测试页与 MuseDAM 同域，加载后当前浏览器的 MuseDAM 登录身份会切换为 `code` 对应的用户，建议在无痕窗口中使用。\n- 如果 API Key 配置了允许嵌入的域名，需要把 `https://musedam.cc` 也加进去，否则会鉴权失败。\n- 本页面用于测试「在你的系统中嵌入 MuseDAM 组件」；[嵌入应用与组件](./components)中的组件测试页用于测试应用嵌入 MuseDAM 内部运行的场景。\n\n### 生命周期事件\n\n嵌入页通过 `postMessage` 向父页面发送以下事件，消息结构为 `{ source: 'musedam', type, timestamp, payload }`：\n\n| type | 时机 | payload |\n|-|-|-|\n| musedam-embed-ready | 鉴权与初始化完成，可以开始发送 action | `{}` |\n| musedam-embed-auth-failed | `code` 缺失、无效、过期、已使用，或父页面域名不在允许列表中 | `{ message }` |\n| musedam-embed-auth-expired | 使用过程中登录态失效 | `{ code? }` |\n\n收到 `musedam-embed-auth-failed` 或 `musedam-embed-auth-expired` 时，请让后端重新签发 `code` 并刷新 iframe 地址。嵌入页不会跳转到登录页。\n\n## 调用组件\n\n收到 `musedam-embed-ready` 后，通过 `iframe.contentWindow.postMessage` 发送 action。\n\n### 消息格式\n\n**你的页面 → 嵌入页（请求）**\n\n```typescript\n{\n    source: \"musedam-app\",\n    target: \"musedam\",\n    type: \"action\",\n    timestamp: \"2026-10-12T10:30:00.000Z\",\n    dispatchId: \"dispatch_1728700000000_abc123\", // 唯一 ID，用于匹配结果\n    action: \"assets-selector-modal-open\",\n    args: { /* 各组件参数 */ }\n}\n```\n\n**嵌入页 → 你的页面（结果）**\n\n```typescript\n// 成功\n{ type: \"action_result\", dispatchId, action, result: { success: true, data: { /* 结果 */ } } }\n\n// 失败或取消\n{\n    type: \"action_result\",\n    dispatchId,\n    action,\n    result: {\n        success: false,\n        code: \"cancelled\" | \"forbidden\" | \"malformed_request\" | \"internal_server_error\",\n        message: \"...\"\n    }\n}\n```\n\n| result.code | 含义 |\n|-|-|\n| cancelled | 用户主动取消或关闭了组件 |\n| malformed_request | 请求参数错误或格式不正确 |\n| forbidden | action 不在可调用列表中，或用户没有该操作权限 |\n| internal_server_error | 服务器内部错误或其他未捕获的异常 |\n\n### 可调用的 action\n\n| 组件 | action |\n|-|-|\n| 素材选择器 | `assets-selector-modal-open` / `assets-selector-modal-close` |\n| 文件夹选择器（多选） | `folder-selector-modal-open` / `folder-selector-modal-close` |\n| 文件夹选择器（单选） | `single-folder-selector-modal-open` / `single-folder-selector-modal-close` |\n| 成员选择器 | `member-selector-modal-open` / `member-selector-modal-close` |\n| 上传 | `upload-files` / `sub-project-upload-complete` |\n| 标签选择 | `openTagSelecter` / `closeTagSelecter` / `removeTag` |\n\n以上之外的 action 会直接返回 `result.code = \"forbidden\"`。`*-close` 用于由你的页面主动关闭已打开的组件。嵌入会话锁定在 `code` 对应的团队，组件内不能切换团队。\n\n### 素材选择器\n\n![素材选择器：浏览、筛选并选择资产库中的素材。](/assets/developers/embed/assets.png)\n\n- **action**：`assets-selector-modal-open`\n- **args**：\n\n```typescript\n{\n    initialSelectedAssetIds?: number[];\n    // 可选择的素材类型，不传则不限制\n    // 取值：image、video、audio、js、document、PDocument、excel、font、zip、dll、code、model、triD、url\n    allowedTypes?: string[];\n    // 各类型数量上限；limit 不传表示该类型不限数量\n    dataLimit?: Array<{ type: string; limit?: number }>;\n    // 打开时预置的筛选条件，用户仍可在组件内修改\n    filters?: {\n        types?: string[];\n        extensions?: string[];\n        size?: { min?: number; max?: number; unit?: 'KB' | 'MB' | 'GB' };\n        dimension?: { minWidth?: number; maxWidth?: number; minHeight?: number; maxHeight?: number };\n    };\n}\n```\n\n- **result.data**：`{ selectedAssets: IAssetLite[] }`。`IAssetLite` 包含 `id`、`assetId`、`name`、`type`、`extension`、`size`、`width`、`height`、`downloadUrl`、`thumbnail`、`tags`、`folders` 等字段，完整定义见[嵌入应用与组件](./components)。\n\n> `downloadUrl` 等链接可能有时效。业务系统中请保存素材 ID，需要展示或下载时再通过[素材管理](./assets)接口获取有效链接。\n\n### 文件夹选择器\n\n![文件夹选择器：选择一个或多个共享文件夹。](/assets/developers/embed/folders.png)\n\n多选：\n\n- **action**：`folder-selector-modal-open`\n- **args**：`{ initialSelectedFolders?: Array<{ id: number; name: string }>; allMaterials?: boolean }`，`allMaterials` 控制是否显示「全部素材」快速选项\n- **result.data**：`{ selectedFolders: Array<{ id: number; name: string }>; allMaterials: boolean }`\n\n单选：\n\n- **action**：`single-folder-selector-modal-open`\n- **args**：`{ initialSelectedFolder?: number | { id: number; name?: string } }`\n- **result.data**：`{ id: number; name: string }`\n\n### 成员选择器\n\n![成员选择器：按成员、部门或群组选择。](/assets/developers/embed/members.png)\n\n- **action**：`member-selector-modal-open`\n- **args**：\n\n```typescript\n{\n    selectedItems?: {\n        members?: Array<{ id: string; name: string }>;\n        departments?: Array<{ id: string; name: string }>;\n        groups?: Array<{ id: string; name: string }>;\n    };\n}\n```\n\n- **result.data**：\n\n```typescript\n{\n    members: Array<{ id: string; name: string; departmentsName?: string; avatarUrl?: string }>;\n    departments: Array<{ id: string; name: string }>;\n    groups: Array<{ id: string; name: string }>;\n}\n```\n\n### 文件上传\n\n上传分两步：先用 `upload-files` 上传文件，业务处理完成后再用 `sub-project-upload-complete` 通知 MuseDAM 正式入库。\n\n**第一步：`upload-files`**\n\n```typescript\n// args\n{\n    files: File[];          // 必填，可通过 <input type=\"file\"> 获取\n    folderId?: number;      // 目标文件夹 ID，可先用单选文件夹选择器获取\n    uploadSource?: string;  // 上传来源标识\n    subProjectId?: string;  // 推荐填写，用于区分不同业务的上传\n}\n\n// result.data\n{\n    uploadedFiles: Array<{\n        key: string;        // 文件唯一标识，第二步需要使用\n        fileName: string;\n        fileSize: number;\n        fileType: string;\n        uploadTime: string;\n        url?: string;\n    }>;\n    failedFiles?: Array<{ fileName: string; error: string }>;\n}\n```\n\n**第二步：`sub-project-upload-complete`**\n\n```typescript\n// args\n{\n    subProjectId: string;   // 与上传时一致\n    uploadKeys: Array<{ key: string; fileName: string; fileSize: number; fileType: string; uploadTime: string; url?: string }>;\n}\n\n// result.data\n{\n    processedFiles: Array<{ key: string; fileName: string; status: 'success' | 'failed'; error?: string }>;\n}\n```\n\n部分文件失败时 `result.success` 仍为 `true`，请逐个检查 `failedFiles` 和 `processedFiles[].status`。\n\n### 标签选择器\n\n标签选择器以浮层形式显示在指定位置，适合在你的页面中为内容打 MuseDAM 标签。\n\n| action | args | 说明 |\n|-|-|-|\n| openTagSelecter | `{ rect: { left: number; top: number; width?: number; height?: number } }` | 在视口坐标 `rect` 旁打开标签浮层 |\n| closeTagSelecter | 无 | 关闭标签浮层 |\n| removeTag | `{ tagId: number }` | 从当前已选标签中移除一个标签 |\n\n标签选择器不返回 `action_result`。用户每次修改标签，嵌入页都会发送 `{ source: 'musedam', type: 'action', action: 'updateTags', args: { tags } }`，请以最后一次收到的 `tags` 为准。\n\n## 完整示例\n\n### 服务端签发 code\n\n以 Node.js 为例，API Key 只保存在服务端环境变量中：\n\n```javascript\n// POST /api/musedam/embed-code —— 你自己的后端接口，需校验当前登录用户\napp.post('/api/musedam/embed-code', requireLogin, async (req, res) => {\n  const response = await fetch('https://open.musedam.cc/api/muse/embed-code', {\n    method: 'POST',\n    headers: {\n      Authorization: `Bearer ${process.env.MUSEDAM_API_KEY}`,\n      'Content-Type': 'application/json',\n    },\n    // 只为当前登录员工签发，不要直接使用前端传入的邮箱\n    body: JSON.stringify({ loginEmail: req.user.email }),\n  })\n  const body = await response.json()\n  if (String(body.code) !== '0') {\n    return res.status(400).json({ message: body.message })\n  }\n  res.json({ code: body.result.code })\n})\n```\n\n### 前端打开组件\n\n```javascript\nconst MUSEDAM_ORIGIN = 'https://musedam.cc'\n\nasync function openMuseDAM(action, args) {\n  // 1. 每次打开都向自己的后端获取新的 code\n  const { code } = await fetch('/api/musedam/embed-code', { method: 'POST' }).then((r) => r.json())\n\n  // 2. 创建全屏 iframe\n  const iframe = document.createElement('iframe')\n  iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999'\n  iframe.src = `${MUSEDAM_ORIGIN}/outer/embed?code=${encodeURIComponent(code)}&theme=light`\n  document.body.appendChild(iframe)\n\n  const dispatchId = `dispatch_${Date.now()}_${Math.random().toString(36).slice(2)}`\n\n  return new Promise((resolve, reject) => {\n    function cleanup() {\n      window.removeEventListener('message', onMessage)\n      iframe.remove()\n    }\n\n    function onMessage(event) {\n      // 3. 只处理来自 MuseDAM 嵌入页的消息\n      if (event.origin !== MUSEDAM_ORIGIN || event.source !== iframe.contentWindow) return\n      const data = event.data || {}\n\n      switch (data.type) {\n        case 'musedam-embed-ready':\n          // 4. 初始化完成后发送 action\n          iframe.contentWindow.postMessage(\n            {\n              source: 'musedam-app',\n              target: 'musedam',\n              type: 'action',\n              timestamp: new Date().toISOString(),\n              dispatchId,\n              action,\n              args,\n            },\n            MUSEDAM_ORIGIN,\n          )\n          break\n        case 'musedam-embed-auth-failed':\n        case 'musedam-embed-auth-expired':\n          cleanup()\n          reject(new Error(data.payload?.message || data.type))\n          break\n        case 'action_result':\n          // 5. 按 dispatchId 匹配结果\n          if (data.dispatchId !== dispatchId) return\n          cleanup()\n          data.result?.success\n            ? resolve(data.result.data)\n            : reject(Object.assign(new Error(data.result?.message), { code: data.result?.code }))\n          break\n      }\n    }\n\n    window.addEventListener('message', onMessage)\n  })\n}\n\n// 使用：最多选择 5 张图片\nopenMuseDAM('assets-selector-modal-open', { allowedTypes: ['image'], dataLimit: [{ type: 'image', limit: 5 }] })\n  .then(({ selectedAssets }) => console.log('已选择', selectedAssets))\n  .catch((error) => error.code !== 'cancelled' && console.error(error))\n```\n\n## 安全建议\n\n- **API Key 只能保存在后端**，不能出现在 iframe 地址、前端代码或浏览器存储中。\n- 后端只为当前已登录的员工签发 `code`，员工标识应取自你的登录会话，不要信任前端传入的邮箱或手机号。\n- `code` 5 分钟内有效且只能使用一次。不要记录到日志、埋点或分享链接中。\n- 在生产环境中配置「允许嵌入的域名」，只填写实际承载 iframe 的页面 origin。\n- 接收消息时校验 `event.origin` 和 `event.source`；发送消息时指定 MuseDAM 的 origin，不要使用 `'*'`。\n- 员工离职或被移出团队后，将无法再为其签发或兑换 `code`。不再需要嵌入时，请关闭开关或撤销 API Key。\n\n## 常见问题\n\n**收到 musedam-embed-auth-failed 怎么办？**\n\n依次检查：`code` 是否超过 5 分钟、是否已被使用过（例如页面刷新后重复使用了同一个地址）、父页面 origin 是否在「允许嵌入的域名」中（注意协议和端口）。\n\n**可以把 iframe 预加载以加快打开速度吗？**\n\n可以在用户即将操作时提前签发 `code` 并加载 iframe，收到 `musedam-embed-ready` 后再显示。注意 `code` 5 分钟有效，过期后需要重新签发。\n\n**组件中能看到哪些素材和成员？**\n\n与员工本人登录 MuseDAM 时一致，按该员工的团队成员权限展示。嵌入会话固定在签发 `code` 的团队内。",
+    "updatedAt": "2026-10-12"
+  },
+  {
     "slug": "mcp",
     "title": "MCP 概览",
     "en": "MCP overview",
@@ -806,7 +937,7 @@
         "level": 2
       }
     ],
-    "markdown": "本文档面向需要对接 MuseDAM MCP 服务的客户端（如 Cursor、Claude Desktop、自研 MCP 客户端等），说明如何通过 **Streamable HTTP**连接生产环境。\n可通过 Skill 使用 MuseDAM MCP。开放接口说明与资源下载：\nhttps://github.com/kang-oy/musedam-open-api.git\n\n---\n\n## 服务概览\n\n| 项目 | 说明 |\n|-|-|\n| 协议 | Model Context Protocol (MCP) |\n| 能力 | 以 MCP 工具形式暴露 MuseDAM 开放接口：素材检索/上传/修改、标签与文件夹管理、分享搜索、团队信息等 |\n| 认证 | 需提供 MuseDAM API 密钥，参考 MuseDAM API 使用说明获取 `api_key` |\n\n### 环境与端点\n\n| 环境 | 域名 | 说明 |\n|-|-|-|\n| 生产环境 | `https://mcp-service.musedam.cc` | 正式环境，对应国内 region |\n\n---\n\n## 选择连接方式\n\n通过 Streamable HTTP 连接远程 MCP 服务，无需在本地部署进程：\n\n| 方式 | 适用场景 | API 密钥传递方式 |\n|-|-|-|\n| **Streamable HTTP** | 客户端通过 HTTP 连接远程 MCP 服务 | 通过 HTTP `Authorization` header 传入（如 `Authorization: Bearer <api_key>`） |\n\n---\n",
+    "markdown": "本文档面向需要对接 MuseDAM MCP 服务的客户端（如 Cursor、Claude Desktop、自研 MCP 客户端等），说明如何通过 **Streamable HTTP**连接生产环境。\n可通过 Skill 使用 MuseDAM MCP。开放接口说明与资源下载：\nhttps://github.com/kang-oy/musedam-open-api.git\n\n---\n\n## 服务概览\n\n| 项目 | 说明 |\n|-|-|\n| 协议 | Model Context Protocol (MCP) |\n| 能力 | 以 MCP 工具形式暴露 MuseDAM 开放接口：素材检索/上传/修改、标签与文件夹管理、分享搜索、团队信息等 |\n| 认证 | 需提供 MuseDAM API 密钥，参考 MuseDAM API 使用说明获取 `api_key` |\n\n### 环境与端点\n\n| 环境 | 域名 | 说明 |\n|-|-|-|\n| 生产环境 | `https://mcp-service.musedam.cc` | 正式环境 |\n\n---\n\n## 选择连接方式\n\n通过 Streamable HTTP 连接远程 MCP 服务，无需在本地部署进程：\n\n| 方式 | 适用场景 | API 密钥传递方式 |\n|-|-|-|\n| **Streamable HTTP** | 客户端通过 HTTP 连接远程 MCP 服务 | 通过 HTTP `Authorization` header 传入（如 `Authorization: Bearer <api_key>`） |\n\n---\n",
     "updatedAt": "2026-09-29"
   },
   {
@@ -852,7 +983,7 @@
         "level": 2
       }
     ],
-    "markdown": "## Streamable HTTP\n\n### 机制说明\n\n- MCP 服务以 HTTP 服务形式运行，支持多客户端并发连接。\n- 客户端通过标准 HTTP 请求与 MCP 服务通信，使用 JSON-RPC 协议。\n- 适合远程部署、多端接入（如 Cursor 通过 URL 连接、自建 Web 客户端等）。\n\n### 端点与认证规范\n\n- **路径**：`/`（根路径）\n- **方法**：`POST`（发送 JSON-RPC 请求）\n- **认证**：必须在 HTTP `Authorization` header 中携带 API Key，格式：`Authorization: Bearer <你的MuseDAM_API密钥>`\n- **区域配置**：通过 URL query parameter 指定，格式：`?region=<区域>`（可选，默认 `cn`）\n\n### 生产环境连接配置\n\n**生产环境：**\n\n```json\n{\n  \"mcpServers\": {\n    \"musedam\": {\n      \"url\": \"https://mcp-service.musedam.cc\",\n      \"headers\": {\n        \"Authorization\": \"Bearer 你的MuseDAM_API密钥\"\n      },\n      \"name\": \"MuseDAM\"\n    }\n  }\n}\n```\n\n国内生产环境默认使用 `cn`，无需在 URL 中添加区域参数。\n\n### 配置参数说明\n\n- **url**：服务器地址，可通过 query parameter `?region=xxx` 指定区域（可选，默认 `cn`）\n\n  - 可选值：`cn`（国内，默认）、`overseas`（海外）\n- **headers.Authorization**：必须携带 `Bearer <api_key>` 格式的认证信息\n\n部分客户端使用 `serverUrl` 而非 `url`，含义相同，按客户端文档填写即可。\n\n### 健康检查\n\n服务提供健康检查端点，便于运维与负载均衡探测：\n\n- **路径**：`GET /health_check`\n- **成功**：返回 HTTP 200，无 body 要求\n\n示例：\n\n- 生产：`https://mcp-service.musedam.cc/health_check`\n\n---\n\n## 区域与 API\n\n| region | 说明 | MuseDAM Open API Base URL |\n|-|-|-|\n| `cn` | 国内（默认） | `https://open.musedam.cc/api/muse` |\n| `overseas` | 海外 | `https://open.musedam.ai/api/muse` |\n\n本文列出的 MCP 工具通过开放 API 访问 MuseDAM；HTTP 方法以对应开放接口为准，鉴权方式：`Authorization: Bearer <api_key>`。对接本 MCP 时只需在连接配置中提供 `api_key` 并在需要时指定 `region` 即可。\n\n---\n",
+    "markdown": "## Streamable HTTP\n\n### 机制说明\n\n- MCP 服务以 HTTP 服务形式运行，支持多客户端并发连接。\n- 客户端通过标准 HTTP 请求与 MCP 服务通信，使用 JSON-RPC 协议。\n- 适合远程部署、多端接入（如 Cursor 通过 URL 连接、自建 Web 客户端等）。\n\n### 端点与认证规范\n\n- **路径**：`/`（根路径）\n- **方法**：`POST`（发送 JSON-RPC 请求）\n- **认证**：必须在 HTTP `Authorization` header 中携带 API Key，格式：`Authorization: Bearer <你的MuseDAM_API密钥>`\n- **区域配置**：通过 URL query parameter 指定，格式：`?region=<区域>`（可选，默认 `cn`）\n\n### 生产环境连接配置\n\n**生产环境：**\n\n```json\n{\n  \"mcpServers\": {\n    \"musedam\": {\n      \"url\": \"https://mcp-service.musedam.cc\",\n      \"headers\": {\n        \"Authorization\": \"Bearer 你的MuseDAM_API密钥\"\n      },\n      \"name\": \"MuseDAM\"\n    }\n  }\n}\n```\n\n### 配置参数说明\n\n- **url**：服务器地址，可通过 query parameter `?region=xxx` 指定区域（可选，默认 `cn`）\n\n  - 可选值：`cn`（国内，默认）、`overseas`（海外）\n- **headers.Authorization**：必须携带 `Bearer <api_key>` 格式的认证信息\n\n部分客户端使用 `serverUrl` 而非 `url`，含义相同，按客户端文档填写即可。\n\n### 健康检查\n\n服务提供健康检查端点，便于运维与负载均衡探测：\n\n- **路径**：`GET /health_check`\n- **成功**：返回 HTTP 200，无 body 要求\n\n示例：\n\n- 生产：`https://mcp-service.musedam.cc/health_check`\n\n---\n\n## 区域与 API\n\n本文列出的 MCP 工具通过开放 API（`https://open.musedam.cc/api/muse`）访问 MuseDAM；HTTP 方法以对应开放接口为准，鉴权方式：`Authorization: Bearer <api_key>`。对接本 MCP 时只需在连接配置中提供 `api_key` 并在需要时指定 `region` 即可。\n\n---\n",
     "updatedAt": "2026-09-29"
   },
   {

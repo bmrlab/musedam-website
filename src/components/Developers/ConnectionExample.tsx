@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { type DeveloperRegion, regionalizeDeveloperText } from '@/data/developers/region'
 
 import { CodeBlock } from './CodeBlock'
 import { RegionEndpoints } from './RegionEndpoints'
@@ -24,7 +25,14 @@ const mcp = JSON.stringify(
   2,
 )
 
-export function ConnectionExample({ english = false }: { english?: boolean }) {
+export function ConnectionExample({
+  english = false,
+  region,
+}: {
+  english?: boolean
+  /** 当前部署区域，由服务端按 DEPLOY_REGION 传入 */
+  region: DeveloperRegion
+}) {
   const lng = useParams<{ lng: string }>()?.lng ?? 'zh-CN'
   const [tab, setTab] = useState('api')
   return (
@@ -65,25 +73,24 @@ export function ConnectionExample({ english = false }: { english?: boolean }) {
           <CodeBlock
             key={tab}
             english={english}
-            code={
+            code={regionalizeDeveloperText(
               tab === 'api'
                 ? english
-                  ? api
-                      .replace('open.musedam.cc', 'open.musedam.ai')
-                      .replace(localizeDeveloperText('品牌', lng), 'brand')
+                  ? api.replace(localizeDeveloperText('品牌', lng), 'brand')
                   : api
-                : english
-                  ? mcp.replace(
-                      'https://mcp-service.musedam.cc',
-                      'https://mcp-service.musedam.cc?region=overseas',
-                    )
-                  : mcp
-            }
+                : mcp,
+              region,
+            )}
             language={tab === 'api' ? 'bash' : 'json'}
           />
         </div>
       </div>
-      <RegionEndpoints english={english} lng={lng} kind={tab === 'mcp' ? 'mcp' : 'api'} />
+      <RegionEndpoints
+        english={english}
+        lng={lng}
+        kind={tab === 'mcp' ? 'mcp' : 'api'}
+        region={region}
+      />
     </>
   )
 }

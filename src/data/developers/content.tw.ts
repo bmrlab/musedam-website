@@ -4,6 +4,7 @@ import Page10 from './content/zh-TW/applications.mdx'
 import Page3 from './content/zh-TW/assets.mdx'
 import Page1 from './content/zh-TW/authentication.mdx'
 import Page11 from './content/zh-TW/components.mdx'
+import Page18 from './content/zh-TW/embed.mdx'
 import Page9 from './content/zh-TW/errors.mdx'
 import Page8 from './content/zh-TW/events.mdx'
 import Page5 from './content/zh-TW/folders.mdx'
@@ -32,6 +33,7 @@ export const traditionalContent = {
   errors: Page9,
   applications: Page10,
   components: Page11,
+  embed: Page18,
   'use-cases': Page12,
   mcp: Page13,
   'mcp-connect': Page14,

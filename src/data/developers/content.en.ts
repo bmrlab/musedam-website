@@ -4,6 +4,7 @@ import Page10 from './content/en/applications.mdx'
 import Page3 from './content/en/assets.mdx'
 import Page1 from './content/en/authentication.mdx'
 import Page11 from './content/en/components.mdx'
+import Page18 from './content/en/embed.mdx'
 import Page9 from './content/en/errors.mdx'
 import Page8 from './content/en/events.mdx'
 import Page5 from './content/en/folders.mdx'
@@ -32,6 +33,7 @@ export const englishContent = {
   errors: Page9,
   applications: Page10,
   components: Page11,
+  embed: Page18,
   'use-cases': Page12,
   mcp: Page13,
   'mcp-connect': Page14,

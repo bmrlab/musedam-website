@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getDeveloperDocument } from '@/data/developers/documents'
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { getDeveloperRegion } from '@/data/developers/region'
 import { ArrowRight, ArrowUpRight, Braces, Check, Layers, Sparkles, Terminal } from 'lucide-react'
 
 import { Architecture } from './Architecture'
@@ -195,7 +196,7 @@ export function DeveloperLanding({ lng }: { lng: string }) {
               'With an API Key, search for your first asset or configure your MCP client.',
             )}
           </p>
-          <ConnectionExample english={en} />
+          <ConnectionExample english={en} region={getDeveloperRegion()} />
           <div className="dev-example-note">
             <Terminal size={14} />
             <span>

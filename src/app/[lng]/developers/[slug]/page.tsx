@@ -6,6 +6,7 @@ import { content } from '@/data/developers/content'
 import { englishContent } from '@/data/developers/content.en'
 import { traditionalContent } from '@/data/developers/content.tw'
 import { localizeDeveloperText } from '@/data/developers/localize'
+import { getDeveloperRegion, regionalizeDeveloperText } from '@/data/developers/region'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { IntegrationFlow } from '@/components/Developers/Architecture'
@@ -62,6 +63,8 @@ export default async function DeveloperPage({ params }: Props) {
   const Content = (english ? englishContent : lng === 'zh-TW' ? traditionalContent : content)[
     slug as keyof typeof content
   ]
+  // 商品库只在国内提供，文档始终显示国内地址
+  const region = slug === 'product-library' ? 'cn' : getDeveloperRegion()
   const group = getDeveloperGroups(lng).find((group) => group.id === page.group)
   const index = developerNavigation.findIndex((page) => page.slug === slug)
   const previous = developerNavigation[index - 1]
@@ -83,7 +86,7 @@ export default async function DeveloperPage({ params }: Props) {
             lng={lng}
             slug={slug}
             title={page.title}
-            markdown={page.markdown}
+            markdown={regionalizeDeveloperText(page.markdown, region)}
             updatedAt={page.updatedAt}
           />
         </header>
@@ -96,12 +99,13 @@ export default async function DeveloperPage({ params }: Props) {
           <RegionEndpoints
             lng={lng}
             english={english}
+            region={region}
             kind={
               slug === 'product-library'
                 ? 'product-library'
                 : page.group === 'mcp'
                   ? 'mcp'
-                  : page.group === 'apps'
+                  : page.group === 'apps' && slug !== 'embed'
                     ? 'apps'
                     : 'api'
             }
@@ -114,6 +118,7 @@ export default async function DeveloperPage({ params }: Props) {
               page.headings,
               english,
               lng,
+              region,
               slug === 'product-library',
             )}
           />

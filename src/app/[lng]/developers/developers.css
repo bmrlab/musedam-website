@@ -847,6 +847,10 @@
 .dev-api-screenshot-create {
   max-width: 520px;
 }
+.dev-embed-screenshot-folders,
+.dev-embed-screenshot-members {
+  max-width: 600px;
+}
 .dev-api-screenshot figcaption {
   display: flex;
   flex-wrap: wrap;
