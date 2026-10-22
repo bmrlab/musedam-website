@@ -1,11 +1,12 @@
 ## 工具列表
 
-当前公开参考包含 <MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> 个工具，同步于 2026-10-21。参数以服务端 `tools/list` 返回的 schema 为准，不包含第三方应用 API Key 管理。
+当前公开参考包含 <MainlandOnly>72</MainlandOnly><OverseasOnly>44</OverseasOnly> 个工具，同步于 2026-10-22。参数以服务端 `tools/list` 返回的 schema 为准，不包含第三方应用 API Key 管理。
 
 ## 素材、文件夹与标签
 
 | 工具名 | 说明 |
 |---|---|
+| `musedam_search_by_image` | 以图搜图（付费团队） |
 | `musedam_search_assets` | 按目录、类型、关键词、标签、尺寸等检索企业空间素材 |
 | `musedam_upload_assets` | 通过可下载链接将素材上传到 DAM |
 | `musedam_modify_assets` | 修改素材名称、描述、评分、链接、标签 |
@@ -40,6 +41,7 @@
 | `musedam_org_member_info` | 获取团队成员信息 |
 | `musedam_org_info` | 获取团队基本信息 |
 | `musedam_org_point_info` | 获取团队积分 |
+| `musedam_role_members_query` | 查询角色成员（管理员 API Key） |
 | `musedam_org_members_query` | 查询团队成员 |
 | `musedam_org_whitelist_query` | 查询白名单 |
 | `musedam_org_departments_query` | 查询部门 |
@@ -121,3 +123,5 @@
 获取任务号后，使用 `musedam_upload_assets_task` 和 `{"params":{"taskId":"<taskId>"}}` 查询，直到 `SUCCESS` 或 `FAILED`。
 
 [配置 MCP 连接](./mcp-connect)
+
+仅管理员类型 API Key 可调用：企业版对应角色 code 为 `content`；非企业版 API Key 视为管理员。不满足条件返回 `50083`。 上述权限限制适用于团队成员、部门、部门成员和角色成员查询。

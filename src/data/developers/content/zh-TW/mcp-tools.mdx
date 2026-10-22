@@ -1,11 +1,12 @@
 ## 工具列表
 
-當前公開參考包含 <MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> 個工具，同步於 2026-10-21。參數以服務端 `tools/list` 返回的 schema 為準，不包含第三方應用 API Key 管理。
+當前公開參考包含 <MainlandOnly>72</MainlandOnly><OverseasOnly>44</OverseasOnly> 個工具，同步於 2026-10-22。參數以服務端 `tools/list` 返回的 schema 為準，不包含第三方應用 API Key 管理。
 
 ## 素材、文件夾與標籤
 
 | 工具名 | 說明 |
 |---|---|
+| `musedam_search_by_image` | 以圖搜圖（付費團隊） |
 | `musedam_search_assets` | 按目錄、類型、關鍵詞、標籤、尺寸等檢索企業空間素材 |
 | `musedam_upload_assets` | 通過可下載鏈接將素材上傳到 DAM |
 | `musedam_modify_assets` | 修改素材名稱、描述、評分、鏈接、標籤 |
@@ -40,6 +41,7 @@
 | `musedam_org_member_info` | 獲取團隊成員信息 |
 | `musedam_org_info` | 獲取團隊基本信息 |
 | `musedam_org_point_info` | 獲取團隊積分 |
+| `musedam_role_members_query` | 查詢角色成員（管理員 API Key） |
 | `musedam_org_members_query` | 查詢團隊成員 |
 | `musedam_org_whitelist_query` | 查詢白名單 |
 | `musedam_org_departments_query` | 查詢部門 |
@@ -121,3 +123,5 @@
 獲取任務號後，使用 `musedam_upload_assets_task` 和 `{"params":{"taskId":"<taskId>"}}` 查詢，直到 `SUCCESS` 或 `FAILED`。
 
 [配置 MCP 連接](./mcp-connect)
+
+僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。 上述權限限制適用於團隊成員、部門、部門成員和角色成員查詢。

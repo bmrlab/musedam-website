@@ -123,6 +123,9 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-member-info
 
 **接口路徑：** `/org-members-query`  
 
+僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+
+
 **請求方式：** `POST`  
 
 **接口描述：** 分頁查詢當前團隊下的成員列表，支持關鍵字、部門、狀態等篩選。
@@ -270,6 +273,9 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-whitelist-q
 
 **接口路徑**：`/org-departments-query`
 
+僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+
+
 **請求方式**：GET
 
 **接口描述**：獲取當前團隊下某個父部門的直接子部門列表；parentId=0 表示根部門。
@@ -315,6 +321,9 @@ curl --location --request GET 'https://open.musedam.cc/api/muse/org-groups-query
 ### 通過部門 ID 查詢成員列表
 
 **接口路徑**：`/department-members-query`
+
+僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+
 
 **請求方式**：GET
 
@@ -459,4 +468,25 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/add-in-app-noti
     "result": true,
     "traceId": "17561978534182325498"
 }
+```
+
+## 查詢角色成員
+
+**接口路徑**：`/role-members-query`
+
+**請求方式**：POST
+
+僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+
+| 字段名 | 類型 | 必填 | 說明 |
+|---|---|---|---|
+| roleId | Long | 是 | 角色 ID |
+| keyWord | String | 否 | 匹配姓名或手機號 |
+| page | Integer | 否 | 默認 1 |
+| pageSize | Integer | 否 | 默認 10 |
+
+響應與團隊成員列表一致：`records/total/current/size`。成員記錄帶請求的 `roleId`，手機號脫敏。
+
+```json
+{"roleId":12,"page":1,"pageSize":20}
 ```

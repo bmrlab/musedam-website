@@ -371,3 +371,27 @@ Response example:
     "traceId": "109456b3501142a4a015a0b53fe7bc7e"
 }
 ```
+
+## Image search
+
+**Endpoint:** `POST /search-by-image`
+
+Search for similar assets in a paid team, ordered by similarity. Supply at least one image source. If multiple are supplied, priority is `imageBase64` > `searchMaterialId` > `imagePublicUrl`.
+
+| Field | Type | Description |
+|---|---|---|
+| searchMaterialId | Long | Existing asset ID |
+| imagePublicUrl | String | Directly downloadable image URL |
+| imageBase64 | String | Raw base64 or data:image/xxx;base64, content |
+
+Other filters, pagination and response match `/search-assets` (result.assets and result.total). `region` is the selected area in the query image, not the MCP connection region. `endPoint` above 1000 returns an empty result. Missing all valid sources returns a parameter error.
+
+```json
+{
+  "imagePublicUrl": "https://example.com/query.jpg",
+  "parentId": 100,
+  "needChildren": true,
+  "startPoint": 0,
+  "endPoint": 20
+}
+```

@@ -371,3 +371,29 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/search-share' \
     "traceId": "109456b3501142a4a015a0b53fe7bc7e"
 }
 ```
+
+## 以图搜图
+
+**接口路径**：`/search-by-image`
+
+**请求方式**：POST
+
+检索付费团队内的相似素材，按相似度排序。至少提供一个图片来源；同时传多个时优先级为 `imageBase64` > `searchMaterialId` > `imagePublicUrl`。
+
+| 字段名 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| searchMaterialId | Long | 条件 | 已入库素材 ID |
+| imagePublicUrl | String | 条件 | 可直接下载的图片 URL |
+| imageBase64 | String | 条件 | 纯 base64 或带 data:image/xxx;base64, 前缀 |
+
+其余筛选、分页和响应与 `/search-assets` 一致，返回 `result.assets`、`result.total`。`region` 为查询图上的框选区域，不是 MCP 连接的国内/海外区域。`endPoint` 大于 1000 返回空结果。三个来源都未传，或素材 ID 不大于 0 且另外两个为空时返回参数错误。仅付费团队可用。
+
+```json
+{
+  "imagePublicUrl": "https://example.com/query.jpg",
+  "parentId": 100,
+  "needChildren": true,
+  "startPoint": 0,
+  "endPoint": 20
+}
+```

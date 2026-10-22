@@ -1,11 +1,12 @@
 ## Tool catalog
 
-<MainlandOnly>70</MainlandOnly><OverseasOnly>42</OverseasOnly> public tools, synchronized on 2026-10-21. Retrieve live schemas with `tools/list`. Third-party API Key management is not included.
+<MainlandOnly>72</MainlandOnly><OverseasOnly>44</OverseasOnly> public tools, synchronized on 2026-10-22. Retrieve live schemas with `tools/list`. Third-party API Key management is not included.
 
 ## Assets, folders and tags
 
 | Tool | Description |
 |---|---|
+| `musedam_search_by_image` | Search by image (paid teams) |
 | `musedam_search_assets` | Search workspace assets by folder, type, keyword, tags, dimensions, and more |
 | `musedam_upload_assets` | Upload assets to DAM from downloadable URLs |
 | `musedam_modify_assets` | Update asset names, descriptions, ratings, links, and tags |
@@ -40,6 +41,7 @@
 | `musedam_org_member_info` | Get team member information |
 | `musedam_org_info` | Get team information |
 | `musedam_org_point_info` | Org point info |
+| `musedam_role_members_query` | Query role members (administrator API Key) |
 | `musedam_org_members_query` | Org members query |
 | `musedam_org_whitelist_query` | Org whitelist query |
 | `musedam_org_departments_query` | Org departments query |
@@ -121,3 +123,5 @@ Use `score` for asset modifications (`rating` is a compatibility alias; `score` 
 Then query `musedam_upload_assets_task` with `{"params":{"taskId":"<taskId>"}}` until `SUCCESS` or `FAILED`.
 
 [Configure MCP](./mcp-connect)
+
+Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`. This restriction applies to team members, departments, department members and role members.

@@ -123,6 +123,9 @@ Response:
 
 **Endpoint:** `/org-members-query`  
 
+Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+
+
 **Method:** `POST`  
 
 **Description:** Query members of the current team with pagination and optional keyword, department, and status filters.
@@ -270,6 +273,9 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/org-whitelist-q
 
 **Endpoint**: `/org-departments-query`
 
+Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+
+
 **Method**: GET
 
 **Description**: Get the direct child departments of a parent department in the current team. parentId=0 returns root departments.
@@ -315,6 +321,9 @@ curl --location --request GET 'https://open.musedam.ai/api/muse/org-groups-query
 ### Query members by department ID
 
 **Endpoint**: `/department-members-query`
+
+Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+
 
 **Method**: GET
 
@@ -459,4 +468,23 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/add-in-app-noti
     "result": true,
     "traceId": "17561978534182325498"
 }
+```
+
+## Query role members
+
+**Endpoint:** `POST /role-members-query`
+
+Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| roleId | Long | Yes | Role ID |
+| keyWord | String | No | Match name or phone number |
+| page | Integer | No | Default 1 |
+| pageSize | Integer | No | Default 10 |
+
+Response matches the team member list: `records/total/current/size`. Member records include the requested `roleId`; phone numbers are masked.
+
+```json
+{"roleId":12,"page":1,"pageSize":20}
 ```
