@@ -123,7 +123,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-member-info
 
 **接口路徑：** `/org-members-query`  
 
-僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+僅管理員類型 API Key 可調用，權限不足時返回 `50083`。
 
 
 **請求方式：** `POST`  
@@ -273,7 +273,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-whitelist-q
 
 **接口路徑**：`/org-departments-query`
 
-僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+僅管理員類型 API Key 可調用，權限不足時返回 `50083`。
 
 
 **請求方式**：GET
@@ -322,7 +322,7 @@ curl --location --request GET 'https://open.musedam.cc/api/muse/org-groups-query
 
 **接口路徑**：`/department-members-query`
 
-僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+僅管理員類型 API Key 可調用，權限不足時返回 `50083`。
 
 
 **請求方式**：GET
@@ -476,7 +476,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/add-in-app-noti
 
 **請求方式**：POST
 
-僅管理員類型 API Key 可調用：企業版對應角色 code 為 `content`；非企業版 API Key 視為管理員。不滿足條件返回 `50083`。
+僅管理員類型 API Key 可調用，權限不足時返回 `50083`。
 
 | 字段名 | 類型 | 必填 | 說明 |
 |---|---|---|---|

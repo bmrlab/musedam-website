@@ -123,7 +123,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-member-info
 
 **接口路径：** `/org-members-query`  
 
-仅管理员类型 API Key 可调用：企业版对应角色 code 为 `content`；非企业版 API Key 视为管理员。不满足条件返回 `50083`。
+仅管理员类型 API Key 可调用，权限不足时返回 `50083`。
 
 
 **请求方式：** `POST`  
@@ -273,7 +273,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/org-whitelist-q
 
 **接口路径**：`/org-departments-query`
 
-仅管理员类型 API Key 可调用：企业版对应角色 code 为 `content`；非企业版 API Key 视为管理员。不满足条件返回 `50083`。
+仅管理员类型 API Key 可调用，权限不足时返回 `50083`。
 
 
 **请求方式**：GET
@@ -322,7 +322,7 @@ curl --location --request GET 'https://open.musedam.cc/api/muse/org-groups-query
 
 **接口路径**：`/department-members-query`
 
-仅管理员类型 API Key 可调用：企业版对应角色 code 为 `content`；非企业版 API Key 视为管理员。不满足条件返回 `50083`。
+仅管理员类型 API Key 可调用，权限不足时返回 `50083`。
 
 
 **请求方式**：GET
@@ -476,7 +476,7 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/add-in-app-noti
 
 **请求方式**：POST
 
-仅管理员类型 API Key 可调用：企业版对应角色 code 为 `content`；非企业版 API Key 视为管理员。不满足条件返回 `50083`。
+仅管理员类型 API Key 可调用，权限不足时返回 `50083`。
 
 | 字段名 | 类型 | 必填 | 说明 |
 |---|---|---|---|

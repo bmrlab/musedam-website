@@ -123,7 +123,7 @@ Response:
 
 **Endpoint:** `/org-members-query`  
 
-Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+Only administrator-type API Keys may call this endpoint. Insufficient permissions return `50083`.
 
 
 **Method:** `POST`  
@@ -273,7 +273,7 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/org-whitelist-q
 
 **Endpoint**: `/org-departments-query`
 
-Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+Only administrator-type API Keys may call this endpoint. Insufficient permissions return `50083`.
 
 
 **Method**: GET
@@ -322,7 +322,7 @@ curl --location --request GET 'https://open.musedam.ai/api/muse/org-groups-query
 
 **Endpoint**: `/department-members-query`
 
-Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+Only administrator-type API Keys may call this endpoint. Insufficient permissions return `50083`.
 
 
 **Method**: GET
@@ -474,7 +474,7 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/add-in-app-noti
 
 **Endpoint:** `POST /role-members-query`
 
-Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`.
+Only administrator-type API Keys may call this endpoint. Insufficient permissions return `50083`.
 
 | Field | Type | Required | Description |
 |---|---|---|---|

@@ -124,4 +124,4 @@ Then query `musedam_upload_assets_task` with `{"params":{"taskId":"<taskId>"}}` 
 
 [Configure MCP](./mcp-connect)
 
-Only administrator-type API Keys may call this endpoint. Enterprise teams require role code `content`; non-enterprise API Keys are treated as administrators. Otherwise the API returns `50083`. This restriction applies to team members, departments, department members and role members.
+Only administrator-type API Keys may call this endpoint. Insufficient permissions return `50083`. This restriction applies to team members, departments, department members and role members.
