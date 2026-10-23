@@ -96,7 +96,9 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 | service | String | Yes | Fixed value: `createApproval` |
 | templateId | String | Yes | Approval template ID |
 | createdBy | String | Yes | Initiator user ID |
-| assets | Array | Yes | Asset list, at least 1 item |
+| assets | Array | Conditional | Required if `groups/groupList` is not provided; normal asset list (>=1) |
+| groups | Array | Conditional | Required if top-level `assets` is not provided; grouped assets |
+| groupList | Array | Conditional | Compatibility alias of `groups`; required if top-level `assets` is not provided |
 | sourceContext | Object | No | Business context |
 | reason | String | No | Submission reason |
 
@@ -105,6 +107,25 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 | Field | Type | Required | Description |
 |-|-|-|-|
 | name | String | Yes | Asset name; original filename is recommended |
+| url | String | Yes | Publicly accessible `http/https` URL |
+| size | Number | No | File size in bytes |
+| mimeType | String | No | MIME type |
+| extension | String | No | File extension |
+
+**groups[] / groupList[] fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| groupId | String | Yes | Group ID |
+| groupName | String | No | Group name |
+| coverAssetId | String | No | Cover asset ID |
+| assets | Array | No | Asset list under this group; takes precedence when provided |
+
+**groups[i].assets[] fields**:
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| name | String | Yes | Asset name |
 | url | String | Yes | Publicly accessible `http/https` URL |
 | size | Number | No | File size in bytes |
 | mimeType | String | No | MIME type |
@@ -120,8 +141,12 @@ Required fields:
 
 - `templateId`
 - `createdBy`
-- `assets` (at least one item)
+- `assets` (or `groups/groupList`; at least one source is required)
 - `assets[].url` must be a public `http/https` URL
+- `groups` / `groupList` for grouped approvals:
+  - `groupId` is required for each group
+  - `groupName`, `coverAssetId`, and nested `assets` are optional
+  - if both top-level `assets` and `groups/groupList` are provided, the task is treated as mixed subject (`mixed_assets`)
 
 Request example:
 
@@ -170,6 +195,32 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 }'
 ```
 
+**curl (grouped assets approval)**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "groups": [
+      {
+        "groupId": "group_10001",
+        "groupName": "New KV Group",
+        "assets": [
+          {
+            "assetId": "asset_1",
+            "name": "demo.mp4",
+            "url": "https://cdn.example.com/m/asset_1.mp4"
+          }
+        ]
+      }
+    ]
+}'
+```
+
 ## taskStatusQuery
 
 **Path**: `/approval-api`
@@ -209,6 +260,20 @@ Request:
 `PENDING | PROCESSING | APPROVED | REJECTED | CANCELED`.
 
 **curl**:
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "taskStatusQuery",
+    "taskId": "9527"
+}'
+```
+
+**Note (grouped assets query)**: grouped approval tasks are queried via the same `taskStatusQuery`; pass the grouped task `taskId`.
+
+**curl (query grouped approval task)**:
 
 ```bash
 curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \

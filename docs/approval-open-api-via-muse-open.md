@@ -235,12 +235,23 @@
 - 公共字段：`service`
 - `templateId`（必填，`string`）
 - `createdBy`（必填，`string`）：发起人用户 ID
-- `assets`（必填，`array`，至少 1 条）
+- `assets`（与 `groups/groupList` 二选一必填，`array`）
   - `name`（必填，`string`，建议传原始文件名）
   - `size`（选填，`number`）
   - `mimeType`（选填，`string`）
   - `extension`（选填，`string`）
   - `url`（必填，`string`，必须是公网可访问 `http/https`）
+- `groups` / `groupList`（组合素材审批，二选一）
+  - 支持多个组合
+  - `groupId`（必填，`string`）
+  - `groupName`（选填，`string`）
+  - `coverAssetId`（选填，`string`）
+  - `assets`（选填，`array`）
+    - 若传，优先使用 `groups[i].assets`
+    - 兼容旧逻辑：仅 1 个组合且未传 `groups[0].assets` 时，回退使用顶层 `assets`
+- 若同时传顶层 `assets` 与 `groups/groupList`，会创建混合主体审批任务（`mixed_assets`）：
+  - 顶层 `assets` 作为普通素材
+  - `groups[].assets` 作为组合素材子项
 - `sourceContext`（选填，`object`）
 - `reason`（选填，`string`）
 
@@ -268,6 +279,35 @@
 }
 ```
 
+组合素材审批示例（`asset_group`）：
+
+```json
+{
+  "service": "createApproval",
+  "templateId": "101",
+  "createdBy": "10086",
+  "groups": [
+    {
+      "groupId": "group_10001",
+      "groupName": "新品 KV 组合",
+      "coverAssetId": "asset_1",
+      "assets": [
+        {
+          "assetId": "asset_1",
+          "name": "demo.mp4",
+          "url": "https://cdn.example.com/m/asset_1.mp4"
+        },
+        {
+          "assetId": "asset_2",
+          "name": "demo-2.png",
+          "url": "https://cdn.example.com/m/asset_2.png"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ### 出参（`result`）
 
 - `taskId`（`string`）：审批任务 ID
@@ -287,8 +327,11 @@
 
 ### `createApproval` 调用限制（建议重点关注）
 
-- `assets` 不能为空
-- `assets[].url` 不能为空，且同一请求内不允许重复
+- `assets` 与 `groups/groupList` 至少传一个
+- 组合审批时 `groups[].groupId` 必填
+- `groups/groupList` 可传多个组合；每个组合建议提供 `groups[i].assets`
+- 有效素材列表（顶层 `assets` + 各 `groups[i].assets`）不能为空
+- 有效素材列表中的 `url` 不能为空，且同一请求内不允许重复
 - `assets[].url` 必须是公网可访问地址，不能是 `localhost`、内网地址或私网 IP
 - 文件下载超时或超出大小限制会返回 `invalid_payload:*`
 - 下游找不到模板/组织/任务素材时会返回 `404` 类错误（`template_not_found`、`team_not_found`、`asset_not_found`）
@@ -830,6 +873,31 @@ curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/appro
       {
         "name": "demo.mp4",
         "url": "https://cdn.example.com/m/asset_1.mp4"
+      }
+    ]
+  }'
+```
+
+### 6.2.1 创建组合素材审批任务
+
+```bash
+curl --location --request POST 'https://muse-open.test.tezign.com/api/muse/approval-api' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "groups": [
+      {
+        "groupId": "group_10001",
+        "groupName": "新品 KV 组合",
+        "assets": [
+          {
+            "assetId": "asset_1",
+            "name": "demo.mp4",
+            "url": "https://cdn.example.com/m/asset_1.mp4"
+          }
+        ]
       }
     ]
   }'

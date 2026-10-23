@@ -107,7 +107,9 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 | service | String | 是 | 固定为 `createApproval` |
 | templateId | String | 是 | 审批模板 ID |
 | createdBy | String | 是 | 发起人用户 ID |
-| assets | Array | 是 | 素材列表，至少 1 条 |
+| assets | Array | 条件必填 | 与 `groups/groupList` 二选一；普通素材列表，至少 1 条 |
+| groups | Array | 条件必填 | 与顶层 `assets` 二选一；组合素材列表 |
+| groupList | Array | 条件必填 | `groups` 的兼容字段，与顶层 `assets` 二选一 |
 | sourceContext | Object | 否 | 业务上下文 |
 | reason | String | 否 | 发起原因 |
 
@@ -116,6 +118,25 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 | 字段名 | 类型 | 必填 | 描述 |
 |-|-|-|-|
 | name | String | 是 | 素材名称，建议传原始文件名 |
+| url | String | 是 | 公网可访问 `http/https` 地址 |
+| size | Number | 否 | 文件大小（字节） |
+| mimeType | String | 否 | MIME 类型 |
+| extension | String | 否 | 文件扩展名 |
+
+**groups[] / groupList[] 字段**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| groupId | String | 是 | 组合 ID |
+| groupName | String | 否 | 组合名称 |
+| coverAssetId | String | 否 | 封面素材 ID |
+| assets | Array | 否 | 组合下素材列表；若传则优先使用 |
+
+**groups[i].assets[] 字段**：
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| name | String | 是 | 素材名称 |
 | url | String | 是 | 公网可访问 `http/https` 地址 |
 | size | Number | 否 | 文件大小（字节） |
 | mimeType | String | 否 | MIME 类型 |
@@ -136,6 +157,16 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
   - `name`（建议传原始文件名）
   - `url`（必填，公网可访问 `http/https`）
   - `size` / `mimeType` / `extension`（可选）
+- `groups` / `groupList`（与顶层 `assets` 二选一，组合素材审批）
+  - `groupId`（必填，`string`）
+  - `groupName`（选填，`string`）
+  - `coverAssetId`（选填，`string`）
+  - `assets`（选填，`array`）
+    - 若传，优先使用 `groups[i].assets`
+    - 兼容旧逻辑：仅 1 个组合且未传 `groups[0].assets` 时，回退使用顶层 `assets`
+- 若同时传顶层 `assets` 与 `groups/groupList`，会创建混合主体审批任务（`mixed_assets`）：
+  - 顶层 `assets` 作为普通素材
+  - `groups[].assets` 作为组合素材子项
 - `sourceContext`（可选，业务上下文）
 - `reason`（可选，发起原因）
 
@@ -170,6 +201,10 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 调用限制：
 
 - `assets` 不能为空
+- `assets` 与 `groups/groupList` 至少传一个
+- 组合审批时 `groups[].groupId` 必填
+- `groups/groupList` 可传多个组合；每个组合建议提供 `groups[i].assets`
+- 有效素材列表（顶层 `assets` + 各 `groups[i].assets`）不能为空
 - `assets[].url` 不能为空且同一请求内不能重复
 - `assets[].url` 必须是公网地址，不能是 `localhost`、内网域名或私网 IP
 - 下载超时或超大小限制会返回 `invalid_payload:*`
@@ -188,6 +223,32 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
       {
         "name": "demo.mp4",
         "url": "https://cdn.example.com/m/asset_1.mp4"
+      }
+    ]
+}'
+```
+
+**curl 示例（组合素材审批）**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "createApproval",
+    "templateId": "101",
+    "createdBy": "10086",
+    "groups": [
+      {
+        "groupId": "group_10001",
+        "groupName": "新品 KV 组合",
+        "assets": [
+          {
+            "assetId": "asset_1",
+            "name": "demo.mp4",
+            "url": "https://cdn.example.com/m/asset_1.mp4"
+          }
+        ]
       }
     ]
 }'
@@ -240,6 +301,20 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
 - `operator` / `updatedAt`
 
 **curl 示例**：
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": "taskStatusQuery",
+    "taskId": "9527"
+}'
+```
+
+**说明（组合素材查询）**：组合素材审批任务与普通素材审批任务共用 `taskStatusQuery`，传组合任务 `taskId` 即可查询状态。
+
+**curl 示例（查询组合素材审批任务）**：
 
 ```bash
 curl --location --request POST 'https://open.musedam.cc/api/muse/approval-api' \
