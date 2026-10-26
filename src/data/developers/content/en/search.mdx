@@ -114,6 +114,10 @@
 | thumbnailAccessUrl | String | Thumbnail URL |
 | imageContentAnalysis | ImageContentAnalysis | AI analysis |
 | publicUrl | String | Processed public link using w/h/mode/q/f/bg; empty if no processing parameters or public link are available |
+| externalApp | String | External application identifier; `ingenops` for an IngenOps canvas, or `null` when unlinked |
+| externalResourceRef | String | External resource reference; the corresponding `workspace_ref` for an IngenOps canvas, or `null` when unlinked |
+
+**External associations**: `externalApp` and `externalResourceRef` are response fields, not search filters. Values are returned only for assets linked to an external resource; both fields are `null` for unlinked assets. An IngenOps canvas uses `externalApp: "ingenops"` and its corresponding `workspace_ref` as `externalResourceRef`. Other integrations use distinct `externalApp` identifiers. Only assets accessible to the current user are returned.
 
 ### Copyright management and license validity
 
@@ -385,6 +389,8 @@ Search for similar assets in a paid team, ordered by similarity. Supply at least
 | imageBase64 | String | Raw base64 or data:image/xxx;base64, content |
 
 Other filters, pagination and response match `/search-assets` (result.assets and result.total). `region` is the selected area in the query image, not the MCP connection region. `endPoint` above 1000 returns an empty result. Missing all valid sources returns a parameter error.
+
+Image search uses the same response as `/search-assets`: `result.assets[]` also includes `externalApp` and `externalResourceRef`, with the same meanings and null behavior described above.
 
 ```json
 {

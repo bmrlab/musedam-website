@@ -429,6 +429,8 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/move-assets-to-
 
 [查看素材检索中的 MiniDamAssetDTO 参数说明](./search)
 
+批量获取返回的每条 `MiniDamAssetDTO` 同样包含 `externalApp`（外部应用标识）和 `externalResourceRef`（外部资源引用）。IngenOps 画布分别返回 `ingenops` 与对应的 `workspace_ref`；无外部关联时两者为 `null`。
+
 **示例**：
 
 请求示例：

@@ -114,6 +114,10 @@
 | thumbnailAccessUrl | String | 缩略图访问路径 |
 | imageContentAnalysis | ImageContentAnalysis | 智能解析内容 |
 | publicUrl | String | 原图公开链接（带 w/h/mode/q/f/bg 处理参数）；未传处理参数或无公开链接时为空字符串 |
+| externalApp | String | 外部应用标识；IngenOps 画布为 `ingenops`，无关联时为 `null` |
+| externalResourceRef | String | 外部资源引用；IngenOps 画布为对应的 `workspace_ref`，无关联时为 `null` |
+
+**外部关联说明**：`externalApp` 与 `externalResourceRef` 是响应字段，不是搜索筛选参数。仅已关联外部资源的素材返回关联值；普通素材两者为 `null`。IngenOps 画布的 `externalApp` 为 `ingenops`，`externalResourceRef` 为对应的 `workspace_ref`。其他集成通过不同的 `externalApp` 区分。仍只返回当前用户有权访问的素材。
 
 ### 版权管理与授权有效期
 
@@ -387,6 +391,8 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/search-share' \
 | imageBase64 | String | 条件 | 纯 base64 或带 data:image/xxx;base64, 前缀 |
 
 其余筛选、分页和响应与 `/search-assets` 一致，返回 `result.assets`、`result.total`。`region` 为查询图上的框选区域，不是 MCP 连接的国内/海外区域。`endPoint` 大于 1000 返回空结果。三个来源都未传，或素材 ID 不大于 0 且另外两个为空时返回参数错误。仅付费团队可用。
+
+以图搜图的响应与 `/search-assets` 相同，`result.assets[]` 同样包含 `externalApp` 和 `externalResourceRef`，含义及无关联时的空值规则见上方素材响应说明。
 
 ```json
 {

@@ -429,6 +429,8 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/move-assets-to-
 
 [See MiniDamAssetDTO fields in asset search](./search)
 
+Each returned `MiniDamAssetDTO` also includes `externalApp` (external application identifier) and `externalResourceRef` (external resource reference). For an IngenOps canvas these are `ingenops` and its corresponding `workspace_ref`; both are `null` when the asset has no external association.
+
 **Example**:
 
 Request example:
