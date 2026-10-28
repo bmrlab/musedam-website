@@ -1,0 +1,249 @@
+## 接入说明
+
+合规检测为扩展模块。团队需已开通合规检测功能后，方可使用本组开放接口。推荐流程：查询规则 → 创建任务开检 → 轮询任务概览至完成 → 拉取素材明细。
+
+- **基础地址**：`https://open.musedam.cc/api/muse`
+- **鉴权**：请求头携带 `Authorization: Bearer your_api_key`。
+- **请求格式**：以下接口均使用 `POST`，请求体为 JSON，携带 `Content-Type: application/json`。
+- 表格中的响应描述指业务结果，外层响应格式见[快速开始](./quick-start)。
+
+## 合规检测规则列表
+
+**说明：** 分页查询团队合规检测规则。未传 `releaseStatus` 时默认只返回已发布规则（`2`）。
+
+**接口路径：**`/detection-rules`
+
+**请求方式：**`POST`
+
+**请求参数：**`EnterpriseDetectionRuleListReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| page | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页条数，默认 10 |
+| keyword | String | 否 | 规则名称关键字 |
+| createTimeSort | Integer | 否 | 创建时间排序：1 倒序，0 正序 |
+| releaseStatus | Integer | 否 | 发布状态：1 未发布，2 已发布；不传默认 2 |
+| ids | `List<Long>` | 否 | 按规则 id 过滤 |
+
+**响应：**`EnterpriseDetectionRulePageDTO`
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| total | Long | 总数 |
+| rules | `List<EnterpriseDetectionRuleDTO>` | 规则列表 |
+
+**rules 单项字段：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| id | Long | 规则 id |
+| ruleName | String | 规则名称 |
+| ruleType | Integer | 规则类型：1 通用检测 |
+| ruleEventIds | String | 检测渠道：sucai / ADLAW / REGIONAL_COMPLIANCE，逗号分隔 |
+| regionalGreenServiceCodes | String | 地区合规绿网 serviceCode，逗号分隔 |
+| releaseStatus | Integer | 1 未发布 / 2 已发布 |
+| createTime | Date | 创建时间 |
+| needEnterpriseRule | Integer | 是否需要企业规则：0 / 1 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-rules' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "page": 1,
+    "pageSize": 20
+}'
+```
+
+## 创建合规检测任务
+
+**说明：** 创建检测任务并自动开检。
+
+**接口路径：**`/detection-task-create`
+
+**请求方式：**`POST`
+
+**请求参数：**`EnterpriseDetectionTaskCreateReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| taskName | String | 否 | 任务名称 |
+| taskDesc | String | 否 | 任务描述 |
+| ruleId | Long | 是 | 检测规则 id（建议使用已发布规则） |
+| assetIds | `List<Long>` | 条件 | 素材 `materialId` 列表（检索或上传返回的素材 ID）；可与 `groupIds` / `folderId` 组合，最终素材不能为空 |
+| groupIds | `List<Long>` | 条件 | 组合素材 id 列表 |
+| folderId | Long | 否 | 大于 0 时按该文件夹下全部素材建任务（最多 3000 个素材） |
+
+**响应：**`Long`（任务 id）
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-create' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskName": "广告素材合规抽检",
+    "ruleId": 10001,
+    "assetIds": [20001, 20002]
+}'
+```
+
+**注意事项：**
+
+- 创建成功后服务端会自动触发检测。
+- `assetIds` 传 **materialId**（检索或上传返回的素材 ID）。
+
+## 添加素材到检测任务
+
+**说明：** 向已有任务追加素材并续检。已在任务中的素材不可重复添加。
+
+**接口路径：**`/detection-task-add-assets`
+
+**请求方式：**`POST`
+
+**请求参数：**`EnterpriseDetectionTaskAddAssetsReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| taskId | Long | 是 | 检测任务 id |
+| assetIds | `List<Long>` | 条件 | 素材 `materialId` 列表；与 `groupIds` 至少一个有效 |
+| groupIds | `List<Long>` | 条件 | 组合素材 id 列表 |
+
+**响应：**`Long`（任务 id）
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-add-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001,
+    "assetIds": [20003, 20004]
+}'
+```
+
+**注意事项：**
+
+- 同创建接口：`assetIds` 传 **materialId**。
+
+## 查询合规检测任务概览
+
+**说明：** 按任务 id 查询任务状态与风险汇总。创建任务后可轮询本接口直至 `taskStatus=4`。
+
+**接口路径：**`/detection-task-get`
+
+**请求方式：**`POST`
+
+**请求参数：**`EnterpriseDetectionTaskGetReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| taskId | Long | 是 | 检测任务 id |
+
+**响应：**`EnterpriseDetectionTaskDTO`
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| taskId | Long | 任务 id |
+| taskName | String | 任务名称 |
+| taskStatus | Integer | 1 排队中 / 2 执行中 / 3 暂停 / 4 执行完成 |
+| ruleId | Long | 规则 id |
+| ruleName | String | 规则名称 |
+| agentId | String | 品牌合规智能体 id（可空） |
+| agentName | String | 智能体名称（可空） |
+| taskSource | Integer | 0 手动 / 1 自动 |
+| createTime | Date | 创建时间 |
+| assetDetectionStatus | Integer | 汇总检测状态：0 未检测 / 1 检测中 / 2 检测完成 / 3 检测失败 |
+| taskAssetIdAllCount | Integer | 任务素材总数 |
+| taskAssetIdCheckedCount | Integer | 已检测素材数 |
+| taskAssetIdPassCount | Integer | 通过数 |
+| taskAssetIdReviewCount | Integer | 可疑（建议人工审核）数 |
+| taskAssetIdRiskCount | Integer | 违规（建议拦截）数 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-get' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001
+}'
+```
+
+## 查询合规检测任务明细
+
+**说明：** 分页查询任务内素材检测明细。可选按开放侧 `materialId` 过滤。
+
+**接口路径：**`/detection-task-details`
+
+**请求方式：**`POST`
+
+**请求参数：**`EnterpriseDetectionTaskDetailsReq`
+
+| 字段名 | 类型 | 必填 | 描述 |
+|-|-|-|-|
+| taskId | Long | 是 | 检测任务 id |
+| page | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页条数，默认 20 |
+| materialId | Long | 否 | 开放侧素材 id；传入时仅返回该素材明细 |
+
+**响应：**`EnterpriseDetectionTaskDetailsPageDTO`
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| total | Long | 总数 |
+| items | `List<EnterpriseDetectionTaskAssetDetailDTO>` | 明细列表 |
+
+**items 单项字段：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| materialId | Long | 开放侧素材 id |
+| materialName | String | 素材名称 |
+| size | Long | 文件大小（字节） |
+| width | Integer | 宽度 |
+| height | Integer | 高度 |
+| duration | Long | 视频时长（毫秒） |
+| extension | String | 后缀 |
+| batchId | String | 批次 id |
+| bizType | Integer | 1 真实素材 / 2 待入库 |
+| detectionDetails | `List<EnterpriseDetectionDetailDTO>` | 各渠道检测结果 |
+
+**detectionDetails 单项字段：**
+
+| 字段名 | 类型 | 描述 |
+|-|-|-|
+| eventId | String | 检测渠道 |
+| assetDetectionStatus | Integer | 0 未检测 / 1 检测中 / 2 检测完成 |
+| message | String | 信息 |
+| code | Integer | 请求 code |
+| riskLevelPassCount | Integer | 通过数 |
+| riskLevelReviewCount | Integer | 可疑数 |
+| riskLevelRejectCount | Integer | 违规数 |
+| finishTime | Date | 完成时间 |
+| assetDetectionAllResult | String | 完整结果原文 |
+
+**请求示例：**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-details' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001,
+    "page": 1,
+    "pageSize": 20,
+    "materialId": 20001
+}'
+```
+
+**注意事项：**
+
+- `materialId` 须为本团队存在的素材；不存在时返回参数错误。
+- 推荐流程：`detection-task-create` → 轮询 `detection-task-get` 至完成 → `detection-task-details` 拉明细。

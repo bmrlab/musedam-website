@@ -1,3 +1,4 @@
+import Compliance from './content/en/compliance.mdx'
 import Page6 from './content/en/analysis.mdx'
 import Page17 from './content/en/approval-api.mdx'
 import Page10 from './content/en/applications.mdx'
@@ -20,6 +21,7 @@ import Page7 from './content/en/team.mdx'
 import Page12 from './content/en/use-cases.mdx'
 
 export const englishContent = {
+  compliance: Compliance,
   'quick-start': Page0,
   authentication: Page1,
   search: Page2,

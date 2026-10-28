@@ -1,0 +1,249 @@
+## Getting started
+
+Compliance detection is an add-on module and must be enabled for your team. Recommended flow: list rules → create a task → poll the task overview until completion → retrieve asset-level results.
+
+- **Base URL**:`https://open.musedam.cc/api/muse`
+- **Authentication**: send the header `Authorization: Bearer your_api_key`.
+- **Request format**: all endpoints use `POST` with a JSON body and `Content-Type: application/json`.
+- Response tables describe the business result. See [Quick start](./quick-start) for the response envelope.
+
+## List compliance detection rules
+
+**Description:** List your team's rules with pagination. If omitted, `releaseStatus` defaults to published rules (`2`).
+
+**Path:**`/detection-rules`
+
+**Method:**`POST`
+
+**Request parameters:**`EnterpriseDetectionRuleListReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| page | Integer | No | Page number; default: 1 |
+| pageSize | Integer | No | Page size; default: 10 |
+| keyword | String | No | Rule name keyword |
+| createTimeSort | Integer | No | Creation time sort: 1 descending, 0 ascending |
+| releaseStatus | Integer | No | Release status: 1 unpublished, 2 published; default: 2 |
+| ids | `List<Long>` | No | Filter by rule IDs |
+
+**Response:**`EnterpriseDetectionRulePageDTO`
+
+| Field | Type | Description |
+|-|-|-|
+| total | Long | Total |
+| rules | `List<EnterpriseDetectionRuleDTO>` | Rule list |
+
+**rules item fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| id | Long | Rule ID |
+| ruleName | String | Rule name |
+| ruleType | Integer | Rule type: 1 general detection |
+| ruleEventIds | String | Detection channels: sucai / ADLAW / REGIONAL_COMPLIANCE, comma-separated |
+| regionalGreenServiceCodes | String | Regional compliance content-safety service codes, comma-separated |
+| releaseStatus | Integer | 1 unpublished / 2 published |
+| createTime | Date | Creation time |
+| needEnterpriseRule | Integer | Whether enterprise rules are required: 0 / 1 |
+
+**Request example:**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-rules' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "page": 1,
+    "pageSize": 20
+}'
+```
+
+## Create a compliance detection task
+
+**Description:** Create a task and start detection automatically.
+
+**Path:**`/detection-task-create`
+
+**Method:**`POST`
+
+**Request parameters:**`EnterpriseDetectionTaskCreateReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| taskName | String | No | Task name |
+| taskDesc | String | No | Task description |
+| ruleId | Long | Yes | Detection rule ID (a published rule is recommended) |
+| assetIds | `List<Long>` | Conditional | Asset `materialId` values returned by search or upload; may be combined with `groupIds` / `folderId`. The resulting asset list must not be empty |
+| groupIds | `List<Long>` | Conditional | Grouped asset IDs |
+| folderId | Long | No | When greater than 0, create a task for all assets in this folder (up to 3000 assets) |
+
+**Response:**`Long` (task ID)
+
+**Request example:**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-create' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskName": "Campaign asset compliance check",
+    "ruleId": 10001,
+    "assetIds": [20001, 20002]
+}'
+```
+
+**Notes:**
+
+- Detection starts automatically after successful creation.
+- Pass **materialId** values returned by search or upload in `assetIds`.
+
+## Add assets to a detection task
+
+**Description:** Append assets to an existing task and continue detection. Assets already in the task cannot be added again.
+
+**Path:**`/detection-task-add-assets`
+
+**Method:**`POST`
+
+**Request parameters:**`EnterpriseDetectionTaskAddAssetsReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| taskId | Long | Yes | Detection task ID |
+| assetIds | `List<Long>` | Conditional | Asset `materialId` values; at least one valid source is required from `assetIds` and `groupIds` |
+| groupIds | `List<Long>` | Conditional | Grouped asset IDs |
+
+**Response:**`Long` (task ID)
+
+**Request example:**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-add-assets' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001,
+    "assetIds": [20003, 20004]
+}'
+```
+
+**Notes:**
+
+- As with task creation, pass **materialId** values in `assetIds`.
+
+## Get a compliance detection task overview
+
+**Description:** Query task status and risk totals by task ID. After creation, poll this endpoint until `taskStatus=4`.
+
+**Path:**`/detection-task-get`
+
+**Method:**`POST`
+
+**Request parameters:**`EnterpriseDetectionTaskGetReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| taskId | Long | Yes | Detection task ID |
+
+**Response:**`EnterpriseDetectionTaskDTO`
+
+| Field | Type | Description |
+|-|-|-|
+| taskId | Long | Task ID |
+| taskName | String | Task name |
+| taskStatus | Integer | 1 queued / 2 running / 3 paused / 4 completed |
+| ruleId | Long | Rule ID |
+| ruleName | String | Rule name |
+| agentId | String | Brand compliance agent ID (nullable) |
+| agentName | String | Agent name (nullable) |
+| taskSource | Integer | 0 manual / 1 automatic |
+| createTime | Date | Creation time |
+| assetDetectionStatus | Integer | Aggregate detection status: 0 not detected / 1 detecting / 2 completed / 3 failed |
+| taskAssetIdAllCount | Integer | Total assets in the task |
+| taskAssetIdCheckedCount | Integer | Detected asset count |
+| taskAssetIdPassCount | Integer | Pass count |
+| taskAssetIdReviewCount | Integer | Review count (manual review recommended) |
+| taskAssetIdRiskCount | Integer | Risk count (blocking recommended) |
+
+**Request example:**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-get' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001
+}'
+```
+
+## Get compliance detection task details
+
+**Description:** List asset detection details with pagination, optionally filtered by `materialId`.
+
+**Path:**`/detection-task-details`
+
+**Method:**`POST`
+
+**Request parameters:**`EnterpriseDetectionTaskDetailsReq`
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| taskId | Long | Yes | Detection task ID |
+| page | Integer | No | Page number; default: 1 |
+| pageSize | Integer | No | Page size; default: 20 |
+| materialId | Long | No | Public asset ID; return only this asset's details when provided |
+
+**Response:**`EnterpriseDetectionTaskDetailsPageDTO`
+
+| Field | Type | Description |
+|-|-|-|
+| total | Long | Total |
+| items | `List<EnterpriseDetectionTaskAssetDetailDTO>` | Detail list |
+
+**items item fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| materialId | Long | Public asset ID |
+| materialName | String | Asset name |
+| size | Long | File size in bytes |
+| width | Integer | Width |
+| height | Integer | Height |
+| duration | Long | Video duration in milliseconds |
+| extension | String | File extension |
+| batchId | String | Batch ID |
+| bizType | Integer | 1 existing asset / 2 pending import |
+| detectionDetails | `List<EnterpriseDetectionDetailDTO>` | Detection results by channel |
+
+**detectionDetails item fields:**
+
+| Field | Type | Description |
+|-|-|-|
+| eventId | String | Detection channel |
+| assetDetectionStatus | Integer | 0 not detected / 1 detecting / 2 completed |
+| message | String | Message |
+| code | Integer | Request code |
+| riskLevelPassCount | Integer | Pass count |
+| riskLevelReviewCount | Integer | Review count |
+| riskLevelRejectCount | Integer | Reject count |
+| finishTime | Date | Completion time |
+| assetDetectionAllResult | String | Full raw result |
+
+**Request example:**
+
+```bash
+curl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-details' \
+--header 'Authorization: Bearer your_api_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "taskId": 30001,
+    "page": 1,
+    "pageSize": 20,
+    "materialId": 20001
+}'
+```
+
+**Notes:**
+
+- `materialId` must identify an existing asset in your team; otherwise a parameter error is returned.
+- Recommended flow: `detection-task-create` → poll `detection-task-get` until completion → retrieve results with `detection-task-details`.

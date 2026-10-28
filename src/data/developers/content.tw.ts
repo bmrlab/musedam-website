@@ -1,3 +1,4 @@
+import Compliance from './content/zh-TW/compliance.mdx'
 import Page6 from './content/zh-TW/analysis.mdx'
 import Page17 from './content/zh-TW/approval-api.mdx'
 import Page10 from './content/zh-TW/applications.mdx'
@@ -20,6 +21,7 @@ import Page7 from './content/zh-TW/team.mdx'
 import Page12 from './content/zh-TW/use-cases.mdx'
 
 export const traditionalContent = {
+  compliance: Compliance,
   'quick-start': Page0,
   authentication: Page1,
   search: Page2,

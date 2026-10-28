@@ -440,6 +440,47 @@
     "updatedAt": "2026-09-29"
   },
   {
+    "slug": "compliance",
+    "title": "合規檢測",
+    "en": "Compliance detection",
+    "group": "api",
+    "description": "查詢檢測規則、建立與追加檢測任務，取得任務進度和素材風險明細。",
+    "headings": [
+      {
+        "id": "接入說明",
+        "title": "接入說明",
+        "level": 2
+      },
+      {
+        "id": "合規檢測規則列表",
+        "title": "合規檢測規則列表",
+        "level": 2
+      },
+      {
+        "id": "創建合規檢測任務",
+        "title": "創建合規檢測任務",
+        "level": 2
+      },
+      {
+        "id": "添加素材到檢測任務",
+        "title": "添加素材到檢測任務",
+        "level": 2
+      },
+      {
+        "id": "查詢合規檢測任務概覽",
+        "title": "查詢合規檢測任務概覽",
+        "level": 2
+      },
+      {
+        "id": "查詢合規檢測任務明細",
+        "title": "查詢合規檢測任務明細",
+        "level": 2
+      }
+    ],
+    "markdown": "## 接入說明\n\n合規檢測為擴展模塊。團隊需已開通合規檢測功能後，方可使用本組開放接口。推薦流程：查詢規則 → 創建任務開檢 → 輪詢任務概覽至完成 → 拉取素材明細。\n\n- **基礎地址**：`https://open.musedam.cc/api/muse`\n- **鑒權**：請求頭攜帶 `Authorization: Bearer your_api_key`。\n- **請求格式**：以下接口均使用 `POST`，請求體為 JSON，攜帶 `Content-Type: application/json`。\n- 表格中的響應描述指業務結果，外層響應格式見[快速開始](./quick-start)。\n\n## 合規檢測規則列表\n\n**說明：** 分頁查詢團隊合規檢測規則。未傳 `releaseStatus` 時默認只返回已發佈規則（`2`）。\n\n**接口路徑：**`/detection-rules`\n\n**請求方式：**`POST`\n\n**請求參數：**`EnterpriseDetectionRuleListReq`\n\n| 字段名 | 類型 | 必填 | 描述 |\n|-|-|-|-|\n| page | Integer | 否 | 頁碼，默認 1 |\n| pageSize | Integer | 否 | 每頁條數，默認 10 |\n| keyword | String | 否 | 規則名稱關鍵字 |\n| createTimeSort | Integer | 否 | 創建時間排序：1 倒序，0 正序 |\n| releaseStatus | Integer | 否 | 發佈狀態：1 未發佈，2 已發佈；不傳默認 2 |\n| ids | `List<Long>` | 否 | 按規則 id 過濾 |\n\n**響應：**`EnterpriseDetectionRulePageDTO`\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| total | Long | 總數 |\n| rules | `List<EnterpriseDetectionRuleDTO>` | 規則列表 |\n\n**rules 單項字段：**\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| id | Long | 規則 id |\n| ruleName | String | 規則名稱 |\n| ruleType | Integer | 規則類型：1 通用檢測 |\n| ruleEventIds | String | 檢測渠道：sucai / ADLAW / REGIONAL_COMPLIANCE，逗號分隔 |\n| regionalGreenServiceCodes | String | 地區合規綠網 serviceCode，逗號分隔 |\n| releaseStatus | Integer | 1 未發佈 / 2 已發佈 |\n| createTime | Date | 創建時間 |\n| needEnterpriseRule | Integer | 是否需要企業規則：0 / 1 |\n\n**請求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/detection-rules' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"page\": 1,\n    \"pageSize\": 20\n}'\n```\n\n## 創建合規檢測任務\n\n**說明：** 創建檢測任務並自動開檢。\n\n**接口路徑：**`/detection-task-create`\n\n**請求方式：**`POST`\n\n**請求參數：**`EnterpriseDetectionTaskCreateReq`\n\n| 字段名 | 類型 | 必填 | 描述 |\n|-|-|-|-|\n| taskName | String | 否 | 任務名稱 |\n| taskDesc | String | 否 | 任務描述 |\n| ruleId | Long | 是 | 檢測規則 id（建議使用已發佈規則） |\n| assetIds | `List<Long>` | 條件 | 素材 `materialId` 列表（檢索或上傳返回的素材 ID）；可與 `groupIds` / `folderId` 組合，最終素材不能為空 |\n| groupIds | `List<Long>` | 條件 | 組合素材 id 列表 |\n| folderId | Long | 否 | 大於 0 時按該文件夾下全部素材建任務（最多 3000 個素材） |\n\n**響應：**`Long`（任務 id）\n\n**請求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-create' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"taskName\": \"廣告素材合規抽檢\",\n    \"ruleId\": 10001,\n    \"assetIds\": [20001, 20002]\n}'\n```\n\n**注意事項：**\n\n- 創建成功後服務端會自動觸發檢測。\n- `assetIds` 傳 **materialId**（檢索或上傳返回的素材 ID）。\n\n## 添加素材到檢測任務\n\n**說明：** 向已有任務追加素材並續檢。已在任務中的素材不可重復添加。\n\n**接口路徑：**`/detection-task-add-assets`\n\n**請求方式：**`POST`\n\n**請求參數：**`EnterpriseDetectionTaskAddAssetsReq`\n\n| 字段名 | 類型 | 必填 | 描述 |\n|-|-|-|-|\n| taskId | Long | 是 | 檢測任務 id |\n| assetIds | `List<Long>` | 條件 | 素材 `materialId` 列表；與 `groupIds` 至少一個有效 |\n| groupIds | `List<Long>` | 條件 | 組合素材 id 列表 |\n\n**響應：**`Long`（任務 id）\n\n**請求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-add-assets' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"taskId\": 30001,\n    \"assetIds\": [20003, 20004]\n}'\n```\n\n**注意事項：**\n\n- 同創建接口：`assetIds` 傳 **materialId**。\n\n## 查詢合規檢測任務概覽\n\n**說明：** 按任務 id 查詢任務狀態與風險匯總。創建任務後可輪詢本接口直至 `taskStatus=4`。\n\n**接口路徑：**`/detection-task-get`\n\n**請求方式：**`POST`\n\n**請求參數：**`EnterpriseDetectionTaskGetReq`\n\n| 字段名 | 類型 | 必填 | 描述 |\n|-|-|-|-|\n| taskId | Long | 是 | 檢測任務 id |\n\n**響應：**`EnterpriseDetectionTaskDTO`\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| taskId | Long | 任務 id |\n| taskName | String | 任務名稱 |\n| taskStatus | Integer | 1 排隊中 / 2 執行中 / 3 暫停 / 4 執行完成 |\n| ruleId | Long | 規則 id |\n| ruleName | String | 規則名稱 |\n| agentId | String | 品牌合規智能體 id（可空） |\n| agentName | String | 智能體名稱（可空） |\n| taskSource | Integer | 0 手動 / 1 自動 |\n| createTime | Date | 創建時間 |\n| assetDetectionStatus | Integer | 匯總檢測狀態：0 未檢測 / 1 檢測中 / 2 檢測完成 / 3 檢測失敗 |\n| taskAssetIdAllCount | Integer | 任務素材總數 |\n| taskAssetIdCheckedCount | Integer | 已檢測素材數 |\n| taskAssetIdPassCount | Integer | 通過數 |\n| taskAssetIdReviewCount | Integer | 可疑（建議人工審核）數 |\n| taskAssetIdRiskCount | Integer | 違規（建議攔截）數 |\n\n**請求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-get' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"taskId\": 30001\n}'\n```\n\n## 查詢合規檢測任務明細\n\n**說明：** 分頁查詢任務內素材檢測明細。可選按開放側 `materialId` 過濾。\n\n**接口路徑：**`/detection-task-details`\n\n**請求方式：**`POST`\n\n**請求參數：**`EnterpriseDetectionTaskDetailsReq`\n\n| 字段名 | 類型 | 必填 | 描述 |\n|-|-|-|-|\n| taskId | Long | 是 | 檢測任務 id |\n| page | Integer | 否 | 頁碼，默認 1 |\n| pageSize | Integer | 否 | 每頁條數，默認 20 |\n| materialId | Long | 否 | 開放側素材 id；傳入時僅返回該素材明細 |\n\n**響應：**`EnterpriseDetectionTaskDetailsPageDTO`\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| total | Long | 總數 |\n| items | `List<EnterpriseDetectionTaskAssetDetailDTO>` | 明細列表 |\n\n**items 單項字段：**\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| materialId | Long | 開放側素材 id |\n| materialName | String | 素材名稱 |\n| size | Long | 文件大小（字節） |\n| width | Integer | 寬度 |\n| height | Integer | 高度 |\n| duration | Long | 視頻時長（毫秒） |\n| extension | String | 後綴 |\n| batchId | String | 批次 id |\n| bizType | Integer | 1 真實素材 / 2 待入庫 |\n| detectionDetails | `List<EnterpriseDetectionDetailDTO>` | 各渠道檢測結果 |\n\n**detectionDetails 單項字段：**\n\n| 字段名 | 類型 | 描述 |\n|-|-|-|\n| eventId | String | 檢測渠道 |\n| assetDetectionStatus | Integer | 0 未檢測 / 1 檢測中 / 2 檢測完成 |\n| message | String | 信息 |\n| code | Integer | 請求 code |\n| riskLevelPassCount | Integer | 通過數 |\n| riskLevelReviewCount | Integer | 可疑數 |\n| riskLevelRejectCount | Integer | 違規數 |\n| finishTime | Date | 完成時間 |\n| assetDetectionAllResult | String | 完整結果原文 |\n\n**請求示例：**\n\n```bash\ncurl --location --request POST 'https://open.musedam.cc/api/muse/detection-task-details' \\\n--header 'Authorization: Bearer your_api_key' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"taskId\": 30001,\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"materialId\": 20001\n}'\n```\n\n**注意事項：**\n\n- `materialId` 須為本團隊存在的素材；不存在時返回參數錯誤。\n- 推薦流程：`detection-task-create` → 輪詢 `detection-task-get` 至完成 → `detection-task-details` 拉明細。\n",
+    "updatedAt": "2026-10-28"
+  },
+  {
     "slug": "approval-api",
     "title": "審批開放 API",
     "en": "Approval API",
