@@ -19,6 +19,35 @@ const withMDX = withMDXRaw({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
+  async headers() {
+    const pageHeaders = [
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      {
+        key: 'Content-Security-Policy',
+        // Keep Next.js scripts and third-party integrations working during the initial rollout.
+        // Same-origin framing preserves Payload's live preview.
+        value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'",
+      },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()',
+      },
+    ]
+
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      { source: '/', headers: pageHeaders },
+      // Scope embedding and device restrictions to website pages, leaving API and demo proxies alone.
+      { source: '/:lng(en-US|zh-CN|zh-TW)/:path*', headers: pageHeaders },
+    ]
+  },
   // "Part terminated early due to unexpected end of multipart data"
   experimental: {
     proxyClientMaxBodySize: '64mb',
