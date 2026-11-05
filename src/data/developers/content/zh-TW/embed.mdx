@@ -223,6 +223,8 @@ https://musedam.cc/outer/embed?code={code}&theme=light
 ```typescript
 {
     initialSelectedAssetIds?: number[];
+    // 是否显示上传文件入口，默认 true；传 false 隐藏。
+    showUpload?: boolean;
     // 可选择的素材类型，不传则不限制
     // 取值：image、video、audio、js、document、PDocument、excel、font、zip、dll、code、model、triD、url
     allowedTypes?: string[];
@@ -237,6 +239,8 @@ https://musedam.cc/outer/embed?code={code}&theme=light
     };
 }
 ```
+
+選擇器僅顯示「全部素材」「未分類」選單，不顯示 AIGC Playground 等入口；資料夾瀏覽仍然可用。只需選取已有素材時，傳入 `showUpload: false`。
 
 - **result.data**：`{ selectedAssets: IAssetLite[] }`。`IAssetLite` 包含 `id`、`assetId`、`name`、`type`、`extension`、`size`、`width`、`height`、`downloadUrl`、`thumbnail`、`tags`、`folders` 等字段，完整定義見[嵌入應用與組件](./components)。
 

@@ -223,6 +223,8 @@ Any other action returns `result.code = "forbidden"` immediately. Use the `*-clo
 ```typescript
 {
     initialSelectedAssetIds?: number[];
+    // Show the upload entry. Defaults to true; set false to hide it.
+    showUpload?: boolean;
     // Selectable asset types. No restriction if omitted.
     // Values: image, video, audio, js, document, PDocument, excel, font, zip, dll, code, model, triD, url
     allowedTypes?: string[];
@@ -237,6 +239,8 @@ Any other action returns `result.code = "forbidden"` immediately. Use the `*-clo
     };
 }
 ```
+
+The picker only shows the All assets and Uncategorized menus, with no AIGC Playground entry. Folder browsing remains available. Pass `showUpload: false` to select existing assets without showing the upload entry.
 
 - **result.data**: `{ selectedAssets: IAssetLite[] }`. `IAssetLite` includes `id`, `assetId`, `name`, `type`, `extension`, `size`, `width`, `height`, `downloadUrl`, `thumbnail`, `tags`, `folders`, and more. See [Embedded apps & UI](./components) for the full definition.
 
