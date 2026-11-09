@@ -283,6 +283,51 @@ curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-task' \
 - 下載大文件時，請確保網絡連接穩定
 - 如需批量下載，建議採用服務端腳本處理，避免客戶端下載失敗
 
+## 素材原始檔案公開連結
+
+團隊須已啟用「素材衍生 / 公開連結」擴充模組，否則請求會回傳未啟用模組的錯誤。這兩個介面僅處理原始檔案，不檢查資料夾的公開連結開關或角色設定。
+
+| 欄位 | 類型 | 必填 | 說明 |
+|-|-|-|-|
+| assetIds | `List<Long>` | 是 | 素材搜尋或上傳回傳的 `materialId` 清單；每次最多 200 個。 |
+
+### 查詢原始檔案公開連結
+
+`POST /public-links-get`
+
+僅讀取既有連結，不會建立連結。業務結果是以 `materialId` 為鍵的物件：值為不帶圖片處理參數的原始公開 URL；素材不存在或尚無公開連結時，值為 `""`。
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/public-links-get' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [1234567890, 9876543210]}'
+```
+
+**業務結果範例**
+
+```json
+{
+  "1234567890": "https://cdn.example.com/assets/photo.jpg",
+  "9876543210": ""
+}
+```
+
+### 產生原始檔案公開連結
+
+`POST /public-links-generate`
+
+為原始檔案發佈公開連結。已有連結時直接回傳，重複呼叫不會建立新連結。結果格式與查詢相同；素材不存在或單筆產生失敗時，該 ID 的值為 `""`，同批其他素材仍會繼續處理。
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/public-links-generate' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [1234567890, 9876543210]}'
+```
+
+如需縮放或轉換格式，請使用 `processed-public-links`；如需取得衍生版本的公開連結，請使用 `asset-derivative-versions`。詳見[智能解析與分發](./analysis)。
+
 ## 素材修改
 
 **接口路徑**：/modify-assets
@@ -404,6 +449,27 @@ curl --location --request POST 'https://open.musedam.cc/api/muse/move-assets-to-
 
 - 素材、文件夾須存在且屬於當前團隊；需具備對應文件夾的編輯權限。
 - operationType=0 為移動，=1 為添加（素材同時存在於源文件夾和目標文件夾）。
+
+## 批量刪除素材
+
+`POST /delete-assets` 將指定素材移至資源回收筒。僅支援素材，不支援刪除資料夾；開放 API 不提供永久刪除或從資源回收筒還原素材的介面。
+
+**權限**：僅限管理員類型的 API Key 或 appKey。企業版金鑰須綁定系統管理員角色；成員類型金鑰及使用者登入工作階段無法呼叫。此介面不會個別檢查資料夾或素材的操作權限。流量限制：5 QPS。
+
+| 請求欄位 | 類型 | 必填 | 說明 |
+|-|-|-|-|
+| assetIds | `List<Long>` | 是 | 素材 `materialId` 清單，使用素材搜尋或上傳回傳的 ID。每次傳入 1–200 個。 |
+
+**回應**：業務結果為 Boolean，成功時為 `true`；失敗時回傳開放 API 或業務錯誤。
+
+**請求範例**：
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/delete-assets' \
+  --header 'Authorization: Bearer your_admin_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [6908914, 6908820]}'
+```
 
 ## 批量獲取素材
 

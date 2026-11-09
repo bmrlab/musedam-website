@@ -283,6 +283,51 @@ Use `downloadUrl` directly to download the asset. Links generally contain the re
 - Ensure a stable connection when downloading large files.
 - For batch downloads, consider server-side scripts to reduce client download failures.
 
+## Public links for original files
+
+Your team must have the Asset Derivatives / Public Links add-on enabled. Otherwise, both requests return a module-not-enabled error. These endpoints apply only to original files and do not check folder-level public link settings or roles.
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | `List<Long>` | Yes | Up to 200 `materialId` values returned by asset search or upload. |
+
+### Query original file links
+
+`POST /public-links-get`
+
+Reads existing links without creating them. The business result is an object keyed by `materialId`. Each value is the original public URL without image processing parameters, or `""` if the asset does not exist or has no public link.
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/public-links-get' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [1234567890, 9876543210]}'
+```
+
+**Example business result**
+
+```json
+{
+  "1234567890": "https://cdn.example.com/assets/photo.jpg",
+  "9876543210": ""
+}
+```
+
+### Generate original file links
+
+`POST /public-links-generate`
+
+Publishes a public link for each original file. Repeated requests return the same existing link. The result has the same shape as the query response. A missing asset or a per-asset generation failure returns `""` for that ID; other assets in the batch are still processed.
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/public-links-generate' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [1234567890, 9876543210]}'
+```
+
+For resized or reformatted images, use `processed-public-links`. For public links to derivative versions, use `asset-derivative-versions`. See [Analysis & delivery](./analysis).
+
 ## Modify assets
 
 **Endpoint**: /modify-assets
@@ -404,6 +449,27 @@ curl --location --request POST 'https://open.musedam.ai/api/muse/move-assets-to-
 
 - Assets and folders must exist and belong to the current team. Edit permission for the relevant folders is required.
 - operationType=0 moves assets; =1 adds them while keeping them in both folders.
+
+## Delete assets in bulk
+
+`POST /delete-assets` moves the specified assets to the recycle bin. It cannot delete folders. The Open API does not support permanent deletion or restoring assets from the recycle bin.
+
+**Permissions**: Requires an administrator API key or appKey. On the Enterprise plan, the key must be bound to the system administrator role. Member keys and user login sessions cannot call this endpoint. It does not check individual folder or asset permissions. Rate limit: 5 QPS.
+
+| Request field | Type | Required | Description |
+|-|-|-|-|
+| assetIds | `List<Long>` | Yes | Supply 1–200 asset `materialId` values returned by asset search or upload. |
+
+**Response**: The business result is a Boolean: `true` on success. Failures return an Open API or business error.
+
+**Request example**:
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/delete-assets' \
+  --header 'Authorization: Bearer your_admin_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"assetIds": [6908914, 6908820]}'
+```
 
 ## Retrieve assets in bulk
 
