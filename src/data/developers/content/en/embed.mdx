@@ -207,6 +207,7 @@ After receiving `musedam-embed-ready`, send actions with `iframe.contentWindow.p
 | Asset picker | `assets-selector-modal-open` / `assets-selector-modal-close` |
 | Folder picker (multiple) | `folder-selector-modal-open` / `folder-selector-modal-close` |
 | Folder picker (single) | `single-folder-selector-modal-open` / `single-folder-selector-modal-close` |
+| Folder picker with upload | `folder-upload-modal-open` / `folder-upload-modal-close` |
 | Member picker | `member-selector-modal-open` / `member-selector-modal-close` |
 | Upload | `upload-files` / `sub-project-upload-complete` |
 | Tag picker | `openTagSelecter` / `closeTagSelecter` / `removeTag` |
@@ -261,6 +262,56 @@ Single selection:
 - **action**: `single-folder-selector-modal-open`
 - **args**: `{ initialSelectedFolder?: number | { id: number; name?: string } }`
 - **result.data**: `{ id: number; name: string }`
+
+### Upload to a folder
+
+Use `folder-upload-modal-open` to select a destination folder, confirm, and upload and save assets in a single component. Your page obtains the files first, for example with a file input. The component selects their destination. No separate `upload-files` or `sub-project-upload-complete` call is needed.
+
+- **Open**: `folder-upload-modal-open`
+- **Close**: `folder-upload-modal-close` (only before uploading starts; the original request returns `cancelled`)
+- **args**:
+
+```typescript
+{
+    files: File[]; // Required, non-empty. Send File objects directly via postMessage; do not JSON-serialize them.
+    initialSelectedFolder?: number | { id: number; name?: string };
+}
+```
+
+- **result.data** (returned after every file has finished uploading and saving):
+
+```typescript
+{
+    folder: { id: number; name: string; path?: string };
+    uploadedFiles: Array<{ id: number; fileName: string; fileSize: number }>;
+    failedFiles: Array<{ fileName: string; error: string }>;
+}
+```
+
+Uploading starts only after the user confirms the selected folder. Only one destination is supported, and the employee needs upload permission for it. Cancelling does not start an upload. Invalid files return `malformed_request`; missing upload permission returns `forbidden`. A processed batch returns `result.success: true` even if every file failed: always inspect `uploadedFiles` and `failedFiles`. Each `uploadedFiles[].id` is the saved asset ID.
+
+**Keep the iframe mounted until this request returns `action_result`.** During uploading, the confirm button shows a loading state and repeated confirmation and closing are disabled. A result reports saved assets, rather than files merely added to a queue.
+
+Using `openMuseDAM` from the complete example below:
+
+```javascript
+const input = document.createElement('input')
+input.type = 'file'
+input.multiple = true
+input.onchange = async () => {
+  const files = Array.from(input.files || [])
+  if (!files.length) return
+  try {
+    const { folder, uploadedFiles, failedFiles } = await openMuseDAM('folder-upload-modal-open', { files })
+    console.log('Destination', folder, 'Saved assets', uploadedFiles, 'Failed files', failedFiles)
+  } catch (error) {
+    if (error.code !== 'cancelled') console.error(error)
+  }
+}
+input.click()
+```
+
+To test, choose `folder-upload-modal-open` on the [embed component test page](https://musedam.cc/outer/embed/test), select local files with the file input, then send. The test page attaches `files`; do not enter file contents in the JSON argument editor.
 
 ### Member picker
 

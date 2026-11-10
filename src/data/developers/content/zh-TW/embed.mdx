@@ -207,6 +207,7 @@ https://musedam.cc/outer/embed?code={code}&theme=light
 | 素材選擇器 | `assets-selector-modal-open` / `assets-selector-modal-close` |
 | 文件夾選擇器（多選） | `folder-selector-modal-open` / `folder-selector-modal-close` |
 | 文件夾選擇器（單選） | `single-folder-selector-modal-open` / `single-folder-selector-modal-close` |
+| 上傳到文件夾 | `folder-upload-modal-open` / `folder-upload-modal-close` |
 | 成員選擇器 | `member-selector-modal-open` / `member-selector-modal-close` |
 | 上傳 | `upload-files` / `sub-project-upload-complete` |
 | 標籤選擇 | `openTagSelecter` / `closeTagSelecter` / `removeTag` |
@@ -261,6 +262,56 @@ https://musedam.cc/outer/embed?code={code}&theme=light
 - **action**：`single-folder-selector-modal-open`
 - **args**：`{ initialSelectedFolder?: number | { id: number; name?: string } }`
 - **result.data**：`{ id: number; name: string }`
+
+### 上傳到文件夾
+
+使用 `folder-upload-modal-open`，可在一個組件中完成「選擇目標文件夾 → 確認 → 上傳並保存素材」。文件由你的頁面預先透過文件輸入框等方式取得，組件負責選擇上傳目的地。無需再呼叫 `upload-files` 或 `sub-project-upload-complete`。
+
+- **打開**：`folder-upload-modal-open`
+- **關閉**：`folder-upload-modal-close`（僅上傳開始前有效，原請求回傳 `cancelled`）
+- **args**：
+
+```typescript
+{
+    files: File[]; // 必填，非空，必須是 File 物件；透過 postMessage 直接傳送，不能 JSON 序列化
+    initialSelectedFolder?: number | { id: number; name?: string };
+}
+```
+
+- **result.data**（所有文件上傳並保存結束後回傳）：
+
+```typescript
+{
+    folder: { id: number; name: string; path?: string };
+    uploadedFiles: Array<{ id: number; fileName: string; fileSize: number }>;
+    failedFiles: Array<{ fileName: string; error: string }>;
+}
+```
+
+使用者點擊「保存到選中文件夾」後才開始上傳，且只能選擇一個有上傳權限的文件夾。取消時不會開始上傳；文件參數無效回傳 `malformed_request`，無上傳權限回傳 `forbidden`。即使全部文件失敗，批次處理完成仍回傳 `result.success: true`，請檢查 `uploadedFiles` 和 `failedFiles`；`uploadedFiles[].id` 是已保存的素材 ID。
+
+**上傳期間請保持 iframe 掛載**，直到收到該請求的 `action_result` 再移除。上傳期間確認按鈕顯示載入狀態，並禁止重複確認和關閉，避免中斷上傳。結果表示素材已保存，而不是僅加入上傳佇列。
+
+下面使用本文完整範例中的 `openMuseDAM`：
+
+```javascript
+const input = document.createElement('input')
+input.type = 'file'
+input.multiple = true
+input.onchange = async () => {
+  const files = Array.from(input.files || [])
+  if (!files.length) return
+  try {
+    const { folder, uploadedFiles, failedFiles } = await openMuseDAM('folder-upload-modal-open', { files })
+    console.log('目標文件夾', folder, '已保存素材', uploadedFiles, '失敗文件', failedFiles)
+  } catch (error) {
+    if (error.code !== 'cancelled') console.error(error)
+  }
+}
+input.click()
+```
+
+聯調時，在[嵌入組件測試頁](https://musedam.cc/outer/embed/test)選擇 `folder-upload-modal-open`，透過文件輸入框選擇本機文件後傳送。`files` 由測試頁附加，不要在 JSON 參數編輯器中填寫文件內容。
 
 ### 成員選擇器
 

@@ -28,7 +28,7 @@ export const developerNavigation = [
     en,
     group,
     description,
-    search: `${headings.map((heading) => heading.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (match) => match[0]).join(' ')}`,
+    search: `${headings.map((heading) => heading.title).join(' ')} ${markdown}`.replace(/\s+/g, ' '),
   })),
 ]
 
@@ -66,7 +66,7 @@ export function getDeveloperNavigation(lng: string) {
           en,
           group,
           description,
-          search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
+          search: `${headings.map((heading) => heading.title).join(' ')} ${markdown}`.replace(/\s+/g, ' '),
         }),
       ),
     ]
@@ -80,7 +80,7 @@ export function getDeveloperNavigation(lng: string) {
           en,
           group,
           description,
-          search: `${headings.map((heading) => heading.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (match) => match[0]).join(' ')}`,
+          search: `${headings.map((heading) => heading.title).join(' ')} ${markdown}`.replace(/\s+/g, ' '),
         }),
       ),
     ]
@@ -98,7 +98,7 @@ export function getDeveloperNavigation(lng: string) {
         en,
         group,
         description,
-        search: `${headings.map((h) => h.title).join(' ')} ${Array.from(markdown.matchAll(/(?:\/|musedam_)[a-z][a-z_-]+/g), (m) => m[0]).join(' ')}`,
+        search: `${headings.map((heading) => heading.title).join(' ')} ${markdown}`.replace(/\s+/g, ' '),
       }),
     ),
   ]
