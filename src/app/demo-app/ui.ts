@@ -1,5 +1,22 @@
 import { escapeHtml } from './access'
+import type { ReleaseInfo } from './catalog'
 import { isSafeSegment, type DemoFile } from './storage'
+
+export const RELEASE_CLASSES = {
+  live: 'inline-flex items-center rounded bg-[var(--live-bg)] px-2 py-0.5 text-xs leading-4 text-[var(--live-ink)]',
+  roadmap:
+    'inline-flex items-center rounded bg-[var(--roadmap-bg)] px-2 py-0.5 text-xs leading-4 text-[var(--roadmap-ink)]',
+}
+
+export function releaseLabel(release: ReleaseInfo) {
+  return release.status === 'live'
+    ? '已上线'
+    : `路线图中${release.releaseDate ? ` · 预计 ${release.releaseDate}` : ''}`
+}
+
+export function releaseTag(release: ReleaseInfo) {
+  return `<span class="${RELEASE_CLASSES[release.status]}">${escapeHtml(releaseLabel(release))}</span>`
+}
 
 export const PAGE_TITLE = 'MuseDAM Demo Page'
 export const HTML_FILE_RE = /\.html?$/i
@@ -39,98 +56,43 @@ export function demoName(file: DemoFile) {
   return file.path.slice(file.path.lastIndexOf('/') + 1).replace(HTML_FILE_RE, '')
 }
 
-export function demoFolder(file: DemoFile) {
-  const idx = file.path.lastIndexOf('/')
-  return idx === -1 ? '' : file.path.slice(0, idx)
+export const UI = {
+  button:
+    'inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-[var(--line)] bg-[var(--surface)] px-4 font-medium text-[var(--ink)] transition-colors hover:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4',
+  primary:
+    'inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-[var(--accent)] px-4 font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4',
+  field:
+    'h-9 min-w-0 rounded-md border border-[var(--input-line)] bg-[var(--surface)] px-3 text-sm text-[var(--ink)] outline-none placeholder:text-[var(--sub)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]',
+  tag: 'inline-flex shrink-0 items-center rounded bg-[var(--tag-bg)] px-2 py-0.5 font-mono text-xs leading-4 text-[var(--tag-ink)]',
 }
 
-const BASE_CSS = `
-  :root {
-    color-scheme: light;
-    --bg: #f7f9fc; --surface: #ffffff; --surface-2: #edf1f7;
-    --ink: #222b45; --ink-2: #2e3a59; --sub: #8f9bb3; --line: #e4e9f2;
-    --accent: #3366ff; --accent-ink: #ffffff; --accent-soft: #e6eeff;
-    --danger: #ff3d71; --danger-soft: #ffe8ef; --ok: #00b383;
-    --shadow: 0 1px 2px rgba(34, 43, 69, .04), 0 4px 16px rgba(34, 43, 69, .06);
-    --shadow-hover: 0 2px 4px rgba(34, 43, 69, .06), 0 12px 32px rgba(34, 43, 69, .12);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-      --bg: #101426; --surface: #192038; --surface-2: #222b45;
-      --ink: #f7f9fc; --ink-2: #c5cee0; --sub: #8f9bb3; --line: #2e3a59;
-      --accent: #598bff; --accent-soft: rgba(89, 139, 255, .16);
-      --danger-soft: rgba(255, 61, 113, .16);
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3); --shadow-hover: 0 12px 32px rgba(0, 0, 0, .45);
-    }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink-2); font: 14px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
-  a { color: inherit; text-decoration: none; }
-  button, input, select { font: inherit; color: inherit; }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-  .topbar { position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(180%) blur(12px); background: color-mix(in srgb, var(--bg) 82%, transparent); border-bottom: 1px solid var(--line); }
-  .topbar .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ink); }
-  .brand-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; letter-spacing: -.02em; }
-  .spacer { flex: 1; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; white-space: nowrap; transition: border-color .15s, background .15s, color .15s; }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .btn.primary:hover { filter: brightness(1.08); color: var(--accent-ink); }
-  .btn:disabled { opacity: .6; cursor: default; }
-  .btn svg { width: 16px; height: 16px; }
-  .field { height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); outline: none; transition: border-color .15s, box-shadow .15s; }
-  .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .message { margin: 24px 0 0; padding: 12px 16px; border-radius: 10px; background: var(--accent-soft); color: var(--ink); }
-  .empty { padding: 64px 16px; text-align: center; color: var(--sub); }
-  .toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 16px); padding: 10px 18px; border-radius: 10px; background: var(--ink); color: var(--bg); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; }
-  .toast.show { opacity: 1; transform: translate(-50%, 0); }
-  [hidden] { display: none !important; }
-`
+export function skuTags(skus: string[]) {
+  return skus.map((sku) => `<span class="${UI.tag}">${escapeHtml(sku)}</span>`).join('')
+}
+
+export function scriptJson(value: unknown) {
+  return JSON.stringify(value).replace(/</g, String.fromCharCode(92) + 'u003c')
+}
 
 export function renderShell({
   title,
-  css = '',
   actions = '',
   body,
   script = '',
 }: {
   title: string
-  css?: string
   actions?: string
   body: string
   script?: string
 }) {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>${escapeHtml(title)}</title>
-<style>${BASE_CSS}${css}</style>
-</head>
-<body>
-<header class="topbar"><div class="wrap">
-  <a class="brand" href="/demo-app"><span class="brand-mark">M</span>${escapeHtml(PAGE_TITLE)}</a>
-  <span class="spacer"></span>
-  ${actions}
-</div></header>
-${body}
-<div class="toast" id="toast"></div>
-<script>
-  function toast(text) {
-    var el = document.getElementById('toast');
-    el.textContent = text;
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(function () { el.classList.remove('show'); }, 1800);
-  }
-${script}
-</script>
-</body>
-</html>`
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>${escapeHtml(title)}</title><link rel="stylesheet" href="/demo-catalog.css"></head>
+<body class="m-0 bg-[var(--bg)] text-sm leading-[22px] text-[var(--ink)] antialiased">
+<header class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-[var(--line)] bg-[var(--surface)] px-6">
+<a class="flex min-w-0 items-center gap-3 font-semibold" href="/demo-app"><span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-white">M</span><span class="flex min-w-0 flex-col"><span class="truncate leading-5">MuseDAM 产品演示</span><span class="font-mono text-[10px] font-medium leading-4 tracking-[0.16em] text-[var(--sub)]">PROTOTYPE LIBRARY</span></span></a><span class="flex-1"></span>${actions}</header>
+${body}<div role="status" id="toast" hidden class="fixed bottom-8 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-md bg-[var(--ink)] px-4 py-3 text-[var(--bg)]"></div>
+<script>function toast(text) { var el = document.getElementById('toast'); el.textContent = text; el.hidden = false; clearTimeout(el._t); el._t = setTimeout(function () {el.hidden=true}, 3500); }
+${script}</script></body></html>`
 }
 
 export const ICONS = {

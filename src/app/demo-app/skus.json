@@ -1,0 +1,442 @@
+[
+  {
+    "code": "DAM-SPACE",
+    "name": "独立品牌空间增购",
+    "status": "roadmap"
+  },
+  {
+    "code": "DAM-HOME",
+    "name": "自定义首页工作台",
+    "status": "live"
+  },
+  {
+    "code": "DAM-FOLDER",
+    "name": "智能文件夹",
+    "status": "live"
+  },
+  {
+    "code": "DAM-META",
+    "name": "元数据自定义字段",
+    "status": "live"
+  },
+  {
+    "code": "DAM-STATS",
+    "name": "资产数据分析",
+    "status": "live"
+  },
+  {
+    "code": "DAM-BRAND",
+    "name": "品牌库",
+    "status": "live"
+  },
+  {
+    "code": "DAM-GOODS",
+    "name": "商品库",
+    "status": "live"
+  },
+  {
+    "code": "DAM-PJT",
+    "name": "项目库",
+    "status": "live"
+  },
+  {
+    "code": "COLLECT-PIN",
+    "name": "Pinterest",
+    "status": "roadmap"
+  },
+  {
+    "code": "COLLECT-BEH",
+    "name": "Behance",
+    "status": "roadmap"
+  },
+  {
+    "code": "COLLECT-WB",
+    "name": "微博",
+    "status": "roadmap"
+  },
+  {
+    "code": "COLLECT-MP",
+    "name": "微信公众号",
+    "status": "roadmap"
+  },
+  {
+    "code": "DAM-TAG",
+    "name": "AI 自动打标引擎",
+    "status": "live"
+  },
+  {
+    "code": "DAM-TAG-LOGO",
+    "name": "特征库-品牌标识",
+    "status": "live"
+  },
+  {
+    "code": "DAM-TAG-GOODS",
+    "name": "特征库-商品",
+    "status": "live"
+  },
+  {
+    "code": "DAM-TAG-FACE",
+    "name": "特征库-人物",
+    "status": "live"
+  },
+  {
+    "code": "DAM-TAG-IP",
+    "name": "特征库-IP形象",
+    "status": "live"
+  },
+  {
+    "code": "DAM-TAG-CUSTOM",
+    "name": "特征库-自定义",
+    "status": "live"
+  },
+  {
+    "code": "DAM-FEAT",
+    "name": "AI 识别对象",
+    "status": "roadmap"
+  },
+  {
+    "code": "MAI-BASE",
+    "name": "智能生成(MuseAI)-基础版",
+    "status": "live"
+  },
+  {
+    "code": "MAI-STD",
+    "name": "智能生成(MuseAI)-标准版",
+    "status": "live"
+  },
+  {
+    "code": "MAI-PRO",
+    "name": "智能生成(MuseAI)-高阶版",
+    "status": "roadmap"
+  },
+  {
+    "code": "IGO-BATCH",
+    "name": "创意生产(IngenOps)-批量套版",
+    "status": "live"
+  },
+  {
+    "code": "IGO-PRINT",
+    "name": "创意生产(IngenOps)-专业印刷",
+    "status": "live"
+  },
+  {
+    "code": "CLR-BASE",
+    "name": "视频混剪(Clipo Remix)-基础版",
+    "status": "live"
+  },
+  {
+    "code": "CLR-STD",
+    "name": "视频混剪(Clipo Remix)-标准版",
+    "status": "live"
+  },
+  {
+    "code": "DAM-INBOX",
+    "name": "收文件",
+    "status": "live"
+  },
+  {
+    "code": "DAM-APPR",
+    "name": "审批中心",
+    "status": "live"
+  },
+  {
+    "code": "DAM-DLVR",
+    "name": "交付审批中心",
+    "status": "live"
+  },
+  {
+    "code": "DAM-FLOW-BASE",
+    "name": "任务工作流-基础版",
+    "status": "live"
+  },
+  {
+    "code": "DAM-FLOW-PRO",
+    "name": "任务工作流-高阶版",
+    "status": "roadmap"
+  },
+  {
+    "code": "DAM-AUTO",
+    "name": "自动化中心",
+    "status": "live"
+  },
+  {
+    "code": "DAM-COMP",
+    "name": "合规检测",
+    "status": "live"
+  },
+  {
+    "code": "DAM-COMP-EU",
+    "name": "区域合规拓展-欧盟广告法合规",
+    "status": "live"
+  },
+  {
+    "code": "DAM-COMP-US",
+    "name": "区域合规拓展-美国广告法合规",
+    "status": "live"
+  },
+  {
+    "code": "DAM-AGENT-BRAND",
+    "name": "品牌合规 Agent",
+    "status": "live"
+  },
+  {
+    "code": "DAM-AGENT-STORE",
+    "name": "门店巡检 Agent",
+    "status": "live"
+  },
+  {
+    "code": "DAM-RIGHTS",
+    "name": "版权管理",
+    "status": "live"
+  },
+  {
+    "code": "DAM-WMARK",
+    "name": "水印",
+    "status": "live"
+  },
+  {
+    "code": "DAM-SHARE",
+    "name": "公开链接与衍生版本",
+    "status": "live"
+  },
+  {
+    "code": "DAM-DAT",
+    "name": "DAT 动态资产转换",
+    "status": "live"
+  },
+  {
+    "code": "DAM-PORTAL",
+    "name": "门户网站（Portal）",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-EDIT",
+    "name": "公众号文章管理与编辑",
+    "status": "roadmap"
+  },
+  {
+    "code": "SOCIAL-XHS",
+    "name": "社媒分发-小红书",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-DY",
+    "name": "社媒分发-抖音",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-KS",
+    "name": "社媒分发-快手",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-SPH",
+    "name": "社媒分发-视频号",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-MP",
+    "name": "社媒分发-公众号",
+    "status": "roadmap"
+  },
+  {
+    "code": "SOCIAL-WB",
+    "name": "社媒分发-微博",
+    "status": "roadmap"
+  },
+  {
+    "code": "SOCIAL-YT",
+    "name": "社媒分发-YouTube",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-TT",
+    "name": "社媒分发-TikTok",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-FBPAGE",
+    "name": "社媒分发-Facebook Page",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-IGBIZ",
+    "name": "社媒分发-Instagram Business",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-LIPROF",
+    "name": "社媒分发-LinkedIn",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-LIPAGE",
+    "name": "社媒分发-LinkedIn Company Page",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-X",
+    "name": "社媒分发-X/Twitter",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-ACCT-50",
+    "name": "社媒绑定账户增购",
+    "status": "live"
+  },
+  {
+    "code": "SOCIAL-ATTR",
+    "name": "社媒数据归因",
+    "status": "live"
+  },
+  {
+    "code": "ECOM-AMZ",
+    "name": "电商分发-Amazon",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-LAZ",
+    "name": "电商分发-Lazada",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-SHOPEE",
+    "name": "电商分发-Shopee",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-TTSHOP",
+    "name": "电商分发-TikTok Shop",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-SHOPIFY",
+    "name": "电商分发-Shopify",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-TAOBAO",
+    "name": "电商分发-淘宝",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-TMALL",
+    "name": "电商分发-天猫",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-JDPOP",
+    "name": "电商分发-京东 POP",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-JDVC",
+    "name": "电商分发-京东自营 VC",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-DOUYIN",
+    "name": "电商分发-抖音电商",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-ACCT-50",
+    "name": "电商绑定账户增购",
+    "status": "roadmap"
+  },
+  {
+    "code": "ECOM-ATTR",
+    "name": "电商数据归因",
+    "status": "roadmap"
+  },
+  {
+    "code": "ADS-JLQC",
+    "name": "广告投放-巨量千川",
+    "status": "roadmap"
+  },
+  {
+    "code": "ADS-JLYQ",
+    "name": "广告投放-巨量引擎广告",
+    "status": "roadmap"
+  },
+  {
+    "code": "ADS-ATTR",
+    "name": "广告数据归因",
+    "status": "roadmap"
+  },
+  {
+    "code": "KOL-BASE",
+    "name": "达人库-达人管理",
+    "status": "roadmap"
+  },
+  {
+    "code": "KOL-CAMP",
+    "name": "达人库-营销活动",
+    "status": "roadmap"
+  },
+  {
+    "code": "KOL-ATTR",
+    "name": "达人库-数据归因",
+    "status": "roadmap"
+  },
+  {
+    "code": "KOL-ACCT-500",
+    "name": "达人账号增购",
+    "status": "roadmap"
+  },
+  {
+    "code": "DAM-NOTION",
+    "name": "DAM 资产同步至 Notion",
+    "status": "live"
+  },
+  {
+    "code": "LARK-DRIVE-BASE",
+    "name": "飞书云盘导入-基础版",
+    "status": "roadmap"
+  },
+  {
+    "code": "LARK-DRIVE-PRO",
+    "name": "飞书云盘导入-高阶版",
+    "status": "roadmap"
+  },
+  {
+    "code": "LARK-BITABLE-1WAY",
+    "name": "飞书多维表格集成-单向同步",
+    "status": "roadmap"
+  },
+  {
+    "code": "LARK-BITABLE-2WAY",
+    "name": "飞书多维表格集成-双向同步",
+    "status": "roadmap"
+  },
+  {
+    "code": "LARK-APPR",
+    "name": "飞书审批集成",
+    "status": "roadmap"
+  },
+  {
+    "code": "SSO-SAML",
+    "name": "SSO 登录-SAML",
+    "status": "live"
+  },
+  {
+    "code": "SSO-LARK",
+    "name": "SSO 登录-飞书",
+    "status": "live"
+  },
+  {
+    "code": "SSO-WECOM",
+    "name": "SSO 登录-企业微信",
+    "status": "live"
+  },
+  {
+    "code": "SSO-DING",
+    "name": "SSO 登录-钉钉",
+    "status": "live"
+  },
+  {
+    "code": "SSO-TEAMS",
+    "name": "SSO 登录-Microsoft Team",
+    "status": "live"
+  }
+]

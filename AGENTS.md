@@ -47,3 +47,17 @@ MuseDAM 界面按 `muse-development/references/design-system.md`（由工作区 
 ## 启动完成的判断与维护
 
 以终端实际输出的监听地址为准，并验证数据库连接、认证和当前开发的主要流程；编译成功不代表外部依赖已可用。配置模板仅用于首次创建文件，不覆盖已有配置，不把凭据写入本文。数据库准备命令仅用于已确认的本地开发库。脚本、环境入口、端口或目录结构变化时，同步维护本文件。
+
+## Demo 原型目录（/demo-app）
+
+- 列表、上传与查看器：`src/app/demo-app`。`catalog.ts` 根据旧路径映射模块；新上传路径保存一级目录、模块及 SKU。原型按模块内同名/版本去重，旧文件链接保留。
+- SKU 初始数据：`src/app/demo-app/skus.json`，来源为飞书产品价格库 `SulEwq05BilPvKkAWGFcOsPEnWh` 的「产品价格库（SKU）」工作表，2026-11-18 核对；目录分类结合产品方案会话 `GIGqwqXBwilvUjkxsoxcR4PKnK4`。只存模块和 SKU，不复制价格、客户信息。
+- 这些 Route Handler 返回独立 HTML；样式使用专用 Tailwind 输入 `styles.css` 和 `tailwind.demo.config.cjs`，由 `pnpm demo:styles` 生成 `public/demo-catalog.css`。`pnpm dev` / `pnpm build` 已自动先生成样式；开发中新增类名后重新执行 `pnpm demo:styles`。
+- 权限：Muse 销售可查看及编辑；POD 销售只读目录，不显示上传和编辑入口，上传页及保存接口拒绝访问。角色以会话 `isSale` 与 `businessRoles` 判断；同时拥有两种角色时可编辑。独立原型链接允许匿名访问；目录和带标题查看器仍按各自登录权限控制。独立 HTML 响应使用 CSP sandbox（不授予 allow-downloads），禁止页面触发下载，不开放 ZIP/Office 等下载文件；这无法阻止浏览器保存源码、截图或直接抓取响应。
+- 隔离验证：`node tests/demo-app.cjs`。交互预览：`node tests/demo-app.cjs --serve` → http://localhost:3101/demo-app。该独立测试进程模拟会话与 S3，不连接真实账户或线上存储；默认使用 `~/Downloads/交互原型`，可用 `DEMO_FIXTURE_DIR` 指定其他本地 HTML 目录。内存上传数据在进程退出后清空。
+- 真正的 Next 开发入口仍为 `pnpm dev --port 3100` → http://localhost:3100/demo-app，需要有效会话及 S3 配置；隔离预览通过不代表真实存储/登录联调已通过。
+
+- 模块状态：`已上线` / `路线图中`，路线图可选填预计上线日期。初始状态参考 SKU 表（已发布 → 已上线，其余 → 路线图中）；无 SKU 的模块默认路线图中，日期不推测。可在上传页单独保存模块信息，按模块写入 S3 `demo-app/.modules/<sha256>.json`，覆盖初始值但不改动原 HTML 路径。
+- 原型预览：点击列表名称使用原生全屏 dialog + iframe，支持关闭按钮与 Esc，关闭后保留目录筛选、滚动和焦点；复制链接及独立打开均指向匿名原型地址。
+- 原型目录视觉：按用户提供的生产页截图使用深海军蓝背景、蓝灰面板、彩色渐变模块图标，保留紧凑列表；蓝色主操作，绿色/琥珀色区分上线状态。主题变量位于 `styles.css`，上传页与查看器共用，不改动原型 HTML 内部样式。
+- 模块图标：`module-icons.ts` 内精选素材库 SVG，来源见同目录 `icon-sources.md`。上传页支持自动匹配或选择内置图标；持久化 `module.icon` ID，与模块状态共用 `.modules` 元数据，不写任意 SVG。主目录、卡片、模块标题和查看器共用映射。

@@ -23,9 +23,16 @@ export async function getDemoViewer() {
   }
 }
 
-/** 【Muse】销售：可查看 demo 列表、上传和删除 */
+/** 【Muse】销售：可编辑原型目录。 */
 export function isMuseSale(user: SessionUser | null) {
   return Boolean(user?.isSale && user.businessRoles?.includes('muse'))
+}
+
+/** 【Muse】销售及【POD】销售：可查看原型目录。 */
+export function canViewDemoCatalog(user: SessionUser | null) {
+  return Boolean(
+    user?.isSale && user.businessRoles?.some((role) => role === 'muse' || role === 'pod'),
+  )
 }
 
 /** 对外访问的完整地址；服务在反向代理后，request.url 可能是内部地址 */
@@ -45,8 +52,8 @@ export function loginRedirect(request: NextRequest) {
   return NextResponse.redirect(login, 302)
 }
 
-/** 已登录但不是【Muse】销售 */
-export function forbiddenResponse() {
+/** 已登录但没有所需权限。 */
+export function forbiddenResponse(message = '仅【Muse】销售或【POD】销售可访问 Demo 列表。') {
   const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -61,7 +68,7 @@ export function forbiddenResponse() {
 </head>
 <body>
   <img src="/assets/logo-dark.svg" width="100" alt="Muse">
-  <p>仅【Muse】销售可访问 Demo 列表。</p>
+  <p>${escapeHtml(message)}</p>
   <a href="/">返回首页</a>
 </body>
 </html>`

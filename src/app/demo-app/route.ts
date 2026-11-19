@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import {
+  canViewDemoCatalog,
   escapeHtml,
   forbiddenResponse,
   getDemoViewer,
@@ -8,231 +9,142 @@ import {
   loginRedirect,
   PAGE_HEADERS,
 } from './access'
-import { listDemoFiles, type DemoFile } from './storage'
+import { buildCatalog, GROUPS, moduleKey, releaseFor, type CatalogFile } from './catalog'
+import { MODULE_ICONS, moduleIcon, moduleIconId } from './module-icons'
+import { listDemoFiles, listModuleReleases } from './storage'
 import {
-  demoFolder,
   demoHref,
   demoName,
   formatDate,
   formatSize,
   ICONS,
-  PAGE_TITLE,
+  RELEASE_CLASSES,
+  releaseLabel,
+  releaseTag,
   renderShell,
+  scriptJson,
+  skuTags,
+  UI,
 } from './ui'
 
 export const dynamic = 'force-dynamic'
 
-const RECENT_MS = 7 * 24 * 60 * 60 * 1000
-
-/** 按路径生成稳定的封面色相 */
-function coverHue(path: string) {
-  let hash = 0
-  for (const char of path) hash = (hash * 31 + char.codePointAt(0)!) | 0
-  return Math.abs(hash) % 360
+function row(file: CatalogFile) {
+  const title = demoName(file)
+  const href = escapeHtml(demoHref(file))
+  const iconColors = [
+    'from-cyan-400/20 to-blue-500/15 text-cyan-300 ring-cyan-300/20',
+    'from-violet-400/20 to-fuchsia-500/15 text-violet-300 ring-violet-300/20',
+    'from-pink-400/20 to-rose-500/15 text-pink-300 ring-pink-300/20',
+    'from-amber-400/20 to-orange-500/15 text-amber-300 ring-amber-300/20',
+    'from-teal-400/20 to-cyan-500/15 text-teal-300 ring-teal-300/20',
+  ]
+  const iconColor =
+    iconColors[
+      Array.from(moduleKey(file.module)).reduce((sum, c) => sum + c.charCodeAt(0), 0) %
+        iconColors.length
+    ]
+  const skus = file.module.skus.join(' · ')
+  return `<article role="row" class="group flex w-full bg-[var(--surface)] items-center gap-4 border-t border-[var(--line)] px-4 py-3 transition-colors hover:bg-[var(--hover)] focus-within:bg-[var(--hover)]" data-card data-module="${escapeHtml(moduleKey(file.module))}" data-group="${file.module.group}" data-search="${escapeHtml([title, file.module.name, file.module.group, ...file.module.skus].join(' ').toLowerCase())}" data-time="${file.lastModified?.getTime() ?? 0}">
+    <div role="cell" class="flex min-w-0 flex-1 items-center gap-3"><span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ring-1 ring-inset ${iconColor} [&_svg]:size-5">${moduleIcon(file.module)}</span><div class="min-w-0 flex-1"><a class="block truncate font-medium hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2" href="${href}" data-preview data-title="${escapeHtml(title)}" title="${escapeHtml(title)}">${escapeHtml(title)}</a><p class="truncate text-xs leading-5 text-[var(--sub)]">${escapeHtml(file.module.name)}<span class="xl:hidden">${skus ? ` · ${escapeHtml(skus)}` : ''}</span></p><span class="lg:hidden">${releaseTag(releaseFor(file.module))}</span></div></div>
+    <div role="cell" class="hidden w-44 shrink-0 flex-wrap gap-1 xl:flex">${file.module.skus.length ? skuTags(file.module.skus) : '<span class="text-xs text-[var(--sub)]">—</span>'}</div>
+    <div role="cell" class="hidden w-36 shrink-0 lg:block">${releaseTag(releaseFor(file.module))}</div>
+    <div role="cell" class="hidden w-24 shrink-0 text-xs leading-5 text-[var(--sub)] lg:block"><time>${formatDate(file.lastModified).slice(0, 10)}</time><p>${formatSize(file.size)}</p></div>
+    <div role="cell" class="flex w-16 shrink-0 items-center justify-end gap-1"><button class="flex size-8 items-center justify-center rounded-md text-[var(--sub)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] [&_svg]:size-4" data-copy="${href}" title="复制独立链接" aria-label="复制 ${escapeHtml(title)} 的独立链接">${ICONS.link}</button><a class="flex size-8 items-center justify-center rounded-md text-[var(--sub)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] [&_svg]:size-4" href="${href}" target="_blank" rel="noopener" title="独立打开" aria-label="独立打开 ${escapeHtml(title)}">${ICONS.open}</a></div>
+  </article>`
 }
 
-function shortDate(date?: Date) {
-  return date ? formatDate(date).slice(0, 10) : ''
-}
-
-function renderCard(file: DemoFile, now: number) {
-  const name = demoName(file)
-  const folder = demoFolder(file)
-  const href = demoHref(file)
-  const time = file.lastModified?.getTime() ?? 0
-  const isNew = time && now - time < RECENT_MS
-  return `<article class="card" data-folder="${escapeHtml(folder)}" data-name="${escapeHtml(name.toLowerCase())}" data-search="${escapeHtml(file.path.toLowerCase())}" data-time="${time}">
-  <a class="cover" href="${escapeHtml(href)}" target="_blank" rel="noopener" style="--h:${coverHue(file.path)}">
-    <span class="window">
-      <span class="window-bar"><i></i><i></i><i></i></span>
-      <span class="window-title">${escapeHtml(name)}</span>
-    </span>
-    ${isNew ? '<span class="badge">NEW</span>' : ''}
-    <span class="cover-open">${ICONS.open}打开</span>
-  </a>
-  <div class="card-body">
-    <div class="card-text">
-      <a class="card-title" href="${escapeHtml(href)}" target="_blank" rel="noopener" title="${escapeHtml(file.path)}">${escapeHtml(name)}</a>
-      <div class="card-meta">
-        ${folder ? `<span class="chip">${escapeHtml(folder)}</span>` : ''}
-        <span>${formatSize(file.size)}</span><span class="dot"></span><span title="${formatDate(file.lastModified)}">${shortDate(file.lastModified)}</span>
-      </div>
-    </div>
-    <button class="copy" type="button" data-href="${escapeHtml(href)}" title="复制链接" aria-label="复制链接">${ICONS.link}</button>
-  </div>
-</article>`
-}
-
-function renderFolders(files: DemoFile[]) {
-  const counts = new Map<string, number>()
-  for (const file of files) {
-    const folder = demoFolder(file)
-    counts.set(folder, (counts.get(folder) ?? 0) + 1)
+const SCRIPT = `
+(function () {
+  var q = document.getElementById('q'), grid = document.getElementById('grid'), cards = Array.from(document.querySelectorAll('[data-card]'));
+  var links = Array.from(document.querySelectorAll('[data-filter]')), title = document.getElementById('module-title'), tags = document.getElementById('module-skus');
+  var selection = '', group = '', current = null;
+  var moduleIcons=JSON.parse(document.getElementById('module-icon-data').textContent);
+  var nav = document.getElementById('catalog-nav'), navToggle = document.getElementById('toggle-navigation');
+  navToggle.addEventListener('click',function(){var open=nav.classList.contains('hidden');nav.classList.toggle('hidden',!open);navToggle.setAttribute('aria-expanded',String(open));});
+  function apply() {
+    var query = q.value.trim().toLowerCase(), count = 0;
+    cards.forEach(function(card) { card.hidden = !!((selection && card.dataset.module !== selection) || (group && card.dataset.group !== group) || (query && !card.dataset.search.includes(query))); if (!card.hidden) count++; });
+    document.getElementById('count').textContent = count + ' 个原型';
+    document.getElementById('empty').hidden = count !== 0;
+    document.getElementById('empty-title').textContent = query ? '没有找到匹配的原型' : '该模块还没有原型';
+    links.forEach(function(link) { var active = link === current; link.setAttribute('aria-current', active ? 'page' : 'false'); });
+    document.querySelectorAll('[data-module-node]').forEach(function(node) { node.hidden = !!(query && !node.dataset.search.includes(query) && !cards.some(function(c) {return c.dataset.module === node.dataset.moduleNode && c.dataset.search.includes(query)})); });
+    document.querySelectorAll('[data-category]').forEach(function(node) { node.hidden = !!(query && !Array.from(node.querySelectorAll('[data-module-node]')).some(function(m) {return !m.hidden})); if(query) node.open=true; });
   }
-  if (counts.size < 2) return ''
-  const chips = [...counts.entries()]
-    .sort(([a], [b]) => (a === '' ? -1 : b === '' ? 1 : a.localeCompare(b, 'zh-CN')))
-    .map(
-      ([folder, n]) =>
-        `<button class="tab" type="button" data-folder="${escapeHtml(folder)}">${escapeHtml(folder || '未分组')}<span>${n}</span></button>`,
-    )
-    .join('')
-  return `<div class="tabs"><button class="tab active" type="button" data-folder="*">全部<span>${files.length}</span></button>${chips}</div>`
-}
-
-const LIST_CSS = `
-  .hero { padding: 48px 0 24px; }
-  .hero h1 { margin: 0; font-size: 32px; line-height: 1.25; letter-spacing: -.02em; color: var(--ink); }
-  .hero p { margin: 8px 0 0; color: var(--sub); font-size: 15px; }
-  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
-  .search { position: relative; flex: 1 1 280px; max-width: 420px; }
-  .search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--sub); }
-  .search .field { width: 100%; padding-left: 36px; }
-  .toolbar select.field { padding-right: 32px; }
-  .tabs { display: flex; gap: 8px; overflow-x: auto; margin-top: 16px; padding-bottom: 4px; scrollbar-width: none; }
-  .tab { flex: none; height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .15s; }
-  .tab span { margin-left: 6px; color: var(--sub); font-size: 12px; }
-  .tab:hover { border-color: var(--accent); }
-  .tab.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-  .tab.active span { color: inherit; opacity: .7; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 24px 0 80px; }
-  .card { position: relative; display: flex; flex-direction: column; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s; }
-  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: transparent; }
-  .cover { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden;
-    background:
-      radial-gradient(120% 90% at 0% 0%, hsl(var(--h) 90% 72% / .95), transparent 60%),
-      radial-gradient(120% 90% at 100% 100%, hsl(calc(var(--h) + 50) 85% 62% / .95), transparent 60%),
-      hsl(calc(var(--h) + 20) 70% 55%); }
-  .cover::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px); background-size: 14px 14px; mask-image: linear-gradient(to bottom, #000, transparent); }
-  .window { position: relative; z-index: 1; width: 76%; height: 64%; display: flex; flex-direction: column; border-radius: 10px; background: rgba(255,255,255,.9); box-shadow: 0 12px 32px rgba(16,20,38,.18); overflow: hidden; transform: translateY(10%); transition: transform .3s; }
-  .card:hover .window { transform: translateY(4%); }
-  .window-bar { display: flex; gap: 5px; padding: 8px 10px; background: rgba(255,255,255,.7); border-bottom: 1px solid rgba(34,43,69,.06); }
-  .window-bar i { width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--h) 60% 70%); }
-  .window-bar i:nth-child(2) { background: hsl(calc(var(--h) + 40) 60% 72%); }
-  .window-bar i:nth-child(3) { background: hsl(calc(var(--h) + 80) 60% 74%); }
-  .window-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: auto 14px; color: hsl(var(--h) 45% 28%); font-size: 15px; font-weight: 700; line-height: 1.35; text-align: center; word-break: break-all; }
-  .badge { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,.92); color: #222b45; font-size: 11px; font-weight: 700; letter-spacing: .04em; }
-  .cover-open { position: absolute; z-index: 2; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; background: rgba(16,20,38,.55); color: #fff; font-size: 12px; opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .2s; backdrop-filter: blur(6px); }
-  .cover-open svg { width: 14px; height: 14px; }
-  .card:hover .cover-open { opacity: 1; transform: none; }
-  .card-body { display: flex; align-items: flex-start; gap: 8px; padding: 14px 12px 16px 16px; }
-  .card-text { flex: 1; min-width: 0; }
-  .card-title { display: block; font-size: 15px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .copy { flex: none; width: 30px; height: 30px; margin-top: -3px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--sub); cursor: pointer; transition: background .15s, color .15s; }
-  .card-title:hover { color: var(--accent); }
-  .card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 6px; color: var(--sub); font-size: 12px; }
-  .chip { max-width: 100%; padding: 1px 8px; border-radius: 6px; background: var(--surface-2); color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
-  .copy svg { width: 16px; height: 16px; }
-  .copy:hover { background: var(--accent-soft); color: var(--accent); }
-  .no-result { grid-column: 1 / -1; }
-  @media (max-width: 640px) {
-    .hero { padding-top: 32px; }
-    .hero h1 { font-size: 26px; }
-    .grid { grid-template-columns: 1fr; gap: 16px; }
-    .search { max-width: none; }
-  }
-`
-
-const LIST_SCRIPT = `
-  (function () {
-    var grid = document.getElementById('grid');
-    if (!grid) return;
-    var cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
-    var q = document.getElementById('q');
-    var sort = document.getElementById('sort');
-    var noResult = document.getElementById('no-result');
-    var folder = '*';
-
-    function apply() {
-      var text = q.value.trim().toLowerCase();
-      var shown = 0;
-      cards.forEach(function (c) {
-        var hit = (folder === '*' || c.dataset.folder === folder) && (!text || c.dataset.search.indexOf(text) !== -1);
-        c.hidden = !hit;
-        if (hit) shown++;
-      });
-      noResult.hidden = shown !== 0;
-    }
-
-    function reorder() {
-      var by = sort.value;
-      cards.sort(function (a, b) {
-        if (by === 'name') return a.dataset.name.localeCompare(b.dataset.name, 'zh-CN');
-        return Number(b.dataset.time) - Number(a.dataset.time);
-      });
-      cards.forEach(function (c) { grid.insertBefore(c, noResult); });
-    }
-
-    q.addEventListener('input', apply);
-    sort.addEventListener('change', reorder);
-    document.querySelectorAll('.tab').forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-        folder = tab.dataset.folder;
-        apply();
-      });
-    });
-    grid.addEventListener('click', function (e) {
-      var btn = e.target.closest('.copy');
-      if (!btn) return;
-      var url = location.origin + btn.dataset.href;
-      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
-        .then(function () { toast('链接已复制'); })
-        .catch(function () { window.prompt('复制链接', url); });
-    });
-    reorder();
-  })();
-`
-
-function renderPage(files?: DemoFile[]) {
-  const now = Date.now()
-  const content = !files
-    ? '<p class="empty">Demo 列表加载失败，请稍后重试。</p>'
-    : !files.length
-      ? `<div class="empty">还没有 Demo，<a href="/demo-app/upload" style="color:var(--accent)">去上传</a>。</div>`
-      : `${renderFolders(files)}
-  <div class="grid" id="grid">
-    ${files.map((file) => renderCard(file, now)).join('\n')}
-    <p class="empty no-result" id="no-result" hidden>没有匹配的 Demo</p>
-  </div>`
-
-  return renderShell({
-    title: PAGE_TITLE,
-    css: LIST_CSS,
-    actions: `<a class="btn primary" href="/demo-app/upload">${ICONS.upload}上传 Demo</a>`,
-    body: `<main class="wrap">
-  <section class="hero">
-    <h1>${escapeHtml(PAGE_TITLE)}</h1>
-    <p>MuseDAM 产品演示原型合集${files ? ` · 共 ${files.length} 个` : ''}，点击卡片在新标签页打开。</p>
-    ${
-      files?.length
-        ? `<div class="toolbar">
-      <label class="search">${ICONS.search}<input class="field" id="q" type="search" placeholder="搜索 Demo 名称或目录" autocomplete="off"></label>
-      <select class="field" id="sort" aria-label="排序">
-        <option value="time">最近更新</option>
-        <option value="name">按名称</option>
-      </select>
-    </div>`
-        : ''
-    }
-  </section>
-  ${content}
-</main>`,
-    script: files?.length ? LIST_SCRIPT : '',
-  })
-}
+  links.forEach(function(link) { link.addEventListener('click', function() {
+    if(window.innerWidth<768){nav.classList.add('hidden');navToggle.setAttribute('aria-expanded','false');}
+    document.getElementById('module-icon').innerHTML=moduleIcons[link.dataset.icon || 'grid'].svg;
+    current=link; selection=link.dataset.module || ''; group=link.dataset.group || ''; title.textContent=link.dataset.title; tags.textContent='';
+    (link.dataset.skus || '').split(',').filter(Boolean).forEach(function(sku) { var tag=document.createElement('span'); tag.className='${UI.tag}';tag.textContent=sku;tags.appendChild(tag); });
+    var release=document.getElementById('module-release');release.textContent='';
+    if(link.dataset.status){var badge=document.createElement('span');badge.className=link.dataset.status==='live'?'${RELEASE_CLASSES.live}':'${RELEASE_CLASSES.roadmap}';badge.textContent=link.dataset.releaseLabel;release.appendChild(badge);}
+    var edit=document.getElementById('edit-release');if(edit){edit.hidden=!selection;edit.href='/demo-app/upload?module='+encodeURIComponent(selection);}
+    document.getElementById('breadcrumb').textContent=group || (selection ? selection.split('/')[0] : '产品原型库');
+    var url=new URL(location.href); if(selection)url.searchParams.set('module',selection); else url.searchParams.delete('module'); if(group)url.searchParams.set('group',group);else url.searchParams.delete('group'); history.replaceState(null,'',url);
+    var upload=document.getElementById('upload-link');if(upload){upload.href='/demo-app/upload' + (selection ? '?module='+encodeURIComponent(selection) : '');document.querySelector('#empty a').href=upload.href;} apply();
+  }); });
+  q.addEventListener('input',apply);
+  document.getElementById('sort').addEventListener('change',function(e) { cards.sort(function(a,b) {return e.target.value==='name' ? a.dataset.search.localeCompare(b.dataset.search,'zh-CN') : Number(b.dataset.time)-Number(a.dataset.time)});cards.forEach(function(c){grid.insertBefore(c,document.getElementById('empty'))}); });
+  var preview=document.getElementById('prototype-preview'), frame=document.getElementById('preview-frame'), previousFocus=null, previousOverflow='';
+  document.getElementById('close-preview').addEventListener('click',function(){preview.close();});
+  preview.addEventListener('close',function(){frame.src='about:blank';document.body.style.overflow=previousOverflow;if(previousFocus)previousFocus.focus({preventScroll:true});});
+  grid.addEventListener('click',function(e){var link=e.target.closest('[data-preview]');if(!link || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)return;e.preventDefault();previousFocus=link;previousOverflow=document.body.style.overflow;document.getElementById('preview-title').textContent=link.dataset.title;frame.title=link.dataset.title;frame.src=link.getAttribute('href');document.getElementById('preview-open').href=link.getAttribute('href');document.body.style.overflow='hidden';preview.showModal();});
+  grid.addEventListener('click',function(e) { var button=e.target.closest('[data-copy]'); if(button) navigator.clipboard.writeText(location.origin+button.dataset.copy).then(function(){toast('链接已复制')}).catch(function(){toast('复制失败，请从地址栏复制链接')}); });
+  var params=new URL(location.href).searchParams;
+  var initial=links.find(function(link){return params.get('module') ? link.dataset.module===params.get('module') : params.get('group') ? link.dataset.group===params.get('group') : link.dataset.filter==='all'});
+  if(initial)initial.click();else apply();
+})();`
 
 export async function GET(request: NextRequest) {
   const user = await getDemoViewer()
   if (!user) return loginRedirect(request)
-  if (!isMuseSale(user)) return forbiddenResponse()
-
+  if (!canViewDemoCatalog(user)) return forbiddenResponse()
+  const canEdit = isMuseSale(user)
   try {
-    const files = await listDemoFiles()
-    return new NextResponse(renderPage(files), { headers: PAGE_HEADERS })
+    const [files, releases] = await Promise.all([listDemoFiles(), listModuleReleases()])
+    const catalog = buildCatalog(files, releases)
+    const nav = GROUPS.map((group) => {
+      const modules = catalog.modules.filter((module) => module.group === group)
+      return `<details open data-category class="group/category border-t border-[var(--line)] pt-3"><summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 font-semibold [&::-webkit-details-marker]:hidden"><span class="inline-flex items-center gap-2 [&_svg]:size-4">${MODULE_ICONS[group === '企业标准版' ? 'home' : group === '拓展模块' ? 'grid' : 'team'].svg}${group}</span><svg class="size-4 shrink-0 text-[var(--sub)] transition-transform group-open/category:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></summary><div class="ml-3 flex flex-col border-l border-[var(--line)] pb-2 pl-1"><button class="px-3 py-2 text-left text-[13px] text-[var(--sub)] hover:bg-[var(--hover)]" data-filter="group" data-group="${group}" data-title="${group}">查看全部</button>${modules
+        .map((module) => {
+          const count = catalog.files.filter(
+            (file) => moduleKey(file.module) === moduleKey(module),
+          ).length
+          return `<div data-module-node="${escapeHtml(moduleKey(module))}" data-search="${escapeHtml([module.name, ...module.skus].join(' ').toLowerCase())}"><button class="group flex w-full flex-col gap-1 rounded-md px-3 py-2 text-left hover:bg-[var(--hover)] aria-[current=page]:bg-[var(--accent-soft)] aria-[current=page]:text-[var(--accent)]" data-filter="module" data-module="${escapeHtml(moduleKey(module))}" data-title="${escapeHtml(module.name)}" data-icon="${moduleIconId(module)}" data-skus="${module.skus.join(',')}" data-status="${releaseFor(module).status}" data-release-label="${escapeHtml(releaseLabel(releaseFor(module)))}"><span class="flex w-full items-center gap-2"><span class="flex size-4 shrink-0 items-center justify-center text-[var(--sub)] group-aria-[current=page]:text-[var(--accent)] [&_svg]:size-4">${moduleIcon(module)}</span><span class="flex-1">${escapeHtml(module.name)}</span><span class="size-1.5 shrink-0 rounded-full ${releaseFor(module).status === 'live' ? 'bg-[var(--live-dot)]' : 'bg-[var(--roadmap-dot)]'}" title="${escapeHtml(releaseLabel(releaseFor(module)))}" aria-label="${escapeHtml(releaseLabel(releaseFor(module)))}"></span><span class="w-4 text-right text-xs text-[var(--sub)]">${count}</span></span><span class="flex flex-wrap gap-1 pl-6">${module.skus.length ? skuTags(module.skus) : ''}</span></button></div>`
+        })
+        .join('')}</div></details>`
+    }).join('')
+    return new NextResponse(
+      renderShell({
+        title: '产品原型库 · MuseDAM',
+        actions: canEdit
+          ? `<a id="upload-link" class="${UI.primary}" href="/demo-app/upload">${ICONS.upload}上传原型</a>`
+          : '',
+        body: `<div class="flex min-h-[calc(100vh-64px)] flex-col md:flex-row">
+      <aside class="border-b border-[var(--line)] bg-[var(--surface)] p-4 md:sticky md:top-16 md:h-[calc(100vh-64px)] md:w-64 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r"><button id="toggle-navigation" class="${UI.button} w-full md:hidden" aria-controls="catalog-nav" aria-expanded="false">浏览原型目录</button><nav id="catalog-nav" aria-label="原型目录" class="hidden flex-col gap-3 md:flex"><p class="px-3 text-xs text-[var(--sub)]">原型目录</p><button class="rounded-md px-3 py-2 text-left font-medium hover:bg-[var(--hover)] aria-[current=page]:bg-[var(--accent-soft)] aria-[current=page]:text-[var(--accent)]" data-filter="all" data-title="全部原型"><span class="inline-flex items-center gap-2 [&_svg]:size-4">${MODULE_ICONS.grid.svg}全部原型</span> <span class="float-right text-xs text-[var(--sub)]">${catalog.files.length}</span></button>${nav}</nav></aside>
+      <main class="flex min-w-0 flex-1 flex-col gap-5 bg-[var(--bg)] p-4 md:p-6"><div class="flex items-start gap-3"><span id="module-icon" class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--accent-soft)] text-[var(--accent)] [&_svg]:size-5">${MODULE_ICONS.grid.svg}</span><div class="flex min-w-0 flex-1 flex-col gap-2"><p id="breadcrumb" class="text-[13px] leading-[18px] text-[var(--sub)]">产品原型库</p><div class="flex flex-wrap items-center gap-3"><h1 id="module-title" class="text-[22px] font-semibold leading-8">全部原型</h1><div id="module-skus" class="flex flex-wrap gap-1"></div><span id="module-release"></span>${canEdit ? `<a id="edit-release" hidden class="text-[13px] text-[var(--accent)]" href="/demo-app/upload">编辑状态</a>` : ''}</div></div></div>
+      <div class="flex flex-wrap items-center gap-3"><label class="relative flex min-w-0 flex-1 items-center [&_svg]:absolute [&_svg]:left-3 [&_svg]:size-4 [&_svg]:text-[var(--sub)]">${ICONS.search}<input id="q" class="${UI.field} w-full pl-9" type="search" aria-label="搜索原型、功能模块或 SKU" placeholder="搜索原型、功能模块或 SKU" autocomplete="off"></label><select id="sort" aria-label="排序" class="${UI.field}"><option value="time">最近更新</option><option value="name">按名称</option></select><span id="count" class="whitespace-nowrap text-[13px] text-[var(--sub)]"></span></div>
+      <div role="table" aria-label="交互原型列表" class="overflow-hidden rounded-lg border border-[var(--line)]"><div role="row" class="flex items-center gap-4 bg-[var(--bg)] px-4 py-3 text-xs text-[var(--sub)]"><div role="columnheader" class="min-w-0 flex-1">原型名称</div><div role="columnheader" class="hidden w-44 shrink-0 xl:block">SKU</div><div role="columnheader" class="hidden w-36 shrink-0 lg:block">状态</div><div role="columnheader" class="hidden w-24 shrink-0 lg:block">更新时间</div><div role="columnheader" class="w-16 shrink-0 text-right">操作</div></div><div id="grid" role="rowgroup">${[
+        ...catalog.files,
+      ]
+        .sort((a, b) => (b.lastModified?.getTime() ?? 0) - (a.lastModified?.getTime() ?? 0))
+        .map(row)
+        .join(
+          '',
+        )}<div id="empty" hidden class="flex w-full flex-col items-center gap-3 px-6 py-12"><h2 id="empty-title" class="font-semibold">该模块还没有原型</h2><p class="text-[var(--sub)]">${canEdit ? '试试其他关键词，或上传该模块的 HTML 原型。' : '试试其他关键词，或联系 Muse 销售上传原型。'}</p>${canEdit ? `<a class="${UI.button}" href="/demo-app/upload">上传原型</a>` : ''}</div></div></div></main></div><dialog id="prototype-preview" aria-labelledby="preview-title" class="fixed inset-0 m-0 h-[100dvh] max-h-none w-screen max-w-none border-0 bg-[var(--surface)] p-0 text-[var(--ink)] backdrop:bg-black/40"><div class="flex h-full flex-col"><header class="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--line)] px-4"><h2 id="preview-title" class="min-w-0 flex-1 truncate font-semibold"></h2><a id="preview-open" class="${UI.button}" target="_blank" rel="noopener">${ICONS.open}<span class="hidden sm:inline">独立打开</span></a><button id="close-preview" autofocus class="flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--sub)] hover:bg-[var(--hover)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2" aria-label="关闭预览" title="关闭预览（Esc）"><svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><iframe id="preview-frame" class="min-h-0 w-full flex-1 border-0 bg-white" title="原型预览" allow="clipboard-write; fullscreen"></iframe></div></dialog><script id="module-icon-data" type="application/json">${scriptJson(MODULE_ICONS)}</script>`,
+        script: SCRIPT,
+      }),
+      { headers: PAGE_HEADERS },
+    )
   } catch (error) {
     console.error('demo-app list error:', error)
-    return new NextResponse(renderPage(), { status: 502, headers: PAGE_HEADERS })
+    return new NextResponse(
+      renderShell({
+        title: '原型库暂不可用',
+        body: '<main class="p-8"><p role="alert">原型列表加载失败，请稍后重试。</p><a class="underline" href="/demo-app">重新加载</a></main>',
+      }),
+      { status: 502, headers: PAGE_HEADERS },
+    )
   }
 }
