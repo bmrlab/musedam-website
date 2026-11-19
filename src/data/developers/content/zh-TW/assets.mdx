@@ -268,6 +268,44 @@ curl --request POST 'https://open.musedam.cc/api/muse/upload-assets-task' \
 }
 ```
 
+### 依儲存桶 Key 登記入庫（私有桶）
+
+適用於檔案已上傳或遷移至目前團隊設定的素材儲存桶（含私有桶），僅需登記至素材庫的情境。
+
+`POST /register-assets-by-key`
+
+請求內容為 **JSON 陣列**，每次 1–50 筆。介面直接使用桶內既有物件，不下載 URL 或跨桶複製；無需傳入 `url`、`bucket` 或 `callbackUrl`。
+
+| 欄位 | 類型 | 必填 | 說明 |
+|-|-|-|-|
+| storePath | String | 是 | 目前團隊素材儲存桶中既有檔案的 Key，例如 `uploads/product.jpg`；不是檔案 URL |
+| extension | String | 是 | 副檔名，例如 `jpg`、`mp4` |
+| size | Long | 否 | 檔案大小（位元組）；未傳入或小於等於 0 時從儲存空間讀取 |
+| userId | Long | 否 | 素材擁有者；未傳入時為目前 API Key 對應使用者 |
+
+其他選填參數（目標資料夾、名稱、中繼資料、版權協議、有效期、去重與版本等）沿用[素材上傳](./assets#素材上傳)的定義。
+
+**回應**：與素材上傳一致，`result.assets` 回傳 `id`、`key` / `storePath`、`name`、`accessUrl`、`uploadResult` 等欄位。
+
+**失敗處理**：任一 Key 不存在時，整批不入庫。失敗原因請見回應中的 `message`。
+
+**請求範例**：
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/register-assets-by-key' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[
+    {
+      "folderIds": [10001],
+      "storePath": "uploads/product.jpg",
+      "name": "product.jpg",
+      "extension": "jpg",
+      "size": 211438
+    }
+  ]'
+```
+
 ## 素材下載
 
 素材下載不需要單獨的接口，可以通過以下兩種方式獲取素材下載鏈接：

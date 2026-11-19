@@ -268,6 +268,44 @@ curl --request POST 'https://open.musedam.ai/api/muse/upload-assets-task' \
 }
 ```
 
+### Register assets by bucket key (private bucket)
+
+Use this endpoint when files are already uploaded or migrated to the current team's configured asset bucket, including a private bucket, and only need to be registered in the asset library.
+
+`POST /register-assets-by-key`
+
+Send a **JSON array** of 1–50 items. The endpoint uses existing objects in the bucket without downloading URLs or copying across buckets. Do not supply `url`, `bucket`, or `callbackUrl`.
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| storePath | String | Yes | Key of an existing file in the current team's asset bucket, such as `uploads/product.jpg`; not a file URL |
+| extension | String | Yes | File extension, such as `jpg` or `mp4` |
+| size | Long | No | File size in bytes; read from storage if omitted or less than or equal to 0 |
+| userId | Long | No | Asset owner; defaults to the user associated with the current API key |
+
+Other optional parameters (target folders, name, metadata, license agreements, validity, deduplication, versions, and more) follow the [Upload assets](./assets#upload-assets) definitions.
+
+**Response**: Same as asset upload. `result.assets` contains `id`, `key` / `storePath`, `name`, `accessUrl`, `uploadResult`, and other upload response fields.
+
+**Failure handling**: If any key is missing, no assets in the batch are registered. See `message` in the response for the failure reason.
+
+**Request example**:
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/register-assets-by-key' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[
+    {
+      "folderIds": [10001],
+      "storePath": "uploads/product.jpg",
+      "name": "product.jpg",
+      "extension": "jpg",
+      "size": 211438
+    }
+  ]'
+```
+
 ## Download assets
 
 Asset downloads do not require a separate endpoint. Obtain a download link in either of these ways:
