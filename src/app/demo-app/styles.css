@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg: #101425;
+    --surface: #182138;
+    --ink: #f2f4fc;
+    --sub: #96a2bb;
+    --line: #2d3957;
+    --input-line: #2d3957;
+    --accent: #7197ff;
+    --accent-hover: #8eacff;
+    --accent-soft: #233354;
+    --accent-contrast: #ffffff;
+    --tag-bg: #233354;
+    --tag-ink: #7197ff;
+    --hover: #1e2b46;
+    --danger: #ff789a;
+    --live-dot: #22c55e;
+    --roadmap-dot: #f59e0b;
+    --live-bg: #173a35;
+    --live-ink: #66e2b0;
+    --roadmap-bg: #3a3020;
+    --roadmap-ink: #f1c777;
+  }
+  body {
+    font-family:
+      'PingFang SC',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}

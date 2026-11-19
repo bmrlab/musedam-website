@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { getDemoViewer, loginRedirect } from '../access'
 import { getDemoFile, isSafeSegment } from '../storage'
 
 /** 回退源：oss://musedam-assets/public/testAssets/Demo HTML/ */
@@ -95,7 +94,7 @@ function passthroughHeaders(source: Headers, contentType?: string) {
   }
   headers.set('X-Content-Type-Options', 'nosniff')
   headers.set('Content-Disposition', 'inline')
-  // 需登录才能访问，禁止 CDN 等共享缓存
+  // 外发链接仅展示，仍不缓存原型响应。
   headers.set('Cache-Control', 'private, no-store')
   headers.set('X-Robots-Tag', 'noindex, nofollow')
   return headers
@@ -111,8 +110,17 @@ function resolveContentType(sourceType: string | null, filename: string) {
 }
 
 async function serveDemo(request: NextRequest, path: string[]) {
-  // 任意已登录的 MuseDAM 用户均可访问单个 demo
-  if (!(await getDemoViewer())) return loginRedirect(request)
+  // 独立原型允许持链接匿名浏览；不开放归档包、文档等下载文件。
+  if (!path.length || !path.every(isSafeSegment))
+    return new NextResponse('Demo not found', { status: 404 })
+  const requested = path.at(-1) ?? ''
+  if (
+    requested.includes('.') &&
+    !/\.(?:html?|css|js|mjs|json|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|mp4|webm|mp3|ogg|wav)$/i.test(
+      requested,
+    )
+  )
+    return new NextResponse('Demo not found', { status: 404 })
 
   const matched = await fetchDemo(path)
   if (!matched) {
@@ -131,6 +139,14 @@ async function serveDemo(request: NextRequest, path: string[]) {
   const filename = lastFetched ?? ''
   const contentType = resolveContentType(matched.response.headers.get('content-type'), filename)
   const headers = passthroughHeaders(matched.response.headers, contentType)
+  if (contentType?.startsWith('text/html')) {
+    // HTTP sandbox 同时约束独立窗口和 iframe，未授予 allow-downloads。
+    // 保留原型脚本、表单、存储和交互弹窗；不允许弹窗逃离 sandbox。
+    headers.set(
+      'Content-Security-Policy',
+      'sandbox allow-scripts allow-same-origin allow-forms allow-modals allow-popups',
+    )
+  }
 
   return new NextResponse(matched.response.body, {
     status: matched.response.status,

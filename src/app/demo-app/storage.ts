@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -7,9 +8,12 @@ import {
   S3ServiceException,
 } from '@aws-sdk/client-s3'
 
+import type { DemoModule, ModuleRelease, ReleaseInfo } from './catalog'
+
 /** 上传的 demo 存在 S3_BUCKET 的该前缀下 */
 const DEMO_PREFIX = 'demo-app/'
 const TMP_PREFIX = `${DEMO_PREFIX}.tmp/`
+const RELEASE_PREFIX = `${DEMO_PREFIX}.modules/`
 
 export const MAX_DEMO_BYTES = 64 * 1024 * 1024
 export const UPLOAD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -38,6 +42,67 @@ function getClient() {
 
 const bucket = () => process.env.S3_BUCKET!
 const toKey = (segments: string[]) => DEMO_PREFIX + segments.join('/')
+
+function releaseKey(demoModule: DemoModule) {
+  return (
+    RELEASE_PREFIX +
+    createHash('sha256').update(`${demoModule.group}/${demoModule.name}`).digest('hex') +
+    '.json'
+  )
+}
+
+export async function getModuleRelease(demoModule: DemoModule): Promise<ModuleRelease | null> {
+  try {
+    const response = await getClient().send(
+      new GetObjectCommand({ Bucket: bucket(), Key: releaseKey(demoModule) }),
+    )
+    return response.Body
+      ? JSON.parse(new TextDecoder().decode(await response.Body.transformToByteArray()))
+      : null
+  } catch (error) {
+    if (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404) return null
+    throw error
+  }
+}
+
+export async function listModuleReleases(): Promise<ModuleRelease[]> {
+  const keys: string[] = []
+  let token: string | undefined
+  do {
+    const response = await getClient().send(
+      new ListObjectsV2Command({
+        Bucket: bucket(),
+        Prefix: RELEASE_PREFIX,
+        ContinuationToken: token,
+      }),
+    )
+    for (const item of response.Contents ?? []) if (item.Key?.endsWith('.json')) keys.push(item.Key)
+    token = response.IsTruncated ? response.NextContinuationToken : undefined
+  } while (token)
+  return Promise.all(
+    keys.map(async (Key) => {
+      const response = await getClient().send(new GetObjectCommand({ Bucket: bucket(), Key }))
+      if (!response.Body) throw new Error('Missing module metadata')
+      return JSON.parse(
+        new TextDecoder().decode(await response.Body.transformToByteArray()),
+      ) as ModuleRelease
+    }),
+  )
+}
+
+export async function putModuleRelease(demoModule: DemoModule, release: ReleaseInfo) {
+  const { group, name, skus, icon } = demoModule
+  await getClient().send(
+    new PutObjectCommand({
+      Bucket: bucket(),
+      Key: releaseKey(demoModule),
+      Body: new TextEncoder().encode(
+        JSON.stringify({ module: { group, name, skus, ...(icon ? { icon } : {}) }, release }),
+      ),
+      ContentType: 'application/json',
+    }),
+  )
+}
 
 export function isSafeSegment(segment: string) {
   return (
