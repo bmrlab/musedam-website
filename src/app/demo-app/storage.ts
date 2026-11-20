@@ -15,6 +15,20 @@ const DEMO_PREFIX = 'demo-app/'
 const TMP_PREFIX = `${DEMO_PREFIX}.tmp/`
 const RELEASE_PREFIX = `${DEMO_PREFIX}.modules/`
 
+export const LINK_FILE_RE = /\.url\.json$/i
+
+export function parseDemoUrl(value: string): string | null {
+  if (value.length > 4096) return null
+  try {
+    const url = new URL(value.trim())
+    return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password
+      ? url.href
+      : null
+  } catch {
+    return null
+  }
+}
+
 export const MAX_DEMO_BYTES = 64 * 1024 * 1024
 export const UPLOAD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -22,6 +36,7 @@ export type DemoFile = {
   /** 相对 DEMO_PREFIX 的路径，如 `AI识别对象/AI识别对象.html` */
   path: string
   size: number
+  url?: string
   lastModified?: Date
 }
 
@@ -122,7 +137,19 @@ export async function listDemoFiles(): Promise<DemoFile[]> {
       new ListObjectsV2Command({ Bucket: bucket(), Prefix: DEMO_PREFIX, ContinuationToken: token }),
     )
     for (const obj of res.Contents ?? []) {
-      if (!obj.Key || !/\.html?$/i.test(obj.Key)) continue
+      if (
+        !obj.Key ||
+        obj.Key.slice(DEMO_PREFIX.length)
+          .split('/')
+          .some((part) => part.startsWith('.'))
+      )
+        continue
+      if (LINK_FILE_RE.test(obj.Key)) {
+        const link = await getDemoLink(obj.Key.slice(DEMO_PREFIX.length).split('/'))
+        if (link) files.push(link)
+        continue
+      }
+      if (!/\.html?$/i.test(obj.Key)) continue
       files.push({
         path: obj.Key.slice(DEMO_PREFIX.length),
         size: obj.Size ?? 0,
@@ -133,6 +160,36 @@ export async function listDemoFiles(): Promise<DemoFile[]> {
   } while (token)
 
   return files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN'))
+}
+
+/** 链接只存储地址，不由服务端抓取目标网页。 */
+export async function putDemoLink(segments: string[], url: string) {
+  await getClient().send(
+    new PutObjectCommand({
+      Bucket: bucket(),
+      Key: toKey(segments),
+      Body: new TextEncoder().encode(JSON.stringify({ url })),
+      ContentType: 'application/json',
+    }),
+  )
+}
+
+export async function getDemoLink(segments: string[]): Promise<DemoFile | null> {
+  if (!LINK_FILE_RE.test(segments.at(-1) ?? '')) return null
+  try {
+    const response = await getClient().send(
+      new GetObjectCommand({ Bucket: bucket(), Key: toKey(segments) }),
+    )
+    if (!response.Body) return null
+    const data = JSON.parse(new TextDecoder().decode(await response.Body.transformToByteArray()))
+    const url = typeof data.url === 'string' ? parseDemoUrl(data.url) : null
+    return url
+      ? { path: segments.join('/'), url, size: 0, lastModified: response.LastModified }
+      : null
+  } catch (error) {
+    if (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404) return null
+    throw error
+  }
 }
 
 /** 读取 demo 文件；不存在时返回 null */

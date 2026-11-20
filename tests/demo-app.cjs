@@ -189,10 +189,10 @@ async function tests() {
   assert.equal(podResponse.status, 200)
   const podHtml = await podResponse.text()
   assert.doesNotMatch(podHtml, /id="(?:edit-release|upload-link)"/)
-  assert.doesNotMatch(podHtml, />上传原型<|>编辑状态</)
+  assert.doesNotMatch(podHtml, />添加原型<|>上传原型<|>编辑状态</)
   syntax(podHtml)
   assert.equal((await identity.run(pod, () => upload.GET(request()))).status, 403)
-  for (const action of ['save-module', 'upload-chunk', 'upload-complete', 'delete']) {
+  for (const action of ['save-link', 'save-module', 'upload-chunk', 'upload-complete', 'delete']) {
     assert.equal((await identity.run(pod, () => post({ action }))).status, 403)
   }
   for (const user of [
@@ -342,6 +342,71 @@ async function tests() {
     400,
   )
 
+  const linkMeta = {
+    ...meta,
+    action: 'save-link',
+    name: '审批中心',
+    url: 'https://musedam-approval.bybee.dev/approval-center',
+  }
+  const linkPath = '拓展模块/新增测试模块 [NEW-TEST]/审批中心.url.json'
+  assert.equal((await post(linkMeta)).status, 200)
+  assert(objects.has('demo-app/' + linkPath))
+  const storage = require(path.join(dir, 'storage.ts'))
+  const link = (await storage.listDemoFiles()).find((file) => file.path === linkPath)
+  assert.equal(link.url, linkMeta.url)
+  assert.equal(ui.demoHref(link), linkMeta.url)
+  assert.equal(ui.demoName(link), '审批中心')
+  let linkedHtml = await (await list.GET(request())).text()
+  assert.match(linkedHtml, /链接原型/)
+  assert(linkedHtml.includes('href="' + linkMeta.url + '" data-preview'))
+  syntax(linkedHtml)
+  const linkView = await viewer.GET(request('/demo-app/view?path=' + encodeURIComponent(linkPath)))
+  assert.equal(linkView.status, 200)
+  assert((await linkView.text()).includes('src="' + linkMeta.url + '"'))
+  assert.equal(
+    (await raw.GET(request(), { params: Promise.resolve({ path: linkPath.split('/') }) })).status,
+    404,
+  )
+  for (const url of [
+    'javascript:alert(1)',
+    'data:text/html,hello',
+    '/relative',
+    'https://user:pass@example.com',
+    'bad',
+  ]) {
+    assert.equal((await post({ ...linkMeta, url })).status, 400)
+  }
+  for (const name of ['', '../evil', 'bad/name', 'bad\\name', 'a'.repeat(121)]) {
+    assert.equal((await post({ ...linkMeta, name })).status, 400)
+  }
+  assert.equal((await post({ ...linkMeta, skus: 'OTHER-SKU' })).status, 400)
+  assert.equal((await identity.run(null, () => post(linkMeta))).status, 401)
+  assert.equal((await identity.run(pod, () => post(linkMeta))).status, 403)
+  assert.equal((await post(linkMeta, 'https://evil.example')).status, 403)
+  assert.equal(
+    (await post({ ...linkMeta, url: 'https://example.com/updated?a=1&b=2' })).status,
+    200,
+  )
+  assert.equal((await storage.listDemoFiles()).filter((file) => file.path === linkPath).length, 1)
+  assert.equal(
+    (await storage.getDemoLink(linkPath.split('/'))).url,
+    'https://example.com/updated?a=1&b=2',
+  )
+  assert.equal(
+    catalog.buildCatalog([link, { path: linkPath.replace('.url.json', '.html'), size: 1 }]).files
+      .length,
+    2,
+  )
+  assert.equal((await post({ action: 'delete', path: linkPath })).status, 303)
+  assert(!objects.has('demo-app/' + linkPath))
+  assert.equal(
+    (await viewer.GET(request('/demo-app/view?path=' + encodeURIComponent(linkPath)))).status,
+    404,
+  )
+  storageFails = true
+  assert.equal((await post(linkMeta)).status, 500)
+  storageFails = false
+
   const bad = await post({
     ...meta,
     action: 'upload-chunk',
@@ -356,7 +421,7 @@ async function tests() {
   objects.delete('demo-app/拓展模块/新增测试模块 [NEW-TEST]/test.html')
   for (const key of objects.keys()) if (key.startsWith('demo-app/.modules/')) objects.delete(key)
   console.log(
-    'PASS: classification, latest versions, new module/SKU persistence, upload chunks, cleanup, auth, CSRF, invalid paths, roadmap date validation, module status/icon persistence, icon validation, live date cleanup, storage errors and inline JS syntax',
+    'PASS: classification, latest versions, new module/SKU persistence, upload chunks, cleanup, auth, CSRF, invalid paths, roadmap date validation, module status/icon persistence, icon validation, live date cleanup, storage errors, link create/replace/delete, URL validation, link permissions and inline JS syntax',
   )
 }
 async function serve() {

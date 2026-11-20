@@ -1,6 +1,6 @@
 import { escapeHtml } from './access'
 import type { ReleaseInfo } from './catalog'
-import { isSafeSegment, type DemoFile } from './storage'
+import { isSafeSegment, LINK_FILE_RE, type DemoFile } from './storage'
 
 export const RELEASE_CLASSES = {
   live: 'inline-flex items-center rounded bg-[var(--live-bg)] px-2 py-0.5 text-xs leading-4 text-[var(--live-ink)]',
@@ -49,11 +49,15 @@ export function parsePath(value: string) {
 }
 
 export function demoHref(file: DemoFile) {
+  if (file.url) return file.url
   return `/demo-app/${file.path.split('/').map(encodeURIComponent).join('/')}`
 }
 
 export function demoName(file: DemoFile) {
-  return file.path.slice(file.path.lastIndexOf('/') + 1).replace(HTML_FILE_RE, '')
+  return file.path
+    .slice(file.path.lastIndexOf('/') + 1)
+    .replace(HTML_FILE_RE, '')
+    .replace(LINK_FILE_RE, '')
 }
 
 export const UI = {

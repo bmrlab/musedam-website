@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { getDemoFile, isSafeSegment } from '../storage'
+import { getDemoFile, isSafeSegment, LINK_FILE_RE } from '../storage'
 
 /** 回退源：oss://musedam-assets/public/testAssets/Demo HTML/ */
 const OSS_BASE = 'https://musedam-assets.oss-cn-beijing.aliyuncs.com/public/testAssets/Demo%20HTML'
@@ -114,6 +114,7 @@ async function serveDemo(request: NextRequest, path: string[]) {
   if (!path.length || !path.every(isSafeSegment))
     return new NextResponse('Demo not found', { status: 404 })
   const requested = path.at(-1) ?? ''
+  if (LINK_FILE_RE.test(requested)) return new NextResponse('Demo not found', { status: 404 })
   if (
     requested.includes('.') &&
     !/\.(?:html?|css|js|mjs|json|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|mp4|webm|mp3|ogg|wav)$/i.test(

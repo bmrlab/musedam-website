@@ -30,7 +30,9 @@ import {
   listDemoFiles,
   listModuleReleases,
   MAX_DEMO_BYTES,
+  parseDemoUrl,
   putDemoFile,
+  putDemoLink,
   putModuleRelease,
   putTempChunk,
   UPLOAD_ID_RE,
@@ -60,6 +62,17 @@ const UPLOAD_SCRIPT = `
     var drop = document.getElementById('drop');
     var list = document.getElementById('picked');
     var button = document.getElementById('submit');
+    var source = form.querySelector('[name="source"]');
+    var linkFields = document.getElementById('link-fields');
+    var linkName = form.querySelector('[name="linkName"]'), linkUrl = form.querySelector('[name="url"]');
+    function syncSource() {
+      var isLink = source.value === 'link';
+      drop.hidden = isLink; list.hidden = isLink; linkFields.hidden = !isLink;
+      input.disabled = isLink; linkName.disabled = !isLink; linkUrl.disabled = !isLink;
+      button.textContent = isLink ? '保存链接' : '开始上传';
+      button.disabled = !isLink && !files.length;
+    }
+    source.addEventListener('change', syncSource);
     var CHUNK = 256 * 1024;
     var MAX = ${MAX_DEMO_BYTES};
     var files = [], uploading = false;
@@ -77,7 +90,7 @@ const UPLOAD_SCRIPT = `
         f._li = li;
         list.appendChild(li);
       });
-      button.disabled = !files.length;
+      button.disabled = source.value !== 'link' && !files.length;
     }
 
     function pick(fileList) {
@@ -108,8 +121,11 @@ const UPLOAD_SCRIPT = `
     groupInput.addEventListener('change',function(){syncModules(true)});
     moduleInput.addEventListener('input',function(){var m=modules.find(function(m){return m.group===groupInput.value && m.name===moduleInput.value.trim()});if(m){setIcon(m.icon || '');skuInput.value=m.skus.join(', ');statusInput.value=(m.release||{}).status||'roadmap';dateInput.value=(m.release||{}).releaseDate||'';syncRelease();}});
     syncModules(false);syncRelease();syncIcon();
+    syncSource();
     document.getElementById('save-module').addEventListener('click',async function(){
-      if(!form.reportValidity())return;
+      var linkMode=source.value==='link';linkName.disabled=true;linkUrl.disabled=true;
+      var valid=form.reportValidity();linkName.disabled=!linkMode;linkUrl.disabled=!linkMode;
+      if(!valid)return;
       var saveButton=this;saveButton.disabled=true;
       try {var data=new FormData();data.append('action','save-module');appendModule(data);await postForm(data);location.href='${UPLOAD_PATH}?module='+encodeURIComponent(groupInput.value+'/'+moduleInput.value.trim())+'&msg='+encodeURIComponent('模块信息已保存');}
       catch(error){toast(error.message||'保存失败');saveButton.disabled=false;}
@@ -161,15 +177,23 @@ const UPLOAD_SCRIPT = `
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!files.length) return;
+      var isLink = source.value === 'link';
+      if (!isLink && !files.length) return;
       if (!form.reportValidity()) return;
       var fieldset = document.getElementById('classification');
       var selectedGroup = groupInput.value;
       if (selectedGroup === '拓展模块' && !skuInput.value.trim()) { toast('拓展模块需要选择或填写 SKU'); skuInput.focus(); return; }
       fieldset.disabled = true;
-      uploading = true; input.disabled = true;
+      uploading = true; input.disabled = true; source.disabled = true; linkName.readOnly = true; linkUrl.readOnly = true;
       button.disabled = true;
       (async function () {
+        if (isLink) {
+          button.textContent = '保存中…';
+          var data = new FormData();data.append('action','save-link');appendModule(data);data.append('name',linkName.value.trim());data.append('url',linkUrl.value.trim());
+          await postForm(data);
+          location.href = '${UPLOAD_PATH}?msg=' + encodeURIComponent('原型链接已保存');
+          return;
+        }
         for (var i = 0; i < files.length; i++) {
           button.textContent = '上传中 ' + (i + 1) + '/' + files.length;
           try { await uploadOne(files[i]); }
@@ -179,8 +203,7 @@ const UPLOAD_SCRIPT = `
       })().catch(function (err) {
         button.disabled = false;
         fieldset.disabled = false;
-        uploading = false; input.disabled = false;
-        button.textContent = '开始上传';
+        uploading = false; source.disabled = false; linkName.readOnly = false; linkUrl.readOnly = false; syncSource();
         toast(err.message || '上传失败');
       });
     });
@@ -222,9 +245,9 @@ function renderPage({
     ).values(),
   ]
   return renderShell({
-    title: '上传原型 · MuseDAM',
+    title: '添加原型 · MuseDAM',
     actions: `<a class="${UI.button}" href="/demo-app">${ICONS.back}返回原型库</a>`,
-    body: `<main class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:px-8"><div><p class="mb-2 text-[13px] text-[var(--sub)]">产品原型库 / 上传</p><h1 class="text-[22px] font-semibold leading-8">上传原型</h1><p class="mt-2 text-[var(--sub)]">先选择所属模块，再上传 HTML。新模块和 SKU 会随原型保存。</p></div>
+    body: `<main class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:px-8"><div><p class="mb-2 text-[13px] text-[var(--sub)]">产品原型库 / 添加</p><h1 class="text-[22px] font-semibold leading-8">添加原型</h1><p class="mt-2 text-[var(--sub)]">先选择所属模块，再上传 HTML 或填写原型链接。新模块和 SKU 会随原型保存。</p></div>
     ${message ? `<p role="status" class="rounded-lg bg-[var(--accent-soft)] p-4">${escapeHtml(message)}</p>` : ''}
     <section class="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-6"><form id="upload-form" class="flex flex-col gap-6">
       <fieldset id="classification" class="flex min-w-0 flex-col gap-5"><legend class="mb-4 text-base font-semibold">所属模块</legend>
@@ -234,9 +257,11 @@ function renderPage({
       <div class="flex flex-wrap gap-4"><label class="flex min-w-48 flex-1 flex-col gap-2 font-medium">上线状态<select class="${UI.field}" name="status"><option value="live"${initial && releaseFor(initial).status === 'live' ? ' selected' : ''}>已上线</option><option value="roadmap"${!initial || releaseFor(initial).status === 'roadmap' ? ' selected' : ''}>路线图中</option></select></label><label id="release-date-row" class="flex min-w-48 flex-1 flex-col gap-2 font-medium">预计上线时间（选填）<input class="${UI.field}" name="releaseDate" type="date" value="${escapeHtml(initial ? (releaseFor(initial).releaseDate ?? '') : '')}"></label></div>
       <details class="rounded-lg border border-[var(--line)] bg-[var(--bg)] p-4"><summary class="cursor-pointer"><span class="inline-flex items-center gap-3"><span id="icon-preview" class="flex size-10 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--tag-ink)] [&_svg]:size-5">${moduleIcon(initial ?? { group: '企业标准版', name: '', skus: [] })}</span><span class="flex flex-col"><span class="font-medium">模块图标</span><span id="icon-label" class="text-xs text-[var(--sub)]">自动匹配模块图标</span></span></span></summary><div class="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label="模块图标">${[{ id: '', label: '自动匹配', svg: MODULE_ICONS.folder.svg }, ...Object.entries(MODULE_ICONS).map(([id, icon]) => ({ id, ...icon }))].map((icon) => `<label class="relative min-w-0 w-[calc(25%-6px)] cursor-pointer sm:w-[calc(16.666%-7px)]"><input class="peer sr-only" type="radio" name="icon" value="${icon.id}"${(initial?.icon ?? '') === icon.id ? ' checked' : ''}><span class="flex h-20 flex-col items-center justify-center gap-2 rounded-md border border-[var(--line)] bg-[var(--surface)] px-2 text-center hover:border-[var(--accent)] peer-checked:border-[var(--accent)] peer-checked:bg-[var(--accent-soft)] peer-checked:text-[var(--tag-ink)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--accent)]"><span class="[&_svg]:size-5">${icon.svg}</span><span class="text-xs leading-4">${icon.label}</span></span></label>`).join('')}</div><p class="mt-3 text-xs text-[var(--sub)]">复用素材库图标；同一模块的目录、卡片与详情同步更新。</p></details>
       <div class="flex items-center gap-3"><button class="${UI.button}" id="save-module" type="button">保存模块信息</button><span class="text-xs text-[var(--sub)]">图标和状态可单独保存，无需重新上传 HTML。</span></div></fieldset>
+      <label class="flex flex-col gap-2 font-medium">添加方式<select name="source" class="${UI.field}"><option value="html">上传 HTML</option><option value="link">填写链接</option></select></label>
+      <fieldset id="link-fields" hidden class="flex min-w-0 flex-col gap-5"><label class="flex flex-col gap-2 font-medium">原型名称<input name="linkName" class="${UI.field}" maxlength="120" required disabled placeholder="例如：审批中心"></label><label class="flex flex-col gap-2 font-medium">原型链接<input name="url" class="${UI.field}" type="url" maxlength="4096" required disabled placeholder="https://musedam-approval.bybee.dev/approval-center"><span class="text-xs font-normal text-[var(--sub)]">支持 HTTP / HTTPS。若目标网站不允许嵌入预览，请使用独立打开。</span></label></fieldset>
       <label id="drop" class="relative flex cursor-pointer flex-col items-center gap-3 rounded-lg border border-dashed border-[var(--input-line)] bg-[var(--bg)] p-8 text-center hover:border-[var(--accent)] [&_svg]:size-8 [&_svg]:text-[var(--accent)]">${ICONS.upload}<strong>点击或拖拽 HTML 文件到这里</strong><span class="text-xs text-[var(--sub)]">支持多选 · .html / .htm · 单文件不超过 64 MB</span><input class="absolute inset-0 cursor-pointer opacity-0" type="file" name="files" accept=".html,.htm" multiple aria-label="选择 HTML 原型文件"></label>
-      <ul id="picked" class="flex flex-col gap-2"></ul><div class="flex flex-wrap items-center gap-4"><button class="${UI.primary}" id="submit" type="submit" disabled>开始上传</button><p class="text-xs text-[var(--sub)]">同模块同名文件会覆盖；目录仅展示同一原型的最新版本。</p></div>
-    </form></section><section class="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-6"><h2 class="mb-4 text-base font-semibold">已上传原型 <span class="ml-2 text-[13px] font-normal text-[var(--sub)]">${catalog.files.length} 个 · ${catalog.archived} 个重复旧版本已折叠</span></h2>${renderManage(files, releases)}</section>
+      <ul id="picked" class="flex flex-col gap-2"></ul><div class="flex flex-wrap items-center gap-4"><button class="${UI.primary}" id="submit" type="submit" disabled>开始上传</button><p class="text-xs text-[var(--sub)]">同模块同名文件或链接会覆盖；目录仅展示同一原型的最新版本。</p></div>
+    </form></section><section class="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-6"><h2 class="mb-4 text-base font-semibold">已添加原型 <span class="ml-2 text-[13px] font-normal text-[var(--sub)]">${catalog.files.length} 个 · ${catalog.archived} 个重复旧版本已折叠</span></h2>${renderManage(files, releases)}</section>
     <script id="icon-data" type="application/json">${scriptJson(MODULE_ICONS)}</script><script id="module-data" type="application/json">${scriptJson(catalog.modules.map((demoModule) => ({ ...demoModule, release: releaseFor(demoModule), resolvedIcon: moduleIconId(demoModule) })))}</script></main>`,
     script: UPLOAD_SCRIPT,
   })
@@ -324,6 +349,27 @@ export async function POST(request: NextRequest) {
     const form = await request.formData()
     action = String(form.get('action') ?? '')
 
+    if (action === 'save-link') {
+      const demoModule = parseModule(form)
+      if ('error' in demoModule) return jsonError(demoModule.error)
+      const release = parseRelease(form)
+      if ('error' in release) return jsonError(release.error)
+      const name = String(form.get('name') ?? '').trim()
+      const url = parseDemoUrl(String(form.get('url') ?? ''))
+      if (!name || name.length > 120 || !isSafeSegment(name) || /[\x00-\x1f\x7f]/.test(name))
+        return jsonError('请输入有效的原型名称（1–120 个字符，不能包含斜杠或控制字符）')
+      if (!url) return jsonError('请输入有效的 HTTP / HTTPS 原型链接，不能包含用户名或密码')
+      const [files, releases] = await Promise.all([listDemoFiles(), listModuleReleases()])
+      const existing = buildCatalog(files, releases).modules.find(
+        (item) => moduleKey(item) === moduleKey(demoModule),
+      )
+      if (existing && [...existing.skus].sort().join(',') !== demoModule.skus.join(','))
+        return jsonError('该模块已有不同的 SKU，请选择现有编码或使用新的模块名称')
+      await putDemoLink([...moduleFolder(demoModule).split('/'), `${name}.url.json`], url)
+      await putModuleRelease(demoModule, release)
+      return NextResponse.json({ ok: true })
+    }
+
     if (action === 'save-module') {
       const demoModule = parseModule(form)
       if ('error' in demoModule) return jsonError(demoModule.error)
@@ -386,7 +432,12 @@ export async function POST(request: NextRequest) {
     return new NextResponse('Bad Request', { status: 400 })
   } catch (error) {
     console.error('demo-app upload error:', error)
-    if (action === 'upload-chunk' || action === 'upload-complete' || action === 'save-module') {
+    if (
+      action === 'upload-chunk' ||
+      action === 'upload-complete' ||
+      action === 'save-module' ||
+      action === 'save-link'
+    ) {
       return jsonError('操作失败，请稍后重试', 500)
     }
     return redirectWithMessage(request, '操作失败，请稍后重试')

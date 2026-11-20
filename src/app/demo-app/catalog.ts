@@ -141,7 +141,7 @@ export function buildCatalog(files: DemoFile[], releases: ModuleRelease[] = []) 
   for (const file of files) {
     const demoModule = classifyDemo(file.path)
     modules.set(moduleKey(demoModule), demoModule)
-    const key = `${moduleKey(demoModule)}/${prototypeIdentity(file.path)}`
+    const key = `${moduleKey(demoModule)}/${file.url ? 'link/' + file.path.split('/').at(-1) : prototypeIdentity(file.path)}`
     const previous = latest.get(key)
     if (
       !previous ||
