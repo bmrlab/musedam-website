@@ -306,6 +306,69 @@ curl --request POST 'https://open.musedam.cc/api/muse/register-assets-by-key' \
   ]'
 ```
 
+### 上傳到待入庫
+
+`POST /upload-pending-inbound-assets`
+
+將檔案上傳到目前團隊的「待入庫」，回傳待入庫 ID，不建立正式素材。僅支援團隊空間；空間必須已開啟「待入庫」（`pendingInbound=1`）。未開啟、未設定開關或個人空間均拒絕，檢查在下載檔案、存取儲存和寫入記錄之前執行，不會自動轉為正式入庫。
+
+**權限**：API Key / appKey 對應使用者須有「管理本人待入庫」或「管理全部待入庫」權限，並有目標資料夾上傳權限；`targetFolderId` 不傳或為 `0` 時須有全域上傳權限。團隊和上傳人由驗證情境確定。
+
+**請求本文**：JSON 陣列，單次 1–50 筆。
+
+| 欄位 | 類型 | 必填 | 說明 |
+|-|-|-|-|
+| url | String | 條件 | 可直接下載的檔案 URL；`storePath` 為空時必填，同步下載 |
+| storePath | String | 條件 | 目前使用者儲存地區素材桶內已有的 OSS Key，不是 URL；與 `url` 同傳時優先使用，並檢查物件存在性；不支援跨桶 |
+| name | String | 是 | 檔案名稱 |
+| extension | String | 是 | 檔案副檔名，例如 `jpg`、`mp4` |
+| targetFolderId | Long | 否 | 確認入庫時的目標 DAM 資料夾 ID；不傳或為 `0` 表示全部資產，不允許負數 |
+| width | Integer | 否 | 寬度，像素；可由後續媒體處理補齊 |
+| height | Integer | 否 | 高度，像素；可由後續媒體處理補齊 |
+
+**請求範例**：
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-pending-inbound-assets' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[{
+    "url": "https://example.com/demo.png",
+    "name": "demo.png",
+    "extension": "png",
+    "targetFolderId": 100
+  }]'
+```
+
+檔案已在目前素材桶時，可將 `url` 替換為 `"storePath": "uploads/demo.png"`；無需傳入檔案大小，伺服器端從儲存讀取。
+
+**回應**：`result` 為陣列，順序與請求一致。
+
+| 欄位 | 類型 | 說明 |
+|-|-|-|
+| pendingInboundId | Long | 待入庫 ID，不是正式素材的 `materialId` |
+| name | String | 待入庫記錄名稱 |
+| storePath | String | 檔案 OSS Key |
+
+**業務結果範例**（`result`）：
+
+```json
+[
+  {
+    "pendingInboundId": 1001,
+    "name": "demo.png",
+    "storePath": "uploads/demo.png"
+  }
+]
+```
+
+**限制與失敗處理**：
+
+- 目前團隊已有相同 `storePath` 時重用已有待入庫記錄和名稱，不覆寫原記錄。新記錄的擁有者為目前驗證使用者，建立於待入庫第一層，受待入庫配額限制。
+- URL 上傳為同步下載，大檔案需預留足夠逾時，或先上傳到目前素材桶再傳 `storePath`。資料庫交易回滾不會撤銷已完成的檔案下載。
+- 未開啟待入庫時，服務內部拋出 `PENDING_INBOUND_NOT_ENABLED`（`30076`）。開放閘道按現有統一例外格式回傳 `code=MB100005`，`message` 包含“团队待入库功能未开启”。不要將內部錯誤碼 `30076` 當作公開網路回應的固定 `code`。
+- 回傳的 ID 可用於 `POST /pending-inbound-confirm` 後續確認入庫。確認操作沿用其權限、中繼資料和自動化流程；本上傳介面只建立待入庫記錄。
+
 ## 素材下載
 
 素材下載不需要單獨的接口，可以通過以下兩種方式獲取素材下載鏈接：

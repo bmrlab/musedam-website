@@ -306,6 +306,69 @@ curl --request POST 'https://open.musedam.cc/api/muse/register-assets-by-key' \
   ]'
 ```
 
+### Upload to pending inbound
+
+`POST /upload-pending-inbound-assets`
+
+Upload files to the current team's pending inbound area. The endpoint returns pending inbound IDs without creating formal assets. Only team spaces are supported, and the space must have pending inbound enabled (`pendingInbound=1`). Disabled or missing settings and personal spaces are rejected before file downloads, storage access or record writes. The request does not fall back to formal asset creation.
+
+**Permissions**: The user associated with the API key / appKey must have permission to manage their own or all pending inbound items, plus upload permission for the target folder. Omitting `targetFolderId` or setting it to `0` requires global upload permission. The team and uploader come from the authenticated context.
+
+**Request body**: A JSON array containing 1–50 items.
+
+| Field | Type | Required | Description |
+|-|-|-|-|
+| url | String | Conditional | A directly downloadable file URL; required when `storePath` is empty. Downloaded synchronously |
+| storePath | String | Conditional | An existing OSS object key in the asset bucket for the current user's storage region, not a URL. Takes precedence over `url`; the object must exist. Cross-bucket access is not supported |
+| name | String | Yes | File name |
+| extension | String | Yes | File extension, such as `jpg` or `mp4` |
+| targetFolderId | Long | No | Target DAM folder for later inbound confirmation; omitted or `0` means All assets. Negative values are not allowed |
+| width | Integer | No | Width in pixels; subsequent media processing can populate it |
+| height | Integer | No | Height in pixels; subsequent media processing can populate it |
+
+**Request example**:
+
+```bash
+curl --request POST 'https://open.musedam.ai/api/muse/upload-pending-inbound-assets' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[{
+    "url": "https://example.com/demo.png",
+    "name": "demo.png",
+    "extension": "png",
+    "targetFolderId": 100
+  }]'
+```
+
+If the file is already in the current asset bucket, replace `url` with `"storePath": "uploads/demo.png"`. File size is read from storage; do not supply it.
+
+**Response**: `result` is an array in request order.
+
+| Field | Type | Description |
+|-|-|-|
+| pendingInboundId | Long | Pending inbound ID, not a formal asset `materialId` |
+| name | String | Pending inbound record name |
+| storePath | String | File OSS object key |
+
+**Business result example** (`result`):
+
+```json
+[
+  {
+    "pendingInboundId": 1001,
+    "name": "demo.png",
+    "storePath": "uploads/demo.png"
+  }
+]
+```
+
+**Limits and failure handling**:
+
+- An existing pending inbound record with the same `storePath` in the current team is reused, including its name, without overwriting it. New records belong to the authenticated user, are created at the pending inbound root and are subject to pending inbound storage quotas.
+- URL downloads are synchronous. Allow sufficient time for large files, or upload to the current asset bucket first and supply `storePath`. Rolling back the database transaction does not undo completed file downloads.
+- When pending inbound is disabled, the service raises `PENDING_INBOUND_NOT_ENABLED` (`30076`) internally. The Open API gateway uses its existing error format with `code=MB100005` and a message explaining that pending inbound is disabled. Do not expect the internal code `30076` as the public response's fixed `code`.
+- Use the returned IDs with `POST /pending-inbound-confirm` for later inbound confirmation. That operation retains its own permission, metadata and automation behavior; this upload endpoint only creates pending inbound records.
+
 ## Download assets
 
 Asset downloads do not require a separate endpoint. Obtain a download link in either of these ways:

@@ -306,6 +306,69 @@ curl --request POST 'https://open.musedam.cc/api/muse/register-assets-by-key' \
   ]'
 ```
 
+### 上传到待入库
+
+`POST /upload-pending-inbound-assets`
+
+将文件上传到当前团队的「待入库」，返回待入库 ID，不创建正式素材。仅支持团队空间；空间必须已开启「待入库」（`pendingInbound=1`）。未开启、未配置开关或个人空间均拒绝，校验在下载文件、访问存储和写入记录之前执行，不会自动转为正式入库。
+
+**权限**：API Key / appKey 对应用户须有「管理本人待入库」或「管理全部待入库」权限，并有目标文件夹上传权限；`targetFolderId` 不传或为 `0` 时须有全局上传权限。团队和上传人由鉴权上下文确定。
+
+**请求体**：JSON 数组，单次 1–50 条。
+
+| 字段 | 类型 | 必填 | 说明 |
+|-|-|-|-|
+| url | String | 条件 | 可直接下载的文件 URL；`storePath` 为空时必填，同步下载 |
+| storePath | String | 条件 | 当前用户存储地区素材桶内已有的 OSS Key，不是 URL；与 `url` 同传时优先使用，并检查对象存在性；不支持跨桶 |
+| name | String | 是 | 文件名称 |
+| extension | String | 是 | 文件后缀，例如 `jpg`、`mp4` |
+| targetFolderId | Long | 否 | 确认入库时的目标 DAM 文件夹 ID；不传或为 `0` 表示全部资产，不允许负数 |
+| width | Integer | 否 | 宽度，像素；可由后续媒体处理补全 |
+| height | Integer | 否 | 高度，像素；可由后续媒体处理补全 |
+
+**请求示例**：
+
+```bash
+curl --request POST 'https://open.musedam.cc/api/muse/upload-pending-inbound-assets' \
+  --header 'Authorization: Bearer your_api_key' \
+  --header 'Content-Type: application/json' \
+  --data-raw '[{
+    "url": "https://example.com/demo.png",
+    "name": "demo.png",
+    "extension": "png",
+    "targetFolderId": 100
+  }]'
+```
+
+文件已在当前素材桶时，可将 `url` 替换为 `"storePath": "uploads/demo.png"`；无需传入文件大小，服务端从存储读取。
+
+**响应**：`result` 为数组，顺序与请求一致。
+
+| 字段 | 类型 | 说明 |
+|-|-|-|
+| pendingInboundId | Long | 待入库 ID，不是正式素材的 `materialId` |
+| name | String | 待入库记录名称 |
+| storePath | String | 文件 OSS Key |
+
+**业务结果示例**（`result`）：
+
+```json
+[
+  {
+    "pendingInboundId": 1001,
+    "name": "demo.png",
+    "storePath": "uploads/demo.png"
+  }
+]
+```
+
+**限制与失败处理**：
+
+- 当前团队已有相同 `storePath` 时复用已有待入库记录和名称，不覆盖原记录。新记录的所有者为当前鉴权用户，创建于待入库第一层，受待入库配额限制。
+- URL 上传为同步下载，大文件需预留足够超时，或先上传到当前素材桶再传 `storePath`。数据库事务回滚不会撤销已完成的文件下载。
+- 未开启待入库时，服务内部抛出 `PENDING_INBOUND_NOT_ENABLED`（`30076`）。开放网关按现有统一异常格式返回 `code=MB100005`，`message` 包含“团队待入库功能未开启”。不要将内部错误码 `30076` 当作公网响应的固定 `code`。
+- 返回的 ID 可用于 `POST /pending-inbound-confirm` 后续确认入库。确认操作沿用其权限、元数据和自动化流程；本上传接口只创建待入库记录。
+
 ## 素材下载
 
 素材下载不需要单独的接口，可以通过以下两种方式获取素材下载链接：
